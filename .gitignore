@@ -1,0 +1,29 @@
+# Course media should not be committed to this repository
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.webm
+*.mp3
+*.wav
+*.m4a
+*.aac
+*.flac
+*.ogg
+
+# Large archives
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+# Local and editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.tmp
+
+# Generated exports
+exports/
