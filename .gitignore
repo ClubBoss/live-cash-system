@@ -18,6 +18,14 @@
 *.tar
 *.gz
 
+# Local Python and Whisper environments
+.venv/
+.venv-*/
+__pycache__/
+*.pyc
+transcription-output/
+models/
+
 # Local and editor files
 .DS_Store
 .vscode/
