@@ -4,7 +4,7 @@ This is the canonical inventory of all received course material.
 
 | Source ID | Course | Module | Lesson | Instructor | Transcript path | Visuals | QA status | Analysis status | Playbook impact | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|
-| SLC-M00-L00 | Smash Live Cash | 0-Intro | Intro | Nick Petrangelo | Pending unified transcript | Yes | PENDING | NOT_STARTED | None expected | First canonical source record |
+| SLC-M00-L00 | Smash Live Cash | 0-Intro | Intro | Nick Petrangelo | Pending unified transcript | Yes | NEEDS_REVIEW | NOT_STARTED | None expected | Content appears usable; mandatory timestamps and canonical Markdown headings are missing |
 
 ## Status rules
 
