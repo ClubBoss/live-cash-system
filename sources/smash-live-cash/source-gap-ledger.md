@@ -26,10 +26,18 @@ Canonical record of transcript reruns, cleanup tasks and visual dependencies. A 
 | `SGL-0047` | `SLC-M02-L16` | Check-Raise Top Pair Part 1 | `15:10–19:19` | Final comparison | P0 |
 | `SGL-0049` | `SLC-M02-L18` | Leading Turns After Calling | `13:00–15:05` | Transition interval | P1 |
 | `SGL-0052` | `SLC-M02-L22` | HJ vs BTN 50-Flop Report | `18:35–26:05` | Low-board deep dives | P0 |
-| `SGL-0053` | `SLC-M01-L01` | Preflop 101 | `00:30–50:32 in 6–10 min chunks` | Almost entire lesson | P0 |
+| `SGL-0053` | `SLC-M01-L01` | Preflop 101 | `45:30–50:32` | Final tail and lesson closure | P0 |
 | `SGL-0054` | `SLC-M02-L04` | Postflop Intro | `05:40–08:17` | Intro conclusion | P0 |
 | `SGL-0055` | `SLC-M02-L14` | Turns After Flop Overbet | `11:00–23:54 in two chunks` | Second half | P0 |
 | `SGL-0056` | `SLC-M02-L15` | Hard Continues from BB | `07:55–25:44 in three chunks` | Most examples and conclusion | P0 |
+
+## Partial rerun receipts
+
+| Issue ID | Verified recovered scope | Current disposition | Evidence |
+|---|---|---|---|
+| `SGL-0053` | `00:00–46:29`, six overlapping large-v3 chunks | `PARTIAL_RERUN_ACCEPTED / ISSUE_OPEN` | `analysis/module-audits/SLC_M01_L01_preflop_101_partial_rerun_qa.md` |
+
+The six accepted chunks show 93–97% adjacent-overlap agreement and no catastrophic repetition. The issue remains open only for the final tail and visual chart anchors.
 
 ## Cleanup backlog
 
