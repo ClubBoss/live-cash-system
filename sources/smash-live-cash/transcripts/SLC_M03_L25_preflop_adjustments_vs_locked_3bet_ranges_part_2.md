@@ -5,84 +5,157 @@ Module: 3-Post flop 3-Bet Pots
 Lesson: Preflop Adjustments vs Locked 3-Bet Ranges Part 2  
 Instructor: Nick Petrangelo (Nicky P)  
 Original filename: 25- Preflop Adjustments vs Locked 3-Bet Ranges Part 2.mp4  
-Source duration: 25:12  
+Nominal source duration: 25:12  
 Source type: audio extracted from video  
 Primary language: English  
 Visual information available: yes, but not included in the current evidence package  
-Transcription model: whisper.cpp large-v3, English forced  
-Processing date: 2026-08-04  
-Source status: RERUN_REQUIRED
+Original machine transcript: catastrophic loop after approximately 08:54  
+Targeted rerun engine: faster-whisper  
+Targeted rerun model: large-v3, English forced, translation disabled  
+Recovered speech: continuous through 24:47.75  
+Source status: RERUN_CONTENT_ACCEPTED / NOMINAL_VIDEO_TAIL_UNVERIFIED / NEEDS_VISUAL_REVIEW  
 
-# Detailed Transcript
+# Detailed Source-Faithful Record
 
-## [00:00] Expanding and Contracting Versus Different BB 3-Bet Profiles
+## [00:00] Comparing BB 3-bet profiles
 
-Let's talk about adjustments in 3-bet pots, continuing the idea that not everybody plays preflop like our charts. They may have their own charts, have no charts, or do whatever they want in the moment.
+The lesson compares BTN continuation against three broad BB profiles:
 
-We already looked at a player who has essentially no BB 3-bet bluffs. I think that profile is realistic in many populations, even at high stakes. You can probably identify players in your own games who sometimes get a little frisky, but when they 3-bet BB versus BTN, they mostly have it.
+- a roughly equilibrium range;
+- a value-heavy range with almost no preflop bluffs;
+- a generally over-wide range whose extra hands are distributed across the grid.
 
-Now we want to see what happens when someone becomes wider and changes the combo use. We will carry that adjusted range to a low board. The prepared example is 7-3-2 rainbow. If OOP has no low-card bluffs, they struggle to construct the range on this board: they mostly have overpairs and high cards such as AQ, while the wider player can arrive with more pocket pairs, bottom and middle pairs, 65-type hands, and 98-type hands.
+The goal is not to memorise one exact solve. It is to understand how the preflop range shape changes both BTN's call/4-bet structure and later postflop branches.
 
-[VISUAL REQUIRED]
-The instructor is navigating preflop charts and solver outputs. Exact range weights, suits, selected nodes, frequencies, and EV values require the original video or screenshots.
+## [03:18] Normal range shape and BTN continuation
 
-## [01:45] Use the Profile to Generate the Direction of the Adjustment
+The equilibrium-shaped BB range contains premium pairs, high cards, suited aces, suited connectors and selected mixed hands. BTN continues with a relatively tight, suited and connected range in the no-ante configuration.
 
-The exact combos are less important than the method. Use the spot to generate ideas about how different player types change the strategy on different boards. The real preflop answer will usually lie somewhere between the extreme re-solved outputs, after also considering postflop skill and expected realization.
+The important object is the boundary:
 
-The machine output briefly repeats a prior sentence in this part; the duplicate was removed. The recovered unique content then returns to the range comparison.
+- dominated offsuit broadways lose value against tighter ranges;
+- suited connected material gains value as the opponent becomes wider;
+- ante and no-ante prices produce materially different continuation widths.
 
-## [03:18] Equilibrium Shape and BTN Continuation
+Exact chart boundaries remain visual-dependent.
 
-The example begins from a normal BTN opening range and a roughly equilibrium BB 3-bet range. The BB range contains premium value, suited aces, suited connectors and one-gappers, small amounts of offsuit material, and some mixed medium pairs. The exact combos are not the point; the important feature is the overall shape.
+## [05:44] Building a generic too-wide profile
 
-Against that range, BTN's defence in a no-ante game is much tighter than in an ante game, especially versus the large 3-bet sizes common in live cash. The value 4-bet region remains concentrated around AA, KK and AKs, with other hands filling the mixed part of the 4-bet strategy. The main focus is the border of the calling range: it contracts against a tighter 3-bet range and expands against a looser one.
+Nick deliberately distributes the extra 3-bet frequency across suited aces, suited connectors, pairs and offsuit high cards instead of over-weighting one arbitrary combo. This creates a useful generic loose-aggressive model rather than a fragile response to one guessed mistake.
 
-Against the equilibrium range, offsuit Jx hands and much of KQo and QJo are near or outside the calling boundary. The range remains strong even though it contains suited connectors.
+## [08:25] Recovered continuation versus the broadly too-wide range
 
-## [05:44] Building a Generic Too-Wide 3-Bet Range
+Against a player who becomes generally too loose—through tilt, a desire to play large pots or an attempt to run over the table—BTN can expand toward an ante-game-style continuation structure:
 
-Now consider a recreational or generally loose player who enters an aggressive mood. They may overuse suited aces, suited connectors and pocket pairs, but not in a stable randomized pattern. Sometimes they call those hands and sometimes they 3-bet them. The goal is not to model one exact combo error; it is to model someone whose total 3-bet frequency is roughly fifty percent too high and whose extra hands are drawn from across the grid.
+- more suited connectors and suited low-card hands continue;
+- offsuit Jx becomes substantially more viable;
+- strong suited material becomes pure or near-pure continuation more often;
+- most weak offsuit Tx remains folded apart from the strongest class.
 
-Pulling the excess weight from many regions prevents the re-solve from producing a response that depends on one oddly overused combo.
+The source does not authorise random expansion. The direction follows from the opponent adding hands across multiple range regions.
 
-## [07:57] How the Calling Range Expands
+## [09:00] Value-heavy 3-bets punish dominated high cards
 
-Against the generally over-wide range, BTN moves toward an ante-game-style continuation structure. More suited hands continue, the lower suited-connectors and suited-seven region expands, and offsuit Jx hands become much more viable. Some hands that mixed or folded against equilibrium become pure continues.
+Against an extremely tight range whose nominal bluff region is itself strong high-card material, offsuit broadways under-realise and become vulnerable to domination when they pair. The theoretical response contracts sharply.
 
-The practical takeaway from the recovered portion is: when an opponent appears too loose across many hand classes—because they are tilted, trying to make every pot large, or trying to run over the table—expand the call range broadly rather than responding only to one suspected bluff combo. Strong offsuit Jx and suited material gain the most; weaker offsuit Tx generally remains folded apart from AT.
+Nick immediately adds an exploit caveat: a player tight enough to omit preflop bluffs may also fail to barrel the required high-card bluffs postflop. Position can then over-realise, so the final practical response may sit between the extreme theoretical outputs.
 
-[TRANSCRIPT INCOMPLETE]
-Resume from source timestamp: 08:54
-Last completed topic: BTN continuation versus a generally over-wide BB 3-bet range
-Next expected topic: The remaining comparison with tight and other opponent profiles
+## [10:00] A preflop exploit must change the postflop strategy
+
+If BB 3-bets too widely because BTN supposedly overfolds, the exploit has already been attempted preflop. After BTN calls, BB now reaches the flop with excess low-equity material and should check much more than a normal 3-bet range.
+
+A common live error is to combine:
+
+1. an over-wide preflop 3-bet range; and
+2. the normal aggressive flop c-bet frequency of a stronger range.
+
+That double error creates an over-bluffed branch that IP can attack.
+
+## [12:00] Normal range on a low disconnected board
+
+The lesson uses a low, disconnected board to compare the profiles. A normal range retains a large overpair advantage and can use a substantial c-bet. Small blocking sizes accomplish little because IP's range is tight and suited enough that they do not generate many clean folds.
+
+When multiple medium and large sizes are mixed by the same hand classes, Nick notes that a practical one-size simplification around a medium-large bet may capture the strategic shape.
+
+Exact board, size values and frequencies require visual review.
+
+## [15:00] Why dominated broadways fold versus the normal large bet
+
+Some broadways and backdoors perform poorly because:
+
+- they run into overpairs;
+- the opponent's bluff region can dominate them;
+- pairing later can create expensive second-best hands;
+- some pocket pairs or backdoors block the bluffs BTN wants BB to have.
+
+The lesson prioritises interaction with the betting range over superficial backdoor appeal.
+
+## [17:30] Extreme value-heavy range and positional over-realisation
+
+Against the no-bluff profile, immediate flop defence becomes extremely tight. Even attractive backdoors can be poor because the opponent's weakest betting hands remain strong.
+
+However, the same opponent may:
+
+- bet obvious value immediately;
+- check or shut down unpaired high cards;
+- miss later barrels with AK/AQ;
+- fail to protect checks with overpairs.
+
+That behaviour can let BTN realise equity, use small probes after checks and reach showdown more cheaply. The practical exploit depends on both preflop composition and postflop follow-through.
+
+## [21:00] Modelling the wild 3-bet range
+
+The final comparison uses a range whose total 3-bet frequency is materially above baseline and whose extra hands are spread across the grid. Despite an overpair advantage, the range's equity and betting capacity are diluted by the added low-equity material.
+
+The correct strategy checks more. If the player instead preserves the normal aggressive c-bet frequency, BTN may continue wider and punish the branch.
+
+## [22:30] The double-exploit failure
+
+Nick describes the logical contradiction:
+
+- BB widened because BTN was thought to overfold;
+- BTN called, revealing a stronger surviving range;
+- BB nevertheless continues betting as if the original strong range were intact.
+
+The player then pays twice: first by entering too wide, then by over-c-betting the weakened range.
+
+## [24:00] Recovered final available discussion
+
+The rerun begins locking the wild profile back toward a normal checking frequency while preventing the solver from compensating elsewhere. The final recovered sentence instructs the student to compare play against the resulting distorted range.
+
+Both the main chunk and a separate terminal recovery end at 24:47.75 with the same complete available phrase.
+
+# Residual Nominal Tail Blocker
+
+The declared video duration is 25:12, leaving a nominal interval of approximately 24.25 seconds after the final recovered audio timestamp.
+
+Unlike prior endpoint shortfalls of less than three seconds, this interval is too long to classify as trailing silence from transcript evidence alone. The source issue remains narrowly open until one of the following is provided:
+
+- direct review of the original video from 24:47–25:12; or
+- a verified audio extraction covering that nominal interval.
+
+No strategic statement is inferred for the unresolved tail.
 
 # Extracted Poker Objects
 
-## Hand Examples
+## Profiles
 
-### Example 1 — BTN versus BB on 7-3-2 rainbow
+- Equilibrium-shaped BB 3-bet range.
+- Value-heavy / bluff-deficient BB range.
+- Broadly over-wide BB range.
+- Over-wide preflop plus over-aggressive postflop double-error profile.
 
-- Recovered setup: compare a normal, bluff-deficient, and generally over-wide BB 3-bet range.
-- Purpose: show how preflop range composition changes BTN's continuation and later low-board play.
-- Exact suits, stack, sizes, weights and solver outputs: `NEEDS_VISUAL_REVIEW`.
+## Explicit instructor mechanisms
 
-## Charts and Solver Screens
+- Expand broadly against a broadly over-wide range; do not respond to one imagined combo.
+- Dominated offsuit high cards lose first against value-heavy 3-bets.
+- A preflop exploit changes the postflop range and must alter c-bet frequency.
+- Position can over-realise against players who are tight preflop and passive after the flop.
+- A range that adds low-equity hands cannot retain the same betting architecture without becoming over-bluffed.
 
-- BTN open range.
-- Equilibrium BB 3-bet range.
-- BTN call and 4-bet response.
-- A re-solved response versus a generally too-wide BB range.
+# Uncertainties Requiring Review
 
-## Explicit Statements by the Instructor
-
-- The correct continuation range expands against a generally over-wide 3-bet range and contracts against a value-heavy one.
-- Ante and no-ante structures create materially different continuation widths.
-- It is better to model a generic loose profile by adding hands across multiple regions than by over-weighting one arbitrary combo.
-- Against a broadly too-wide live 3-bettor, suited hands and offsuit Jx can continue much more often.
-
-## Uncertainties Requiring Review
-
-- Whisper enters a catastrophic repeated loop at approximately 08:54 and does not recover before the 25:11 endpoint.
-- Retranscribe approximately 08:25–25:12 with overlap; use smaller chunks if the loop repeats.
-- Exact chart weights, 4-bet mixes, stack depth, 3-bet size and visual hand boundaries remain unverified.
+- Original video interval 24:47.75–25:12.
+- Exact preflop chart weights and hand boundaries.
+- Exact board cards, suits, stack depth and size values.
+- Displayed flop and later-street frequencies and EV.
