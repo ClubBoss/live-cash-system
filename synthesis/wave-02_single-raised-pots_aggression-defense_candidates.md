@@ -2,7 +2,7 @@
 
 Status: `CANDIDATE_LAYER_STARTED`
 
-Purpose: compress recovered Smash Live Cash single-raised-pot mechanisms into Batumi-oriented decision candidates without inventing exact combo charts, frequencies or solver sizes.
+Purpose: compress recovered Smash Live Cash single-raised-pot mechanisms into general live-cash decision candidates without inventing exact combo charts, frequencies or solver sizes.
 
 ## Admission discipline
 
