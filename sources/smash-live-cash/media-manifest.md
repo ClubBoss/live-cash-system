@@ -1,9 +1,9 @@
 # Smash Live Cash — Media Manifest
 
-- Files received: **44**
-- Total duration: **15.80 hours**
+- Files received: **66**
+- Total duration: **24.92 hours**
 - Source format: **AAC audio in M4A containers**
-- Media status: **AUDIO_RECEIVED / TRANSCRIPT_PENDING**
+- Media status: **AUDIO_CATALOG_COMPLETE / TRANSCRIPTION_IN_PROGRESS**
 - Visual track: **not included in this archive**
 
 > This manifest proves receipt and identity of the audio sources. It does not establish transcript accuracy or strategic source verification.
@@ -16,8 +16,8 @@
 | Source ID | Lesson | Duration | Size | SHA-256 | Status |
 |---|---|---:|---:|---|---|
 | `SLC-M00-L00` | Intro | 04:48 | 2.0 MB | `354d645156f2f5bc…` | `SOURCE_VERIFIED` |
-| `SLC-M00-L01` | Intro to Node Locking | 12:32 | 5.5 MB | `58ba8d14866485bb…` | `TRANSCRIPT_PENDING` |
-| `SLC-M00-L02` | Intro to Piosolver | 26:06 | 11.6 MB | `e0f6b96244634ff7…` | `TRANSCRIPT_PENDING` |
+| `SLC-M00-L01` | Intro to Node Locking | 12:32 | 5.5 MB | `58ba8d14866485bb…` | `NEEDS_VISUAL_REVIEW` |
+| `SLC-M00-L02` | Intro to Piosolver | 26:06 | 11.6 MB | `e0f6b96244634ff7…` | `NEEDS_VISUAL_REVIEW` |
 
 ## Module 1: Preflop
 
@@ -92,9 +92,57 @@
 | `SLC-M04-L40` | Multiway Flop Mechanics (KT9ss) Part 1 | 29:51 | 13.0 MB | `c01bd6b8803a4ad4…` | `TRANSCRIPT_PENDING` |
 | `SLC-M04-L41` | Multiway Flop Mechanics (KT9ss) Part 2 | 28:15 | 12.2 MB | `6a2e68eecec8058d…` | `TRANSCRIPT_PENDING` |
 
+## Module 5: Coaching Brad Owen
+
+- Lessons: 14
+- Duration: 351.0 minutes
+- Audio archive: `Archive(1).zip`
+- Archive SHA-256: `6ede27c0aca284ded68f9ee893c208076a43706f64ae58f59a2a3542581ed62c`
+
+| Source ID | Lesson | Duration | Size | SHA-256 | Status |
+|---|---|---:|---:|---|---|
+| `SLC-M05-L42` | Coaching Brad Owen Intro | 06:15 | 2.6 MB | `73728d1498b43c3a…` | `TRANSCRIPT_PENDING` |
+| `SLC-M05-L43` | Advanced Postflop Strategy Building Part 1 | 37:55 | 26.3 MB | `0ebf358f95147142…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L44` | Advanced Postflop Strategy Building Part 2 | 38:33 | 26.0 MB | `26be1448b3730d1c…` | `NEEDS_RETRANSCRIPTION` |
+| `SLC-M05-L45` | Advanced Postflop Strategy Building Part 3 | 29:49 | 11.4 MB | `8e1bedef16dcc5ba…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L46` | 88 Check-Raise on 7-6-6 | 10:27 | 4.0 MB | `e1b5de22e581249e…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L47` | Multiway QTo Bluff | 30:15 | 12.2 MB | `70308c4e4c106de6…` | `TRANSCRIPT_PENDING` |
+| `SLC-M05-L48` | Q4 Bluff Review | 21:18 | 8.6 MB | `49d7cb20a637deb3…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L49` | Squeezing with QQ | 27:21 | 18.8 MB | `3032c2a21f520ccb…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L50` | 4-Betting A-5s | 26:55 | 10.7 MB | `0fb19d32ad91ce53…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L51` | 3-Betting KT in CO vs MP Open | 28:21 | 10.6 MB | `a50cb693e63224d9…` | `RAW_MACHINE_TRANSCRIPT` |
+| `SLC-M05-L52` | QQ in HJ in 4-Bet Pot OOP | 20:49 | 7.8 MB | `c9acd8b85343be2d…` | `TRANSCRIPT_PENDING` |
+| `SLC-M05-L53` | Check-Raising Exercise w Nick | 42:33 | 15.3 MB | `770bc11f3daa1884…` | `RAW_WITH_AUDIO_GAP` |
+| `SLC-M05-L54` | Bet-Sizing | 25:34 | 10.2 MB | `85463f2d53023754…` | `TRANSCRIPT_PENDING` |
+| `SLC-M05-L55` | Brad's Takeaways | 04:57 | 4.0 MB | `22aa326490721925…` | `TRANSCRIPT_PENDING` |
+
+## Module 6: Play & Explains Content
+
+- Lessons: 7
+- Duration: 177.2 minutes
+
+| Source ID | Lesson | Duration | Size | SHA-256 | Status |
+|---|---|---:|---:|---|---|
+| `SLC-M06-L56` | Doug vs EZ in Wild 4-Bet Pot | 20:50 | 9.3 MB | `1bd8b13dbf0fc39a…` | `TRANSCRIPT_PENDING` |
+| `SLC-M06-L57` | Josh vs EZ at $100/$200/$400 | 29:16 | 13.1 MB | `a49df2115a9c3ef9…` | `TRANSCRIPT_PENDING` |
+| `SLC-M06-L58` | Ginge Takes Savage Check-Raise Line at $100/$200 | 29:13 | 13.0 MB | `7380949a2ba35a70…` | `TRANSCRIPT_PENDING` |
+| `SLC-M06-L59` | Alan Keating Puts JR in the Blender | 29:34 | 13.2 MB | `dd19a90779721fc3…` | `TRANSCRIPT_PENDING` |
+| `SLC-M06-L60` | Lodge $25/$50 Hands | 16:54 | 7.5 MB | `bb20114d853ed8a2…` | `TRANSCRIPT_PENDING` |
+| `SLC-M06-L61` | $2/$5/$10 Hands Part 1 | 38:25 | 16.6 MB | `0a30fb086b936dc7…` | `TRANSCRIPT_PENDING` |
+| `SLC-M06-L62` | $2/$5/$10 Hands Part 2 | 12:56 | 5.7 MB | `7ae49352d2c26c26…` | `TRANSCRIPT_PENDING` |
+
+## Module 7: Going Forward
+
+- Lessons: 1
+- Duration: 19.2 minutes
+
+| Source ID | Lesson | Duration | Size | SHA-256 | Status |
+|---|---|---:|---:|---|---|
+| `SLC-M07-L63` | How To Build Your Own Stuff Going Forward | 19:13 | 8.6 MB | `77fd51fa2b942034…` | `TRANSCRIPT_PENDING` |
+
 ## Technical profile
 
-All 44 files were readable by `ffprobe`. The archive contains audio only; no solver screens, range matrices, hand histories, or other visual evidence can be verified from these files.
+All 66 files were readable by `ffprobe`. The archive contains audio only; no solver screens, range matrices, hand histories, or other visual evidence can be verified from these files.
 
 ## Canonical ingestion rule
 
