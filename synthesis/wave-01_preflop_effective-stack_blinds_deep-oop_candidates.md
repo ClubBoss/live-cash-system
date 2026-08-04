@@ -2,7 +2,7 @@
 
 Status: `CANDIDATE_LAYER_STARTED`
 
-Purpose: convert source-supported Smash Live Cash mechanisms into compact Batumi-oriented decision candidates without inventing exact charts or claiming final Playbook admission.
+Purpose: convert source-supported Smash Live Cash mechanisms into compact general live-cash decision candidates without inventing exact charts or claiming final Playbook admission.
 
 ## Admission discipline
 
@@ -263,7 +263,7 @@ The answer must state what strong hands protect the call range and which weak st
 
 **Status:** `SYSTEM REQUIREMENT / SOURCE GAP`
 
-The user expects opponents with 20–70bb effective stacks. The currently processed source set supports the importance of effective stack but does not yet provide a verified, complete SSS module.
+The target system must support opponents with 20–70bb effective stacks. The currently processed source set supports the importance of effective stack but does not yet provide a verified, complete SSS module.
 
 Do not manufacture exact short-stack shove/call or 3-bet/get-in thresholds from the deep-stack lessons.
 
@@ -271,7 +271,7 @@ Required next evidence:
 
 - Carrot Poker and/or From the Ground Up short-stack material;
 - verified preflop charts by effective depth if supplied;
-- observed Batumi stack distribution.
+- observed target-game stack distribution.
 
 Until then, the final system may state only the general mechanism: shorter effective stacks reduce implied-odds value, lower SPR and make preflop commitment decisions more direct. Exact thresholds remain blocked.
 
