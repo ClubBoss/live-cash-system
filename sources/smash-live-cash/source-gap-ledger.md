@@ -1,6 +1,6 @@
 # Smash Live Cash — Source Gap & Reprocessing Ledger
 
-Status: `ACTIVE / TARGETED_RERUN_QUEUE_COMPLETE_EXCEPT_ONE_MEDIA_TAIL`
+Status: `ACTIVE / TARGETED_RERUN_AND_MEDIA_VERIFICATION_COMPLETE`
 
 Last updated: 2026-08-05
 
@@ -8,13 +8,11 @@ Last updated: 2026-08-05
 
 Canonical record of transcript reruns, cleanup tasks and visual dependencies. A gap blocks only the stated interval or exact visual claim.
 
-## Remaining targeted media verification
+## Targeted rerun and media verification status
 
-| Issue ID | Source ID | Lesson | Remaining interval | Blocking scope | Priority |
-|---|---|---|---|---|---|
-| `SGL-0018` | `SLC-M03-L25` | Locked 3-Bet Ranges Part 2 | Original-video verification `24:47.75–25:12` | Nominal terminal tail only; recovered strategy through `24:47.75` is accepted | P1 |
+`NONE OPEN`
 
-There are no remaining bulk Whisper reruns in the approved targeted queue.
+All approved targeted Whisper reruns and the final direct-media tail verification are complete.
 
 ## Canonical ingestion and cleanup backlog
 
@@ -37,7 +35,7 @@ Visual review should be targeted to claims that may change a final heuristic. It
 
 ## Transcript package backlog
 
-`NONE` — the first cycle contains an input package for every catalogued lesson. Catalog completeness does not close cleanup, visual review or the one media-tail verification.
+`NONE` — the first cycle contains an input package for every catalogued lesson. Catalog completeness does not close cleanup or targeted visual review.
 
 ## Resolved source issues
 
@@ -53,6 +51,7 @@ Visual review should be targeted to claims that may change a final heuristic. It
 | `SGL-0056` | `SLC-M02-L15 Hard Continues from BB` | Three-part rerun restored complete speech through `25:43.19`; overlaps and terminal recovery reconciled |
 | `SGL-0003` | `SLC-M05-L42 Coaching Brad Owen Intro` | Main rerun and recoveries restored complete speech through `06:12.10` |
 | `SGL-0005` | `SLC-M05-L44 Advanced Postflop Strategy Building Part 2` | Two-part rerun restored targeted tail `25:19.11–38:32.24`; earlier canonical ingestion remains separate |
+| `SGL-0018` | `SLC-M03-L25 Locked 3-Bet Ranges Part 2` | Large-v3 rerun restored speech through `24:47.75`; user directly reviewed the original video and confirmed the final spoken words are `range that does this`, followed only by silence through `25:12` |
 | `SGL-0020` | `SLC-M03-L27 Exploiting OOP C-Bets` | Two-part rerun and recoveries restored complete main demonstration through `17:17.18` |
 | `SGL-0032` | `SLC-M04-L38 Small Bets to Force Over-Folds` | Four-part rerun restored the complete missing middle through `37:14.06` |
 | `SGL-0038` | `SLC-M06-L58 Ginge Check-Raise` | Four-part rerun plus terminal recoveries restored complete hand and outro through `29:12.18` |
@@ -85,4 +84,4 @@ Cross-source support may validate a final heuristic, but it never retroactively 
 
 ## Ledger verdict
 
-`SMASH_TARGETED_RERUN_QUEUE_COMPLETE_EXCEPT_SGL-0018_MEDIA_TAIL`
+`SMASH_TARGETED_RERUN_AND_MEDIA_VERIFICATION_COMPLETE`
