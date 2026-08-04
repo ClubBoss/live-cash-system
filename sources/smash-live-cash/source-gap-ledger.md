@@ -63,13 +63,23 @@ Canonical record of missing transcript intervals, cleanup tasks, visual dependen
 | `SGL-0040` | `SLC-M06-L60` | Lodge $25/$50 Hands | Visual evidence missing | All examples | P1 | `VISUAL_REVIEW_PENDING` | Exact hand histories and actions | Obtain stream/screenshots |
 | `SGL-0041` | `SLC-M06-L61` | $2/$5/$10 Part 1 | Visual evidence missing | All examples | P1 | `VISUAL_REVIEW_PENDING` | Exact positions, cards and sizes | Obtain stream/screenshots |
 | `SGL-0042` | `SLC-M06-L62` | $2/$5/$10 Part 2 | Visual evidence missing | All examples | P1 | `VISUAL_REVIEW_PENDING` | Exact positions, cards and timing | Obtain stream/screenshots |
+| `SGL-0043` | `SLC-M02-L06` | Tight-Passive BTN vs BB Part 1 | Visual evidence missing | Whole lesson | P1 | `VISUAL_REVIEW_PENDING` | Exact K-6-3 suits, ranges, frequencies and node-lock weights | Targeted video/screenshots |
+| `SGL-0044` | `SLC-M02-L10` | Turn Barreling IP Part 2 | Visual evidence missing | Whole lesson | P1 | `VISUAL_REVIEW_PENDING` | Exact board suits, sizes, combo weights and river outputs | Targeted video/screenshots |
+| `SGL-0045` | `SLC-M02-L11` | Turn Barreling IP Part 3 | Catastrophic ASR loop | `04:27–19:48` | P0 | `RERUN_REQUIRED` | Most of lesson and node-lock comparison | Rerun `03:55–19:49` |
+| `SGL-0046` | `SLC-M02-L12` | Playing Turns vs Capped Ranges | Two unrecovered intervals | `17:46–18:53`, `24:20–30:54` | P0 | `RERUN_REQUIRED` | First low-brick comparison and final 6:34 | Rerun `17:15–19:20` and `23:50–30:55` |
+| `SGL-0047` | `SLC-M02-L16` | Check-Raise Top Pair Part 1 | Catastrophic tail loop | `15:43–19:18` | P0 | `RERUN_REQUIRED` | Final comparison and conclusion | Rerun `15:10–19:19` |
+| `SGL-0048` | `SLC-M02-L17` | Check-Raise Top Pair Part 2 | Visual evidence missing | Whole lesson | P1 | `VISUAL_REVIEW_PENDING` | Exact boards, sizes, positions and frequencies | Targeted video/screenshots |
+| `SGL-0049` | `SLC-M02-L18` | Leading Turns After Calling | Local ASR gap | `13:29–14:38` | P1 | `RERUN_REQUIRED` | Transition between first and second examples | Rerun `13:00–15:05` |
+| `SGL-0050` | `SLC-M02-L19` | Leading Turn vs Nodelocked Strategy | Visual evidence missing | Whole lesson | P1 | `VISUAL_REVIEW_PENDING` | Exact K-Q-2 suits, large size, lock weights and river frequencies | Targeted video/screenshots |
+| `SGL-0051` | `SLC-M02-L21` | Playing Deep SRP OOP | Visual evidence missing | Whole lesson | P1 | `VISUAL_REVIEW_PENDING` | Exact low-board setup, ranges, bet sizes and response frequencies | Targeted video/screenshots |
+| `SGL-0052` | `SLC-M02-L22` | HJ vs BTN 50-Flop Report | Catastrophic tail loop | `19:08–26:05` | P0 | `RERUN_REQUIRED` | Individual low-board deep dives and conclusion | Rerun `18:35–26:05` |
 
 ## Transcript-package backlog
 
 | Module | Source range | Current state |
 |---|---|---|
 | Module 1 — Preflop | `SLC-M01-L01` through `SLC-M01-L03` | `TRANSCRIPT_PACKAGE_NOT_RECEIVED` |
-| Module 2 — Single-Raised Pots | `SLC-M02-L04` through `SLC-M02-L23` | `TRANSCRIPT_PACKAGE_NOT_RECEIVED` |
+| Module 2 — Single-Raised Pots | `SLC-M02-L04`, `L05`, `L07–L09`, `L13–L15`, `L20`, `L23` | `PARTIAL_MODULE_PACKAGE_RECEIVED` |
 
 ## Resolved issue ledger
 
@@ -78,6 +88,7 @@ Canonical record of missing transcript intervals, cleanup tasks, visual dependen
 | `SGL-R001` | `SLC-M00-L00` | False Whisper repetition rejected; video-verified transcript retained |
 | `SGL-R002` | Missing rake chart export | Scenario recovered in workbook cell `D18` |
 | `SGL-R003` | Mislabeled no-rake chart | Mapping corrected using workbook cell `A8` |
+| `SGL-R004` | `SLC-M02-L21` | Local repeated phrase near `10:42–10:58` removed; surrounding continuity preserved |
 
 ## Targeted rerun protocol
 
