@@ -2,81 +2,46 @@
 
 Course: Smash Live Cash  
 Module: 7-Going Forward  
-Lesson: How To Build Your Own Stuff Going Forward  
+Lesson: How to Build Your Own Stuff Going Forward  
 Instructor: Nick Petrangelo (Nicky P)  
 Source duration: 19:13  
-Targeted source interval: 17:00–19:13  
-Source type: audio extracted from video  
-Primary language: English  
-Visual information available: yes, but not included in the current evidence package  
-Targeted rerun engine: faster-whisper large-v3, English forced, translation disabled  
-Rerun package received: 2026-08-05  
-Recovered context: approximately 16:30–19:12.81  
-Source status: TARGETED_TAIL_AUDIO_COMPLETE / EARLIER_CANONICAL_INGESTION_PENDING / NEEDS_VISUAL_REVIEW  
+Source status: NEEDS_VISUAL_REVIEW  
 
-# Recovered Source-Faithful Record
+# Editorial Note
 
-## [16:30] Tools should lead directly to the relevant node
+The first section uses the machine-complete large-v3 audio layer after conservative cleanup. The final workflow uses the separately verified targeted rerun through 19:12.81.
 
-The recovered tail begins with a study tool that can jump directly to the chosen river strategy. Nick frames the scripts, aggregated reports and bot-playing packs as a complete practical study environment rather than separate technical outputs.
+# Detailed Source-Faithful Record
 
-## [17:00] Recommended study loop
+## Build the actual game
 
-For each strategic spot:
+Nick closes the course by showing how students can reproduce the study process at any stake. Create the script from the relevant rake or ante, effective stack, preflop ranges and practical sizing menu. A technically precise solve of the wrong game is not useful.
 
-1. build the script;
-2. generate and save the aggregate report;
-3. predict the actions and hand classes before looking;
-4. review the report to identify unexpected checks, bets, raises and board classes;
-5. add the spot to a bot-playing pack;
-6. play the spot for roughly 25–50 hands;
-7. save the session;
-8. reopen uncertain or mistaken decisions in the browser;
-9. understand why the prediction was wrong;
-10. consider how real opponents differ and node-lock the relevant branch when useful.
+## Aggregate report and prediction
 
-## [18:00] Prediction before output review
+Run representative board sets and export frequencies and equities so global patterns become visible. Before viewing the result, predict the strategy. The gap between the prediction and report exposes the student’s real misconception.
 
-Nick explicitly recommends making a guess before consulting the report. The learning value comes from comparing the student's mental model with the equilibrium shape:
+Open the nodes that contradict the prediction and compare value threshold, bluff classes, removal and future-street plan rather than recording only the solver action.
 
-- unexpected check or bet frequency;
-- an unintuitive hand action;
-- a board that is much better or worse than expected;
-- branches with almost no checking or betting.
+## Repeated decisions and saved errors
 
-## [18:25] Build a reusable library over time
+Play a meaningful sample against the solver or bot, save uncertain and incorrect decisions and reopen the exact node. One correct answer is not mastery.
 
-The student should repeat the loop consistently and accumulate a library of spots that can be:
+## Verified final workflow
 
-- trained against bots;
-- reviewed with study partners;
-- explored through aggregate reports;
-- rerun or expanded as new questions appear.
+The targeted rerun confirms the complete loop:
 
-Scripts can run overnight while reports and bot sessions are studied later in shorter blocks.
+`script → aggregate report → prediction → review → approximately 25–50 bot decisions → save mistakes → reopen exact nodes → model realistic opponents / node-lock → repeat → persistent library`.
 
-## [18:55] Closing recommendation
+Node locking comes after baseline understanding and should model a specific hand-class or branch error, not a personality label.
 
-The source presents this iterative prediction → report → bot play → error review → node-lock cycle as the preferred way to keep improving after the course. Nick notes that the setup may require additional questions beyond one instructional video.
+# Explicit Instructor Mechanisms
 
-# Extracted Study Objects
+- Prediction before output makes misconceptions observable.
+- Aggregate reports identify patterns; exact nodes explain them.
+- Saved mistakes should drive targeted repair and later retest.
+- Node locking belongs after baseline understanding and must model a specific range error.
 
-## Workflow
+# Uncertainties Requiring Review
 
-`build script → aggregate report → predict → inspect → bot reps → save errors → browser review → population model / node-lock → repeat`
-
-## Explicit Instructor Mechanisms
-
-- Predict before viewing the solver output.
-- Use aggregate reports to learn board and range shapes.
-- Convert passive report reading into repeated bot decisions.
-- Save uncertainty and mistakes rather than replaying only comfortable spots.
-- Add opponent-specific node locks only after the baseline is understood.
-- Build a persistent library rather than study one-off hands.
-
-## Residual Uncertainty
-
-- Main and recovery outputs are identical after normalisation.
-- The final 0.19 seconds contain no additional speech.
-- The first approximately 17 minutes remain in the first-cycle machine package and require canonical ingestion.
-- Exact interface steps and tool labels remain visual-dependent.
+- Exact interface steps, report columns and script parameters require visual review.
