@@ -1,93 +1,111 @@
 # Live Cash System
 
-Private source-of-truth for building a compact, executable No-Limit Hold'em live-cash learning and decision system from paid course research, independent synthesis, original drills and real-session evidence.
+Private source-of-truth for building a compact, executable No-Limit Hold'em live-cash learning and decision system from independent source corpora, cross-source synthesis, original drills and real-session evidence.
 
 ## Product objective
 
-Build a **general live-cash core** that converts complex poker theory into a small number of reliable heuristics, decision algorithms, anchor ranges, opponent models and trained responses.
+Build a general live-cash core that converts complex poker theory into a small number of reliable heuristics, decision algorithms, anchor ranges, opponent models and trained responses.
 
-Specific games—Batumi, Baku private games, casino $1/$3, deep $2/$5, short-stack or straddled lineups—are deployment profiles layered on top of the general core.
+Specific games—casino $1/$3, deep $2/$5, private games, short-stack tables or straddled lineups—are deployment profiles layered on top of the general core.
+
+## Architecture authority
+
+Repository structure and routing rules are defined in:
+
+`governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
+
+The layout is designed so additional FTGU lessons, Carrot Poker, Cash Injection, original range work and field evidence can be added incrementally without moving existing corpora.
 
 ## Operating principles
 
-1. **Sources stay source-faithful.** Raw transcripts and visual notes are never silently rewritten.
-2. **Analysis is separate from source extraction.** Every strategic conclusion keeps provenance, assumptions and uncertainty.
-3. **One executable system.** Smash Live Cash, Carrot Poker, Cash Injection, From the Ground Up and field evidence feed one Playbook rather than parallel competing strategies.
-4. **General core before local overlay.** A city, casino or private lineup may change priorities and exploits but does not define universal rules.
-5. **Compression without hidden EV loss.** Simplifications state their boundary conditions, likely cost and failure modes.
-6. **Training over collection.** New material is admitted only when it improves a decision process, priority leak or field exploit.
-7. **Reasoning diagnosis over answer grading.** Correct actions for wrong reasons still trigger repair.
-8. **Evidence can reverse conclusions.** Contradictions and field observations are logged explicitly.
-9. **IP purity.** Commercial or Sharky-ready outputs use original wording, examples, drills and independently validated charts.
+1. Sources remain source-faithful and independent.
+2. Analysis is separate from source extraction.
+3. Cross-source relations are explicit rather than silently blended.
+4. The final product is one executable system, not parallel course summaries.
+5. General live-cash mechanisms precede local environment overlays.
+6. Simplifications retain assumptions, boundaries and failure modes.
+7. Correct actions for wrong reasons still trigger learning repair.
+8. Evidence can confirm, narrow, split, revise or reject a candidate.
+9. Product-facing language, examples, drills and ranges are original.
 
-## Repository layers
+## Stable repository layers
 
-- `sources/` — source-faithful transcripts, visual notes, registry and gap ledger.
-- `analysis/` — lesson analyses, module audits, evidence and contradiction work.
-- `synthesis/` — cross-lesson candidate heuristics and decision algorithms.
+- `sources/` — source-family records, registries, audits and bounded gaps.
+- `analysis/` — lesson analysis, QA, contradiction and evidence review.
+- `synthesis/` — same-source and cross-source candidate mechanisms.
+- `ranges/` — independently derived assumptions, validation and anchors.
 - `playbook/` — compact executable rules and table-facing algorithms.
-- `learning/` — misconception taxonomy, drills, spaced repetition and curriculum route.
-- `profiles/` — opponent-model schema and environment overlays.
-- `governance/` — cross-source validation, admission and IP-purity gates.
-- `fieldwork/` — session evidence and deployment-specific observations.
-- `hands/` — raw and reviewed hands plus recurring-node indexes.
-- `sharky/` — source-pure mechanisms and learning patterns potentially transferable to Sharky.
-- `templates/` — ingestion, analysis and review formats.
-- `operations/` — rerun and source-recovery instructions.
+- `learning/` — misconceptions, diagnostics, drills and spaced repetition.
+- `profiles/` — opponent models and environment overlays.
+- `fieldwork/` — session evidence and deployment feedback.
+- `hands/` — raw and reviewed hand records.
+- `governance/` — admission, conflict, IP and architecture rules.
+- `sharky/` — source-pure transfer candidates for Sharky.
+- `templates/` — reusable ingestion and review schemas.
+- `operations/` — bounded recovery and processing instructions.
+- `reports/` — milestone and terminal-state reports.
 
 ## Admission pipeline
 
 ```text
-Raw source
-  → source-faithful transcript
-  → lesson analysis
-  → same-source synthesis
-  → cross-source validation
-  → compressed heuristic / decision algorithm
-  → original drill and misconception mapping
-  → provisional Playbook
-  → field test
-  → Playbook admission
-  → continued spaced repetition and evidence review
+incoming source package
+→ package QA and checksum
+→ canonical source-family record
+→ lesson/module analysis
+→ same-source mechanism candidate
+→ cross-source relation
+→ consolidated heuristic
+→ original drill and misconception mapping
+→ provisional Playbook
+→ field evidence
+→ admission, revision or rejection
 ```
 
 ## Current source state
 
 ### Smash Live Cash
 
-- first-cycle lesson catalogue received and indexed;
-- source records exist for all lessons or explicit partial intervals;
-- targeted Whisper reruns are active externally;
-- `Preflop 101` is now source-continuous through `46:29`; only the final tail and visual chart anchors remain open;
-- synthesis Waves 01–03 completed at candidate level;
-- exact visual chart and frequency dependencies remain tracked.
+- all catalogued lessons have canonical source records;
+- targeted Whisper reruns and direct-media checks are complete;
+- no audio or lesson-level cleanup blockers remain;
+- only claim-driven visual review remains for exact cards, sizes, frequencies, EV and chart boundaries;
+- synthesis Waves 01–03 and rerun deltas are complete at candidate level.
+
+### From the Ground Up
+
+Initial batch accepted and mapped:
+
+- Episode 1 — Equity and EV;
+- Episode 10 — Merged Flop Raising;
+- Episodes 11–14 — Combos, Bet Sizing, Blockers and Pyramidal Defence;
+- Episode 30 — Three Tips for Success;
+- hand-chart PDF audited as reference-only.
+
+Episodes 2–9 and 15–29 remain to be received.
 
 ### Carrot Poker
 
-- planned next major source family;
-- roles: theory mechanisms, exploit structure and cross-validation.
+Planned next source family for theory, exploit structure and cross-validation. Grades 1–3 should live inside one `sources/carrot-poker/` family.
 
 ### Cash Injection
 
-- planned exploit-hypothesis layer.
-
-### From the Ground Up Cash
-
-- planned foundation, simplification and sequencing check.
+Planned source family for exploit hypotheses and practical node adjustments.
 
 ## Current system state
 
-- provisional heuristic candidates: 29;
-- expected after consolidation: approximately 14–18 core rules;
+- heuristic candidates: 34;
+- intended consolidated target: approximately 14–18 core rules;
+- admitted final rules: 0 pending full cross-source, drill and field validation;
 - provisional compact Playbook: created;
-- opponent-model schema: created;
-- initial opponent profiles: created;
+- opponent-model schema and initial profiles: created;
 - misconception taxonomy: 30 diagnostic errors;
 - drill and spaced-repetition architecture: created;
+- initial diagnostic and original drill pack: created;
 - general learning route: created;
 - session-review and field-evidence loop: created;
 - environment-profile template: created;
-- admitted final rules: 0 pending cross-source and field validation.
+- FTGU/Carrot cross-source evidence matrix: active;
+- original range layer: reserved; no source chart has been promoted to an anchor.
 
 ## Current provisional decision algorithms
 
@@ -109,29 +127,34 @@ Raw source
 
 ## Current priority nodes
 
-1. Effective-stack and straddle translation.
-2. Preflop architecture and compact anchor configurations.
-3. Big-blind and small-blind range identity.
-4. Playing OOP in single-raised and 3-bet pots.
-5. Value-first multi-street aggression.
-6. Range ancestry and bluff supply.
-7. Multiway shared defence and sandwich mechanics.
-8. River value counting and blocker audit.
-9. Short-stack overlay.
-10. Session-to-drill transfer.
+1. Complete FTGU ingestion and cross-source mapping.
+2. Ingest Carrot Poker and Cash Injection through the same source-family contract.
+3. Consolidate overlapping candidates without losing assumptions.
+4. Build independently validated preflop anchor configurations.
+5. Test DRILL_READY mechanisms with original variants and delayed retests.
+6. Begin structured session evidence collection.
+7. Use targeted visual review only when an exact claim can change a rule, anchor or drill.
 
 ## Status vocabulary
 
 ### Source state
 
-- `RAW_MACHINE_TRANSCRIPT`
+- `RECEIVED`
+- `AUDIO_COMPLETE`
 - `NEEDS_REVIEW`
-- `PARTIAL_RERUN_VERIFIED`
 - `NEEDS_VISUAL_REVIEW`
 - `SOURCE_VERIFIED`
-- `ANALYZED`
+- `REFERENCE_ONLY`
+- `REJECTED`
 
-### Synthesis and product state
+### Analysis state
+
+- `NOT_STARTED`
+- `PARTIAL`
+- `ANALYZED`
+- `SYNTHESIZED`
+
+### Candidate and product state
 
 - `CANDIDATE`
 - `VALIDATION_PENDING`
@@ -143,16 +166,15 @@ Raw source
 - `REJECTED`
 - `BLOCKED`
 
-## Immediate parallel work
+## Active core artifacts
 
-1. Complete external targeted reruns and integrate only QA-passing intervals.
-2. Continue original drill creation for `DRILL_READY` heuristics.
-3. Ingest Carrot Poker and From the Ground Up through the same source-faithful pipeline.
-4. Build verified compact preflop anchors after final-tail and visual closure.
-5. Begin manual session-review workflow before any application build.
+- `playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md`
+- `synthesis/CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md`
+- `sources/smash-live-cash/source-gap-ledger.md`
+- `sources/ftgu/source-registry.md`
+- `learning/GENERAL_LIVE_CASH_LEARNING_ROUTE_v0_1.md`
+- `learning/INITIAL_DIAGNOSTIC_v0_1.md`
+- `learning/drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
+- `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
 
-## Current provisional Playbook
-
-`playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md`
-
-This file is usable as a reasoning map but is not yet a final commercial or memorization-ready strategy product.
+The provisional Playbook is usable as a reasoning map but is not yet a final commercial or memorisation-ready strategy product.
