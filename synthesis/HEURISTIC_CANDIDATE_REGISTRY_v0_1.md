@@ -7,7 +7,7 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 ## Status vocabulary
 
 - `CANDIDATE`: source-supported mechanism has been compressed.
-- `VALIDATION_PENDING`: candidate needs Carrot / FTGU comparison, rerun closure or visual verification.
+- `VALIDATION_PENDING`: candidate needs Carrot / FTGU comparison, media closure or visual verification.
 - `DRILL_READY`: mechanism is sufficiently clear to test through an original drill.
 - `FIELD_TEST_PENDING`: drill passed internal review; live evidence required.
 - `ADMITTED`: accepted into the compact Playbook.
@@ -38,9 +38,9 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 | `H-W02-001` | Value threshold first, bluff volume second | Turn/river aggression | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W02-002` | Every turn bluff needs a job in the river tree | Multi-street bluffing | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Exact combo boundaries visual-dependent |
 | `H-W02-003` | Overbet only when card and value shape preserve polarization | Overbets | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Exact card boundaries visual-dependent; cross-source comparison |
-| `H-W02-004` | Bet size determines how wide top pair can check-raise | Flop defence | `GENERAL_CORE` | CORE | High shape | `VALIDATION_PENDING` | L16 rerun; exact frequencies |
+| `H-W02-004` | Bet size determines how wide top pair can check-raise | Flop defence | `GENERAL_CORE` | CORE | High shape | `DRILL_READY` | Exact frequencies visual-dependent; cross-source comparison |
 | `H-W02-005` | Vulnerable low-kicker top pair can be a better raise | Flop protection | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Cross-source comparison |
-| `H-W02-006` | Turn lead responds to flop betting range, not only turn card | Turn leads | `GENERAL_CORE` | ADVANCED | Medium-high | `VALIDATION_PENDING` | L18 rerun; exact board families |
+| `H-W02-006` | Turn lead responds to flop betting range, not only turn card | Turn leads | `GENERAL_CORE` | ADVANCED | High mechanism | `DRILL_READY` | Exact board weights visual-dependent; cross-source comparison |
 | `H-W02-007` | Node-lock the sizing branch, not the personality label | Opponent modelling | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Field calibration later |
 | `H-W02-008` | Versus value-heavy bets, remove speculative floats first | Exploit defence | `GENERAL_CORE / POOL_HYPOTHESIS` | CORE | High direction | `VALIDATION_PENDING` | Cross-source and pool evidence |
 | `H-W02-009` | Before folding a deep bluff-catcher, count value and size exclusions | River defence | `GENERAL_CORE / POOL_HYPOTHESIS` | ADVANCED | Medium-high | `VALIDATION_PENDING` | Pool under/over-bluff evidence |
@@ -58,6 +58,8 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 | `H-R04-007` | Suppressed flop aggression can reappear as a turn lead | Multiway / delayed aggression | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Exact hand classes visual-dependent |
 | `H-R04-008` | A live tell is a data point, not a range conclusion | Live reads / evidence | `GENERAL_CORE / FIELD_EVIDENCE` | CORE | High methodology | `DRILL_READY` | Repeated field observations and falsifiers |
 | `H-R04-010` | Preserve turn-resilient hands in the IP check-back range | Flop strategy / protected checks | `GENERAL_CORE` | CORE | High mechanism | `DRILL_READY` | Exact combo weights visual-dependent; cross-source comparison |
+| `H-R05-001` | Recalculate ownership after every range-filtering action | Range accounting / multi-street | `GENERAL_CORE` | CORE | High mechanism | `DRILL_READY` | Exact range weights visual-dependent; cross-source comparison |
+| `H-R05-002` | A heavy-check strategy needs an active raise defence | Passive-branch protection | `GENERAL_CORE` | CORE | High mechanism | `DRILL_READY` | Exact combo weights visual-dependent; cross-source comparison |
 
 ## Consolidation candidates
 
@@ -70,10 +72,11 @@ The registry intentionally contains more candidates than the final Playbook targ
 - `H-W03-001`
 - `H-W03-005`
 - `H-W03-011`
+- `H-R05-001`
 
 Potential admitted compression:
 
-`Start with high-weight preflop composition, trace reach through every action, then trust blockers.`
+`Start with high-weight preflop composition, trace reach and filtering through every action, recalculate ownership, then trust blockers.`
 
 ### Group B — Opponent branch and evidence modelling
 
@@ -124,20 +127,21 @@ Potential admitted compression:
 - `H-W01-006`
 - `H-W01-005`
 - `H-R04-010`
+- `H-R05-002`
 
 Potential admitted compression:
 
-`Do not spend every resilient hand in the aggressive branch; preserve hands that can absorb future pressure.`
+`Do not spend every resilient hand in the aggressive branch; preserve calls and raises that prevent passive branches from becoming capped.`
 
 ## Current count
 
-- Total candidates: 32
-- CORE: 24
+- Total candidates: 34
+- CORE: 26
 - SUPPORTING: 6
 - ADVANCED: 2
 - OVERLAY-only: 0; overlays are currently dual-tagged
-- `DRILL_READY`: 23
-- `VALIDATION_PENDING`: 9
+- `DRILL_READY`: 27
+- `VALIDATION_PENDING`: 7
 - `ADMITTED`: 0
 
 ## Target after consolidation
@@ -177,4 +181,4 @@ A candidate may move to `ADMITTED` only when:
 
 ## Registry verdict
 
-`UNIFIED_HEURISTIC_CANDIDATE_REGISTRY_CONSOLIDATED_AFTER_RERUN_CHECKPOINT_04`
+`UNIFIED_HEURISTIC_CANDIDATE_REGISTRY_CONSOLIDATED_AFTER_TARGETED_RERUN_COMPLETION`
