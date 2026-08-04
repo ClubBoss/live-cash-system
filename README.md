@@ -58,6 +58,7 @@ Raw source
 - first-cycle lesson catalogue received and indexed;
 - source records exist for all lessons or explicit partial intervals;
 - targeted Whisper reruns are active externally;
+- `Preflop 101` is now source-continuous through `46:29`; only the final tail and visual chart anchors remain open;
 - synthesis Waves 01–03 completed at candidate level;
 - exact visual chart and frequency dependencies remain tracked.
 
@@ -76,7 +77,7 @@ Raw source
 
 ## Current system state
 
-- provisional heuristic candidates: 26;
+- provisional heuristic candidates: 29;
 - expected after consolidation: approximately 14–18 core rules;
 - provisional compact Playbook: created;
 - opponent-model schema: created;
@@ -125,6 +126,7 @@ Raw source
 
 - `RAW_MACHINE_TRANSCRIPT`
 - `NEEDS_REVIEW`
+- `PARTIAL_RERUN_VERIFIED`
 - `NEEDS_VISUAL_REVIEW`
 - `SOURCE_VERIFIED`
 - `ANALYZED`
@@ -146,7 +148,7 @@ Raw source
 1. Complete external targeted reruns and integrate only QA-passing intervals.
 2. Continue original drill creation for `DRILL_READY` heuristics.
 3. Ingest Carrot Poker and From the Ground Up through the same source-faithful pipeline.
-4. Build verified compact preflop anchors after rerun and visual closure.
+4. Build verified compact preflop anchors after final-tail and visual closure.
 5. Begin manual session-review workflow before any application build.
 
 ## Current provisional Playbook
