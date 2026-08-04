@@ -11,9 +11,9 @@ Visual information available: yes, but not included in the current evidence pack
 Original machine transcript: catastrophic loop after approximately 01:01  
 Targeted rerun engine: faster-whisper  
 Targeted rerun model: large-v3, English forced, translation disabled  
-Partial rerun package received: 2026-08-04  
-Recovered interval: 00:00–46:29  
-Source status: PARTIAL_RERUN_VERIFIED / NEEDS_FINAL_TAIL_AND_VISUAL_REVIEW  
+Verified rerun packages received: 2026-08-04  
+Recovered speech interval: 00:00–50:29.70  
+Source status: AUDIO_COMPLETE / NEEDS_VISUAL_REVIEW  
 
 # Detailed Source-Faithful Record
 
@@ -178,15 +178,40 @@ Very early no-ante versus-open strategies can be extremely tight because several
 
 The squeeze chart is organised by the opener/caller position pair. The spoken abstraction uses larger squeeze sizes at deeper stacks to reduce SPR for a premium-heavy value range.
 
-## [46:29] Unrecovered final tail
+## [46:30] Use squeeze charts to evaluate whether flats can expand
 
-The sixth rerun chunk ends mid-explanation while discussing whether players behind squeeze the theoretically tight early-position flatting range often enough.
+The final rerun continues the early-position flat example and then navigates the squeeze charts. The practical question is not merely what the baseline flat range contains, but whether the actual players behind execute the expected squeeze frequencies.
 
-[AUDIO TRANSCRIPTION GAP]
+If they squeeze too little, the flatting range can expand because more equity is realised. The same logic becomes more pronounced in later-position opener/caller configurations and when evaluating the blinds behind.
 
-[TRANSCRIPT INCOMPLETE]
+The chart distinguishes the opener, caller, squeeze position and stack depth. The spoken abstraction uses approximately 4x at shallower depths and 5x at deeper depths, with larger out-of-position sizes. These are chart examples, not universal prescriptions.
 
-Remaining targeted rerun: `45:30–50:32`, preserving overlap with the recovered sixth chunk.
+## [48:00] Versus-3-bet, versus-4-bet and downloadable multiway extensions
+
+The master sheet links the initial versus-3-bet strategy to the response after facing a 4-bet. Additional downloadable sheets cover:
+
+- cold-calling a squeeze;
+- squeeze play in straddled games;
+- squeeze-versus-two-callers;
+- squeeze-versus-two-callers with a straddle.
+
+Nick notes that open-plus-multiple-call structures are common in deep live cash and require separate reference branches rather than being forced into a heads-up chart.
+
+## [49:25] Final master-sheet takeaway
+
+The sheet is a navigable baseline, not a bible. Its main purpose is to make the player aware of the structural effects of:
+
+- stack depth;
+- ante versus no ante;
+- straddles;
+- position;
+- players behind;
+- sizing changes;
+- hand reach through later branches.
+
+Nick previews the next lesson's deeper comparison of 100bb through 400bb play and straddle adjustments. He closes with the directional rules that deeper stacks use larger preflop sizes and much tighter stack-off thresholds, while shallower stacks use somewhat smaller sizes and wider value ranges.
+
+The transcript ends at `50:29.70` with a complete sentence. Two independent tail outputs reproduce the same ending. The nominal file duration of `50:32` therefore contains approximately 2.3 seconds of trailing non-speech rather than missing strategic content.
 
 # Extracted Poker Objects
 
@@ -198,6 +223,8 @@ Remaining targeted rerun: `45:30–50:32`, preserving overlap with the recovered
 - No-ante versus ante blind-versus-blind structures.
 - Straddled smallest-blind first-in spot.
 - Early-position flat exposed to squeezes from players behind.
+- Opener-plus-caller squeeze charts at multiple depths and positions.
+- Downloadable multiway squeeze and straddle extensions.
 
 Exact hand weights, mixed frequencies and chart boundaries remain visual-dependent.
 
@@ -209,7 +236,8 @@ The lesson navigates a preflop master sheet containing:
 - no-ante, ante and straddle formats;
 - 100bb, 200bb and 400bb depths;
 - RFI, blind defence, versus-open, four-bet response, blind-versus-blind and squeeze charts;
-- colour-coded mixed strategies and size legends.
+- colour-coded mixed strategies and size legends;
+- downloadable multiway and straddle squeeze extensions.
 
 The current package contains no screenshots. Exact colours, frequencies, hand weights and size values require targeted visual review.
 
@@ -225,11 +253,12 @@ The current package contains no screenshots. Exact colours, frequencies, hand we
 - Ante and no-ante blind structures should not be treated as interchangeable.
 - Straddles change the effective depth unit.
 - Squeeze exposure from players behind affects whether tight early-position flats are viable.
+- Deeper preflop structures use larger sizes and tighter stack-off thresholds.
+- Multiway squeeze configurations require their own branches.
 
 ## Uncertainties Requiring Review
 
-- Final source interval `46:29–50:32`.
 - All exact chart frequencies, colour weights and hand-level boundaries.
 - One unclear hand-class phrase around `31:30–32:00`.
 - One internally ambiguous machine phrase in the ante/no-ante comparison around `35:30–36:10`.
-- Exact size abstractions beyond explicitly spoken examples.
+- Exact size abstractions beyond explicitly spoken chart examples.
