@@ -13,7 +13,8 @@ Original machine transcript: catastrophic loop after approximately 08:54
 Targeted rerun engine: faster-whisper  
 Targeted rerun model: large-v3, English forced, translation disabled  
 Recovered speech: continuous through 24:47.75  
-Source status: RERUN_CONTENT_ACCEPTED / NOMINAL_VIDEO_TAIL_UNVERIFIED / NEEDS_VISUAL_REVIEW  
+Terminal media verification: user directly reviewed the original video through 25:12; the final spoken words are `range that does this`, followed only by silence  
+Source status: AUDIO_COMPLETE / USER_DIRECT_MEDIA_VERIFIED / NEEDS_VISUAL_REVIEW  
 
 # Detailed Source-Faithful Record
 
@@ -119,22 +120,11 @@ Nick describes the logical contradiction:
 
 The player then pays twice: first by entering too wide, then by over-c-betting the weakened range.
 
-## [24:00] Recovered final available discussion
+## [24:00] Final discussion and verified silent tail
 
-The rerun begins locking the wild profile back toward a normal checking frequency while preventing the solver from compensating elsewhere. The final recovered sentence instructs the student to compare play against the resulting distorted range.
+The rerun begins locking the wild profile back toward a normal checking frequency while preventing the solver from compensating elsewhere. The final spoken sentence ends with the words `range that does this` at approximately 24:47.75.
 
-Both the main chunk and a separate terminal recovery end at 24:47.75 with the same complete available phrase.
-
-# Residual Nominal Tail Blocker
-
-The declared video duration is 25:12, leaving a nominal interval of approximately 24.25 seconds after the final recovered audio timestamp.
-
-Unlike prior endpoint shortfalls of less than three seconds, this interval is too long to classify as trailing silence from transcript evidence alone. The source issue remains narrowly open until one of the following is provided:
-
-- direct review of the original video from 24:47–25:12; or
-- a verified audio extraction covering that nominal interval.
-
-No strategic statement is inferred for the unresolved tail.
+The user directly reviewed the original video from that point through the nominal endpoint at 25:12 and confirmed that no further speech occurs. The remaining interval is silence.
 
 # Extracted Poker Objects
 
@@ -155,7 +145,6 @@ No strategic statement is inferred for the unresolved tail.
 
 # Uncertainties Requiring Review
 
-- Original video interval 24:47.75–25:12.
 - Exact preflop chart weights and hand boundaries.
 - Exact board cards, suits, stack depth and size values.
 - Displayed flop and later-street frequencies and EV.
