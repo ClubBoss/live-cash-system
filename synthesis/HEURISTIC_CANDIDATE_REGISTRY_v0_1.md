@@ -26,12 +26,15 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 
 | ID | Candidate | Domain | Tag | Tier | Confidence | Current status | Primary dependencies |
 |---|---|---|---|---|---|---|---|
-| `H-W01-001` | Effective stack sets the preflop architecture | Preflop / depth | `GENERAL_CORE` | CORE | Medium-high | `VALIDATION_PENDING` | Preflop 101 rerun; Carrot/FTGU depth comparison |
+| `H-W01-001` | Effective stack sets the preflop architecture | Preflop / depth | `GENERAL_CORE` | CORE | Medium-high | `VALIDATION_PENDING` | Final Preflop 101 tail; visual anchors; Carrot/FTGU depth comparison |
 | `H-W01-002` | Expand squeezes by purifying existing candidates | Preflop squeeze | `GENERAL_CORE` | CORE | High mechanism | `VALIDATION_PENDING` | Exact anchor ranges; cross-source comparison |
-| `H-W01-003` | Straddle changes the denominator; preserve SPR | Straddle / depth | `GENERAL_CORE / ENVIRONMENT_SENSITIVE` | CORE | Medium-high | `DRILL_READY` | Exact sizing remains profile-dependent |
+| `H-W01-003` | Straddle changes the denominator; preserve SPR | Straddle / depth | `GENERAL_CORE / ENVIRONMENT_SENSITIVE` | CORE | High mechanism | `DRILL_READY` | Exact sizing remains profile-dependent |
 | `H-W01-004` | Identify the blind range before reading the board | SRP / blinds | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Exact range weights visual-dependent |
 | `H-W01-005` | After exploiting weak flop defence, update the turn range | SRP exploit | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W01-006` | Deep OOP on dynamic boards: protect the call range first | SRP / deep OOP | `GENERAL_CORE` | CORE | High | `VALIDATION_PENDING` | Cross-source deep-OOP comparison |
+| `H-W01-007` | Read high-weight offsuit and pair composition before rare suited detail | Range reading | `GENERAL_CORE` | CORE | High mechanism | `DRILL_READY` | Exact charts visual-dependent |
+| `H-W01-008` | Polar preflop bluffs should target dominating offsuit opens | Preflop bluff construction | `GENERAL_CORE` | SUPPORTING | Medium-high | `DRILL_READY` | Exact position boundaries visual-dependent |
+| `H-W01-009` | Interpret current-node frequency through prior hand reach | Range accounting | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Cross-source validation |
 | `H-W02-001` | Value threshold first, bluff volume second | Turn/river aggression | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W02-002` | Every turn bluff needs a job in the river tree | Multi-street bluffing | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Exact combo boundaries visual-dependent |
 | `H-W02-003` | Overbet only when card and value shape preserve polarization | Overbets | `GENERAL_CORE` | SUPPORTING | Medium-high | `VALIDATION_PENDING` | L12 reruns; visual card boundaries |
@@ -55,17 +58,19 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 
 ## Consolidation candidates
 
-The registry intentionally contains more candidates than the final Playbook target. The following groups may later collapse into one broader rule:
+The registry intentionally contains more candidates than the final Playbook target.
 
 ### Group A — Range construction through the tree
 
+- `H-W01-007`
+- `H-W01-009`
 - `H-W03-001`
 - `H-W03-005`
 - `H-W03-011`
 
 Potential admitted compression:
 
-`Trace the range from preflop before trusting a blocker or bluff-catch.`
+`Start with high-weight preflop composition, trace reach through every action, then trust blockers.`
 
 ### Group B — Opponent branch modelling
 
@@ -80,13 +85,14 @@ Potential admitted compression:
 
 ### Group C — Aggression construction
 
+- `H-W01-008`
 - `H-W02-001`
 - `H-W02-002`
 - `H-W02-003`
 
 Potential admitted compression:
 
-`Value threshold → size → bluff jobs → river plan.`
+`Target the right folds → value threshold → size → bluff jobs → river plan.`
 
 ### Group D — Multiway structure
 
@@ -110,12 +116,12 @@ Potential admitted compression:
 
 ## Current count
 
-- Total candidates: 26
-- CORE: 20
-- SUPPORTING: 3
+- Total candidates: 29
+- CORE: 21
+- SUPPORTING: 5
 - ADVANCED: 2
 - OVERLAY-only: 0; overlays are currently dual-tagged
-- `DRILL_READY`: 14
+- `DRILL_READY`: 17
 - `VALIDATION_PENDING`: 12
 - `ADMITTED`: 0
 
@@ -133,7 +139,7 @@ The final compact Playbook should likely contain:
 
 A candidate may move from `CANDIDATE` to `DRILL_READY` when:
 
-1. the source mechanism is continuous and not rerun-blocked;
+1. the source mechanism is continuous and not rerun-blocked for the claimed scope;
 2. trigger and exception can be stated without exact missing charts;
 3. the rule can be tested with an original scenario;
 4. no source-specific wording or proprietary example is required.
@@ -156,4 +162,4 @@ A candidate may move to `ADMITTED` only when:
 
 ## Registry verdict
 
-`UNIFIED_HEURISTIC_CANDIDATE_REGISTRY_CREATED`
+`UNIFIED_HEURISTIC_CANDIDATE_REGISTRY_UPDATED_FROM_PREFLOP_101_RERUN`
