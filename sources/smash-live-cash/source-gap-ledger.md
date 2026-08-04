@@ -27,7 +27,6 @@ Canonical record of transcript reruns, cleanup tasks and visual dependencies. A 
 | `SGL-0049` | `SLC-M02-L18` | Leading Turns After Calling | `13:00–15:05` | Transition interval | P1 |
 | `SGL-0052` | `SLC-M02-L22` | HJ vs BTN 50-Flop Report | `18:35–26:05` | Low-board deep dives | P0 |
 | `SGL-0054` | `SLC-M02-L04` | Postflop Intro | `05:40–08:17` | Intro conclusion | P0 |
-| `SGL-0056` | `SLC-M02-L15` | Hard Continues from BB | `07:55–25:44 in three chunks` | Most examples and conclusion | P0 |
 
 ## Cleanup backlog
 
@@ -56,6 +55,7 @@ Exact cards, suits, position labels, sizes, combo weights, frequencies and EV re
 | `SGL-R005` | Final first-cycle archive | All previously received duplicate files were byte-identical; canonical files were not overwritten |
 | `SGL-0053` | `SLC-M01-L01 Preflop 101` | Seven-part large-v3 rerun plus two tail recoveries restored complete speech through `50:29.70`; final 2.3 seconds confirmed as non-speech; audio issue closed |
 | `SGL-0055` | `SLC-M02-L14 Turns After Flop Overbet` | Two-part large-v3 rerun restored `10:30–23:53.48`; overlap and terminal transition verified; final 0.52 seconds confirmed as non-speech; audio issue closed |
+| `SGL-0056` | `SLC-M02-L15 Hard Continues from BB` | Three-part large-v3 rerun restored complete speech through `25:43.19`; adjacent overlaps and an independent recovery were reconciled; final 0.81 seconds confirmed as non-speech; audio issue closed |
 
 ## Targeted rerun protocol
 
@@ -67,7 +67,7 @@ Exact cards, suits, position labels, sizes, combo weights, frequencies and EV re
 6. Save segments JSON, SRT, VTT, timestamped TXT and plain TXT.
 7. Never reconstruct cards, actions, sizes, frequencies or EV from expectation.
 8. Close an issue only after source continuity is established.
-9. An endpoint slightly before nominal media duration may be accepted only when independent runs reproduce the same complete terminal sentence and the remaining tail contains no speech.
+9. An endpoint slightly before nominal media duration may be accepted only when independent outputs or a complete terminal sentence establish that the remaining tail contains no speech.
 
 ## Admission rule
 
