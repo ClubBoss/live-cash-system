@@ -73,15 +73,13 @@ incoming source package
 
 ### From the Ground Up
 
-Initial batch accepted and mapped:
+Canonical records and cross-source mappings now exist for 23 of 30 episodes:
 
-- Episode 1 — Equity and EV;
-- Episode 10 — Merged Flop Raising;
-- Episodes 11–14 — Combos, Bet Sizing, Blockers and Pyramidal Defence;
-- Episode 30 — Three Tips for Success;
+- Episodes 1–2;
+- Episodes 10–30;
 - hand-chart PDF audited as reference-only.
 
-Episodes 2–9 and 15–29 remain to be received.
+Episodes 3–9 remain to be received. No FTGU chart has been promoted into the original anchor layer.
 
 ### Carrot Poker
 
@@ -127,7 +125,7 @@ Planned source family for exploit hypotheses and practical node adjustments.
 
 ## Current priority nodes
 
-1. Complete FTGU ingestion and cross-source mapping.
+1. Receive and ingest FTGU Episodes 3–9.
 2. Ingest Carrot Poker and Cash Injection through the same source-family contract.
 3. Consolidate overlapping candidates without losing assumptions.
 4. Build independently validated preflop anchor configurations.
