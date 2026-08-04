@@ -26,7 +26,7 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 
 | ID | Candidate | Domain | Tag | Tier | Confidence | Current status | Primary dependencies |
 |---|---|---|---|---|---|---|---|
-| `H-W01-001` | Effective stack sets the preflop architecture | Preflop / depth | `GENERAL_CORE` | CORE | Medium-high | `VALIDATION_PENDING` | Final Preflop 101 tail; visual anchors; Carrot/FTGU depth comparison |
+| `H-W01-001` | Effective stack sets the preflop architecture | Preflop / depth | `GENERAL_CORE` | CORE | High mechanism | `VALIDATION_PENDING` | Visual anchors; Carrot/FTGU depth comparison |
 | `H-W01-002` | Expand squeezes by purifying existing candidates | Preflop squeeze | `GENERAL_CORE` | CORE | High mechanism | `VALIDATION_PENDING` | Exact anchor ranges; cross-source comparison |
 | `H-W01-003` | Straddle changes the denominator; preserve SPR | Straddle / depth | `GENERAL_CORE / ENVIRONMENT_SENSITIVE` | CORE | High mechanism | `DRILL_READY` | Exact sizing remains profile-dependent |
 | `H-W01-004` | Identify the blind range before reading the board | SRP / blinds | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Exact range weights visual-dependent |
@@ -37,24 +37,27 @@ Purpose: maintain one canonical index of compressed decision candidates before c
 | `H-W01-009` | Interpret current-node frequency through prior hand reach | Range accounting | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Cross-source validation |
 | `H-W02-001` | Value threshold first, bluff volume second | Turn/river aggression | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W02-002` | Every turn bluff needs a job in the river tree | Multi-street bluffing | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Exact combo boundaries visual-dependent |
-| `H-W02-003` | Overbet only when card and value shape preserve polarization | Overbets | `GENERAL_CORE` | SUPPORTING | Medium-high | `VALIDATION_PENDING` | L12 reruns; visual card boundaries |
+| `H-W02-003` | Overbet only when card and value shape preserve polarization | Overbets | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Exact card boundaries visual-dependent; cross-source comparison |
 | `H-W02-004` | Bet size determines how wide top pair can check-raise | Flop defence | `GENERAL_CORE` | CORE | High shape | `VALIDATION_PENDING` | L16 rerun; exact frequencies |
 | `H-W02-005` | Vulnerable low-kicker top pair can be a better raise | Flop protection | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Cross-source comparison |
 | `H-W02-006` | Turn lead responds to flop betting range, not only turn card | Turn leads | `GENERAL_CORE` | ADVANCED | Medium-high | `VALIDATION_PENDING` | L18 rerun; exact board families |
-| `H-W02-007` | Node-lock the sizing branch, not the personality label | Opponent modelling | `GENERAL_CORE` | CORE | High | `DRILL_READY` | None for mechanism; field calibration later |
-| `H-W02-008` | Versus value-heavy bets, remove speculative floats first | Exploit defence | `GENERAL_CORE / POOL_HYPOTHESIS` | CORE | High direction | `VALIDATION_PENDING` | Cross-source/pool evidence |
+| `H-W02-007` | Node-lock the sizing branch, not the personality label | Opponent modelling | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Field calibration later |
+| `H-W02-008` | Versus value-heavy bets, remove speculative floats first | Exploit defence | `GENERAL_CORE / POOL_HYPOTHESIS` | CORE | High direction | `VALIDATION_PENDING` | Cross-source and pool evidence |
 | `H-W02-009` | Before folding a deep bluff-catcher, count value and size exclusions | River defence | `GENERAL_CORE / POOL_HYPOTHESIS` | ADVANCED | Medium-high | `VALIDATION_PENDING` | Pool under/over-bluff evidence |
 | `H-W03-001` | A 3-bet-pot range begins preflop and keeps its shape postflop | 3-bet pots | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W03-002` | Against value-heavy 3-bets, dominated big cards lose first | Preflop vs 3-bet | `GENERAL_CORE / ENVIRONMENT_SENSITIVE` | CORE | High direction | `VALIDATION_PENDING` | Preflop charts, rake/depth overlays |
 | `H-W03-003` | A wide preflop range must compensate by checking more postflop | 3-bet exploit | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W03-004` | Split opponent by branch: respect the bet, attack the check | Branch exploitation | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Profile evidence in field use |
 | `H-W03-005` | Bluff supply must be seeded before the river | Bluff-catching / barrels | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
-| `H-W03-006` | Small bets can be harder to defend than large bets | Sizing exploit | `GENERAL_CORE / ENVIRONMENT_SENSITIVE` | SUPPORTING | High mechanism | `VALIDATION_PENDING` | Pool response measurements |
+| `H-W03-006` | Small bets can be harder to defend than large bets | Sizing exploit | `GENERAL_CORE / ENVIRONMENT_SENSITIVE` | SUPPORTING | High mechanism | `DRILL_READY` | Pool fold and raise calibration |
 | `H-W03-007` | Multiway defence is shared | Multiway | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
-| `H-W03-008` | Multiway bluffs need backup equity and removal | Multiway aggression | `GENERAL_CORE` | CORE | High | `DRILL_READY` | L38 small-bet exception blocked |
+| `H-W03-008` | Multiway bluffs need backup equity and removal | Multiway aggression | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
 | `H-W03-009` | Fast-play value when expected aggression will not arrive | Population exploit | `GENERAL_CORE / POOL_HYPOTHESIS` | CORE | High direction | `VALIDATION_PENDING` | Environment profile evidence |
 | `H-W03-010` | Multiway nut ownership depends on preflop combo ownership | Multiway / ranges | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Exact range weights visual-dependent |
 | `H-W03-011` | A blocker is useful only inside the range created by the line | River blocker logic | `GENERAL_CORE` | CORE | High | `DRILL_READY` | Cross-source validation |
+| `H-R04-007` | Suppressed flop aggression can reappear as a turn lead | Multiway / delayed aggression | `GENERAL_CORE` | SUPPORTING | High mechanism | `DRILL_READY` | Exact hand classes visual-dependent |
+| `H-R04-008` | A live tell is a data point, not a range conclusion | Live reads / evidence | `GENERAL_CORE / FIELD_EVIDENCE` | CORE | High methodology | `DRILL_READY` | Repeated field observations and falsifiers |
+| `H-R04-010` | Preserve turn-resilient hands in the IP check-back range | Flop strategy / protected checks | `GENERAL_CORE` | CORE | High mechanism | `DRILL_READY` | Exact combo weights visual-dependent; cross-source comparison |
 
 ## Consolidation candidates
 
@@ -72,16 +75,17 @@ Potential admitted compression:
 
 `Start with high-weight preflop composition, trace reach through every action, then trust blockers.`
 
-### Group B — Opponent branch modelling
+### Group B — Opponent branch and evidence modelling
 
 - `H-W02-007`
 - `H-W02-008`
 - `H-W03-003`
 - `H-W03-004`
+- `H-R04-008`
 
 Potential admitted compression:
 
-`Model the exact hand-class error and respond to that branch.`
+`Model the exact hand-class error, grade the evidence, and respond only to that branch.`
 
 ### Group C — Aggression construction
 
@@ -99,10 +103,11 @@ Potential admitted compression:
 - `H-W03-007`
 - `H-W03-008`
 - `H-W03-010`
+- `H-R04-007`
 
 Potential admitted compression:
 
-`Nut owner → sandwich → shared defence → backup equity.`
+`Nut owner → sandwich → shared defence → suppressed action → backup equity.`
 
 ### Group E — Position and depth
 
@@ -114,15 +119,25 @@ Potential admitted compression:
 
 `Translate effective depth into SPR and realization pressure before choosing aggression.`
 
+### Group F — Protected passive branches
+
+- `H-W01-006`
+- `H-W01-005`
+- `H-R04-010`
+
+Potential admitted compression:
+
+`Do not spend every resilient hand in the aggressive branch; preserve hands that can absorb future pressure.`
+
 ## Current count
 
-- Total candidates: 29
-- CORE: 21
-- SUPPORTING: 5
+- Total candidates: 32
+- CORE: 24
+- SUPPORTING: 6
 - ADVANCED: 2
 - OVERLAY-only: 0; overlays are currently dual-tagged
-- `DRILL_READY`: 17
-- `VALIDATION_PENDING`: 12
+- `DRILL_READY`: 23
+- `VALIDATION_PENDING`: 9
 - `ADMITTED`: 0
 
 ## Target after consolidation
@@ -162,4 +177,4 @@ A candidate may move to `ADMITTED` only when:
 
 ## Registry verdict
 
-`UNIFIED_HEURISTIC_CANDIDATE_REGISTRY_UPDATED_FROM_PREFLOP_101_RERUN`
+`UNIFIED_HEURISTIC_CANDIDATE_REGISTRY_CONSOLIDATED_AFTER_RERUN_CHECKPOINT_04`
