@@ -33,7 +33,7 @@ Source courses provide evidence. They do not become parallel curricula.
 | From the Ground Up | 30/30 complete and mapped; charts reference-only |
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 2 | Lectures 01–10 and Final Exam received; Exam Feedback pending |
+| Carrot Poker Grade 2 | complete: Lectures 01–10, Final Exam and Feedback |
 | Carrot Poker Grade 3 | pending |
 
 ## Current system state
@@ -50,11 +50,12 @@ Carrot Grade 1 assessments:         24
 Carrot Grade 2 assessments:         20
 Carrot assessments total:           44
 Grade 2 exam runtime modes:           1
+Grade 2 feedback repair paths:       10
 admitted final rules:                0
 intended final core:               14–18
 ```
 
-Candidate and assessment-family counts did not increase after the Grade 2 Final Exam.
+Candidate and assessment-family counts did not increase after complete Grade 2.
 
 ## Architecture
 
@@ -69,22 +70,6 @@ source package
 → learner testing
 → field evidence
 → admission, revision or rejection
-```
-
-## Stable learner modules
-
-```text
-LCM-01  NODE + EFFECTIVE DEPTH
-LCM-02  PREFLOP RANGE ARCHITECTURE
-LCM-03  BLIND IDENTITY + REALISATION
-LCM-04  ACTION FILTERING + OWNERSHIP
-LCM-05  BET SHAPE + RESPONSE SHAPE
-LCM-06  AGGRESSION + FUTURE JOBS
-LCM-07  3-BET-POT ANCESTRY
-LCM-08  MULTIWAY STRUCTURE
-LCM-09  RIVER AUDIT
-LCM-10  OPPONENT / ENVIRONMENT OVERLAYS
-LCM-11  FIELD TRANSFER + REPAIR
 ```
 
 ## Main retrieval scaffolds
@@ -108,15 +93,16 @@ FULL TREE EV
 ### Carrot Grade 2
 
 ```text
-ACTION FILTER
-→ RANGE SHAPE
+ACTION HISTORY
+→ RANGE FILTERING
 → WORLD FAVOURABILITY
-→ BET FREQUENCY
+→ FREQUENCY
 → RELATIVE POLARISATION
 → SIZE / RAISE BREADTH
-→ HAND TIER
-→ RESPONSE THRESHOLD
-→ ANCESTRY / EXPLOIT EVIDENCE
+→ HAND TIER / RESPONSE THRESHOLD
+→ CHECK EV / FINISHING EQUITY
+→ BLOCKERS
+→ FIELD EVIDENCE
 ```
 
 ### Grade 2 exam mode
@@ -128,17 +114,18 @@ COLD PROMPT
 → CONFIDENCE
 → TIME LIMIT
 → FEEDBACK
+→ SELF-COMPARISON
 → CHANGED VARIANT
 → DELAYED RETEST
 ```
 
 ### River
 
-`VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → ROBUSTNESS → BLOCKERS → EVIDENCE`
+`VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → ROBUSTNESS → INTERFERENCE → BLOCKERS → EVIDENCE`
 
 ## Current Carrot effect
 
-Grades 1–2 now provide a mature postflop pedagogical and assessment system covering:
+Grades 1–2 now provide a mature postflop pedagogical, assessment and repair system covering:
 
 - full-tree EV and action filtering;
 - value, bluff, call and raise thresholds;
@@ -151,9 +138,10 @@ Grades 1–2 now provide a mature postflop pedagogical and assessment system cov
 - bluff-catching ancestry;
 - 3-bet-pot flop planning;
 - postflop raising;
-- blocker ordering;
+- blocker/interference ordering;
 - 44 original assessment families;
-- a reasoning-first Grade 2 exam runtime.
+- reasoning-first exam delivery;
+- ten misconception-repair paths.
 
 They do not close:
 
@@ -163,7 +151,6 @@ They do not close:
 - independent preflop anchors;
 - multiway structure;
 - exact depth/straddle overlays;
-- Grade 2 Exam Feedback;
 - Grade 3.
 
 ## Deferred
@@ -185,11 +172,7 @@ They do not close:
 
 `CASH_INJECTION_10_OF_10_COMPLETE`
 
-`CARROT_GRADE_1_COMPLETE`
-
-`CARROT_GRADE_2_LECTURES_AND_FINAL_EXAM_RECEIVED`
-
-`GRADE_2_EXAM_FEEDBACK_PENDING`
+`CARROT_GRADES_1_AND_2_COMPLETE`
 
 `GRADE_3_PENDING`
 
