@@ -1,20 +1,21 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_COMPLETE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_2_LECTURE_LAYER_ACTIVE`
 
 ## Authorities
 
 - Adaptive route: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - Learner state: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - Runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
-- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md`
+- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md`
 - Misconceptions: `MISCONCEPTION_TAXONOMY_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - Cash Injection drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
-- Remaining Carrot-gated drill factories: `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`
+- Remaining source-gated drill factories: `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`
 - Grade 1 exam blueprint: `assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
 - Grade 1 L05–L09 extension: `assessments/CARROT_G1_L05_L09_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`
 - Grade 1 L10 extension: `assessments/CARROT_G1_L10_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`
+- Grade 2 lecture blueprint: `assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
 
 ## Navigation rule
 
@@ -35,10 +36,9 @@ diagnostic
 34 candidate mechanisms
 30 with direct original drills
 4 source-gated direct drill gaps
-10 original Grade 1 exam families
-8 original L05–L09 assessment families
-6 original L10 assessment families
-24 total original Grade 1 assessment families
+24 original Grade 1 assessment families
+20 original Grade 2 lecture assessment families
+44 total original Carrot assessment families
 ```
 
 The four direct-drill gaps remain:
@@ -48,41 +48,58 @@ The four direct-drill gaps remain:
 - polar preflop target folds;
 - multiway delayed aggression.
 
-Grade 1 materially strengthens explanations and assessments but does not settle the source-sensitive boundaries required to close these four drills.
+Grade 2 improves general OOP and response reasoning but does not settle the exact depth-specific answer key needed to close the deep-OOP drill.
 
-## Complete Grade 1 learning contribution
+## Grade 2 executable contribution
 
-Executable protocols now include:
+New learner-facing protocols include:
 
-- full-tree EV and open/end-action distinction;
-- mandatory / optional / prohibited value and bluffs;
-- required pot share versus realised EV;
-- range advantage versus nut advantage;
-- frequency and size as independent outputs;
-- filtered turn favourability;
-- float-bet linearisation;
-- texture class and four range-geography thresholds;
-- blocker limitation;
-- turn-to-river blocker reversal;
-- dead-suit and completed-flush blocker selection;
-- value blockers in polar river bluff-raises.
+- polarising versus condensing actions;
+- pot-odds norm adjusted by range asymmetry;
+- world favourability versus relative polarisation;
+- value and bluff tiers;
+- finishing equity versus landing equity;
+- sizing toolkit construction;
+- river-blunder gate;
+- frequency versus magnitude;
+- theoretical, exploitative and erroneous slow-play;
+- robust versus frail continuations;
+- hybrid-bet audit;
+- response range geography;
+- range bet versus selective bet;
+- bluff-catching from origin range and filtered air supply;
+- 3-bet-pot flop plan selection;
+- raise breadth from opposing bet shape.
 
-Misconception aliases include:
+## Core runtime orders
 
-- required-equity-in-open-action error;
-- frequency-control-sizing fallacy;
-- range-advantage-equals-bet fallacy;
-- linearisation pitfall;
-- absolute-hand-label bias;
-- texture-blind threshold error;
-- blocker-first action generation;
-- insufficient-reason trap;
-- static blocker value across streets;
-- bluff-raise bottom-of-range fallacy.
+### Betting and raising
 
-These map into existing misconception IDs unless learner data proves a genuinely new class.
+```text
+ACTION FILTER
+→ RANGE SHAPE
+→ WORLD FAVOURABILITY
+→ FREQUENCY
+→ RELATIVE POLARISATION
+→ SIZE / RAISE BREADTH
+→ HAND TIER
+→ RESPONSE THRESHOLD
+```
 
-## Blocker-ordering runtime rule
+### Bluff-catching
+
+```text
+ORIGIN RANGE
+→ FILTER DENSITY
+→ VALUE / AIR SUPPLY
+→ SIZE
+→ VALUE BEATER / BLUFF CATCHER / FRAIL HAND
+→ ROBUSTNESS
+→ BLOCKERS
+→ EVIDENCE
+```
+
+### Blocker ordering
 
 ```text
 ACTION CATEGORY
@@ -92,7 +109,22 @@ ACTION CATEGORY
 → EVIDENCE
 ```
 
-A blocker may choose between close candidates. It must not generate an action that range and EV do not support.
+## Misconception additions
+
+Grade 2 adds assessment language for:
+
+- every-check-caps error;
+- range-advantage-equals-large-bet error;
+- pot-odds-norm-as-mandatory-MDF error;
+- frequency-over-magnitude bias;
+- target-one-hand-class tunnel vision;
+- erroneous slow-play;
+- hybrid-as-vague-excuse;
+- monetary-stack/SRP fear;
+- same-size-means-same-range-shape error;
+- blocker-first bluff-catching.
+
+These remain aliases under existing misconception IDs unless learner data proves a truly independent class.
 
 ## Source-update rule
 
@@ -102,36 +134,31 @@ New Carrot material may improve explanations, boundaries, assessment variants an
 
 Ready now:
 
-- complete Grade 1 pedagogy and assessment layer;
 - adaptive architecture and runtime;
 - action/reason/confidence scoring;
 - 30 directly drilled candidates;
-- 24 original Grade 1 assessment families;
+- 44 original Carrot assessment families;
 - complete Smash/FTGU/Cash Injection routing;
-- Carrot Grade 1 Lectures 01–10 routing;
-- Grade 1 completion readiness pass.
+- Carrot Grade 1 complete routing;
+- Carrot Grade 2 Lectures 01–10 routing;
+- post-Grade-2 dimensional readiness assessment.
 
 Still deferred:
 
 - final 14–18-rule compression;
 - exact preflop anchors;
-- deep and multiway boundary closure;
+- exact deep and straddle overlays;
+- multiway boundary closure;
 - target-live population confidence;
 - final mastery thresholds;
 - admitted Playbook.
 
-## Comparative source evaluation
-
-Current source-course evaluation:
-
-`../reports/CURRENT_SOURCE_COURSE_EVALUATION_v2.md`
-
 ## Verdict
 
-`CARROT_GRADE_1_LEARNING_LAYER_COMPLETE`
+`CARROT_GRADE_2_LECTURE_LEARNING_LAYER_ABSORBED`
+
+`FORTY_FOUR_ORIGINAL_CARROT_ASSESSMENT_FAMILIES_AVAILABLE`
 
 `SOURCE_EXAMPLES_REMAIN_REFERENCE_ONLY`
 
-`ADAPTIVE_NAVIGATION_UNCHANGED`
-
-`GRADES_2_AND_3_REMAIN_BOUNDARY_AND_CONTEXT_PHASE`
+`GRADE_3_REMAINS_PRIMARY_PREFLOP_DEPTH_MULTIWAY_PHASE`
