@@ -1,6 +1,6 @@
 # Carrot Poker Source Registry
 
-Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_COMPLETE / GRADE_3_PENDING`
+Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_COMPLETE / GRADE_3_EXAM_RECEIVED / GRADE_3_LECTURES_AND_FEEDBACK_PENDING`
 
 ## Grade 1
 
@@ -17,7 +17,7 @@ Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_COMPLETE / GRADE_3_PENDING`
 | `CP-G1-L09` | River Textural Awareness and Range Geography | `sources/carrot-poker/transcripts/CP_G1_L09_river_textural_awareness.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | texture and river thresholds |
 | `CP-G1-L10` | Basic Blocker Patterns and Texture | `sources/carrot-poker/transcripts/CP_G1_L10_basic_blocker_patterns_and_texture.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | blocker ordering and insufficient-reason repair |
 | `CP-G1-EXAM` | Final Exam PDF | `sources/carrot-poker/artifacts/CP_G1_FINAL_EXAM_SOURCE_AUDIT_v1.md` | VISUAL_ARTIFACT_ACCEPTED | ASSESSMENT_MAPPED | 10 competency questions, reference-only |
-| `CP-G1-EXAM-FB` | Final Exam Feedback | `sources/carrot-poker/transcripts/CP_G1_EXAM_FEEDBACK.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | solutions and Grade 1 recap |
+| `CP-G1-EXAM-FB` | Final Exam Feedback | `sources/carrot-poker/transcripts/CP_G1_EXAM_FEEDBACK.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | ANSWER_KEY_MAPPED | solutions and Grade 1 recap |
 
 Grade 1 lecture, exam-question and answer-key continuity are complete.
 
@@ -44,7 +44,25 @@ Grade 2 lecture, exam-question and answer-key continuity are complete.
 
 | Source ID | Source lesson/artifact | Canonical path | QA status | Cross-source state | Notes |
 |---|---|---|---|---|---|
-| — | material pending | — | NOT_RECEIVED | NOT_MAPPED | inventory first |
+| `CP-G3-EXAM` | Final Exam PDF | `sources/carrot-poker/artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md` | VISUAL_ARTIFACT_ACCEPTED | PRELIMINARY_COMPETENCY_MAPPED | 12 pages, 10 advanced postflop questions, reference-only |
+| — | Lectures | — | NOT_RECEIVED | NOT_MAPPED | inventory and immutable IDs pending |
+| — | Final Exam Feedback | — | NOT_RECEIVED | NOT_MAPPED | answer keys and repair logic pending |
+
+Grade 3 exam-question continuity is present. Lecture continuity and answer-key continuity remain pending.
+
+## Grade 3 preliminary scope note
+
+The Grade 3 exam visibly emphasizes:
+
+- turn call/raise selection;
+- mixed sizing and large value bets;
+- combo-level bluff selection;
+- check-raise range construction;
+- river bluff-catching;
+- turn and river overbets;
+- 3-bet-pot and 4-bet-pot strategy.
+
+It does not visibly establish direct coverage of preflop squeeze construction, multiway strategy, straddles or exact deep-stack bands. Full course scope remains unknown until lectures arrive.
 
 ## Batch authorities
 
@@ -56,24 +74,21 @@ Grade 2 lecture, exam-question and answer-key continuity are complete.
 - Grade 1 closure QA: `analysis/module-audits/CARROT_G1_BATCH_04_QA_v1.md`;
 - Grade 1 terminal report: `reports/CARROT_G1_BATCH_04_TERMINAL_REPORT_v1.md`.
 
-### Grade 2 lectures
+### Grade 2
 
-- QA: `analysis/module-audits/CARROT_G2_LECTURE_CORPUS_QA_v1.md`;
-- delta: `synthesis/CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md`;
-- original assessments: `learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
+- lecture QA: `analysis/module-audits/CARROT_G2_LECTURE_CORPUS_QA_v1.md`;
+- lecture delta: `synthesis/CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md`;
+- exam audit: `sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
+- exam coverage: `synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md`;
+- feedback source: `sources/carrot-poker/transcripts/CP_G2_EXAM_FEEDBACK.md`;
+- feedback delta: `synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md`;
+- repair map: `learning/assessments/CARROT_G2_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md`.
 
-### Grade 2 Final Exam
+### Grade 3 Final Exam
 
-- source audit: `sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
-- coverage delta: `synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md`;
-- original runtime protocol: `learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md`.
-
-### Grade 2 Exam Feedback
-
-- canonical source: `sources/carrot-poker/transcripts/CP_G2_EXAM_FEEDBACK.md`;
-- QA: `analysis/module-audits/CARROT_G2_EXAM_FEEDBACK_QA_v1.md`;
-- cross-source delta: `synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md`;
-- original repair map: `learning/assessments/CARROT_G2_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md`.
+- source audit: `sources/carrot-poker/artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
+- preliminary competency map: `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
+- terminal report: `reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`.
 
 ### Active evidence
 
@@ -87,7 +102,8 @@ Grade 2 lecture, exam-question and answer-key continuity are complete.
 4. Preserve source order only inside the source family.
 5. Route cross-source effects through the Carrot evidence matrix.
 6. Do not promote source charts or exact exam spots into product-facing anchors or assessments.
-7. Complete source continuity does not imply candidate admission or final Playbook completion.
+7. An exam PDF without lectures or feedback provides competency routing, not answer-key evidence.
+8. Complete source continuity does not imply candidate admission or final Playbook completion.
 
 ## Registry verdict
 
@@ -95,6 +111,6 @@ Grade 2 lecture, exam-question and answer-key continuity are complete.
 
 `CARROT_GRADE_2_COMPLETE`
 
-`GRADE_2_LECTURES_EXAM_AND_FEEDBACK_MAPPED`
+`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
 
-`GRADE_3_PENDING`
+`GRADE_3_LECTURES_AND_EXAM_FEEDBACK_PENDING`
