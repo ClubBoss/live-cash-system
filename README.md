@@ -2,6 +2,19 @@
 
 Private source-of-truth for a compact, adaptive and executable No-Limit Hold'em live-cash learning system.
 
+## New chat or agent entry point
+
+Do not begin with a broad repository scan.
+
+Read in this order:
+
+1. [`START_HERE.md`](START_HERE.md) — current mission, checkpoint and next milestone;
+2. [`AGENTS.md`](AGENTS.md) — operating contract and mutation rules;
+3. [`state/CURRENT_PROJECT_STATE.yaml`](state/CURRENT_PROJECT_STATE.yaml) — machine-readable current state;
+4. [`PROJECT_ATLAS.md`](PROJECT_ATLAS.md) — repository and authority map.
+
+Repository state overrides chat memory. Continue from the accepted checkpoint rather than restarting project diagnosis.
+
 ## Objective
 
 Convert independent sources into:
@@ -148,5 +161,7 @@ They do not close:
 `CARROT_GRADE_1_LECTURES_01_TO_09_INGESTED`
 
 `GRADE_1_L10_AND_GRADES_2_TO_3_PENDING`
+
+`REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
 
 `NO_GLOBAL_RESTRUCTURE_EXPECTED`
