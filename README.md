@@ -8,21 +8,29 @@ Build a general live-cash core that converts complex poker theory into a small n
 
 Specific games—casino $1/$3, deep $2/$5, private games, short-stack tables or straddled lineups—are deployment profiles layered on top of the general core.
 
-## Architecture authority
+## Architecture authorities
 
-Repository structure and routing:
+Repository structure:
 
 `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
 
-Adaptive course and progress-preservation rules:
+Adaptive course and progress preservation:
 
 `governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md`
+
+Pre-finalisation freeze and mutation rules:
+
+`governance/PRE_FINALIZATION_FREEZE_AND_MUTATION_POLICY_v1.md`
 
 New-source delta behaviour:
 
 `synthesis/NEW_SOURCE_DELTA_INTEGRATION_PROTOCOL_v1.md`
 
-The layout allows Carrot Poker, Cash Injection, original range work and field evidence to be added incrementally without moving existing corpora or rebuilding the learner journey.
+Remaining-source routing:
+
+`synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1.md`
+
+The layout allows remaining Cash Injection, Carrot Poker, original range work and field evidence to be added incrementally without moving existing corpora or rebuilding the learner journey.
 
 ## Operating principles
 
@@ -38,19 +46,21 @@ The layout allows Carrot Poker, Cash Injection, original range work and field ev
 10. Learner progress is tracked by mechanism, reasoning, retention and field transfer—not by watched lessons.
 11. New sources extend evidence and branches before creating new modules.
 12. Population claims remain hypotheses until independent or field evidence validates their scope.
+13. Exact charts and frequencies live outside the heuristic count and require explicit assumptions.
+14. Future batches close explicit question IDs rather than recreating global synthesis.
 
 ## Stable repository layers
 
 - `sources/` — source-family records, registries, audits and bounded gaps.
-- `analysis/` — lesson analysis, QA, contradiction and evidence review.
-- `synthesis/` — same-source and cross-source candidate mechanisms.
+- `analysis/` — lesson analysis, QA, contradiction and system audits.
+- `synthesis/` — candidate mechanisms, evidence matrices, open questions and consolidation workbenches.
 - `ranges/` — independently derived assumptions, validation and anchors.
 - `playbook/` — compact executable rules and table-facing algorithms.
-- `learning/` — adaptive route, learner state, runtime, misconceptions, diagnostics and drills.
+- `learning/` — adaptive route, learner state, runtime, readiness, misconceptions, diagnostics and drills.
 - `profiles/` — opponent models, pool hypotheses and environment overlays.
 - `fieldwork/` — session evidence and deployment feedback.
 - `hands/` — raw and reviewed hand records.
-- `governance/` — admission, conflict, IP and architecture rules.
+- `governance/` — admission, conflict, IP, architecture and freeze rules.
 - `sharky/` — source-pure transfer candidates for Sharky.
 - `templates/` — reusable ingestion and review schemas.
 - `operations/` — bounded recovery and processing instructions.
@@ -62,12 +72,11 @@ The layout allows Carrot Poker, Cash Injection, original range work and field ev
 incoming source package
 → package QA and checksum
 → canonical source-family record
-→ lesson/module analysis
-→ same-source mechanism candidate
-→ cross-source relation
-→ consolidated heuristic
-→ original drill and misconception mapping
-→ adaptive learner testing
+→ route to open question IDs
+→ candidate relation
+→ adaptive module delta
+→ original drill/boundary/overlay delta
+→ learner testing
 → provisional Playbook
 → field evidence
 → admission, revision or rejection
@@ -91,37 +100,36 @@ incoming source package
 - exact source visuals remain claim-driven only;
 - the hand-chart PDF remains reference-only and has not been promoted into the original anchor layer.
 
-### Carrot Poker
-
-Planned next source family for theory, exploit structure and cross-validation. Grades 1–3 belong inside one `sources/carrot-poker/` family and will map into existing candidates and modules before any new curriculum object is created.
-
 ### Cash Injection
 
 - Episode 1 is canonically ingested and mapped;
 - Episodes 2–10 remain pending;
-- the first episode adds small-range-bet elasticity and merged-raise evidence;
+- Episode 1 adds small-range-bet elasticity and merged-raise evidence;
 - its population overfold/under-three-bet claim is stored as `CI-PH-001`, not as a general default;
 - original adaptive drills and a field observation mission are active.
+
+### Carrot Poker
+
+- one unified source family for Grades 1–3 is scaffolded;
+- registry, intake ledger and routing specification are ready;
+- exact lesson IDs will be assigned after package inventory;
+- no Carrot source material has yet been canonically ingested.
 
 ## Current system state
 
 - heuristic candidates: 34;
+- stable adaptive modules: 11;
+- misconception classes: 30;
 - intended consolidated target: approximately 14–18 core rules;
-- admitted final rules: 0 pending Carrot, remaining Cash Injection, drill and field validation;
-- provisional compact Playbook: created as a reasoning snapshot;
-- stable adaptive module graph: created;
-- adaptive learner-state schema: created;
-- adaptive interactive runtime: created;
-- progress-preserving new-source integration protocol: created;
-- opponent-model schema and initial profiles: created;
-- Cash Injection pool-hypothesis register: active;
-- misconception taxonomy: 30 diagnostic errors;
-- initial diagnostic and original drill packs: created;
-- session-review and field-evidence loop: created;
-- environment-profile template: created;
-- Smash/FTGU cross-source evidence matrix: complete at candidate level;
-- Cash Injection evidence matrix: active at 1 of 10 episodes;
-- original range layer: reserved; no source chart has been promoted to an anchor.
+- admitted final rules: 0 pending remaining sources, drills and field validation;
+- all 34 candidates have stable module ownership;
+- all remaining strategic dependencies have explicit source-question IDs;
+- all 11 modules have dimensional readiness status;
+- candidate consolidation has nine precomputed lanes;
+- direct-drill gaps are explicitly queued;
+- adaptive learner-state and runtime specifications are active;
+- progress-preserving source integration is active;
+- original range layer is reserved; no source chart has been promoted to an anchor.
 
 ## Adaptive course model
 
@@ -145,7 +153,7 @@ This is a dependency graph, not a fixed playlist. The runtime chooses the next i
 
 New sources may confirm, simplify, extend or split a module. Valid learner progress is preserved unless the actual mechanism is revised.
 
-## Compression scaffolds strengthened by FTGU
+## Compression scaffolds
 
 ### Preflop
 
@@ -155,100 +163,97 @@ New sources may confirm, simplify, extend or split a module. Valid learner progr
 
 `RANGE ADVANTAGE → URGENCY → BET SHAPE → RESPONSE SHAPE`
 
-These structures organise existing candidates; they do not increase the final rule count.
+### Range accounting
 
-## Current provisional decision algorithms
+`SOURCE RANGE → ACTION FILTER → CURRENT OWNERSHIP → COMBO JOB`
 
-### Single-raised pots
-
-`NODE → SIZE SHAPE → RANGE FILTER → CARD OWNERSHIP → COMBO JOB → RIVER PLAN`
-
-### 3-bet pots
-
-`PREFLOP SHAPE → BLUFF SUPPLY → FLOP BRANCH → COMPENSATION → FUTURE BLUFFS`
-
-### Multiway pots
-
-`NUT OWNER → SANDWICH → SHARED DEFENCE → EXPECTED AGGRESSION → BACKUP EQUITY`
-
-### River bluff-catching
+### River
 
 `VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → HERO BLOCKERS → EVIDENCE`
 
-## Current priority nodes
+These structures organise candidates; they do not automatically increase the final rule count.
 
-1. Ingest remaining Cash Injection episodes and Carrot Poker through the incremental source protocol.
-2. Map new evidence into the stable adaptive module graph.
-3. Consolidate overlapping candidates without losing assumptions.
-4. Build independently validated preflop anchor configurations.
-5. Expand original drill variants and calibrate adaptive thresholds.
-6. Begin structured session evidence collection.
-7. Use targeted visual review only when an exact claim can change a rule, anchor or drill.
+## Precomputed completion interfaces
 
-## Status vocabulary
+### Remaining-source questions
 
-### Source state
+`synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1.md`
 
-- `RECEIVED`
-- `AUDIO_COMPLETE`
-- `NEEDS_REVIEW`
-- `NEEDS_VISUAL_REVIEW`
-- `SOURCE_VERIFIED`
-- `REFERENCE_ONLY`
-- `REJECTED`
+Defines the exact questions future Cash Injection and Carrot material should close, refine or context-split.
 
-### Analysis state
+### Candidate-to-module workbench
 
-- `NOT_STARTED`
-- `PARTIAL`
-- `ANALYZED`
-- `SYNTHESIZED`
+`synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_1.md`
 
-### Candidate and product state
+Defines module ownership, drill coverage, consolidation roles and targeted mutation for all 34 candidates.
 
-- `CANDIDATE`
-- `VALIDATION_PENDING`
-- `DRILL_READY`
-- `FIELD_TEST_PENDING`
-- `ADMITTED`
-- `FIELD_VALIDATED`
-- `REVISED`
-- `REJECTED`
-- `BLOCKED`
+### Module readiness
 
-### Learner state
+`learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_1.md`
 
-- `UNEXPOSED`
-- `DIAGNOSED_GAP`
-- `INTRODUCED`
-- `FRAGILE`
-- `WORKING`
-- `RETAINED`
-- `FIELD_TEST_PENDING`
-- `FIELD_VALIDATED`
-- `REPAIR_REQUIRED`
-- `SCOPE_SPLIT`
+Separates mechanism, explanation, boundaries, drills, anchors, overlays and field readiness for all 11 modules.
+
+### Batch routing
+
+`templates/SOURCE_BATCH_DELTA_ROUTING_TEMPLATE_v1.md`
+
+Ensures every future batch is processed as a bounded evidence transaction.
+
+## Current priority sequence
+
+1. Ingest remaining Cash Injection episodes through the existing family contract.
+2. Inventory and ingest Carrot Grades 1–3 through the unified scaffold.
+3. Route every extracted mechanism to question/candidate/module IDs.
+4. Update only affected readiness dimensions and drill gaps.
+5. Close consolidation lanes after source questions settle.
+6. Build independently validated preflop anchors.
+7. Run learner diagnostic and adaptive drills.
+8. Begin structured session evidence collection.
+9. Promote only after misuse-resistant drills and field gates.
 
 ## Active core artifacts
 
+### Governance
+
 - `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
 - `governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md`
+- `governance/PRE_FINALIZATION_FREEZE_AND_MUTATION_POLICY_v1.md`
+
+### Synthesis
+
+- `synthesis/README.md`
 - `synthesis/NEW_SOURCE_DELTA_INTEGRATION_PROTOCOL_v1.md`
+- `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1.md`
+- `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_1.md`
 - `synthesis/CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md`
 - `synthesis/CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md`
 - `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_1.md`
-- `profiles/CASH_INJECTION_POOL_HYPOTHESES_v0_1.md`
+
+### Learning
+
+- `learning/README.md`
 - `learning/GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - `learning/ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - `learning/ADAPTIVE_COURSE_RUNTIME_v0_1.md`
+- `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_1.md`
+- `learning/MISCONCEPTION_TAXONOMY_v0_1.md`
 - `learning/INITIAL_DIAGNOSTIC_v0_1.md`
 - `learning/drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
 - `learning/drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
-- `playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md`
+
+### Sources and intake
+
 - `sources/smash-live-cash/source-gap-ledger.md`
 - `sources/ftgu/source-registry.md`
 - `sources/cash-injection/source-registry.md`
+- `sources/carrot-poker/CARROT_INGESTION_AND_ROUTING_SPEC_v1.md`
+- `templates/SOURCE_BATCH_DELTA_ROUTING_TEMPLATE_v1.md`
+
+### Audits and profiles
+
+- `analysis/system-audits/PRE_CARROT_AND_REMAINING_INJECTION_SYSTEM_AUDIT_v1.md`
 - `analysis/module-audits/FTGU_CANONICAL_CORPUS_COMPLETION_QA_v1.md`
 - `analysis/module-audits/CASH_INJECTION_INITIAL_BATCH_01_QA_v1.md`
+- `profiles/CASH_INJECTION_POOL_HYPOTHESES_v0_1.md`
 
-The provisional Playbook remains a reasoning snapshot. The adaptive architecture is active now; final module content, exact anchors and admission decisions wait for remaining source and field validation.
+The provisional Playbook remains a reasoning snapshot. The adaptive architecture and completion workbenches are active authorities; final module wording, exact anchors and admission decisions remain source- and field-gated.
