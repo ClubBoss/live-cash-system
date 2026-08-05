@@ -1,13 +1,13 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_L01_TO_L09_ASSESSMENT_LAYER_ACTIVE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_L01_TO_L09_READINESS_PASS_COMPLETE`
 
 ## Authorities
 
 - Adaptive route: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - Learner state: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - Runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
-- Readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_2.md`
+- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md`
 - Misconceptions: `MISCONCEPTION_TAXONOMY_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - Cash Injection drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
@@ -45,11 +45,26 @@ The four direct-drill gaps remain:
 - polar preflop target folds;
 - multiway delayed aggression.
 
-Grade 1 L05 improves the explanation for deep OOP calls but does not settle depth-specific boundaries.
+Grade 1 L01–L09 materially strengthens explanations and assessments but does not settle the source-sensitive boundaries required to close these four drills.
+
+## Current module readiness effect
+
+Carrot Grade 1 L01–L09 materially strengthens:
+
+- `LCM-03` — EV realisation, required pot share and open-action reasoning;
+- `LCM-04` — full-tree filtering, relative strength and range geography;
+- `LCM-05` — frequency/size separation and polar/semi-polar shape;
+- `LCM-06` — mandatory/optional/prohibited aggression, urgency and check EV;
+- `LCM-09` — river texture, thresholds, ancestry and blockers;
+- `LCM-11` — adaptive assessment and misconception repair.
+
+Current readiness authority:
+
+`ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md`
 
 ## Grade 1 L05–L09 learning contribution
 
-New executable assessment protocols:
+Executable assessment protocols:
 
 - required pot share versus equity;
 - position/realisability contrast;
@@ -60,7 +75,7 @@ New executable assessment protocols:
 - texture class and relative strength;
 - four range-geography thresholds.
 
-New misconception aliases include:
+Misconception aliases include:
 
 - required-equity-in-open-action error;
 - frequency-control-sizing fallacy;
@@ -84,7 +99,8 @@ Ready now:
 - 30 directly drilled candidates;
 - 18 original Carrot Grade 1 assessment families;
 - complete Smash/FTGU/Cash Injection routing;
-- Carrot Grade 1 Lectures 01–09 routing.
+- Carrot Grade 1 Lectures 01–09 routing;
+- post-L09 dimensional readiness assessment.
 
 Still deferred:
 
@@ -95,10 +111,18 @@ Still deferred:
 - final mastery thresholds;
 - admitted Playbook.
 
+## Comparative source evaluation
+
+Current source-course evaluation:
+
+`../reports/CURRENT_SOURCE_COURSE_EVALUATION_v1.md`
+
 ## Verdict
 
-`CARROT_G1_L01_TO_L09_ASSESSMENT_ARCHITECTURE_ABSORBED`
+`CARROT_G1_L01_TO_L09_READINESS_ABSORBED`
 
 `SOURCE_EXAMPLES_REMAIN_REFERENCE_ONLY`
 
 `ADAPTIVE_NAVIGATION_UNCHANGED`
+
+`FINALISATION_STILL_DEFERRED`
