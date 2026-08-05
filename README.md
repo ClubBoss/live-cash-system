@@ -34,7 +34,7 @@ Source courses provide evidence. They do not become parallel curricula.
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
 | Carrot Poker Grade 2 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 3 | pending |
+| Carrot Poker Grade 3 | Final Exam received and audited; lectures and feedback pending |
 
 ## Current system state
 
@@ -51,11 +51,12 @@ Carrot Grade 2 assessments:         20
 Carrot assessments total:           44
 Grade 2 exam runtime modes:           1
 Grade 2 feedback repair paths:       10
+Grade 3 preliminary exam rows:       10
 admitted final rules:                0
 intended final core:               14–18
 ```
 
-Candidate and assessment-family counts did not increase after complete Grade 2.
+Candidate and assessment-family counts remain unchanged after Grade 3 exam intake.
 
 ## Architecture
 
@@ -123,35 +124,32 @@ COLD PROMPT
 
 `VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → ROBUSTNESS → INTERFERENCE → BLOCKERS → EVIDENCE`
 
-## Current Carrot effect
+## Grade 3 exam intake
 
-Grades 1–2 now provide a mature postflop pedagogical, assessment and repair system covering:
+The received Grade 3 Final Exam contains ten advanced questions covering:
 
-- full-tree EV and action filtering;
-- value, bluff, call and raise thresholds;
-- frequency versus sizing;
-- polarising versus condensing actions;
-- value and bluff tiers;
-- protected IP/OOP branches;
-- robust versus frail continuations;
-- range geography facing bets;
-- bluff-catching ancestry;
-- 3-bet-pot flop planning;
-- postflop raising;
-- blocker/interference ordering;
-- 44 original assessment families;
-- reasoning-first exam delivery;
-- ten misconception-repair paths.
+- turn call/raise selection;
+- mixed betting and sizing ceilings;
+- combo-level bluff selection;
+- check-raise range construction and turn reclassification;
+- river bluff-catching;
+- turn and river overbets;
+- 3-bet-pot and 4-bet-pot strategy.
 
-They do not close:
+The exam provides competency routing only. Grade 3 lectures and Exam Feedback are still required for answer keys, boundaries and strategic promotion.
 
+The visible exam emphasis is advanced postflop. Grade 3 is therefore no longer presumed to be primarily a preflop/depth/multiway validator.
+
+## Still open
+
+- Grade 3 lecture corpus and feedback;
 - squeeze purification;
 - exact deep OOP boundaries;
 - polar preflop target folds;
 - independent preflop anchors;
 - multiway structure;
 - exact depth/straddle overlays;
-- Grade 3.
+- target-live population calibration.
 
 ## Deferred
 
@@ -174,7 +172,9 @@ They do not close:
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_3_PENDING`
+`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
+
+`GRADE_3_LECTURES_AND_FEEDBACK_PENDING`
 
 `REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
 
