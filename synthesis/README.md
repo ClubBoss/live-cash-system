@@ -1,6 +1,6 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_1_LECTURES_01_TO_09_MAPPED`
+Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_1_COMPLETE`
 
 ## Active authorities
 
@@ -15,14 +15,14 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_1_LECTURES_01_TO_09_MAPPED`
 - `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations.
 - `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection 10/10 relations.
 - `CASH_INJECTION_COMPLETE_COURSE_DELTA_v1.md` — filter-density/branch-elasticity synthesis.
-- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active incremental Carrot relations.
-- `CARROT_G1_BATCH_03_CROSS_SOURCE_DELTA_v1.md` — Lectures 05–09 delta.
+- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through complete Grade 1.
+- `CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Lecture 10 blocker-ordering and Grade 1 closure delta.
 
 ### Remaining validation
 
 - `REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md` — unresolved question state.
 
-Grade 1 Lectures 01–09 strongly improve postflop pedagogy and boundaries but do not close the remaining preflop, exact-depth or multiway gates.
+Complete Grade 1 strongly improves postflop pedagogy, river ordering and assessment design but does not close the remaining preflop, exact-depth or multiway gates.
 
 ## Authority order
 
@@ -47,23 +47,21 @@ canonical Carrot record
 → readiness update only if state changes
 ```
 
-Recap sources do not replace missing lecture continuity.
-
 ## Current coverage
 
 - Smash: complete;
 - FTGU: 30/30 complete;
 - Cash Injection: 10/10 complete;
-- Carrot Grade 1: Lectures 01–09 plus exam/feedback mapped;
-- Carrot Grade 1 Lecture 10: pending;
+- Carrot Grade 1: Lectures 01–10 plus exam/feedback complete;
 - Carrot Grades 2–3: pending;
 - candidate count: 34;
 - stable modules: 11;
 - provisional slots: 16;
 - direct candidate drill coverage: 30/34;
+- original Grade 1 assessment families: 24;
 - admitted final rules: 0.
 
-## Grade 1 effect through Lecture 09
+## Complete Grade 1 effect
 
 Carrot now strongly supports:
 
@@ -72,9 +70,11 @@ Carrot now strongly supports:
 - range and nut advantage;
 - frequency/size separation;
 - turn filtering and favourability;
-- polar/semi-polar float construction;
+- polar/semi-polar construction;
 - protected checks;
 - river texture and range geography;
+- blockers as final selectors;
+- insufficient-reason and blocker-first repair;
 - original adaptive assessment design.
 
 No candidate-count increase or global restructure was required.
@@ -83,6 +83,8 @@ No candidate-count increase or global restructure was required.
 
 `CARROT_INCREMENTAL_EVIDENCE_PATH_ACTIVE`
 
-`GRADE_1_LECTURES_01_TO_09_MAPPED`
+`GRADE_1_LECTURES_01_TO_10_MAPPED`
 
-`LECTURE_10_AND_GRADES_2_TO_3_REMAIN`
+`GRADE_1_COMPLETE`
+
+`GRADES_2_AND_3_REMAIN_BOUNDARY_AND_CONTEXT_PHASE`
