@@ -21,7 +21,7 @@ This file explains where each kind of truth lives and how the pieces connect. It
 | Candidate ownership and drills | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` |
 | Provisional final grouping | `synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` |
 | Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md` |
-| Latest milestone | `reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md` |
+| Latest milestone | `reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md` |
 
 ## Whole-system map
 
@@ -42,28 +42,19 @@ external source package
 
 ### Smash Live Cash
 
-Path: `sources/smash-live-cash/`
-
 - canonical corpus complete;
-- no open audio or lesson-level cleanup backlog;
 - claim-driven visual checks only;
 - strongest advanced evidence for depth, multiway, 3-bet pots and range composition.
 
 ### From the Ground Up
 
-Path: `sources/ftgu/`
-
 - `30/30` complete;
 - strongest complete foundational sequence;
-- supplied charts are private reference only;
-- no broad rerun or rewatch required.
+- supplied charts are private reference only.
 
 ### Cash Injection
 
-Path: `sources/cash-injection/`
-
 - `10/10` complete;
-- exploit and range-ancestry pass complete;
 - ten population hypotheses remain field-gated;
 - accepted scaffold:
 
@@ -80,12 +71,13 @@ ORIGIN RANGE WIDTH
 
 Path: `sources/carrot-poker/`
 
-- one unified corpus for Grades 1–3;
 - Grade 1 complete: Lectures `01–10`, Final Exam and Feedback;
 - Grade 2 Lectures `01–10` complete;
-- Grade 2 Final Exam and Feedback pending;
+- Grade 2 Final Exam received, visually audited and assessment-mapped;
+- Grade 2 Exam Feedback pending;
 - Grade 3 pending;
-- `44` original Carrot assessment families created;
+- `44` original Carrot assessment families;
+- one original Grade 2 exam runtime mode;
 - remaining source value is concentrated in preflop, exact depth, multiway, true boundaries and counterexamples.
 
 ## Current strategic inventory
@@ -126,7 +118,7 @@ Direct original drill coverage:
 | `LCM-08` | Multiway structure | partial; primary Grade 3 source gap |
 | `LCM-09` | River audit | high-confidence active |
 | `LCM-10` | Opponent/environment overlays | methodology ready; field calibration pending |
-| `LCM-11` | Field transfer and repair | runtime ready; learner/field data pending |
+| `LCM-11` | Field transfer and repair | runtime ready; Grade 2 exam mode active |
 
 A correct action with an incorrect reason is not mastery.
 
@@ -136,16 +128,6 @@ A correct action with an incorrect reason is not mastery.
 
 ```text
 PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE
-```
-
-### Range ancestry
-
-```text
-ORIGIN RANGE
-→ ACTION FILTERS
-→ CURRENT VALUE / AIR
-→ SIZE REQUIREMENT
-→ BRANCH EVIDENCE
 ```
 
 ### Carrot Grade 1
@@ -172,6 +154,19 @@ ACTION FILTER
 → HAND TIER
 → RESPONSE THRESHOLD
 → ANCESTRY / EXPLOIT EVIDENCE
+```
+
+### Grade 2 exam mode
+
+```text
+COLD PROMPT
+→ WRITTEN ACTION
+→ WRITTEN REASON
+→ CONFIDENCE
+→ TIME LIMIT
+→ FEEDBACK
+→ CHANGED VARIANT
+→ DELAYED RETEST
 ```
 
 ### Bluff-catching
@@ -201,7 +196,7 @@ Product-facing outputs must use:
 ## Current active path
 
 ```text
-Grade 2 Final Exam / Feedback if available
+Grade 2 Exam Feedback if available
 or Carrot Grade 3
 → close/context-split preflop, depth and multiway questions
 → finalise four drill factories
@@ -227,7 +222,9 @@ Update only when durable structure, source-family lifecycle, authority routing, 
 
 `ONE_REPOSITORY / ONE_ADAPTIVE_CURRICULUM`
 
-`CARROT_GRADE_2_LECTURE_CORPUS_COMPLETE`
+`CARROT_GRADE_2_LECTURES_AND_FINAL_EXAM_RECEIVED`
+
+`GRADE_2_EXAM_FEEDBACK_PENDING`
 
 `GENERAL_POSTFLOP_CORE_MOSTLY_CLOSED`
 
