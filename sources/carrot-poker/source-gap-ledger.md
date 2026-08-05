@@ -1,163 +1,161 @@
 # Carrot Poker — Source Intake and Gap Ledger
 
-Status: `ACTIVE / GRADE_1_LECTURE_CORPUS_COMPLETE / GRADES_2_AND_3_PENDING`
+Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_LECTURE_CORPUS_COMPLETE / GRADE_2_EXAM_PENDING / GRADE_3_PENDING`
 
 Last updated: 2026-08-05
 
 ## Received
 
-### Grade 1 lectures
+### Grade 1
 
-- `CP-G1-L01` — Equity and EV;
-- `CP-G1-L02` — Value Betting;
-- `CP-G1-L03` — Bluffing;
-- `CP-G1-L04` — Polarisation and Relative Hand Strength;
-- `CP-G1-L05` — Facing Bets and Calling;
-- `CP-G1-L06` — Range and Nut Advantage for Flop C-Betting;
-- `CP-G1-L07` — Turn Barrel Opportunities;
-- `CP-G1-L08` — Float Betting the Flop;
-- `CP-G1-L09` — River Textural Awareness and Range Geography;
-- `CP-G1-L10` — Basic Blocker Patterns and Texture.
+- `CP-G1-L01` through `CP-G1-L10`;
+- `CP-G1-EXAM`;
+- `CP-G1-EXAM-FB`.
 
-### Grade 1 supplemental artifacts
+Grade 1 has no known lecture or assessment continuity gap.
 
-- `CP-G1-EXAM` — Final Exam PDF;
-- `CP-G1-EXAM-FB` — Final Exam Feedback.
+### Grade 2
 
-## Duplicate handling
+- `CP-G2-L01` — Polarising and Condensing;
+- `CP-G2-L02` — Bet Sizing and Value Tiers;
+- `CP-G2-L03` — Fold Equity and Bluff Tiers;
+- `CP-G2-L04` — River Play and Scattered Aggression;
+- `CP-G2-L05` — The Out-of-Position Game;
+- `CP-G2-L06` — The In-Position Game and Hybrid Betting;
+- `CP-G2-L07` — Facing Bets and Range Thresholds;
+- `CP-G2-L08` — The Bluff-Catching System;
+- `CP-G2-L09` — Flop Strategy in 3-Bet Pots;
+- `CP-G2-L10` — Postflop Raising.
 
-### Batch 02
+Lecture 10 explicitly describes itself as the final lecture before the Grade 2 exam.
 
-- Lecture 01 repeated byte-identically in all five formats;
-- Exam Feedback repeated byte-identically in all five formats.
+Not received:
 
-### Batch 03
+- Grade 2 Final Exam PDF;
+- Grade 2 Exam Feedback;
+- any Grade 2 worksheets, charts or supplements not yet supplied.
 
-- Lectures 01–04 repeated byte-identically in all five formats;
-- Exam Feedback repeated byte-identically in all five formats.
+Grade 2 lecture continuity is complete. Grade 2 assessment continuity remains partial.
 
-### Batch 04
+## Grade 2 package QA
 
-- Lectures 01–09 repeated byte-identically in all five formats;
-- Exam Feedback repeated byte-identically in all five formats;
-- all `50/50` overlapping transcript files match Batch 03 exactly.
+Input:
 
-Repeated bundles were not re-ingested.
+- `transcripts_mlx_large_v3(10).zip`;
+- SHA-256: `58cae6b4bab467901203406d7261026ffee89b19b4f667f9479257cc6599575b`.
 
-## Grade 1 continuity
+Inventory:
 
-No known lecture-continuity gap remains.
+- `101` archive entries;
+- `50` substantive transcript files;
+- `51` macOS metadata entries;
+- ten complete five-format lecture bundles.
 
-Grade 1 lecture corpus:
+Duplicate result:
 
-```text
-Lectures 01–10 complete
-Final Exam PDF received
-Final Exam Feedback received
-```
+- `0/50` substantive files match the same-named Grade 1 files;
+- all ten Grade 2 lectures are new;
+- no Grade 1 source was replaced.
 
-Unknown worksheets, charts or lecture supplements may still be accepted if later supplied, but they are not known blockers and do not prevent Grade 1 closure.
+Technical result:
 
-## Pending source sets
+- no full rerun required;
+- no catastrophic loops;
+- no missing tails;
+- no material segment overlaps;
+- claim-driven visual review only.
 
-- possible Grade 1 supplements not yet supplied;
-- Grade 2;
-- Grade 3.
+Authority:
 
-## Closed technical tasks
+`analysis/module-audits/CARROT_G2_LECTURE_CORPUS_QA_v1.md`
 
-### Batch 01
+## Closed Grade 2 lecture tasks
 
-- L01 and Exam Feedback transcript QA;
-- exam PDF visual audit;
-- immutable source IDs;
-- initial cross-source mapping;
-- original assessment blueprint.
-
-### Batch 02
-
-- L02–L04 duplicate and technical QA;
-- canonical records;
-- cross-source mapping.
-
-### Batch 03
-
-- L05–L09 duplicate and technical QA;
-- canonical records;
+- package inventory and checksum;
+- Grade identification;
+- five-format verification;
+- timestamp, gap, overlap, loop and tail QA;
+- canonical records `CP-G2-L01` through `CP-G2-L10`;
 - cross-source mapping;
-- postflop protocol consolidation.
-
-### Batch 04
-
-- L10 duplicate and technical QA;
-- canonical source record;
-- blocker-ordering cross-source mapping;
-- six original assessment families;
-- Grade 1 lecture-corpus closure.
+- twenty original assessment families;
+- question, candidate and readiness pass.
 
 No transcript rerun is open.
 
 ## Claim-driven visual dependencies
 
-### Lectures 01–10 and Exam Feedback
+Across Grades 1–2:
 
 - exact PioSolver cards, frequencies and EV values;
 - exact range graphs and hand matrices;
 - precise bet sizes and pot geometry;
 - exact mixed-strategy cells;
-- exact quantitative magnitude of blocker differences.
+- exact value/bluff tier boundaries;
+- exact low-dry 3-bet-pot plan implementation;
+- exact postflop raise thresholds.
 
-### Final Exam PDF
-
-The 13-page PDF is available and visually audited. No additional retrieval is needed for the source question slides.
-
-Visual review remains claim-driven only. It is required only when a visual can change:
+Visual review remains required only when it can change:
 
 - a final heuristic;
 - an original assessment answer;
-- a boundary or sizing threshold;
+- a context split or size boundary;
 - a genuine source conflict;
 - an independent anchor.
 
-## Strategic gaps not closed by Grade 1
+## Current strategic gaps not closed by Grades 1–2
 
-- exact depth bands;
-- deep OOP protected-call boundaries;
+- exact effective-depth bands;
+- exact deep OOP protected-call boundaries;
 - squeeze purification;
-- polar preflop target folds;
-- multiway shared defence and bluff construction;
+- polar preflop target folds and call branch;
+- players-behind compression;
+- independent live-rake preflop anchors;
+- multiway shared defence;
+- multiway bluff construction;
 - multiway delayed aggression;
-- independently derived preflop anchors;
+- straddle overlays;
 - target-live population calibration.
+
+## Pending source sets
+
+- Grade 2 Final Exam;
+- Grade 2 Exam Feedback;
+- possible Grade 2 supplements;
+- Grade 3 lectures, exam, feedback and supplements;
+- possible unknown Grade 1 supplements.
 
 ## Source-purity boundaries
 
-- exact exam and lecture examples remain reference-only;
-- new packages must be deduplicated against L01–L10 and Exam Feedback;
+- exact source examples remain reference-only;
+- new packages must be deduplicated against all Grade 1 and Grade 2 sources;
 - solver-screen values are not reconstructed from audio guesses;
-- the source's blocker-magnitude estimates are not universalised;
-- Grade 1 completion does not imply candidate admission or final Playbook completion.
+- source theorem names are evidence labels, not required product terminology;
+- population claims remain field-gated;
+- lecture-corpus completion does not imply Grade completion, candidate admission or Playbook completion.
 
 ## Next package transaction
 
+Preferred next intake:
+
 ```text
-inventory Grade 2 or Grade 3
-→ duplicate check
-→ technical QA
-→ immutable IDs
+Grade 2 Exam / Feedback or Grade 3 package
+→ inventory and duplicate check
+→ technical or visual QA
+→ immutable source IDs
 → canonical records
 → Carrot evidence rows
 → targeted question/module/assessment delta
+→ handover update
 ```
 
 ## Ledger verdict
 
-`CARROT_G1_BATCH_04_COMPLETE`
+`CARROT_GRADE_1_COMPLETE`
 
-`GRADE_1_LECTURES_01_TO_10_COMPLETE`
+`CARROT_GRADE_2_LECTURES_01_TO_10_COMPLETE`
 
-`GRADE_1_NO_KNOWN_SOURCE_CONTINUITY_GAP`
+`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
 
-`GRADES_2_AND_3_PENDING`
+`GRADE_3_PENDING`
 
 `INCREMENTAL_INGESTION_READY`
