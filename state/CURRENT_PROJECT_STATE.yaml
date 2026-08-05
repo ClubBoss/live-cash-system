@@ -205,6 +205,19 @@ latest_integrated_checkpoint:
     - no_new_core_candidate
     - eighteen_original_grade_1_assessment_families
 
+handover_system:
+  status: active
+  activation_report: reports/REPO_HANDOVER_AND_PROJECT_ATLAS_ACTIVATION_REPORT_v1.md
+  activation_commit: dc885fb0fb1640fa028bc39e90e04e988ff2af77
+  primary_entry: START_HERE.md
+  agent_contract: AGENTS.md
+  project_atlas: PROJECT_ATLAS.md
+  machine_state: state/CURRENT_PROJECT_STATE.yaml
+  maintenance_protocol: governance/HANDOVER_MAINTENANCE_PROTOCOL_v1.md
+  minimum_user_prompt: >-
+    Open the private repository ClubBoss/live-cash-system. Read START_HERE.md,
+    follow AGENTS.md, verify live main, and continue from the active milestone.
+
 new_chat_bootstrap:
   required_read_order:
     - START_HERE.md
