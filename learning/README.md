@@ -1,28 +1,25 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / READINESS_MANIFEST_ACTIVE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CASH_INJECTION_COMPLETE / CARROT_BOUNDARY_PHASE`
 
 ## Authorities
 
 - Adaptive module graph: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - Learner-state model: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - Session-selection and feedback runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
-- Module readiness by dimension: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_1.md`
+- Current module readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_2.md`
 - Misconception taxonomy: `MISCONCEPTION_TAXONOMY_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - General original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
-- Cash Injection Episode 01 delta drills: `drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
-- Source-gated direct-drill factories: `drills/PRE_SOURCE_DIRECT_DRILL_SHELLS_v0_1.md`
+- Cash Injection E01 drills: `drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
+- Complete Cash Injection contrastive drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
+- Remaining Carrot-gated drill factories: `drills/PRE_SOURCE_DIRECT_DRILL_SHELLS_v0_1.md`
 
-## Historical snapshot
-
-`GENERAL_LIVE_CASH_LEARNING_ROUTE_v0_1.md` is retained as the first fixed-sequence curriculum snapshot. It is not the current navigation authority.
-
-Its useful content should be migrated incrementally into adaptive modules; the learner should not be forced through its 20-session order when diagnostic evidence supports another route.
+Historical readiness v0.1 and fixed route v0.1 remain snapshots.
 
 ## Navigation rule
 
-The learner moves by prerequisite and evidence state, not by source lesson order or a fixed playlist.
+The learner moves by prerequisite and evidence state, not source order:
 
 ```text
 diagnostic
@@ -34,95 +31,106 @@ diagnostic
 → field cue
 ```
 
-## Readiness rule
+## Current drill coverage
 
-A module is assessed separately for:
+```text
+34 candidate mechanisms
+30 with direct original drills
+0 indirect-only
+4 source-gated direct drill gaps
+```
 
-- mechanism;
-- explanation;
-- boundaries;
-- diagnostic coverage;
-- direct drills;
-- retention;
-- anchors;
-- overlays;
-- field transfer.
+Remaining source-gated drills:
 
-A missing exact chart must not block robust mechanism training. Source completeness must not be mistaken for mastery readiness.
+- squeeze purification;
+- deep OOP protected calls;
+- polar preflop target folds;
+- multiway delayed aggression.
 
-## Drill-development rule
+## Cash Injection learning contribution
 
-Learner-ready drills require stable answer keys and boundaries.
+The complete course added one reusable diagnostic scaffold:
 
-For mechanisms awaiting Carrot or remaining Injection evidence, use prebuilt scenario factories that already define:
+```text
+How wide at origin?
+How filtered now?
+What value and air survive?
+What does the size require?
+What branch evidence exists?
+```
 
-- target reasoning step;
-- variables;
-- misleading contrasts;
-- misconception mapping;
-- required question IDs;
-- release gate.
+This strengthens:
 
-Do not finalise disputed answers prematurely.
+- `LCM-04` filtering and ownership;
+- `LCM-05` bet/response shape;
+- `LCM-06` induced aggression and small probes;
+- `LCM-07` 3-bet ancestry;
+- `LCM-09` river audit;
+- `LCM-10` evidence-gated exploits;
+- `LCM-11` field observation missions.
 
-## Source-update rule
+## Population-claim guard
 
-New sources update:
-
-- evidence;
-- explanations;
-- boundaries;
-- context branches;
-- drill variants;
-- pool/environment hypotheses;
-- readiness dimensions.
-
-They do not create parallel author-specific learning routes or reset unchanged learner progress.
-
-Cash Injection exploit material must preserve three layers:
+Cash Injection material preserves three separate layers:
 
 ```text
 general mechanism
-→ pool hypothesis
-→ environment/field validation
+→ source pool hypothesis
+→ target environment/field validation
 ```
 
-A source claim about population behaviour does not become a default exploit solely because it is accompanied by a node lock.
+Ten hypotheses, `CI-PH-001` through `CI-PH-010`, are available for observation. None is a live default.
 
-Routing authorities:
+## Current routing authorities
 
-- `../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1.md`;
-- `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_1.md`;
-- `../templates/SOURCE_BATCH_DELTA_ROUTING_TEMPLATE_v1.md`.
+- `../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md`
+- `../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md`
+- `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md`
+- `../synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md`
+- `../templates/SOURCE_BATCH_DELTA_ROUTING_TEMPLATE_v1.md`
+
+## What Carrot may change
+
+Carrot may:
+
+- simplify explanations;
+- add boundaries and counterexamples;
+- close preflop/depth/multiway questions;
+- finalise four drill factories;
+- context-split modules;
+- reveal a genuine conflict.
+
+Carrot should not:
+
+- create a parallel curriculum;
+- reset progress on closed mechanisms;
+- duplicate Cash Injection hypotheses as core rules;
+- trigger global course restructuring.
 
 ## Current build boundary
 
-Active now:
+Ready now:
 
 - adaptive architecture;
-- 11-module dependency graph;
-- learner state;
-- interactive runtime;
-- diagnostic;
-- misconception-linked drills;
-- progress-preserving source updates;
-- source-specific exploit drills with hypothesis guards;
-- module readiness accounting;
-- nine prebuilt drill factories for weakly covered candidates.
+- 11-module graph;
+- action/reason/confidence learner state;
+- diagnostic and repair runtime;
+- 30 directly drilled candidates;
+- complete Smash, FTGU and Cash Injection mechanism routing;
+- population-hypothesis guards;
+- field mission schema.
 
-Pending Carrot, remaining Cash Injection episodes and field validation:
+Still deferred:
 
-- final answer keys for source-gated drill shells;
 - final 14–18-rule compression;
-- final submodule boundaries;
 - exact preflop anchors;
-- population exploit confidence;
-- multiway/deep-stack boundary closure;
+- deep and multiway boundary closure;
+- target-live population confidence;
 - final mastery thresholds;
 - admitted Playbook.
 
 ## Learning verdict
 
-`LEARNING_AUTHORITIES_EXPLICIT`
+`CASH_INJECTION_LEARNING_PASS_COMPLETE`
 
-`NEW_SOURCE_DELTAS_CAN UPDATE MODULE CONTENT WITHOUT REBUILDING LEARNER NAVIGATION`
+`CARROT_SHOULD_FINALISE_BOUNDARIES_NOT_REBUILD_NAVIGATION`
