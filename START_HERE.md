@@ -58,8 +58,9 @@ Source courses provide evidence. They do not become parallel learner routes.
 | Smash Live Cash | complete; claim-driven visuals only |
 | From the Ground Up | `30/30` complete; charts reference-only |
 | Cash Injection | `10/10` complete; ten pool hypotheses field-gated |
-| Carrot Poker Grade 1 | Lectures `01–10`, Final Exam and Feedback complete |
-| Carrot Poker Grades 2–3 | pending |
+| Carrot Poker Grade 1 | complete: Lectures `01–10`, Final Exam and Feedback |
+| Carrot Poker Grade 2 | Lectures `01–10` complete; Final Exam and Feedback pending |
+| Carrot Poker Grade 3 | pending |
 
 Exact Carrot coverage authority:
 
@@ -76,9 +77,13 @@ provisional final-rule slots:          16
 candidates with direct drills:         30
 source-gated direct drill gaps:          4
 Grade 1 original assessment families:  24
+Grade 2 original assessment families:  20
+Carrot assessment families total:      44
 admitted final rules:                    0
 intended final core:                  14–18
 ```
+
+Candidate IDs and counts remain unchanged after Grade 2.
 
 ## Stable architecture
 
@@ -97,6 +102,53 @@ source package
 ```
 
 Stable module IDs remain `LCM-01` through `LCM-11`.
+
+## Current strategic scaffolds
+
+### Preflop
+
+```text
+PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE
+```
+
+### Grade 1 postflop foundation
+
+```text
+FULL TREE EV
+→ VALUE / BLUFF / CALL THRESHOLDS
+→ RANGE AND NUT ADVANTAGE
+→ FREQUENCY AND SIZE
+→ FILTERED TURN FAVOURABILITY
+→ RANGE GEOGRAPHY
+→ BLOCKER AS FINAL SELECTOR
+```
+
+### Grade 2 operating model
+
+```text
+ACTION FILTER
+→ RANGE SHAPE
+→ WORLD FAVOURABILITY
+→ BET FREQUENCY
+→ RELATIVE POLARISATION
+→ SIZE / RAISE BREADTH
+→ HAND TIER
+→ RESPONSE THRESHOLD
+→ ANCESTRY / EXPLOIT EVIDENCE
+```
+
+### Bluff-catching
+
+```text
+ORIGIN RANGE
+→ FILTER DENSITY
+→ VALUE / AIR SUPPLY
+→ SIZE
+→ VALUE BEATER / BLUFF CATCHER / FRAIL HAND
+→ ROBUSTNESS
+→ BLOCKERS
+→ EVIDENCE
+```
 
 ## Frozen constraints
 
@@ -123,8 +175,8 @@ Do not:
 ## Active milestone
 
 ```text
-ingest Carrot Grade 2 incrementally
-→ ingest Grade 3
+receive Grade 2 Final Exam / Feedback if available
+or ingest Carrot Grade 3
 → close or context-split preflop, depth and multiway questions
 → finalise four source-gated drills
 → consolidate 34 candidates into 14–18 final rules
@@ -135,10 +187,12 @@ ingest Carrot Grade 2 incrementally
 
 ## Current unresolved gates
 
-- Carrot Grades 2–3;
+- Grade 2 Final Exam and Exam Feedback;
+- Carrot Grade 3;
 - squeeze purification;
-- deep OOP protected-call boundaries;
+- exact deep OOP protected-call boundaries;
 - polar preflop target folds and call branch;
+- players-behind compression;
 - exact live-rake preflop anchors;
 - multiway shared defence and bluff construction;
 - multiway delayed aggression;
@@ -146,27 +200,20 @@ ingest Carrot Grade 2 incrementally
 - target-live population calibration;
 - final compression and admission.
 
-## Minimum reading order
+## Active authority cone
 
 1. `START_HERE.md`;
 2. `AGENTS.md`;
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
-5. active source registry and latest terminal report;
-6. affected authority files only.
+5. `sources/carrot-poker/source-registry.md`;
+6. `reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md`;
+7. `synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
+8. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
+9. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
+10. `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md`.
 
-## Active authority order
-
-1. canonical source record;
-2. source registry and gap ledger;
-3. source-specific evidence matrix;
-4. remaining-question matrix;
-5. candidate registry;
-6. candidate-to-module workbench;
-7. provisional slots;
-8. adaptive readiness;
-9. learner and field evidence;
-10. final Playbook admission.
+Read broader source records only when required by the active task.
 
 ## New-batch transaction
 
@@ -185,18 +232,21 @@ inventory
 
 ## Latest integrated checkpoint
 
-`CARROT_G1_BATCH_04_COMPLETE`
+`CARROT_G2_LECTURE_CORPUS_COMPLETE`
 
-- Grade 1 Lectures `01–10` complete;
-- Final Exam and Feedback mapped;
-- no rerun required;
+- Grade 2 Lectures `01–10` canonically ingested;
+- Grade 2 Final Exam and Feedback pending;
+- no full rerun required;
 - no new core candidate;
-- `24` original Grade 1 assessment families;
-- Grades 2–3 pending.
+- `20` original Grade 2 assessment families;
+- `44` total Carrot assessment families;
+- direct drill coverage remains `30/34`;
+- general postflop mechanisms are mostly closed;
+- Grade 3 is now primarily a preflop, depth, multiway and boundary validator.
 
 Checkpoint report:
 
-`reports/CARROT_G1_BATCH_04_TERMINAL_REPORT_v1.md`
+`reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md`
 
 ## New-chat response capsule
 
@@ -204,9 +254,9 @@ A new chat should briefly confirm:
 
 ```text
 repo and live main checked
-Grade 1 completion understood
+Grade 1 complete and Grade 2 lecture checkpoint understood
+Grade 2 exam/feedback and Grade 3 gaps understood
 frozen identities understood
-Grades 2–3 and open gates understood
 next bounded action selected
 no global restart planned
 ```
@@ -215,6 +265,6 @@ no global restart planned
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`CARROT_GRADE_1_COMPLETE`
+`CARROT_GRADE_2_LECTURE_CORPUS_COMPLETE`
 
-`CONTINUE_WITH_GRADE_2 / DO_NOT_RESTART`
+`CONTINUE_WITH_GRADE_2_ASSESSMENT_OR_GRADE_3 / DO_NOT_RESTART`
