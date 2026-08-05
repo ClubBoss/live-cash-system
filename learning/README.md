@@ -1,6 +1,6 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / CASH_INJECTION_COMPLETE / CARROT_BOUNDARY_PHASE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_ASSESSMENT_LAYER_ACTIVE`
 
 ## Authorities
 
@@ -11,11 +11,9 @@ Status: `ADAPTIVE_RUNTIME_ACTIVE / CASH_INJECTION_COMPLETE / CARROT_BOUNDARY_PHA
 - Misconception taxonomy: `MISCONCEPTION_TAXONOMY_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - General original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
-- Cash Injection E01 drills: `drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
 - Complete Cash Injection contrastive drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
 - Remaining Carrot-gated drill factories: `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`
-
-Historical readiness v0.1, fixed route v0.1 and the nine-factory pre-source shell remain snapshots.
+- Carrot Grade 1 original assessment blueprint: `assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
 
 ## Navigation rule
 
@@ -26,7 +24,8 @@ diagnostic
 → highest-value gap
 → prerequisite check
 → one mechanism
-→ contrastive drills
+→ contrastive assessment
+→ minimal feedback
 → delayed retrieval
 → field cue
 ```
@@ -36,75 +35,68 @@ diagnostic
 ```text
 34 candidate mechanisms
 30 with direct original drills
-0 indirect-only
 4 source-gated direct drill gaps
 ```
 
-Remaining source-gated drills:
+Remaining gaps:
 
 - squeeze purification;
 - deep OOP protected calls;
 - polar preflop target folds;
 - multiway delayed aggression.
 
-## Cash Injection learning contribution
+The first Carrot Grade 1 batch did not close these four boundaries.
 
-The complete course added one reusable diagnostic scaffold:
+## Carrot Grade 1 assessment contribution
 
-```text
-How wide at origin?
-How filtered now?
-What value and air survive?
-What does the size require?
-What branch evidence exists?
-```
+The final exam and feedback supplied ten competency families:
 
-This strengthens:
+1. EV versus equity;
+2. value threshold;
+3. bluff threshold;
+4. polar versus condensed range shape;
+5. open-action realisability;
+6. global frequency and size;
+7. favourable/neutral/unfavourable worlds;
+8. semi-polar versus polar strategy;
+9. river value/bluff/check geography;
+10. blocker ranking.
 
-- `LCM-04` filtering and ownership;
-- `LCM-05` bet/response shape;
-- `LCM-06` induced aggression and small probes;
-- `LCM-07` 3-bet ancestry;
-- `LCM-09` river audit;
-- `LCM-10` evidence-gated exploits;
-- `LCM-11` field observation missions.
+These are absorbed as an original assessment blueprint. The source's exact boards, hands and wording are not reused.
 
-## Population-claim guard
+## Grade 1 feedback policy learned
 
-Cash Injection material preserves three separate layers:
+The source strongly supports the existing runtime policy:
 
-```text
-general mechanism
-→ source pool hypothesis
-→ target environment/field validation
-```
-
-Ten hypotheses, `CI-PH-001` through `CI-PH-010`, are available for observation. None is a live default.
+- require a prediction before feedback;
+- distinguish action from reasoning;
+- compare the full EV tree;
+- reject one-branch explanations;
+- mark a plus-EV but inferior action as an error;
+- use mandatory/optional/prohibited labels only after range-level analysis;
+- test blockers after candidate qualification.
 
 ## Current routing authorities
 
+- `../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`
+- `../synthesis/CARROT_G1_INITIAL_BATCH_01_CROSS_SOURCE_DELTA_v1.md`
 - `../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md`
 - `../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md`
 - `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md`
-- `../synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md`
-- `../templates/SOURCE_BATCH_DELTA_ROUTING_TEMPLATE_v1.md`
 
-## What Carrot may change
+## What later Carrot batches may change
 
-Carrot may:
+- clarify preflop, depth and multiway boundaries;
+- finalise four source-gated drills;
+- provide simpler explanations and counterexamples;
+- add assessment variants;
+- reveal context splits or genuine conflicts.
 
-- simplify explanations;
-- add boundaries and counterexamples;
-- close preflop/depth/multiway questions;
-- finalise four drill factories;
-- context-split modules;
-- reveal a genuine conflict.
-
-Carrot should not:
+They should not:
 
 - create a parallel curriculum;
-- reset progress on closed mechanisms;
-- duplicate Cash Injection hypotheses as core rules;
+- copy source exams into the product;
+- reset progress on unchanged mechanisms;
 - trigger global course restructuring.
 
 ## Current build boundary
@@ -112,13 +104,12 @@ Carrot should not:
 Ready now:
 
 - adaptive architecture;
-- 11-module graph;
 - action/reason/confidence learner state;
 - diagnostic and repair runtime;
 - 30 directly drilled candidates;
-- complete Smash, FTGU and Cash Injection mechanism routing;
-- population-hypothesis guards;
-- field mission schema.
+- ten original Grade 1 assessment families;
+- complete Smash, FTGU and Cash Injection routing;
+- partial Carrot Grade 1 evidence routing.
 
 Still deferred:
 
@@ -131,6 +122,8 @@ Still deferred:
 
 ## Learning verdict
 
-`CASH_INJECTION_LEARNING_PASS_COMPLETE`
+`CARROT_G1_ASSESSMENT_ARCHITECTURE_ABSORBED`
 
-`CARROT_SHOULD_FINALISE_BOUNDARIES_NOT_REBUILD_NAVIGATION`
+`SOURCE_EXAM_REMAINS_REFERENCE_ONLY`
+
+`ADAPTIVE_NAVIGATION_UNCHANGED`
