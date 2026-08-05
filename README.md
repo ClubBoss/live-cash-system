@@ -17,7 +17,7 @@ Repository state overrides chat memory. Continue from the accepted checkpoint ra
 
 Convert independent sources into:
 
-- 14–18 robust table-facing rules;
+- approximately 14–18 robust table-facing rules;
 - original adaptive drills and assessments;
 - independently derived preflop anchors;
 - opponent/environment overlays;
@@ -34,7 +34,7 @@ Source courses provide evidence. They do not become parallel curricula.
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
 | Carrot Poker Grade 2 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 3 | Final Exam received and audited; lectures and feedback pending |
+| Carrot Poker Grade 3 | Lectures 01–02 and Final Exam received; later lectures and Feedback pending |
 
 ## Current system state
 
@@ -46,17 +46,20 @@ remaining-source question IDs:     38
 provisional final-rule slots:       16
 candidates with direct drills:      30
 source-gated direct drill gaps:      4
+
 Carrot Grade 1 assessments:         24
 Carrot Grade 2 assessments:         20
-Carrot assessments total:           44
+Carrot Grade 3 Batch 01:              6
+Carrot assessments total:           50
+
 Grade 2 exam runtime modes:           1
 Grade 2 feedback repair paths:       10
-Grade 3 preliminary exam rows:       10
-admitted final rules:                0
+Grade 3 exam competency rows:        10
+admitted final rules:                 0
 intended final core:               14–18
 ```
 
-Candidate and assessment-family counts remain unchanged after Grade 3 exam intake.
+Candidate count and direct-drill coverage remain unchanged after Grade 3 Batch 01.
 
 ## Architecture
 
@@ -106,43 +109,53 @@ ACTION HISTORY
 → FIELD EVIDENCE
 ```
 
-### Grade 2 exam mode
+### Carrot Grade 3 Batch 01
 
 ```text
-COLD PROMPT
-→ WRITTEN ACTION
-→ WRITTEN REASON
-→ CONFIDENCE
-→ TIME LIMIT
-→ FEEDBACK
-→ SELF-COMPARISON
-→ CHANGED VARIANT
-→ DELAYED RETEST
+PURE-ACTION GATE
+→ NEAR-INDIFFERENT ACTIONS
+→ PRACTICAL ACTION / SIZE TOOLKIT
+→ RANDOMISE ONLY INSIDE VALID MIXES
+→ LOG EV LOSS AND REASONING ERROR
 ```
 
 ### River
 
 `VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → ROBUSTNESS → INTERFERENCE → BLOCKERS → EVIDENCE`
 
-## Grade 3 exam intake
+## Grade 3 current contribution
 
-The received Grade 3 Final Exam contains ten advanced questions covering:
+Lecture 1 adds:
 
-- turn call/raise selection;
-- mixed betting and sizing ceilings;
-- combo-level bluff selection;
-- check-raise range construction and turn reclassification;
-- river bluff-catching;
-- turn and river overbets;
-- 3-bet-pot and 4-bet-pot strategy.
+- pure versus optional actions;
+- call/raise/fold indifference thresholds;
+- turn-raise composition;
+- river repolarisation and interference;
+- RNG misuse guardrails.
 
-The exam provides competency routing only. Grade 3 lectures and Exam Feedback are still required for answer keys, boundaries and strategic promotion.
+Lecture 2 adds:
 
-The visible exam emphasis is advanced postflop. Grade 3 is therefore no longer presumed to be primarily a preflop/depth/multiway validator.
+- check/bet mixing;
+- one-size simplification;
+- practical size toolkits;
+- five frequency buckets;
+- value-led river bluff allocation.
+
+Exam routing:
+
+```text
+G3-Q01 — direct L01 support
+G3-Q02 — direct L02 support
+G3-Q03–Q07 — partial support
+G3-Q08–Q10 — question-only
+```
+
+No final Grade 3 answer key exists yet.
 
 ## Still open
 
-- Grade 3 lecture corpus and feedback;
+- Grade 3 Lecture 03 onward;
+- Grade 3 Exam Feedback;
 - squeeze purification;
 - exact deep OOP boundaries;
 - polar preflop target folds;
@@ -172,9 +185,9 @@ The visible exam emphasis is advanced postflop. Grade 3 is therefore no longer p
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
+`GRADE_3_L01_L02_AND_FINAL_EXAM_RECEIVED`
 
-`GRADE_3_LECTURES_AND_FEEDBACK_PENDING`
+`GRADE_3_LATER_LECTURES_AND_FEEDBACK_PENDING`
 
 `REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
 
