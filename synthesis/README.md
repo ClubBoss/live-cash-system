@@ -1,6 +1,6 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX`
+Status: `ACTIVE_AUTHORITY_INDEX / PRECONSOLIDATION_WORKBENCH_ACTIVE`
 
 ## Active authorities
 
@@ -8,6 +8,7 @@ Status: `ACTIVE_AUTHORITY_INDEX`
 
 - `HEURISTIC_CANDIDATE_REGISTRY_v0_1.md` — canonical candidate inventory and promotion states.
 - `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_1.md` — module ownership, drill coverage, consolidation lanes and targeted mutations.
+- `PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_1.md` — non-final 16-slot consolidation scaffold.
 
 ### Cross-source evidence
 
@@ -21,6 +22,7 @@ Status: `ACTIVE_AUTHORITY_INDEX`
 ### Integration governance
 
 - `NEW_SOURCE_DELTA_INTEGRATION_PROTOCOL_v1.md` — relation and mutation rules.
+- `../governance/PRE_FINALIZATION_FREEZE_AND_MUTATION_POLICY_v1.md` — frozen identities, mutable layers and finalisation gates.
 - `../templates/SOURCE_BATCH_DELTA_ROUTING_TEMPLATE_v1.md` — per-batch transaction template.
 
 ## Authority order
@@ -32,8 +34,11 @@ When files appear to differ:
 3. question matrix controls unresolved validation state;
 4. candidate registry controls candidate status;
 5. candidate-to-module workbench controls curriculum ownership and consolidation planning;
-6. adaptive module readiness manifest controls learner-facing readiness;
-7. provisional Playbook remains a historical reasoning snapshot until final consolidation.
+6. provisional slot architecture controls precomputed final grouping only;
+7. adaptive module readiness manifest controls learner-facing readiness;
+8. provisional Playbook remains a historical reasoning snapshot until final consolidation.
+
+The 16 provisional slots are not stable learner IDs and do not override candidate or module identities.
 
 ## Incoming-source routing
 
@@ -41,12 +46,13 @@ When files appear to differ:
 canonical source record
 → question IDs
 → candidate relation
+→ affected provisional slot
 → module delta
 → drill/boundary/overlay delta
 → readiness update
 ```
 
-Do not begin by rewriting the Playbook.
+Do not begin by rewriting the Playbook or regrouping all candidates.
 
 ## Current coverage
 
@@ -55,6 +61,8 @@ Do not begin by rewriting the Playbook.
 - Cash Injection: 1/10 mapped;
 - Carrot Grades 1–3: scaffold ready, material pending;
 - candidate count: 34;
+- stable adaptive modules: 11;
+- provisional final slots: 16;
 - final admitted count: 0;
 - intended final core: approximately 14–18.
 
@@ -62,4 +70,4 @@ Do not begin by rewriting the Playbook.
 
 `SYNTHESIS_AUTHORITIES_EXPLICIT`
 
-`FUTURE_SOURCE_WORK_HAS_ONE_ROUTING_PATH`
+`FUTURE_SOURCE_WORK_HAS_ONE_ROUTING_AND_PRECONSOLIDATION_PATH`
