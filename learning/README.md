@@ -1,23 +1,21 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_ASSESSMENT_LAYER_ACTIVE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_L01_TO_L04_PEDAGOGY_ACTIVE`
 
 ## Authorities
 
-- Adaptive module graph: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
-- Learner-state model: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
-- Session-selection and feedback runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
-- Current module readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_2.md`
-- Misconception taxonomy: `MISCONCEPTION_TAXONOMY_v0_1.md`
-- Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
-- General original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
-- Complete Cash Injection contrastive drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
-- Remaining Carrot-gated drill factories: `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`
-- Carrot Grade 1 original assessment blueprint: `assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
+- `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`;
+- `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`;
+- `ADAPTIVE_COURSE_RUNTIME_v0_1.md`;
+- `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_2.md`;
+- `MISCONCEPTION_TAXONOMY_v0_1.md`;
+- `INITIAL_DIAGNOSTIC_v0_1.md`;
+- `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`;
+- `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`;
+- `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`;
+- `assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
 
 ## Navigation rule
-
-The learner moves by prerequisite and evidence state, not source order:
 
 ```text
 diagnostic
@@ -30,88 +28,60 @@ diagnostic
 → field cue
 ```
 
-## Current drill coverage
+## Current coverage
 
 ```text
 34 candidate mechanisms
 30 with direct original drills
-4 source-gated direct drill gaps
+4 Carrot-gated direct drill gaps
+10 original Grade 1 assessment families
 ```
 
-Remaining gaps:
+Remaining drill gaps:
 
 - squeeze purification;
 - deep OOP protected calls;
 - polar preflop target folds;
 - multiway delayed aggression.
 
-The first Carrot Grade 1 batch did not close these four boundaries.
+Lectures 01–04 do not close those four boundaries.
 
-## Carrot Grade 1 assessment contribution
+## Grade 1 learning contribution through Lecture 04
 
-The final exam and feedback supplied ten competency families:
+The source supports these learner-facing selectors:
 
-1. EV versus equity;
-2. value threshold;
-3. bluff threshold;
-4. polar versus condensed range shape;
-5. open-action realisability;
-6. global frequency and size;
-7. favourable/neutral/unfavourable worlds;
-8. semi-polar versus polar strategy;
-9. river value/bluff/check geography;
-10. blocker ranking.
+```text
+FULL TREE EV
+→ MANDATORY / OPTIONAL / PROHIBITED
+→ URGENCY OR CHECK EV
+→ RANGE FAVOURABILITY
+→ POLAR / CONDENSED SHAPE
+→ SIZE AND CANDIDATE
+```
 
-These are absorbed as an original assessment blueprint. The source's exact boards, hands and wording are not reused.
+Misconception repairs strengthened:
 
-## Grade 1 feedback policy learned
+- tunnel vision on one target hand;
+- betting merely because worse can call;
+- protection/denial as a self-sufficient reason;
+- choosing a draw as a bluff because it feels safer;
+- absolute-hand-strength labels;
+- treating every check as weak;
+- confusing range advantage with nut advantage.
 
-The source strongly supports the existing runtime policy:
+## Source-exam policy
 
-- require a prediction before feedback;
-- distinguish action from reasoning;
-- compare the full EV tree;
-- reject one-branch explanations;
-- mark a plus-EV but inferior action as an error;
-- use mandatory/optional/prohibited labels only after range-level analysis;
-- test blockers after candidate qualification.
+The ten source exam competency families are absorbed through original assessment designs. Exact boards, hands, wording and visual design are not reused.
 
-## Current routing authorities
+## Routing authorities
 
-- `../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`
-- `../synthesis/CARROT_G1_INITIAL_BATCH_01_CROSS_SOURCE_DELTA_v1.md`
-- `../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md`
-- `../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md`
-- `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md`
+- `../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
+- `../synthesis/CARROT_G1_BATCH_02_CROSS_SOURCE_DELTA_v1.md`;
+- `../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md`;
+- `../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md`;
+- `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md`.
 
-## What later Carrot batches may change
-
-- clarify preflop, depth and multiway boundaries;
-- finalise four source-gated drills;
-- provide simpler explanations and counterexamples;
-- add assessment variants;
-- reveal context splits or genuine conflicts.
-
-They should not:
-
-- create a parallel curriculum;
-- copy source exams into the product;
-- reset progress on unchanged mechanisms;
-- trigger global course restructuring.
-
-## Current build boundary
-
-Ready now:
-
-- adaptive architecture;
-- action/reason/confidence learner state;
-- diagnostic and repair runtime;
-- 30 directly drilled candidates;
-- ten original Grade 1 assessment families;
-- complete Smash, FTGU and Cash Injection routing;
-- partial Carrot Grade 1 evidence routing.
-
-Still deferred:
+## Deferred
 
 - final 14–18-rule compression;
 - exact preflop anchors;
@@ -120,10 +90,10 @@ Still deferred:
 - final mastery thresholds;
 - admitted Playbook.
 
-## Learning verdict
+## Verdict
 
-`CARROT_G1_ASSESSMENT_ARCHITECTURE_ABSORBED`
+`CARROT_G1_VALUE_BLUFF_AND_RANGE_SHAPE_PEDAGOGY_ABSORBED`
 
-`SOURCE_EXAM_REMAINS_REFERENCE_ONLY`
+`SOURCE_EXAMPLES_REMAIN_REFERENCE_ONLY`
 
 `ADAPTIVE_NAVIGATION_UNCHANGED`
