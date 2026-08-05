@@ -20,8 +20,8 @@ This file explains where each kind of truth lives and how the pieces connect. It
 | Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md` |
 | Candidate ownership and drills | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` |
 | Provisional final grouping | `synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` |
-| Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md` |
-| Latest milestone | `reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md` |
+| Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md` |
+| Latest milestone | `reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md` |
 
 ## Whole-system map
 
@@ -72,12 +72,11 @@ ORIGIN RANGE WIDTH
 Path: `sources/carrot-poker/`
 
 - Grade 1 complete: Lectures `01–10`, Final Exam and Feedback;
-- Grade 2 Lectures `01–10` complete;
-- Grade 2 Final Exam received, visually audited and assessment-mapped;
-- Grade 2 Exam Feedback pending;
+- Grade 2 complete: Lectures `01–10`, Final Exam and Feedback;
 - Grade 3 pending;
 - `44` original Carrot assessment families;
-- one original Grade 2 exam runtime mode;
+- one Grade 2 exam runtime mode;
+- ten Grade 2 misconception-repair paths;
 - remaining source value is concentrated in preflop, exact depth, multiway, true boundaries and counterexamples.
 
 ## Current strategic inventory
@@ -110,15 +109,15 @@ Direct original drill coverage:
 |---|---|---|
 | `LCM-01` | Node and effective depth | core ready; exact bands pending |
 | `LCM-02` | Preflop range architecture | directional only; anchors and squeeze pending |
-| `LCM-03` | Blind identity and realisation | robust/frail model active; deep boundary pending |
+| `LCM-03` | Blind identity and realisation | robust/frail and check-EV model active; deep boundary pending |
 | `LCM-04` | Action filtering and ownership | high-confidence active |
 | `LCM-05` | Bet shape and response shape | core ready; exact refinements/field magnitude pending |
-| `LCM-06` | Aggression and future jobs | core ready with context splits |
+| `LCM-06` | Aggression and future jobs | core ready with context splits and repair paths |
 | `LCM-07` | 3-bet-pot ancestry | flop-plan model active; preflop anchors pending |
 | `LCM-08` | Multiway structure | partial; primary Grade 3 source gap |
-| `LCM-09` | River audit | high-confidence active |
+| `LCM-09` | River audit | high-confidence active; interference-before-blockers explicit |
 | `LCM-10` | Opponent/environment overlays | methodology ready; field calibration pending |
-| `LCM-11` | Field transfer and repair | runtime ready; Grade 2 exam mode active |
+| `LCM-11` | Field transfer and repair | Grade 1–2 exam and repair layer complete |
 
 A correct action with an incorrect reason is not mastery.
 
@@ -145,15 +144,16 @@ FULL TREE EV
 ### Carrot Grade 2
 
 ```text
-ACTION FILTER
-→ RANGE SHAPE
+ACTION HISTORY
+→ RANGE FILTERING
 → WORLD FAVOURABILITY
-→ BET FREQUENCY
+→ FREQUENCY
 → RELATIVE POLARISATION
 → SIZE / RAISE BREADTH
-→ HAND TIER
-→ RESPONSE THRESHOLD
-→ ANCESTRY / EXPLOIT EVIDENCE
+→ HAND TIER / RESPONSE THRESHOLD
+→ CHECK EV / FINISHING EQUITY
+→ BLOCKERS
+→ FIELD EVIDENCE
 ```
 
 ### Grade 2 exam mode
@@ -165,11 +165,12 @@ COLD PROMPT
 → CONFIDENCE
 → TIME LIMIT
 → FEEDBACK
+→ SELF-COMPARISON
 → CHANGED VARIANT
 → DELAYED RETEST
 ```
 
-### Bluff-catching
+### Bluff-catching and raising
 
 ```text
 ORIGIN RANGE
@@ -178,6 +179,7 @@ ORIGIN RANGE
 → SIZE
 → VALUE BEATER / BLUFF CATCHER / FRAIL HAND
 → ROBUSTNESS
+→ VALUE / BET-FOLD INTERFERENCE
 → BLOCKERS
 → EVIDENCE
 ```
@@ -196,8 +198,7 @@ Product-facing outputs must use:
 ## Current active path
 
 ```text
-Grade 2 Exam Feedback if available
-or Carrot Grade 3
+Carrot Grade 3
 → close/context-split preflop, depth and multiway questions
 → finalise four drill factories
 → consolidate candidates
@@ -222,10 +223,10 @@ Update only when durable structure, source-family lifecycle, authority routing, 
 
 `ONE_REPOSITORY / ONE_ADAPTIVE_CURRICULUM`
 
-`CARROT_GRADE_2_LECTURES_AND_FINAL_EXAM_RECEIVED`
+`CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_2_EXAM_FEEDBACK_PENDING`
+`GENERAL_POSTFLOP_CORE_MATURE_AT_MECHANISM_LEVEL`
 
-`GENERAL_POSTFLOP_CORE_MOSTLY_CLOSED`
+`GRADE_3_IS_PRIMARY_OPEN_SOURCE_PHASE`
 
 `NEW_CHATS_CAN_NAVIGATE_WITHOUT_FULL_REPO_RESCAN`
