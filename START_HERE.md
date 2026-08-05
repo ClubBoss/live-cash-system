@@ -59,7 +59,7 @@ Source courses provide evidence. They do not become parallel learner routes.
 | From the Ground Up | `30/30` complete; charts reference-only |
 | Cash Injection | `10/10` complete; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures `01–10`, Final Exam and Feedback |
-| Carrot Poker Grade 2 | Lectures `01–10` and Final Exam received; Exam Feedback pending |
+| Carrot Poker Grade 2 | complete: Lectures `01–10`, Final Exam and Feedback |
 | Carrot Poker Grade 3 | pending |
 
 Exact Carrot coverage authority:
@@ -80,11 +80,12 @@ Grade 1 original assessment families:  24
 Grade 2 original assessment families:  20
 Carrot assessment families total:      44
 Grade 2 exam runtime modes:              1
+Grade 2 feedback repair paths:          10
 admitted final rules:                    0
 intended final core:                  14–18
 ```
 
-Candidate IDs and assessment-family counts remain unchanged after the Grade 2 Final Exam.
+Candidate IDs and assessment-family counts remain unchanged after complete Grade 2.
 
 ## Stable architecture
 
@@ -127,15 +128,16 @@ FULL TREE EV
 ### Grade 2 operating model
 
 ```text
-ACTION FILTER
-→ RANGE SHAPE
+ACTION HISTORY
+→ RANGE FILTERING
 → WORLD FAVOURABILITY
-→ BET FREQUENCY
+→ FREQUENCY
 → RELATIVE POLARISATION
 → SIZE / RAISE BREADTH
-→ HAND TIER
-→ RESPONSE THRESHOLD
-→ ANCESTRY / EXPLOIT EVIDENCE
+→ HAND TIER / RESPONSE THRESHOLD
+→ CHECK EV / FINISHING EQUITY
+→ BLOCKERS
+→ FIELD EVIDENCE
 ```
 
 ### Grade 2 exam mode
@@ -162,6 +164,7 @@ ORIGIN RANGE
 → SIZE
 → VALUE BEATER / BLUFF CATCHER / FRAIL HAND
 → ROBUSTNESS
+→ VALUE / BET-FOLD INTERFERENCE
 → BLOCKERS
 → EVIDENCE
 ```
@@ -191,8 +194,7 @@ Do not:
 ## Active milestone
 
 ```text
-receive Grade 2 Exam Feedback if available
-or ingest Carrot Grade 3
+ingest Carrot Grade 3
 → close or context-split preflop, depth and multiway questions
 → finalise four source-gated drills
 → consolidate 34 candidates into 14–18 final rules
@@ -203,7 +205,6 @@ or ingest Carrot Grade 3
 
 ## Current unresolved gates
 
-- Grade 2 Exam Feedback;
 - Carrot Grade 3;
 - squeeze purification;
 - exact deep OOP protected-call boundaries;
@@ -223,13 +224,13 @@ or ingest Carrot Grade 3
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
 5. `sources/carrot-poker/source-registry.md`;
-6. `reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md`;
-7. `sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
-8. `synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md`;
+6. `reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md`;
+7. `sources/carrot-poker/transcripts/CP_G2_EXAM_FEEDBACK.md`;
+8. `synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md`;
 9. `synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
 10. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
 11. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
-12. `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md`.
+12. `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md`.
 
 Read broader source records only when required by the active task.
 
@@ -250,22 +251,23 @@ inventory
 
 ## Latest integrated checkpoint
 
-`GRADE_2_FINAL_EXAM_RECEIVED_AND_AUDITED`
+`CARROT_GRADE_2_COMPLETE`
 
 - Grade 2 Lectures `01–10` complete;
-- Final Exam PDF received and visually audited;
-- Exam Feedback pending;
-- accompanying transcript archive was an exact duplicate;
+- Final Exam PDF visually audited;
+- Final Exam Feedback accepted and mapped;
+- all ten answer-key sections present;
 - no rerun required;
 - no new core candidate;
 - no assessment-family count increase;
 - `44` total Carrot assessment families;
-- Grade 2 exam runtime ready;
-- direct drill coverage remains `30/34`.
+- Grade 2 exam runtime and repair map ready;
+- direct drill coverage remains `30/34`;
+- Grade 3 is the next primary source phase.
 
 Checkpoint report:
 
-`reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md`
+`reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md`
 
 ## New-chat response capsule
 
@@ -273,8 +275,8 @@ A new chat should briefly confirm:
 
 ```text
 repo and live main checked
-Grade 1 complete and Grade 2 lectures/exam understood
-Grade 2 feedback and Grade 3 gaps understood
+Grades 1–2 completion understood
+Grade 3 and remaining source-sensitive gates understood
 frozen identities understood
 next bounded action selected
 no global restart planned
@@ -284,6 +286,6 @@ no global restart planned
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`CARROT_GRADE_2_LECTURES_AND_FINAL_EXAM_RECEIVED`
+`CARROT_GRADES_1_AND_2_COMPLETE`
 
-`CONTINUE_WITH_GRADE_2_FEEDBACK_OR_GRADE_3 / DO_NOT_RESTART`
+`CONTINUE_WITH_GRADE_3 / DO_NOT_RESTART`
