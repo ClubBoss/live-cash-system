@@ -1,13 +1,13 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_2_EXAM_MODE_ACTIVE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADES_1_AND_2_COMPLETE`
 
 ## Authorities
 
 - Adaptive route: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - Learner state: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - Runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
-- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md`
+- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md`
 - Misconceptions: `MISCONCEPTION_TAXONOMY_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - Cash Injection drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
@@ -18,6 +18,7 @@ Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_2_EXAM_MODE_ACTIVE`
 - Grade 2 lecture blueprint: `assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
 - Grade 2 exam runtime: `assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md`
 - Grade 2 exam coverage: `../synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md`
+- Grade 2 feedback repair map: `assessments/CARROT_G2_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md`
 
 ## Navigation rule
 
@@ -41,10 +42,11 @@ diagnostic
 24 original Grade 1 assessment families
 20 original Grade 2 assessment families
 44 total original Carrot assessment families
-1 original Grade 2 exam runtime mode
+1 Grade 2 exam runtime mode
+10 Grade 2 feedback repair paths
 ```
 
-The Grade 2 exam validates the existing twenty Grade 2 families. It does not increase the family count.
+The Grade 2 exam and feedback validate the existing twenty Grade 2 families. They do not increase the family count.
 
 The four direct-drill gaps remain:
 
@@ -53,7 +55,7 @@ The four direct-drill gaps remain:
 - polar preflop target folds;
 - multiway delayed aggression.
 
-## Grade 2 executable contribution
+## Grade 2 complete executable contribution
 
 Learner-facing protocols include:
 
@@ -72,7 +74,11 @@ Learner-facing protocols include:
 - range bet versus selective bet;
 - bluff-catching from origin range and filtered air supply;
 - 3-bet-pot flop plan selection;
-- raise breadth from opposing bet shape.
+- raise breadth from opposing bet shape;
+- negative-EV-bet repair;
+- better-hand-versus-better-bluff repair;
+- bottom-of-range bluff-raise repair;
+- delayed-fold-equity check-EV repair.
 
 ## Grade 2 exam mode
 
@@ -126,6 +132,7 @@ ORIGIN RANGE
 → SIZE
 → VALUE BEATER / BLUFF CATCHER / FRAIL HAND
 → ROBUSTNESS
+→ VALUE / BET-FOLD INTERFERENCE
 → BLOCKERS
 → EVIDENCE
 ```
@@ -152,15 +159,14 @@ Ready now:
 - action/reason/confidence scoring;
 - 30 directly drilled candidates;
 - 44 original Carrot assessment families;
-- Grade 2 exam-mode delivery;
+- Grade 1–2 exam-mode and repair delivery;
 - complete Smash/FTGU/Cash Injection routing;
-- Carrot Grade 1 complete routing;
-- Carrot Grade 2 Lectures 01–10 plus Final Exam routing;
+- Carrot Grades 1–2 complete routing;
 - post-Grade-2 dimensional readiness assessment.
 
 Still deferred:
 
-- Grade 2 answer-key integration;
+- Grade 3 source integration;
 - final 14–18-rule compression;
 - exact preflop anchors;
 - exact deep and straddle overlays;
@@ -171,10 +177,10 @@ Still deferred:
 
 ## Verdict
 
-`CARROT_GRADE_2_EXAM_VISUALLY_MAPPED`
+`CARROT_GRADES_1_AND_2_LEARNING_LAYER_COMPLETE`
 
-`GRADE_2_EXAM_MODE_READY`
+`GRADE_2_EXAM_AND_FEEDBACK_REPAIR_MODE_READY`
 
 `FORTY_FOUR_ORIGINAL_CARROT_ASSESSMENT_FAMILIES_UNCHANGED`
 
-`GRADE_2_FEEDBACK_OR_GRADE_3_IS_NEXT_SOURCE_STEP`
+`GRADE_3_IS_NEXT_PRIMARY_SOURCE_STEP`
