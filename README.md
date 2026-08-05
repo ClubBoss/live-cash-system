@@ -37,6 +37,7 @@ The layout allows Carrot Poker, Cash Injection, original range work and field ev
 9. Product-facing language, examples, drills and ranges are original.
 10. Learner progress is tracked by mechanism, reasoning, retention and field transfer—not by watched lessons.
 11. New sources extend evidence and branches before creating new modules.
+12. Population claims remain hypotheses until independent or field evidence validates their scope.
 
 ## Stable repository layers
 
@@ -46,7 +47,7 @@ The layout allows Carrot Poker, Cash Injection, original range work and field ev
 - `ranges/` — independently derived assumptions, validation and anchors.
 - `playbook/` — compact executable rules and table-facing algorithms.
 - `learning/` — adaptive route, learner state, runtime, misconceptions, diagnostics and drills.
-- `profiles/` — opponent models and environment overlays.
+- `profiles/` — opponent models, pool hypotheses and environment overlays.
 - `fieldwork/` — session evidence and deployment feedback.
 - `hands/` — raw and reviewed hand records.
 - `governance/` — admission, conflict, IP and architecture rules.
@@ -96,24 +97,30 @@ Planned next source family for theory, exploit structure and cross-validation. G
 
 ### Cash Injection
 
-Planned source family for exploit hypotheses, practical node adjustments, evidence thresholds and field observation missions.
+- Episode 1 is canonically ingested and mapped;
+- Episodes 2–10 remain pending;
+- the first episode adds small-range-bet elasticity and merged-raise evidence;
+- its population overfold/under-three-bet claim is stored as `CI-PH-001`, not as a general default;
+- original adaptive drills and a field observation mission are active.
 
 ## Current system state
 
 - heuristic candidates: 34;
 - intended consolidated target: approximately 14–18 core rules;
-- admitted final rules: 0 pending Carrot/Cash Injection, drill and field validation;
+- admitted final rules: 0 pending Carrot, remaining Cash Injection, drill and field validation;
 - provisional compact Playbook: created as a reasoning snapshot;
 - stable adaptive module graph: created;
 - adaptive learner-state schema: created;
 - adaptive interactive runtime: created;
 - progress-preserving new-source integration protocol: created;
 - opponent-model schema and initial profiles: created;
+- Cash Injection pool-hypothesis register: active;
 - misconception taxonomy: 30 diagnostic errors;
-- initial diagnostic and original drill pack: created;
+- initial diagnostic and original drill packs: created;
 - session-review and field-evidence loop: created;
 - environment-profile template: created;
 - Smash/FTGU cross-source evidence matrix: complete at candidate level;
+- Cash Injection evidence matrix: active at 1 of 10 episodes;
 - original range layer: reserved; no source chart has been promoted to an anchor.
 
 ## Adaptive course model
@@ -170,7 +177,7 @@ These structures organise existing candidates; they do not increase the final ru
 
 ## Current priority nodes
 
-1. Ingest Carrot Poker and Cash Injection through the incremental source protocol.
+1. Ingest remaining Cash Injection episodes and Carrot Poker through the incremental source protocol.
 2. Map new evidence into the stable adaptive module graph.
 3. Consolidate overlapping candidates without losing assumptions.
 4. Build independently validated preflop anchor configurations.
@@ -228,15 +235,20 @@ These structures organise existing candidates; they do not increase the final ru
 - `governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md`
 - `synthesis/NEW_SOURCE_DELTA_INTEGRATION_PROTOCOL_v1.md`
 - `synthesis/CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md`
+- `synthesis/CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md`
 - `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_1.md`
+- `profiles/CASH_INJECTION_POOL_HYPOTHESES_v0_1.md`
 - `learning/GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - `learning/ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - `learning/ADAPTIVE_COURSE_RUNTIME_v0_1.md`
 - `learning/INITIAL_DIAGNOSTIC_v0_1.md`
 - `learning/drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
+- `learning/drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
 - `playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md`
 - `sources/smash-live-cash/source-gap-ledger.md`
 - `sources/ftgu/source-registry.md`
+- `sources/cash-injection/source-registry.md`
 - `analysis/module-audits/FTGU_CANONICAL_CORPUS_COMPLETION_QA_v1.md`
+- `analysis/module-audits/CASH_INJECTION_INITIAL_BATCH_01_QA_v1.md`
 
 The provisional Playbook remains a reasoning snapshot. The adaptive architecture is active now; final module content, exact anchors and admission decisions wait for remaining source and field validation.
