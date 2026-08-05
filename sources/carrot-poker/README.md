@@ -1,78 +1,61 @@
 # Carrot Poker Source Family
 
-Status: `ACTIVE / GRADE_1_INITIAL_BATCH_01_INGESTED / GRADE_1_PARTIAL`
+Status: `ACTIVE / GRADE_1_LECTURES_01_TO_04_INGESTED / GRADE_1_PARTIAL`
 
 ## Scope
 
-One source family for:
-
-- Grade 1;
-- Grade 2;
-- Grade 3.
-
-Grades remain modules inside one corpus, not parallel learner curricula.
+One source family for Grade 1, Grade 2 and Grade 3. Grades remain source modules inside one corpus, not parallel learner curricula.
 
 ## Received
 
-### Grade 1
+### Grade 1 lectures
 
-- `CP-G1-L01` — Lecture 01: Equity and EV;
+- `CP-G1-L01` — Equity and EV;
+- `CP-G1-L02` — Value Betting;
+- `CP-G1-L03` — Bluffing;
+- `CP-G1-L04` — Polarisation and Relative Hand Strength.
+
+### Grade 1 supplemental sources
+
 - `CP-G1-EXAM` — Final Exam PDF;
 - `CP-G1-EXAM-FB` — Final Exam Feedback.
 
-Authorities:
-
-- `source-registry.md`;
-- `source-gap-ledger.md`;
-- `../../analysis/module-audits/CARROT_G1_INITIAL_BATCH_01_QA_v1.md`;
-- `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-- `../../synthesis/CARROT_G1_INITIAL_BATCH_01_CROSS_SOURCE_DELTA_v1.md`;
-- `../../learning/assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
-
 ## Pending
 
-- Grade 1 Lectures 02–10 and any associated supplements;
+- Grade 1 Lectures 05–10 and any associated supplements;
 - Grade 2;
 - Grade 3.
 
-The exam feedback references later lectures through Lecture 10. It supports competency mapping but does not replace missing lecture continuity.
+The exam and feedback support competency mapping but do not replace missing lecture continuity.
 
-## Stable routing
+## Active authorities
 
-```text
-sources/carrot-poker/
-├── README.md
-├── source-registry.md
-├── source-gap-ledger.md
-├── CARROT_INGESTION_AND_ROUTING_SPEC_v1.md
-├── CARROT_POST_INJECTION_ROUTING_ADDENDUM_v1.md
-├── transcripts/
-└── artifacts/
-```
+- `source-registry.md`;
+- `source-gap-ledger.md`;
+- `CARROT_INGESTION_AND_ROUTING_SPEC_v1.md`;
+- `CARROT_POST_INJECTION_ROUTING_ADDENDUM_v1.md`;
+- `../../analysis/module-audits/CARROT_G1_INITIAL_BATCH_01_QA_v1.md`;
+- `../../analysis/module-audits/CARROT_G1_BATCH_02_QA_v1.md`;
+- `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
+- `../../synthesis/CARROT_G1_INITIAL_BATCH_01_CROSS_SOURCE_DELTA_v1.md`;
+- `../../synthesis/CARROT_G1_BATCH_02_CROSS_SOURCE_DELTA_v1.md`;
+- `../../learning/assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
 
-## Current integration authorities
+## Grade 1 contribution through Lecture 04
 
-- `CARROT_INGESTION_AND_ROUTING_SPEC_v1.md` — general intake contract;
-- `CARROT_POST_INJECTION_ROUTING_ADDENDUM_v1.md` — post-Injection priorities;
-- `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md` — incremental Carrot relations;
-- `../../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md` — unresolved question state;
-- `../../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md`;
-- `../../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md`;
-- `../../synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md`.
+Accepted mechanisms and pedagogy:
 
-## Initial Grade 1 contribution
-
-Accepted as mechanism/pedagogy:
-
-- equity versus EV;
-- realisation and position;
-- open-action versus end-of-action protocol;
-- whole-tree comparison and tunnel-vision repair;
+- equity versus full-tree EV;
+- mandatory / optional / prohibited value and bluff;
+- urgency and position-dependent check cost;
+- denial as secondary;
+- favourable, neutral and unfavourable range worlds;
+- polarisation and condensation as graded range shapes;
+- relative hand strength from filtering, texture and configuration;
+- value-driven overbet architecture;
 - range advantage versus nut advantage;
-- value/bluff thresholds;
-- polar versus merged strategy shape;
-- river range geography;
-- blockers after candidate qualification.
+- protected checking ranges;
+- blocker ordering after range construction.
 
 No new core candidate was created.
 
@@ -85,22 +68,22 @@ No new core candidate was created.
 - multiway shared defence and bluff construction;
 - multiway delayed aggression;
 - depth and SPR context;
-- exact boundaries and counterexamples;
-- four remaining direct-drill factories.
+- exact boundaries, counterexamples and four remaining direct-drill factories.
 
 ## Source-purity rule
 
 - preserve hedging and uncertainty;
-- do not silently reconcile disagreement;
-- keep exams and solutions distinct from lecture records;
-- do not copy exact exam spots into product-facing assessments;
-- do not copy charts or proprietary examples into anchors;
-- mark visual-only solver claims explicitly.
+- keep lectures, exams, solutions and worksheets distinct;
+- do not copy exact source spots into product-facing assessments;
+- do not promote proprietary charts into anchors;
+- mark solver-screen claims as visual-dependent.
 
-## Current verdict
+## Verdict
 
-`CARROT_GRADE_1_INITIAL_BATCH_ACTIVE`
+`CARROT_GRADE_1_L01_TO_L04_ACTIVE`
 
-`GRADE_1_PARTIAL / GRADES_2_AND_3_PENDING`
+`GRADE_1_L05_TO_L10_PENDING`
+
+`GRADES_2_AND_3_PENDING`
 
 `INCREMENTAL_ROUTING_WORKS_WITHOUT_GLOBAL_REBUILD`
