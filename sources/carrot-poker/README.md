@@ -1,6 +1,6 @@
 # Carrot Poker Source Family
 
-Status: `ACTIVE / GRADES_1_AND_2_COMPLETE / GRADE_3_PENDING`
+Status: `ACTIVE / GRADES_1_AND_2_COMPLETE / GRADE_3_EXAM_RECEIVED / GRADE_3_LECTURES_AND_FEEDBACK_PENDING`
 
 ## Scope
 
@@ -26,23 +26,21 @@ Grade 2 lecture, exam-question and answer-key continuity are complete.
 
 ### Grade 3
 
-No material received yet.
+- `CP-G3-EXAM` — Final Exam PDF.
+
+Grade 3 lectures and Exam Feedback are pending. The exam supplies question-level competency routing, not answer-key evidence.
 
 ## Current authorities
 
 - `source-registry.md`;
 - `source-gap-ledger.md`;
-- `transcripts/CP_G2_EXAM_FEEDBACK.md`;
-- `artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
-- `../../analysis/module-audits/CARROT_G2_EXAM_FEEDBACK_QA_v1.md`;
+- `artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
+- `../../synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
+- `../../reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`;
 - `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-- `../../synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md`;
 - `../../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
 - `../../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
-- `../../learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md`;
-- `../../learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`;
-- `../../learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md`;
-- `../../learning/assessments/CARROT_G2_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md`.
+- `../../learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md`.
 
 ## Grade 1 contribution
 
@@ -72,42 +70,40 @@ ACTION HISTORY
 → FIELD EVIDENCE
 ```
 
-Grade 2 materially adds:
+Grade 2 supplies the mature postflop operating, assessment and repair layer.
 
-- polarising versus condensing actions;
-- pot-odds norm adjusted by range asymmetry;
-- value and bluff tiers;
-- sizing toolkits and finishing equity;
-- frequency versus magnitude;
-- theoretical, exploitative and erroneous slow-play;
-- robust versus frail hands;
-- IP versus OOP check-value asymmetry;
-- range geography facing bets;
-- bluff-catching from origin range and filter density;
-- 3-bet-pot flop plan construction;
-- raise breadth against merged and polar bets;
-- exam-mode process requiring written reasoning before feedback;
-- ten misconception-repair paths validated by the source answer key.
+## Grade 3 exam contribution so far
 
-The Grade 2 Final Exam and Feedback validate the existing twenty original Grade 2 assessment families. They do not increase the assessment or candidate count.
+The ten questions visibly target:
+
+- turn call/raise selection;
+- mixed betting and size ceilings;
+- suit-specific bluff selection;
+- five-part check-raise range construction;
+- turn class migration;
+- river bluff-catching and bluff unblocking;
+- very large turn and river overbets;
+- protected checks and raises in 3-bet pots;
+- texture-dependent 3-bet-pot defence;
+- low-SPR 4-bet-pot turn strategy.
+
+The exam does not visibly establish coverage of squeeze construction, preflop anchors, multiway, straddles or exact deep-stack bands.
+
+Do not infer final Grade 3 scope or answers until lecture and feedback transcripts arrive.
 
 ## Current remaining high-value Carrot work
 
-- Grade 3;
-- squeeze purification;
-- exact deep OOP protected-call boundaries;
-- polar preflop target folds;
-- players-behind compression;
-- multiway shared defence and bluff construction;
-- multiway delayed aggression;
-- exact depth and straddle context;
-- independent preflop anchors;
-- true counterexamples to currently mature postflop mechanisms.
+- Grade 3 lecture transcripts;
+- Grade 3 Exam Feedback;
+- answer-key and misconception-repair crosswalk;
+- reassessment of preflop, depth and multiway gaps based on actual Grade 3 evidence;
+- finalisation of any newly supported drill factories.
 
 ## Source-purity rule
 
 - preserve hedging and uncertainty;
 - keep lectures, exams, feedback and supplements distinct;
+- do not infer answers from question wording;
 - do not copy source exam or lecture spots into product-facing assessments;
 - do not copy charts or solver matrices into anchors;
 - mark exact screen claims as visual-dependent;
@@ -117,8 +113,8 @@ The Grade 2 Final Exam and Feedback validate the existing twenty original Grade 
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_2_LECTURES_EXAM_AND_FEEDBACK_MAPPED`
+`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
 
-`GRADE_3_PENDING`
+`GRADE_3_LECTURES_AND_EXAM_FEEDBACK_PENDING`
 
 `INCREMENTAL_ROUTING_WORKS_WITHOUT_GLOBAL_REBUILD`
