@@ -1,6 +1,6 @@
 # Carrot Poker — Source Intake and Gap Ledger
 
-Status: `ACTIVE / GRADE_1_PARTIAL / LECTURES_01_TO_09_INGESTED`
+Status: `ACTIVE / GRADE_1_LECTURE_CORPUS_COMPLETE / GRADES_2_AND_3_PENDING`
 
 Last updated: 2026-08-05
 
@@ -16,7 +16,8 @@ Last updated: 2026-08-05
 - `CP-G1-L06` — Range and Nut Advantage for Flop C-Betting;
 - `CP-G1-L07` — Turn Barrel Opportunities;
 - `CP-G1-L08` — Float Betting the Flop;
-- `CP-G1-L09` — River Textural Awareness and Range Geography.
+- `CP-G1-L09` — River Textural Awareness and Range Geography;
+- `CP-G1-L10` — Basic Blocker Patterns and Texture.
 
 ### Grade 1 supplemental artifacts
 
@@ -35,20 +36,31 @@ Last updated: 2026-08-05
 - Lectures 01–04 repeated byte-identically in all five formats;
 - Exam Feedback repeated byte-identically in all five formats.
 
+### Batch 04
+
+- Lectures 01–09 repeated byte-identically in all five formats;
+- Exam Feedback repeated byte-identically in all five formats;
+- all `50/50` overlapping transcript files match Batch 03 exactly.
+
 Repeated bundles were not re-ingested.
 
-## Pending Grade 1 source continuity
+## Grade 1 continuity
 
-Not yet received:
+No known lecture-continuity gap remains.
 
-- Grade 1 Lecture 10;
-- any associated lecture-specific worksheets, charts or homework files not yet supplied.
+Grade 1 lecture corpus:
 
-Grade 1 remains partial. The exam and feedback do not replace Lecture 10.
+```text
+Lectures 01–10 complete
+Final Exam PDF received
+Final Exam Feedback received
+```
+
+Unknown worksheets, charts or lecture supplements may still be accepted if later supplied, but they are not known blockers and do not prevent Grade 1 closure.
 
 ## Pending source sets
 
-- Grade 1 Lecture 10 and possible supplements;
+- possible Grade 1 supplements not yet supplied;
 - Grade 2;
 - Grade 3.
 
@@ -75,22 +87,39 @@ Grade 1 remains partial. The exam and feedback do not replace Lecture 10.
 - cross-source mapping;
 - postflop protocol consolidation.
 
+### Batch 04
+
+- L10 duplicate and technical QA;
+- canonical source record;
+- blocker-ordering cross-source mapping;
+- six original assessment families;
+- Grade 1 lecture-corpus closure.
+
 No transcript rerun is open.
 
 ## Claim-driven visual dependencies
 
-### Lectures 01–09 and Exam Feedback
+### Lectures 01–10 and Exam Feedback
 
 - exact PioSolver cards, frequencies and EV values;
 - exact range graphs and hand matrices;
 - precise bet sizes and pot geometry;
-- exact mixed-strategy cells.
+- exact mixed-strategy cells;
+- exact quantitative magnitude of blocker differences.
 
 ### Final Exam PDF
 
 The 13-page PDF is available and visually audited. No additional retrieval is needed for the source question slides.
 
-## Current strategic gaps not closed by Grade 1 L01–L09
+Visual review remains claim-driven only. It is required only when a visual can change:
+
+- a final heuristic;
+- an original assessment answer;
+- a boundary or sizing threshold;
+- a genuine source conflict;
+- an independent anchor.
+
+## Strategic gaps not closed by Grade 1
 
 - exact depth bands;
 - deep OOP protected-call boundaries;
@@ -98,19 +127,21 @@ The 13-page PDF is available and visually audited. No additional retrieval is ne
 - polar preflop target folds;
 - multiway shared defence and bluff construction;
 - multiway delayed aggression;
-- independently derived preflop anchors.
+- independently derived preflop anchors;
+- target-live population calibration.
 
 ## Source-purity boundaries
 
-- exam feedback may summarise Lecture 10 but does not replace it;
 - exact exam and lecture examples remain reference-only;
-- new packages must be deduplicated against L01–L09 and Exam Feedback;
-- solver-screen values are not reconstructed from audio guesses.
+- new packages must be deduplicated against L01–L10 and Exam Feedback;
+- solver-screen values are not reconstructed from audio guesses;
+- the source's blocker-magnitude estimates are not universalised;
+- Grade 1 completion does not imply candidate admission or final Playbook completion.
 
 ## Next package transaction
 
 ```text
-inventory
+inventory Grade 2 or Grade 3
 → duplicate check
 → technical QA
 → immutable IDs
@@ -121,9 +152,11 @@ inventory
 
 ## Ledger verdict
 
-`CARROT_G1_BATCH_03_COMPLETE`
+`CARROT_G1_BATCH_04_COMPLETE`
 
-`GRADE_1_LECTURE_10_PENDING`
+`GRADE_1_LECTURES_01_TO_10_COMPLETE`
+
+`GRADE_1_NO_KNOWN_SOURCE_CONTINUITY_GAP`
 
 `GRADES_2_AND_3_PENDING`
 
