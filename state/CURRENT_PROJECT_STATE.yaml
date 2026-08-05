@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: carrot_grades_2_and_3_incremental_completion
-  updated_at: 2026-08-05T21:34:00+04:00
+  phase: carrot_grade_2_assessment_and_grade_3_completion
+  updated_at: 2026-08-05T22:34:00+04:00
 
 mission:
   summary: >-
@@ -63,17 +63,7 @@ source_state:
     population_claim_state: field_gated
   carrot_grade_1:
     status: complete
-    lectures_received:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-      - 6
-      - 7
-      - 8
-      - 9
-      - 10
+    lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     lectures_pending: []
     final_exam_pdf: received_and_audited
     exam_feedback: received_and_mapped
@@ -81,7 +71,14 @@ source_state:
     exact_source_exam_spots: reference_only
     known_source_continuity_gaps: 0
   carrot_grade_2:
-    status: pending
+    status: lecture_corpus_complete_assessment_pending
+    lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    lectures_pending: []
+    final_exam_pdf: pending
+    exam_feedback: pending
+    original_assessment_families: 20
+    exact_source_examples: reference_only
+    known_lecture_continuity_gaps: 0
   carrot_grade_3:
     status: pending
 
@@ -93,6 +90,7 @@ system_counts:
   provisional_final_rule_slots: 16
   candidates_with_direct_original_drills: 30
   source_gated_direct_drill_gaps: 4
+  carrot_original_assessment_families: 44
   admitted_final_rules: 0
 
 candidate_status_counts:
@@ -115,11 +113,10 @@ stable_module_ids:
   - LCM-11
 
 active_milestone:
-  name: complete_remaining_carrot_grades_incrementally
-  current_step: receive_and_ingest_carrot_grade_2
+  name: complete_remaining_carrot_assessment_and_grade_3_incrementally
+  current_step: receive_grade_2_exam_feedback_or_grade_3_package
   subsequent_steps:
-    - ingest_carrot_grade_3
-    - close_or_context_split_remaining_questions
+    - close_or_context_split_remaining_preflop_depth_multiway_questions
     - finalise_four_source_gated_drill_factories
     - consolidate_34_candidates_to_14_18_rules
     - build_independent_preflop_anchors
@@ -128,10 +125,12 @@ active_milestone:
     - admit_revise_or_reject
 
 open_high_value_gates:
-  - carrot_grades_2_and_3
+  - carrot_grade_2_final_exam_and_feedback
+  - carrot_grade_3
   - squeeze_purification
   - deep_oop_protected_call_boundaries
   - polar_preflop_target_folds_and_call_branch
+  - players_behind_compression
   - independent_live_rake_preflop_anchors
   - multiway_shared_defence
   - multiway_bluff_construction
@@ -146,6 +145,18 @@ remaining_direct_drill_gaps:
   - H-W01-006
   - H-W01-008
   - H-R04-007
+
+mechanism_state:
+  general_postflop_core: mostly_closed
+  filtering_and_ownership: ready
+  bet_and_response_shape: ready_core
+  aggression_and_future_jobs: ready_core_with_context_splits
+  river_audit: ready_core
+  three_bet_pot_flop_model: ready_directionally
+  preflop_architecture: partial_anchor_pending
+  deep_oop_exact_boundaries: pending
+  multiway: partial
+  field_population_magnitude: pending
 
 frozen_identities:
   source_ids: true
@@ -187,36 +198,38 @@ active_authorities:
   carrot_registry: sources/carrot-poker/source-registry.md
   carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
   carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md
-  remaining_question_matrix: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md
-  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md
+  remaining_question_matrix: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md
+  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md
   candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
   provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md
   learning_index: learning/README.md
-  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md
-  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v2.md
+  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md
+  grade_2_assessments: learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
+  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v3.md
 
 latest_integrated_checkpoint:
-  verdict: CARROT_G1_BATCH_04_COMPLETE
-  report: reports/CARROT_G1_BATCH_04_TERMINAL_REPORT_v1.md
-  source_checkpoint_commit: c74aed7101781e85e8748f6fe9e53bd47c053b6b
+  verdict: CARROT_G2_LECTURE_CORPUS_COMPLETE
+  report: reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: 61666b5c55bbfd3e903b2429582ceb24ea11a6bb
+  archive_sha256: 58cae6b4bab467901203406d7261026ffee89b19b4f667f9479257cc6599575b
   facts:
-    - grade_1_lectures_01_to_10_complete
-    - grade_1_exam_and_feedback_mapped
-    - no_known_grade_1_source_continuity_gap
-    - no_rerun_required
+    - grade_2_lectures_01_to_10_complete
+    - grade_2_exam_and_feedback_pending
+    - no_full_rerun_required
     - no_new_core_candidate
-    - twenty_four_original_grade_1_assessment_families
+    - twenty_original_grade_2_assessment_families
+    - forty_four_total_carrot_assessment_families
+    - direct_drill_coverage_remains_30_of_34
 
 latest_project_checkpoint:
-  verdict: CARROT_GRADE_1_COMPLETE_READINESS_PASS
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md
-  readiness_commit: 935bd235d1eb48f612735935f8b4189043ff8d05
-  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v2.md
-  evaluation_commit: ce09b90b1efe4ee454a2fdab37b22a9e927b05ee
+  verdict: CARROT_GRADE_2_LECTURE_READINESS_PASS_COMPLETE
+  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md
+  readiness_commit: 7f3627035d6e6a3c1d3a2abf3db78c60ac4b2cb2
+  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v3.md
+  evaluation_commit: 1ab6f5d6b04f25fe86aefa148686629d8e7996af
   facts:
-    - blocker_ordering_explicit
-    - grade_1_assessment_layer_complete
-    - grades_2_and_3_remain_boundary_and_context_phase
+    - general_postflop_core_mostly_closed
+    - grade_3_value_concentrated_in_preflop_depth_multiway_and_boundaries
     - finalisation_still_deferred
 
 handover_system:
@@ -238,8 +251,8 @@ new_chat_bootstrap:
     - AGENTS.md
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
-    - active_source_registry
-    - latest_checkpoint_report
+    - sources/carrot-poker/source-registry.md
+    - reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md
     - affected_authority_files_only
   forbidden_behaviour:
     - restart_project_diagnosis
@@ -251,9 +264,9 @@ new_chat_bootstrap:
     - global_learner_progress_reset
   expected_initial_response:
     - repo_and_live_branch_checked
-    - grade_1_completion_understood
+    - grade_1_and_grade_2_lecture_checkpoints_understood
+    - grade_2_assessment_and_grade_3_gaps_understood
     - frozen_identities_understood
-    - grades_2_and_3_open_gates_understood
     - next_bounded_action_selected
     - no_global_restart_planned
 
@@ -262,5 +275,6 @@ terminal_state:
   atlas_ready: true
   incremental_ingestion_ready: true
   carrot_grade_1_complete: true
-  all_high_value_safe_grade_1_work_done: true
+  carrot_grade_2_lecture_corpus_complete: true
+  general_postflop_core_mostly_closed: true
   global_restructure_expected: false
