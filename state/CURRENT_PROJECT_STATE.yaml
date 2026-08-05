@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: carrot_grade_3_completion
-  updated_at: 2026-08-06T00:12:00+04:00
+  phase: carrot_grade_3_lecture_and_feedback_completion
+  updated_at: 2026-08-06T00:48:00+04:00
 
 mission:
   summary: >-
@@ -79,7 +79,33 @@ source_state:
     exact_source_examples: reference_only
     known_source_continuity_gaps: 0
   carrot_grade_3:
-    status: pending
+    status: final_exam_received_lectures_and_feedback_pending
+    lectures_received: []
+    lectures_pending: inventory_unknown
+    final_exam_pdf: received_and_audited
+    final_exam_pages: 12
+    final_exam_questions: 10
+    final_exam_sha256: 3a7c09366de76b0a9055d3391f695ef5c26b13a842fedcc6384316486cd03250
+    exam_feedback: pending
+    preliminary_competency_rows: 10
+    answer_keys_available: false
+    visible_emphasis:
+      - turn_call_raise_selection
+      - mixed_betting_and_size_ceilings
+      - combo_specific_bluff_selection
+      - check_raise_range_construction
+      - turn_class_migration
+      - turn_and_river_overbets
+      - river_bluff_catching
+      - three_bet_pot_strategy
+      - four_bet_pot_strategy
+    not_visibly_covered_by_exam:
+      - squeeze_construction
+      - exact_preflop_anchors
+      - multiway_strategy
+      - straddle_overlays
+      - exact_deep_stack_bands
+    exact_source_examples: reference_only
 
 system_counts:
   heuristic_candidates: 34
@@ -92,6 +118,7 @@ system_counts:
   carrot_original_assessment_families: 44
   grade_2_exam_runtime_modes: 1
   grade_2_feedback_repair_paths: 10
+  grade_3_preliminary_exam_rows: 10
   admitted_final_rules: 0
 
 candidate_status_counts:
@@ -114,11 +141,14 @@ stable_module_ids:
   - LCM-11
 
 active_milestone:
-  name: ingest_carrot_grade_3_incrementally
-  current_step: receive_and_ingest_carrot_grade_3_package
+  name: ingest_carrot_grade_3_lectures_and_feedback_incrementally
+  current_step: receive_and_ingest_grade_3_lecture_transcripts
   subsequent_steps:
-    - close_or_context_split_remaining_preflop_depth_multiway_questions
-    - finalise_four_source_gated_drill_factories
+    - map_each_lecture_to_grade_3_exam_competency_rows
+    - receive_and_ingest_grade_3_exam_feedback
+    - build_grade_3_answer_key_and_repair_crosswalk
+    - reassess_actual_remaining_preflop_depth_multiway_gaps
+    - finalise_supported_source_gated_drill_factories
     - consolidate_34_candidates_to_14_18_rules
     - build_independent_preflop_anchors
     - run_learner_validation
@@ -126,7 +156,8 @@ active_milestone:
     - admit_revise_or_reject
 
 open_high_value_gates:
-  - carrot_grade_3
+  - carrot_grade_3_lecture_corpus
+  - carrot_grade_3_exam_feedback
   - squeeze_purification
   - deep_oop_protected_call_boundaries
   - polar_preflop_target_folds_and_call_branch
@@ -154,10 +185,19 @@ mechanism_state:
   river_audit: ready_core
   three_bet_pot_flop_model: ready_directionally
   grade_2_exam_and_repair_layer: complete
+  grade_3_exam_competency_routing: active_question_only
+  grade_3_answer_keys: pending
   preflop_architecture: partial_anchor_pending
   deep_oop_exact_boundaries: pending
   multiway: partial
   field_population_magnitude: pending
+
+scope_corrections:
+  grade_3_prior_expectation: preflop_depth_multiway_primary_validator
+  grade_3_exam_observation: advanced_postflop_emphasis
+  current_rule: >-
+    Do not assume Grade 3 closes preflop, exact-depth or multiway gaps until
+    lecture or feedback evidence directly supports those closures.
 
 frozen_identities:
   source_ids: true
@@ -179,6 +219,7 @@ frozen_architecture:
   - admission
 
 deferred_until_evidence_closes:
+  - grade_3_answer_keys
   - final_rule_ids_and_wording
   - exact_preflop_anchors
   - exact_deep_and_short_stack_thresholds
@@ -198,49 +239,44 @@ active_authorities:
   handover_maintenance: governance/HANDOVER_MAINTENANCE_PROTOCOL_v1.md
   carrot_registry: sources/carrot-poker/source-registry.md
   carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
-  grade_2_exam_audit: sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md
-  grade_2_exam_feedback: sources/carrot-poker/transcripts/CP_G2_EXAM_FEEDBACK.md
+  grade_3_exam_audit: sources/carrot-poker/artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md
+  grade_3_exam_competency_map: synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
   carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md
-  grade_2_exam_coverage: synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md
-  grade_2_feedback_delta: synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md
   remaining_question_matrix: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md
   candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md
   candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
   provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md
   learning_index: learning/README.md
   learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md
-  grade_2_assessments: learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
-  grade_2_exam_runtime: learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md
-  grade_2_feedback_repairs: learning/assessments/CARROT_G2_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md
   source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v4.md
 
 latest_integrated_checkpoint:
-  verdict: CARROT_GRADE_2_COMPLETE
-  report: reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md
-  source_checkpoint_commit: 3abe9278c854fd778da8a6176b82059dc27c7d74
-  exam_feedback_archive_sha256: d69c728eaf41122f5b6e202fbaa83042a1831d925796c091ae5fe5d3eca00e5c
+  verdict: GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED
+  report: reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: f90911d72ae248f28ad36b4c1c0cc1af64308c8a
+  final_exam_pdf_sha256: 3a7c09366de76b0a9055d3391f695ef5c26b13a842fedcc6384316486cd03250
   facts:
-    - grade_2_lectures_01_to_10_complete
-    - grade_2_final_exam_received_and_visually_audited
-    - grade_2_exam_feedback_received_and_mapped
-    - all_ten_answer_key_sections_present
-    - no_known_grade_2_source_continuity_gap
-    - no_rerun_required
+    - grade_3_final_exam_received
+    - twelve_pages_and_ten_questions
+    - all_pages_visually_audited
+    - advanced_postflop_emphasis_visible
+    - grade_3_lectures_pending
+    - grade_3_exam_feedback_pending
+    - no_answer_keys_inferred
+    - no_pdf_repair_required
     - no_new_core_candidate
     - no_assessment_family_count_increase
-    - grade_2_exam_runtime_and_repair_map_ready
+    - ten_preliminary_competency_rows_created
     - direct_drill_coverage_remains_30_of_34
 
 latest_project_checkpoint:
-  verdict: CARROT_GRADES_1_AND_2_COMPLETE_READINESS_PASS
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md
-  readiness_commit: 7dfe8657f156389266a76d35c83bd2dd3e27bcae
-  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v4.md
-  evaluation_commit: 296cb09fa7e551839f5276fe58847363b6312edf
+  verdict: CARROT_GRADE_3_EXAM_ROUTING_READY
+  competency_map: synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
   facts:
-    - general_postflop_core_mature_at_mechanism_level
-    - grade_2_answer_key_and_repair_layer_complete
-    - grade_3_value_concentrated_in_preflop_depth_multiway_and_boundaries
+    - grades_1_and_2_complete
+    - grade_3_exam_question_continuity_received
+    - grade_3_lecture_and_answer_key_continuity_pending
+    - prior_grade_3_scope_expectation_corrected
     - finalisation_still_deferred
 
 handover_system:
@@ -259,12 +295,14 @@ new_chat_bootstrap:
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
     - sources/carrot-poker/source-registry.md
-    - reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md
+    - reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md
+    - synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
     - affected_authority_files_only
   forbidden_behaviour:
     - restart_project_diagnosis
     - broad_unscoped_refactor
     - author_specific_parallel_curriculum
+    - infer_grade_3_answers_from_exam_pdf
     - unsupported_source_completion_claim
     - proprietary_content_copy
     - population_claim_as_live_default
@@ -272,7 +310,8 @@ new_chat_bootstrap:
   expected_initial_response:
     - repo_and_live_branch_checked
     - grades_1_and_2_completion_understood
-    - grade_3_and_remaining_gates_understood
+    - grade_3_exam_received_and_question_only_boundary_understood
+    - grade_3_lectures_feedback_and_remaining_gates_understood
     - frozen_identities_understood
     - next_bounded_action_selected
     - no_global_restart_planned
@@ -283,6 +322,8 @@ terminal_state:
   incremental_ingestion_ready: true
   carrot_grade_1_complete: true
   carrot_grade_2_complete: true
-  carrot_grade_3_pending: true
+  carrot_grade_3_exam_received: true
+  carrot_grade_3_lectures_pending: true
+  carrot_grade_3_feedback_pending: true
   general_postflop_core_mature_at_mechanism_level: true
   global_restructure_expected: false
