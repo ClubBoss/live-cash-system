@@ -1,73 +1,67 @@
 # Live Cash System — Pre-Finalization Freeze and Mutation Policy v1
 
-Status: `ACTIVE / SOURCE_COMPLETION_PHASE`
+Status: `ACTIVE / CARROT_COMPLETION_PHASE`
 
 ## Purpose
 
-Prevent two opposite failures while the remaining Cash Injection and Carrot material is pending:
+Prevent premature finalisation and unnecessary architecture churn while Carrot Grades 1–3, independent anchors and field evidence remain pending.
 
-1. premature finalisation that later requires broad rework;
-2. endless deferral of safe architecture, routing and drill preparation.
-
-The policy defines what is frozen, what may change incrementally and what must remain deferred.
+Smash, FTGU and Cash Injection bulk source work is complete.
 
 ## Frozen identities
 
-The following identifiers are stable and must not be renamed casually:
+Do not rename casually:
 
-- source-family IDs and source IDs;
-- heuristic candidate IDs;
-- misconception IDs;
+- source-family and source IDs;
+- 34 heuristic candidate IDs;
+- 30 misconception IDs;
 - adaptive module IDs `LCM-01` through `LCM-11`;
 - existing original drill IDs;
 - learner-state dimensions;
 - relation vocabulary;
-- source-question IDs from `REMAINING_SOURCE_QUESTION_MATRIX_v1.md`.
+- 38 question IDs from `REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md`.
 
 A wording improvement does not justify an ID replacement.
 
 ## Frozen architecture
 
-The following architecture is active:
-
 ```text
 source corpus
 → candidate evidence
+→ provisional consolidation slot
 → adaptive module
 → learner state/runtime
 → field transfer
 → admission
 ```
 
-A new source must not create a parallel author-specific curriculum.
+Carrot must not create a parallel author-specific curriculum.
 
-Architecture changes require evidence that the existing structure cannot represent a correct mechanism or learner state. Convenience or aesthetic preference is insufficient.
+Architecture changes require a demonstrated representational defect, not preference or convenience.
 
 ## Mutable now
 
-The following may change incrementally:
+Carrot batches may update:
 
-- canonical source-family additions;
-- QA and source registries;
+- canonical Carrot source records and QA;
+- question status;
 - evidence relations;
 - candidate confidence and dependency notes;
+- provisional slot confidence/scope;
 - module explanations;
 - boundaries and counterexamples;
-- direct drill variants;
-- pool hypotheses;
-- evidence grades and falsifiers;
-- module readiness dimensions;
-- source-question status;
-- environment observation missions;
-- historical status corrections in active authority files.
+- context branches;
+- four remaining drill factories;
+- module readiness;
+- pool/environment hypotheses;
+- field missions and falsifiers.
 
-## Deferred until remaining source completion
+## Deferred
 
-Do not freeze:
+Do not freeze yet:
 
 - final 14–18-rule compression;
-- final wording of contested candidates;
-- final submodule count;
+- final stable rule IDs and wording;
 - exact preflop anchors;
 - exact deep/short-stack thresholds;
 - universal population frequencies;
@@ -75,157 +69,112 @@ Do not freeze:
 - final multiway frequency guidance;
 - final graduation thresholds;
 - `ADMITTED` status;
-- commercial or memorisation-ready Playbook wording.
+- memorisation-ready final Playbook.
 
 ## Change levels
 
-### Level 0 — Evidence-only
+### Level 0 — Evidence only
 
-Examples:
-
-- source confirms a candidate;
-- source gives no relevant evidence;
-- population claim is registered as hypothesis.
-
-Allowed automatically after QA.
+Confirmation, insufficiency or source hypothesis. Allowed after QA.
 
 ### Level 1 — Explanation or boundary
 
-Examples:
-
-- simpler explanation;
-- additional counterexample;
-- clearer context condition.
-
-Allowed when candidate scope does not change.
+Simpler wording, counterexample or clarified trigger. Allowed when scope is unchanged.
 
 ### Level 2 — Drill or interaction
 
-Examples:
-
-- new contrastive drill;
-- timed cue;
-- confidence-calibration variant.
-
-Allowed when original and source-pure.
+Original contrastive drill, timed cue or confidence variant. Allowed when answer key is stable.
 
 ### Level 3 — Context branch
 
-Examples:
+Depth, heads-up/multiway, baseline/exploit or environment split. Requires explicit `EXTENDS` or `CONTEXT_SPLIT` relation and progress-preservation note.
 
-- 100bb versus 250bb;
-- heads-up versus multiway;
-- baseline versus evidenced exploit.
+### Level 4 — Candidate consolidation or material revision
 
-Requires explicit `EXTENDS` or `CONTEXT_SPLIT` relation and progress-preservation note.
-
-### Level 4 — Candidate revision/consolidation
-
-Examples:
-
-- two candidates merge;
-- candidate wording changes materially;
-- candidate becomes an exception rather than core rule.
-
-Deferred by default until relevant remaining source questions are closed.
+Deferred until relevant Carrot questions close.
 
 ### Level 5 — Module migration
 
-Requires explicit migration record, affected learner dimensions and retest plan.
+Requires migration record, affected learner dimensions and retest plan.
 
 ### Level 6 — Architecture change
 
-Requires a demonstrated representational defect. This is not expected during the current source-completion phase.
+Requires proof that the current model cannot represent a correct mechanism.
 
-## Incoming-batch mutation budget
+## Carrot batch mutation budget
 
-A normal source batch should touch only:
+A normal batch should touch only:
 
-- its source-family corpus;
-- one QA record;
-- its source registry/ledger;
-- relevant question-matrix rows;
-- relevant evidence-matrix rows;
-- relevant candidate/module rows;
-- drills or hypotheses directly justified by the batch;
+- `sources/carrot-poker/` corpus;
+- one batch QA;
+- source registry/ledger;
+- relevant v1.1 question rows;
+- relevant candidate/slot/module rows;
+- justified drills or boundaries;
 - readiness manifest.
 
 It should not rewrite:
 
 - unrelated modules;
-- all 34 candidate rows;
+- all 34 candidates;
 - the full Playbook;
-- historical source records;
+- completed Smash/FTGU/Cash Injection records;
 - learner progress outside changed scope.
 
 ## Candidate creation gate
 
 Before creating a candidate, document why the mechanism is not:
 
-1. confirmation of an existing candidate;
-2. simpler explanation;
-3. boundary or exception;
-4. context branch;
-5. opponent overlay;
-6. environment overlay;
+1. confirmation;
+2. simplification;
+3. boundary;
+4. context split;
+5. anchor detail;
+6. opponent/environment overlay;
 7. drill improvement;
-8. prerequisite concept.
+8. prerequisite explanation.
 
-Only a genuinely independent decision mechanism receives a new ID.
+## Current active validation gates
 
-## Finalisation gates
+Carrot should primarily close:
 
-A consolidation lane may freeze only when:
+- squeeze purification;
+- deep OOP protected calls;
+- polar preflop target folds;
+- multiway shared defence and bluff construction;
+- multiway delayed aggression;
+- depth and preflop boundaries.
 
-- all material question IDs are closed, context-split, anchor-pending or field-pending;
-- no unresolved direct conflict remains;
-- at least one original direct drill exists for every retained internal step;
-- boundaries and common misuse are explicit;
-- exact chart dependencies are routed to the independent range layer;
-- population claims are separated from the general core;
+Population magnitude remains field-gated even if Carrot repeats an exploit claim.
+
+## Finalisation gate
+
+A consolidation slot may freeze only when:
+
+- material question IDs are closed, context-split, anchor-pending or field-pending;
+- no real conflict remains hidden;
+- every retained internal step has a direct original drill;
+- boundaries and misuse risks are explicit;
+- exact charts are routed to the independent range layer;
+- population claims remain overlays;
 - learner-state migration is defined;
-- wording can be used under time pressure.
-
-A candidate may become `ADMITTED` only after the existing promotion gate plus appropriate field testing.
-
-## Active versus historical documents
-
-Active authorities should be kept current:
-
-- adaptive architecture;
-- adaptive route/runtime;
-- learner-state schema;
-- candidate registry;
-- evidence matrices;
-- question matrix;
-- module readiness manifest;
-- source registries/ledgers.
-
-Historical snapshots should not be repeatedly rewritten:
-
-- fixed learning route v0.1;
-- provisional Playbook v0.1;
-- completed checkpoint reports.
-
-If a historical file contains old status language, its header or authority index may clarify that it is a snapshot. The body remains historical evidence.
+- the cue works under time pressure.
 
 ## Stop rule
 
-Stop pre-source refinement when the next proposed change is only:
+Stop pre-Carrot refinement when the next change is only:
 
 - stylistic rewriting;
-- renaming a stable object;
+- renaming stable objects;
 - speculative exactness;
-- a new taxonomy that duplicates existing routing;
-- a drill whose correct answer depends on unresolved source boundaries;
-- a broad Playbook rewrite before consolidation gates close.
-
-At that point the highest-EV action is to wait for evidence, run diagnostics or collect field data.
+- duplicate taxonomy;
+- a drill whose answer depends on unresolved Carrot boundaries;
+- a Playbook rewrite before consolidation gates close.
 
 ## Policy verdict
 
-`ARCHITECTURE_AND_IDENTITIES_FROZEN`
+`SMASH_FTGU_CASH_INJECTION_IDENTITIES_FROZEN`
 
-`EVIDENCE_BOUNDARIES_DRILLS_AND_READINESS_MUTABLE`
+`CARROT_EVIDENCE_BOUNDARIES_AND_FOUR_DRILLS_MUTABLE`
 
-`FINAL RULES_RANGES_AND_EXPLOIT CONFIDENCE DEFERRED`
+`FINAL_RULES_ANCHORS_AND_EXPLOIT_CONFIDENCE_DEFERRED`
