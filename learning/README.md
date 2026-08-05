@@ -8,7 +8,8 @@ Status: `ADAPTIVE_RUNTIME_ACTIVE`
 - Learner-state model: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - Session-selection and feedback runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
-- Original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
+- General original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
+- Cash Injection Episode 01 delta drills: `drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
 
 ## Historical snapshot
 
@@ -34,6 +35,16 @@ diagnostic
 
 New sources update evidence, explanations, boundaries and drill variants inside the stable module graph. They do not create parallel author-specific learning routes.
 
+Cash Injection exploit material must preserve three layers:
+
+```text
+general mechanism
+→ pool hypothesis
+→ environment/field validation
+```
+
+A source claim about population behaviour does not become a default exploit solely because it is accompanied by a node lock.
+
 ## Current build boundary
 
 Active now:
@@ -44,9 +55,10 @@ Active now:
 - interactive runtime;
 - diagnostic;
 - misconception-linked drills;
-- progress-preserving source updates.
+- progress-preserving source updates;
+- source-specific exploit drills with hypothesis guards.
 
-Pending Carrot/Cash Injection and field validation:
+Pending Carrot, remaining Cash Injection episodes and field validation:
 
 - final 14–18-rule compression;
 - final submodule boundaries;
