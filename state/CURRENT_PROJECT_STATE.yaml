@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: carrot_incremental_completion
-  updated_at: 2026-08-05T20:58:00+04:00
+  phase: carrot_grades_2_and_3_incremental_completion
+  updated_at: 2026-08-05T21:34:00+04:00
 
 mission:
   summary: >-
@@ -62,7 +62,7 @@ source_state:
     pool_hypotheses: 10
     population_claim_state: field_gated
   carrot_grade_1:
-    status: partial
+    status: complete
     lectures_received:
       - 1
       - 2
@@ -73,12 +73,13 @@ source_state:
       - 7
       - 8
       - 9
-    lectures_pending:
       - 10
+    lectures_pending: []
     final_exam_pdf: received_and_audited
     exam_feedback: received_and_mapped
-    original_assessment_families: 18
+    original_assessment_families: 24
     exact_source_exam_spots: reference_only
+    known_source_continuity_gaps: 0
   carrot_grade_2:
     status: pending
   carrot_grade_3:
@@ -114,10 +115,9 @@ stable_module_ids:
   - LCM-11
 
 active_milestone:
-  name: complete_carrot_source_phase_incrementally
-  current_step: receive_and_ingest_carrot_grade_1_lecture_10
+  name: complete_remaining_carrot_grades_incrementally
+  current_step: receive_and_ingest_carrot_grade_2
   subsequent_steps:
-    - ingest_carrot_grade_2
     - ingest_carrot_grade_3
     - close_or_context_split_remaining_questions
     - finalise_four_source_gated_drill_factories
@@ -128,7 +128,6 @@ active_milestone:
     - admit_revise_or_reject
 
 open_high_value_gates:
-  - carrot_grade_1_lecture_10
   - carrot_grades_2_and_3
   - squeeze_purification
   - deep_oop_protected_call_boundaries
@@ -193,30 +192,32 @@ active_authorities:
   candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
   provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md
   learning_index: learning/README.md
-  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md
-  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v1.md
+  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md
+  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v2.md
 
 latest_integrated_checkpoint:
-  verdict: CARROT_G1_BATCH_03_COMPLETE
-  report: reports/CARROT_G1_BATCH_03_TERMINAL_REPORT_v1.md
-  source_checkpoint_commit: 29d383d5b65830d74eb413bf4db8db9992e4c2ee
+  verdict: CARROT_G1_BATCH_04_COMPLETE
+  report: reports/CARROT_G1_BATCH_04_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: c74aed7101781e85e8748f6fe9e53bd47c053b6b
   facts:
-    - grade_1_lectures_01_to_09_ingested
-    - lecture_10_pending
+    - grade_1_lectures_01_to_10_complete
+    - grade_1_exam_and_feedback_mapped
+    - no_known_grade_1_source_continuity_gap
     - no_rerun_required
     - no_new_core_candidate
-    - eighteen_original_grade_1_assessment_families
+    - twenty_four_original_grade_1_assessment_families
 
 latest_project_checkpoint:
-  verdict: ALL_HIGH_VALUE_SAFE_PRE_CARROT_COMPLETION_WORK_DONE
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md
-  readiness_commit: f1903de622b9fd927af04bdb4105bbd568b083cb
-  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v1.md
-  evaluation_commit: b6109547e712c20b433166797e072c87addaf13d
+  verdict: CARROT_GRADE_1_COMPLETE_READINESS_PASS
+  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md
+  readiness_commit: 935bd235d1eb48f612735935f8b4189043ff8d05
+  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v2.md
+  evaluation_commit: ce09b90b1efe4ee454a2fdab37b22a9e927b05ee
   facts:
-    - post_carrot_grade_1_l01_l09_readiness_pass_complete
-    - all_high_value_safe_source_side_precomputation_complete
-    - further_finalisation_deferred_until_remaining_carrot
+    - blocker_ordering_explicit
+    - grade_1_assessment_layer_complete
+    - grades_2_and_3_remain_boundary_and_context_phase
+    - finalisation_still_deferred
 
 handover_system:
   status: active
@@ -250,9 +251,9 @@ new_chat_bootstrap:
     - global_learner_progress_reset
   expected_initial_response:
     - repo_and_live_branch_checked
-    - active_checkpoint_understood
+    - grade_1_completion_understood
     - frozen_identities_understood
-    - open_gates_understood
+    - grades_2_and_3_open_gates_understood
     - next_bounded_action_selected
     - no_global_restart_planned
 
@@ -260,5 +261,6 @@ terminal_state:
   handover_ready: true
   atlas_ready: true
   incremental_ingestion_ready: true
-  all_high_value_safe_precompletion_work_done: true
+  carrot_grade_1_complete: true
+  all_high_value_safe_grade_1_work_done: true
   global_restructure_expected: false
