@@ -1,6 +1,6 @@
 # Carrot Poker — Source Intake and Gap Ledger
 
-Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_LECTURE_CORPUS_COMPLETE / GRADE_2_EXAM_PENDING / GRADE_3_PENDING`
+Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_LECTURES_AND_EXAM_RECEIVED / GRADE_2_FEEDBACK_PENDING / GRADE_3_PENDING`
 
 Last updated: 2026-08-05
 
@@ -14,7 +14,7 @@ Last updated: 2026-08-05
 
 Grade 1 has no known lecture or assessment continuity gap.
 
-### Grade 2
+### Grade 2 lectures
 
 - `CP-G2-L01` — Polarising and Condensing;
 - `CP-G2-L02` — Bet Sizing and Value Tiers;
@@ -27,60 +27,75 @@ Grade 1 has no known lecture or assessment continuity gap.
 - `CP-G2-L09` — Flop Strategy in 3-Bet Pots;
 - `CP-G2-L10` — Postflop Raising.
 
-Lecture 10 explicitly describes itself as the final lecture before the Grade 2 exam.
+### Grade 2 assessment artifact
+
+- `CP-G2-EXAM` — Final Exam PDF;
+- pages: `12`;
+- competency questions: `10`;
+- PDF SHA-256: `49f5337fb5807698b412d35ed0c72355c3901bfaca7c01c72a580af9d61a3fd5`;
+- visual audit complete;
+- exact source spots remain reference-only.
 
 Not received:
 
-- Grade 2 Final Exam PDF;
 - Grade 2 Exam Feedback;
 - any Grade 2 worksheets, charts or supplements not yet supplied.
 
-Grade 2 lecture continuity is complete. Grade 2 assessment continuity remains partial.
+Grade 2 lecture continuity and exam-question continuity are complete. Grade 2 answer-key continuity remains partial.
 
-## Grade 2 package QA
+## Duplicate package result
 
-Input:
+The uploaded archive accompanying the Grade 2 exam:
 
-- `transcripts_mlx_large_v3(10).zip`;
+- `transcripts_mlx_large_v3(20260805-191223).zip`;
 - SHA-256: `58cae6b4bab467901203406d7261026ffee89b19b4f667f9479257cc6599575b`.
 
-Inventory:
+This SHA-256 exactly matches the already accepted Grade 2 lecture-corpus archive.
 
-- `101` archive entries;
-- `50` substantive transcript files;
-- `51` macOS metadata entries;
-- ten complete five-format lecture bundles.
+Result:
 
-Duplicate result:
+- no new transcript file;
+- no canonical lecture replacement;
+- no repeated ingestion;
+- only the PDF exam artifact was new.
 
-- `0/50` substantive files match the same-named Grade 1 files;
-- all ten Grade 2 lectures are new;
-- no Grade 1 source was replaced.
-
-Technical result:
-
-- no full rerun required;
-- no catastrophic loops;
-- no missing tails;
-- no material segment overlaps;
-- claim-driven visual review only.
+## Grade 2 exam audit
 
 Authority:
 
-`analysis/module-audits/CARROT_G2_LECTURE_CORPUS_QA_v1.md`
+`sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md`
 
-## Closed Grade 2 lecture tasks
+The exam validates competencies in:
 
-- package inventory and checksum;
-- Grade identification;
-- five-format verification;
-- timestamp, gap, overlap, loop and tail QA;
-- canonical records `CP-G2-L01` through `CP-G2-L10`;
-- cross-source mapping;
-- twenty original assessment families;
-- question, candidate and readiness pass.
+- turn-dependent frequency and sizing;
+- probe construction;
+- pot-odds norm adjustment;
+- value and bluff tiers;
+- OOP slow-play;
+- urgency and check EV;
+- robustness/frailness thresholds;
+- triple-barrel bluff-catching;
+- 3-bet-pot flop planning;
+- postflop raising.
 
-No transcript rerun is open.
+Coverage authority:
+
+`synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md`
+
+No new original assessment family was required. The existing Grade 2 twenty-family blueprint remains sufficient.
+
+## Closed Grade 2 tasks
+
+- lecture package inventory and checksum;
+- ten canonical lecture records;
+- lecture technical QA and cross-source mapping;
+- twenty original lecture-derived assessment families;
+- Final Exam visual audit;
+- ten-question competency map;
+- exam-to-original-assessment crosswalk;
+- original exam runtime protocol.
+
+No transcript or PDF rerun is open.
 
 ## Claim-driven visual dependencies
 
@@ -94,13 +109,7 @@ Across Grades 1–2:
 - exact low-dry 3-bet-pot plan implementation;
 - exact postflop raise thresholds.
 
-Visual review remains required only when it can change:
-
-- a final heuristic;
-- an original assessment answer;
-- a context split or size boundary;
-- a genuine source conflict;
-- an independent anchor.
+The Grade 2 exam visuals themselves are already available. Further visual work is needed only if a source answer key creates a disputed exact claim.
 
 ## Current strategic gaps not closed by Grades 1–2
 
@@ -118,7 +127,6 @@ Visual review remains required only when it can change:
 
 ## Pending source sets
 
-- Grade 2 Final Exam;
 - Grade 2 Exam Feedback;
 - possible Grade 2 supplements;
 - Grade 3 lectures, exam, feedback and supplements;
@@ -131,14 +139,15 @@ Visual review remains required only when it can change:
 - solver-screen values are not reconstructed from audio guesses;
 - source theorem names are evidence labels, not required product terminology;
 - population claims remain field-gated;
-- lecture-corpus completion does not imply Grade completion, candidate admission or Playbook completion.
+- exam questions validate competencies but are not copied into learner-facing assessments;
+- exam receipt does not imply answer-key completion, candidate admission or Playbook completion.
 
 ## Next package transaction
 
 Preferred next intake:
 
 ```text
-Grade 2 Exam / Feedback or Grade 3 package
+Grade 2 Exam Feedback or Grade 3 package
 → inventory and duplicate check
 → technical or visual QA
 → immutable source IDs
@@ -154,7 +163,9 @@ Grade 2 Exam / Feedback or Grade 3 package
 
 `CARROT_GRADE_2_LECTURES_01_TO_10_COMPLETE`
 
-`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
+`GRADE_2_FINAL_EXAM_RECEIVED_AND_AUDITED`
+
+`GRADE_2_EXAM_FEEDBACK_PENDING`
 
 `GRADE_3_PENDING`
 
