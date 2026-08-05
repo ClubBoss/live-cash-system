@@ -4,14 +4,12 @@ Private source-of-truth for a compact, adaptive and executable No-Limit Hold'em 
 
 ## New chat or agent entry point
 
-Do not begin with a broad repository scan.
-
 Read in this order:
 
-1. [`START_HERE.md`](START_HERE.md) — current mission, checkpoint and next milestone;
-2. [`AGENTS.md`](AGENTS.md) — operating contract and mutation rules;
-3. [`state/CURRENT_PROJECT_STATE.yaml`](state/CURRENT_PROJECT_STATE.yaml) — machine-readable current state;
-4. [`PROJECT_ATLAS.md`](PROJECT_ATLAS.md) — repository and authority map.
+1. [`START_HERE.md`](START_HERE.md);
+2. [`AGENTS.md`](AGENTS.md);
+3. [`state/CURRENT_PROJECT_STATE.yaml`](state/CURRENT_PROJECT_STATE.yaml);
+4. [`PROJECT_ATLAS.md`](PROJECT_ATLAS.md).
 
 Repository state overrides chat memory. Continue from the accepted checkpoint rather than restarting project diagnosis.
 
@@ -34,8 +32,9 @@ Source courses provide evidence. They do not become parallel curricula.
 | Smash Live Cash | canonical corpus complete; claim-driven visuals only |
 | From the Ground Up | 30/30 complete and mapped; charts reference-only |
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
-| Carrot Poker Grade 1 | Lectures 01–10 plus Final Exam and Feedback complete |
-| Carrot Poker Grades 2–3 | pending |
+| Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
+| Carrot Poker Grade 2 | Lectures 01–10 complete; Final Exam and Feedback pending |
+| Carrot Poker Grade 3 | pending |
 
 ## Current system state
 
@@ -46,13 +45,15 @@ misconception classes:             30
 remaining-source question IDs:     38
 provisional final-rule slots:       16
 candidates with direct drills:      30
-Carrot-gated direct drill gaps:      4
-Grade 1 original assessments:       24
+source-gated direct drill gaps:      4
+Carrot Grade 1 assessments:         24
+Carrot Grade 2 assessments:         20
+Carrot assessments total:           44
 admitted final rules:                0
 intended final core:               14–18
 ```
 
-Candidate count did not increase after FTGU, Cash Injection or complete Carrot Grade 1.
+Candidate count did not increase after FTGU, Cash Injection or Carrot Grades 1–2 lectures.
 
 ## Architecture
 
@@ -91,55 +92,68 @@ LCM-11  FIELD TRANSFER + REPAIR
 
 `PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE`
 
-### Postflop
-
-`RANGE ADVANTAGE → URGENCY → BET SHAPE → RESPONSE SHAPE`
-
 ### Range ancestry
 
 `ORIGIN RANGE → ACTION FILTER → CURRENT VALUE/AIR → SIZE REQUIREMENT → BRANCH EVIDENCE`
 
-### Complete Carrot Grade 1
+### Carrot Grade 1
 
 ```text
 FULL TREE EV
-→ CALL / VALUE / BLUFF THRESHOLDS
+→ VALUE / BLUFF / CALL THRESHOLDS
 → RANGE AND NUT ADVANTAGE
 → FREQUENCY AND SIZE
 → FILTERED TURN FAVOURABILITY
-→ POLAR / SEMI-POLAR RANGE CONSTRUCTION
-→ TEXTURE AND RANGE GEOGRAPHY
+→ RANGE GEOGRAPHY
 → BLOCKER AS FINAL SELECTOR
+```
+
+### Carrot Grade 2
+
+```text
+ACTION FILTER
+→ RANGE SHAPE
+→ WORLD FAVOURABILITY
+→ BET FREQUENCY
+→ RELATIVE POLARISATION
+→ SIZE / RAISE BREADTH
+→ HAND TIER
+→ RESPONSE THRESHOLD
+→ ANCESTRY / EXPLOIT EVIDENCE
 ```
 
 ### River
 
-`VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → BLOCKERS → EVIDENCE`
+`VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → ROBUSTNESS → BLOCKERS → EVIDENCE`
 
 ## Current Carrot effect
 
-Complete Grade 1 adds:
+Grades 1–2 now provide a mature postflop pedagogical and assessment system covering:
 
-- EV/equity and open-action protocol;
-- value/bluff/check classification;
-- protected passive branches;
-- range/nut-advantage separation;
-- frequency-control-sizing repair;
-- filtered turn worlds;
-- float-bet construction;
-- texture-sensitive river thresholds;
-- blocker limitation and sequence dependence;
-- insufficient-reason repair;
-- 24 original assessment families without copying source spots.
+- full-tree EV and action filtering;
+- value, bluff, call and raise thresholds;
+- frequency versus sizing;
+- polarising versus condensing actions;
+- value and bluff tiers;
+- protected IP/OOP branches;
+- robust versus frail continuations;
+- range geography facing bets;
+- bluff-catching ancestry;
+- 3-bet-pot flop planning;
+- postflop raising;
+- blocker ordering;
+- 44 original assessment families.
 
-It does not close:
+They do not close:
 
 - squeeze purification;
-- deep OOP boundaries;
+- exact deep OOP boundaries;
 - polar preflop target folds;
-- exact anchors;
+- independent preflop anchors;
 - multiway structure;
-- Grades 2–3.
+- exact depth/straddle overlays;
+- Grade 2 exam/feedback;
+- Grade 3.
 
 ## Deferred
 
@@ -162,7 +176,11 @@ It does not close:
 
 `CARROT_GRADE_1_COMPLETE`
 
-`CARROT_GRADES_2_AND_3_PENDING`
+`CARROT_GRADE_2_LECTURE_CORPUS_COMPLETE`
+
+`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
+
+`GRADE_3_PENDING`
 
 `REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
 
