@@ -2,23 +2,22 @@
 
 Status: `ACTIVE / PRIMARY_NEW_CHAT_BOOTSTRAP`
 
-This is the first file a new ChatGPT thread, coding agent or analyst should read.
+This is the first file a new chat or agent should read.
 
 ## Bootstrap instruction
 
-Use the live `main` branch of `ClubBoss/live-cash-system`. Read `START_HERE.md`, obey `AGENTS.md`, inspect `state/CURRENT_PROJECT_STATE.yaml`, and open only the authority files required for the active milestone. Do not restart project diagnosis or rebuild the repository taxonomy.
+Use live `main` of `ClubBoss/live-cash-system`. Read `START_HERE.md`, obey `AGENTS.md`, inspect `state/CURRENT_PROJECT_STATE.yaml`, and open only the authorities required for the active milestone. Do not restart project diagnosis or rebuild repository taxonomy.
 
 ## Mission and learner
 
-Build a compact, adaptive and interactive No-Limit Hold'em live-cash learning system for a strong MTT player moving into live cash.
+Build a compact, adaptive and interactive live-cash system for a strong MTT player moving into live `1/3` and `2/5`.
 
-Target environment:
+Environment:
 
-- live `1/3` and `2/5`;
-- usually `100–200bb` effective;
+- usually `100–200bb`;
 - sometimes `300–400bb`;
 - possible straddles and shorter effective stacks;
-- practical deployment target: Batumi.
+- practical target: Batumi.
 
 Priority gaps:
 
@@ -35,32 +34,30 @@ Learning constraints:
 - minimal chart memorisation;
 - compact heuristics, decision trees and anchors;
 - prediction before feedback;
-- action and reasoning scored separately;
+- action and reason scored separately;
 - spaced repetition and changed variants;
 - field missions and post-session repair.
 
 ## Intended final system
 
-- approximately `14–18` robust table-facing rules;
+- approximately `14–18` robust rules;
 - original preflop anchors with explicit assumptions;
 - `11` stable adaptive modules;
 - original diagnostics, drills and assessments;
-- opponent and environment overlays;
+- opponent/environment overlays;
 - field-tested execution;
 - no copied proprietary charts, exam spots or source-specific curriculum.
-
-Source courses provide evidence. They do not become parallel learner routes.
 
 ## Current source truth
 
 | Source family | State |
 |---|---|
 | Smash Live Cash | complete; claim-driven visuals only |
-| From the Ground Up | `30/30` complete; charts reference-only |
-| Cash Injection | `10/10` complete; ten pool hypotheses field-gated |
-| Carrot Poker Grade 1 | complete: Lectures `01–10`, Final Exam and Feedback |
-| Carrot Poker Grade 2 | complete: Lectures `01–10`, Final Exam and Feedback |
-| Carrot Poker Grade 3 | Final Exam received and audited; lectures and Exam Feedback pending |
+| FTGU | `30/30` complete; charts reference-only |
+| Cash Injection | `10/10` complete; ten field-gated pool hypotheses |
+| Carrot Grade 1 | complete: Lectures `01–10`, Exam and Feedback |
+| Carrot Grade 2 | complete: Lectures `01–10`, Exam and Feedback |
+| Carrot Grade 3 | Lectures `01–02` and Final Exam received; later lectures and Feedback pending |
 
 Exact Carrot coverage authority:
 
@@ -76,16 +73,19 @@ remaining-source question IDs:        38
 provisional final-rule slots:          16
 candidates with direct drills:         30
 source-gated direct drill gaps:          4
+
 Grade 1 original assessment families:  24
 Grade 2 original assessment families:  20
-Carrot assessment families total:      44
+Grade 3 Batch 01 families:               6
+Carrot assessment families total:      50
+
 Grade 2 feedback repair paths:          10
-Grade 3 preliminary exam rows:          10
+Grade 3 exam competency rows:           10
 admitted final rules:                    0
 intended final core:                  14–18
 ```
 
-Candidate IDs and assessment-family counts remain unchanged after Grade 3 exam intake.
+Stable module IDs remain `LCM-01` through `LCM-11`.
 
 ## Stable architecture
 
@@ -103,8 +103,6 @@ source package
 → admission, revision or rejection
 ```
 
-Stable module IDs remain `LCM-01` through `LCM-11`.
-
 ## Current strategic scaffolds
 
 ### Preflop
@@ -113,7 +111,7 @@ Stable module IDs remain `LCM-01` through `LCM-11`.
 PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE
 ```
 
-### Grade 1 postflop foundation
+### Grade 1
 
 ```text
 FULL TREE EV
@@ -125,7 +123,7 @@ FULL TREE EV
 → BLOCKER AS FINAL SELECTOR
 ```
 
-### Grade 2 operating model
+### Grade 2
 
 ```text
 ACTION HISTORY
@@ -140,20 +138,58 @@ ACTION HISTORY
 → FIELD EVIDENCE
 ```
 
-### Grade 3 exam competency emphasis
+### Grade 3 Batch 01
 
 ```text
-CALL / RAISE EV
-→ MIXED BETTING AND SIZE CEILING
-→ COMBO-SPECIFIC BLUFF SELECTION
-→ CHECK-RAISE RANGE CLASSES
-→ TURN CLASS MIGRATION
-→ OVERBET ARCHITECTURE
-→ BLUFF-CATCHING INTERFERENCE
-→ 3-BET / 4-BET POT RESPONSE
+PURE-ACTION GATE
+→ NEAR-INDIFFERENT ACTIONS
+→ PRACTICAL ACTION / SIZE TOOLKIT
+→ RANDOMISE ONLY INSIDE VALID MIXES
+→ LOG EV LOSS AND REASONING ERROR
 ```
 
-This is question-level routing only. Grade 3 lectures and Exam Feedback are required before answer keys or strategic promotion.
+### Bluff-catching and river raises
+
+```text
+ORIGIN RANGE
+→ FILTER DENSITY
+→ VALUE / AIR SUPPLY
+→ SIZE
+→ ROBUSTNESS
+→ VALUE / BET-FOLD INTERFERENCE
+→ BLOCKERS
+→ EVIDENCE
+```
+
+## Grade 3 current evidence
+
+### Lecture 1
+
+- pure versus mixed action classification;
+- call/raise/fold indifference points;
+- turn-raise composition;
+- river repolarisation and interference;
+- bluff-catcher grades;
+- RNG misuse repair.
+
+### Lecture 2
+
+- check/bet mixing;
+- one-size simplification and subtree testing;
+- practical size toolkit;
+- five frequency buckets;
+- value-led river bluff allocation.
+
+### Exam routing
+
+```text
+G3-Q01 — direct L01 support
+G3-Q02 — direct L02 support
+G3-Q03–Q07 — partial support
+G3-Q08–Q10 — question-only
+```
+
+No exact Grade 3 exam answer is inferred before Feedback.
 
 ## Frozen constraints
 
@@ -171,8 +207,8 @@ Do not casually rename or replace:
 Do not:
 
 - create author-specific parallel curricula;
-- copy proprietary charts, solver screens or exam questions;
-- infer Grade 3 answers from the PDF alone;
+- copy charts, solver screens or exam questions;
+- infer Grade 3 answers from the PDF or partial lectures;
 - promote population claims without field evidence;
 - admit a rule because several sources agree;
 - erase learner progress on unchanged mechanisms;
@@ -181,13 +217,13 @@ Do not:
 ## Active milestone
 
 ```text
-ingest Grade 3 lecture transcripts
-→ attach lectures to ten precomputed Grade 3 competency rows
+ingest Grade 3 Lecture 03 onward
+→ attach each lecture to G3-Q rows
 → ingest Grade 3 Exam Feedback
 → build answer-key and repair crosswalk
-→ reassess remaining preflop, depth and multiway gaps based on actual evidence
-→ finalise four source-gated drills if supported
-→ consolidate 34 candidates into 14–18 final rules
+→ reassess remaining preflop, depth and multiway gaps from actual evidence
+→ finalise supported source-gated drills
+→ consolidate 34 candidates into 14–18 rules
 → build independent anchors
 → learner and field validation
 → admit, revise or reject
@@ -195,7 +231,7 @@ ingest Grade 3 lecture transcripts
 
 ## Current unresolved gates
 
-- Grade 3 lecture corpus;
+- Grade 3 Lecture 03 onward;
 - Grade 3 Exam Feedback;
 - squeeze purification;
 - exact deep OOP protected-call boundaries;
@@ -208,7 +244,7 @@ ingest Grade 3 lecture transcripts
 - target-live population calibration;
 - final compression and admission.
 
-The Grade 3 exam does not visibly close the preflop or multiway gates.
+The Grade 3 material received so far does not close preflop or multiway gates.
 
 ## Active authority cone
 
@@ -217,60 +253,55 @@ The Grade 3 exam does not visibly close the preflop or multiway gates.
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
 5. `sources/carrot-poker/source-registry.md`;
-6. `reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`;
-7. `sources/carrot-poker/artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
-8. `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
-9. `synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-10. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
-11. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
-12. `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md`.
-
-Read broader source records only when required by the active task.
+6. `reports/CARROT_G3_BATCH_01_TERMINAL_REPORT_v1.md`;
+7. `analysis/module-audits/CARROT_G3_BATCH_01_QA_v1.md`;
+8. `synthesis/CARROT_G3_BATCH_01_CROSS_SOURCE_DELTA_v1.md`;
+9. `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
+10. `synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
+11. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
+12. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`.
 
 ## New-batch transaction
 
 ```text
 inventory
 → exact duplicate check
-→ checksum and technical/visual QA
+→ checksum and technical QA
 → immutable source IDs
 → source-faithful records
 → registry and ledger update
-→ attach to Grade 3 competency rows
+→ attach to G3-Q rows
 → bounded cross-source delta
 → affected evidence/questions/modules only
-→ original learner material only when answer key is stable
-→ handover-state update after material checkpoint
+→ original learner material only when non-duplicative
+→ handover update
 ```
 
 ## Latest integrated checkpoint
 
-`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
+`CARROT_G3_BATCH_01_ACCEPTED`
 
-- PDF has 12 pages and 10 questions;
-- all pages visually checked;
-- exam shows strong advanced-postflop emphasis;
-- Grade 3 lecture scope is still unknown;
-- lectures and Exam Feedback pending;
-- no PDF repair required;
+- Grade 3 Lectures `01–02` canonically ingested;
+- Final Exam already received and audited;
+- no rerun required;
+- `G3-Q01` and `G3-Q02` directly lecture-supported;
 - no new core candidate;
-- no assessment-family count increase;
-- ten preliminary competency rows prepared;
-- direct drill coverage remains `30/34`.
+- six original assessment families added;
+- total Carrot assessment families: `50`;
+- direct candidate drill coverage remains `30/34`;
+- later lectures and Exam Feedback pending.
 
 Checkpoint report:
 
-`reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`
+`reports/CARROT_G3_BATCH_01_TERMINAL_REPORT_v1.md`
 
 ## New-chat response capsule
 
-A new chat should briefly confirm:
-
 ```text
 repo and live main checked
-Grades 1–2 completion understood
-Grade 3 exam received and question-only boundary understood
-Grade 3 lectures/feedback and remaining gates understood
+Grades 1–2 complete
+Grade 3 L01–L02 and exam checkpoint understood
+later Grade 3 lectures/feedback and open gates understood
 frozen identities understood
 next bounded action selected
 no global restart planned
@@ -280,8 +311,6 @@ no global restart planned
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`CARROT_GRADES_1_AND_2_COMPLETE`
+`GRADE_3_L01_L02_AND_FINAL_EXAM_RECEIVED`
 
-`GRADE_3_FINAL_EXAM_RECEIVED`
-
-`CONTINUE_WITH_GRADE_3_LECTURES_AND_FEEDBACK / DO_NOT_RESTART`
+`CONTINUE_WITH_GRADE_3_L03_PLUS_AND_FEEDBACK / DO_NOT_RESTART`
