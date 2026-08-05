@@ -1,6 +1,6 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_2_EXAM_MAPPED`
+Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADES_1_AND_2_COMPLETE`
 
 ## Active authorities
 
@@ -15,10 +15,11 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_2_EXAM_MAPPED`
 - `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations.
 - `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection 10/10 relations.
 - `CASH_INJECTION_COMPLETE_COURSE_DELTA_v1.md` — filter-density/branch-elasticity synthesis.
-- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through Grade 2 exam intake.
+- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through complete Grade 2.
 - `CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Grade 1 closure delta.
 - `CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md` — Grade 2 lecture-corpus delta.
 - `CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md` — Grade 2 exam-to-original-assessment crosswalk.
+- `CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md` — Grade 2 answer-key and repair delta.
 
 ### Remaining validation
 
@@ -53,7 +54,7 @@ canonical Carrot record
 - FTGU: 30/30 complete;
 - Cash Injection: 10/10 complete;
 - Carrot Grade 1: complete;
-- Carrot Grade 2: Lectures 01–10 plus Final Exam received; Exam Feedback pending;
+- Carrot Grade 2: complete;
 - Carrot Grade 3: pending;
 - candidate count: 34;
 - stable modules: 11;
@@ -62,9 +63,9 @@ canonical Carrot record
 - original Carrot assessment families: 44;
 - admitted final rules: 0.
 
-## Grade 2 exam effect
+## Complete Grade 2 effect
 
-The Final Exam validates the existing Grade 2 assessment architecture across:
+The lecture, exam and feedback set validates:
 
 - turn-dependent frequency and sizing;
 - probes and negative-EV betting;
@@ -72,9 +73,12 @@ The Final Exam validates the existing Grade 2 assessment architecture across:
 - value/bluff tiers;
 - OOP slow-play;
 - robustness/frailness thresholds;
+- delayed fold equity as check EV;
 - triple-barrel bluff-catching;
+- value/bet-fold interference for bluff raises;
 - 3-bet-pot flop planning;
-- postflop raising.
+- postflop raising;
+- misconception repair after written reasoning.
 
 No new strategic candidate or assessment family was required.
 
@@ -82,21 +86,20 @@ No new strategic candidate or assessment family was required.
 
 Primary source-sensitive gaps are now:
 
-- Grade 2 Exam Feedback;
 - Grade 3;
 - squeeze and preflop construction;
 - exact deep-OOP boundaries;
 - multiway structure;
 - exact depth/straddle overlays;
 - independent preflop anchors;
-- real counterexamples to mechanisms currently marked closed.
+- real counterexamples to mechanisms currently marked mature.
 
 ## Verdict
 
 `CARROT_INCREMENTAL_EVIDENCE_PATH_ACTIVE`
 
-`GRADE_2_LECTURES_AND_FINAL_EXAM_MAPPED`
+`CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_2_EXAM_FEEDBACK_PENDING`
+`GENERAL_POSTFLOP_MECHANISMS_MATURE_AT_CORE_LEVEL`
 
-`GENERAL_POSTFLOP_MECHANISMS_MOSTLY_CLOSED`
+`GRADE_3_IS_PRIMARY_OPEN_SOURCE_PHASE`
