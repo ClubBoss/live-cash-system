@@ -5,7 +5,7 @@ project:
   default_branch: main
   state_authority: repository_over_chat_memory
   phase: carrot_grade_3_incremental_ingestion
-  updated_at: 2026-08-06T02:19:00+04:00
+  updated_at: 2026-08-06T02:55:00+04:00
 
 mission:
   summary: >-
@@ -48,7 +48,7 @@ source_state:
     original_assessment_families: 20
     feedback_repair_paths: 10
   carrot_grade_3:
-    status: lectures_01_04_exam_and_feedback_received_later_lectures_pending
+    status: lectures_01_07_exam_and_feedback_received_l08_plus_pending
     batch_01:
       archive: transcripts_mlx_large_v3(20260805-215511).zip
       sha256: 56a05d55cb573c4f01ad9b337f9e9534db638e78fae0d6ec95cf6d21eeb51f82
@@ -59,15 +59,23 @@ source_state:
       duplicate_lectures: [1, 2]
       new_lectures: [3, 4]
       exam_feedback: received_and_mapped
-    lectures_received: [1, 2, 3, 4]
+    batch_03:
+      archive: transcripts_mlx_large_v3 2(1).zip
+      sha256: bf46ac4ba2f0cffc6d5fa5763e9569cd4b9e7795b457203a0b244bc92820053d
+      duplicate_lectures: [1, 2, 3, 4]
+      duplicate_exam_feedback: true
+      new_lectures: [5, 6, 7]
+    lectures_received: [1, 2, 3, 4, 5, 6, 7]
     later_lectures_pending: true
-    lecture_05_explicitly_announced: true
+    lecture_08_explicitly_announced: true
     final_exam_pdf: received_and_audited
     final_exam_questions: 10
     exam_feedback: received_and_mapped
     answer_key_continuity: complete
+    primary_lecture_supported_exam_rows: [G3-Q01, G3-Q02, G3-Q03, G3-Q04, G3-Q05, G3-Q06, G3-Q07]
+    later_primary_lecture_rows_pending: [G3-Q08, G3-Q09, G3-Q10]
     lecture_continuity: partial
-    original_assessment_families: 13
+    original_assessment_families: 20
     feedback_repair_paths: 10
     exact_source_examples: reference_only
 
@@ -79,7 +87,7 @@ system_counts:
   provisional_final_rule_slots: 16
   candidates_with_direct_original_drills: 30
   source_gated_direct_drill_gaps: 4
-  carrot_original_assessment_families: 57
+  carrot_original_assessment_families: 64
   grade_2_feedback_repair_paths: 10
   grade_3_feedback_repair_paths: 10
   admitted_final_rules: 0
@@ -105,10 +113,10 @@ stable_module_ids:
 
 active_milestone:
   name: ingest_remaining_carrot_grade_3_incrementally
-  current_step: receive_and_ingest_grade_3_lecture_05_onward
+  current_step: receive_and_ingest_grade_3_lecture_08_onward
   subsequent_steps:
+    - attach_later_lectures_primarily_to_g3_q08_q10
     - compare_later_lectures_with_existing_grade_3_answer_key
-    - attach_each_lesson_to_g3_competency_rows
     - reassess_remaining_preflop_depth_multiway_gaps
     - finalise_supported_source_gated_drill_factories
     - consolidate_34_candidates_to_14_18_rules
@@ -118,7 +126,7 @@ active_milestone:
     - admit_revise_or_reject
 
 open_high_value_gates:
-  - carrot_grade_3_lecture_05_onward
+  - carrot_grade_3_lecture_08_onward
   - squeeze_purification
   - deep_oop_protected_call_boundaries
   - polar_preflop_target_folds_and_call_branch
@@ -149,6 +157,9 @@ mechanism_state:
   grade_3_size_toolkit_layer: active
   grade_3_blocker_function_layer: active
   grade_3_raise_class_and_migration_layer: active
+  grade_3_call_quality_layer: active
+  grade_3_extreme_size_layer: active
+  grade_3_triple_barrel_layer: active
   grade_3_exam_answer_key: complete
   grade_3_later_lecture_continuity: pending
   preflop_architecture: partial_anchor_pending
@@ -189,34 +200,31 @@ active_authorities:
   project_atlas: PROJECT_ATLAS.md
   carrot_registry: sources/carrot-poker/source-registry.md
   carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
-  grade_3_batch_02_qa: analysis/module-audits/CARROT_G3_BATCH_02_QA_v1.md
-  grade_3_batch_02_delta: synthesis/CARROT_G3_BATCH_02_CROSS_SOURCE_DELTA_v1.md
+  grade_3_batch_03_qa: analysis/module-audits/CARROT_G3_BATCH_03_QA_v1.md
+  grade_3_batch_03_delta: synthesis/CARROT_G3_BATCH_03_CROSS_SOURCE_DELTA_v1.md
   grade_3_exam_competency_map: synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
-  carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_2.md
-  grade_3_l03: sources/carrot-poker/transcripts/CP_G3_L03_common_blocker_effects.md
-  grade_3_l04: sources/carrot-poker/transcripts/CP_G3_L04_raising_and_beyond.md
-  grade_3_exam_feedback: sources/carrot-poker/transcripts/CP_G3_EXAM_FEEDBACK.md
-  grade_3_l03_l04_assessments: learning/assessments/CARROT_G3_L03_L04_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
-  grade_3_feedback_repairs: learning/assessments/CARROT_G3_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md
+  carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_3.md
+  grade_3_l05: sources/carrot-poker/transcripts/CP_G3_L05_calling_bets.md
+  grade_3_l06: sources/carrot-poker/transcripts/CP_G3_L06_extreme_bet_sizing.md
+  grade_3_l07: sources/carrot-poker/transcripts/CP_G3_L07_triple_barreling.md
+  grade_3_l05_l07_assessments: learning/assessments/CARROT_G3_L05_L07_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
   learning_index: learning/README.md
 
 latest_integrated_checkpoint:
-  verdict: CARROT_G3_BATCH_02_ACCEPTED
-  report: reports/CARROT_G3_BATCH_02_TERMINAL_REPORT_v1.md
-  source_checkpoint_commit: 35a8fa66ef8a935722642ebd0ff4a47c80b5d9b7
-  batch_sha256: e957e3b8a699ed43378099cffbc8e5b874ca97283a7935984c1ae924b5dd4d70
+  verdict: CARROT_G3_BATCH_03_ACCEPTED
+  report: reports/CARROT_G3_BATCH_03_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: d1fe26010dfdb2441867e8b37558b083dd11df58
+  batch_sha256: bf46ac4ba2f0cffc6d5fa5763e9569cd4b9e7795b457203a0b244bc92820053d
   facts:
-    - lectures_01_02_exact_duplicates
-    - grade_3_lectures_03_04_canonically_ingested
-    - grade_3_exam_feedback_received_and_mapped
-    - all_ten_exam_answer_sections_present
+    - lectures_01_04_and_exam_feedback_exact_duplicates
+    - grade_3_lectures_05_07_canonically_ingested
+    - g3_q01_through_q07_primary_lecture_supported
     - grade_3_answer_key_continuity_complete
-    - grade_3_later_lectures_pending
+    - grade_3_lecture_08_plus_pending
     - no_rerun_required
     - no_new_core_candidate
     - seven_original_assessment_families_added
-    - ten_grade_3_feedback_repair_paths_added
-    - total_carrot_assessment_families_57
+    - total_carrot_assessment_families_64
     - direct_drill_coverage_remains_30_of_34
 
 new_chat_bootstrap:
@@ -226,7 +234,7 @@ new_chat_bootstrap:
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
     - sources/carrot-poker/source-registry.md
-    - reports/CARROT_G3_BATCH_02_TERMINAL_REPORT_v1.md
+    - reports/CARROT_G3_BATCH_03_TERMINAL_REPORT_v1.md
     - synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
     - affected_authority_files_only
   forbidden_behaviour:
@@ -244,7 +252,7 @@ terminal_state:
   incremental_ingestion_ready: true
   carrot_grade_1_complete: true
   carrot_grade_2_complete: true
-  carrot_grade_3_lectures_01_04_received: true
+  carrot_grade_3_lectures_01_07_received: true
   carrot_grade_3_exam_received: true
   carrot_grade_3_feedback_received: true
   carrot_grade_3_answer_key_complete: true
