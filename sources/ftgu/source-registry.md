@@ -26,7 +26,7 @@ Status: `COMPLETE / ALL_30_EPISODES_CANONICALLY_INGESTED`
 | FTGU-E20 | 20 | Probing the Turn | `sources/ftgu/transcripts/FTGU_E20_probing_the_turn.md` | NEEDS_VISUAL_REVIEW | MAPPED | Multi-size capped-range probe framework |
 | FTGU-E21 | 21 | C-Betting the Turn | `sources/ftgu/transcripts/FTGU_E21_cbetting_the_turn.md` | NEEDS_VISUAL_REVIEW | MAPPED | Blank versus game-changing turn framework |
 | FTGU-E22 | 22 | River Bluff-Catcher Selection | `sources/ftgu/transcripts/FTGU_E22_river_bluff_catcher_selection.md` | NEEDS_VISUAL_REVIEW | MAPPED | Combo/removal-based call selection |
-| FTGU-E23 | 23 | River Bluff Selection | `sources/ftgu/transcripts/FTGU_E23_bluff_selection.md` | NEEDS_VISUAL_REVIEW | MAPPED | Value-to-bluff and ancestry framework |
+| FTGU-E23 | 23 | River Bluff Selection | `sources/ftgu/transcripts/FTGU_E23_river_bluff_selection.md` | NEEDS_VISUAL_REVIEW | MAPPED | Value-to-bluff and ancestry framework |
 | FTGU-E24 | 24 | Exploitative Folding | `sources/ftgu/transcripts/FTGU_E24_exploitative_folding.md` | NEEDS_VISUAL_REVIEW | MAPPED | Passive and airless-range underbluff cases |
 | FTGU-E25 | 25 | Exploitative Calling | `sources/ftgu/transcripts/FTGU_E25_exploitative_calling.md` | NEEDS_VISUAL_REVIEW | MAPPED | Air-rich and uncontrolled overbluff cases |
 | FTGU-E26 | 26 | Attacking the Capped Range | `sources/ftgu/transcripts/FTGU_E26_attacking_the_capped_range.md` | NEEDS_VISUAL_REVIEW | MAPPED | Balanced and deliberately unbalanced attacks |
