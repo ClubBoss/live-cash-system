@@ -66,7 +66,7 @@ This prevents repeated redistribution work after each Cash Injection or Carrot b
 | `H-R04-008` Live tell is evidence, not conclusion | `LCM-10` | `LCM-11` | INDIRECT: B4, CI5 | `SQ-EXP-01`, `SQ-EXP-04` | CORE_RULE_SEED/BOUNDARY | add dedicated live-tell evidence drill |
 | `H-R04-010` Preserve turn-resilient hands in passive branches | `LCM-05` | `LCM-03`, `LCM-06` | MISSING | `SQ-DEP-02`, `SQ-SRP-05` | NESTED_STEP | add protected check-back/call variants |
 | `H-R05-001` Recalculate ownership after filtering actions | `LCM-04` | `LCM-06`, `LCM-07`, `LCM-09` | INDIRECT: B2, D4, F3 | `SQ-SRP-02`, `SQ-3B-04` | CORE_RULE_SEED | likely central consolidation rule; needs isolated timed drill |
-| `H-R05-002` Heavy-check strategy needs active raise defence | `LCM-05` | `LCM-03`, `LCM-06` | DIRECT/INDIRECT: CI1, CI3 | `SQ-SRP-03`, `SQ-SRP-05` | NESTED_STEP/BOUNDARY | broaden to calls + polar/merged raises by urgency |
+| `H-R05-002` Heavy-check strategy needs active raise defence | `LCM-05` | `LCM-03`, `LCM-06` | DIRECT: CI1, CI3; broader architecture indirect | `SQ-SRP-03`, `SQ-SRP-05` | NESTED_STEP/BOUNDARY | broaden to calls + polar/merged raises by urgency |
 
 ## Coverage summary
 
@@ -74,28 +74,30 @@ This prevents repeated redistribution work after each Cash Injection or Carrot b
 
 23 candidates currently have at least one reasonably direct original drill.
 
-### Indirect only
+### Indirect-only
 
-5 candidates are represented indirectly and need isolated variants:
+4 candidates are represented indirectly and need isolated variants:
 
 - `H-W01-007`;
 - `H-W01-009`;
 - `H-R04-008`;
-- `H-R05-001`;
-- parts of `H-R05-002`.
+- `H-R05-001`.
 
-### Missing direct drill
+### Missing adequate direct drill
 
-6 candidates need dedicated original drills before final admission:
+7 candidates need dedicated original drills before final admission:
 
 - `H-W01-002` — squeeze purification;
 - `H-W01-006` — deep OOP protected calls;
 - `H-W01-008` — polar preflop target folds;
 - `H-W02-006` — turn lead from flop composition;
 - `H-W02-008` — value-heavy bet/float removal;
-- `H-R04-007` — suppressed aggression reappearing later.
+- `H-R04-007` — suppressed aggression reappearing later;
+- `H-R04-010` — protected passive branches.
 
-`H-R04-010` also needs a dedicated protected-passive-branch variant even though adjacent concepts are tested elsewhere.
+Scenario factories for all of these and the four indirect-only candidates are prepared in:
+
+`../learning/drills/PRE_SOURCE_DIRECT_DRILL_SHELLS_v0_1.md`
 
 ## Precomputed consolidation lanes
 
@@ -257,6 +259,8 @@ A consolidation is accepted only when:
 
 `ALL_34_CANDIDATES_HAVE_STABLE_MODULE_OWNERSHIP`
 
+`DRILL_COVERAGE_IS_23_DIRECT_4_INDIRECT_ONLY_7_MISSING`
+
 `FUTURE_SOURCE_DELTAS_CAN_UPDATE_TARGETED_ROWS_ONLY`
 
-`FINAL_CONSOLIDATION_REMAINS_DEFERRED_UNTIL SOURCE COMPLETION`
+`FINAL_CONSOLIDATION_REMAINS_DEFERRED_UNTIL_SOURCE_COMPLETION`
