@@ -1,6 +1,6 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_03_MAPPED`
+Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_04_MAPPED`
 
 ## Active authorities
 
@@ -14,8 +14,8 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_03_MAPPED`
 
 - `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations;
 - `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection relations;
-- `CARROT_EVIDENCE_MATRIX_v0_3.md` — current Carrot relations through Grade 3 L07;
-- `CARROT_G3_BATCH_03_CROSS_SOURCE_DELTA_v1.md` — Grade 3 L05–L07 delta;
+- `CARROT_EVIDENCE_MATRIX_v0_4.md` — current Carrot relations through Grade 3 L09;
+- `CARROT_G3_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Grade 3 L08–L09 delta;
 - `CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` — Grade 3 exam-to-lecture routing.
 
 ### Remaining validation
@@ -41,47 +41,40 @@ FTGU: 30/30 complete
 Cash Injection: 10/10 complete
 Carrot Grade 1: complete
 Carrot Grade 2: complete
-Carrot Grade 3 Lectures: L01–L07 received
+Carrot Grade 3 Lectures: L01–L09 received
 Carrot Grade 3 Final Exam and Feedback: received and mapped
-Carrot Grade 3 Lecture 08 onward: pending
+Carrot Grade 3 final Lecture 10: pending
 
 candidate count: 34
 stable modules: 11
 provisional slots: 16
 direct candidate drill coverage: 30/34
-original Carrot assessment families: 64
+original Carrot assessment families: 70
 admitted final rules: 0
 ```
 
-## Grade 3 Batch 03 effect
+## Grade 3 Batch 04 effect
 
-### Lecture 5
+### Lecture 8
 
-- value beater / bluff catcher / frail-hand classification;
-- winning, indifferent and losing calls;
-- call-versus-raise separation;
-- theory-to-pool bluff-catching gate.
+- immediate bet versus check-branch trade-off;
+- protected checks containing credible calls and raises;
+- delayed-c-bet and probe resistance;
+- solver-to-opponent checking-range adjustment.
 
-### Lecture 6
+### Lecture 9
 
-- extreme-size eligibility;
-- investment ceilings;
-- response to extreme sizes;
-- value-led multi-size bluff allocation;
-- human toolkit compression.
-
-### Lecture 7
-
-- triple-barrel bet EV minus check EV;
-- winning, optional and losing bluff classes;
-- full-line ancestry;
-- transferable conditional heuristic construction.
+- OOP 3-bet-pot call/fold geography;
+- identical-class hand comparison;
+- texture-dependent response to range bets;
+- tier-one value as a raise-range gate;
+- low-SPR turn-jam construction with denial discipline.
 
 ## Grade 3 exam state
 
 ```text
-G3-Q01–Q07 → matching primary lectures + Feedback
-G3-Q08–Q10 → Feedback-supported; later primary lectures pending
+G3-Q01–Q09 → matching primary lectures + Feedback
+G3-Q10 → Feedback-supported; final Lecture 10 pending
 ```
 
 ## New-candidate and gap result
@@ -95,9 +88,11 @@ The four source-sensitive direct-drill gaps remain:
 - polar preflop target folds;
 - multiway delayed aggression.
 
+Lecture 8 strengthens protected-call/check reasoning but does not close an exact depth-specific answer key.
+
 ## Remaining source workload
 
-- Grade 3 Lecture 08 onward;
+- Grade 3 final Lecture 10;
 - preflop/squeeze construction;
 - exact deep-OOP boundaries;
 - multiway structure;
@@ -107,10 +102,10 @@ The four source-sensitive direct-drill gaps remain:
 
 ## Verdict
 
-`CARROT_GRADE_3_L01_TO_L07_MAPPED`
+`CARROT_GRADE_3_L01_TO_L09_MAPPED`
 
-`G3_Q01_TO_Q07_PRIMARY_LECTURE_SUPPORTED`
+`G3_Q01_TO_Q09_PRIMARY_LECTURE_SUPPORTED`
 
-`SIXTY_FOUR_TOTAL_ORIGINAL_CARROT_ASSESSMENT_FAMILIES`
+`SEVENTY_TOTAL_ORIGINAL_CARROT_ASSESSMENT_FAMILIES`
 
 `NO_NEW_CORE_CANDIDATE_OR_DIRECT_DRILL_CLOSURE`
