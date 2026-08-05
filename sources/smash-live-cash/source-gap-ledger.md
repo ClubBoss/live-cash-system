@@ -36,7 +36,7 @@ Visual review is now claim-driven rather than lesson-driven. A screen or video i
 
 1. change a final heuristic;
 2. establish an anchor range or sizing threshold;
-3. resolve a conflict with Carrot or FTGU;
+3. resolve a conflict with Carrot, Cash Injection or FTGU;
 4. define an original drill correctly.
 
 It is not necessary to capture every solver cell.
@@ -63,11 +63,14 @@ The detailed evidence remains in the checkpoint QA reports and `analysis/module-
 
 ## Remaining project dependencies
 
-- targeted visual review for final exact claims;
-- FTGU and Carrot canonical ingestion;
-- cross-source validation;
+- targeted visual review only for final exact claims;
+- Carrot Poker and Cash Injection canonical ingestion;
+- remaining cross-source validation and conflict resolution;
 - consolidation of heuristic candidates;
-- original drill and field testing before admission.
+- original drill and field testing before admission;
+- independently validated range anchors where exact ranges are needed.
+
+FTGU canonical ingestion and mapping are complete and are no longer an open dependency.
 
 ## Ledger verdict
 
