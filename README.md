@@ -14,7 +14,7 @@ Repository structure and routing rules are defined in:
 
 `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
 
-The layout is designed so additional FTGU lessons, Carrot Poker, Cash Injection, original range work and field evidence can be added incrementally without moving existing corpora.
+The layout is designed so additional Carrot Poker, Cash Injection, original range work and field evidence can be added incrementally without moving existing corpora.
 
 ## Operating principles
 
@@ -73,13 +73,11 @@ incoming source package
 
 ### From the Ground Up
 
-Canonical records and cross-source mappings now exist for 23 of 30 episodes:
-
-- Episodes 1–2;
-- Episodes 10–30;
-- hand-chart PDF audited as reference-only.
-
-Episodes 3–9 remain to be received. No FTGU chart has been promoted into the original anchor layer.
+- all 30 episodes have canonical source-faithful records;
+- all 30 episodes are mapped into the cross-source evidence system;
+- no full-lesson audio rerun or ingestion blocker remains;
+- exact source visuals remain claim-driven only;
+- the hand-chart PDF remains reference-only and has not been promoted into the original anchor layer.
 
 ### Carrot Poker
 
@@ -93,7 +91,7 @@ Planned source family for exploit hypotheses and practical node adjustments.
 
 - heuristic candidates: 34;
 - intended consolidated target: approximately 14–18 core rules;
-- admitted final rules: 0 pending full cross-source, drill and field validation;
+- admitted final rules: 0 pending Carrot/Cash Injection, drill and field validation;
 - provisional compact Playbook: created;
 - opponent-model schema and initial profiles: created;
 - misconception taxonomy: 30 diagnostic errors;
@@ -102,8 +100,20 @@ Planned source family for exploit hypotheses and practical node adjustments.
 - general learning route: created;
 - session-review and field-evidence loop: created;
 - environment-profile template: created;
-- FTGU/Carrot cross-source evidence matrix: active;
+- Smash/FTGU cross-source evidence matrix: complete at candidate level;
 - original range layer: reserved; no source chart has been promoted to an anchor.
+
+## Compression scaffolds strengthened by FTGU
+
+### Preflop
+
+`PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE`
+
+### Postflop
+
+`RANGE ADVANTAGE → URGENCY → BET SHAPE → RESPONSE SHAPE`
+
+These structures organise existing candidates; they do not increase the final rule count.
 
 ## Current provisional decision algorithms
 
@@ -125,13 +135,12 @@ Planned source family for exploit hypotheses and practical node adjustments.
 
 ## Current priority nodes
 
-1. Receive and ingest FTGU Episodes 3–9.
-2. Ingest Carrot Poker and Cash Injection through the same source-family contract.
-3. Consolidate overlapping candidates without losing assumptions.
-4. Build independently validated preflop anchor configurations.
-5. Test DRILL_READY mechanisms with original variants and delayed retests.
-6. Begin structured session evidence collection.
-7. Use targeted visual review only when an exact claim can change a rule, anchor or drill.
+1. Ingest Carrot Poker and Cash Injection through the same source-family contract.
+2. Consolidate overlapping Smash/FTGU candidates without losing assumptions.
+3. Build independently validated preflop anchor configurations.
+4. Test DRILL_READY mechanisms with original variants and delayed retests.
+5. Begin structured session evidence collection.
+6. Use targeted visual review only when an exact claim can change a rule, anchor or drill.
 
 ## Status vocabulary
 
@@ -170,6 +179,7 @@ Planned source family for exploit hypotheses and practical node adjustments.
 - `synthesis/CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md`
 - `sources/smash-live-cash/source-gap-ledger.md`
 - `sources/ftgu/source-registry.md`
+- `analysis/module-audits/FTGU_CANONICAL_CORPUS_COMPLETION_QA_v1.md`
 - `learning/GENERAL_LIVE_CASH_LEARNING_ROUTE_v0_1.md`
 - `learning/INITIAL_DIAGNOSTIC_v0_1.md`
 - `learning/drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
