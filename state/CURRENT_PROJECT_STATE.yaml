@@ -5,7 +5,7 @@ project:
   default_branch: main
   state_authority: repository_over_chat_memory
   phase: carrot_incremental_completion
-  updated_at: 2026-08-05T19:55:00+04:00
+  updated_at: 2026-08-05T20:58:00+04:00
 
 mission:
   summary: >-
@@ -193,6 +193,8 @@ active_authorities:
   candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
   provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md
   learning_index: learning/README.md
+  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md
+  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v1.md
 
 latest_integrated_checkpoint:
   verdict: CARROT_G1_BATCH_03_COMPLETE
@@ -204,6 +206,17 @@ latest_integrated_checkpoint:
     - no_rerun_required
     - no_new_core_candidate
     - eighteen_original_grade_1_assessment_families
+
+latest_project_checkpoint:
+  verdict: ALL_HIGH_VALUE_SAFE_PRE_CARROT_COMPLETION_WORK_DONE
+  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md
+  readiness_commit: f1903de622b9fd927af04bdb4105bbd568b083cb
+  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v1.md
+  evaluation_commit: b6109547e712c20b433166797e072c87addaf13d
+  facts:
+    - post_carrot_grade_1_l01_l09_readiness_pass_complete
+    - all_high_value_safe_source_side_precomputation_complete
+    - further_finalisation_deferred_until_remaining_carrot
 
 handover_system:
   status: active
@@ -247,4 +260,5 @@ terminal_state:
   handover_ready: true
   atlas_ready: true
   incremental_ingestion_ready: true
+  all_high_value_safe_precompletion_work_done: true
   global_restructure_expected: false
