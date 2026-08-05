@@ -20,26 +20,26 @@ Source courses provide evidence. They do not become parallel curricula.
 |---|---|
 | Smash Live Cash | canonical corpus complete; claim-driven visuals only |
 | From the Ground Up | 30/30 complete and mapped; charts reference-only |
-| Cash Injection | 10/10 complete and mapped; ten hypotheses field-gated |
-| Carrot Poker Grade 1 | Lectures 01–04 plus Final Exam and Feedback ingested; L05–L10 pending |
+| Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
+| Carrot Poker Grade 1 | Lectures 01–09 plus Final Exam and Feedback ingested; Lecture 10 pending |
 | Carrot Poker Grades 2–3 | pending |
 
 ## Current system state
 
 ```text
-heuristic candidates:             34
-stable adaptive modules:          11
-misconception classes:            30
-remaining-source question IDs:    38
-provisional final-rule slots:      16
-candidates with direct drills:     30
-Carrot-gated direct drill gaps:     4
-Carrot G1 assessment families:     10
-admitted final rules:               0
-intended final core:              14–18
+heuristic candidates:              34
+stable adaptive modules:           11
+misconception classes:             30
+remaining-source question IDs:     38
+provisional final-rule slots:       16
+candidates with direct drills:      30
+Carrot-gated direct drill gaps:      4
+Grade 1 original assessments:       18
+admitted final rules:                0
+intended final core:               14–18
 ```
 
-Candidate count did not increase after FTGU, Cash Injection or Carrot Grade 1 L01–L04.
+Candidate count did not increase after FTGU, Cash Injection or Carrot Grade 1 Lectures 01–09.
 
 ## Architecture
 
@@ -49,96 +49,91 @@ source package
 → source-specific evidence matrix
 → question IDs
 → candidate relation
-→ provisional slot/module delta
+→ slot/module delta
 → original drill / assessment / boundary / overlay
 → learner testing
 → field evidence
 → admission, revision or rejection
 ```
 
-## Stable modules
+## Stable learner modules
 
-`LCM-01` node/depth; `LCM-02` preflop; `LCM-03` blinds/realisation; `LCM-04` filtering/ownership; `LCM-05` bet/response shape; `LCM-06` aggression; `LCM-07` 3-bet ancestry; `LCM-08` multiway; `LCM-09` river audit; `LCM-10` overlays; `LCM-11` field repair.
+```text
+LCM-01  NODE + EFFECTIVE DEPTH
+LCM-02  PREFLOP RANGE ARCHITECTURE
+LCM-03  BLIND IDENTITY + REALISATION
+LCM-04  ACTION FILTERING + OWNERSHIP
+LCM-05  BET SHAPE + RESPONSE SHAPE
+LCM-06  AGGRESSION + FUTURE JOBS
+LCM-07  3-BET-POT ANCESTRY
+LCM-08  MULTIWAY STRUCTURE
+LCM-09  RIVER AUDIT
+LCM-10  OPPONENT / ENVIRONMENT OVERLAYS
+LCM-11  FIELD TRANSFER + REPAIR
+```
 
-## Active authorities
-
-### Synthesis
-
-- `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md`;
-- `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md`;
-- `synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md`;
-- `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md`;
-- `synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`.
-
-### Learning
-
-- `learning/GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`;
-- `learning/ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`;
-- `learning/ADAPTIVE_COURSE_RUNTIME_v0_1.md`;
-- `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_2.md`;
-- `learning/assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
-
-## Retrieval scaffolds
+## Main retrieval scaffolds
 
 ### Preflop
 
-```text
-PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE
-```
+`PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE`
+
+### Postflop
+
+`RANGE ADVANTAGE → URGENCY → BET SHAPE → RESPONSE SHAPE`
 
 ### Range ancestry
 
-```text
-ORIGIN RANGE → ACTION FILTERS → SURVIVING AIR/VALUE → SIZE → BRANCH EVIDENCE
-```
+`ORIGIN RANGE → ACTION FILTER → CURRENT VALUE/AIR → SIZE REQUIREMENT → BRANCH EVIDENCE`
 
-### Grade 1 decision protocol
+### Carrot Grade 1 through Lecture 09
 
 ```text
 FULL TREE EV
-→ MANDATORY / OPTIONAL / PROHIBITED
-→ URGENCY / CHECK EV
-→ RANGE FAVOURABILITY
-→ POLAR / CONDENSED SHAPE
-→ SIZE AND CANDIDATE
+→ CALL / VALUE / BLUFF THRESHOLDS
+→ RANGE AND NUT ADVANTAGE
+→ FREQUENCY AND SIZE
+→ FILTERED TURN FAVOURABILITY
+→ POLAR / SEMI-POLAR RANGE CONSTRUCTION
+→ TEXTURE AND RANGE GEOGRAPHY
 ```
 
 ### River
 
-```text
-VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → BLOCKERS → EVIDENCE
-```
+`VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → BLOCKERS → EVIDENCE`
 
-## Carrot Grade 1 effect through Lecture 04
+## Current Carrot effect
 
-Added or strengthened:
+Grade 1 Lectures 01–09 add:
 
-- full-tree EV and realisation;
-- value and bluff categories;
-- urgency and denial;
-- favourable/neutral/unfavourable range worlds;
-- polarisation and condensation;
-- relative hand strength from action history;
-- value-driven overbets;
-- protected checking ranges;
-- assessment and misconception design.
+- EV/equity and open-action protocol;
+- value/bluff/check classification;
+- protected passive branches;
+- range/nut-advantage separation;
+- frequency-control-sizing repair;
+- filtered turn worlds;
+- float-bet construction;
+- texture-sensitive river thresholds;
+- 18 original assessment families without copying source spots.
 
-Still open:
+They do not close:
 
-- Grade 1 L05–L10;
 - squeeze purification;
 - deep OOP boundaries;
 - polar preflop target folds;
 - exact anchors;
 - multiway structure;
+- Grade 1 Lecture 10;
 - Grades 2–3.
 
 ## Deferred
 
 - final 14–18-rule compression;
-- final rule IDs and wording;
-- exact preflop anchors and depth thresholds;
+- final rule wording and IDs;
+- exact preflop anchors;
+- exact depth thresholds;
 - target-live population frequencies;
+- final exploit confidence;
 - final mastery thresholds;
 - `ADMITTED` status.
 
@@ -150,6 +145,8 @@ Still open:
 
 `CASH_INJECTION_10_OF_10_COMPLETE`
 
-`CARROT_GRADE_1_L01_TO_L04_INGESTED`
+`CARROT_GRADE_1_LECTURES_01_TO_09_INGESTED`
+
+`GRADE_1_L10_AND_GRADES_2_TO_3_PENDING`
 
 `NO_GLOBAL_RESTRUCTURE_EXPECTED`
