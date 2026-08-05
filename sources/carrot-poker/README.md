@@ -1,6 +1,6 @@
 # Carrot Poker Source Family
 
-Status: `ACTIVE / GRADE_1_LECTURES_01_TO_09_INGESTED / GRADE_1_PARTIAL`
+Status: `ACTIVE / GRADE_1_COMPLETE / GRADES_2_AND_3_PENDING`
 
 ## Scope
 
@@ -10,22 +10,23 @@ One source family for Grade 1, Grade 2 and Grade 3. Grades remain modules inside
 
 ### Grade 1
 
-- `CP-G1-L01` through `CP-G1-L09`;
+- `CP-G1-L01` through `CP-G1-L10`;
 - `CP-G1-EXAM`;
 - `CP-G1-EXAM-FB`.
 
-Lecture 10 remains pending. The exam and feedback support assessment mapping but do not replace the missing lecture.
+No known Grade 1 lecture-continuity gap remains.
 
 ## Current authorities
 
 - `source-registry.md`;
 - `source-gap-ledger.md`;
 - `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-- `../../synthesis/CARROT_G1_BATCH_03_CROSS_SOURCE_DELTA_v1.md`;
+- `../../synthesis/CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md`;
 - `../../learning/assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`;
-- `../../learning/assessments/CARROT_G1_L05_L09_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`.
+- `../../learning/assessments/CARROT_G1_L05_L09_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`;
+- `../../learning/assessments/CARROT_G1_L10_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`.
 
-## Grade 1 contribution through Lecture 09
+## Complete Grade 1 contribution
 
 ```text
 EQUITY + FULL TREE EV
@@ -33,8 +34,9 @@ EQUITY + FULL TREE EV
 → RANGE AND NUT ADVANTAGE
 → FREQUENCY AND SIZE
 → FILTERED TURN FAVOURABILITY
-→ FLOAT-BET RANGE CONSTRUCTION
+→ POLAR / SEMI-POLAR RANGE CONSTRUCTION
 → RIVER TEXTURE AND RANGE GEOGRAPHY
+→ BLOCKER AS FINAL SELECTOR
 ```
 
 Accepted additions include:
@@ -42,17 +44,21 @@ Accepted additions include:
 - required pot share versus required equity;
 - realisability, implied odds and future fold equity;
 - range advantage for frequency and nut advantage for sizing;
-- frequency-control-sizing fallacy;
-- one-size turn barrel construction;
+- mandatory / optional / prohibited value and bluffs;
 - protected checks and float-bet linearisation;
 - still-lake, choppy-sea and tsunami texture classes;
-- four value/check/bluff threshold landmarks.
+- four value/check/bluff threshold landmarks;
+- blocker limitation rule;
+- action-sequence-dependent blocker reversals;
+- insufficient-reason misconception repair;
+- active-recall and anti-spoon-feeding assessment process.
 
 No new core candidate was created.
 
 ## Remaining high-value Carrot work
 
-- Grade 1 Lecture 10;
+Grades 2–3 should primarily address:
+
 - squeeze purification;
 - deep OOP protected-call boundaries;
 - polar preflop target folds;
@@ -70,12 +76,14 @@ No new core candidate was created.
 - do not copy source exam or lecture spots into product-facing assessments;
 - do not copy charts or solver matrices into anchors;
 - mark exact screen claims as visual-dependent;
-- do not let recap material replace missing lecture continuity.
+- do not universalise source estimates or population claims.
 
 ## Verdict
 
-`CARROT_GRADE_1_LECTURES_01_TO_09_ACTIVE`
+`CARROT_GRADE_1_COMPLETE`
 
-`GRADE_1_L10_PENDING / GRADES_2_AND_3_PENDING`
+`GRADE_1_LECTURES_01_TO_10_MAPPED`
+
+`GRADES_2_AND_3_PENDING`
 
 `INCREMENTAL_ROUTING_WORKS_WITHOUT_GLOBAL_REBUILD`
