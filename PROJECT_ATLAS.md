@@ -16,12 +16,13 @@ This file explains where each kind of truth lives and how the pieces connect. It
 | Current source coverage | source-family `source-registry.md` |
 | Missing source continuity | source-family `source-gap-ledger.md` |
 | Cross-source relations | `synthesis/*EVIDENCE_MATRIX*` |
+| Grade 3 exam routing | `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` |
 | Unresolved questions | `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md` |
 | Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md` |
 | Candidate ownership and drills | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` |
 | Provisional final grouping | `synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` |
 | Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md` |
-| Latest milestone | `reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md` |
+| Latest milestone | `reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md` |
 
 ## Whole-system map
 
@@ -73,11 +74,22 @@ Path: `sources/carrot-poker/`
 
 - Grade 1 complete: Lectures `01–10`, Final Exam and Feedback;
 - Grade 2 complete: Lectures `01–10`, Final Exam and Feedback;
-- Grade 3 pending;
+- Grade 3 Final Exam received and visually audited;
+- Grade 3 lectures and Exam Feedback pending;
 - `44` original Carrot assessment families;
-- one Grade 2 exam runtime mode;
-- ten Grade 2 misconception-repair paths;
-- remaining source value is concentrated in preflop, exact depth, multiway, true boundaries and counterexamples.
+- ten Grade 3 preliminary competency rows;
+- no Grade 3 answer keys yet.
+
+The Grade 3 exam visibly emphasizes advanced postflop:
+
+- turn call/raise selection;
+- mixed sizing and overbets;
+- combo-level bluff selection;
+- check-raise range construction;
+- river bluff-catching;
+- 3-bet-pot and 4-bet-pot strategy.
+
+It does not visibly establish preflop squeeze, multiway, straddle or exact deep-stack coverage. The full lecture scope remains unknown.
 
 ## Current strategic inventory
 
@@ -111,13 +123,13 @@ Direct original drill coverage:
 | `LCM-02` | Preflop range architecture | directional only; anchors and squeeze pending |
 | `LCM-03` | Blind identity and realisation | robust/frail and check-EV model active; deep boundary pending |
 | `LCM-04` | Action filtering and ownership | high-confidence active |
-| `LCM-05` | Bet shape and response shape | core ready; exact refinements/field magnitude pending |
-| `LCM-06` | Aggression and future jobs | core ready with context splits and repair paths |
-| `LCM-07` | 3-bet-pot ancestry | flop-plan model active; preflop anchors pending |
-| `LCM-08` | Multiway structure | partial; primary Grade 3 source gap |
-| `LCM-09` | River audit | high-confidence active; interference-before-blockers explicit |
+| `LCM-05` | Bet shape and response shape | core ready; Grade 3 exam adds question-level call/raise routing |
+| `LCM-06` | Aggression and future jobs | core ready; Grade 3 exam adds question-level overbet and check-raise routing |
+| `LCM-07` | 3-bet-pot ancestry | directional model active; Grade 3 exam adds 3-bet/4-bet questions without answers |
+| `LCM-08` | Multiway structure | partial; no visible Grade 3 exam coverage |
+| `LCM-09` | River audit | high-confidence active; Grade 3 exam adds bluff-catching and overbet questions |
 | `LCM-10` | Opponent/environment overlays | methodology ready; field calibration pending |
-| `LCM-11` | Field transfer and repair | Grade 1–2 exam and repair layer complete |
+| `LCM-11` | Field transfer and repair | Grade 1–2 exam and repair layer complete; Grade 3 answer layer pending |
 
 A correct action with an incorrect reason is not mastery.
 
@@ -156,33 +168,20 @@ ACTION HISTORY
 → FIELD EVIDENCE
 ```
 
-### Grade 2 exam mode
+### Grade 3 exam question scaffold
 
 ```text
-COLD PROMPT
-→ WRITTEN ACTION
-→ WRITTEN REASON
-→ CONFIDENCE
-→ TIME LIMIT
-→ FEEDBACK
-→ SELF-COMPARISON
-→ CHANGED VARIANT
-→ DELAYED RETEST
+CALL / RAISE EV
+→ MIXED BETTING AND SIZE CEILING
+→ COMBO-SPECIFIC BLUFF SELECTION
+→ CHECK-RAISE RANGE CLASSES
+→ TURN CLASS MIGRATION
+→ OVERBET ARCHITECTURE
+→ BLUFF-CATCHING INTERFERENCE
+→ 3-BET / 4-BET POT RESPONSE
 ```
 
-### Bluff-catching and raising
-
-```text
-ORIGIN RANGE
-→ FILTER DENSITY
-→ VALUE / AIR SUPPLY
-→ SIZE
-→ VALUE BEATER / BLUFF CATCHER / FRAIL HAND
-→ ROBUSTNESS
-→ VALUE / BET-FOLD INTERFERENCE
-→ BLOCKERS
-→ EVIDENCE
-```
+This scaffold is provisional until lecture and feedback evidence arrives.
 
 ## Product-facing purity boundary
 
@@ -198,9 +197,12 @@ Product-facing outputs must use:
 ## Current active path
 
 ```text
-Carrot Grade 3
-→ close/context-split preflop, depth and multiway questions
-→ finalise four drill factories
+Grade 3 lecture transcripts
+→ map lectures to ten Grade 3 competency rows
+→ Grade 3 Exam Feedback
+→ answer-key and misconception-repair crosswalk
+→ reassess actual remaining source gaps
+→ finalise supported drill factories
 → consolidate candidates
 → build independent anchors
 → learner testing
@@ -225,8 +227,10 @@ Update only when durable structure, source-family lifecycle, authority routing, 
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GENERAL_POSTFLOP_CORE_MATURE_AT_MECHANISM_LEVEL`
+`GRADE_3_FINAL_EXAM_RECEIVED`
 
-`GRADE_3_IS_PRIMARY_OPEN_SOURCE_PHASE`
+`GRADE_3_LECTURES_AND_FEEDBACK_PENDING`
+
+`GENERAL_POSTFLOP_CORE_MATURE_AT_MECHANISM_LEVEL`
 
 `NEW_CHATS_CAN_NAVIGATE_WITHOUT_FULL_REPO_RESCAN`
