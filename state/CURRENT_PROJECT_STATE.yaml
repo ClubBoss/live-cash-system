@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: carrot_grade_2_feedback_and_grade_3_completion
-  updated_at: 2026-08-05T23:12:00+04:00
+  phase: carrot_grade_3_completion
+  updated_at: 2026-08-06T00:12:00+04:00
 
 mission:
   summary: >-
@@ -63,17 +63,21 @@ source_state:
     original_assessment_families: 24
     known_source_continuity_gaps: 0
   carrot_grade_2:
-    status: lectures_and_exam_received_feedback_pending
+    status: complete
     lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     final_exam_pdf: received_and_audited
     final_exam_pages: 12
     final_exam_questions: 10
     final_exam_sha256: 49f5337fb5807698b412d35ed0c72355c3901bfaca7c01c72a580af9d61a3fd5
-    exam_feedback: pending
+    exam_feedback: received_and_mapped
+    exam_feedback_archive_sha256: d69c728eaf41122f5b6e202fbaa83042a1831d925796c091ae5fe5d3eca00e5c
+    exam_feedback_duration: 57:36.04
+    exam_feedback_segments: 760
     original_assessment_families: 20
     exam_runtime_modes: 1
+    feedback_repair_paths: 10
     exact_source_examples: reference_only
-    known_lecture_continuity_gaps: 0
+    known_source_continuity_gaps: 0
   carrot_grade_3:
     status: pending
 
@@ -87,6 +91,7 @@ system_counts:
   source_gated_direct_drill_gaps: 4
   carrot_original_assessment_families: 44
   grade_2_exam_runtime_modes: 1
+  grade_2_feedback_repair_paths: 10
   admitted_final_rules: 0
 
 candidate_status_counts:
@@ -109,8 +114,8 @@ stable_module_ids:
   - LCM-11
 
 active_milestone:
-  name: complete_grade_2_answer_key_or_grade_3_incrementally
-  current_step: receive_grade_2_exam_feedback_or_grade_3_package
+  name: ingest_carrot_grade_3_incrementally
+  current_step: receive_and_ingest_carrot_grade_3_package
   subsequent_steps:
     - close_or_context_split_remaining_preflop_depth_multiway_questions
     - finalise_four_source_gated_drill_factories
@@ -121,7 +126,6 @@ active_milestone:
     - admit_revise_or_reject
 
 open_high_value_gates:
-  - carrot_grade_2_exam_feedback
   - carrot_grade_3
   - squeeze_purification
   - deep_oop_protected_call_boundaries
@@ -143,12 +147,13 @@ remaining_direct_drill_gaps:
   - H-R04-007
 
 mechanism_state:
-  general_postflop_core: mostly_closed
+  general_postflop_core: mature_at_mechanism_level
   filtering_and_ownership: ready
   bet_and_response_shape: ready_core
   aggression_and_future_jobs: ready_core_with_context_splits
   river_audit: ready_core
   three_bet_pot_flop_model: ready_directionally
+  grade_2_exam_and_repair_layer: complete
   preflop_architecture: partial_anchor_pending
   deep_oop_exact_boundaries: pending
   multiway: partial
@@ -194,42 +199,47 @@ active_authorities:
   carrot_registry: sources/carrot-poker/source-registry.md
   carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
   grade_2_exam_audit: sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md
+  grade_2_exam_feedback: sources/carrot-poker/transcripts/CP_G2_EXAM_FEEDBACK.md
   carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md
   grade_2_exam_coverage: synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md
+  grade_2_feedback_delta: synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md
   remaining_question_matrix: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md
   candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md
   candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
   provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md
   learning_index: learning/README.md
-  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md
+  learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md
   grade_2_assessments: learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
   grade_2_exam_runtime: learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md
-  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v3.md
+  grade_2_feedback_repairs: learning/assessments/CARROT_G2_EXAM_FEEDBACK_ORIGINAL_REPAIR_MAP_v0_1.md
+  source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v4.md
 
 latest_integrated_checkpoint:
-  verdict: GRADE_2_FINAL_EXAM_RECEIVED_AND_AUDITED
-  report: reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md
-  source_checkpoint_commit: 2a8345032adc17d25f07712027da803ddd2ef4d8
-  transcript_archive_sha256: 58cae6b4bab467901203406d7261026ffee89b19b4f667f9479257cc6599575b
-  final_exam_pdf_sha256: 49f5337fb5807698b412d35ed0c72355c3901bfaca7c01c72a580af9d61a3fd5
+  verdict: CARROT_GRADE_2_COMPLETE
+  report: reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: 3abe9278c854fd778da8a6176b82059dc27c7d74
+  exam_feedback_archive_sha256: d69c728eaf41122f5b6e202fbaa83042a1831d925796c091ae5fe5d3eca00e5c
   facts:
-    - accompanying_transcript_archive_was_exact_duplicate
     - grade_2_lectures_01_to_10_complete
     - grade_2_final_exam_received_and_visually_audited
-    - grade_2_exam_feedback_pending
+    - grade_2_exam_feedback_received_and_mapped
+    - all_ten_answer_key_sections_present
+    - no_known_grade_2_source_continuity_gap
     - no_rerun_required
     - no_new_core_candidate
     - no_assessment_family_count_increase
-    - grade_2_exam_runtime_ready
+    - grade_2_exam_runtime_and_repair_map_ready
     - direct_drill_coverage_remains_30_of_34
 
 latest_project_checkpoint:
-  verdict: CARROT_GRADE_2_EXAM_MODE_READY
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md
-  exam_runtime: learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md
+  verdict: CARROT_GRADES_1_AND_2_COMPLETE_READINESS_PASS
+  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md
+  readiness_commit: 7dfe8657f156389266a76d35c83bd2dd3e27bcae
+  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v4.md
+  evaluation_commit: 296cb09fa7e551839f5276fe58847363b6312edf
   facts:
-    - general_postflop_core_mostly_closed
-    - exam_validates_existing_grade_2_assessment_architecture
+    - general_postflop_core_mature_at_mechanism_level
+    - grade_2_answer_key_and_repair_layer_complete
     - grade_3_value_concentrated_in_preflop_depth_multiway_and_boundaries
     - finalisation_still_deferred
 
@@ -249,7 +259,7 @@ new_chat_bootstrap:
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
     - sources/carrot-poker/source-registry.md
-    - reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md
+    - reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md
     - affected_authority_files_only
   forbidden_behaviour:
     - restart_project_diagnosis
@@ -261,8 +271,8 @@ new_chat_bootstrap:
     - global_learner_progress_reset
   expected_initial_response:
     - repo_and_live_branch_checked
-    - grade_1_complete_and_grade_2_lectures_exam_understood
-    - grade_2_feedback_and_grade_3_gaps_understood
+    - grades_1_and_2_completion_understood
+    - grade_3_and_remaining_gates_understood
     - frozen_identities_understood
     - next_bounded_action_selected
     - no_global_restart_planned
@@ -272,7 +282,7 @@ terminal_state:
   atlas_ready: true
   incremental_ingestion_ready: true
   carrot_grade_1_complete: true
-  carrot_grade_2_lectures_and_exam_received: true
-  carrot_grade_2_feedback_pending: true
-  general_postflop_core_mostly_closed: true
+  carrot_grade_2_complete: true
+  carrot_grade_3_pending: true
+  general_postflop_core_mature_at_mechanism_level: true
   global_restructure_expected: false
