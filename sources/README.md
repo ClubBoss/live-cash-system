@@ -6,7 +6,7 @@ Canonical source-family routing is defined in `governance/REPOSITORY_INFORMATION
 
 - `smash-live-cash/` — canonical corpus complete; claim-driven visuals only;
 - `ftgu/` — 30/30 canonical and mapped; claim-driven visuals only;
-- `cash-injection/` — Episode 1 of 10 canonical and mapped; Episodes 2–10 pending;
+- `cash-injection/` — 10/10 canonical and mapped; claim-driven visuals and field validation only;
 - `carrot-poker/` — unified Grade 1–3 intake scaffold active; source material pending.
 
 ## Planned families
@@ -15,10 +15,10 @@ Canonical source-family routing is defined in `governance/REPOSITORY_INFORMATION
 
 ## Family contract
 
-Each source family keeps its own:
+Each family keeps its own:
 
 - source registry;
-- source gap/intake ledger;
+- gap/intake ledger;
 - canonical source records;
 - source-family QA;
 - visuals and supplemental artifacts when supplied.
@@ -29,10 +29,21 @@ Use immutable source IDs. Do not create author-specific learner routes.
 
 ## Cash Injection state
 
-- `CINJ-E01` canonically ingested;
-- Episodes 2–10 pending;
-- response-shape and elasticity mechanisms accepted;
-- population overfold/under-three-bet claim remains `CI-PH-001`, field-gated.
+- `CINJ-E01` through `CINJ-E10` canonically ingested;
+- full audio corpus complete;
+- no rerun or lesson-level cleanup backlog;
+- complete course synthesis and evidence matrix active;
+- ten population hypotheses remain field-gated;
+- exact screen claims remain claim-driven only.
+
+Authorities:
+
+- `cash-injection/source-registry.md`;
+- `cash-injection/source-gap-ledger.md`;
+- `../analysis/module-audits/CASH_INJECTION_COMPLETE_CORPUS_QA_v1.md`;
+- `../synthesis/CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md`;
+- `../synthesis/CASH_INJECTION_COMPLETE_COURSE_DELTA_v1.md`;
+- `../profiles/CASH_INJECTION_POOL_HYPOTHESES_v0_1.md`.
 
 ## Carrot intake authorities
 
@@ -41,10 +52,10 @@ Use immutable source IDs. Do not create author-specific learner routes.
 - `carrot-poker/source-gap-ledger.md`;
 - `carrot-poker/CARROT_INGESTION_AND_ROUTING_SPEC_v1.md`.
 
-Grades 1–3 remain one source family. Exact lesson IDs will be assigned only after package inventory.
+Grades 1–3 remain one source family. Exact lesson IDs are assigned only after package inventory.
 
 ## Source verdict
 
-`SOURCE_FAMILY_ROUTING_STABLE`
+`SMASH_FTGU_CASH_INJECTION_BULK_SOURCE_WORK_COMPLETE`
 
-`REMAINING_INJECTION_AND_CARROT_HAVE_PREBUILT_INTAKE_PATHS`
+`CARROT_HAS_PREBUILT_INCREMENTAL_INTAKE_PATH`
