@@ -1,10 +1,10 @@
 # Carrot Poker Source Family
 
-Status: `ACTIVE / GRADE_1_COMPLETE / GRADES_2_AND_3_PENDING`
+Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_LECTURE_CORPUS_COMPLETE / GRADE_2_EXAM_PENDING / GRADE_3_PENDING`
 
 ## Scope
 
-One source family for Grade 1, Grade 2 and Grade 3. Grades remain modules inside one corpus, not parallel learner curricula.
+One source family for Grades 1–3. Grades remain evidence modules inside one corpus, not parallel learner curricula.
 
 ## Received
 
@@ -14,76 +14,108 @@ One source family for Grade 1, Grade 2 and Grade 3. Grades remain modules inside
 - `CP-G1-EXAM`;
 - `CP-G1-EXAM-FB`.
 
-No known Grade 1 lecture-continuity gap remains.
+Grade 1 is complete.
+
+### Grade 2
+
+- `CP-G2-L01` through `CP-G2-L10`.
+
+Grade 2 lecture continuity is complete. The Final Exam and Exam Feedback remain pending.
+
+### Grade 3
+
+No material received yet.
 
 ## Current authorities
 
 - `source-registry.md`;
 - `source-gap-ledger.md`;
+- `../../analysis/module-audits/CARROT_G2_LECTURE_CORPUS_QA_v1.md`;
 - `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-- `../../synthesis/CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md`;
-- `../../learning/assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`;
-- `../../learning/assessments/CARROT_G1_L05_L09_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`;
-- `../../learning/assessments/CARROT_G1_L10_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`.
+- `../../synthesis/CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md`;
+- `../../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
+- `../../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
+- `../../learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md`;
+- `../../learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
 
-## Complete Grade 1 contribution
+## Grade 1 contribution
 
 ```text
-EQUITY + FULL TREE EV
+FULL TREE EV
 → VALUE / BLUFF / CALL THRESHOLDS
 → RANGE AND NUT ADVANTAGE
 → FREQUENCY AND SIZE
 → FILTERED TURN FAVOURABILITY
-→ POLAR / SEMI-POLAR RANGE CONSTRUCTION
+→ POLAR / SEMI-POLAR CONSTRUCTION
 → RIVER TEXTURE AND RANGE GEOGRAPHY
 → BLOCKER AS FINAL SELECTOR
 ```
 
-Accepted additions include:
+Grade 1 supplies the core pedagogical and assessment language.
 
-- required pot share versus required equity;
-- realisability, implied odds and future fold equity;
-- range advantage for frequency and nut advantage for sizing;
-- mandatory / optional / prohibited value and bluffs;
-- protected checks and float-bet linearisation;
-- still-lake, choppy-sea and tsunami texture classes;
-- four value/check/bluff threshold landmarks;
-- blocker limitation rule;
-- action-sequence-dependent blocker reversals;
-- insufficient-reason misconception repair;
-- active-recall and anti-spoon-feeding assessment process.
+## Grade 2 contribution
+
+```text
+ACTION FILTER
+→ RANGE SHAPE
+→ WORLD FAVOURABILITY
+→ BET FREQUENCY
+→ RELATIVE POLARISATION
+→ SIZE / RAISE BREADTH
+→ HAND TIER
+→ RESPONSE THRESHOLD
+→ ANCESTRY / EXPLOIT EVIDENCE
+```
+
+Grade 2 materially adds:
+
+- polarising versus condensing actions;
+- pot-odds norm adjusted by range asymmetry;
+- value and bluff tiers;
+- sizing toolkits and finishing equity;
+- frequency versus magnitude;
+- theoretical, exploitative and erroneous slow-play;
+- robust versus frail hands;
+- IP versus OOP check-value asymmetry;
+- range geography facing bets;
+- bluff-catching from origin range and filter density;
+- 3-bet-pot flop plan construction;
+- raise breadth against merged and polar bets.
 
 No new core candidate was created.
 
-## Remaining high-value Carrot work
+## Current remaining high-value Carrot work
 
-Grades 2–3 should primarily address:
-
+- Grade 2 Final Exam and Exam Feedback;
+- Grade 3;
 - squeeze purification;
-- deep OOP protected-call boundaries;
+- exact deep OOP protected-call boundaries;
 - polar preflop target folds;
-- blind/cold-call distinctions;
+- players-behind compression;
 - multiway shared defence and bluff construction;
 - multiway delayed aggression;
-- depth and SPR context;
-- exact boundaries and counterexamples;
-- four remaining direct-drill factories.
+- exact depth and straddle context;
+- independent preflop anchors;
+- true counterexamples to currently closed postflop mechanisms.
 
 ## Source-purity rule
 
 - preserve hedging and uncertainty;
-- keep exams, feedback and lectures distinct;
+- keep lectures, exams, feedback and supplements distinct;
 - do not copy source exam or lecture spots into product-facing assessments;
 - do not copy charts or solver matrices into anchors;
 - mark exact screen claims as visual-dependent;
-- do not universalise source estimates or population claims.
+- do not universalise source estimates or population claims;
+- distinguish lecture-corpus completion from complete assessment continuity.
 
 ## Verdict
 
 `CARROT_GRADE_1_COMPLETE`
 
-`GRADE_1_LECTURES_01_TO_10_MAPPED`
+`CARROT_GRADE_2_LECTURES_01_TO_10_COMPLETE`
 
-`GRADES_2_AND_3_PENDING`
+`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
+
+`GRADE_3_PENDING`
 
 `INCREMENTAL_ROUTING_WORKS_WITHOUT_GLOBAL_REBUILD`
