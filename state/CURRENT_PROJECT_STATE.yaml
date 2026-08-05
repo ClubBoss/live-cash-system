@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: carrot_grade_2_assessment_and_grade_3_completion
-  updated_at: 2026-08-05T22:34:00+04:00
+  phase: carrot_grade_2_feedback_and_grade_3_completion
+  updated_at: 2026-08-05T23:12:00+04:00
 
 mission:
   summary: >-
@@ -13,15 +13,11 @@ mission:
     learning system for a strong MTT player moving into live 1/3 and 2/5.
   final_rule_target: 14-18
   target_games:
-    stakes:
-      - 1/3
-      - 2/5
+    stakes: [1/3, 2/5]
     common_effective_depth_bb: 100-200
     occasional_effective_depth_bb: 300-400
     environment: Batumi live cash
-    may_include:
-      - straddles
-      - short_effective_stacks
+    may_include: [straddles, short_effective_stacks]
   learner_priorities:
     - sb_vs_bb
     - bb_defence
@@ -45,8 +41,6 @@ source_state:
   smash_live_cash:
     status: complete
     canonical_corpus: true
-    open_audio_gaps: 0
-    open_lesson_cleanup_gaps: 0
     remaining: claim_driven_visual_checks_only
   ftgu:
     status: complete
@@ -64,19 +58,20 @@ source_state:
   carrot_grade_1:
     status: complete
     lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    lectures_pending: []
     final_exam_pdf: received_and_audited
     exam_feedback: received_and_mapped
     original_assessment_families: 24
-    exact_source_exam_spots: reference_only
     known_source_continuity_gaps: 0
   carrot_grade_2:
-    status: lecture_corpus_complete_assessment_pending
+    status: lectures_and_exam_received_feedback_pending
     lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    lectures_pending: []
-    final_exam_pdf: pending
+    final_exam_pdf: received_and_audited
+    final_exam_pages: 12
+    final_exam_questions: 10
+    final_exam_sha256: 49f5337fb5807698b412d35ed0c72355c3901bfaca7c01c72a580af9d61a3fd5
     exam_feedback: pending
     original_assessment_families: 20
+    exam_runtime_modes: 1
     exact_source_examples: reference_only
     known_lecture_continuity_gaps: 0
   carrot_grade_3:
@@ -91,6 +86,7 @@ system_counts:
   candidates_with_direct_original_drills: 30
   source_gated_direct_drill_gaps: 4
   carrot_original_assessment_families: 44
+  grade_2_exam_runtime_modes: 1
   admitted_final_rules: 0
 
 candidate_status_counts:
@@ -113,7 +109,7 @@ stable_module_ids:
   - LCM-11
 
 active_milestone:
-  name: complete_remaining_carrot_assessment_and_grade_3_incrementally
+  name: complete_grade_2_answer_key_or_grade_3_incrementally
   current_step: receive_grade_2_exam_feedback_or_grade_3_package
   subsequent_steps:
     - close_or_context_split_remaining_preflop_depth_multiway_questions
@@ -125,7 +121,7 @@ active_milestone:
     - admit_revise_or_reject
 
 open_high_value_gates:
-  - carrot_grade_2_final_exam_and_feedback
+  - carrot_grade_2_exam_feedback
   - carrot_grade_3
   - squeeze_purification
   - deep_oop_protected_call_boundaries
@@ -197,7 +193,9 @@ active_authorities:
   handover_maintenance: governance/HANDOVER_MAINTENANCE_PROTOCOL_v1.md
   carrot_registry: sources/carrot-poker/source-registry.md
   carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
+  grade_2_exam_audit: sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md
   carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md
+  grade_2_exam_coverage: synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md
   remaining_question_matrix: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md
   candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md
   candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
@@ -205,45 +203,44 @@ active_authorities:
   learning_index: learning/README.md
   learning_readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md
   grade_2_assessments: learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
+  grade_2_exam_runtime: learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md
   source_course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v3.md
 
 latest_integrated_checkpoint:
-  verdict: CARROT_G2_LECTURE_CORPUS_COMPLETE
-  report: reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md
-  source_checkpoint_commit: 61666b5c55bbfd3e903b2429582ceb24ea11a6bb
-  archive_sha256: 58cae6b4bab467901203406d7261026ffee89b19b4f667f9479257cc6599575b
+  verdict: GRADE_2_FINAL_EXAM_RECEIVED_AND_AUDITED
+  report: reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: 2a8345032adc17d25f07712027da803ddd2ef4d8
+  transcript_archive_sha256: 58cae6b4bab467901203406d7261026ffee89b19b4f667f9479257cc6599575b
+  final_exam_pdf_sha256: 49f5337fb5807698b412d35ed0c72355c3901bfaca7c01c72a580af9d61a3fd5
   facts:
+    - accompanying_transcript_archive_was_exact_duplicate
     - grade_2_lectures_01_to_10_complete
-    - grade_2_exam_and_feedback_pending
-    - no_full_rerun_required
+    - grade_2_final_exam_received_and_visually_audited
+    - grade_2_exam_feedback_pending
+    - no_rerun_required
     - no_new_core_candidate
-    - twenty_original_grade_2_assessment_families
-    - forty_four_total_carrot_assessment_families
+    - no_assessment_family_count_increase
+    - grade_2_exam_runtime_ready
     - direct_drill_coverage_remains_30_of_34
 
 latest_project_checkpoint:
-  verdict: CARROT_GRADE_2_LECTURE_READINESS_PASS_COMPLETE
+  verdict: CARROT_GRADE_2_EXAM_MODE_READY
   readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md
-  readiness_commit: 7f3627035d6e6a3c1d3a2abf3db78c60ac4b2cb2
-  evaluation_report: reports/CURRENT_SOURCE_COURSE_EVALUATION_v3.md
-  evaluation_commit: 1ab6f5d6b04f25fe86aefa148686629d8e7996af
+  exam_runtime: learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md
   facts:
     - general_postflop_core_mostly_closed
+    - exam_validates_existing_grade_2_assessment_architecture
     - grade_3_value_concentrated_in_preflop_depth_multiway_and_boundaries
     - finalisation_still_deferred
 
 handover_system:
   status: active
   activation_report: reports/REPO_HANDOVER_AND_PROJECT_ATLAS_ACTIVATION_REPORT_v1.md
-  activation_commit: dc885fb0fb1640fa028bc39e90e04e988ff2af77
   primary_entry: START_HERE.md
   agent_contract: AGENTS.md
   project_atlas: PROJECT_ATLAS.md
   machine_state: state/CURRENT_PROJECT_STATE.yaml
   maintenance_protocol: governance/HANDOVER_MAINTENANCE_PROTOCOL_v1.md
-  minimum_user_prompt: >-
-    Open the private repository ClubBoss/live-cash-system. Read START_HERE.md,
-    follow AGENTS.md, verify live main, and continue from the active milestone.
 
 new_chat_bootstrap:
   required_read_order:
@@ -252,7 +249,7 @@ new_chat_bootstrap:
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
     - sources/carrot-poker/source-registry.md
-    - reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md
+    - reports/CARROT_G2_EXAM_INTAKE_TERMINAL_REPORT_v1.md
     - affected_authority_files_only
   forbidden_behaviour:
     - restart_project_diagnosis
@@ -264,8 +261,8 @@ new_chat_bootstrap:
     - global_learner_progress_reset
   expected_initial_response:
     - repo_and_live_branch_checked
-    - grade_1_and_grade_2_lecture_checkpoints_understood
-    - grade_2_assessment_and_grade_3_gaps_understood
+    - grade_1_complete_and_grade_2_lectures_exam_understood
+    - grade_2_feedback_and_grade_3_gaps_understood
     - frozen_identities_understood
     - next_bounded_action_selected
     - no_global_restart_planned
@@ -275,6 +272,7 @@ terminal_state:
   atlas_ready: true
   incremental_ingestion_ready: true
   carrot_grade_1_complete: true
-  carrot_grade_2_lecture_corpus_complete: true
+  carrot_grade_2_lectures_and_exam_received: true
+  carrot_grade_2_feedback_pending: true
   general_postflop_core_mostly_closed: true
   global_restructure_expected: false
