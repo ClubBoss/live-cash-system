@@ -1,6 +1,6 @@
 # Carrot Poker Source Registry
 
-Status: `ACTIVE / GRADE_1_LECTURES_01_TO_09_INGESTED / GRADE_1_PARTIAL`
+Status: `ACTIVE / GRADE_1_LECTURES_01_TO_10_COMPLETE / GRADES_2_AND_3_PENDING`
 
 | Source ID | Grade | Source lesson/artifact | Canonical path | QA status | Cross-source state | Notes |
 |---|---:|---|---|---|---|---|
@@ -13,6 +13,7 @@ Status: `ACTIVE / GRADE_1_LECTURES_01_TO_09_INGESTED / GRADE_1_PARTIAL`
 | `CP-G1-L07` | 1 | Lecture 07 — Turn Barrel Opportunities | `sources/carrot-poker/transcripts/CP_G1_L07_turn_barrel_opportunities.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | filtering, turn favourability and one-size barrel construction |
 | `CP-G1-L08` | 1 | Lecture 08 — Float Betting the Flop | `sources/carrot-poker/transcripts/CP_G1_L08_float_betting_the_flop.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | polar/semi-polar float ranges and linearisation pitfalls |
 | `CP-G1-L09` | 1 | Lecture 09 — River Textural Awareness and Range Geography | `sources/carrot-poker/transcripts/CP_G1_L09_river_textural_awareness.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | texture classes and four river threshold landmarks |
+| `CP-G1-L10` | 1 | Lecture 10 — Basic Blocker Patterns and Texture | `sources/carrot-poker/transcripts/CP_G1_L10_basic_blocker_patterns_and_texture.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | blocker limitation, sequence dependence and insufficient-reason repair |
 | `CP-G1-EXAM` | 1 | Final Exam PDF | `sources/carrot-poker/artifacts/CP_G1_FINAL_EXAM_SOURCE_AUDIT_v1.md` | VISUAL_ARTIFACT_ACCEPTED | ASSESSMENT_MAPPED | 13 pages, 10 competency questions, reference-only |
 | `CP-G1-EXAM-FB` | 1 | Final Exam Feedback | `sources/carrot-poker/transcripts/CP_G1_EXAM_FEEDBACK.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | solutions and Grade 1 competency recap |
 | — | 2 | material pending | — | NOT_RECEIVED | NOT_MAPPED | inventory first |
@@ -20,15 +21,17 @@ Status: `ACTIVE / GRADE_1_LECTURES_01_TO_09_INGESTED / GRADE_1_PARTIAL`
 
 ## Grade 1 coverage
 
-Received:
+Received and canonically mapped:
 
-- Lectures 01–09;
+- Lectures 01–10;
 - Final Exam PDF;
 - Final Exam Feedback.
 
-Lecture 10 has not yet been supplied, so Grade 1 remains `PARTIAL`.
+No known Grade 1 lecture-continuity gap remains.
 
-The exam and feedback are supplemental sources. They do not replace Lecture 10.
+Possible worksheets, charts or other supplements may still be ingested if supplied, but they do not block the Grade 1 lecture corpus from being complete.
+
+The exam and feedback remain separate supplemental sources and do not replace lecture records.
 
 ## Batch authorities
 
@@ -47,6 +50,13 @@ The exam and feedback are supplemental sources. They do not replace Lecture 10.
 
 - QA: `analysis/module-audits/CARROT_G1_BATCH_03_QA_v1.md`
 - Delta: `synthesis/CARROT_G1_BATCH_03_CROSS_SOURCE_DELTA_v1.md`
+- Assessment extension: `learning/assessments/CARROT_G1_L05_L09_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`
+
+### Batch 04 — Grade 1 closure
+
+- QA: `analysis/module-audits/CARROT_G1_BATCH_04_QA_v1.md`
+- Delta: `synthesis/CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md`
+- Assessment extension: `learning/assessments/CARROT_G1_L10_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`
 
 ### Active evidence
 
@@ -63,8 +73,8 @@ The exam and feedback are supplemental sources. They do not replace Lecture 10.
 
 ## Registry verdict
 
-`CARROT_GRADE_1_LECTURES_01_TO_09_REGISTERED`
+`CARROT_GRADE_1_LECTURES_01_TO_10_COMPLETE`
 
-`GRADE_1_L10_PENDING`
+`GRADE_1_EXAM_AND_FEEDBACK_MAPPED`
 
 `GRADES_2_AND_3_PENDING`
