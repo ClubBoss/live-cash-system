@@ -34,7 +34,7 @@ Source courses provide evidence. They do not become parallel curricula.
 | Smash Live Cash | canonical corpus complete; claim-driven visuals only |
 | From the Ground Up | 30/30 complete and mapped; charts reference-only |
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
-| Carrot Poker Grade 1 | Lectures 01–09 plus Final Exam and Feedback ingested; Lecture 10 pending |
+| Carrot Poker Grade 1 | Lectures 01–10 plus Final Exam and Feedback complete |
 | Carrot Poker Grades 2–3 | pending |
 
 ## Current system state
@@ -47,12 +47,12 @@ remaining-source question IDs:     38
 provisional final-rule slots:       16
 candidates with direct drills:      30
 Carrot-gated direct drill gaps:      4
-Grade 1 original assessments:       18
+Grade 1 original assessments:       24
 admitted final rules:                0
 intended final core:               14–18
 ```
 
-Candidate count did not increase after FTGU, Cash Injection or Carrot Grade 1 Lectures 01–09.
+Candidate count did not increase after FTGU, Cash Injection or complete Carrot Grade 1.
 
 ## Architecture
 
@@ -99,7 +99,7 @@ LCM-11  FIELD TRANSFER + REPAIR
 
 `ORIGIN RANGE → ACTION FILTER → CURRENT VALUE/AIR → SIZE REQUIREMENT → BRANCH EVIDENCE`
 
-### Carrot Grade 1 through Lecture 09
+### Complete Carrot Grade 1
 
 ```text
 FULL TREE EV
@@ -109,6 +109,7 @@ FULL TREE EV
 → FILTERED TURN FAVOURABILITY
 → POLAR / SEMI-POLAR RANGE CONSTRUCTION
 → TEXTURE AND RANGE GEOGRAPHY
+→ BLOCKER AS FINAL SELECTOR
 ```
 
 ### River
@@ -117,7 +118,7 @@ FULL TREE EV
 
 ## Current Carrot effect
 
-Grade 1 Lectures 01–09 add:
+Complete Grade 1 adds:
 
 - EV/equity and open-action protocol;
 - value/bluff/check classification;
@@ -127,16 +128,17 @@ Grade 1 Lectures 01–09 add:
 - filtered turn worlds;
 - float-bet construction;
 - texture-sensitive river thresholds;
-- 18 original assessment families without copying source spots.
+- blocker limitation and sequence dependence;
+- insufficient-reason repair;
+- 24 original assessment families without copying source spots.
 
-They do not close:
+It does not close:
 
 - squeeze purification;
 - deep OOP boundaries;
 - polar preflop target folds;
 - exact anchors;
 - multiway structure;
-- Grade 1 Lecture 10;
 - Grades 2–3.
 
 ## Deferred
@@ -158,9 +160,9 @@ They do not close:
 
 `CASH_INJECTION_10_OF_10_COMPLETE`
 
-`CARROT_GRADE_1_LECTURES_01_TO_09_INGESTED`
+`CARROT_GRADE_1_COMPLETE`
 
-`GRADE_1_L10_AND_GRADES_2_TO_3_PENDING`
+`CARROT_GRADES_2_AND_3_PENDING`
 
 `REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
 
