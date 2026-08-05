@@ -55,7 +55,7 @@ Learning constraints:
 | Cash Injection | `10/10` complete; ten field-gated pool hypotheses |
 | Carrot Grade 1 | complete: Lectures `01–10`, Exam and Feedback |
 | Carrot Grade 2 | complete: Lectures `01–10`, Exam and Feedback |
-| Carrot Grade 3 | Lectures `01–07`, Exam and Feedback received; Lecture `08+` pending |
+| Carrot Grade 3 | Lectures `01–09`, Exam and Feedback received; final Lecture `10` pending |
 
 Exact Carrot coverage authority:
 
@@ -77,7 +77,8 @@ Grade 2 original assessment families:  20
 Grade 3 L01–L02 families:               6
 Grade 3 L03–L04 families:               7
 Grade 3 L05–L07 families:               7
-Carrot assessment families total:      64
+Grade 3 L08–L09 families:               6
+Carrot assessment families total:      70
 
 Grade 2 feedback repair paths:          10
 Grade 3 feedback repair paths:          10
@@ -95,43 +96,42 @@ ACTION HISTORY
 → PURE / MIX GATE
 → VALUE / BLUFF / FRAIL CLASS
 → BET EV VERSUS CHECK EV
+→ CHECK-BRANCH TRADE-OFF
 → CALL / RAISE / FOLD THRESHOLDS
 → VALUE REGION AND INVESTMENT CEILING
 → SIZE TOOLKIT
+→ TOP-END VALUE / RAISE ELIGIBILITY
 → BLOCKER-FUNCTION VECTOR
 → THEORY-TO-POOL CHECK
 ```
 
 ## Grade 3 current evidence
 
-### Lectures 1–4
+### Lectures 1–7
 
 - pure versus mixed actions;
 - practical size toolkits;
 - blocker-function vectors;
-- five-part raise ranges;
-- turn class migration.
+- raise classes and turn migration;
+- call quality;
+- extreme sizing;
+- triple-barrel bet-versus-check EV.
 
-### Lecture 5
+### Lecture 8
 
-- value beater / bluff catcher / frail hand;
-- winning, indifferent and losing calls;
-- call-versus-raise separation;
-- population underbluff gate.
+- protected checking ranges;
+- immediate bet versus check-branch trade-off;
+- strong hands supporting future calls and raises;
+- delayed-c-bet and probe resistance;
+- solver-to-opponent checking-range adjustment.
 
-### Lecture 6
+### Lecture 9
 
-- extreme overbet eligibility;
-- investment ceilings;
-- very small river sizes;
-- value-abundance and rough bluff allocation.
-
-### Lecture 7
-
-- triple-barrel bluffing EV;
-- winning, optional and losing bluffs;
-- line ancestry;
-- transferable conditional heuristics.
+- OOP 3-bet-pot call geography;
+- identical-class hand comparison;
+- texture-dependent defence;
+- tier-one value as a raise gate;
+- low-SPR turn-jam construction.
 
 ### Exam routing
 
@@ -143,7 +143,9 @@ G3-Q04 → L04 + Feedback
 G3-Q05 → L05 + Feedback
 G3-Q06 → L06 + Feedback
 G3-Q07 → L07 + Feedback
-G3-Q08–Q10 → Feedback-supported; later primary lecture continuity pending
+G3-Q08 → L08 + Feedback
+G3-Q09 → L09 + Feedback
+G3-Q10 → Feedback-supported; final L10 pending
 ```
 
 ## Frozen constraints
@@ -171,9 +173,10 @@ Do not:
 ## Active milestone
 
 ```text
-ingest Grade 3 Lecture 08 onward
-→ attach later lectures primarily to G3-Q08–Q10
+ingest final Grade 3 Lecture 10
+→ attach it primarily to G3-Q10
 → compare against existing Grade 3 Feedback answer key
+→ determine whether Grade 3 lecture continuity closes
 → reassess remaining preflop, depth and multiway gaps from actual evidence
 → finalise supported source-gated drills
 → consolidate 34 candidates into 14–18 rules
@@ -184,7 +187,7 @@ ingest Grade 3 Lecture 08 onward
 
 ## Current unresolved gates
 
-- Grade 3 Lecture 08 onward;
+- Grade 3 final Lecture 10;
 - squeeze purification;
 - exact deep OOP protected-call boundaries;
 - polar preflop target folds and call branch;
@@ -196,7 +199,7 @@ ingest Grade 3 Lecture 08 onward
 - target-live population calibration;
 - final compression and admission.
 
-The Grade 3 material received so far does not close preflop or multiway gates.
+The Grade 3 material received so far does not close preflop, exact-depth or multiway gates.
 
 ## Active authority cone
 
@@ -205,38 +208,37 @@ The Grade 3 material received so far does not close preflop or multiway gates.
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
 5. `sources/carrot-poker/source-registry.md`;
-6. `reports/CARROT_G3_BATCH_03_TERMINAL_REPORT_v1.md`;
-7. `analysis/module-audits/CARROT_G3_BATCH_03_QA_v1.md`;
-8. `synthesis/CARROT_G3_BATCH_03_CROSS_SOURCE_DELTA_v1.md`;
+6. `reports/CARROT_G3_BATCH_04_TERMINAL_REPORT_v1.md`;
+7. `analysis/module-audits/CARROT_G3_BATCH_04_QA_v1.md`;
+8. `synthesis/CARROT_G3_BATCH_04_CROSS_SOURCE_DELTA_v1.md`;
 9. `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
-10. `synthesis/CARROT_EVIDENCE_MATRIX_v0_3.md`;
+10. `synthesis/CARROT_EVIDENCE_MATRIX_v0_4.md`;
 11. affected authority files only.
 
 ## Latest integrated checkpoint
 
-`CARROT_G3_BATCH_03_ACCEPTED`
+`CARROT_G3_BATCH_04_ACCEPTED`
 
-- Lectures `01–04` and Exam Feedback were exact duplicates;
-- Lectures `05–07` canonically ingested;
+- Lectures `08–09` canonically ingested;
 - no rerun required;
-- `G3-Q01` through `G3-Q07` now have primary lecture support;
+- `G3-Q01` through `G3-Q09` have primary lecture support;
 - no new core candidate;
-- seven original assessment families added;
-- total Carrot assessment families: `64`;
+- six original assessment families added;
+- total Carrot assessment families: `70`;
 - direct candidate drill coverage remains `30/34`;
-- Lecture `08+` pending.
+- final Lecture `10` pending.
 
 Checkpoint report:
 
-`reports/CARROT_G3_BATCH_03_TERMINAL_REPORT_v1.md`
+`reports/CARROT_G3_BATCH_04_TERMINAL_REPORT_v1.md`
 
 ## New-chat response capsule
 
 ```text
 repo and live main checked
 Grades 1–2 complete
-Grade 3 L01–L07, exam and feedback checkpoint understood
-Grade 3 L08+ and remaining gates understood
+Grade 3 L01–L09, exam and feedback checkpoint understood
+final Grade 3 Lecture 10 and remaining gates understood
 frozen identities understood
 next bounded action selected
 no global restart planned
@@ -246,6 +248,6 @@ no global restart planned
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`GRADE_3_L01_TO_L07_EXAM_AND_FEEDBACK_RECEIVED`
+`GRADE_3_L01_TO_L09_EXAM_AND_FEEDBACK_RECEIVED`
 
-`CONTINUE_WITH_GRADE_3_L08_PLUS / DO_NOT_RESTART`
+`CONTINUE_WITH_FINAL_GRADE_3_L10 / DO_NOT_RESTART`
