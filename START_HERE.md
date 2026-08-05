@@ -60,7 +60,7 @@ Source courses provide evidence. They do not become parallel learner routes.
 | Cash Injection | `10/10` complete; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures `01–10`, Final Exam and Feedback |
 | Carrot Poker Grade 2 | complete: Lectures `01–10`, Final Exam and Feedback |
-| Carrot Poker Grade 3 | pending |
+| Carrot Poker Grade 3 | Final Exam received and audited; lectures and Exam Feedback pending |
 
 Exact Carrot coverage authority:
 
@@ -79,13 +79,13 @@ source-gated direct drill gaps:          4
 Grade 1 original assessment families:  24
 Grade 2 original assessment families:  20
 Carrot assessment families total:      44
-Grade 2 exam runtime modes:              1
 Grade 2 feedback repair paths:          10
+Grade 3 preliminary exam rows:          10
 admitted final rules:                    0
 intended final core:                  14–18
 ```
 
-Candidate IDs and assessment-family counts remain unchanged after complete Grade 2.
+Candidate IDs and assessment-family counts remain unchanged after Grade 3 exam intake.
 
 ## Stable architecture
 
@@ -140,34 +140,20 @@ ACTION HISTORY
 → FIELD EVIDENCE
 ```
 
-### Grade 2 exam mode
+### Grade 3 exam competency emphasis
 
 ```text
-COLD PROMPT
-→ WRITTEN ACTION
-→ WRITTEN REASON
-→ CONFIDENCE
-→ OPTIONAL RANGE-SHAPE SKETCH
-→ TIME LIMIT
-→ FEEDBACK
-→ SELF-COMPARISON
-→ CHANGED VARIANT
-→ DELAYED RETEST
+CALL / RAISE EV
+→ MIXED BETTING AND SIZE CEILING
+→ COMBO-SPECIFIC BLUFF SELECTION
+→ CHECK-RAISE RANGE CLASSES
+→ TURN CLASS MIGRATION
+→ OVERBET ARCHITECTURE
+→ BLUFF-CATCHING INTERFERENCE
+→ 3-BET / 4-BET POT RESPONSE
 ```
 
-### Bluff-catching
-
-```text
-ORIGIN RANGE
-→ FILTER DENSITY
-→ VALUE / AIR SUPPLY
-→ SIZE
-→ VALUE BEATER / BLUFF CATCHER / FRAIL HAND
-→ ROBUSTNESS
-→ VALUE / BET-FOLD INTERFERENCE
-→ BLOCKERS
-→ EVIDENCE
-```
+This is question-level routing only. Grade 3 lectures and Exam Feedback are required before answer keys or strategic promotion.
 
 ## Frozen constraints
 
@@ -186,6 +172,7 @@ Do not:
 
 - create author-specific parallel curricula;
 - copy proprietary charts, solver screens or exam questions;
+- infer Grade 3 answers from the PDF alone;
 - promote population claims without field evidence;
 - admit a rule because several sources agree;
 - erase learner progress on unchanged mechanisms;
@@ -194,9 +181,12 @@ Do not:
 ## Active milestone
 
 ```text
-ingest Carrot Grade 3
-→ close or context-split preflop, depth and multiway questions
-→ finalise four source-gated drills
+ingest Grade 3 lecture transcripts
+→ attach lectures to ten precomputed Grade 3 competency rows
+→ ingest Grade 3 Exam Feedback
+→ build answer-key and repair crosswalk
+→ reassess remaining preflop, depth and multiway gaps based on actual evidence
+→ finalise four source-gated drills if supported
 → consolidate 34 candidates into 14–18 final rules
 → build independent anchors
 → learner and field validation
@@ -205,7 +195,8 @@ ingest Carrot Grade 3
 
 ## Current unresolved gates
 
-- Carrot Grade 3;
+- Grade 3 lecture corpus;
+- Grade 3 Exam Feedback;
 - squeeze purification;
 - exact deep OOP protected-call boundaries;
 - polar preflop target folds and call branch;
@@ -217,6 +208,8 @@ ingest Carrot Grade 3
 - target-live population calibration;
 - final compression and admission.
 
+The Grade 3 exam does not visibly close the preflop or multiway gates.
+
 ## Active authority cone
 
 1. `START_HERE.md`;
@@ -224,9 +217,9 @@ ingest Carrot Grade 3
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
 5. `sources/carrot-poker/source-registry.md`;
-6. `reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md`;
-7. `sources/carrot-poker/transcripts/CP_G2_EXAM_FEEDBACK.md`;
-8. `synthesis/CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md`;
+6. `reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`;
+7. `sources/carrot-poker/artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
+8. `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
 9. `synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
 10. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
 11. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
@@ -243,31 +236,31 @@ inventory
 → immutable source IDs
 → source-faithful records
 → registry and ledger update
+→ attach to Grade 3 competency rows
 → bounded cross-source delta
 → affected evidence/questions/modules only
-→ original learner material only when stable
+→ original learner material only when answer key is stable
 → handover-state update after material checkpoint
 ```
 
 ## Latest integrated checkpoint
 
-`CARROT_GRADE_2_COMPLETE`
+`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
 
-- Grade 2 Lectures `01–10` complete;
-- Final Exam PDF visually audited;
-- Final Exam Feedback accepted and mapped;
-- all ten answer-key sections present;
-- no rerun required;
+- PDF has 12 pages and 10 questions;
+- all pages visually checked;
+- exam shows strong advanced-postflop emphasis;
+- Grade 3 lecture scope is still unknown;
+- lectures and Exam Feedback pending;
+- no PDF repair required;
 - no new core candidate;
 - no assessment-family count increase;
-- `44` total Carrot assessment families;
-- Grade 2 exam runtime and repair map ready;
-- direct drill coverage remains `30/34`;
-- Grade 3 is the next primary source phase.
+- ten preliminary competency rows prepared;
+- direct drill coverage remains `30/34`.
 
 Checkpoint report:
 
-`reports/CARROT_G2_EXAM_FEEDBACK_TERMINAL_REPORT_v1.md`
+`reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`
 
 ## New-chat response capsule
 
@@ -276,7 +269,8 @@ A new chat should briefly confirm:
 ```text
 repo and live main checked
 Grades 1–2 completion understood
-Grade 3 and remaining source-sensitive gates understood
+Grade 3 exam received and question-only boundary understood
+Grade 3 lectures/feedback and remaining gates understood
 frozen identities understood
 next bounded action selected
 no global restart planned
@@ -288,4 +282,6 @@ no global restart planned
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`CONTINUE_WITH_GRADE_3 / DO_NOT_RESTART`
+`GRADE_3_FINAL_EXAM_RECEIVED`
+
+`CONTINUE_WITH_GRADE_3_LECTURES_AND_FEEDBACK / DO_NOT_RESTART`
