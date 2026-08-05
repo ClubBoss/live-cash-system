@@ -7,7 +7,7 @@ Canonical source-family routing is defined in `governance/REPOSITORY_INFORMATION
 - `smash-live-cash/` — canonical corpus complete; claim-driven visuals only;
 - `ftgu/` — 30/30 canonical and mapped; charts reference-only;
 - `cash-injection/` — 10/10 canonical and mapped; field-gated population hypotheses;
-- `carrot-poker/` — Grade 1 Lectures 01–10 plus exam/feedback complete; Grades 2–3 pending.
+- `carrot-poker/` — Grade 1 complete; Grade 2 Lectures 01–10 complete with exam/feedback pending; Grade 3 pending.
 
 ## Family contract
 
@@ -23,23 +23,28 @@ Received and mapped:
 
 - `CP-G1-L01` through `CP-G1-L10`;
 - `CP-G1-EXAM`;
-- `CP-G1-EXAM-FB`.
+- `CP-G1-EXAM-FB`;
+- `CP-G2-L01` through `CP-G2-L10`.
 
 Current boundaries:
 
-- Grade 1 lecture continuity is complete;
+- Grade 1 is complete;
+- Grade 2 lecture continuity is complete;
+- Grade 2 Final Exam and Exam Feedback are pending;
+- Grade 3 is pending;
 - exact exam and solver spots remain reference-only;
 - no new core candidate was created;
-- Grades 2–3 remain pending;
-- final preflop, depth and multiway boundaries remain open.
+- final preflop, exact-depth and multiway boundaries remain open.
 
 Authorities:
 
 - `carrot-poker/source-registry.md`;
 - `carrot-poker/source-gap-ledger.md`;
-- `../analysis/module-audits/CARROT_G1_BATCH_04_QA_v1.md`;
+- `../analysis/module-audits/CARROT_G2_LECTURE_CORPUS_QA_v1.md`;
 - `../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-- `../synthesis/CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md`.
+- `../synthesis/CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md`;
+- `../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
+- `../learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md`.
 
 ## Verdict
 
@@ -47,4 +52,8 @@ Authorities:
 
 `CARROT_GRADE_1_COMPLETE`
 
-`CARROT_GRADES_2_AND_3_PENDING`
+`CARROT_GRADE_2_LECTURE_CORPUS_COMPLETE`
+
+`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
+
+`GRADE_3_PENDING`
