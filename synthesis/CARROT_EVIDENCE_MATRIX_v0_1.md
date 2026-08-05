@@ -1,6 +1,6 @@
 # Carrot Poker Evidence Matrix v0.1
 
-Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_LECTURES_01_TO_10_MAPPED / GRADE_2_EXAM_PENDING`
+Status: `ACTIVE / GRADE_1_COMPLETE / GRADE_2_LECTURES_AND_EXAM_MAPPED / GRADE_2_FEEDBACK_PENDING`
 
 ## Purpose
 
@@ -11,9 +11,10 @@ Current accepted Carrot sources:
 - `CP-G1-L01` through `CP-G1-L10`;
 - `CP-G1-EXAM`;
 - `CP-G1-EXAM-FB`;
-- `CP-G2-L01` through `CP-G2-L10`.
+- `CP-G2-L01` through `CP-G2-L10`;
+- `CP-G2-EXAM`.
 
-Grade 1 is complete. Grade 2 lecture continuity is complete, but its Final Exam and Exam Feedback have not been supplied. Grade 3 remains pending.
+Grade 1 is complete. Grade 2 lecture continuity and exam-question continuity are complete; Grade 2 Exam Feedback remains pending. Grade 3 remains pending.
 
 ## Evidence classes
 
@@ -55,11 +56,11 @@ Grade 1 is complete. Grade 2 lecture continuity is complete, but its Final Exam 
 | `H-R05-001` | G1-L01/L04/L05/L07/L09/L10; G2-L01/L04/L06/L09 | STRONGLY SIMPLIFIES | PEDAGOGICAL_SIMPLIFICATION | recalculate ownership after every filter before sizing or blocker work |
 | `H-R05-002` | G1-L02/L04/L06/L08; G2-L05/L07/L10 | STRONGLY CONFIRMS | MECHANISM | passive strategies need active calls, traps, merged raises and polar raises |
 
-No Grade 2 lecture supplies direct evidence for squeeze construction, polar preflop target folds or multiway strategy.
+No Grade 2 source supplies direct evidence for squeeze construction, polar preflop target folds or multiway strategy.
 
 ## Grade 2 module mapping
 
-| Module | Grade 2 lecture-corpus effect |
+| Module | Grade 2 effect |
 |---|---|
 | `LCM-01` | SPR-first 3-bet-pot framing; monetary-stack trap repair |
 | `LCM-03` | robust/frail OOP continuations, slow-play classes and IP/OOP check asymmetry |
@@ -69,7 +70,7 @@ No Grade 2 lecture supplies direct evidence for squeeze construction, polar pref
 | `LCM-07` | 3-bet-pot flop inputs, low-dry simplification and strategy-before-hand placement |
 | `LCM-09` | bluff-catcher grades, scattered aggression, river-blunder and blocker ordering |
 | `LCM-10` | branch-specific under/overbluff classification and baseline-return discipline |
-| `LCM-11` | twenty new original assessment families and threshold-based feedback |
+| `LCM-11` | twenty original assessment families plus an exam-mode runtime protocol |
 
 `LCM-02` and `LCM-08` receive no material closure from Grade 2.
 
@@ -89,9 +90,9 @@ No Grade 2 lecture supplies direct evidence for squeeze construction, polar pref
 | `SQ-3B-04` | L08/L09 reinforce origin-range bluff supply | mechanism closed; anchor examples later |
 | `SQ-RIV-01` | L03/L04/L07/L08 add value classes, size and robustness | mechanism closed; field refinement only |
 | `SQ-RIV-03` | L03/L08 confirm blockers after ancestry | mechanism closed; pedagogy strengthened |
-| `SQ-LRN-01` | tiers, range geography, robust/frail and three-plan simplification | strong positive evidence |
+| `SQ-LRN-01` | tiers, range geography, robust/frail and exam reasoning format | strong positive evidence |
 | `SQ-LRN-02` | anti-MDF emotion, frequency/magnitude, erroneous slow-play and monetary-stack traps | misconception aliases added |
-| `SQ-LRN-03` | merged/polar bet contrast, favourable/unfavourable world and slow-play classes | strong boundary evidence |
+| `SQ-LRN-03` | merged/polar contrast, favourable/unfavourable worlds and exam threshold questions | strong boundary evidence |
 
 Still not closed:
 
@@ -113,23 +114,31 @@ Still not closed:
 
 `learning/assessments/CARROT_G2_L01_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
 
-Twenty original families covering:
+- 20 original families.
 
-- filter direction;
-- favourability versus polarisation;
-- pot-odds norm adjustment;
-- value and bluff tiers;
-- sizing toolkit;
-- scattered aggression;
-- slow-play classes;
-- robust/frail response;
-- hybrid-bet audit;
-- range geography;
-- bluff-catching ancestry;
-- 3-bet-pot plan selection;
-- raise breadth from bet shape.
+### Grade 2 Final Exam
 
-Total original Carrot assessment families currently available: `44`.
+Source audit:
+
+`sources/carrot-poker/artifacts/CP_G2_FINAL_EXAM_SOURCE_AUDIT_v1.md`
+
+Coverage crosswalk:
+
+`synthesis/CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md`
+
+Runtime protocol:
+
+`learning/assessments/CARROT_G2_EXAM_ORIGINAL_RUNTIME_PROTOCOL_v0_1.md`
+
+The ten exam questions validate the existing Grade 2 assessment architecture. No new original assessment family is required.
+
+Current total:
+
+```text
+Grade 1 original families: 24
+Grade 2 original families: 20
+Total Carrot original families: 44
+```
 
 Exact source boards, hands, wording and solver outputs remain reference-only.
 
@@ -153,7 +162,8 @@ Grade 2 terminology is nested as:
 - Grade 1 Lectures 01–10: mapped;
 - Grade 1 Final Exam and Feedback: mapped;
 - Grade 2 Lectures 01–10: mapped;
-- Grade 2 Final Exam and Feedback: pending;
+- Grade 2 Final Exam: visually audited and assessment-mapped;
+- Grade 2 Exam Feedback: pending;
 - Grade 3: pending.
 
 ## Verdict
@@ -162,8 +172,8 @@ Grade 2 terminology is nested as:
 
 `GRADE_1_COMPLETE`
 
-`GRADE_2_LECTURE_CORPUS_MAPPED`
+`GRADE_2_LECTURES_AND_FINAL_EXAM_MAPPED`
 
-`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
+`GRADE_2_EXAM_FEEDBACK_PENDING`
 
-`NO_CORE_CANDIDATE_COUNT_INCREASE`
+`NO_CORE_CANDIDATE_OR_ASSESSMENT_COUNT_INCREASE`
