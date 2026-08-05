@@ -1,6 +1,6 @@
 # Carrot Poker Source Family
 
-Status: `ACTIVE / GRADES_1_AND_2_COMPLETE / GRADE_3_EXAM_RECEIVED / GRADE_3_LECTURES_AND_FEEDBACK_PENDING`
+Status: `ACTIVE / GRADES_1_AND_2_COMPLETE / GRADE_3_L01_L02_AND_EXAM_RECEIVED / LATER_LECTURES_AND_FEEDBACK_PENDING`
 
 ## Scope
 
@@ -22,25 +22,28 @@ Grade 1 is complete.
 - `CP-G2-EXAM`;
 - `CP-G2-EXAM-FB`.
 
-Grade 2 lecture, exam-question and answer-key continuity are complete.
+Grade 2 is complete.
 
 ### Grade 3
 
+- `CP-G3-L01` — Mixing: Facing Bets;
+- `CP-G3-L02` — Mixing Continued: Bet / Check and Size Toolkit;
 - `CP-G3-EXAM` — Final Exam PDF.
 
-Grade 3 lectures and Exam Feedback are pending. The exam supplies question-level competency routing, not answer-key evidence.
+Later lectures and Exam Feedback are pending.
 
 ## Current authorities
 
 - `source-registry.md`;
 - `source-gap-ledger.md`;
+- `transcripts/CP_G3_L01_mixing_facing_bets.md`;
+- `transcripts/CP_G3_L02_mixing_continued_bet_check.md`;
 - `artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md`;
+- `../../analysis/module-audits/CARROT_G3_BATCH_01_QA_v1.md`;
+- `../../synthesis/CARROT_G3_BATCH_01_CROSS_SOURCE_DELTA_v1.md`;
 - `../../synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
-- `../../reports/CARROT_G3_EXAM_INTAKE_TERMINAL_REPORT_v1.md`;
 - `../../synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md`;
-- `../../synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md`;
-- `../../synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md`;
-- `../../learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_6.md`.
+- `../../learning/assessments/CARROT_G3_L01_L02_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`.
 
 ## Grade 1 contribution
 
@@ -50,8 +53,7 @@ FULL TREE EV
 → RANGE AND NUT ADVANTAGE
 → FREQUENCY AND SIZE
 → FILTERED TURN FAVOURABILITY
-→ POLAR / SEMI-POLAR CONSTRUCTION
-→ RIVER TEXTURE AND RANGE GEOGRAPHY
+→ RANGE GEOGRAPHY
 → BLOCKER AS FINAL SELECTOR
 ```
 
@@ -70,51 +72,79 @@ ACTION HISTORY
 → FIELD EVIDENCE
 ```
 
-Grade 2 supplies the mature postflop operating, assessment and repair layer.
+## Grade 3 Batch 01 contribution
 
-## Grade 3 exam contribution so far
+```text
+PURE-ACTION GATE
+→ NEAR-INDIFFERENT ACTIONS
+→ PRACTICAL ACTION / SIZE TOOLKIT
+→ RANDOMISE ONLY INSIDE VALID MIXES
+→ LOG EV LOSS AND REASONING ERROR
+```
 
-The ten questions visibly target:
+Lecture 1 adds:
 
-- turn call/raise selection;
-- mixed betting and size ceilings;
-- suit-specific bluff selection;
-- five-part check-raise range construction;
-- turn class migration;
-- river bluff-catching and bluff unblocking;
-- very large turn and river overbets;
-- protected checks and raises in 3-bet pots;
-- texture-dependent 3-bet-pot defence;
-- low-SPR 4-bet-pot turn strategy.
+- call/raise/fold indifference geometry;
+- turn-raise composition;
+- river repolarisation and interference;
+- value beater / bluff catcher / frail hand separation;
+- RNG misuse guardrail.
 
-The exam does not visibly establish coverage of squeeze construction, preflop anchors, multiway, straddles or exact deep-stack bands.
+Lecture 2 adds:
 
-Do not infer final Grade 3 scope or answers until lecture and feedback transcripts arrive.
+- check/bet mixing;
+- one-size simplification on earlier streets;
+- solver-subtree EV-retention testing;
+- five frequency buckets;
+- value-led river size and bluff allocation.
+
+## Grade 3 exam routing
+
+```text
+G3-Q01 — direct L01 support
+G3-Q02 — direct L02 support
+G3-Q03–Q07 — partial support
+G3-Q08–Q10 — question-only
+```
+
+No final answer key is inferred before Grade 3 Exam Feedback.
+
+## Original assessment effect
+
+Six source-independent Grade 3 Batch 01 families were added.
+
+```text
+Grade 1: 24
+Grade 2: 20
+Grade 3 Batch 01: 6
+Total: 50
+```
+
+They do not reproduce source boards, hands, frequencies or exam wording.
 
 ## Current remaining high-value Carrot work
 
-- Grade 3 lecture transcripts;
+- Grade 3 Lecture 03 onward;
 - Grade 3 Exam Feedback;
-- answer-key and misconception-repair crosswalk;
-- reassessment of preflop, depth and multiway gaps based on actual Grade 3 evidence;
+- exact answer-key and misconception-repair crosswalk;
+- reassessment of preflop, depth and multiway gaps from actual Grade 3 evidence;
 - finalisation of any newly supported drill factories.
 
 ## Source-purity rule
 
-- preserve hedging and uncertainty;
+- preserve source hedging and uncertainty;
 - keep lectures, exams, feedback and supplements distinct;
 - do not infer answers from question wording;
-- do not copy source exam or lecture spots into product-facing assessments;
-- do not copy charts or solver matrices into anchors;
-- mark exact screen claims as visual-dependent;
-- do not universalise source estimates, mixed frequencies or population claims.
+- do not copy source spots, charts or solver matrices;
+- mark exact visual claims as pending when material;
+- do not universalise mixed frequencies or population claims.
 
 ## Verdict
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_3_FINAL_EXAM_RECEIVED_AND_AUDITED`
+`GRADE_3_L01_L02_AND_FINAL_EXAM_RECEIVED`
 
-`GRADE_3_LECTURES_AND_EXAM_FEEDBACK_PENDING`
+`GRADE_3_LATER_LECTURES_AND_FEEDBACK_PENDING`
 
 `INCREMENTAL_ROUTING_WORKS_WITHOUT_GLOBAL_REBUILD`
