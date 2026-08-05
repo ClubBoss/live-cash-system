@@ -4,82 +4,49 @@ Canonical routing is defined in `governance/REPOSITORY_INFORMATION_ARCHITECTURE_
 
 ## Active families
 
-- `smash-live-cash/` — canonical corpus complete; claim-driven visuals only;
-- `ftgu/` — 30/30 complete and mapped; charts reference-only;
-- `cash-injection/` — 10/10 complete and mapped; population hypotheses field-gated;
-- `carrot-poker/` — Grades 1–2 complete; Grade 3 Lectures 01–02 and Final Exam received; later lectures and feedback pending.
+- `smash-live-cash/` — complete; claim-driven visuals only;
+- `ftgu/` — `30/30` complete; charts reference-only;
+- `cash-injection/` — `10/10` complete; population hypotheses field-gated;
+- `carrot-poker/` — Grades 1–2 complete; Grade 3 Lectures `01–04`, Exam and Feedback received; Lecture `05+` pending.
 
 ## Family contract
 
-Each source family keeps its own:
+Each family keeps immutable source IDs, canonical records, registry, gap ledger and QA. Cross-source synthesis belongs in `synthesis/`; learner material belongs in `learning/`.
 
-- immutable source IDs;
-- canonical records;
-- registry and gap ledger;
-- technical/visual QA;
-- supplemental artifacts.
-
-Cross-source comparison belongs in `synthesis/`. Learner navigation belongs in `learning/`.
-
-Do not create author-specific learner routes.
-
-## Carrot state
-
-Received and mapped:
-
-- `CP-G1-L01` through `CP-G1-L10`;
-- `CP-G1-EXAM`;
-- `CP-G1-EXAM-FB`;
-- `CP-G2-L01` through `CP-G2-L10`;
-- `CP-G2-EXAM`;
-- `CP-G2-EXAM-FB`;
-- `CP-G3-L01`;
-- `CP-G3-L02`;
-- `CP-G3-EXAM`.
-
-Current Grade 3 boundary:
+## Current Carrot boundary
 
 ```text
-Lectures 01–02: received and mapped
-Later lectures: pending
-Final Exam PDF: received and audited
-Exam Feedback: pending
+Grade 1: complete
+Grade 2: complete
+Grade 3 Lectures: L01–L04 received
+Grade 3 Exam: received and audited
+Grade 3 Feedback: received and mapped
+Grade 3 answer-key continuity: complete
+Grade 3 lecture continuity: partial
 ```
 
-The first two Grade 3 lectures add:
-
-- pure-versus-mix eligibility;
-- call/raise/fold indifference geometry;
-- RNG misuse guardrails;
-- river repolarisation and interference;
-- practical size-toolkit compression;
-- five frequency buckets;
-- value-led river bluff allocation.
-
-They do not close preflop, exact-depth or multiway gaps.
-
-Authorities:
+Current Grade 3 authorities:
 
 - `carrot-poker/source-registry.md`;
 - `carrot-poker/source-gap-ledger.md`;
-- `../analysis/module-audits/CARROT_G3_BATCH_01_QA_v1.md`;
-- `../synthesis/CARROT_G3_BATCH_01_CROSS_SOURCE_DELTA_v1.md`;
-- `../synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`.
+- `../analysis/module-audits/CARROT_G3_BATCH_02_QA_v1.md`;
+- `../synthesis/CARROT_G3_BATCH_02_CROSS_SOURCE_DELTA_v1.md`;
+- `../synthesis/CARROT_EVIDENCE_MATRIX_v0_2.md`;
+- `../reports/CARROT_G3_BATCH_02_TERMINAL_REPORT_v1.md`.
 
 ## Source-purity boundary
 
-- exact source boards and solver outputs remain reference-only;
-- exam questions are not answer keys;
-- source mixed frequencies are not copied into the learner product;
-- visual review remains claim-driven;
-- source completion does not imply strategic admission.
+- exact boards, solver screens and mixed frequencies remain reference-only;
+- feedback closes answer keys but does not replace missing lecture continuity;
+- population claims remain field-gated;
+- source completion does not imply rule admission.
 
 ## Verdict
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_3_L01_L02_AND_FINAL_EXAM_RECEIVED`
+`GRADE_3_L01_TO_L04_EXAM_AND_FEEDBACK_RECEIVED`
 
-`GRADE_3_LATER_LECTURES_AND_FEEDBACK_PENDING`
+`GRADE_3_LATER_LECTURES_PENDING`
 
 `INCREMENTAL_ROUTING_ACTIVE`
