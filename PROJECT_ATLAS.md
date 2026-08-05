@@ -2,7 +2,7 @@
 
 Status: `ACTIVE / HUMAN_AND_AGENT_NAVIGATION_MAP`
 
-This file explains where each kind of truth lives and how the pieces connect. It is a navigation layer, not a substitute for the underlying authorities.
+This file explains where each kind of truth lives and how the pieces connect. It is a navigation layer, not a substitute for underlying authorities.
 
 ## Fast navigation
 
@@ -16,12 +16,12 @@ This file explains where each kind of truth lives and how the pieces connect. It
 | Current source coverage | source-family `source-registry.md` |
 | Missing source continuity | source-family `source-gap-ledger.md` |
 | Cross-source relations | `synthesis/*EVIDENCE_MATRIX*` |
-| Unresolved questions | `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md` |
-| Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md` |
+| Unresolved questions | `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md` |
+| Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md` |
 | Candidate ownership and drills | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` |
 | Provisional final grouping | `synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` |
-| Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md` |
-| Latest milestone | `reports/CARROT_G1_BATCH_04_TERMINAL_REPORT_v1.md` |
+| Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_5.md` |
+| Latest milestone | `reports/CARROT_G2_LECTURE_CORPUS_TERMINAL_REPORT_v1.md` |
 
 ## Whole-system map
 
@@ -81,11 +81,12 @@ ORIGIN RANGE WIDTH
 Path: `sources/carrot-poker/`
 
 - one unified corpus for Grades 1–3;
-- Grade 1 Lectures `01–10` complete;
-- Final Exam and Feedback stored separately and mapped;
-- `24` original Grade 1 assessment families created;
-- Grades 2–3 pending;
-- remaining value is primarily preflop, depth, multiway, context limits and counterexamples.
+- Grade 1 complete: Lectures `01–10`, Final Exam and Feedback;
+- Grade 2 Lectures `01–10` complete;
+- Grade 2 Final Exam and Feedback pending;
+- Grade 3 pending;
+- `44` original Carrot assessment families created;
+- remaining source value is concentrated in preflop, exact depth, multiway, true boundaries and counterexamples.
 
 ## Current strategic inventory
 
@@ -113,31 +114,19 @@ Direct original drill coverage:
 
 ## Adaptive learning atlas
 
-| ID | Purpose |
-|---|---|
-| `LCM-01` | Node and effective depth |
-| `LCM-02` | Preflop range architecture |
-| `LCM-03` | Blind identity and realisation |
-| `LCM-04` | Action filtering and ownership |
-| `LCM-05` | Bet shape and response shape |
-| `LCM-06` | Aggression and future jobs |
-| `LCM-07` | 3-bet-pot ancestry |
-| `LCM-08` | Multiway structure |
-| `LCM-09` | River audit |
-| `LCM-10` | Opponent and environment overlays |
-| `LCM-11` | Field transfer and repair |
-
-Learner-state dimensions include:
-
-- node recognition;
-- mechanism explanation;
-- action selection;
-- boundary knowledge;
-- speed;
-- confidence calibration;
-- changed-variant transfer;
-- delayed retention;
-- field application.
+| ID | Purpose | Current state |
+|---|---|---|
+| `LCM-01` | Node and effective depth | core ready; exact bands pending |
+| `LCM-02` | Preflop range architecture | directional only; anchors and squeeze pending |
+| `LCM-03` | Blind identity and realisation | robust/frail model active; deep boundary pending |
+| `LCM-04` | Action filtering and ownership | high-confidence active |
+| `LCM-05` | Bet shape and response shape | core ready; exact refinements/field magnitude pending |
+| `LCM-06` | Aggression and future jobs | core ready with context splits |
+| `LCM-07` | 3-bet-pot ancestry | flop-plan model active; preflop anchors pending |
+| `LCM-08` | Multiway structure | partial; primary Grade 3 source gap |
+| `LCM-09` | River audit | high-confidence active |
+| `LCM-10` | Opponent/environment overlays | methodology ready; field calibration pending |
+| `LCM-11` | Field transfer and repair | runtime ready; learner/field data pending |
 
 A correct action with an incorrect reason is not mastery.
 
@@ -147,12 +136,6 @@ A correct action with an incorrect reason is not mastery.
 
 ```text
 PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE
-```
-
-### Postflop
-
-```text
-RANGE ADVANTAGE → URGENCY → BET SHAPE → RESPONSE SHAPE
 ```
 
 ### Range ancestry
@@ -165,25 +148,41 @@ ORIGIN RANGE
 → BRANCH EVIDENCE
 ```
 
-### Complete Carrot Grade 1
+### Carrot Grade 1
 
 ```text
 FULL TREE EV
-→ CALL / VALUE / BLUFF THRESHOLDS
+→ VALUE / BLUFF / CALL THRESHOLDS
 → RANGE AND NUT ADVANTAGE
 → FREQUENCY AND SIZE
 → FILTERED TURN FAVOURABILITY
-→ POLAR / SEMI-POLAR CONSTRUCTION
-→ RIVER TEXTURE AND RANGE GEOGRAPHY
+→ RANGE GEOGRAPHY
 → BLOCKER AS FINAL SELECTOR
 ```
 
-### River audit
+### Carrot Grade 2
 
 ```text
-VALUE
-→ SIZE EXCLUSIONS
-→ BLUFF ANCESTRY
+ACTION FILTER
+→ RANGE SHAPE
+→ WORLD FAVOURABILITY
+→ BET FREQUENCY
+→ RELATIVE POLARISATION
+→ SIZE / RAISE BREADTH
+→ HAND TIER
+→ RESPONSE THRESHOLD
+→ ANCESTRY / EXPLOIT EVIDENCE
+```
+
+### Bluff-catching
+
+```text
+ORIGIN RANGE
+→ FILTER DENSITY
+→ VALUE / AIR SUPPLY
+→ SIZE
+→ VALUE BEATER / BLUFF CATCHER / FRAIL HAND
+→ ROBUSTNESS
 → BLOCKERS
 → EVIDENCE
 ```
@@ -202,9 +201,9 @@ Product-facing outputs must use:
 ## Current active path
 
 ```text
-Carrot Grade 2
-→ Carrot Grade 3
-→ close/context-split remaining questions
+Grade 2 Final Exam / Feedback if available
+or Carrot Grade 3
+→ close/context-split preflop, depth and multiway questions
 → finalise four drill factories
 → consolidate candidates
 → build independent anchors
@@ -228,6 +227,8 @@ Update only when durable structure, source-family lifecycle, authority routing, 
 
 `ONE_REPOSITORY / ONE_ADAPTIVE_CURRICULUM`
 
-`CARROT_GRADE_1_COMPLETE`
+`CARROT_GRADE_2_LECTURE_CORPUS_COMPLETE`
 
-`NEW_CHATS_CAN_NAVIGATE WITHOUT FULL_REPO_RESCAN`
+`GENERAL_POSTFLOP_CORE_MOSTLY_CLOSED`
+
+`NEW_CHATS_CAN_NAVIGATE_WITHOUT_FULL_REPO_RESCAN`
