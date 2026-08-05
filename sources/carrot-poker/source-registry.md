@@ -1,6 +1,6 @@
 # Carrot Poker Source Registry
 
-Status: `ACTIVE / GRADE_1_LECTURES_01_TO_04_INGESTED / GRADE_1_PARTIAL`
+Status: `ACTIVE / GRADE_1_LECTURES_01_TO_09_INGESTED / GRADE_1_PARTIAL`
 
 | Source ID | Grade | Source lesson/artifact | Canonical path | QA status | Cross-source state | Notes |
 |---|---:|---|---|---|---|---|
@@ -8,6 +8,11 @@ Status: `ACTIVE / GRADE_1_LECTURES_01_TO_04_INGESTED / GRADE_1_PARTIAL`
 | `CP-G1-L02` | 1 | Lecture 02 — Value Betting | `sources/carrot-poker/transcripts/CP_G1_L02_value_betting.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | urgency, landing/finishing equity, denial and protected checks |
 | `CP-G1-L03` | 1 | Lecture 03 — Bluffing | `sources/carrot-poker/transcripts/CP_G1_L03_bluffing.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | showdown-value cost, favourability and bluff categories |
 | `CP-G1-L04` | 1 | Lecture 04 — Polarisation and Relative Hand Strength | `sources/carrot-poker/transcripts/CP_G1_L04_polarisation_relative_hand_strength.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | filtering, polar/condensed ranges and value-driven sizing |
+| `CP-G1-L05` | 1 | Lecture 05 — Facing Bets and Calling | `sources/carrot-poker/transcripts/CP_G1_L05_facing_bets_and_calling.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | required pot share, realisability, implied odds and future fold equity |
+| `CP-G1-L06` | 1 | Lecture 06 — Range and Nut Advantage for Flop C-Betting | `sources/carrot-poker/transcripts/CP_G1_L06_range_and_nut_advantage_cbetting.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | frequency/size separation and protected checks |
+| `CP-G1-L07` | 1 | Lecture 07 — Turn Barrel Opportunities | `sources/carrot-poker/transcripts/CP_G1_L07_turn_barrel_opportunities.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | filtering, turn favourability and one-size barrel construction |
+| `CP-G1-L08` | 1 | Lecture 08 — Float Betting the Flop | `sources/carrot-poker/transcripts/CP_G1_L08_float_betting_the_flop.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | polar/semi-polar float ranges and linearisation pitfalls |
+| `CP-G1-L09` | 1 | Lecture 09 — River Textural Awareness and Range Geography | `sources/carrot-poker/transcripts/CP_G1_L09_river_textural_awareness.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | texture classes and four river threshold landmarks |
 | `CP-G1-EXAM` | 1 | Final Exam PDF | `sources/carrot-poker/artifacts/CP_G1_FINAL_EXAM_SOURCE_AUDIT_v1.md` | VISUAL_ARTIFACT_ACCEPTED | ASSESSMENT_MAPPED | 13 pages, 10 competency questions, reference-only |
 | `CP-G1-EXAM-FB` | 1 | Final Exam Feedback | `sources/carrot-poker/transcripts/CP_G1_EXAM_FEEDBACK.md` | AUDIO_COMPLETE / SOLVER_VISUALS_PENDING | MAPPED | solutions and Grade 1 competency recap |
 | — | 2 | material pending | — | NOT_RECEIVED | NOT_MAPPED | inventory first |
@@ -17,13 +22,13 @@ Status: `ACTIVE / GRADE_1_LECTURES_01_TO_04_INGESTED / GRADE_1_PARTIAL`
 
 Received:
 
-- Lectures 01–04;
+- Lectures 01–09;
 - Final Exam PDF;
 - Final Exam Feedback.
 
-The feedback refers to later Grade 1 lectures through Lecture 10. Lectures 05–10 have not yet been supplied, so Grade 1 remains `PARTIAL`.
+Lecture 10 has not yet been supplied, so Grade 1 remains `PARTIAL`.
 
-The exam and feedback are supplemental sources. They do not replace missing lecture records.
+The exam and feedback are supplemental sources. They do not replace Lecture 10.
 
 ## Batch authorities
 
@@ -37,6 +42,11 @@ The exam and feedback are supplemental sources. They do not replace missing lect
 
 - QA: `analysis/module-audits/CARROT_G1_BATCH_02_QA_v1.md`
 - Delta: `synthesis/CARROT_G1_BATCH_02_CROSS_SOURCE_DELTA_v1.md`
+
+### Batch 03
+
+- QA: `analysis/module-audits/CARROT_G1_BATCH_03_QA_v1.md`
+- Delta: `synthesis/CARROT_G1_BATCH_03_CROSS_SOURCE_DELTA_v1.md`
 
 ### Active evidence
 
@@ -53,8 +63,8 @@ The exam and feedback are supplemental sources. They do not replace missing lect
 
 ## Registry verdict
 
-`CARROT_GRADE_1_LECTURES_01_TO_04_REGISTERED`
+`CARROT_GRADE_1_LECTURES_01_TO_09_REGISTERED`
 
-`GRADE_1_L05_TO_L10_PENDING`
+`GRADE_1_L10_PENDING`
 
 `GRADES_2_AND_3_PENDING`
