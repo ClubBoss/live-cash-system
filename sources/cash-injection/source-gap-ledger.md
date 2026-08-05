@@ -1,63 +1,76 @@
 # Cash Injection — Source Gap & Intake Ledger
 
-Status: `ACTIVE / PARTIAL_COURSE_RECEIVED`
+Status: `SOURCE_CORPUS_COMPLETE / NO_AUDIO_OR_LESSON_LEVEL_GAPS`
 
 Last updated: 2026-08-05
 
 ## Received
 
-- `CINJ-E01` — audio-complete and canonically ingested.
+- `CINJ-E01` through `CINJ-E10` — audio-complete and canonically ingested.
 
-## Pending source coverage
+## Closed source coverage
 
-The course introduction states that the course contains ten episodes.
+The course introduction states that the course contains ten episodes. All ten are present.
 
-Pending:
+No missing episode remains.
 
-- `CINJ-E02`
-- `CINJ-E03`
-- `CINJ-E04`
-- `CINJ-E05`
-- `CINJ-E06`
-- `CINJ-E07`
-- `CINJ-E08`
-- `CINJ-E09`
-- `CINJ-E10`
+## Audio and transcript state
 
-These are missing source items, not transcript defects in Episode 01.
+- full five-format package exists for Episodes 01–10;
+- Episode 01 matches the previously accepted package byte-for-byte;
+- no Whisper loop or long repeated passage exists;
+- no full-episode rerun is open;
+- no lesson-level canonical-ingestion backlog remains.
 
-## Episode 01 residual dependencies
+## Claim-driven visual dependencies
 
-No audio rerun is open.
+Exact screen review remains only when a claim can change a rule, boundary, drill or anchor:
 
-Claim-driven visual review remains for:
-
-- exact board and hand matrices;
-- exact solver frequencies;
+- board cards and suits;
+- solver hand matrices;
+- exact frequencies;
 - exact EV values;
-- exact raise sizes and pot geometry;
-- exact node-lock cells.
+- exact bet and raise sizes;
+- exact node-lock cells;
+- exact mass-data filters shown on screen.
 
-## Population-evidence dependency
+These are not broad rewatch requirements.
 
-The following remains unvalidated outside the instructor's claim and node-lock demonstration:
+## Population-evidence dependencies
 
-- broad population overfolding versus small flop check-raises;
-- broad under-three-betting versus those raises;
-- magnitude of the exploit in live $1/$3 or $2/$5;
-- suitability of extremely high raising frequencies in the target environment.
+Ten source claims are registered as `CI-PH-001` through `CI-PH-010`.
 
-Validation routes:
+None is validated as a Batumi live default.
 
-1. later Cash Injection episodes may narrow or repeat the claim;
-2. Carrot may provide independent scope/boundaries;
-3. database evidence may support an online-pool claim;
-4. field observation may support a local live profile.
+Remaining validation routes:
+
+1. Carrot may confirm, narrow or context-split a mechanism;
+2. independent database evidence may support an online-pool claim;
+3. learner and target-game field observations may support a local branch;
+4. falsifiers or adaptation may reduce confidence.
+
+## Course-level unresolved boundaries
+
+Cash Injection does not close:
+
+- exact live preflop anchors;
+- exact deep-stack and short-stack thresholds;
+- multiway delayed-aggression scope;
+- squeeze purification;
+- deep-OOP protected-call boundaries;
+- polar preflop target-fold construction;
+- target live population frequencies.
+
+These are routed to Carrot, independent range work or field evidence rather than treated as Cash Injection transcript defects.
 
 ## Ledger verdict
 
-`CINJ_E01_COMPLETE`
+`CASH_INJECTION_SOURCE_CORPUS_COMPLETE`
 
-`CINJ_E02_TO_E10_PENDING`
+`NO_RERUN_REQUIRED`
+
+`NO_CANONICAL_INGESTION_BACKLOG`
+
+`VISUAL_REVIEW_CLAIM_DRIVEN_ONLY`
 
 `POPULATION_MAGNITUDE_FIELD_VALIDATION_PENDING`
