@@ -1,0 +1,237 @@
+schema_version: 1
+project:
+  name: Live Cash System
+  repository: ClubBoss/live-cash-system
+  default_branch: main
+  state_authority: repository_over_chat_memory
+  phase: carrot_incremental_completion
+  updated_at: 2026-08-05T19:55:00+04:00
+
+mission:
+  summary: >-
+    Build a compact, adaptive and interactive No-Limit Hold'em live-cash
+    learning system for a strong MTT player moving into live 1/3 and 2/5.
+  final_rule_target: 14-18
+  target_games:
+    stakes:
+      - 1/3
+      - 2/5
+    common_effective_depth_bb: 100-200
+    occasional_effective_depth_bb: 300-400
+    environment: Batumi live cash
+    may_include:
+      - straddles
+      - short_effective_stacks
+  learner_priorities:
+    - sb_vs_bb
+    - bb_defence
+    - blind_range_identity
+    - deep_stack_cash_translation
+    - oop_vs_frequent_3bets
+    - protected_passive_ranges
+    - three_bet_pot_ancestry
+    - multiway_structure
+    - river_range_reconstruction
+  learner_constraints:
+    minimal_chart_memorisation: true
+    compact_heuristics: true
+    adaptive_interactive_sessions: true
+    prediction_before_feedback: true
+    score_action_and_reason_separately: true
+    spaced_repetition: true
+    live_field_transfer: true
+
+source_state:
+  smash_live_cash:
+    status: complete
+    canonical_corpus: true
+    open_audio_gaps: 0
+    open_lesson_cleanup_gaps: 0
+    remaining: claim_driven_visual_checks_only
+  ftgu:
+    status: complete
+    episodes_received: 30
+    episodes_total: 30
+    mapped: true
+    charts: reference_only
+  cash_injection:
+    status: complete
+    episodes_received: 10
+    episodes_total: 10
+    mapped: true
+    pool_hypotheses: 10
+    population_claim_state: field_gated
+  carrot_grade_1:
+    status: partial
+    lectures_received:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+    lectures_pending:
+      - 10
+    final_exam_pdf: received_and_audited
+    exam_feedback: received_and_mapped
+    original_assessment_families: 18
+    exact_source_exam_spots: reference_only
+  carrot_grade_2:
+    status: pending
+  carrot_grade_3:
+    status: pending
+
+system_counts:
+  heuristic_candidates: 34
+  stable_adaptive_modules: 11
+  misconception_classes: 30
+  remaining_source_question_ids: 38
+  provisional_final_rule_slots: 16
+  candidates_with_direct_original_drills: 30
+  source_gated_direct_drill_gaps: 4
+  admitted_final_rules: 0
+
+candidate_status_counts:
+  drill_ready: 27
+  validation_pending: 7
+  field_test_pending: 0
+  admitted: 0
+
+stable_module_ids:
+  - LCM-01
+  - LCM-02
+  - LCM-03
+  - LCM-04
+  - LCM-05
+  - LCM-06
+  - LCM-07
+  - LCM-08
+  - LCM-09
+  - LCM-10
+  - LCM-11
+
+active_milestone:
+  name: complete_carrot_source_phase_incrementally
+  current_step: receive_and_ingest_carrot_grade_1_lecture_10
+  subsequent_steps:
+    - ingest_carrot_grade_2
+    - ingest_carrot_grade_3
+    - close_or_context_split_remaining_questions
+    - finalise_four_source_gated_drill_factories
+    - consolidate_34_candidates_to_14_18_rules
+    - build_independent_preflop_anchors
+    - run_learner_validation
+    - run_field_validation
+    - admit_revise_or_reject
+
+open_high_value_gates:
+  - carrot_grade_1_lecture_10
+  - carrot_grades_2_and_3
+  - squeeze_purification
+  - deep_oop_protected_call_boundaries
+  - polar_preflop_target_folds_and_call_branch
+  - independent_live_rake_preflop_anchors
+  - multiway_shared_defence
+  - multiway_bluff_construction
+  - multiway_delayed_aggression
+  - exact_depth_spr_and_straddle_overlays
+  - target_live_population_calibration
+  - final_rule_compression
+  - final_admission
+
+remaining_direct_drill_gaps:
+  - H-W01-002
+  - H-W01-006
+  - H-W01-008
+  - H-R04-007
+
+frozen_identities:
+  source_ids: true
+  heuristic_candidate_ids: true
+  misconception_ids: true
+  adaptive_module_ids: true
+  existing_original_drill_ids: true
+  learner_state_dimensions: true
+  relation_vocabulary: true
+  remaining_source_question_ids: true
+
+frozen_architecture:
+  - source_corpus
+  - candidate_evidence
+  - provisional_consolidation_slot
+  - adaptive_module
+  - learner_state_runtime
+  - field_transfer
+  - admission
+
+deferred_until_evidence_closes:
+  - final_rule_ids_and_wording
+  - exact_preflop_anchors
+  - exact_deep_and_short_stack_thresholds
+  - universal_population_frequencies
+  - final_exploit_confidence
+  - final_multiway_frequency_guidance
+  - final_mastery_thresholds
+  - admitted_playbook
+
+active_authorities:
+  bootstrap: START_HERE.md
+  agent_contract: AGENTS.md
+  project_atlas: PROJECT_ATLAS.md
+  repository_architecture: governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md
+  adaptive_course_architecture: governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md
+  freeze_policy: governance/PRE_FINALIZATION_FREEZE_AND_MUTATION_POLICY_v1.md
+  handover_maintenance: governance/HANDOVER_MAINTENANCE_PROTOCOL_v1.md
+  carrot_registry: sources/carrot-poker/source-registry.md
+  carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
+  carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_1.md
+  remaining_question_matrix: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md
+  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md
+  candidate_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md
+  provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md
+  learning_index: learning/README.md
+
+latest_integrated_checkpoint:
+  verdict: CARROT_G1_BATCH_03_COMPLETE
+  report: reports/CARROT_G1_BATCH_03_TERMINAL_REPORT_v1.md
+  source_checkpoint_commit: 29d383d5b65830d74eb413bf4db8db9992e4c2ee
+  facts:
+    - grade_1_lectures_01_to_09_ingested
+    - lecture_10_pending
+    - no_rerun_required
+    - no_new_core_candidate
+    - eighteen_original_grade_1_assessment_families
+
+new_chat_bootstrap:
+  required_read_order:
+    - START_HERE.md
+    - AGENTS.md
+    - state/CURRENT_PROJECT_STATE.yaml
+    - PROJECT_ATLAS.md
+    - active_source_registry
+    - latest_checkpoint_report
+    - affected_authority_files_only
+  forbidden_behaviour:
+    - restart_project_diagnosis
+    - broad_unscoped_refactor
+    - author_specific_parallel_curriculum
+    - unsupported_source_completion_claim
+    - proprietary_content_copy
+    - population_claim_as_live_default
+    - global_learner_progress_reset
+  expected_initial_response:
+    - repo_and_live_branch_checked
+    - active_checkpoint_understood
+    - frozen_identities_understood
+    - open_gates_understood
+    - next_bounded_action_selected
+    - no_global_restart_planned
+
+terminal_state:
+  handover_ready: true
+  atlas_ready: true
+  incremental_ingestion_ready: true
+  global_restructure_expected: false
