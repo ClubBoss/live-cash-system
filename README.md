@@ -34,7 +34,7 @@ Source courses provide evidence. They do not become parallel curricula.
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
 | Carrot Poker Grade 2 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 3 | Lectures 01–07, Final Exam and Feedback received; Lecture 08 onward pending |
+| Carrot Poker Grade 3 | Lectures 01–09, Final Exam and Feedback received; final Lecture 10 pending |
 
 ## Current system state
 
@@ -52,7 +52,8 @@ Carrot Grade 2 assessments:         20
 Carrot Grade 3 L01–L02:              6
 Carrot Grade 3 L03–L04:              7
 Carrot Grade 3 L05–L07:              7
-Carrot assessments total:           64
+Carrot Grade 3 L08–L09:              6
+Carrot assessments total:           70
 
 Grade 2 feedback repair paths:       10
 Grade 3 feedback repair paths:       10
@@ -68,9 +69,11 @@ ACTION HISTORY
 → PURE / MIX GATE
 → VALUE / BLUFF / FRAIL CLASS
 → BET EV VERSUS CHECK EV
+→ CHECK-BRANCH TRADE-OFF
 → CALL / RAISE / FOLD THRESHOLDS
 → VALUE REGION AND INVESTMENT CEILING
 → SIZE TOOLKIT
+→ TOP-END VALUE / RAISE ELIGIBILITY
 → BLOCKER-FUNCTION VECTOR
 → THEORY-TO-POOL CHECK
 ```
@@ -85,12 +88,14 @@ G3-Q04 → L04 + Feedback
 G3-Q05 → L05 + Feedback
 G3-Q06 → L06 + Feedback
 G3-Q07 → L07 + Feedback
-G3-Q08–Q10 → Feedback-supported; later primary lectures pending
+G3-Q08 → L08 + Feedback
+G3-Q09 → L09 + Feedback
+G3-Q10 → Feedback-supported; final L10 pending
 ```
 
 ## Still open
 
-- Grade 3 Lecture 08 onward;
+- Grade 3 final Lecture 10;
 - squeeze purification;
 - exact deep OOP boundaries;
 - polar preflop target folds;
@@ -120,8 +125,8 @@ G3-Q08–Q10 → Feedback-supported; later primary lectures pending
 
 `CARROT_GRADES_1_AND_2_COMPLETE`
 
-`GRADE_3_L01_TO_L07_EXAM_AND_FEEDBACK_RECEIVED`
+`GRADE_3_L01_TO_L09_EXAM_AND_FEEDBACK_RECEIVED`
 
-`GRADE_3_L08_PLUS_PENDING`
+`GRADE_3_FINAL_LECTURE_10_PENDING`
 
 `REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
