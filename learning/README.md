@@ -13,9 +13,9 @@ Status: `ADAPTIVE_RUNTIME_ACTIVE / CASH_INJECTION_COMPLETE / CARROT_BOUNDARY_PHA
 - General original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
 - Cash Injection E01 drills: `drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
 - Complete Cash Injection contrastive drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
-- Remaining Carrot-gated drill factories: `drills/PRE_SOURCE_DIRECT_DRILL_SHELLS_v0_1.md`
+- Remaining Carrot-gated drill factories: `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`
 
-Historical readiness v0.1 and fixed route v0.1 remain snapshots.
+Historical readiness v0.1, fixed route v0.1 and the nine-factory pre-source shell remain snapshots.
 
 ## Navigation rule
 
