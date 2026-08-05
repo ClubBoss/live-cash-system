@@ -33,7 +33,7 @@ Source courses provide evidence. They do not become parallel curricula.
 | From the Ground Up | 30/30 complete and mapped; charts reference-only |
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
 | Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 2 | Lectures 01–10 complete; Final Exam and Feedback pending |
+| Carrot Poker Grade 2 | Lectures 01–10 and Final Exam received; Exam Feedback pending |
 | Carrot Poker Grade 3 | pending |
 
 ## Current system state
@@ -49,11 +49,12 @@ source-gated direct drill gaps:      4
 Carrot Grade 1 assessments:         24
 Carrot Grade 2 assessments:         20
 Carrot assessments total:           44
+Grade 2 exam runtime modes:           1
 admitted final rules:                0
 intended final core:               14–18
 ```
 
-Candidate count did not increase after FTGU, Cash Injection or Carrot Grades 1–2 lectures.
+Candidate and assessment-family counts did not increase after the Grade 2 Final Exam.
 
 ## Architecture
 
@@ -92,10 +93,6 @@ LCM-11  FIELD TRANSFER + REPAIR
 
 `PRICE → RANGE → PLAYERS BEHIND → REALISATION → LINE`
 
-### Range ancestry
-
-`ORIGIN RANGE → ACTION FILTER → CURRENT VALUE/AIR → SIZE REQUIREMENT → BRANCH EVIDENCE`
-
 ### Carrot Grade 1
 
 ```text
@@ -122,6 +119,19 @@ ACTION FILTER
 → ANCESTRY / EXPLOIT EVIDENCE
 ```
 
+### Grade 2 exam mode
+
+```text
+COLD PROMPT
+→ WRITTEN ACTION
+→ WRITTEN REASON
+→ CONFIDENCE
+→ TIME LIMIT
+→ FEEDBACK
+→ CHANGED VARIANT
+→ DELAYED RETEST
+```
+
 ### River
 
 `VALUE → SIZE EXCLUSIONS → BLUFF ANCESTRY → ROBUSTNESS → BLOCKERS → EVIDENCE`
@@ -142,7 +152,8 @@ Grades 1–2 now provide a mature postflop pedagogical and assessment system cov
 - 3-bet-pot flop planning;
 - postflop raising;
 - blocker ordering;
-- 44 original assessment families.
+- 44 original assessment families;
+- a reasoning-first Grade 2 exam runtime.
 
 They do not close:
 
@@ -152,7 +163,7 @@ They do not close:
 - independent preflop anchors;
 - multiway structure;
 - exact depth/straddle overlays;
-- Grade 2 exam/feedback;
+- Grade 2 Exam Feedback;
 - Grade 3.
 
 ## Deferred
@@ -176,9 +187,9 @@ They do not close:
 
 `CARROT_GRADE_1_COMPLETE`
 
-`CARROT_GRADE_2_LECTURE_CORPUS_COMPLETE`
+`CARROT_GRADE_2_LECTURES_AND_FINAL_EXAM_RECEIVED`
 
-`GRADE_2_EXAM_AND_FEEDBACK_PENDING`
+`GRADE_2_EXAM_FEEDBACK_PENDING`
 
 `GRADE_3_PENDING`
 
