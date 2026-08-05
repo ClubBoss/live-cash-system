@@ -1,6 +1,6 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_2_LECTURES_MAPPED`
+Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_2_EXAM_MAPPED`
 
 ## Active authorities
 
@@ -15,9 +15,10 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_2_LECTURES_MAPPED`
 - `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations.
 - `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection 10/10 relations.
 - `CASH_INJECTION_COMPLETE_COURSE_DELTA_v1.md` — filter-density/branch-elasticity synthesis.
-- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through Grade 2 lectures.
+- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through Grade 2 exam intake.
 - `CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Grade 1 closure delta.
 - `CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md` — Grade 2 lecture-corpus delta.
+- `CARROT_G2_EXAM_ASSESSMENT_COVERAGE_DELTA_v1.md` — Grade 2 exam-to-original-assessment crosswalk.
 
 ### Remaining validation
 
@@ -52,7 +53,7 @@ canonical Carrot record
 - FTGU: 30/30 complete;
 - Cash Injection: 10/10 complete;
 - Carrot Grade 1: complete;
-- Carrot Grade 2: Lectures 01–10 complete, exam/feedback pending;
+- Carrot Grade 2: Lectures 01–10 plus Final Exam received; Exam Feedback pending;
 - Carrot Grade 3: pending;
 - candidate count: 34;
 - stable modules: 11;
@@ -61,29 +62,27 @@ canonical Carrot record
 - original Carrot assessment families: 44;
 - admitted final rules: 0.
 
-## Grade 2 effect
+## Grade 2 exam effect
 
-Grade 2 strongly supports:
+The Final Exam validates the existing Grade 2 assessment architecture across:
 
-- polarising versus condensing actions;
-- world favourability versus relative polarisation;
-- value and bluff tiers;
-- sizing-toolkit construction;
-- frequency versus magnitude;
-- protected IP and OOP branches;
-- robust versus frail continuations;
-- response range geography;
-- bluff-catching ancestry;
+- turn-dependent frequency and sizing;
+- probes and negative-EV betting;
+- pot-odds norm adjustment;
+- value/bluff tiers;
+- OOP slow-play;
+- robustness/frailness thresholds;
+- triple-barrel bluff-catching;
 - 3-bet-pot flop planning;
-- postflop raise breadth from bet shape.
+- postflop raising.
 
-No candidate-count increase, slot migration or global restructure was required.
+No new strategic candidate or assessment family was required.
 
 ## Remaining source workload
 
 Primary source-sensitive gaps are now:
 
-- Grade 2 exam and feedback;
+- Grade 2 Exam Feedback;
 - Grade 3;
 - squeeze and preflop construction;
 - exact deep-OOP boundaries;
@@ -96,8 +95,8 @@ Primary source-sensitive gaps are now:
 
 `CARROT_INCREMENTAL_EVIDENCE_PATH_ACTIVE`
 
-`GRADE_2_LECTURES_01_TO_10_MAPPED`
+`GRADE_2_LECTURES_AND_FINAL_EXAM_MAPPED`
+
+`GRADE_2_EXAM_FEEDBACK_PENDING`
 
 `GENERAL_POSTFLOP_MECHANISMS_MOSTLY_CLOSED`
-
-`GRADE_3_IS_PRIMARY_PREFLOP_DEPTH_MULTIWAY_VALIDATOR`
