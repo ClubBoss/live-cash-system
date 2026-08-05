@@ -1,6 +1,6 @@
 # Live Cash System
 
-Private source-of-truth for building a compact, executable No-Limit Hold'em live-cash learning and decision system from independent source corpora, cross-source synthesis, original drills and real-session evidence.
+Private source-of-truth for building a compact, executable and adaptive No-Limit Hold'em live-cash learning system from independent source corpora, cross-source synthesis, original drills and real-session evidence.
 
 ## Product objective
 
@@ -10,11 +10,19 @@ Specific games—casino $1/$3, deep $2/$5, private games, short-stack tables or 
 
 ## Architecture authority
 
-Repository structure and routing rules are defined in:
+Repository structure and routing:
 
 `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
 
-The layout is designed so additional Carrot Poker, Cash Injection, original range work and field evidence can be added incrementally without moving existing corpora.
+Adaptive course and progress-preservation rules:
+
+`governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md`
+
+New-source delta behaviour:
+
+`synthesis/NEW_SOURCE_DELTA_INTEGRATION_PROTOCOL_v1.md`
+
+The layout allows Carrot Poker, Cash Injection, original range work and field evidence to be added incrementally without moving existing corpora or rebuilding the learner journey.
 
 ## Operating principles
 
@@ -27,6 +35,8 @@ The layout is designed so additional Carrot Poker, Cash Injection, original rang
 7. Correct actions for wrong reasons still trigger learning repair.
 8. Evidence can confirm, narrow, split, revise or reject a candidate.
 9. Product-facing language, examples, drills and ranges are original.
+10. Learner progress is tracked by mechanism, reasoning, retention and field transfer—not by watched lessons.
+11. New sources extend evidence and branches before creating new modules.
 
 ## Stable repository layers
 
@@ -35,7 +45,7 @@ The layout is designed so additional Carrot Poker, Cash Injection, original rang
 - `synthesis/` — same-source and cross-source candidate mechanisms.
 - `ranges/` — independently derived assumptions, validation and anchors.
 - `playbook/` — compact executable rules and table-facing algorithms.
-- `learning/` — misconceptions, diagnostics, drills and spaced repetition.
+- `learning/` — adaptive route, learner state, runtime, misconceptions, diagnostics and drills.
 - `profiles/` — opponent models and environment overlays.
 - `fieldwork/` — session evidence and deployment feedback.
 - `hands/` — raw and reviewed hand records.
@@ -56,6 +66,7 @@ incoming source package
 → cross-source relation
 → consolidated heuristic
 → original drill and misconception mapping
+→ adaptive learner testing
 → provisional Playbook
 → field evidence
 → admission, revision or rejection
@@ -81,27 +92,51 @@ incoming source package
 
 ### Carrot Poker
 
-Planned next source family for theory, exploit structure and cross-validation. Grades 1–3 should live inside one `sources/carrot-poker/` family.
+Planned next source family for theory, exploit structure and cross-validation. Grades 1–3 belong inside one `sources/carrot-poker/` family and will map into existing candidates and modules before any new curriculum object is created.
 
 ### Cash Injection
 
-Planned source family for exploit hypotheses and practical node adjustments.
+Planned source family for exploit hypotheses, practical node adjustments, evidence thresholds and field observation missions.
 
 ## Current system state
 
 - heuristic candidates: 34;
 - intended consolidated target: approximately 14–18 core rules;
 - admitted final rules: 0 pending Carrot/Cash Injection, drill and field validation;
-- provisional compact Playbook: created;
+- provisional compact Playbook: created as a reasoning snapshot;
+- stable adaptive module graph: created;
+- adaptive learner-state schema: created;
+- adaptive interactive runtime: created;
+- progress-preserving new-source integration protocol: created;
 - opponent-model schema and initial profiles: created;
 - misconception taxonomy: 30 diagnostic errors;
-- drill and spaced-repetition architecture: created;
 - initial diagnostic and original drill pack: created;
-- general learning route: created;
 - session-review and field-evidence loop: created;
 - environment-profile template: created;
 - Smash/FTGU cross-source evidence matrix: complete at candidate level;
 - original range layer: reserved; no source chart has been promoted to an anchor.
+
+## Adaptive course model
+
+Stable module graph:
+
+```text
+NODE + DEPTH
+→ PREFLOP RANGE SHAPE
+→ BLIND IDENTITY + REALISATION
+→ ACTION FILTERING + OWNERSHIP
+→ BET SHAPE + RESPONSE SHAPE
+→ AGGRESSION + FUTURE JOBS
+→ 3-BET POT ANCESTRY
+→ MULTIWAY
+→ RIVER AUDIT
+→ OPPONENT / ENVIRONMENT OVERLAYS
+→ FIELD TRANSFER
+```
+
+This is a dependency graph, not a fixed playlist. The runtime chooses the next interaction from learner state, prerequisite centrality, misconception severity, confidence error, retention decay and relevance to the upcoming game.
+
+New sources may confirm, simplify, extend or split a module. Valid learner progress is preserved unless the actual mechanism is revised.
 
 ## Compression scaffolds strengthened by FTGU
 
@@ -135,12 +170,13 @@ These structures organise existing candidates; they do not increase the final ru
 
 ## Current priority nodes
 
-1. Ingest Carrot Poker and Cash Injection through the same source-family contract.
-2. Consolidate overlapping Smash/FTGU candidates without losing assumptions.
-3. Build independently validated preflop anchor configurations.
-4. Test DRILL_READY mechanisms with original variants and delayed retests.
-5. Begin structured session evidence collection.
-6. Use targeted visual review only when an exact claim can change a rule, anchor or drill.
+1. Ingest Carrot Poker and Cash Injection through the incremental source protocol.
+2. Map new evidence into the stable adaptive module graph.
+3. Consolidate overlapping candidates without losing assumptions.
+4. Build independently validated preflop anchor configurations.
+5. Expand original drill variants and calibrate adaptive thresholds.
+6. Begin structured session evidence collection.
+7. Use targeted visual review only when an exact claim can change a rule, anchor or drill.
 
 ## Status vocabulary
 
@@ -173,16 +209,34 @@ These structures organise existing candidates; they do not increase the final ru
 - `REJECTED`
 - `BLOCKED`
 
+### Learner state
+
+- `UNEXPOSED`
+- `DIAGNOSED_GAP`
+- `INTRODUCED`
+- `FRAGILE`
+- `WORKING`
+- `RETAINED`
+- `FIELD_TEST_PENDING`
+- `FIELD_VALIDATED`
+- `REPAIR_REQUIRED`
+- `SCOPE_SPLIT`
+
 ## Active core artifacts
 
-- `playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md`
+- `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
+- `governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md`
+- `synthesis/NEW_SOURCE_DELTA_INTEGRATION_PROTOCOL_v1.md`
 - `synthesis/CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md`
+- `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_1.md`
+- `learning/GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
+- `learning/ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
+- `learning/ADAPTIVE_COURSE_RUNTIME_v0_1.md`
+- `learning/INITIAL_DIAGNOSTIC_v0_1.md`
+- `learning/drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
+- `playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md`
 - `sources/smash-live-cash/source-gap-ledger.md`
 - `sources/ftgu/source-registry.md`
 - `analysis/module-audits/FTGU_CANONICAL_CORPUS_COMPLETION_QA_v1.md`
-- `learning/GENERAL_LIVE_CASH_LEARNING_ROUTE_v0_1.md`
-- `learning/INITIAL_DIAGNOSTIC_v0_1.md`
-- `learning/drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
-- `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md`
 
-The provisional Playbook is usable as a reasoning map but is not yet a final commercial or memorisation-ready strategy product.
+The provisional Playbook remains a reasoning snapshot. The adaptive architecture is active now; final module content, exact anchors and admission decisions wait for remaining source and field validation.
