@@ -12,6 +12,7 @@ Status: `ADAPTIVE_RUNTIME_ACTIVE / READINESS_MANIFEST_ACTIVE`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - General original drill pack: `drills/INITIAL_ORIGINAL_DRILL_PACK_v0_1.md`
 - Cash Injection Episode 01 delta drills: `drills/CASH_INJECTION_E01_ORIGINAL_DELTA_DRILLS_v0_1.md`
+- Source-gated direct-drill factories: `drills/PRE_SOURCE_DIRECT_DRILL_SHELLS_v0_1.md`
 
 ## Historical snapshot
 
@@ -48,6 +49,21 @@ A module is assessed separately for:
 - field transfer.
 
 A missing exact chart must not block robust mechanism training. Source completeness must not be mistaken for mastery readiness.
+
+## Drill-development rule
+
+Learner-ready drills require stable answer keys and boundaries.
+
+For mechanisms awaiting Carrot or remaining Injection evidence, use prebuilt scenario factories that already define:
+
+- target reasoning step;
+- variables;
+- misleading contrasts;
+- misconception mapping;
+- required question IDs;
+- release gate.
+
+Do not finalise disputed answers prematurely.
 
 ## Source-update rule
 
@@ -91,10 +107,12 @@ Active now:
 - misconception-linked drills;
 - progress-preserving source updates;
 - source-specific exploit drills with hypothesis guards;
-- module readiness accounting.
+- module readiness accounting;
+- nine prebuilt drill factories for weakly covered candidates.
 
 Pending Carrot, remaining Cash Injection episodes and field validation:
 
+- final answer keys for source-gated drill shells;
 - final 14–18-rule compression;
 - final submodule boundaries;
 - exact preflop anchors;
@@ -107,4 +125,4 @@ Pending Carrot, remaining Cash Injection episodes and field validation:
 
 `LEARNING_AUTHORITIES_EXPLICIT`
 
-`NEW_SOURCE_DELTAS_CAN_UPDATE MODULE CONTENT WITHOUT REBUILDING LEARNER NAVIGATION`
+`NEW_SOURCE_DELTAS_CAN UPDATE MODULE CONTENT WITHOUT REBUILDING LEARNER NAVIGATION`
