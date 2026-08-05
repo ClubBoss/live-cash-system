@@ -1,19 +1,20 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_L01_TO_L09_READINESS_PASS_COMPLETE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / CARROT_GRADE_1_COMPLETE`
 
 ## Authorities
 
 - Adaptive route: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`
 - Learner state: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`
 - Runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`
-- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md`
+- Current readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md`
 - Misconceptions: `MISCONCEPTION_TAXONOMY_v0_1.md`
 - Initial diagnostic: `INITIAL_DIAGNOSTIC_v0_1.md`
 - Cash Injection drills: `drills/CASH_INJECTION_COMPLETE_ORIGINAL_DRILL_PACK_v0_1.md`
 - Remaining Carrot-gated drill factories: `drills/PRE_CARROT_DIRECT_DRILL_SHELLS_v0_2.md`
 - Grade 1 exam blueprint: `assessments/CARROT_G1_EXAM_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`
 - Grade 1 L05–L09 extension: `assessments/CARROT_G1_L05_L09_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`
+- Grade 1 L10 extension: `assessments/CARROT_G1_L10_ORIGINAL_ASSESSMENT_EXTENSION_v0_1.md`
 
 ## Navigation rule
 
@@ -36,6 +37,8 @@ diagnostic
 4 source-gated direct drill gaps
 10 original Grade 1 exam families
 8 original L05–L09 assessment families
+6 original L10 assessment families
+24 total original Grade 1 assessment families
 ```
 
 The four direct-drill gaps remain:
@@ -45,35 +48,24 @@ The four direct-drill gaps remain:
 - polar preflop target folds;
 - multiway delayed aggression.
 
-Grade 1 L01–L09 materially strengthens explanations and assessments but does not settle the source-sensitive boundaries required to close these four drills.
+Grade 1 materially strengthens explanations and assessments but does not settle the source-sensitive boundaries required to close these four drills.
 
-## Current module readiness effect
+## Complete Grade 1 learning contribution
 
-Carrot Grade 1 L01–L09 materially strengthens:
+Executable protocols now include:
 
-- `LCM-03` — EV realisation, required pot share and open-action reasoning;
-- `LCM-04` — full-tree filtering, relative strength and range geography;
-- `LCM-05` — frequency/size separation and polar/semi-polar shape;
-- `LCM-06` — mandatory/optional/prohibited aggression, urgency and check EV;
-- `LCM-09` — river texture, thresholds, ancestry and blockers;
-- `LCM-11` — adaptive assessment and misconception repair.
-
-Current readiness authority:
-
-`ADAPTIVE_MODULE_READINESS_MANIFEST_v0_3.md`
-
-## Grade 1 L05–L09 learning contribution
-
-Executable assessment protocols:
-
-- required pot share versus equity;
-- position/realisability contrast;
-- frequency and size as independent outputs;
+- full-tree EV and open/end-action distinction;
+- mandatory / optional / prohibited value and bluffs;
+- required pot share versus realised EV;
 - range advantage versus nut advantage;
+- frequency and size as independent outputs;
 - filtered turn favourability;
 - float-bet linearisation;
-- texture class and relative strength;
-- four range-geography thresholds.
+- texture class and four range-geography thresholds;
+- blocker limitation;
+- turn-to-river blocker reversal;
+- dead-suit and completed-flush blocker selection;
+- value blockers in polar river bluff-raises.
 
 Misconception aliases include:
 
@@ -82,9 +74,25 @@ Misconception aliases include:
 - range-advantage-equals-bet fallacy;
 - linearisation pitfall;
 - absolute-hand-label bias;
-- texture-blind threshold error.
+- texture-blind threshold error;
+- blocker-first action generation;
+- insufficient-reason trap;
+- static blocker value across streets;
+- bluff-raise bottom-of-range fallacy.
 
 These map into existing misconception IDs unless learner data proves a genuinely new class.
+
+## Blocker-ordering runtime rule
+
+```text
+ACTION CATEGORY
+→ RANGE / TEXTURE / EV
+→ TARGET RESPONSE
+→ BLOCKER AS FINAL SELECTOR
+→ EVIDENCE
+```
+
+A blocker may choose between close candidates. It must not generate an action that range and EV do not support.
 
 ## Source-update rule
 
@@ -94,13 +102,14 @@ New Carrot material may improve explanations, boundaries, assessment variants an
 
 Ready now:
 
+- complete Grade 1 pedagogy and assessment layer;
 - adaptive architecture and runtime;
 - action/reason/confidence scoring;
 - 30 directly drilled candidates;
-- 18 original Carrot Grade 1 assessment families;
+- 24 original Grade 1 assessment families;
 - complete Smash/FTGU/Cash Injection routing;
-- Carrot Grade 1 Lectures 01–09 routing;
-- post-L09 dimensional readiness assessment.
+- Carrot Grade 1 Lectures 01–10 routing;
+- Grade 1 completion readiness pass.
 
 Still deferred:
 
@@ -115,14 +124,14 @@ Still deferred:
 
 Current source-course evaluation:
 
-`../reports/CURRENT_SOURCE_COURSE_EVALUATION_v1.md`
+`../reports/CURRENT_SOURCE_COURSE_EVALUATION_v2.md`
 
 ## Verdict
 
-`CARROT_G1_L01_TO_L09_READINESS_ABSORBED`
+`CARROT_GRADE_1_LEARNING_LAYER_COMPLETE`
 
 `SOURCE_EXAMPLES_REMAIN_REFERENCE_ONLY`
 
 `ADAPTIVE_NAVIGATION_UNCHANGED`
 
-`FINALISATION_STILL_DEFERRED`
+`GRADES_2_AND_3_REMAIN_BOUNDARY_AND_CONTEXT_PHASE`
