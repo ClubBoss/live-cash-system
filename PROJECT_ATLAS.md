@@ -8,8 +8,8 @@ This file explains where each kind of truth lives and how the pieces connect. It
 
 | Need | Open first |
 |---|---|
-| New chat or new agent | `START_HERE.md`, then `AGENTS.md` |
-| Current machine-readable state | `state/CURRENT_PROJECT_STATE.yaml` |
+| New chat or agent | `START_HERE.md`, then `AGENTS.md` |
+| Machine-readable current state | `state/CURRENT_PROJECT_STATE.yaml` |
 | Repository structure | `governance/REPOSITORY_INFORMATION_ARCHITECTURE_v1.md` |
 | Adaptive course model | `governance/ADAPTIVE_COURSE_ARCHITECTURE_v1.md` |
 | Frozen versus mutable scope | `governance/PRE_FINALIZATION_FREEZE_AND_MUTATION_POLICY_v1.md` |
@@ -18,53 +18,24 @@ This file explains where each kind of truth lives and how the pieces connect. It
 | Cross-source relations | `synthesis/*EVIDENCE_MATRIX*` |
 | Unresolved questions | `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md` |
 | Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_2.md` |
-| Candidate ownership and drill coverage | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` |
+| Candidate ownership and drills | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` |
 | Provisional final grouping | `synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` |
-| Adaptive learning state | `learning/README.md` and active manifests |
-| Latest integrated milestone | latest file under `reports/` plus `START_HERE.md` |
+| Adaptive learning state | `learning/README.md` and `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_4.md` |
+| Latest milestone | `reports/CARROT_G1_BATCH_04_TERMINAL_REPORT_v1.md` |
 
 ## Whole-system map
 
 ```text
-                         EXTERNAL SOURCE PACKAGES
-                                  │
-                                  ▼
-┌────────────────────────────────────────────────────────────────────┐
-│ sources/                                                           │
-│ source-faithful records, registries, gap ledgers, visual audits   │
-└────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌────────────────────────────────────────────────────────────────────┐
-│ analysis/                                                          │
-│ technical QA, lesson audits, contradiction and recovery work      │
-└────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌────────────────────────────────────────────────────────────────────┐
-│ synthesis/                                                         │
-│ relations → questions → candidates → slots                        │
-└────────────────────────────────────────────────────────────────────┘
-                   │                              │
-                   ▼                              ▼
-┌─────────────────────────────┐     ┌───────────────────────────────┐
-│ ranges/                     │     │ learning/                     │
-│ original assumptions,      │     │ modules, learner state,       │
-│ validation and anchors     │     │ diagnostics, drills, tests    │
-└─────────────────────────────┘     └───────────────────────────────┘
-                   │                              │
-                   └──────────────┬───────────────┘
-                                  ▼
-┌────────────────────────────────────────────────────────────────────┐
-│ profiles/ + fieldwork/ + hands/                                   │
-│ opponent/environment overlays, observations and real-hand repair  │
-└────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌────────────────────────────────────────────────────────────────────┐
-│ playbook/                                                          │
-│ compact provisional and eventually admitted execution rules       │
-└────────────────────────────────────────────────────────────────────┘
+external source package
+→ sources/       source-faithful records and registries
+→ analysis/      technical QA and contradiction review
+→ synthesis/     relations → questions → candidates → slots
+→ ranges/        independent assumptions, validation and anchors
+→ learning/      modules, learner state, diagnostics and drills
+→ profiles/      conditional opponent/environment overlays
+→ fieldwork/     observations and falsifiers
+→ hands/         real-hand records and reviewed nodes
+→ playbook/      provisional and eventually admitted execution rules
 ```
 
 ## Source-family atlas
@@ -73,34 +44,28 @@ This file explains where each kind of truth lives and how the pieces connect. It
 
 Path: `sources/smash-live-cash/`
 
-State:
-
-- canonical source corpus complete;
+- canonical corpus complete;
 - no open audio or lesson-level cleanup backlog;
 - claim-driven visual checks only;
-- primary advanced evidence for depth, multiway, 3-bet pots and range composition.
+- strongest advanced evidence for depth, multiway, 3-bet pots and range composition.
 
 ### From the Ground Up
 
 Path: `sources/ftgu/`
 
-State:
-
-- `30/30` episodes complete;
-- foundational sequencing and pedagogical compression mapped;
-- supplied hand charts are private reference only;
+- `30/30` complete;
+- strongest complete foundational sequence;
+- supplied charts are private reference only;
 - no broad rerun or rewatch required.
 
 ### Cash Injection
 
 Path: `sources/cash-injection/`
 
-State:
-
-- `10/10` episodes complete;
+- `10/10` complete;
 - exploit and range-ancestry pass complete;
-- ten pool hypotheses remain field-gated;
-- main accepted scaffold:
+- ten population hypotheses remain field-gated;
+- accepted scaffold:
 
 ```text
 ORIGIN RANGE WIDTH
@@ -115,14 +80,12 @@ ORIGIN RANGE WIDTH
 
 Path: `sources/carrot-poker/`
 
-State:
-
 - one unified corpus for Grades 1–3;
-- Grade 1 Lectures `01–09` ingested;
-- Grade 1 Final Exam and Exam Feedback stored separately;
-- Lecture `10` pending;
+- Grade 1 Lectures `01–10` complete;
+- Final Exam and Feedback stored separately and mapped;
+- `24` original Grade 1 assessment families created;
 - Grades 2–3 pending;
-- active purpose: close/refine boundaries, pedagogy, preflop/depth/multiway gaps and assessment design.
+- remaining value is primarily preflop, depth, multiway, context limits and counterexamples.
 
 ## Current strategic inventory
 
@@ -133,7 +96,7 @@ State:
 → expected final core of approximately 14–18 rules
 ```
 
-Current statuses:
+Statuses:
 
 - `27` DRILL_READY;
 - `7` VALIDATION_PENDING;
@@ -149,8 +112,6 @@ Direct original drill coverage:
   - multiway delayed aggression.
 
 ## Adaptive learning atlas
-
-Stable modules:
 
 | ID | Purpose |
 |---|---|
@@ -174,7 +135,7 @@ Learner-state dimensions include:
 - boundary knowledge;
 - speed;
 - confidence calibration;
-- transfer to changed variants;
+- changed-variant transfer;
 - delayed retention;
 - field application.
 
@@ -204,7 +165,7 @@ ORIGIN RANGE
 → BRANCH EVIDENCE
 ```
 
-### Carrot Grade 1 through Lecture 09
+### Complete Carrot Grade 1
 
 ```text
 FULL TREE EV
@@ -214,6 +175,7 @@ FULL TREE EV
 → FILTERED TURN FAVOURABILITY
 → POLAR / SEMI-POLAR CONSTRUCTION
 → RIVER TEXTURE AND RANGE GEOGRAPHY
+→ BLOCKER AS FINAL SELECTOR
 ```
 
 ### River audit
@@ -228,21 +190,20 @@ VALUE
 
 ## Product-facing purity boundary
 
-Private research records may describe proprietary source material. Product-facing outputs must use:
+Product-facing outputs must use:
 
 - original wording;
-- original examples;
-- original drills and assessments;
+- original examples, drills and assessments;
 - independently derived or licensed ranges;
 - explicit assumptions;
-- no copied course charts, screenshots or exam spots;
-- no author-specific sequence masquerading as the product curriculum.
+- no copied charts, screenshots or exam spots;
+- no author-specific source sequence as the product curriculum.
 
 ## Current active path
 
 ```text
-Carrot Grade 1 Lecture 10
-→ Carrot Grades 2–3
+Carrot Grade 2
+→ Carrot Grade 3
 → close/context-split remaining questions
 → finalise four drill factories
 → consolidate candidates
@@ -254,30 +215,19 @@ Carrot Grade 1 Lecture 10
 
 ## Historical versus active documents
 
-Use explicit status headers.
-
 - `ACTIVE`, `CURRENT`, `SSOT` or `AUTHORITY` files control current work.
-- old versioned files remain historical snapshots unless an active index points to them.
-- terminal reports prove checkpoint completion but do not override newer registries.
-- the provisional Playbook is a reasoning snapshot until final admission.
+- Old versioned files remain historical unless an active index points to them.
+- Terminal reports prove checkpoint completion but do not override newer registries.
+- The provisional Playbook remains a reasoning snapshot until admission.
 
 ## Atlas maintenance
 
-Update this atlas only when one of these changes:
+Update only when durable structure, source-family lifecycle, authority routing, module graph, finalisation path or major coverage counts change.
 
-- stable repository architecture;
-- active authority routing;
-- source-family lifecycle state;
-- module graph;
-- finalisation path;
-- major coverage counts.
-
-Routine lesson ingestion should normally update `CURRENT_PROJECT_STATE.yaml` and source authorities, not rewrite this atlas.
-
-## Atlas verdict
+## Verdict
 
 `ONE_REPOSITORY / ONE_ADAPTIVE_CURRICULUM`
 
-`SOURCE_FAMILIES_REMAIN_INDEPENDENT AT EVIDENCE LAYER`
+`CARROT_GRADE_1_COMPLETE`
 
 `NEW_CHATS_CAN_NAVIGATE WITHOUT FULL_REPO_RESCAN`
