@@ -11,11 +11,11 @@ Status: `ACTIVE / HUMAN_AND_AGENT_NAVIGATION_MAP`
 | Current source coverage | source-family `source-registry.md` |
 | Missing source continuity | source-family `source-gap-ledger.md` |
 | Grade 3 exam routing | `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` |
-| Grade 3 Batch 03 delta | `synthesis/CARROT_G3_BATCH_03_CROSS_SOURCE_DELTA_v1.md` |
-| Current Carrot evidence | `synthesis/CARROT_EVIDENCE_MATRIX_v0_3.md` |
+| Grade 3 Batch 04 delta | `synthesis/CARROT_G3_BATCH_04_CROSS_SOURCE_DELTA_v1.md` |
+| Current Carrot evidence | `synthesis/CARROT_EVIDENCE_MATRIX_v0_4.md` |
 | Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_3.md` |
 | Adaptive learning state | `learning/README.md` |
-| Latest milestone | `reports/CARROT_G3_BATCH_03_TERMINAL_REPORT_v1.md` |
+| Latest milestone | `reports/CARROT_G3_BATCH_04_TERMINAL_REPORT_v1.md` |
 
 ## Whole-system map
 
@@ -55,11 +55,11 @@ external source package
 
 - Grade 1 complete;
 - Grade 2 complete;
-- Grade 3 Lectures `01–07` received and mapped;
+- Grade 3 Lectures `01–09` received and mapped;
 - Grade 3 Final Exam and Feedback received and mapped;
 - answer-key continuity complete;
-- Lecture `08+` pending;
-- `64` original Carrot assessment families;
+- final Lecture `10` pending;
+- `70` original Carrot assessment families;
 - `10` Grade 3 feedback repair paths.
 
 Current Grade 3 operating scaffold:
@@ -70,9 +70,11 @@ ACTION HISTORY
 → PURE / MIX GATE
 → VALUE / BLUFF / FRAIL CLASS
 → BET EV VERSUS CHECK EV
+→ CHECK-BRANCH TRADE-OFF
 → CALL / RAISE / FOLD THRESHOLDS
 → VALUE REGION AND INVESTMENT CEILING
 → SIZE TOOLKIT
+→ TOP-END VALUE / RAISE ELIGIBILITY
 → BLOCKER-FUNCTION VECTOR
 → THEORY-TO-POOL CHECK
 ```
@@ -80,8 +82,8 @@ ACTION HISTORY
 Exam routing:
 
 ```text
-G3-Q01–Q07 → matching primary lectures + Feedback
-G3-Q08–Q10 → Feedback-supported; later primary lectures pending
+G3-Q01–Q09 → matching primary lectures + Feedback
+G3-Q10 → Feedback-supported; final Lecture 10 pending
 ```
 
 ## Current strategic inventory
@@ -114,15 +116,15 @@ Direct original drill coverage:
 |---|---|---|
 | `LCM-01` | Node and effective depth | core ready; exact bands pending |
 | `LCM-02` | Preflop range architecture | directional only; anchors and squeeze pending |
-| `LCM-03` | Blind identity and realisation | robust/frail model active; deep boundary pending |
+| `LCM-03` | Blind identity and realisation | protected-check and call-quality model active; exact deep boundary pending |
 | `LCM-04` | Action filtering and ownership | high-confidence active |
-| `LCM-05` | Bet shape and response shape | pure/mix and call/raise/fold thresholds strengthened |
-| `LCM-06` | Aggression and future jobs | investment ceilings and size toolkit strengthened |
-| `LCM-07` | 3-bet-pot ancestry | triple-barrel ancestry strengthened; later G3 lectures pending |
+| `LCM-05` | Bet shape and response shape | call/fold/raise geography and identical-class defends strengthened |
+| `LCM-06` | Aggression and future jobs | protected check-raises, investment ceilings and denial-disciplined jams strengthened |
+| `LCM-07` | 3-bet-pot ancestry | direct L08–L09 support active; final 4-bet-pot L10 pending |
 | `LCM-08` | Multiway structure | partial; no current Grade 3 closure |
 | `LCM-09` | River audit | call quality, bet-versus-check EV and extreme sizing strengthened |
-| `LCM-10` | Opponent/environment overlays | methodology ready; field calibration pending |
-| `LCM-11` | Field transfer and repair | 64 Carrot assessments and repair layer active |
+| `LCM-10` | Opponent/environment overlays | solver-to-opponent branch method strengthened; field calibration pending |
+| `LCM-11` | Field transfer and repair | 70 Carrot assessments and repair layer active |
 
 ## Product-facing purity boundary
 
@@ -138,9 +140,10 @@ Product-facing outputs must use:
 ## Current active path
 
 ```text
-Grade 3 Lecture 08 onward
-→ attach later lectures primarily to G3-Q08–Q10
+final Grade 3 Lecture 10
+→ attach to G3-Q10
 → compare with existing Feedback answer key
+→ determine Grade 3 lecture completion
 → reassess remaining source gaps
 → finalise supported drill factories
 → consolidate candidates
@@ -154,9 +157,9 @@ Grade 3 Lecture 08 onward
 
 `ONE_REPOSITORY / ONE_ADAPTIVE_CURRICULUM`
 
-`GRADE_3_L01_TO_L07_EXAM_AND_FEEDBACK_RECEIVED`
+`GRADE_3_L01_TO_L09_EXAM_AND_FEEDBACK_RECEIVED`
 
-`GRADE_3_L08_PLUS_PENDING`
+`GRADE_3_FINAL_LECTURE_10_PENDING`
 
 `GENERAL_POSTFLOP_CORE_MATURE_AT_MECHANISM_LEVEL`
 
