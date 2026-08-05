@@ -1,6 +1,6 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_01_MAPPED`
+Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_02_MAPPED`
 
 ## Active authorities
 
@@ -14,10 +14,9 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_01_MAPPED`
 
 - `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations;
 - `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection relations;
-- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through Grade 3 L01–L02;
-- `CARROT_G2_EXAM_FEEDBACK_CROSS_SOURCE_DELTA_v1.md` — complete Grade 2 answer-key delta;
-- `CARROT_G3_BATCH_01_CROSS_SOURCE_DELTA_v1.md` — Grade 3 L01–L02 delta;
-- `CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` — Grade 3 exam-to-lecture routing.
+- `CARROT_EVIDENCE_MATRIX_v0_2.md` — active Carrot authority through Grade 3 L01–L04 and Feedback;
+- `CARROT_G3_BATCH_02_CROSS_SOURCE_DELTA_v1.md` — latest Grade 3 delta;
+- `CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` — Grade 3 exam/lecture/feedback routing.
 
 ### Remaining validation
 
@@ -26,31 +25,13 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_01_MAPPED`
 ## Authority order
 
 1. canonical source record;
-2. source-specific evidence matrix;
+2. active source-specific evidence matrix;
 3. remaining-source question matrix;
 4. candidate registry;
 5. candidate-to-module workbench;
 6. provisional slot architecture;
 7. adaptive readiness;
 8. provisional Playbook snapshot.
-
-Question-only exam rows do not override lecture or feedback evidence.
-
-## Incoming Grade 3 routing
-
-```text
-Grade 3 lecture record
-→ attach to G3-Q competency rows
-→ Carrot evidence relation
-→ affected question/candidate/module only
-→ original assessment if non-duplicative
-→ readiness update only if state changes
-
-Grade 3 Exam Feedback
-→ Q1–Q10 answer-key crosswalk
-→ misconception and repair map
-→ changed-variant assessment design
-```
 
 ## Current coverage
 
@@ -60,100 +41,88 @@ FTGU: 30/30 complete
 Cash Injection: 10/10 complete
 Carrot Grade 1: complete
 Carrot Grade 2: complete
-Carrot Grade 3 Lectures: L01–L02 received
-Carrot Grade 3 Final Exam: received and audited
-Carrot Grade 3 later lectures/feedback: pending
+Carrot Grade 3 Lectures: L01–L04 received
+Carrot Grade 3 Final Exam: received
+Carrot Grade 3 Feedback: received and mapped
+Carrot Grade 3 Lecture 05+: pending
 
 candidate count: 34
 stable modules: 11
 provisional slots: 16
 direct candidate drill coverage: 30/34
-original Carrot assessment families: 50
+original Carrot assessment families: 57
 admitted final rules: 0
 ```
 
-## Grade 3 Batch 01 effect
-
-The first two lectures establish:
+## Grade 3 Batch 02 effect
 
 ```text
-PURE-ACTION GATE
-→ NEAR-INDIFFERENT ACTIONS
-→ PRACTICAL TOOLKIT
-→ VALID RANDOMISATION
-→ EV-LOSS / REASONING LOG
+PURE / MIX GATE
+→ WORLD FAVOURABILITY
+→ VALUE REGION AND INVESTMENT CEILING
+→ BET / CALL / RAISE THRESHOLD
+→ BLOCKER-FUNCTION VECTOR
+→ ACTION
+→ OPPONENT FILTER
+→ TURN CLASS MIGRATION
+→ REBUILD TOOLKIT
 ```
 
-### Lecture 1
+New evidence:
 
-- pure versus optional actions;
-- call/raise/fold indifference points;
-- turn-raise composition;
-- river repolarisation and interference;
-- value beater / bluff catcher / frail hand separation;
-- RNG misuse repair.
-
-### Lecture 2
-
-- check/bet mixing;
-- one-size simplification;
-- subtree EV-retention testing;
-- five frequency buckets;
-- value-led river size and bluff allocation.
+- L03 — blocker functions and unblocking folds;
+- L04 — five-part check-raise range and next-street class migration;
+- Exam Feedback — answer-key support for all ten Grade 3 questions.
 
 ## Grade 3 exam state
 
 ```text
-G3-Q01 — direct L01 support
-G3-Q02 — direct L02 support
-G3-Q03–Q07 — partial support
-G3-Q08–Q10 — question-only
+G3-Q01 → L01 + Feedback
+G3-Q02 → L02 + Feedback
+G3-Q03 → L03 + Feedback
+G3-Q04 → L04 + Feedback
+G3-Q05–Q10 → Feedback supported; primary lecture continuity varies
 ```
 
-No final Grade 3 answer key exists yet.
+Answer-key continuity is complete. Lecture continuity is partial.
 
 ## New-candidate and gap result
 
 No new core candidate is required.
 
-The four source-sensitive direct-drill gaps remain:
+The four direct-drill gaps remain:
 
 - squeeze purification;
 - exact deep OOP protected calls;
 - polar preflop target folds;
 - multiway delayed aggression.
 
-The first two Grade 3 lectures do not provide direct preflop, exact-depth or multiway closure.
+## Learner-layer effect
 
-## Original assessment effect
+```text
+Grade 3 L01–L02 families:  6
+Grade 3 L03–L04 families:  7
+Grade 3 feedback repairs: 10
+Total Carrot families:    57
+```
 
-Six non-duplicative source-independent families were added:
+## Incoming Grade 3 routing
 
-- mix eligibility;
-- three-action threshold map;
-- repolarisation interference;
-- RNG misuse repair;
-- size-toolkit compression;
-- frequency buckets and value-led bluff allocation.
-
-## Remaining source workload
-
-- Grade 3 Lecture 03 onward;
-- Grade 3 Exam Feedback;
-- exact Grade 3 answer-key and repair crosswalk;
-- preflop/squeeze construction;
-- exact deep-OOP boundaries;
-- multiway structure;
-- exact depth/straddle overlays;
-- independent preflop anchors;
-- field calibration.
+```text
+next Grade 3 lecture
+→ canonical record
+→ compare with existing feedback answer key
+→ attach to G3-Q row(s)
+→ update only affected questions/candidates/modules
+→ original assessment only if non-duplicative
+```
 
 ## Verdict
 
-`CARROT_GRADE_3_L01_L02_MAPPED`
+`CARROT_GRADE_3_L01_TO_L04_AND_FEEDBACK_MAPPED`
 
-`G3_Q01_AND_Q02_LECTURE_SUPPORTED`
+`ALL_TEN_G3_EXAM_ROWS_HAVE_ANSWER_KEY_SUPPORT`
 
-`FIFTY_TOTAL_ORIGINAL_CARROT_ASSESSMENT_FAMILIES`
+`GRADE_3_LATER_LECTURES_PENDING`
 
 `NO_NEW_CORE_CANDIDATE_OR_DIRECT_DRILL_CLOSURE`
