@@ -1,6 +1,6 @@
 # Carrot Poker Source Registry
 
-Status: `ACTIVE / GRADES_1_AND_2_COMPLETE / GRADE_3_L01_L09_EXAM_AND_FEEDBACK_RECEIVED / FINAL_L10_PENDING`
+Status: `ACTIVE / GRADES_1_TO_3_COMPLETE / EXAMS_AND_FEEDBACK_MAPPED`
 
 ## Grade 1
 
@@ -35,19 +35,18 @@ Lecture, exam-question and answer-key continuity: complete.
 | `CP-G3-L07` | Triple Barreling | `sources/carrot-poker/transcripts/CP_G3_L07_triple_barreling.md` | AUDIO_COMPLETE / VISUALS_PENDING | MAPPED |
 | `CP-G3-L08` | Properly Protected Checking Ranges | `sources/carrot-poker/transcripts/CP_G3_L08_protected_checking_ranges.md` | AUDIO_COMPLETE / VISUALS_PENDING | MAPPED |
 | `CP-G3-L09` | Defending in 3-Bet Pots Out of Position | `sources/carrot-poker/transcripts/CP_G3_L09_defending_3bet_pots_oop.md` | AUDIO_COMPLETE / VISUALS_PENDING | MAPPED |
+| `CP-G3-L10` | Four-Bet Pots | `sources/carrot-poker/transcripts/CP_G3_L10_four_bet_pots.md` | AUDIO_COMPLETE / VISUALS_PENDING | MAPPED |
 | `CP-G3-EXAM` | Final Exam PDF | `sources/carrot-poker/artifacts/CP_G3_FINAL_EXAM_SOURCE_AUDIT_v1.md` | VISUAL_ARTIFACT_ACCEPTED | ASSESSMENT_MAPPED |
 | `CP-G3-EXAM-FB` | Final Exam Feedback | `sources/carrot-poker/transcripts/CP_G3_EXAM_FEEDBACK.md` | AUDIO_COMPLETE / VISUALS_PENDING | ANSWER_KEY_MAPPED |
-| — | Final Lecture 10 | — | NOT_RECEIVED | NOT_MAPPED |
 
 Current Grade 3 continuity:
 
 ```text
-Lectures received:       L01–L09
-Final Lecture 10:        pending; L09 explicitly announces it
+Lectures received:       L01-L10
 Final Exam PDF:          received and audited
 Final Exam Feedback:     received and mapped
 Exam answer-key:         complete
-Lecture continuity:      partial
+Lecture continuity:      complete
 ```
 
 ## Grade 3 package history
@@ -56,28 +55,36 @@ Lecture continuity:      partial
 
 - archive: `transcripts_mlx_large_v3(20260805-215511).zip`;
 - SHA-256: `56a05d55cb573c4f01ad9b337f9e9534db638e78fae0d6ec95cf6d21eeb51f82`;
-- new: Lectures 01–02.
+- new: Lectures 01-02.
 
 ### Batch 02
 
 - archive: `transcripts_mlx_large_v3(20260805-221934).zip`;
 - SHA-256: `e957e3b8a699ed43378099cffbc8e5b874ca97283a7935984c1ae924b5dd4d70`;
-- exact duplicates: Lectures 01–02;
-- new: Lectures 03–04 and Exam Feedback.
+- exact duplicates: Lectures 01-02;
+- new: Lectures 03-04 and Exam Feedback.
 
 ### Batch 03
 
 - archive: `transcripts_mlx_large_v3 2(1).zip`;
 - SHA-256: `bf46ac4ba2f0cffc6d5fa5763e9569cd4b9e7795b457203a0b244bc92820053d`;
-- exact duplicates: Lectures 01–04 and Exam Feedback;
-- new: Lectures 05–07.
+- exact duplicates: Lectures 01-04 and Exam Feedback;
+- new: Lectures 05-07.
 
 ### Batch 04
 
 - archive: `Archive(3).zip`;
 - SHA-256: `b9a2a664ca0ae8696b771fd82bc1c5f51eadb573495a6eac96c25e00ff040137`;
-- new: Lectures 08–09;
-- no earlier source bundle included.
+- new: Lectures 08-09.
+
+### Batch 05
+
+- intake: direct five-file Lecture 10 set;
+- manifest SHA-256: `3d47884cc298e7b5732d3de77d302161c2121612c3196a13c694f0b10979f684`;
+- new: Lecture 10;
+- result: Grade 3 lecture continuity complete;
+- full rerun: not required;
+- exact solver and visual claims: claim-driven review only.
 
 ## Grade 3 exam routing
 
@@ -85,29 +92,26 @@ Authority:
 
 `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`
 
-All `G3-Q01` through `G3-Q10` have source answer-key support.
+All `G3-Q01` through `G3-Q10` have source answer-key support and matching primary lecture support:
 
-Primary lecture matches currently available:
-
-- `G3-Q01` → L01;
-- `G3-Q02` → L02;
-- `G3-Q03` → L03;
-- `G3-Q04` → L04;
-- `G3-Q05` → L05;
-- `G3-Q06` → L06;
-- `G3-Q07` → L07;
-- `G3-Q08` → L08;
-- `G3-Q09` → L09.
-
-`G3-Q10` awaits final Lecture 10.
+- `G3-Q01` -> L01;
+- `G3-Q02` -> L02;
+- `G3-Q03` -> L03;
+- `G3-Q04` -> L04;
+- `G3-Q05` -> L05;
+- `G3-Q06` -> L06;
+- `G3-Q07` -> L07;
+- `G3-Q08` -> L08;
+- `G3-Q09` -> L09;
+- `G3-Q10` -> L10.
 
 ## Active Grade 3 authorities
 
-- Batch 04 QA: `analysis/module-audits/CARROT_G3_BATCH_04_QA_v1.md`;
-- Batch 04 delta: `synthesis/CARROT_G3_BATCH_04_CROSS_SOURCE_DELTA_v1.md`;
-- current evidence matrix: `synthesis/CARROT_EVIDENCE_MATRIX_v0_4.md`;
-- L08–L09 assessments: `learning/assessments/CARROT_G3_L08_L09_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`;
-- latest report: `reports/CARROT_G3_BATCH_04_TERMINAL_REPORT_v1.md`.
+- Batch 05 QA: `analysis/module-audits/CARROT_G3_BATCH_05_QA_v1.md`;
+- Batch 05 delta: `synthesis/CARROT_G3_BATCH_05_CROSS_SOURCE_DELTA_v1.md`;
+- current evidence matrix: `synthesis/CARROT_EVIDENCE_MATRIX_v0_5.md`;
+- L10 assessments: `learning/assessments/CARROT_G3_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md`;
+- latest report: `reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md`.
 
 ## Registry rules
 
@@ -118,16 +122,18 @@ Primary lecture matches currently available:
 5. Route cross-source effects through the active Carrot evidence matrix.
 6. Do not copy charts, solver matrices or exact exam spots into learner-facing material.
 7. Feedback can close answer-key continuity without closing lecture continuity.
-8. Partial lecture receipt does not imply Grade completion or final rule admission.
+8. Source completion does not imply final rule admission.
+9. Final rule count is not preset.
+10. Curriculum priority follows system-wide Max-EV, not source order.
 
 ## Registry verdict
 
-`CARROT_GRADES_1_AND_2_COMPLETE`
+`CARROT_GRADES_1_TO_3_COMPLETE`
 
-`GRADE_3_L01_TO_L09_CANONICALLY_INGESTED`
+`GRADE_3_L01_TO_L10_CANONICALLY_INGESTED`
 
 `GRADE_3_EXAM_AND_FEEDBACK_MAPPED`
 
-`GRADE_3_ANSWER_KEY_CONTINUITY_COMPLETE`
+`GRADE_3_LECTURE_AND_ANSWER_KEY_CONTINUITY_COMPLETE`
 
-`GRADE_3_FINAL_LECTURE_10_PENDING`
+`CROSS_CORPUS_AUDIT_NEXT`

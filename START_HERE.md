@@ -1,4 +1,4 @@
-# Live Cash System — Start Here
+# Live Cash System - Start Here
 
 Status: `ACTIVE / PRIMARY_NEW_CHAT_BOOTSTRAP`
 
@@ -12,22 +12,29 @@ Build a compact, adaptive and interactive live-cash system for a strong MTT play
 
 Environment:
 
-- usually `100–200bb`;
-- sometimes `300–400bb`;
+- usually `100-200bb`;
+- sometimes `300-400bb`;
 - possible straddles and shorter effective stacks;
 - practical target: Batumi.
 
-Priority gaps:
+Known learner discomfort areas include blind play, deep-stack translation and OOP 3-bet pressure. These are diagnostic inputs, not automatic curriculum priorities.
 
-- SB versus BB and BB defence;
-- deep-stack cash translation;
-- OOP versus frequent 3-bets;
-- protected passive ranges;
-- 3-bet-pot ancestry;
-- multiway structure;
-- river range reconstruction.
+## Priority policy
 
-Learning constraints:
+Prioritise by system-wide Max-EV:
+
+```text
+spot frequency
+x average error cost
+x current error probability
+x transfer value
+x learnability per unit time
+x evidence confidence
+```
+
+Source order, source gaps and subjective discomfort do not override this ranking.
+
+## Learning constraints
 
 - minimal chart memorisation;
 - compact heuristics, decision trees and anchors;
@@ -38,13 +45,17 @@ Learning constraints:
 
 ## Intended final system
 
-- approximately `14–18` robust rules;
+- an optimally compact robust rule core with no preset count;
 - original preflop anchors with explicit assumptions;
 - `11` stable adaptive modules;
 - original diagnostics, drills and assessments;
 - opponent/environment overlays;
 - field-tested execution;
 - no copied proprietary charts, exam spots or source-specific curriculum.
+
+Final-rule policy:
+
+`MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
 
 ## Current source truth
 
@@ -53,9 +64,9 @@ Learning constraints:
 | Smash Live Cash | complete; claim-driven visuals only |
 | FTGU | `30/30` complete; charts reference-only |
 | Cash Injection | `10/10` complete; ten field-gated pool hypotheses |
-| Carrot Grade 1 | complete: Lectures `01–10`, Exam and Feedback |
-| Carrot Grade 2 | complete: Lectures `01–10`, Exam and Feedback |
-| Carrot Grade 3 | Lectures `01–09`, Exam and Feedback received; final Lecture `10` pending |
+| Carrot Grade 1 | complete: Lectures `01-10`, Exam and Feedback |
+| Carrot Grade 2 | complete: Lectures `01-10`, Exam and Feedback |
+| Carrot Grade 3 | complete: Lectures `01-10`, Exam and Feedback |
 
 Exact Carrot coverage authority:
 
@@ -68,85 +79,64 @@ heuristic candidates:                 34
 stable adaptive modules:              11
 misconception classes:                30
 remaining-source question IDs:        38
-provisional final-rule slots:          16
-candidates with direct drills:         30
-source-gated direct drill gaps:          4
+provisional synthesis slots:          16
+candidates with direct drills:        30
+source-gated direct drill gaps:         4
 
-Grade 1 original assessment families:  24
-Grade 2 original assessment families:  20
-Grade 3 L01–L02 families:               6
-Grade 3 L03–L04 families:               7
-Grade 3 L05–L07 families:               7
-Grade 3 L08–L09 families:               6
-Carrot assessment families total:      70
+Grade 1 original assessment families: 24
+Grade 2 original assessment families: 20
+Grade 3 L01-L02 families:               6
+Grade 3 L03-L04 families:               7
+Grade 3 L05-L07 families:               7
+Grade 3 L08-L09 families:               6
+Grade 3 L10 families:                   4
+Carrot assessment families total:      74
 
 Grade 2 feedback repair paths:          10
 Grade 3 feedback repair paths:          10
 admitted final rules:                    0
-intended final core:                  14–18
+final rule count:              emergent / not fixed
 ```
+
+The 16 provisional slots are editable working containers. They may split, merge or disappear.
 
 Stable module IDs remain `LCM-01` through `LCM-11`.
 
-## Current Grade 3 operating scaffold
+## Grade 3 completed operating scaffold
 
 ```text
 ACTION HISTORY
-→ CURRENT RANGE STATE
-→ PURE / MIX GATE
-→ VALUE / BLUFF / FRAIL CLASS
-→ BET EV VERSUS CHECK EV
-→ CHECK-BRANCH TRADE-OFF
-→ CALL / RAISE / FOLD THRESHOLDS
-→ VALUE REGION AND INVESTMENT CEILING
-→ SIZE TOOLKIT
-→ TOP-END VALUE / RAISE ELIGIBILITY
-→ BLOCKER-FUNCTION VECTOR
-→ THEORY-TO-POOL CHECK
+-> CURRENT RANGE STATE
+-> PURE / MIX GATE
+-> VALUE / BLUFF / FRAIL CLASS
+-> BET EV VERSUS CHECK EV
+-> CHECK-BRANCH TRADE-OFF
+-> WORLD FAVOURABILITY
+-> CALL / RAISE / FOLD THRESHOLDS
+-> VALUE REGION AND INVESTMENT CEILING
+-> SIZE TOOLKIT
+-> TOP-END VALUE / RAISE ELIGIBILITY
+-> BLOCKER-FUNCTION VECTOR
+-> JAM-EXPOSURE / REOPEN GATE
+-> THEORY-TO-POOL CHECK
 ```
 
-## Grade 3 current evidence
-
-### Lectures 1–7
-
-- pure versus mixed actions;
-- practical size toolkits;
-- blocker-function vectors;
-- raise classes and turn migration;
-- call quality;
-- extreme sizing;
-- triple-barrel bet-versus-check EV.
-
-### Lecture 8
-
-- protected checking ranges;
-- immediate bet versus check-branch trade-off;
-- strong hands supporting future calls and raises;
-- delayed-c-bet and probe resistance;
-- solver-to-opponent checking-range adjustment.
-
-### Lecture 9
-
-- OOP 3-bet-pot call geography;
-- identical-class hand comparison;
-- texture-dependent defence;
-- tier-one value as a raise gate;
-- low-SPR turn-jam construction.
-
-### Exam routing
+## Grade 3 continuity
 
 ```text
-G3-Q01 → L01 + Feedback
-G3-Q02 → L02 + Feedback
-G3-Q03 → L03 + Feedback
-G3-Q04 → L04 + Feedback
-G3-Q05 → L05 + Feedback
-G3-Q06 → L06 + Feedback
-G3-Q07 → L07 + Feedback
-G3-Q08 → L08 + Feedback
-G3-Q09 → L09 + Feedback
-G3-Q10 → Feedback-supported; final L10 pending
+G3-Q01 -> L01 + Feedback
+G3-Q02 -> L02 + Feedback
+G3-Q03 -> L03 + Feedback
+G3-Q04 -> L04 + Feedback
+G3-Q05 -> L05 + Feedback
+G3-Q06 -> L06 + Feedback
+G3-Q07 -> L07 + Feedback
+G3-Q08 -> L08 + Feedback
+G3-Q09 -> L09 + Feedback
+G3-Q10 -> L10 + Feedback
 ```
+
+Lecture and answer-key continuity are complete.
 
 ## Frozen constraints
 
@@ -168,26 +158,30 @@ Do not:
 - promote population claims without field evidence;
 - admit a rule because several sources agree;
 - erase learner progress on unchanged mechanisms;
-- infer exact visual data from uncertain audio.
+- infer exact visual data from uncertain audio;
+- compress toward a preset rule count.
 
 ## Active milestone
 
 ```text
-ingest final Grade 3 Lecture 10
-→ attach it primarily to G3-Q10
-→ compare against existing Grade 3 Feedback answer key
-→ determine whether Grade 3 lecture continuity closes
-→ reassess remaining preflop, depth and multiway gaps from actual evidence
-→ finalise supported source-gated drills
-→ consolidate 34 candidates into 14–18 rules
-→ build independent anchors
-→ learner and field validation
-→ admit, revise or reject
+cross-corpus completeness and defect audit
+-> verify all source-family continuity
+-> audit duplicates, loops, missing tails and suspicious ASR regions
+-> identify material visual dependencies
+-> request targeted reruns only where repair EV is material
+-> rerank all candidates by system-wide Max-EV
+-> reassess preflop, depth, multiway and population gaps
+-> finalise supported drill factories
+-> build independent anchors
+-> learner and field validation
+-> optimise final rule set without a count target
+-> admit, revise or reject
 ```
 
 ## Current unresolved gates
 
-- Grade 3 final Lecture 10;
+- cross-corpus completeness and defect audit;
+- claim-driven visual verification;
 - squeeze purification;
 - exact deep OOP protected-call boundaries;
 - polar preflop target folds and call branch;
@@ -197,9 +191,11 @@ ingest final Grade 3 Lecture 10
 - multiway delayed aggression;
 - exact depth/SPR/straddle overlays;
 - target-live population calibration;
-- final compression and admission.
+- Max-EV candidate reranking;
+- learner and field validation;
+- final admission.
 
-The Grade 3 material received so far does not close preflop, exact-depth or multiway gates.
+Carrot completion does not close preflop, exact-depth, multiway or live-population gates.
 
 ## Active authority cone
 
@@ -208,39 +204,42 @@ The Grade 3 material received so far does not close preflop, exact-depth or mult
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
 5. `sources/carrot-poker/source-registry.md`;
-6. `reports/CARROT_G3_BATCH_04_TERMINAL_REPORT_v1.md`;
-7. `analysis/module-audits/CARROT_G3_BATCH_04_QA_v1.md`;
-8. `synthesis/CARROT_G3_BATCH_04_CROSS_SOURCE_DELTA_v1.md`;
+6. `reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md`;
+7. `analysis/module-audits/CARROT_G3_BATCH_05_QA_v1.md`;
+8. `synthesis/CARROT_G3_BATCH_05_CROSS_SOURCE_DELTA_v1.md`;
 9. `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
-10. `synthesis/CARROT_EVIDENCE_MATRIX_v0_4.md`;
+10. `synthesis/CARROT_EVIDENCE_MATRIX_v0_5.md`;
 11. affected authority files only.
 
 ## Latest integrated checkpoint
 
-`CARROT_G3_BATCH_04_ACCEPTED`
+`CARROT_G3_BATCH_05_ACCEPTED`
 
-- Lectures `08–09` canonically ingested;
-- no rerun required;
-- `G3-Q01` through `G3-Q09` have primary lecture support;
+- Lecture `10` canonically ingested;
+- Grade 3 Lectures `01-10` complete;
+- all `G3-Q01` through `G3-Q10` have primary lecture and Feedback support;
+- no full rerun required;
+- targeted visual review remains claim-driven;
 - no new core candidate;
-- six original assessment families added;
-- total Carrot assessment families: `70`;
+- four original assessment families added;
+- total Carrot assessment families: `74`;
 - direct candidate drill coverage remains `30/34`;
-- final Lecture `10` pending.
+- final rule count is not preset.
 
 Checkpoint report:
 
-`reports/CARROT_G3_BATCH_04_TERMINAL_REPORT_v1.md`
+`reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md`
 
 ## New-chat response capsule
 
 ```text
 repo and live main checked
-Grades 1–2 complete
-Grade 3 L01–L09, exam and feedback checkpoint understood
-final Grade 3 Lecture 10 and remaining gates understood
+Carrot Grades 1-3 complete
+all Grade 3 exam rows have lecture and Feedback support
+Lecture 10 QA and visual-risk boundaries understood
+fixed rule-count target removed
+cross-corpus audit is the active milestone
 frozen identities understood
-next bounded action selected
 no global restart planned
 ```
 
@@ -248,6 +247,8 @@ no global restart planned
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`GRADE_3_L01_TO_L09_EXAM_AND_FEEDBACK_RECEIVED`
+`CARROT_GRADES_1_TO_3_COMPLETE`
 
-`CONTINUE_WITH_FINAL_GRADE_3_L10 / DO_NOT_RESTART`
+`FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`
+
+`CONTINUE_WITH_CROSS_CORPUS_AUDIT / DO_NOT_RESTART`

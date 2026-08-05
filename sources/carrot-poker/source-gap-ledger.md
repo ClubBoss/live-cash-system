@@ -1,6 +1,6 @@
-# Carrot Poker — Source Intake and Gap Ledger
+# Carrot Poker - Source Intake and Gap Ledger
 
-Status: `ACTIVE / GRADES_1_AND_2_COMPLETE / GRADE_3_L01_L09_EXAM_AND_FEEDBACK_RECEIVED / FINAL_L10_PENDING`
+Status: `ACTIVE / GRADES_1_TO_3_COMPLETE / CONTINUITY_AUDIT_READY`
 
 Last updated: 2026-08-06
 
@@ -24,79 +24,80 @@ No known Grade 2 continuity gap.
 
 ### Grade 3
 
-- `CP-G3-L01` through `CP-G3-L09`;
+- `CP-G3-L01` through `CP-G3-L10`;
 - `CP-G3-EXAM`;
 - `CP-G3-EXAM-FB`.
 
-## Grade 3 Batch 04
+No known Grade 3 lecture or answer-key continuity gap.
 
-Archive:
+## Grade 3 Batch 05
 
-- `Archive(3).zip`;
-- SHA-256: `b9a2a664ca0ae8696b771fd82bc1c5f51eadb573495a6eac96c25e00ff040137`.
-
-Inventory:
+Input:
 
 ```text
-Lecture 08: five transcript formats
-Lecture 09: five transcript formats
+Lecture 10.txt
+Lecture 10.timestamped.txt
+Lecture 10.srt
+Lecture 10.vtt
+Lecture 10.segments.json
 ```
 
-New:
+Manifest SHA-256:
 
-- Lecture 08 — Properly Protected Checking Ranges;
-- Lecture 09 — Defending in 3-Bet Pots Out of Position.
+`3d47884cc298e7b5732d3de77d302161c2121612c3196a13c694f0b10979f684`
 
 Technical result:
 
 ```text
-L08 duration: 53:24.04
-L08 segments: 718
-L08 mean confidence: 0.96893
-
-L09 duration: 51:05.02
-L09 segments: 701
-L09 mean confidence: 0.96005
+duration:             56:32.28
+segments:             769
+plain words:          12,638
+word records:         12,766
+mean confidence:      0.96120
+below 0.50:           191 / 1.496%
+maximum gap:          1.24s
+overlaps:             0
+repeated 12-grams:    0
+missing tail:         no
 ```
 
-No loops, overlaps, repeated 12-word shingles, format gaps or missing tails were found. No full rerun is required.
+All five formats agree. No full rerun is required.
 
 Authority:
 
-`analysis/module-audits/CARROT_G3_BATCH_04_QA_v1.md`
+`analysis/module-audits/CARROT_G3_BATCH_05_QA_v1.md`
 
 ## Current Grade 3 continuity
 
 ```text
-Lectures received:       L01–L09
-Final Lecture 10:        pending
+Lectures received:       L01-L10
 Final Exam PDF:          received and audited
 Exam Feedback:           received and mapped
 Answer-key continuity:   complete
-Lecture continuity:      partial
+Lecture continuity:      complete
 ```
 
-Lecture 09 explicitly announces Lecture 10 as the final lesson and introduces its 4-bet-pot scope.
+Lecture 10 identifies itself as the final Grade 3 lecture and ends with explicit course closure.
 
 ## Current exam routing
 
-- `G3-Q01` through `G3-Q09` — matching primary lecture plus Feedback;
-- `G3-Q10` — Feedback-supported; final Lecture 10 pending.
+- `G3-Q01` through `G3-Q10` - matching primary lecture plus Feedback.
 
 ## Original learner delta
 
-Six new source-independent assessment families were created for L08–L09.
+Four new source-independent assessment families were created for Lecture 10.
 
 Current Carrot family count:
 
 ```text
-Grade 1: 24
-Grade 2: 20
-Grade 3 L01–L02: 6
-Grade 3 L03–L04: 7
-Grade 3 L05–L07: 7
-Grade 3 L08–L09: 6
-Total: 70
+Grade 1:          24
+Grade 2:          20
+Grade 3 L01-L02:   6
+Grade 3 L03-L04:   7
+Grade 3 L05-L07:   7
+Grade 3 L08-L09:   6
+Grade 3 L10:       4
+Total:            74
 ```
 
 ## Strategic gaps still open
@@ -114,47 +115,46 @@ Total: 70
 
 The four direct candidate drill gaps remain `30/34` covered.
 
-Lecture 08 strengthens the protected-check mechanism but does not establish exact depth-specific boundaries for `H-W01-006`.
+Lecture 10 supplies low-SPR four-bet-pot postflop support. It does not close exact preflop, deep OOP or multiway gaps.
 
 ## Claim-driven visual dependencies
 
 - exact boards and suits;
 - exact solver frequencies and EV values;
 - exact mixed-strategy cells;
-- exact size menus and numeric tier boundaries;
+- exact size menus and numeric thresholds;
 - exact source-example SPR;
+- exact preflop range matrices;
+- exact jam frequencies;
 - exact population magnitudes.
 
 Visual review remains claim-driven only.
 
-## Pending source sets
+## Unknown-supplement audit status
 
-- Grade 3 final Lecture 10;
-- possible Grade 3 worksheets, charts or supplements;
-- possible unknown Grade 1–2 supplements.
+The known Carrot Grade 1-3 lecture, exam and feedback sequence is complete.
 
-## Next package transaction
+Possible unknown worksheets, charts or supplements remain an audit question rather than an assumed gap.
+
+## Next bounded transaction
 
 ```text
-Grade 3 Lecture 10
-→ inventory and technical QA
-→ immutable CP-G3-L10 ID
-→ attach to G3-Q10
-→ compare with existing Feedback answer key
-→ determine whether Grade 3 lecture continuity closes
-→ update affected evidence and handover state
+cross-corpus completeness and defect audit
+-> inventory expected source artifacts
+-> verify duplicates and continuity
+-> inspect material ASR and visual dependencies
+-> request targeted reruns only where repair EV is material
+-> rerank candidates by system-wide Max-EV
 ```
 
 ## Ledger verdict
 
-`CARROT_GRADES_1_AND_2_COMPLETE`
+`CARROT_GRADES_1_TO_3_RECEIVED_AND_MAPPED`
 
-`GRADE_3_L01_TO_L09_RECEIVED_AND_MAPPED`
+`GRADE_3_LECTURE_AND_ANSWER_KEY_CONTINUITY_COMPLETE`
 
-`GRADE_3_EXAM_AND_FEEDBACK_RECEIVED`
+`NO_FULL_RERUN_REQUIRED`
 
-`GRADE_3_FINAL_LECTURE_10_PENDING`
+`TARGETED_VISUAL_REVIEW_REMAINS`
 
-`NO_RERUN_REQUIRED`
-
-`INCREMENTAL_INGESTION_READY`
+`CROSS_CORPUS_AUDIT_READY`

@@ -1,4 +1,4 @@
-# Live Cash System — Agent Operating Contract
+# Live Cash System - Agent Operating Contract
 
 Scope: entire repository.
 
@@ -17,7 +17,7 @@ Do not restart project diagnosis when the repository already contains an accepte
 
 ## Primary objective
 
-Build a compact, adaptive and interactive live-cash learning system for a strong MTT player preparing for live `1/3` and `2/5`, usually `100–200bb`, sometimes deeper, with straddles and short effective stacks possible.
+Build a compact, adaptive and interactive live-cash learning system for a strong MTT player preparing for live `1/3` and `2/5`, usually `100-200bb`, sometimes deeper, with straddles and short effective stacks possible.
 
 The final system should prefer:
 
@@ -30,6 +30,33 @@ The final system should prefer:
 - spaced retrieval;
 - live field transfer.
 
+## Max-EV priority policy
+
+Personal discomfort, source order and source completeness are inputs, not automatic priorities.
+
+Rank work using the system-wide Max-EV function:
+
+```text
+spot frequency
+x average error cost
+x current error probability
+x transfer value
+x learnability per unit time
+x evidence confidence
+```
+
+Record uncertainty rather than manufacturing precision.
+
+## Final-rule optimisation policy
+
+The final rule count is not preset.
+
+Use:
+
+`MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
+
+Never merge, split, delete or retain a rule merely to hit a numerical target. Provisional rule slots are editable synthesis containers, not a cap or quota.
+
 ## Source purity
 
 Canonical source records must preserve what the source actually says, including uncertainty and hedging.
@@ -38,7 +65,7 @@ Never silently:
 
 - repair a disputed card, size or frequency from general poker knowledge;
 - merge two source claims into one record;
-- convert an author’s population claim into a universal fact;
+- convert an author's population claim into a universal fact;
 - copy proprietary charts, solver screenshots, exam spots or sequencing into product-facing material;
 - use exam feedback as a replacement for missing lesson continuity.
 
@@ -167,5 +194,9 @@ Follow:
 `REPOSITORY_SSOT_OVER_CHAT_MEMORY`
 
 `ONE_BOUNDED_MILESTONE`
+
+`MAX_EV_PRIORITY_NOT_PERSONAL_PRIORITY`
+
+`FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`
 
 `CONTINUE_FROM_ACCEPTED_STATE / DO_NOT_RESTART`

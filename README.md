@@ -17,13 +17,17 @@ Repository state overrides chat memory. Continue from the accepted checkpoint ra
 
 Convert independent sources into:
 
-- approximately 14–18 robust table-facing rules;
+- an optimally compact robust table-facing rule core with no preset count;
 - original adaptive drills and assessments;
 - independently derived preflop anchors;
 - opponent/environment overlays;
 - field-tested live execution.
 
 Source courses provide evidence. They do not become parallel curricula.
+
+Final-rule policy:
+
+`MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
 
 ## Current source state
 
@@ -32,9 +36,9 @@ Source courses provide evidence. They do not become parallel curricula.
 | Smash Live Cash | canonical corpus complete; claim-driven visuals only |
 | From the Ground Up | 30/30 complete and mapped; charts reference-only |
 | Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
-| Carrot Poker Grade 1 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 2 | complete: Lectures 01–10, Final Exam and Feedback |
-| Carrot Poker Grade 3 | Lectures 01–09, Final Exam and Feedback received; final Lecture 10 pending |
+| Carrot Poker Grade 1 | complete: Lectures 01-10, Final Exam and Feedback |
+| Carrot Poker Grade 2 | complete: Lectures 01-10, Final Exam and Feedback |
+| Carrot Poker Grade 3 | complete: Lectures 01-10, Final Exam and Feedback |
 
 ## Current system state
 
@@ -43,77 +47,69 @@ heuristic candidates:              34
 stable adaptive modules:           11
 misconception classes:             30
 remaining-source question IDs:     38
-provisional final-rule slots:       16
+provisional synthesis slots:       16
 candidates with direct drills:      30
 source-gated direct drill gaps:      4
 
 Carrot Grade 1 assessments:         24
 Carrot Grade 2 assessments:         20
-Carrot Grade 3 L01–L02:              6
-Carrot Grade 3 L03–L04:              7
-Carrot Grade 3 L05–L07:              7
-Carrot Grade 3 L08–L09:              6
-Carrot assessments total:           70
+Carrot Grade 3 L01-L02:              6
+Carrot Grade 3 L03-L04:              7
+Carrot Grade 3 L05-L07:              7
+Carrot Grade 3 L08-L09:              6
+Carrot Grade 3 L10:                  4
+Carrot assessments total:           74
 
 Grade 2 feedback repair paths:       10
 Grade 3 feedback repair paths:       10
 admitted final rules:                 0
-intended final core:               14–18
+final rule count:           emergent / not fixed
 ```
+
+The 16 provisional slots are working containers only.
 
 ## Current Grade 3 scaffold
 
 ```text
 ACTION HISTORY
-→ CURRENT RANGE STATE
-→ PURE / MIX GATE
-→ VALUE / BLUFF / FRAIL CLASS
-→ BET EV VERSUS CHECK EV
-→ CHECK-BRANCH TRADE-OFF
-→ CALL / RAISE / FOLD THRESHOLDS
-→ VALUE REGION AND INVESTMENT CEILING
-→ SIZE TOOLKIT
-→ TOP-END VALUE / RAISE ELIGIBILITY
-→ BLOCKER-FUNCTION VECTOR
-→ THEORY-TO-POOL CHECK
+-> CURRENT RANGE STATE
+-> PURE / MIX GATE
+-> VALUE / BLUFF / FRAIL CLASS
+-> BET EV VERSUS CHECK EV
+-> CHECK-BRANCH TRADE-OFF
+-> WORLD FAVOURABILITY
+-> CALL / RAISE / FOLD THRESHOLDS
+-> VALUE REGION AND INVESTMENT CEILING
+-> SIZE TOOLKIT
+-> TOP-END VALUE / RAISE ELIGIBILITY
+-> BLOCKER-FUNCTION VECTOR
+-> JAM-EXPOSURE / REOPEN GATE
+-> THEORY-TO-POOL CHECK
 ```
 
-Exam routing:
+All `G3-Q01` through `G3-Q10` have matching primary lecture and Feedback support.
 
-```text
-G3-Q01 → L01 + Feedback
-G3-Q02 → L02 + Feedback
-G3-Q03 → L03 + Feedback
-G3-Q04 → L04 + Feedback
-G3-Q05 → L05 + Feedback
-G3-Q06 → L06 + Feedback
-G3-Q07 → L07 + Feedback
-G3-Q08 → L08 + Feedback
-G3-Q09 → L09 + Feedback
-G3-Q10 → Feedback-supported; final L10 pending
-```
+## Active milestone
+
+Cross-corpus completeness and defect audit:
+
+- verify source continuity and package integrity;
+- identify material ASR or visual dependencies;
+- request targeted reruns only where repair EV is material;
+- rerank candidates by system-wide Max-EV;
+- preserve unresolved preflop, depth, multiway and field gaps.
 
 ## Still open
 
-- Grade 3 final Lecture 10;
 - squeeze purification;
 - exact deep OOP boundaries;
 - polar preflop target folds;
 - independent preflop anchors;
 - multiway structure;
 - exact depth/straddle overlays;
-- target-live population calibration.
-
-## Deferred
-
-- final 14–18-rule compression;
-- final rule wording and IDs;
-- exact preflop anchors;
-- exact depth thresholds;
-- target-live population frequencies;
-- final exploit confidence;
-- final mastery thresholds;
-- `ADMITTED` status.
+- target-live population calibration;
+- learner and field validation;
+- final admission.
 
 ## Verdict
 
@@ -123,10 +119,10 @@ G3-Q10 → Feedback-supported; final L10 pending
 
 `CASH_INJECTION_10_OF_10_COMPLETE`
 
-`CARROT_GRADES_1_AND_2_COMPLETE`
+`CARROT_GRADES_1_TO_3_COMPLETE`
 
-`GRADE_3_L01_TO_L09_EXAM_AND_FEEDBACK_RECEIVED`
+`GRADE_3_LECTURE_AND_ANSWER_KEY_CONTINUITY_COMPLETE`
 
-`GRADE_3_FINAL_LECTURE_10_PENDING`
+`FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`
 
-`REPO_BASED_NEW_CHAT_HANDOVER_ACTIVE`
+`CROSS_CORPUS_AUDIT_NEXT`
