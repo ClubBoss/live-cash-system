@@ -1,13 +1,13 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_1_COMPLETE`
+Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_2_LECTURES_MAPPED`
 
 ## Active authorities
 
 ### Strategic inventory
 
-- `HEURISTIC_CANDIDATE_REGISTRY_v0_2.md` — 34-candidate status authority.
-- `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` — module ownership and drill coverage.
+- `HEURISTIC_CANDIDATE_REGISTRY_v0_3.md` — 34-candidate status authority.
+- `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` — module ownership and direct-drill coverage.
 - `PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` — non-final 16-slot scaffold.
 
 ### Cross-source evidence
@@ -15,14 +15,13 @@ Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_1_COMPLETE`
 - `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations.
 - `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection 10/10 relations.
 - `CASH_INJECTION_COMPLETE_COURSE_DELTA_v1.md` — filter-density/branch-elasticity synthesis.
-- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through complete Grade 1.
-- `CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Lecture 10 blocker-ordering and Grade 1 closure delta.
+- `CARROT_EVIDENCE_MATRIX_v0_1.md` — active Carrot relations through Grade 2 lectures.
+- `CARROT_G1_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Grade 1 closure delta.
+- `CARROT_G2_LECTURE_CORPUS_CROSS_SOURCE_DELTA_v1.md` — Grade 2 lecture-corpus delta.
 
 ### Remaining validation
 
-- `REMAINING_SOURCE_QUESTION_MATRIX_v1_1.md` — unresolved question state.
-
-Complete Grade 1 strongly improves postflop pedagogy, river ordering and assessment design but does not close the remaining preflop, exact-depth or multiway gates.
+- `REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md` — current unresolved-question authority.
 
 ## Authority order
 
@@ -52,39 +51,53 @@ canonical Carrot record
 - Smash: complete;
 - FTGU: 30/30 complete;
 - Cash Injection: 10/10 complete;
-- Carrot Grade 1: Lectures 01–10 plus exam/feedback complete;
-- Carrot Grades 2–3: pending;
+- Carrot Grade 1: complete;
+- Carrot Grade 2: Lectures 01–10 complete, exam/feedback pending;
+- Carrot Grade 3: pending;
 - candidate count: 34;
 - stable modules: 11;
 - provisional slots: 16;
 - direct candidate drill coverage: 30/34;
-- original Grade 1 assessment families: 24;
+- original Carrot assessment families: 44;
 - admitted final rules: 0.
 
-## Complete Grade 1 effect
+## Grade 2 effect
 
-Carrot now strongly supports:
+Grade 2 strongly supports:
 
-- full-tree EV and open-action calling;
-- value/bluff/check thresholds;
-- range and nut advantage;
-- frequency/size separation;
-- turn filtering and favourability;
-- polar/semi-polar construction;
-- protected checks;
-- river texture and range geography;
-- blockers as final selectors;
-- insufficient-reason and blocker-first repair;
-- original adaptive assessment design.
+- polarising versus condensing actions;
+- world favourability versus relative polarisation;
+- value and bluff tiers;
+- sizing-toolkit construction;
+- frequency versus magnitude;
+- protected IP and OOP branches;
+- robust versus frail continuations;
+- response range geography;
+- bluff-catching ancestry;
+- 3-bet-pot flop planning;
+- postflop raise breadth from bet shape.
 
-No candidate-count increase or global restructure was required.
+No candidate-count increase, slot migration or global restructure was required.
+
+## Remaining source workload
+
+Primary source-sensitive gaps are now:
+
+- Grade 2 exam and feedback;
+- Grade 3;
+- squeeze and preflop construction;
+- exact deep-OOP boundaries;
+- multiway structure;
+- exact depth/straddle overlays;
+- independent preflop anchors;
+- real counterexamples to mechanisms currently marked closed.
 
 ## Verdict
 
 `CARROT_INCREMENTAL_EVIDENCE_PATH_ACTIVE`
 
-`GRADE_1_LECTURES_01_TO_10_MAPPED`
+`GRADE_2_LECTURES_01_TO_10_MAPPED`
 
-`GRADE_1_COMPLETE`
+`GENERAL_POSTFLOP_MECHANISMS_MOSTLY_CLOSED`
 
-`GRADES_2_AND_3_REMAIN_BOUNDARY_AND_CONTEXT_PHASE`
+`GRADE_3_IS_PRIMARY_PREFLOP_DEPTH_MULTIWAY_VALIDATOR`
