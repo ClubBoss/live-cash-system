@@ -48,19 +48,19 @@ if (requireFull) {
 
 const geometryEn = await readFile(new URL("../content/i18n/geometry-gold.ts", import.meta.url), "utf8");
 for (const drillId of ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"]) {
-  assert.match(geometryEn, new RegExp(`setDrillCopy\\(\"${drillId}\"`, "u"), `Missing English gold drill ${drillId}`);
+  assert.match(geometryEn, new RegExp(`setDrillCopy\\("${drillId}"`, "u"), `Missing English gold drill ${drillId}`);
 }
 for (const cardId of ["geo-card-unit", "geo-card-pair", "geo-card-spr"]) {
-  assert.ok(geometryEn.includes(`\"${cardId}\"`), `Missing English gold card ${cardId}`);
+  assert.ok(geometryEn.includes(`"${cardId}"`), `Missing English gold card ${cardId}`);
 }
 assert.equal(/[А-Яа-яЁё]/u.test(geometryEn), false, "English geometry gold contains Cyrillic copy");
 
 const geometryRu = await readFile(new URL("../content/i18n/geometry-ru-gold.ts", import.meta.url), "utf8");
 for (const drillId of ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"]) {
-  assert.ok(geometryRu.includes(`\"${drillId}\"`), `Missing Russian gold drill ${drillId}`);
+  assert.ok(geometryRu.includes(`"${drillId}"`), `Missing Russian gold drill ${drillId}`);
 }
 for (const cardId of ["geo-card-unit", "geo-card-pair", "geo-card-spr"]) {
-  assert.ok(geometryRu.includes(`\"${cardId}\"`), `Missing Russian gold card ${cardId}`);
+  assert.ok(geometryRu.includes(`"${cardId}"`), `Missing Russian gold card ${cardId}`);
 }
 const bannedRuPhrases = [
   /Переноси глубоко/u,
