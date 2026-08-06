@@ -3,18 +3,18 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Live Cash OS",
-  description: "Русскоязычная адаптивная система обучения live cash poker.",
+  description: "Двуязычная система обучения live cash poker: короткие уроки, практика, повторение и разбор реальных рук.",
   applicationName: "Live Cash OS",
   manifest: "/manifest.webmanifest",
   openGraph: {
     title: "Live Cash OS",
-    description: "Короткие уроки, changed-node drills, delayed recall и разбор реальных рук.",
+    description: "Bilingual live cash learning with clear lessons, changed-spot practice, delayed review and real-hand analysis.",
     images: ["/og.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Live Cash OS",
-    description: "Адаптивная тренировка live cash решений.",
+    description: "Bilingual adaptive training for live cash decisions.",
     images: ["/og.png"],
   },
   icons: {
