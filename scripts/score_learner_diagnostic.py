@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -18,6 +19,7 @@ ALLOWED_CONTEXTS = {
     "MIXED_EXPOSURE_INVALID_FOR_BASELINE",
 }
 ALLOWED_LOCALES = {"ru", "en"}
+CANONICAL_MC = {f"MC-{index:03d}" for index in range(1, 31)}
 CLASS_ERROR = {"A": 0.0, "B": 0.55, "C": 0.70, "D": 1.0, "E": 0.65, "U": 0.0}
 PRIOR_ALPHA = 2.0
 PRIOR_BETA = 2.0
@@ -39,6 +41,9 @@ def validate(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, dict
         raise ValueError("schema_version must be evaluated-0.2")
     if record.get("learner_id") != "current_learner":
         raise ValueError("learner_id must be current_learner")
+    run_id = record.get("run_id")
+    if not isinstance(run_id, str) or not re.fullmatch(r"t1-[A-Za-z0-9-]+", run_id):
+        raise ValueError("run_id must identify one immutable T1 run")
     tranche_id = record.get("tranche_id")
     if tranche_id not in {"T1", "T2", "RETEST", "DELAYED"}:
         raise ValueError("unsupported tranche_id")
@@ -93,10 +98,8 @@ def validate(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, dict
             if not isinstance(value, (int, float)) or not lower <= value <= upper:
                 raise ValueError(f"{item_id}: {name} must be within {lower}..{upper}")
         misconceptions = evaluation.get("misconceptions")
-        if not isinstance(misconceptions, list) or not all(
-            isinstance(value, str) and value.startswith("MC-") for value in misconceptions
-        ):
-            raise ValueError(f"{item_id}: misconceptions must be MC identifiers")
+        if not isinstance(misconceptions, list) or not all(value in CANONICAL_MC for value in misconceptions):
+            raise ValueError(f"{item_id}: misconceptions must use canonical MC-001..MC-030 identifiers")
 
     if expected_ids and seen != expected_ids:
         missing = sorted(expected_ids - seen)
@@ -188,6 +191,7 @@ def score(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
         "scorer_version": SCORER_VERSION,
         "learner_id": record.get("learner_id"),
         "tranche_id": record.get("tranche_id"),
+        "run_id": record.get("run_id"),
         "measurement_context": record.get("measurement_context"),
         "locale_at_start": record.get("locale_at_start"),
         "submitted_at": record.get("submitted_at"),
