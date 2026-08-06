@@ -1,0 +1,44 @@
+name: Live Cash OS Apply Bilingual Runtime
+
+on:
+  push:
+    branches:
+      - agent/live-cash-os-bilingual-copy-pass
+    paths:
+      - "apps/live-cash-os/scripts/apply-bilingual-runtime.mjs"
+      - ".github/workflows/live-cash-os-apply-bilingual-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-cash-os-apply-bilingual-runtime
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/live-cash-os-bilingual-copy-pass
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - run: node scripts/apply-bilingual-runtime.mjs
+      - name: Commit bilingual runtime
+        run: |
+          if git diff --quiet -- components/LiveCashApp.tsx app/globals.css; then
+            echo "Runtime already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add components/LiveCashApp.tsx app/globals.css
+          git commit -m "Apply bilingual learner runtime"
+          git push origin HEAD:agent/live-cash-os-bilingual-copy-pass
