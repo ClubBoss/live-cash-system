@@ -1,3 +1,4 @@
+import "./add-learning-route.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
