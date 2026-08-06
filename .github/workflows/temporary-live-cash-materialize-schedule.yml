@@ -22,19 +22,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           git clone --branch agent/live-cash-os-bilingual-copy-pass --single-branch "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" work
-      - name: Stop when final runtime is already materialized
+      - name: Check materialization state
+        id: check
         working-directory: work/apps/live-cash-os
         run: |
           if grep -q 'const LOCALE_KEY = "live-cash-os:locale"' components/LiveCashApp.tsx; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
             echo "Final bilingual runtime already materialized"
-            touch /tmp/already-materialized
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Install dependencies
-        if: ${{ hashFiles('/tmp/already-materialized') == '' }}
+        if: steps.check.outputs.already != 'true'
         working-directory: work/apps/live-cash-os
         run: npm install --no-audit --no-fund
       - name: Materialize runtime and audited drafts
-        if: ${{ hashFiles('/tmp/already-materialized') == '' }}
+        if: steps.check.outputs.already != 'true'
         working-directory: work/apps/live-cash-os
         run: |
           node scripts/prepare-bilingual-version.mjs
@@ -48,7 +51,7 @@ jobs:
           ALLOW_DRAFT_I18N=1 npm run i18n:check
           npm run typecheck
       - name: Commit candidate outputs
-        if: ${{ hashFiles('/tmp/already-materialized') == '' }}
+        if: steps.check.outputs.already != 'true'
         working-directory: work
         run: |
           paths=(
