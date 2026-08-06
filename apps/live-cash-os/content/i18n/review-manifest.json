@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "IN_PROGRESS",
+  "source_sha256": null,
+  "reviewer": "GPT-5.6 Thinking",
+  "review_policy": "Every learner-facing string is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks cannot create approvals.",
+  "modules": {
+    "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated gold bilingual module." },
+    "preflop": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "blinds": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "filtering": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "shape": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "aggression": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "ancestry": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "multiway": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "river": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "evidence": { "ru": "PENDING", "en": "PENDING", "note": "" },
+    "transfer": { "ru": "PENDING", "en": "PENDING", "note": "" }
+  }
+}
