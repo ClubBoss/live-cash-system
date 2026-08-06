@@ -27,6 +27,8 @@ test("server-renders the Live Cash OS learning surface", async () => {
   assert.match(html, /Preflop range architecture/);
   assert.match(html, /Bet &amp; response shape/);
   assert.match(html, /Context-switch review/);
+  assert.match(html, /Opponent evidence/);
+  assert.match(html, /Transfer &amp; repair/);
   assert.match(html, /PERSONAL DIAGNOSTIC/);
   assert.match(html, /Measure before you personalise/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site|SkeletonPreview/i);
@@ -46,6 +48,8 @@ test("keeps progression and evidence claims honest in the runtime source", async
   assert.match(page, /if \(module === "ancestry" && !hasCompleted\("aggression"\)\) return/);
   assert.match(page, /if \(module === "multiway" && !hasCompleted\("ancestry"\)\) return/);
   assert.match(page, /if \(module === "river" && !hasCompleted\("multiway"\)\) return/);
+  assert.match(page, /if \(module === "evidence" && !hasCompleted\("river"\)\) return/);
+  assert.match(page, /if \(module === "transfer" && !hasCompleted\("evidence"\)\) return/);
   assert.match(page, /if \(module === "mixed" && !hasCompleted\("river"\)\) return/);
   assert.match(page, /if \(isRecall && actionOk && reasonOk\) nextDimensions\.retention/);
   assert.doesNotMatch(page, /nextDimensions\.transfer\s*=/);
@@ -57,4 +61,6 @@ test("keeps progression and evidence claims honest in the runtime source", async
   assert.match(page, /status: final \? "AWAITING_REVIEW" : "IN_PROGRESS"/);
   assert.match(page, /Download T1 response record/);
   assert.doesNotMatch(page, /type DiagnosticResponse = [^;]*evaluation/);
+  assert.match(page, /evidence: \[/);
+  assert.match(page, /transfer: \[/);
 });
