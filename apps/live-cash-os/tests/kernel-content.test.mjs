@@ -41,8 +41,7 @@ test("initialises nine separate evidence dimensions per module", async () => {
 
 test("keeps evidence local to the tested module and queues same-skill repair", async () => {
   const model = await modelPromise;
-  const state = model.emptyLearnerState();
-  const next = model.recordDecision(state, {
+  const next = model.recordDecision(model.emptyLearnerState(), {
     moduleId: "river",
     drillId: "riv-01",
     nodeKey: "before-blocker",
@@ -63,6 +62,44 @@ test("keeps evidence local to the tested module and queues same-skill repair", a
   assert.equal(next.reviewQueue[0].kind, "repair");
 });
 
+test("repair mode alone does not create variant-transfer evidence", async () => {
+  const model = await modelPromise;
+  const state = model.recordDecision(model.emptyLearnerState(), {
+    moduleId: "geometry",
+    drillId: "geo-01",
+    nodeKey: "mandatory-straddle",
+    variantGroup: "denominator",
+    mode: "repair",
+    actionOk: true,
+    reasonOk: true,
+    confidence: 80,
+    elapsedSeconds: 12,
+    targetSeconds: 30,
+    isBoundary: false,
+  });
+  assert.equal(state.modules.geometry.evidence.variant_transfer.exposures, 0);
+});
+
+test("an explicit changed-node probe creates variant-transfer evidence", async () => {
+  const model = await modelPromise;
+  const state = model.recordDecision(model.emptyLearnerState(), {
+    moduleId: "geometry",
+    drillId: "geo-02",
+    nodeKey: "pairwise-multiway",
+    variantGroup: "pairwise",
+    mode: "practice",
+    actionOk: true,
+    reasonOk: true,
+    confidence: 80,
+    elapsedSeconds: 12,
+    targetSeconds: 30,
+    isBoundary: false,
+    transferProbe: { isTransferProbe: true, variantDistance: "NEAR", changedVariables: ["players", "effective_stack"] },
+  });
+  assert.equal(state.modules.geometry.evidence.variant_transfer.exposures, 1);
+  assert.equal(state.modules.geometry.evidence.variant_transfer.successes, 1);
+});
+
 test("content completion does not create mastery", async () => {
   const model = await modelPromise;
   const state = model.completeLesson(model.emptyLearnerState(), "geometry");
@@ -73,8 +110,7 @@ test("content completion does not create mastery", async () => {
 
 test("raw field notes do not grant field transfer", async () => {
   const model = await modelPromise;
-  const initial = model.emptyLearnerState();
-  const captured = model.addFieldNote(initial, {
+  const captured = model.addFieldNote(model.emptyLearnerState(), {
     moduleId: "multiway",
     cue: "Player remained behind",
     action: "Called",
@@ -87,18 +123,56 @@ test("raw field notes do not grant field transfer", async () => {
   assert.equal(reviewed.modules.multiway.evidence.field_transfer.successes, 1);
 });
 
-test("newer learner state wins deterministic merge", async () => {
+test("T1 measurement context is fixed when the run starts", async () => {
   const model = await modelPromise;
-  const older = model.emptyLearnerState();
-  older.updatedAt = "2026-08-06T10:00:00.000Z";
-  const newer = model.emptyLearnerState();
-  newer.updatedAt = "2026-08-06T11:00:00.000Z";
-  newer.revision = 4;
-  assert.equal(model.mergeLearnerStates(older, newer).revision, 4);
-  assert.equal(model.mergeLearnerStates(newer, older).revision, 4);
+  const cold = model.startDiagnosticRun(model.emptyLearnerState(), "ru");
+  assert.equal(cold.diagnostic.measurementContext, "COLD_BASELINE");
+  assert.equal(cold.diagnostic.localeAtStart, "ru");
+  const contaminated = model.completeLesson(cold, "geometry");
+  assert.equal(contaminated.diagnostic.measurementContext, "MIXED_EXPOSURE_INVALID_FOR_BASELINE");
 });
 
-test("ships a complete admitted Russian-first module corpus", async () => {
+test("T1 stores the locale of every answer", async () => {
+  const model = await modelPromise;
+  const started = model.startDiagnosticRun(model.emptyLearnerState(), "ru");
+  const next = model.recordDiagnosticResponse(started, {
+    item_id: "LD-001",
+    answer: "140 straddle blinds",
+    reasoning: "The forced ten-dollar unit prices the tree.",
+    confidence: 70,
+    time_seconds: 20,
+    locale: "en",
+  }, ["LD-001"]);
+  assert.equal(next.diagnostic.responses[0].locale, "en");
+  assert.equal(next.diagnostic.status, "AWAITING_REVIEW");
+});
+
+test("entity merge preserves independent interactions and field notes", async () => {
+  const model = await modelPromise;
+  const localBase = model.emptyLearnerState();
+  const local = model.addFieldNote(localBase, { moduleId: "geometry", cue: "SPR", action: "Called", reason: "Low SPR", cueBeforeAction: true });
+  local.updatedAt = "2026-08-06T11:00:00.000Z";
+  const remote = model.recordDecision(model.emptyLearnerState(), {
+    moduleId: "river",
+    drillId: "riv-01",
+    nodeKey: "before-blocker",
+    variantGroup: "river-audit",
+    mode: "practice",
+    actionOk: true,
+    reasonOk: true,
+    confidence: 70,
+    elapsedSeconds: 20,
+    targetSeconds: 35,
+    isBoundary: false,
+  });
+  remote.updatedAt = "2026-08-06T10:00:00.000Z";
+  const merged = model.mergeLearnerStates(local, remote);
+  assert.equal(merged.fieldNotes.length, 1);
+  assert.equal(merged.interactions.length, 1);
+  assert.ok(merged.revision > Math.max(local.revision, remote.revision));
+});
+
+test("ships one runtime-deliverable corpus with stable IDs", async () => {
   const content = await contentPromise;
   assert.equal(content.modules.length, 11);
   assert.equal(content.allDrills.length, 55);
