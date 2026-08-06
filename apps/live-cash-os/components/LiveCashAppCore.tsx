@@ -233,7 +233,12 @@ export default function LiveCashAppV11() {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [notice, setNotice] = useState("");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncStatusRef = useRef(syncStatus);
   const t = runtimeCopy[locale];
+
+  useEffect(() => {
+    syncStatusRef.current = syncStatus;
+  }, [syncStatus]);
 
   useEffect(() => {
     async function restore() {
@@ -253,7 +258,9 @@ export default function LiveCashAppV11() {
           setSyncStatus("synced");
         } else setSyncStatus(response.status === 401 ? "local" : "error");
       } catch { setSyncStatus("offline"); }
-      setState(mergeLearnerStates(local, remote));
+      const merged = mergeLearnerStates(local, remote);
+      setState(merged);
+      if (merged.activeSession) setTab("learn");
       setReady(true);
       if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
@@ -271,7 +278,7 @@ export default function LiveCashAppV11() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
-      if (syncStatus !== "local") setSyncStatus("syncing");
+      if (syncStatusRef.current !== "local") setSyncStatus("syncing");
       try {
         const response = await fetch("/api/state", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ state }) });
         if (response.ok) setSyncStatus("synced");
@@ -439,7 +446,7 @@ function LessonSession({ locale, state, setState, source, onExit }: { locale: Lo
   const fallback = locale === "en" ? <p className="assumption-strip">{t.translationPending}: {t.contentFallback}</p> : null;
   return <section className="session"><SessionHeader locale={locale} label={`${module.lcm} · ${t.lesson}`} progress={Math.round(((session.step + 1) / 10) * 100)} onExit={onExit} />
     {fallback}
-    {session.step === 0 && <><p className="eyebrow">1 · COLD CHECK</p><h2>{t.currentModel}</h2><p className="support">{t.coldCheckHelp}</p><Decision locale={locale} state={state} setState={setState} drill={source.drills[0]} onContinue={() => setStep(1)} /></>}
+    {session.step === 0 && <><p className="eyebrow">1 · {locale === "ru" ? "РЕШИ БЕЗ ПОДСКАЗКИ" : "COLD CHECK"}</p><h2>{t.currentModel}</h2><p className="support">{t.coldCheckHelp}</p><Decision locale={locale} state={state} setState={setState} drill={source.drills[0]} onContinue={() => setStep(1)} /></>}
     {session.step === 1 && <ContentStep locale={locale} eyebrow={`2 · ${t.simpleTheory}`} title={module.plainGoal} paragraphs={source.theory} footer={source.scope} onNext={() => setStep(2)} />}
     {session.step === 2 && <ListStep locale={locale} eyebrow={`3 · ${t.heuristics}`} title={module.tableCue} items={source.heuristics} onNext={() => setStep(3)} />}
     {session.step === 3 && <ListStep locale={locale} eyebrow={`4 · ${t.decisionTree}`} title={t.decisionTree} items={source.decisionTree} numbered onNext={() => setStep(4)} />}

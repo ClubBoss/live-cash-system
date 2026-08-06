@@ -175,8 +175,6 @@ export default function LiveCashApp() {
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["lang", "aria-current"],
-      childList: true,
-      subtree: true,
     });
     return () => observer.disconnect();
   }, []);

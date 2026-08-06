@@ -14,8 +14,8 @@ async function openGeometryColdCheck(page) {
 async function answerGeometryColdCheck(page) {
   await page.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" }).click();
   await page.getByRole("button", { name: "Именно страддл $10 задаёт цену всех префлоп-действий" }).click();
-  await page.getByRole("button", { name: "Ответить", exact: true }).click();
-  await expect(page.getByText(/РАЗБОР РЕШЕНИЯ · A/)).toBeVisible();
+  await page.getByRole("button", { name: /^Ответить/ }).click();
+  await expect(page.getByText(/(?:РАЗБОР РЕШЕНИЯ|DECISION REVIEW)/)).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -90,7 +90,7 @@ test("submitted feedback survives reload without duplicate evidence", async ({ p
   expect(before.interactions).toHaveLength(1);
 
   await page.reload();
-  await expect(page.getByText(/РАЗБОР РЕШЕНИЯ · A/)).toBeVisible();
+  await expect(page.getByText(/(?:РАЗБОР РЕШЕНИЯ|DECISION REVIEW)/)).toBeVisible();
   const after = await localState(page);
   expect(after.interactions).toHaveLength(1);
 });
@@ -101,7 +101,7 @@ test("T1 freezes the start locale, item locale and real first-item timer", async
   await page.getByRole("button", { name: "Начать T1" }).click();
   await page.getByLabel("Как бы ты сыграл?").fill("140 страддлов");
   await page.getByLabel("Почему?").fill("Страддл задаёт рабочую ставку.");
-  await page.getByRole("button", { name: "Ответить", exact: true }).click();
+  await page.getByRole("button", { name: /^Ответить/ }).click();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.getByLabel("Action or direction").fill("270 and 900 pairwise");

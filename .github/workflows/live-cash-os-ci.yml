@@ -55,15 +55,15 @@ jobs:
         continue-on-error: true
         run: npm run check:editorial
 
-      - name: Unit tests
-        id: unit
-        continue-on-error: true
-        run: npm run test:unit
-
       - name: Build
         id: build
         continue-on-error: true
         run: npm run build
+
+      - name: Unit tests
+        id: unit
+        continue-on-error: true
+        run: npm run test:unit
 
       - name: Core gate verdict
         if: always()

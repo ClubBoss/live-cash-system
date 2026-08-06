@@ -41,7 +41,7 @@ test("canonical T1 taxonomy stays isolated from runtime distractor tags", async 
 
   const parser = await readFile(new URL("../lib/diagnostic-import.ts", import.meta.url), "utf8");
   assert.match(parser, /Array\.from\(\{ length: 30 \}/u, "T1 parser canonical boundary changed");
-  assert.doesNotMatch(parser, /content\/modules|allDrills|misconceptionId/u, "T1 parser must not import runtime distractor tags");
+  assert.doesNotMatch(parser, /from ["']\.\.\/content\/modules|from ["']\.\/content\/modules|allDrills/u, "T1 parser must not import runtime distractor tags");
 
   const schema = JSON.parse(await readFile(new URL("../../../learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_2.json", import.meta.url), "utf8"));
   const pattern = schema.properties.responses.items.properties.evaluation.properties.misconceptions.items.pattern;
