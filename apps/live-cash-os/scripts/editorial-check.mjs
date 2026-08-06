@@ -14,6 +14,12 @@ function gitBlobSha(buffer) {
     .digest("hex");
 }
 
+function quotedStringValues(source) {
+  return [...source.matchAll(/"((?:\\.|[^"\\])*)"/gu)]
+    .map((match) => match[1])
+    .join("\n");
+}
+
 assert.equal(manifest.schema_version, 3, "Unsupported editorial manifest schema");
 assert.ok(["GOLD_SLICE_ACCEPTED", "FULLY_ACCEPTED"].includes(manifest.status), "Invalid editorial status");
 assert.deepEqual(Object.keys(manifest.modules), moduleIds, "Editorial manifest module order or coverage changed");
@@ -48,7 +54,7 @@ if (requireFull) {
 
 const geometryEn = await readFile(new URL("../content/i18n/geometry-gold.ts", import.meta.url), "utf8");
 for (const drillId of ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"]) {
-  assert.match(geometryEn, new RegExp(`setDrillCopy\\("${drillId}"`, "u"), `Missing English gold drill ${drillId}`);
+  assert.match(geometryEn, new RegExp(`setDrillCopy\\\\("${drillId}"`, "u"), `Missing English gold drill ${drillId}`);
 }
 for (const cardId of ["geo-card-unit", "geo-card-pair", "geo-card-spr"]) {
   assert.ok(geometryEn.includes(`"${cardId}"`), `Missing English gold card ${cardId}`);
@@ -80,14 +86,15 @@ const bannedRuPhrases = [
 const runtimeRu = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
 const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
 const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
+const ruRouteLearnerCopy = quotedStringValues(ruRoute);
 for (const pattern of bannedRuPhrases) {
-  assert.doesNotMatch(`${runtimeRu}\n${geometryRu}\n${ruRoute}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
+  assert.doesNotMatch(`${runtimeRu}\n${geometryRu}\n${ruRouteLearnerCopy}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
 }
 
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
 assert.equal((route.match(/evidenceGate:/gu) ?? []).length, 19, "Every route stage must name an evidence gate");
 for (const pattern of [/evidence/iu, /probe/iu, /repair/iu, /retention/iu, /field validation/iu]) {
-  assert.doesNotMatch(ruRoute, pattern, `Russian route contains internal terminology ${pattern}`);
+  assert.doesNotMatch(ruRouteLearnerCopy, pattern, `Russian route contains internal terminology ${pattern}`);
 }
 
 const app = await readFile(new URL("../components/LiveCashApp.tsx", import.meta.url), "utf8");
