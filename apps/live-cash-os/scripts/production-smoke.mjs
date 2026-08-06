@@ -1,8 +1,8 @@
 import { chromium } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 
 const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os.elmarsal.chatgpt.site/";
-const attempts = Number(process.env.SMOKE_ATTEMPTS ?? 20);
+const attempts = Number(process.env.SMOKE_ATTEMPTS ?? 4);
 const waitMs = Number(process.env.SMOKE_WAIT_MS ?? 15_000);
 const expectedMarkers = [
   "Учись коротко",
@@ -16,10 +16,12 @@ let lastError = new Error("Production smoke did not start");
 
 for (let attempt = 1; attempt <= attempts; attempt += 1) {
   const browser = await chromium.launch({ headless: true });
+  let desktop;
   try {
     const desktopContext = await browser.newContext();
-    const desktop = await desktopContext.newPage();
-    await desktop.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    desktop = await desktopContext.newPage();
+    const response = await desktop.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    console.log(`attempt=${attempt} status=${response?.status() ?? "none"} finalUrl=${desktop.url()} title=${await desktop.title()}`);
     await desktop.getByRole("heading", { name: /Учись коротко/i }).waitFor({ timeout: 20_000 });
 
     const body = await desktop.locator("body").innerText();
@@ -48,6 +50,14 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     process.exit(0);
   } catch (error) {
     lastError = error instanceof Error ? error : new Error(String(error));
+    if (desktop) {
+      const title = await desktop.title().catch(() => "");
+      const body = await desktop.locator("body").innerText().catch(() => "");
+      const html = await desktop.content().catch(() => "");
+      console.log(`LIVE_BODY_START ${body.slice(0, 1500).replaceAll("\n", " | ")} LIVE_BODY_END`);
+      await writeFile(`smoke-evidence/attempt-${attempt}.txt`, `URL: ${desktop.url()}\nTITLE: ${title}\n\nBODY:\n${body}\n\nHTML:\n${html}`, "utf8");
+      await desktop.screenshot({ path: `smoke-evidence/attempt-${attempt}.png`, fullPage: true }).catch(() => undefined);
+    }
     console.log(`attempt ${attempt}/${attempts} not ready: ${lastError.message}`);
     await browser.close();
     if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, waitMs));
