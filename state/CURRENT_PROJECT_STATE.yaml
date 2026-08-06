@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: live_learning_runtime_release
-  updated_at: '2026-08-06T16:57:00+04:00'
+  phase: live_learning_runtime_deploy_pending
+  updated_at: '2026-08-06T19:52:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash system for a strong MTT player moving into live 1/3 and 2/5.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -54,8 +54,12 @@ learner_application:
   teaching_stages_per_module: 10
   t1_policy: optional_recommended_personalisation
   stable_url_must_not_change: true
-  current_release_status: RELEASE_CANDIDATE_PENDING_AUTOMATED_AND_LIVE_GATES
+  accepted_source_sha: ba927405642a7aa7238c06db4348ef5b02921fdf
+  current_release_status: MAIN_MERGED_REPO_GREEN_LIVE_DEPLOY_PENDING
   runtime_admission_is_not_final_rule_admission: true
+  content_status:
+    LCM-01: GOLD_ACCEPTED_TEACHING_MODULE
+    LCM-02_to_LCM-11: VALIDATION_PENDING_REPEAT_AUDIT
 learner_runtime:
   state_scope: per_module_per_dimension
   dimensions:
@@ -91,6 +95,8 @@ learner_runtime:
 diagnostic_state:
   status: RUNTIME_READY_RESPONSES_PENDING
   policy: optional_recommended
+  cold_baseline_condition: no_prior_learning_exposure
+  post_learning_label: POST_LEARNING_DIAGNOSTIC
   battery: learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md
   runtime: learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md
   manifest: learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json
@@ -103,18 +109,31 @@ diagnostic_state:
   measured_candidate_error_estimates: 0
   confirmed_strategic_leaks: 0
   prior_hypotheses_only: true
+release_evidence:
+  pull_request: 2
+  merge_method: squash
+  accepted_source_sha: ba927405642a7aa7238c06db4348ef5b02921fdf
+  premerge_ci_run: 31115462552
+  postmerge_ci_run: 31115738775
+  typecheck_green: true
+  lint_green: true
+  unit_content_green: true
+  production_build_green: true
+  desktop_mobile_e2e_green: true
+  live_url_smoke_green: false
+  live_smoke_run: 31116142028
+  live_smoke_result: EXPECTED_NEW_RUNTIME_NOT_PRESENT
+  deploy_inference: chatgpt_site_not_auto_published_from_github_main
 active_milestone:
-  name: live_cash_os_release_validation_and_first_real_session
-  current_step: pass_ci_merge_preserve_stable_url_then_start_lcm_01_or_optional_t1
+  name: republish_chatgpt_site_and_validate_live_runtime
+  current_step: explicitly publish current main to the existing ChatGPT Site project, then run the manual production smoke
   success_condition:
-    typecheck_green: true
-    lint_green: true
-    unit_content_green: true
-    production_build_green: true
-    desktop_mobile_e2e_green: true
-    live_url_smoke_green: true
+    stable_url_unchanged: true
+    current_main_published: true
+    russian_runtime_visible: true
+    desktop_live_smoke_green: true
+    mobile_live_smoke_green: true
     learner_state_migration_preserved: true
-    first_real_session_started: true
 active_authorities:
   bootstrap: START_HERE.md
   agent_contract: AGENTS.md
@@ -125,6 +144,7 @@ active_authorities:
   learner_model: apps/live-cash-os/lib/model.ts
   module_content: apps/live-cash-os/content/modules.ts
   hosting: apps/live-cash-os/.openai/hosting.json
+  production_smoke: apps/live-cash-os/scripts/production-smoke.mjs
   max_ev: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_5.md
   readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_12.md
 truth_boundaries:
@@ -136,13 +156,16 @@ truth_boundaries:
 - content completion cannot create retention
 - raw field notes cannot create field validation
 - population magnitudes remain field-gated
+- repo green is not live deployment green
 next_user_interaction:
-  instruction: after release gates, start LCM-01 or optional T1 in the stable site
+  instruction: republish the existing ChatGPT Site from current main, keep the stable URL, then run the manual production smoke
   platform_tuning_after_release: stop_until_real_delayed_and_field_evidence
 terminal_state:
   handover_ready: true
   source_corpus_complete: true
   diagnostic_runtime_ready: true
-  learning_runtime_release_candidate: true
+  learning_runtime_repo_accepted: true
+  learning_runtime_live_accepted: false
+  live_deploy_blocked: true
   learner_error_probability_measured: false
   global_restructure_expected: false
