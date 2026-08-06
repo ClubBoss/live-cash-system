@@ -9,6 +9,15 @@ async function resetAnonymousState(page) {
   await page.reload();
 }
 
+function mainNav(page) {
+  return page.getByRole("navigation", { name: /Основная навигация|Main navigation/ });
+}
+
+async function openFirstLesson(page, locale = "ru") {
+  await mainNav(page).getByRole("button", { name: locale === "ru" ? "Учиться" : "Learn", exact: true }).click();
+  await page.locator(".module-list article").first().getByRole("button", { name: locale === "ru" ? "Изучить" : "Learn", exact: true }).click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
@@ -19,8 +28,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("completes the Russian cold decision and reaches the teaching layer", async ({ page }) => {
-  await page.getByRole("button", { name: "Учиться" }).click();
-  await page.getByRole("button", { name: /^Изучить/ }).first().click();
+  await openFirstLesson(page, "ru");
   await expect(page.getByText("1 · ВОПРОС БЕЗ ПОДСКАЗКИ")).toBeVisible();
   await page.getByRole("button", { name: /140.*280/u }).click();
   await page.getByRole("button", { name: /\$10/u }).click();
@@ -31,8 +39,7 @@ test("completes the Russian cold decision and reaches the teaching layer", async
 });
 
 test("switches RU and EN without resetting or losing the active session", async ({ page }) => {
-  await page.getByRole("button", { name: "Учиться" }).click();
-  await page.getByRole("button", { name: /^Изучить/ }).first().click();
+  await openFirstLesson(page, "ru");
   await page.getByRole("button", { name: /140.*280/u }).click();
   await page.getByRole("button", { name: /\$10/u }).click();
   await page.getByRole("button", { name: /Зафиксировать решение/ }).click();
@@ -58,13 +65,12 @@ test("offers T1 without blocking the first lesson in both languages", async ({ p
   await expect(page.getByText(/T1 — дополнительная диагностика без подсказок/)).toBeVisible();
   await page.getByRole("button", { name: "EN" }).click();
   await expect(page.getByText(/T1 — optional cold diagnostic/)).toBeVisible();
-  await page.getByRole("button", { name: "Learn" }).click();
-  await expect(page.getByRole("button", { name: /^Learn$/ }).first()).toBeEnabled();
+  await mainNav(page).getByRole("button", { name: "Learn", exact: true }).click();
+  await expect(page.locator(".module-list article").first().getByRole("button", { name: "Learn", exact: true })).toBeEnabled();
 });
 
 test("supports keyboard navigation and visible focus", async ({ page }) => {
-  await page.getByRole("button", { name: "Учиться" }).click();
-  await page.getByRole("button", { name: /^Изучить/ }).first().click();
+  await openFirstLesson(page, "ru");
   await page.keyboard.press("Tab");
   const focused = page.locator(":focus");
   await expect(focused).toBeVisible();
@@ -78,9 +84,9 @@ test("mobile layout has no horizontal overflow in RU or EN", async ({ page }, te
     const home = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
     expect(home.scroll).toBeLessThanOrEqual(home.client + 1);
     const learnLabel = locale === "RU" ? "Учиться" : "Learn";
-    await page.getByRole("button", { name: learnLabel }).click();
+    await mainNav(page).getByRole("button", { name: learnLabel, exact: true }).click();
     const learn = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
     expect(learn.scroll).toBeLessThanOrEqual(learn.client + 1);
-    await page.getByRole("button", { name: locale === "RU" ? "Сегодня" : "Today" }).click();
+    await mainNav(page).getByRole("button", { name: locale === "RU" ? "Сегодня" : "Today", exact: true }).click();
   }
 });
