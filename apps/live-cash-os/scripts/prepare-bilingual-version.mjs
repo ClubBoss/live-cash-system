@@ -1,5 +1,6 @@
 import "./normalize-misconceptions.mjs";
 import "./naturalize-source-russian.mjs";
+import "./add-diagnostic-run-id.mjs";
 import { readFile, writeFile } from "node:fs/promises";
 
 const modelPath = new URL("../lib/model.ts", import.meta.url);
@@ -11,6 +12,7 @@ if (model.includes('export const APP_VERSION = "1.0.0";')) {
 }
 if (!model.includes("measurementContext: MeasurementContext | null")) throw new Error("Hardened diagnostic context is missing");
 if (!model.includes("transferProbe?: TransferProbe | null")) throw new Error("Explicit transfer-probe contract is missing");
+if (!model.includes("runId: string | null")) throw new Error("Diagnostic run identity is missing");
 await writeFile(modelPath, model, "utf8");
 
 const manifestPath = new URL("../public/manifest.webmanifest", import.meta.url);
@@ -28,4 +30,4 @@ if (serviceWorker.includes('const CACHE = "live-cash-os-shell-v1";')) {
 }
 await writeFile(serviceWorkerPath, serviceWorker, "utf8");
 
-console.log("Prepared Live Cash OS 1.1.0 metadata, canonical misconception IDs, and natural Russian source copy.");
+console.log("Prepared Live Cash OS 1.1.0 metadata, canonical misconception IDs, natural Russian source copy, and diagnostic run identity.");
