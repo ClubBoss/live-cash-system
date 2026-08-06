@@ -4,13 +4,15 @@ on:
   pull_request:
     paths:
       - "apps/live-cash-os/**"
-      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "learning/diagnostics/DIAGNOSTIC_*_v0_2.json"
+      - "scripts/score_learner_diagnostic.py"
       - ".github/workflows/live-cash-os-ci.yml"
   push:
     branches: [main]
     paths:
       - "apps/live-cash-os/**"
-      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "learning/diagnostics/DIAGNOSTIC_*_v0_2.json"
+      - "scripts/score_learner_diagnostic.py"
       - ".github/workflows/live-cash-os-ci.yml"
   workflow_dispatch:
 
@@ -36,6 +38,9 @@ jobs:
           cache-dependency-path: apps/live-cash-os/package-lock.json
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Validate diagnostic scorer syntax
+        working-directory: .
+        run: python -m py_compile scripts/score_learner_diagnostic.py
       - name: Typecheck, lint, unit and build
         run: npm test
       - name: Install Chromium
