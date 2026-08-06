@@ -18,6 +18,12 @@ async function openFirstLesson(page, locale = "ru") {
   await page.locator(".module-list article").first().getByRole("button", { name: locale === "ru" ? "Изучить" : "Learn", exact: true }).click();
 }
 
+async function answerFirstColdDecision(page) {
+  await page.getByRole("button", { name: /140.*280/u }).click();
+  await page.getByRole("button", { name: /\$10/u }).click();
+  await page.getByRole("button", { name: /Зафиксировать решение/ }).click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
@@ -30,19 +36,33 @@ test.beforeEach(async ({ page }) => {
 test("completes the Russian cold decision and reaches the teaching layer", async ({ page }) => {
   await openFirstLesson(page, "ru");
   await expect(page.getByText("1 · ВОПРОС БЕЗ ПОДСКАЗКИ")).toBeVisible();
-  await page.getByRole("button", { name: /140.*280/u }).click();
-  await page.getByRole("button", { name: /\$10/u }).click();
-  await page.getByRole("button", { name: /Зафиксировать решение/ }).click();
+  await answerFirstColdDecision(page);
   await expect(page.getByText(/РАЗБОР РЕШЕНИЯ · CLASS A/)).toBeVisible();
+  await page.getByRole("button", { name: /Продолжить/ }).click();
+  await expect(page.getByText("2 · ПОНЯТНОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
+});
+
+test("recovers submitted feedback after reload without duplicating evidence", async ({ page }) => {
+  await openFirstLesson(page, "ru");
+  await answerFirstColdDecision(page);
+  await expect(page.getByText(/РАЗБОР РЕШЕНИЯ · CLASS A/)).toBeVisible();
+  await page.waitForTimeout(900);
+  const before = await page.evaluate(() => JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "{}").interactions?.length ?? 0);
+  expect(before).toBe(1);
+
+  await page.reload();
+  await expect(page.getByText(/РАЗБОР РЕШЕНИЯ · CLASS A/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Зафиксировать решение/ })).toHaveCount(0);
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "{}").interactions?.length ?? 0);
+  expect(after).toBe(1);
+
   await page.getByRole("button", { name: /Продолжить/ }).click();
   await expect(page.getByText("2 · ПОНЯТНОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
 });
 
 test("switches RU and EN without resetting or losing the active session", async ({ page }) => {
   await openFirstLesson(page, "ru");
-  await page.getByRole("button", { name: /140.*280/u }).click();
-  await page.getByRole("button", { name: /\$10/u }).click();
-  await page.getByRole("button", { name: /Зафиксировать решение/ }).click();
+  await answerFirstColdDecision(page);
   await page.getByRole("button", { name: /Продолжить/ }).click();
   await expect(page.getByText("2 · ПОНЯТНОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
 
