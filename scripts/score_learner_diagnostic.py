@@ -10,7 +10,14 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+SCORER_VERSION = "0.2.0"
 ALLOWED_CLASSES = {"A", "B", "C", "D", "E", "U"}
+ALLOWED_CONTEXTS = {
+    "COLD_BASELINE",
+    "POST_LEARNING_DIAGNOSTIC",
+    "MIXED_EXPOSURE_INVALID_FOR_BASELINE",
+}
+ALLOWED_LOCALES = {"ru", "en"}
 CLASS_ERROR = {"A": 0.0, "B": 0.55, "C": 0.70, "D": 1.0, "E": 0.65, "U": 0.0}
 PRIOR_ALPHA = 2.0
 PRIOR_BETA = 2.0
@@ -28,16 +35,43 @@ def validate(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, dict
     responses = record.get("responses")
     if not item_map or not isinstance(responses, list) or not responses:
         raise ValueError("Manifest items and non-empty responses are required")
+    if record.get("schema_version") != "evaluated-0.2":
+        raise ValueError("schema_version must be evaluated-0.2")
+    if record.get("learner_id") != "current_learner":
+        raise ValueError("learner_id must be current_learner")
+    tranche_id = record.get("tranche_id")
+    if tranche_id not in {"T1", "T2", "RETEST", "DELAYED"}:
+        raise ValueError("unsupported tranche_id")
+    if record.get("measurement_context") not in ALLOWED_CONTEXTS:
+        raise ValueError("measurement_context is required and must be valid")
+    if record.get("locale_at_start") not in ALLOWED_LOCALES:
+        raise ValueError("locale_at_start must be ru or en")
+    if not isinstance(record.get("submitted_at"), str) or not record["submitted_at"]:
+        raise ValueError("submitted_at is required")
+
+    expected_ids = set(manifest.get("tranches", {}).get(tranche_id, {}).get("items", []))
+    if tranche_id == "T1" and len(responses) != 10:
+        raise ValueError("T1 requires exactly 10 evaluated responses")
 
     seen: set[str] = set()
     for response in responses:
+        if not isinstance(response, dict):
+            raise ValueError("every response must be an object")
         item_id = response.get("item_id")
         if item_id not in item_map:
             raise ValueError(f"Unknown item_id: {item_id}")
+        if expected_ids and item_id not in expected_ids:
+            raise ValueError(f"{item_id} does not belong to tranche {tranche_id}")
         if item_id in seen:
             raise ValueError(f"Duplicate item_id: {item_id}")
         seen.add(item_id)
 
+        if not isinstance(response.get("answer"), str) or not response["answer"].strip():
+            raise ValueError(f"{item_id}: answer is required")
+        if not isinstance(response.get("reasoning"), str) or not response["reasoning"].strip():
+            raise ValueError(f"{item_id}: reasoning is required")
+        if response.get("locale") not in ALLOWED_LOCALES:
+            raise ValueError(f"{item_id}: locale must be ru or en")
         confidence = response.get("confidence")
         if not isinstance(confidence, int) or not 0 <= confidence <= 100:
             raise ValueError(f"{item_id}: confidence must be an integer 0..100")
@@ -58,8 +92,16 @@ def validate(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, dict
             value = evaluation.get(name)
             if not isinstance(value, (int, float)) or not lower <= value <= upper:
                 raise ValueError(f"{item_id}: {name} must be within {lower}..{upper}")
-        if not isinstance(evaluation.get("misconceptions"), list):
-            raise ValueError(f"{item_id}: misconceptions must be a list")
+        misconceptions = evaluation.get("misconceptions")
+        if not isinstance(misconceptions, list) or not all(
+            isinstance(value, str) and value.startswith("MC-") for value in misconceptions
+        ):
+            raise ValueError(f"{item_id}: misconceptions must be MC identifiers")
+
+    if expected_ids and seen != expected_ids:
+        missing = sorted(expected_ids - seen)
+        extra = sorted(seen - expected_ids)
+        raise ValueError(f"tranche item mismatch; missing={missing}, extra={extra}")
     return item_map
 
 
@@ -142,9 +184,13 @@ def score(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
 
     ranked = sorted(output_candidates, key=lambda cid: output_candidates[cid]["priority_index"], reverse=True)
     return {
-        "schema_version": "0.1",
+        "schema_version": "score-0.2",
+        "scorer_version": SCORER_VERSION,
         "learner_id": record.get("learner_id"),
         "tranche_id": record.get("tranche_id"),
+        "measurement_context": record.get("measurement_context"),
+        "locale_at_start": record.get("locale_at_start"),
+        "submitted_at": record.get("submitted_at"),
         "responses_scored": len(record["responses"]),
         "rerank_ready": len(record["responses"]) >= 8,
         "response_class_counts": dict(sorted(class_counts.items())),
@@ -164,6 +210,7 @@ def score(manifest: dict[str, Any], record: dict[str, Any]) -> dict[str, Any]:
             "posterior estimates are prioritisation aids, not true EV loss",
             "TENTATIVE estimates require changed-node and delayed evidence",
             "untested candidates remain UNMEASURED",
+            "MIXED_EXPOSURE_INVALID_FOR_BASELINE cannot be interpreted as a cold baseline",
         ],
     }
 
