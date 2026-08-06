@@ -84,6 +84,11 @@ replaceOnce(
   "per-response diagnostic locale",
 );
 replaceOnce(
+  'schema_version: "raw-0.1"',
+  'schema_version: "raw-0.2"',
+  "bilingual raw diagnostic schema version",
+);
+replaceOnce(
   '<p className="eyebrow">T1 · {diagnostic.status}</p>',
   '<p className="eyebrow">T1 · {diagnosticStatusLabel(locale, diagnostic.status)}</p>',
   "diagnostic status label",
@@ -92,4 +97,4 @@ replaceOnce(
 if (source.includes("feedback.drill.")) throw new Error("Locale-stale feedback references remain");
 if (source.includes("if (feedback) return")) throw new Error("Feedback recovery was not installed");
 await writeFile(path, source, "utf8");
-console.log("Postprocessed bilingual runtime labels, locale-stable feedback, reload recovery and per-response T1 locale.");
+console.log("Postprocessed bilingual runtime labels, feedback recovery and raw diagnostic v0.2 locale context.");
