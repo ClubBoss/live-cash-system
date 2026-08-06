@@ -6,39 +6,28 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - ".github/workflows/live-cash-os-bilingual-materialize.yml"
-      - "apps/live-cash-os/scripts/apply-bilingual-runtime.mjs"
-      - "apps/live-cash-os/scripts/postprocess-bilingual-runtime.mjs"
-      - "apps/live-cash-os/scripts/add-learning-route.mjs"
-      - "apps/live-cash-os/scripts/prepare-bilingual-version.mjs"
-      - "apps/live-cash-os/scripts/normalize-misconceptions.mjs"
-      - "apps/live-cash-os/scripts/i18n-extract.mjs"
-      - "apps/live-cash-os/scripts/i18n-sync.mjs"
-      - "apps/live-cash-os/scripts/i18n-curated-overrides.mjs"
-      - "apps/live-cash-os/scripts/i18n-quality-fixes.mjs"
-      - "apps/live-cash-os/scripts/i18n-review-current.mjs"
-      - "apps/live-cash-os/scripts/i18n-apply-review-manifest.mjs"
-      - "apps/live-cash-os/scripts/i18n-check.mjs"
+      - "apps/live-cash-os/components/LiveCashApp.tsx"
+      - "apps/live-cash-os/content/modules.ts"
+      - "apps/live-cash-os/content/i18n/diagnostic.ts"
+      - "apps/live-cash-os/content/i18n/ui.ts"
       - "apps/live-cash-os/content/i18n/route.ts"
       - "apps/live-cash-os/content/i18n/review-manifest.json"
+      - "apps/live-cash-os/lib/model.ts"
+      - "apps/live-cash-os/scripts/*.mjs"
+      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json"
   push:
     branches:
       - agent/live-cash-os-bilingual-copy-pass
     paths:
       - ".github/workflows/live-cash-os-bilingual-materialize.yml"
-      - "apps/live-cash-os/scripts/apply-bilingual-runtime.mjs"
-      - "apps/live-cash-os/scripts/postprocess-bilingual-runtime.mjs"
-      - "apps/live-cash-os/scripts/add-learning-route.mjs"
-      - "apps/live-cash-os/scripts/prepare-bilingual-version.mjs"
-      - "apps/live-cash-os/scripts/normalize-misconceptions.mjs"
-      - "apps/live-cash-os/scripts/i18n-extract.mjs"
-      - "apps/live-cash-os/scripts/i18n-sync.mjs"
-      - "apps/live-cash-os/scripts/i18n-curated-overrides.mjs"
-      - "apps/live-cash-os/scripts/i18n-quality-fixes.mjs"
-      - "apps/live-cash-os/scripts/i18n-review-current.mjs"
-      - "apps/live-cash-os/scripts/i18n-apply-review-manifest.mjs"
-      - "apps/live-cash-os/scripts/i18n-check.mjs"
+      - "apps/live-cash-os/content/modules.ts"
+      - "apps/live-cash-os/content/i18n/diagnostic.ts"
+      - "apps/live-cash-os/content/i18n/ui.ts"
       - "apps/live-cash-os/content/i18n/route.ts"
       - "apps/live-cash-os/content/i18n/review-manifest.json"
+      - "apps/live-cash-os/lib/model.ts"
+      - "apps/live-cash-os/scripts/*.mjs"
+      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json"
 
 permissions:
   contents: write
@@ -53,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
-      - name: Clone the working branch without marketplace actions
+      - name: Clone the working branch
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -61,10 +50,10 @@ jobs:
       - name: Install dependencies and refresh lockfile
         working-directory: work/apps/live-cash-os
         run: npm install --no-audit --no-fund
-      - name: Prepare version and normalize canonical misconception IDs
+      - name: Prepare version and hardened learner model
         working-directory: work/apps/live-cash-os
         run: node scripts/prepare-bilingual-version.mjs
-      - name: Apply bilingual runtime
+      - name: Apply one-time bilingual runtime migration
         working-directory: work/apps/live-cash-os
         run: node scripts/apply-bilingual-runtime.mjs
       - name: Postprocess locale-stable runtime
@@ -79,19 +68,19 @@ jobs:
       - name: Refresh translation drafts
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-sync.mjs
-      - name: Apply curated LCM-01 copy
+      - name: Apply curated gold-module copy
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-curated-overrides.mjs
-      - name: Run explicit quality corrections and semantic draft audit
+      - name: Apply deterministic quality corrections without granting approval
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-review-current.mjs
       - name: Verify draft integrity
         working-directory: work/apps/live-cash-os
         run: ALLOW_DRAFT_I18N=1 npm run i18n:check
-      - name: Verify runtime compiles before committing drafts
+      - name: Verify materialized runtime compiles
         working-directory: work/apps/live-cash-os
         run: npm run typecheck
-      - name: Commit materialized runtime, normalized content and audited drafts
+      - name: Commit final runtime and source-locked drafts
         working-directory: work
         run: |
           paths=(
@@ -114,6 +103,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "${paths[@]}"
-          git commit -m "Materialize bilingual runtime, canonical taxonomy and audited drafts"
+          git commit -m "Materialize bilingual runtime and source-locked drafts"
           git pull --rebase origin agent/live-cash-os-bilingual-copy-pass
           git push origin HEAD:agent/live-cash-os-bilingual-copy-pass
