@@ -2,6 +2,16 @@ name: Live Cash OS Bilingual Materialize
 
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - ".github/workflows/live-cash-os-bilingual-materialize.yml"
+      - "apps/live-cash-os/scripts/apply-bilingual-runtime.mjs"
+      - "apps/live-cash-os/scripts/postprocess-bilingual-runtime.mjs"
+      - "apps/live-cash-os/scripts/prepare-bilingual-version.mjs"
+      - "apps/live-cash-os/scripts/i18n-extract.mjs"
+      - "apps/live-cash-os/scripts/i18n-sync.mjs"
+      - "apps/live-cash-os/scripts/i18n-curated-overrides.mjs"
   push:
     branches:
       - agent/live-cash-os-bilingual-copy-pass
@@ -23,6 +33,7 @@ concurrency:
 
 jobs:
   materialize:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
