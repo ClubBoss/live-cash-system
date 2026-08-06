@@ -1,11 +1,6 @@
 name: Live Cash OS Production Smoke
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "apps/live-cash-os/**"
-      - ".github/workflows/live-cash-os-live-smoke-once.yml"
   workflow_dispatch:
 
 permissions:
