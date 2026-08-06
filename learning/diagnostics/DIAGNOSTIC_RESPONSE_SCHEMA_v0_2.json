@@ -6,6 +6,7 @@
     "schema_version",
     "learner_id",
     "tranche_id",
+    "run_id",
     "measurement_context",
     "locale_at_start",
     "submitted_at",
@@ -15,6 +16,7 @@
     "schema_version": { "const": "evaluated-0.2" },
     "learner_id": { "const": "current_learner" },
     "tranche_id": { "const": "T1" },
+    "run_id": { "type": "string", "pattern": "^t1-[A-Za-z0-9-]+$" },
     "measurement_context": {
       "enum": [
         "COLD_BASELINE",
@@ -40,10 +42,7 @@
           "evaluation"
         ],
         "properties": {
-          "item_id": {
-            "type": "string",
-            "pattern": "^(LD-00[1-9]|LD-010)$"
-          },
+          "item_id": { "type": "string", "pattern": "^(LD-00[1-9]|LD-010)$" },
           "answer": { "type": "string", "minLength": 1 },
           "reasoning": { "type": "string", "minLength": 1 },
           "confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
@@ -65,7 +64,7 @@
               "boundary_score": { "type": "number", "minimum": 0, "maximum": 1 },
               "misconceptions": {
                 "type": "array",
-                "items": { "type": "string", "pattern": "^MC-[0-9]{3}$" }
+                "items": { "type": "string", "pattern": "^MC-(00[1-9]|0[12][0-9]|030)$" }
               },
               "evaluator_note": { "type": "string" }
             },
