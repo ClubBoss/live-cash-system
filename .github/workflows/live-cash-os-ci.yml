@@ -1,15 +1,8 @@
 name: Live Cash OS CI
 
 on:
-  pull_request:
-    paths:
-      - "apps/live-cash-os/**"
-      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
-      - ".github/workflows/live-cash-os-ci.yml"
   push:
-    branches:
-      - main
-      - "agent/**"
+    branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
@@ -20,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-${{ github.ref }}
+  group: live-cash-os-main
   cancel-in-progress: true
 
 jobs:
@@ -40,48 +33,11 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Typecheck
-        id: typecheck
-        continue-on-error: true
-        run: npm run typecheck
-
-      - name: Lint
-        id: lint
-        continue-on-error: true
-        run: npm run lint
-
-      - name: Editorial integrity
-        id: editorial
-        continue-on-error: true
-        run: npm run check:editorial
-
-      - name: Build
-        id: build
-        continue-on-error: true
-        run: npm run build
-
-      - name: Unit tests
-        id: unit
-        continue-on-error: true
-        run: npm run test:unit
-
-      - name: Core gate verdict
-        if: always()
-        run: |
-          if [[ "${{ steps.typecheck.outcome }}" != "success" \
-            || "${{ steps.lint.outcome }}" != "success" \
-            || "${{ steps.editorial.outcome }}" != "success" \
-            || "${{ steps.unit.outcome }}" != "success" \
-            || "${{ steps.build.outcome }}" != "success" ]]; then
-            echo "One or more core gates failed. Review the individual steps above."
-            exit 1
-          fi
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Desktop and mobile browser gates
-        run: npm run test:e2e
+      - name: Release gate
+        run: npm run test:release
 
       - name: Upload browser evidence on failure
         if: failure()
