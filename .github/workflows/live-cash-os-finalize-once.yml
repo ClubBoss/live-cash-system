@@ -1,0 +1,72 @@
+name: Live Cash OS Finalize Once
+
+on:
+  push:
+    branches:
+      - agent/live-cash-os-six-wave-rebuild
+    paths:
+      - ".github/workflows/live-cash-os-finalize-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/live-cash-os-six-wave-rebuild
+          fetch-depth: 0
+      - name: Apply final integrity fixes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          app = Path("apps/live-cash-os/components/LiveCashApp.tsx")
+          text = app.read_text(encoding="utf-8")
+
+          replacements = [
+              (
+                  '  }, [ready, state, syncStatus]);',
+                  '  }, [ready, state]);',
+              ),
+              (
+                  '  const diagnostic = state.diagnostic;\n  const item = diagnosticT1[diagnostic.responses.length];',
+                  '  const diagnostic = state.diagnostic;\n  const item = diagnosticT1[diagnostic.responses.length];\n  const baselineEligible = state.interactions.length === 0 && modules.every((module) => !state.modules[module.id].contentCompleted);',
+              ),
+              (
+                  '  if (diagnostic.status === "NOT_STARTED") return <section className="surface"><div className="section-head"><p className="eyebrow">T1 · OPTIONAL PERSONALISATION</p><h1>Измерить текущую модель.<br/><em>Не блокировать обучение.</em></h1><p>10 cold free-text decisions. Feedback скрыт до конца.</p><button className="primary" onClick={begin}>Начать T1 <span>→</span></button></div></section>;',
+                  '  if (diagnostic.status === "NOT_STARTED") return <section className="surface"><div className="section-head"><p className="eyebrow">{baselineEligible ? "T1 · COLD BASELINE AVAILABLE" : "T1 · POST-LEARNING DIAGNOSTIC"}</p><h1>Измерить текущую модель.<br/><em>Не блокировать обучение.</em></h1><p>{baselineEligible ? "10 cold free-text decisions. Feedback скрыт до конца." : "Обучение уже началось: результат полезен для маршрута, но не является исходным cold baseline."}</p><button className="primary" onClick={begin}>Начать T1 <span>→</span></button></div></section>;',
+              ),
+              (
+                  'submitted_at: diagnostic.submittedAt, responses: diagnostic.responses',
+                  'measurement_context: baselineEligible ? "COLD_BASELINE" : "POST_LEARNING_DIAGNOSTIC", submitted_at: diagnostic.submittedAt, responses: diagnostic.responses',
+              ),
+              (
+                  '<p className="support">Отвечай из текущего процесса. Не ищи charts и answer keys.</p>',
+                  '<p className="support">{baselineEligible ? "Cold baseline: отвечай из текущего процесса, не ищи charts и answer keys." : "Post-learning diagnostic: используй текущую модель; результат не будет называться исходным baseline."}</p>',
+              ),
+          ]
+
+          for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"Expected exactly one match, found {count}: {old[:90]}")
+              text = text.replace(old, new)
+
+          app.write_text(text, encoding="utf-8")
+
+          test = Path("apps/live-cash-os/tests/ui-integrity.test.mjs")
+          test.write_text('''import assert from "node:assert/strict";\nimport { readFile } from "node:fs/promises";\nimport test from "node:test";\n\nconst sourcePromise = readFile(new URL("../components/LiveCashApp.tsx", import.meta.url), "utf8");\n\ntest("cloud sync is driven by learner-state changes, not sync-label changes", async () => {\n  const source = await sourcePromise;\n  assert.match(source, /\\[ready, state\\]\\);/u);\n  assert.doesNotMatch(source, /\\[ready, state, syncStatus\\]\\);/u);\n});\n\ntest("T1 export distinguishes cold baseline from post-learning diagnosis", async () => {\n  const source = await sourcePromise;\n  assert.match(source, /measurement_context: baselineEligible \\? "COLD_BASELINE" : "POST_LEARNING_DIAGNOSTIC"/u);\n  assert.match(source, /не является исходным cold baseline/u);\n});\n''', encoding="utf-8")
+
+          workflow = Path(".github/workflows/live-cash-os-finalize-once.yml")
+          workflow.unlink()
+          PY
+      - name: Commit final fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Close final sync and diagnostic integrity gaps"
+          git push origin HEAD:agent/live-cash-os-six-wave-rebuild
