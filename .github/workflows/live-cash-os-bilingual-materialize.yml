@@ -1,0 +1,54 @@
+name: Live Cash OS Bilingual Materialize
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/live-cash-os-bilingual-copy-pass
+    paths:
+      - ".github/workflows/live-cash-os-bilingual-materialize.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-cash-os-bilingual-materialize
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/live-cash-os-bilingual-copy-pass
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - run: npm install --no-audit --no-fund
+      - name: Apply bilingual runtime
+        run: node scripts/apply-bilingual-runtime.mjs
+      - name: Extract stable learner-copy keys
+        run: node scripts/i18n-extract.mjs
+      - name: Refresh translation memory
+        run: node scripts/i18n-sync.mjs
+      - name: Commit materialized runtime and locale memories
+        run: |
+          if git diff --quiet -- components/LiveCashApp.tsx app/globals.css content/i18n/source.ru.json content/i18n/ru.json content/i18n/en.json; then
+            echo "Bilingual runtime already materialized"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add components/LiveCashApp.tsx app/globals.css content/i18n/source.ru.json content/i18n/ru.json content/i18n/en.json
+          git commit -m "Materialize bilingual learner runtime and translation memory"
+          git pull --rebase origin agent/live-cash-os-bilingual-copy-pass
+          git push origin HEAD:agent/live-cash-os-bilingual-copy-pass
