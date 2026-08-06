@@ -10,12 +10,16 @@ console.log(`production-smoke target=${liveUrl} attempts=${attempts}`);
 await mkdir("smoke-evidence", { recursive: true });
 let lastError = new Error("Production smoke did not start");
 
+function mainNav(page) {
+  return page.getByRole("navigation", { name: /Основная навигация|Main navigation/ });
+}
+
 async function assertNoOverflow(page, label) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   if (overflow > 1) throw new Error(`${label} horizontal overflow: ${overflow}px`);
 }
 
-async function verifyLocale(page, locale) {
+async function verifyHomeLocale(page, locale) {
   const isRussian = locale === "ru";
   const heading = isRussian ? /Учись коротко/i : /Learn in small pieces/i;
   const t1 = isRussian ? /T1 — дополнительная диагностика без подсказок/i : /T1 — optional cold diagnostic/i;
@@ -25,6 +29,14 @@ async function verifyLocale(page, locale) {
   const toggle = page.getByRole("button", { name: selected });
   if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${selected} toggle is not active`);
   if ((await page.locator("html").getAttribute("lang")) !== locale) throw new Error(`Document lang is not ${locale}`);
+}
+
+async function openGoldLesson(page, locale) {
+  const isRussian = locale === "ru";
+  await mainNav(page).getByRole("button", { name: isRussian ? "Учиться" : "Learn", exact: true }).click();
+  await page.locator(".module-list article").first().getByRole("button", { name: isRussian ? "Изучить" : "Learn", exact: true }).click();
+  await page.getByText(isRussian ? "1 · ВОПРОС БЕЗ ПОДСКАЗКИ" : "1 · COLD DECISION").waitFor({ timeout: 10_000 });
+  await page.getByRole("heading", { name: isRussian ? /В какой единице сначала описать глубину/i : /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
 }
 
 for (let attempt = 1; attempt <= attempts; attempt += 1) {
@@ -38,33 +50,39 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     if (response?.status() !== 200) throw new Error(`Unexpected HTTP status: ${response?.status() ?? "none"}`);
     if ((await desktop.title()) !== "Live Cash OS") throw new Error("Unexpected document title");
 
-    await verifyLocale(desktop, "ru");
+    await verifyHomeLocale(desktop, "ru");
     let body = await desktop.locator("body").innerText();
     if (!body.includes("LIVE CASH OS")) throw new Error("Brand marker is missing");
     for (const marker of forbiddenMarkers) if (body.includes(marker)) throw new Error(`Forbidden old marker is present: ${marker}`);
-    await desktop.screenshot({ path: "smoke-evidence/desktop-ru.png", fullPage: true });
+    await desktop.screenshot({ path: "smoke-evidence/desktop-home-ru.png", fullPage: true });
 
+    await openGoldLesson(desktop, "ru");
+    await desktop.screenshot({ path: "smoke-evidence/desktop-lcm01-ru.png", fullPage: true });
     await desktop.getByRole("button", { name: "EN" }).click();
-    await verifyLocale(desktop, "en");
-    body = await desktop.locator("body").innerText();
-    const forbiddenRussianUi = ["Учись коротко", "СЕГОДНЯ · ОДИН ГЛАВНЫЙ ШАГ", "УЧИТЬСЯ", "КАРТА НАВЫКОВ"];
-    for (const marker of forbiddenRussianUi) if (body.includes(marker)) throw new Error(`English UI contains Russian fallback marker: ${marker}`);
-    await desktop.screenshot({ path: "smoke-evidence/desktop-en.png", fullPage: true });
+    await desktop.getByText("1 · COLD DECISION").waitFor({ timeout: 10_000 });
+    await desktop.getByRole("heading", { name: /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
+    if ((await desktop.locator("html").getAttribute("lang")) !== "en") throw new Error("Document lang is not en inside the lesson");
+    await desktop.screenshot({ path: "smoke-evidence/desktop-lcm01-en.png", fullPage: true });
 
     await desktop.reload({ waitUntil: "domcontentloaded" });
-    await verifyLocale(desktop, "en");
+    await desktop.getByText("1 · COLD DECISION").waitFor({ timeout: 10_000 });
+    await desktop.getByRole("heading", { name: /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
+    if ((await desktop.getByRole("button", { name: "EN" }).getAttribute("aria-pressed")) !== "true") throw new Error("English locale did not survive reload");
+    body = await desktop.locator("body").innerText();
+    const forbiddenRussianLesson = ["В какой единице сначала описать глубину", "ВОПРОС БЕЗ ПОДСКАЗКИ", "Зафиксировать решение"];
+    for (const marker of forbiddenRussianLesson) if (body.includes(marker)) throw new Error(`English lesson contains Russian fallback marker: ${marker}`);
     await desktopContext.close();
 
     const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const mobile = await mobileContext.newPage();
     await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
-    await verifyLocale(mobile, "ru");
-    await assertNoOverflow(mobile, "Russian mobile");
-    await mobile.screenshot({ path: "smoke-evidence/mobile-ru.png", fullPage: true });
+    await verifyHomeLocale(mobile, "ru");
+    await assertNoOverflow(mobile, "Russian mobile home");
+    await mobile.screenshot({ path: "smoke-evidence/mobile-home-ru.png", fullPage: true });
     await mobile.getByRole("button", { name: "EN" }).click();
-    await verifyLocale(mobile, "en");
-    await assertNoOverflow(mobile, "English mobile");
-    await mobile.screenshot({ path: "smoke-evidence/mobile-en.png", fullPage: true });
+    await verifyHomeLocale(mobile, "en");
+    await assertNoOverflow(mobile, "English mobile home");
+    await mobile.screenshot({ path: "smoke-evidence/mobile-home-en.png", fullPage: true });
     await mobileContext.close();
 
     const report = {
@@ -73,6 +91,9 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       http_status: response?.status(),
       title: "Live Cash OS",
       locales: ["ru", "en"],
+      verified_routes: ["home", "LCM-01 cold decision"],
+      locale_switch_preserves_active_session: true,
+      locale_persists_reload: true,
       mobile_viewport: "390x844",
       timestamp: new Date().toISOString(),
     };
