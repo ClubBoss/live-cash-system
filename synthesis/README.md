@@ -1,111 +1,128 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / CARROT_GRADE_3_BATCH_04_MAPPED`
+Status: `ACTIVE_AUTHORITY_INDEX / CROSS_CORPUS_AUDIT_COMPLETE / POST_SOURCE_PHASE`
 
 ## Active authorities
 
+### Cross-corpus state
+
+- `../analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md` - completeness, defect and rerun authority;
+- `CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md` - current top-level source-evidence navigation;
+- `../reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md` - latest milestone report;
+- `../reports/CURRENT_SOURCE_COURSE_EVALUATION_v5.md` - current source-role evaluation.
+
 ### Strategic inventory
 
-- `HEURISTIC_CANDIDATE_REGISTRY_v0_3.md` — 34-candidate status authority;
-- `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_2.md` — module ownership and direct-drill coverage;
-- `PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_2.md` — non-final 16-slot scaffold.
+- `HEURISTIC_CANDIDATE_REGISTRY_v0_4.md` - 34-candidate status authority;
+- `REMAINING_SOURCE_QUESTION_MATRIX_v1_3.md` - 38 residual evidence-question authority;
+- `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_3.md` - module ownership and direct answer-key coverage;
+- `MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md` - neutral-prior deployment and closure ranking;
+- `PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_3.md` - non-binding 16-container scaffold.
 
-### Cross-source evidence
+### Source-specific evidence
 
-- `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` — Smash/FTGU relations;
-- `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` — Cash Injection relations;
-- `CARROT_EVIDENCE_MATRIX_v0_4.md` — current Carrot relations through Grade 3 L09;
-- `CARROT_G3_BATCH_04_CROSS_SOURCE_DELTA_v1.md` — Grade 3 L08–L09 delta;
-- `CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` — Grade 3 exam-to-lecture routing.
-
-### Remaining validation
-
-- `REMAINING_SOURCE_QUESTION_MATRIX_v1_2.md` — unresolved-question authority.
+- `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` - detailed Smash/FTGU relation record; historical `Carrot pending` status is superseded;
+- `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md` - Cash mechanism and field-gated population relations;
+- `CARROT_EVIDENCE_MATRIX_v0_5.md` - complete Grades 1-3 Carrot relations;
+- `CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md` - complete G3-Q01-Q10 lecture and Feedback routing.
 
 ## Authority order
 
 1. canonical source record;
-2. source-specific evidence matrix;
-3. remaining-source question matrix;
-4. candidate registry;
-5. candidate-to-module workbench;
-6. provisional slot architecture;
-7. adaptive readiness;
-8. provisional Playbook snapshot.
+2. source-family registry and gap ledger;
+3. cross-corpus audit and source-specific evidence matrix;
+4. evidence-question matrix;
+5. candidate registry;
+6. candidate-to-module workbench;
+7. Max-EV ranking;
+8. provisional synthesis slots;
+9. adaptive readiness;
+10. learner and field evidence;
+11. Playbook admission.
 
-## Current coverage
+## Current source coverage
 
 ```text
-Smash: complete
+Smash: 66/66 catalogued audio lessons complete
 FTGU: 30/30 complete
 Cash Injection: 10/10 complete
-Carrot Grade 1: complete
-Carrot Grade 2: complete
-Carrot Grade 3 Lectures: L01–L09 received
-Carrot Grade 3 Final Exam and Feedback: received and mapped
-Carrot Grade 3 final Lecture 10: pending
-
-candidate count: 34
-stable modules: 11
-provisional slots: 16
-direct candidate drill coverage: 30/34
-original Carrot assessment families: 70
-admitted final rules: 0
+Carrot Grade 1: L01-L10 + Exam + Feedback complete
+Carrot Grade 2: L01-L10 + Exam + Feedback complete
+Carrot Grade 3: L01-L10 + Exam + Feedback complete
 ```
 
-## Grade 3 Batch 04 effect
+This means known catalogued corpus completeness. Unknown unsupplied supplements are not assumed present or missing.
 
-### Lecture 8
-
-- immediate bet versus check-branch trade-off;
-- protected checks containing credible calls and raises;
-- delayed-c-bet and probe resistance;
-- solver-to-opponent checking-range adjustment.
-
-### Lecture 9
-
-- OOP 3-bet-pot call/fold geography;
-- identical-class hand comparison;
-- texture-dependent response to range bets;
-- tier-one value as a raise-range gate;
-- low-SPR turn-jam construction with denial discipline.
-
-## Grade 3 exam state
+## Current strategic inventory
 
 ```text
-G3-Q01–Q09 → matching primary lectures + Feedback
-G3-Q10 → Feedback-supported; final Lecture 10 pending
+candidate count: 34
+stable modules: 11
+provisional synthesis containers: 16 non-binding
+direct candidate drills: 30/34
+answer-key-gated direct drill gaps: 4
+original Carrot assessment families: 74
+admitted final rules: 0
+final rule count: emergent / not fixed
 ```
 
-## New-candidate and gap result
+## Four answer-key gaps
 
-No new core candidate is required.
+- `H-W01-002` squeeze purification;
+- `H-W01-006` exact deep OOP protected calls;
+- `H-W01-008` polar preflop target folds and call branch;
+- `H-R04-007` multiway delayed aggression.
 
-The four source-sensitive direct-drill gaps remain:
+These are post-source evidence gaps, not future-course gaps.
 
-- squeeze purification;
-- exact deep OOP protected calls;
-- polar preflop target folds;
-- multiway delayed aggression.
+## Max-EV priority
 
-Lecture 8 strengthens protected-call/check reasoning but does not close an exact depth-specific answer key.
+Neutral-prior deployment begins with:
 
-## Remaining source workload
+- filtering and ownership;
+- effective depth;
+- source range and origin/reach;
+- value-first aggression;
+- bet-shape/response-shape;
+- 3-bet/4-bet ancestry;
+- exact-branch exploit discipline.
 
-- Grade 3 final Lecture 10;
-- preflop/squeeze construction;
-- exact deep-OOP boundaries;
-- multiway structure;
-- exact depth/straddle overlays;
-- independent preflop anchors;
-- field calibration.
+Highest-value build lanes:
+
+1. independent preflop architecture and anchors;
+2. multiway structure and delayed aggression;
+3. depth/SPR/straddle overlays;
+4. learner diagnostics;
+5. target-live field calibration.
+
+Diagnostics must update error probability before final sequence lock.
+
+## Final-rule policy
+
+`MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
+
+The 16 provisional containers may merge, split or disappear. No numerical target controls final compression.
+
+## Current active path
+
+```text
+independent preflop architecture and anchor specification
+-> original derivation and validation
+-> activate preflop answer-key-gated drills
+-> multiway boundary closure
+-> depth/straddle overlays
+-> learner diagnostics
+-> field calibration
+-> final compression
+-> admission
+```
 
 ## Verdict
 
-`CARROT_GRADE_3_L01_TO_L09_MAPPED`
+`CROSS_CORPUS_AUDIT_COMPLETE`
 
-`G3_Q01_TO_Q09_PRIMARY_LECTURE_SUPPORTED`
+`ACTIVE_ROUTING_POST_SOURCE`
 
-`SEVENTY_TOTAL_ORIGINAL_CARROT_ASSESSMENT_FAMILIES`
+`PREFLOP_ARCHITECTURE_NEXT`
 
-`NO_NEW_CORE_CANDIDATE_OR_DIRECT_DRILL_CLOSURE`
+`NO_ADMISSION_PROMOTION`

@@ -2,127 +2,83 @@
 
 Private source-of-truth for a compact, adaptive and executable No-Limit Hold'em live-cash learning system.
 
-## New chat or agent entry point
+## Entry point
 
-Read in this order:
+Read:
 
 1. [`START_HERE.md`](START_HERE.md);
 2. [`AGENTS.md`](AGENTS.md);
 3. [`state/CURRENT_PROJECT_STATE.yaml`](state/CURRENT_PROJECT_STATE.yaml);
 4. [`PROJECT_ATLAS.md`](PROJECT_ATLAS.md).
 
-Repository state overrides chat memory. Continue from the accepted checkpoint rather than restarting project diagnosis.
+Repository state overrides chat memory.
 
 ## Objective
 
-Convert independent sources into:
+Convert independent sources and evidence into:
 
-- an optimally compact robust table-facing rule core with no preset count;
+- an optimally compact table-facing rule core with no preset count;
 - original adaptive drills and assessments;
 - independently derived preflop anchors;
 - opponent/environment overlays;
 - field-tested live execution.
 
-Source courses provide evidence. They do not become parallel curricula.
-
 Final-rule policy:
 
 `MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
 
-## Current source state
+## Source state
 
 | Source family | Status |
 |---|---|
-| Smash Live Cash | canonical corpus complete; claim-driven visuals only |
-| From the Ground Up | 30/30 complete and mapped; charts reference-only |
-| Cash Injection | 10/10 complete and mapped; ten pool hypotheses field-gated |
-| Carrot Poker Grade 1 | complete: Lectures 01-10, Final Exam and Feedback |
-| Carrot Poker Grade 2 | complete: Lectures 01-10, Final Exam and Feedback |
-| Carrot Poker Grade 3 | complete: Lectures 01-10, Final Exam and Feedback |
+| Smash Live Cash | 66/66 catalogued audio lessons complete; claim-driven visuals only |
+| FTGU | 30/30 complete; charts reference-only |
+| Cash Injection | 10/10 complete; ten pool hypotheses field-gated |
+| Carrot Grades 1-3 | each grade complete with L01-L10, Final Exam and Feedback |
 
-## Current system state
+The cross-corpus audit found no open full rerun or unresolved package-level defect. `Known catalogued corpus complete` does not claim that no unsupplied publisher supplement exists.
 
-```text
-heuristic candidates:              34
-stable adaptive modules:           11
-misconception classes:             30
-remaining-source question IDs:     38
-provisional synthesis slots:       16
-candidates with direct drills:      30
-source-gated direct drill gaps:      4
-
-Carrot Grade 1 assessments:         24
-Carrot Grade 2 assessments:         20
-Carrot Grade 3 L01-L02:              6
-Carrot Grade 3 L03-L04:              7
-Carrot Grade 3 L05-L07:              7
-Carrot Grade 3 L08-L09:              6
-Carrot Grade 3 L10:                  4
-Carrot assessments total:           74
-
-Grade 2 feedback repair paths:       10
-Grade 3 feedback repair paths:       10
-admitted final rules:                 0
-final rule count:           emergent / not fixed
-```
-
-The 16 provisional slots are working containers only.
-
-## Current Grade 3 scaffold
+## System state
 
 ```text
-ACTION HISTORY
--> CURRENT RANGE STATE
--> PURE / MIX GATE
--> VALUE / BLUFF / FRAIL CLASS
--> BET EV VERSUS CHECK EV
--> CHECK-BRANCH TRADE-OFF
--> WORLD FAVOURABILITY
--> CALL / RAISE / FOLD THRESHOLDS
--> VALUE REGION AND INVESTMENT CEILING
--> SIZE TOOLKIT
--> TOP-END VALUE / RAISE ELIGIBILITY
--> BLOCKER-FUNCTION VECTOR
--> JAM-EXPOSURE / REOPEN GATE
--> THEORY-TO-POOL CHECK
+heuristic candidates: 34
+stable adaptive modules: 11
+misconception classes: 30
+evidence-question IDs: 38
+provisional synthesis containers: 16 non-binding
+direct original drills: 30
+answer-key-gated drill gaps: 4
+Carrot assessment families: 74
+admitted final rules: 0
 ```
 
-All `G3-Q01` through `G3-Q10` have matching primary lecture and Feedback support.
+## Current milestone
 
-## Active milestone
+`INDEPENDENT PREFLOP ARCHITECTURE AND ANCHOR SPECIFICATION`
 
-Cross-corpus completeness and defect audit:
+Neutral-prior build order:
 
-- verify source continuity and package integrity;
-- identify material ASR or visual dependencies;
-- request targeted reruns only where repair EV is material;
-- rerank candidates by system-wide Max-EV;
-- preserve unresolved preflop, depth, multiway and field gaps.
+1. independent preflop architecture and anchors;
+2. multiway structure and delayed aggression;
+3. depth/SPR/straddle overlays;
+4. learner diagnostics;
+5. target-live field calibration;
+6. final compression and admission.
 
-## Still open
+Audit authority:
 
-- squeeze purification;
-- exact deep OOP boundaries;
-- polar preflop target folds;
-- independent preflop anchors;
-- multiway structure;
-- exact depth/straddle overlays;
-- target-live population calibration;
-- learner and field validation;
-- final admission.
+`analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md`
+
+Latest report:
+
+`reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md`
 
 ## Verdict
 
-`SMASH_COMPLETE`
+`CROSS_CORPUS_AUDIT_COMPLETE`
 
-`FTGU_30_OF_30_COMPLETE`
+`NO_FULL_RERUN_REQUIRED`
 
-`CASH_INJECTION_10_OF_10_COMPLETE`
-
-`CARROT_GRADES_1_TO_3_COMPLETE`
-
-`GRADE_3_LECTURE_AND_ANSWER_KEY_CONTINUITY_COMPLETE`
+`PREFLOP_ARCHITECTURE_NEXT`
 
 `FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`
-
-`CROSS_CORPUS_AUDIT_NEXT`

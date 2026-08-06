@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: post_source_ingestion_audit
-  updated_at: 2026-08-06T03:36:00+04:00
+  phase: post_source_evidence_closure
+  updated_at: 2026-08-06T04:05:00+04:00
 
 mission:
   summary: >-
@@ -31,11 +31,17 @@ priority_policy:
     - transfer_value
     - learnability_per_unit_time
     - evidence_confidence
+  current_error_probability_state: incompletely_measured
+  current_ranking: neutral_prior_v0_1
 
 source_state:
+  completeness_claim: known_catalogued_corpora_complete
+  unknown_unsupplied_supplements: not_assumed_present_or_missing
   smash_live_cash:
     status: complete
-    remaining: claim_driven_visual_checks_only
+    catalogued_audio_lessons: 66
+    preflop_scenarios_indexed: 980
+    remaining: claim_driven_visual_checks_and_independent_anchor_work
   ftgu:
     status: complete
     episodes_received: 30
@@ -62,37 +68,10 @@ source_state:
     feedback_repair_paths: 10
   carrot_grade_3:
     status: complete
-    batch_01:
-      archive: transcripts_mlx_large_v3(20260805-215511).zip
-      sha256: 56a05d55cb573c4f01ad9b337f9e9534db638e78fae0d6ec95cf6d21eeb51f82
-      new_lectures: [1, 2]
-    batch_02:
-      archive: transcripts_mlx_large_v3(20260805-221934).zip
-      sha256: e957e3b8a699ed43378099cffbc8e5b874ca97283a7935984c1ae924b5dd4d70
-      duplicate_lectures: [1, 2]
-      new_lectures: [3, 4]
-      exam_feedback: received_and_mapped
-    batch_03:
-      archive: transcripts_mlx_large_v3 2(1).zip
-      sha256: bf46ac4ba2f0cffc6d5fa5763e9569cd4b9e7795b457203a0b244bc92820053d
-      duplicate_lectures: [1, 2, 3, 4]
-      duplicate_exam_feedback: true
-      new_lectures: [5, 6, 7]
-    batch_04:
-      archive: Archive(3).zip
-      sha256: b9a2a664ca0ae8696b771fd82bc1c5f51eadb573495a6eac96c25e00ff040137
-      new_lectures: [8, 9]
-    batch_05:
-      intake: five_file_direct_upload
-      manifest_sha256: 3d47884cc298e7b5732d3de77d302161c2121612c3196a13c694f0b10979f684
-      new_lectures: [10]
-      technical_qa: accepted
-      full_rerun_required: false
-      targeted_visual_review: claim_driven
     lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     final_exam_pdf: received_and_audited
-    final_exam_questions: 10
     exam_feedback: received_and_mapped
+    final_exam_questions: 10
     answer_key_continuity: complete
     lecture_continuity: complete
     primary_lecture_supported_exam_rows:
@@ -108,17 +87,34 @@ source_state:
       - G3-Q10
     original_assessment_families: 30
     feedback_repair_paths: 10
-    exact_source_examples: reference_only
+
+cross_corpus_audit:
+  status: accepted
+  full_rerun_queue: empty
+  targeted_audio_rerun_queue: empty_until_material_claim_failure
+  visual_review: claim_driven
+  unresolved_package_level_defect: false
+  same_assumption_strategic_conflict_open: false
+  material_defect_class: active_synthesis_routing_staleness
+  repaired_authorities:
+    - synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_4.md
+    - synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_3.md
+    - synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_3.md
+    - synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_3.md
+    - synthesis/CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md
+    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
+    - learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_8.md
+    - governance/POST_SOURCE_FREEZE_AND_MUTATION_POLICY_v2.md
 
 system_counts:
   heuristic_candidates: 34
   stable_adaptive_modules: 11
   misconception_classes: 30
-  remaining_source_question_ids: 38
-  provisional_synthesis_slots: 16
-  provisional_slots_are_binding_target: false
+  evidence_question_ids: 38
+  provisional_synthesis_containers: 16
+  provisional_containers_are_binding_target: false
   candidates_with_direct_original_drills: 30
-  source_gated_direct_drill_gaps: 4
+  answer_key_gated_direct_drill_gaps: 4
   carrot_original_assessment_families: 74
   grade_2_feedback_repair_paths: 10
   grade_3_feedback_repair_paths: 10
@@ -129,6 +125,14 @@ candidate_status_counts:
   validation_pending: 7
   field_test_pending: 0
   admitted: 0
+
+remaining_direct_drill_gaps:
+  - H-W01-002
+  - H-W01-006
+  - H-W01-008
+  - H-R04-007
+
+direct_drill_gap_classification: post_source_answer_key_or_evidence_gated
 
 stable_module_ids:
   - LCM-01
@@ -143,45 +147,60 @@ stable_module_ids:
   - LCM-10
   - LCM-11
 
+max_ev_state:
+  ranking_authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
+  deployment_high_priority:
+    - filtering_and_ownership
+    - effective_depth
+    - source_range_and_origin_reach
+    - value_first_aggression
+    - bet_shape_and_response_shape
+    - three_bet_four_bet_ancestry
+    - exact_branch_exploit_discipline
+    - protected_passive_architecture
+  closure_priority:
+    - independent_preflop_architecture_and_anchors
+    - multiway_action_order_and_delayed_aggression
+    - depth_spr_straddle_overlays
+    - learner_diagnostics
+    - target_live_field_calibration
+    - final_compression_and_admission
+
 active_milestone:
-  name: cross_corpus_completeness_and_defect_audit
-  current_step: verify_all_source_family_continuity_and_material_defects
-  subsequent_steps:
-    - audit_duplicates_loops_missing_tails_and_suspicious_asr_regions
-    - identify_material_visual_dependencies
-    - request_targeted_reruns_only_where_repair_ev_is_material
-    - rerank_all_candidates_by_system_wide_max_ev
-    - reassess_remaining_preflop_depth_multiway_population_gaps
-    - finalise_supported_source_gated_drill_factories
-    - build_independent_preflop_anchors
-    - run_learner_validation
-    - run_field_validation
-    - optimise_final_rule_set_without_count_target
-    - admit_revise_or_reject
+  name: independent_preflop_architecture_and_anchor_specification
+  current_step: define_target_game_assumptions
+  steps:
+    - define_rake_player_count_open_sizes_and_stack_bands
+    - define_ante_and_straddle_states
+    - select_minimum_anchor_family_set
+    - use_source_charts_as_private_comparison_only
+    - derive_ranges_independently
+    - validate_range_assumptions_and_outputs
+    - compress_into_table_facing_anchors
+    - activate_squeeze_and_polar_target_drills_when_stable
+  subsequent_milestones:
+    - multiway_boundary_and_delayed_aggression_closure
+    - depth_spr_and_straddle_overlays
+    - learner_diagnostics_and_priority_update
+    - target_live_field_calibration
+    - final_rule_optimisation
+    - admission_revision_or_rejection
 
 open_high_value_gates:
-  - cross_corpus_completeness_and_defect_audit
-  - material_claim_driven_visual_review
+  - independent_live_rake_preflop_anchors
   - squeeze_purification
-  - deep_oop_protected_call_boundaries
   - polar_preflop_target_folds_and_call_branch
   - players_behind_compression
-  - independent_live_rake_preflop_anchors
+  - deep_oop_protected_call_boundaries
   - multiway_shared_defence
   - multiway_bluff_construction
   - multiway_delayed_aggression
   - exact_depth_spr_and_straddle_overlays
   - target_live_population_calibration
-  - max_ev_candidate_reranking
+  - measured_learner_error_probability
   - learner_validation
   - field_validation
   - final_admission
-
-remaining_direct_drill_gaps:
-  - H-W01-002
-  - H-W01-006
-  - H-W01-008
-  - H-R04-007
 
 mechanism_state:
   general_postflop_core: mature_at_mechanism_level
@@ -189,38 +208,11 @@ mechanism_state:
   bet_and_response_shape: ready_core
   aggression_and_future_jobs: ready_core_with_context_splits
   river_audit: ready_core
-  three_bet_pot_flop_model: strong_directional_with_primary_g3_support
-  four_bet_pot_low_spr_model: active_with_primary_g3_support
-  grade_3_pure_mix_gate: active
-  grade_3_size_toolkit_layer: active
-  grade_3_blocker_function_layer: active
-  grade_3_raise_class_and_migration_layer: active
-  grade_3_call_quality_layer: active
-  grade_3_extreme_size_layer: active
-  grade_3_triple_barrel_layer: active
-  grade_3_protected_check_layer: active
-  grade_3_oop_3bet_defence_layer: active
-  grade_3_four_bet_low_spr_layer: active
-  grade_3_exam_answer_key: complete
-  grade_3_final_lecture_continuity: complete
+  three_bet_four_bet_postflop: strong_directional
   preflop_architecture: partial_anchor_pending
   deep_oop_exact_boundaries: pending
-  multiway: partial
+  multiway: partial_boundary_pending
   field_population_magnitude: pending
-
-scope_corrections:
-  prior_grade_3_expectation: preflop_depth_multiway_primary_validator
-  observed_grade_3_emphasis: advanced_postflop_execution
-  grade_3_result: >-
-    Grade 3 closes advanced postflop lecture continuity, including four-bet
-    low-SPR reasoning, but does not close exact preflop, deep-stack, multiway
-    or live-population boundaries.
-  final_rule_count_correction: >-
-    No numerical final-rule target is binding. The rule count is an optimisation
-    output under minimum complexity subject to no material EV loss.
-  priority_correction: >-
-    Known learner discomfort and source gaps are diagnostic inputs. System-wide
-    Max-EV determines priority.
 
 frozen_identities:
   source_ids: true
@@ -230,50 +222,37 @@ frozen_identities:
   existing_original_drill_ids: true
   learner_state_dimensions: true
   relation_vocabulary: true
-  remaining_source_question_ids: true
-
-deferred_until_evidence_closes:
-  - final_rule_ids_and_wording
-  - exact_preflop_anchors
-  - exact_deep_and_short_stack_thresholds
-  - universal_population_frequencies
-  - final_exploit_confidence
-  - final_multiway_frequency_guidance
-  - final_mastery_thresholds
-  - admitted_playbook
+  evidence_question_ids: true
 
 active_authorities:
   bootstrap: START_HERE.md
   agent_contract: AGENTS.md
   project_atlas: PROJECT_ATLAS.md
-  carrot_registry: sources/carrot-poker/source-registry.md
-  carrot_gap_ledger: sources/carrot-poker/source-gap-ledger.md
-  grade_3_batch_05_qa: analysis/module-audits/CARROT_G3_BATCH_05_QA_v1.md
-  grade_3_batch_05_delta: synthesis/CARROT_G3_BATCH_05_CROSS_SOURCE_DELTA_v1.md
-  grade_3_exam_competency_map: synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
-  carrot_evidence_matrix: synthesis/CARROT_EVIDENCE_MATRIX_v0_5.md
-  grade_3_l10: sources/carrot-poker/transcripts/CP_G3_L10_four_bet_pots.md
-  grade_3_l10_assessments: learning/assessments/CARROT_G3_L10_ORIGINAL_ASSESSMENT_BLUEPRINT_v0_1.md
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_7.md
-  learning_index: learning/README.md
+  audit: analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md
+  audit_report: reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md
+  cross_source_index: synthesis/CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md
+  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_4.md
+  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_3.md
+  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_3.md
+  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
+  provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_3.md
+  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_8.md
+  mutation_policy: governance/POST_SOURCE_FREEZE_AND_MUTATION_POLICY_v2.md
+  course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v5.md
 
 latest_integrated_checkpoint:
-  verdict: CARROT_G3_BATCH_05_ACCEPTED
-  report: reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md
-  batch_manifest_sha256: 3d47884cc298e7b5732d3de77d302161c2121612c3196a13c694f0b10979f684
+  verdict: CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_ACCEPTED
+  report: reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md
   facts:
-    - grade_3_lecture_10_canonically_ingested
-    - grade_3_lectures_01_10_complete
-    - g3_q01_through_q10_primary_lecture_supported
-    - grade_3_answer_key_continuity_complete
-    - grade_3_lecture_continuity_complete
-    - no_full_rerun_required
-    - targeted_visual_review_remains_claim_driven
-    - no_new_core_candidate
-    - four_original_assessment_families_added
-    - total_carrot_assessment_families_74
+    - known_catalogued_source_corpora_complete
+    - no_open_full_rerun
+    - no_unresolved_package_level_defect
+    - active_synthesis_routing_staleness_repaired
+    - max_ev_neutral_prior_created
+    - candidate_counts_unchanged
     - direct_drill_coverage_remains_30_of_34
     - final_rule_count_not_preset
+    - preflop_architecture_selected_as_next_build_lane
 
 new_chat_bootstrap:
   required_read_order:
@@ -281,32 +260,27 @@ new_chat_bootstrap:
     - AGENTS.md
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
-    - sources/carrot-poker/source-registry.md
-    - reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md
-    - synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md
+    - analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md
+    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
     - affected_authority_files_only
   forbidden_behaviour:
     - restart_project_diagnosis
     - broad_unscoped_refactor
     - author_specific_parallel_curriculum
     - proprietary_content_copy
+    - source_chart_as_admitted_anchor
     - population_claim_as_live_default
     - global_learner_progress_reset
     - compress_to_preset_rule_count
     - treat_personal_discomfort_as_automatic_priority
+    - treat_source_completion_as_admission
 
 terminal_state:
   handover_ready: true
   atlas_ready: true
-  incremental_ingestion_ready: true
-  carrot_grade_1_complete: true
-  carrot_grade_2_complete: true
-  carrot_grade_3_complete: true
-  carrot_grade_3_lectures_01_10_received: true
-  carrot_grade_3_exam_received: true
-  carrot_grade_3_feedback_received: true
-  carrot_grade_3_answer_key_complete: true
-  carrot_grade_3_lecture_continuity_complete: true
+  catalogued_source_corpora_complete: true
+  cross_corpus_audit_complete: true
+  active_routing_repaired: true
   general_postflop_core_mature_at_mechanism_level: true
   global_restructure_expected: false
-  cross_corpus_audit_ready: true
+  preflop_anchor_specification_ready: true

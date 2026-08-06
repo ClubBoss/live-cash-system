@@ -1,27 +1,35 @@
 # Live Cash System - Start Here
 
-Status: `ACTIVE / PRIMARY_NEW_CHAT_BOOTSTRAP`
+Status: `ACTIVE / PRIMARY_NEW_CHAT_BOOTSTRAP / CROSS_CORPUS_AUDIT_COMPLETE`
 
 ## Bootstrap instruction
 
-Use live `main` of `ClubBoss/live-cash-system`. Read `START_HERE.md`, obey `AGENTS.md`, inspect `state/CURRENT_PROJECT_STATE.yaml`, and open only the authorities required for the active milestone. Do not restart project diagnosis or rebuild repository taxonomy.
+Use live `main` of `ClubBoss/live-cash-system`.
 
-## Mission and learner
+Read:
+
+1. `START_HERE.md`;
+2. `AGENTS.md`;
+3. `state/CURRENT_PROJECT_STATE.yaml`;
+4. `PROJECT_ATLAS.md`;
+5. only the authorities required for the active milestone.
+
+Repository state overrides chat memory. Do not restart project diagnosis.
+
+## Mission
 
 Build a compact, adaptive and interactive live-cash system for a strong MTT player moving into live `1/3` and `2/5`.
 
-Environment:
+Target environment:
 
 - usually `100-200bb`;
 - sometimes `300-400bb`;
 - possible straddles and shorter effective stacks;
-- practical target: Batumi.
-
-Known learner discomfort areas include blind play, deep-stack translation and OOP 3-bet pressure. These are diagnostic inputs, not automatic curriculum priorities.
+- practical field target: Batumi.
 
 ## Priority policy
 
-Prioritise by system-wide Max-EV:
+Rank work by system-wide Max-EV:
 
 ```text
 spot frequency
@@ -32,170 +40,99 @@ x learnability per unit time
 x evidence confidence
 ```
 
-Source order, source gaps and subjective discomfort do not override this ranking.
+Known discomfort, source order and source gaps are inputs, not automatic priority.
 
-## Learning constraints
-
-- minimal chart memorisation;
-- compact heuristics, decision trees and anchors;
-- prediction before feedback;
-- action and reason scored separately;
-- spaced repetition and changed variants;
-- field missions and post-session repair.
-
-## Intended final system
-
-- an optimally compact robust rule core with no preset count;
-- original preflop anchors with explicit assumptions;
-- `11` stable adaptive modules;
-- original diagnostics, drills and assessments;
-- opponent/environment overlays;
-- field-tested execution;
-- no copied proprietary charts, exam spots or source-specific curriculum.
-
-Final-rule policy:
+## Final-rule policy
 
 `MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
 
-## Current source truth
+Final rule count is emergent, not fixed. The 16 provisional synthesis containers are non-binding.
+
+## Source truth
 
 | Source family | State |
 |---|---|
-| Smash Live Cash | complete; claim-driven visuals only |
-| FTGU | `30/30` complete; charts reference-only |
-| Cash Injection | `10/10` complete; ten field-gated pool hypotheses |
-| Carrot Grade 1 | complete: Lectures `01-10`, Exam and Feedback |
-| Carrot Grade 2 | complete: Lectures `01-10`, Exam and Feedback |
-| Carrot Grade 3 | complete: Lectures `01-10`, Exam and Feedback |
+| Smash Live Cash | 66/66 catalogued audio lessons complete; claim-driven visuals only |
+| FTGU | 30/30 complete; charts reference-only |
+| Cash Injection | 10/10 complete; ten field-gated pool hypotheses |
+| Carrot Grade 1 | L01-L10, Exam and Feedback complete |
+| Carrot Grade 2 | L01-L10, Exam and Feedback complete |
+| Carrot Grade 3 | L01-L10, Exam and Feedback complete |
 
-Exact Carrot coverage authority:
+The exact claim is `known catalogued corpora complete`. Unknown unsupplied publisher supplements are neither assumed present nor declared missing.
 
-`sources/carrot-poker/source-registry.md`
+## Cross-corpus audit result
+
+- no open full-course or full-lesson rerun;
+- no known unresolved catastrophic loop or missing tail;
+- duplicates were identified before ingestion;
+- exact visual claims remain claim-driven;
+- active synthesis routing contained stale Grade 3 and fixed-count language;
+- post-source authorities now replace that routing.
+
+Audit authority:
+
+`analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md`
+
+Latest report:
+
+`reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md`
 
 ## Current system truth
 
 ```text
-heuristic candidates:                 34
-stable adaptive modules:              11
-misconception classes:                30
-remaining-source question IDs:        38
-provisional synthesis slots:          16
-candidates with direct drills:        30
-source-gated direct drill gaps:         4
-
-Grade 1 original assessment families: 24
-Grade 2 original assessment families: 20
-Grade 3 L01-L02 families:               6
-Grade 3 L03-L04 families:               7
-Grade 3 L05-L07 families:               7
-Grade 3 L08-L09 families:               6
-Grade 3 L10 families:                   4
-Carrot assessment families total:      74
-
-Grade 2 feedback repair paths:          10
-Grade 3 feedback repair paths:          10
-admitted final rules:                    0
-final rule count:              emergent / not fixed
+heuristic candidates: 34
+stable adaptive modules: 11
+misconception classes: 30
+evidence-question IDs: 38
+provisional synthesis containers: 16 non-binding
+direct original drills: 30
+answer-key-gated direct drill gaps: 4
+Carrot assessment families: 74
+admitted final rules: 0
 ```
 
-The 16 provisional slots are editable working containers. They may split, merge or disappear.
+Candidate statuses:
 
-Stable module IDs remain `LCM-01` through `LCM-11`.
+- `27` DRILL_READY;
+- `7` VALIDATION_PENDING;
+- `0` FIELD_TEST_PENDING;
+- `0` ADMITTED.
 
-## Grade 3 completed operating scaffold
+## Current active milestone
 
-```text
-ACTION HISTORY
--> CURRENT RANGE STATE
--> PURE / MIX GATE
--> VALUE / BLUFF / FRAIL CLASS
--> BET EV VERSUS CHECK EV
--> CHECK-BRANCH TRADE-OFF
--> WORLD FAVOURABILITY
--> CALL / RAISE / FOLD THRESHOLDS
--> VALUE REGION AND INVESTMENT CEILING
--> SIZE TOOLKIT
--> TOP-END VALUE / RAISE ELIGIBILITY
--> BLOCKER-FUNCTION VECTOR
--> JAM-EXPOSURE / REOPEN GATE
--> THEORY-TO-POOL CHECK
-```
+`INDEPENDENT PREFLOP ARCHITECTURE AND ANCHOR SPECIFICATION`
 
-## Grade 3 continuity
+First bounded transaction:
 
-```text
-G3-Q01 -> L01 + Feedback
-G3-Q02 -> L02 + Feedback
-G3-Q03 -> L03 + Feedback
-G3-Q04 -> L04 + Feedback
-G3-Q05 -> L05 + Feedback
-G3-Q06 -> L06 + Feedback
-G3-Q07 -> L07 + Feedback
-G3-Q08 -> L08 + Feedback
-G3-Q09 -> L09 + Feedback
-G3-Q10 -> L10 + Feedback
-```
+1. define target-game assumptions;
+2. define rake, player count, open sizes, effective-depth bands and straddle states;
+3. identify the minimum anchor-family set needed for high-value decisions;
+4. use source charts only as private comparison evidence;
+5. derive and validate ranges independently;
+6. activate squeeze and polar-target drills only when answer keys are stable.
 
-Lecture and answer-key continuity are complete.
+## Max-EV build order
 
-## Frozen constraints
+1. independent preflop architecture and anchors;
+2. multiway action-order and delayed aggression;
+3. depth/SPR/straddle overlays;
+4. learner diagnostics and error-probability update;
+5. target-live field calibration;
+6. final compression and admission.
 
-Do not casually rename or replace:
+Priority authority:
 
-- source IDs;
-- 34 candidate IDs;
-- 30 misconception IDs;
-- module IDs;
-- existing drill IDs;
-- learner-state dimensions;
-- relation vocabulary;
-- 38 remaining-question IDs.
+`synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md`
 
-Do not:
+## Four direct answer-key gaps
 
-- create author-specific parallel curricula;
-- copy charts, solver screens or exam questions;
-- promote population claims without field evidence;
-- admit a rule because several sources agree;
-- erase learner progress on unchanged mechanisms;
-- infer exact visual data from uncertain audio;
-- compress toward a preset rule count.
+- `H-W01-002` squeeze purification;
+- `H-W01-006` deep OOP protected-call boundary;
+- `H-W01-008` polar preflop target folds and call branch;
+- `H-R04-007` multiway delayed aggression.
 
-## Active milestone
-
-```text
-cross-corpus completeness and defect audit
--> verify all source-family continuity
--> audit duplicates, loops, missing tails and suspicious ASR regions
--> identify material visual dependencies
--> request targeted reruns only where repair EV is material
--> rerank all candidates by system-wide Max-EV
--> reassess preflop, depth, multiway and population gaps
--> finalise supported drill factories
--> build independent anchors
--> learner and field validation
--> optimise final rule set without a count target
--> admit, revise or reject
-```
-
-## Current unresolved gates
-
-- cross-corpus completeness and defect audit;
-- claim-driven visual verification;
-- squeeze purification;
-- exact deep OOP protected-call boundaries;
-- polar preflop target folds and call branch;
-- players-behind compression;
-- exact live-rake preflop anchors;
-- multiway shared defence and bluff construction;
-- multiway delayed aggression;
-- exact depth/SPR/straddle overlays;
-- target-live population calibration;
-- Max-EV candidate reranking;
-- learner and field validation;
-- final admission.
-
-Carrot completion does not close preflop, exact-depth, multiway or live-population gates.
+They are evidence-gated, not future-course-gated.
 
 ## Active authority cone
 
@@ -203,52 +140,53 @@ Carrot completion does not close preflop, exact-depth, multiway or live-populati
 2. `AGENTS.md`;
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
-5. `sources/carrot-poker/source-registry.md`;
-6. `reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md`;
-7. `analysis/module-audits/CARROT_G3_BATCH_05_QA_v1.md`;
-8. `synthesis/CARROT_G3_BATCH_05_CROSS_SOURCE_DELTA_v1.md`;
-9. `synthesis/CARROT_G3_EXAM_PRELIMINARY_COMPETENCY_MAP_v0_1.md`;
-10. `synthesis/CARROT_EVIDENCE_MATRIX_v0_5.md`;
-11. affected authority files only.
+5. `analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md`;
+6. `synthesis/CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md`;
+7. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_4.md`;
+8. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_3.md`;
+9. `synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md`;
+10. `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_8.md`;
+11. affected authorities only.
+
+## Frozen constraints
+
+Do not casually rename:
+
+- source IDs;
+- 34 candidate IDs;
+- 30 misconception IDs;
+- `LCM-01` through `LCM-11`;
+- existing drill IDs;
+- learner-state dimensions;
+- relation vocabulary;
+- 38 evidence-question IDs.
+
+Do not:
+
+- create author-specific parallel curricula;
+- copy proprietary charts, solver screens or exam questions;
+- promote population claims without target-game evidence;
+- infer exact values from uncertain audio;
+- compress toward a preset count;
+- admit a rule because sources agree.
 
 ## Latest integrated checkpoint
 
-`CARROT_G3_BATCH_05_ACCEPTED`
+`CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_ACCEPTED`
 
-- Lecture `10` canonically ingested;
-- Grade 3 Lectures `01-10` complete;
-- all `G3-Q01` through `G3-Q10` have primary lecture and Feedback support;
+- catalogued corpora complete;
 - no full rerun required;
-- targeted visual review remains claim-driven;
-- no new core candidate;
-- four original assessment families added;
-- total Carrot assessment families: `74`;
-- direct candidate drill coverage remains `30/34`;
-- final rule count is not preset.
-
-Checkpoint report:
-
-`reports/CARROT_G3_BATCH_05_TERMINAL_REPORT_v1.md`
-
-## New-chat response capsule
-
-```text
-repo and live main checked
-Carrot Grades 1-3 complete
-all Grade 3 exam rows have lecture and Feedback support
-Lecture 10 QA and visual-risk boundaries understood
-fixed rule-count target removed
-cross-corpus audit is the active milestone
-frozen identities understood
-no global restart planned
-```
+- stale active routing repaired;
+- Max-EV neutral-prior ranking created;
+- no candidate promotion;
+- preflop architecture selected as next build lane.
 
 ## Verdict
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`CARROT_GRADES_1_TO_3_COMPLETE`
+`CROSS_CORPUS_AUDIT_COMPLETE`
 
 `FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`
 
-`CONTINUE_WITH_CROSS_CORPUS_AUDIT / DO_NOT_RESTART`
+`CONTINUE_WITH_PREFLOP_ARCHITECTURE / DO_NOT_RESTART`
