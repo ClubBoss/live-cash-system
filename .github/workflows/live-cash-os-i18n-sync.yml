@@ -19,8 +19,8 @@ concurrency:
 
 jobs:
   sync:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    runs-on: macos-14
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: apps/live-cash-os
