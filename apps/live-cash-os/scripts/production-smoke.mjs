@@ -64,6 +64,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     if ((await desktop.locator("html").getAttribute("lang")) !== "en") throw new Error("Document lang is not en inside the lesson");
     await desktop.screenshot({ path: "smoke-evidence/desktop-lcm01-en.png", fullPage: true });
 
+    await desktop.waitForTimeout(900);
     await desktop.reload({ waitUntil: "domcontentloaded" });
     await desktop.getByText("1 · COLD DECISION").waitFor({ timeout: 10_000 });
     await desktop.getByRole("heading", { name: /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
