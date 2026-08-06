@@ -4,13 +4,11 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: deep_oop_boundary_closure
-  updated_at: 2026-08-06T09:40:00+04:00
+  phase: learner_diagnostics
+  updated_at: 2026-08-06T11:41:00+04:00
 
 mission:
-  summary: >-
-    Build a compact adaptive No-Limit Hold'em live-cash system for a strong
-    MTT player moving into live 1/3 and 2/5.
+  summary: Build a compact adaptive No-Limit Hold'em live-cash system for a strong MTT player moving into live 1/3 and 2/5.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
   final_rule_count: emergent_not_fixed
   target:
@@ -19,18 +17,6 @@ mission:
     common_effective_depth_bb: 100-200
     occasional_effective_depth_bb: 300-400
     may_include: [short_stacks, straddles, multiway_pots]
-
-priority_policy:
-  authority: system_wide_max_ev
-  ranking: neutral_prior_v0_3
-  current_error_probability: incompletely_measured
-  factors:
-    - spot_frequency
-    - average_error_cost
-    - current_error_probability
-    - transfer_value
-    - learnability_per_unit_time
-    - evidence_confidence
 
 source_state:
   completeness_claim: known_catalogued_corpora_complete
@@ -59,33 +45,40 @@ completed_directional_waves:
   preflop:
     status: accepted_directional
     memory_cards: 5
-    assumptions: ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md
-    machine_library: ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json
     learner_anchors: ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md
-    report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
     exact_solver_calibration: pending
     room_field_calibration: pending
   multiway:
     status: accepted_directional
     memory_cards: 5
-    evidence: synthesis/MULTIWAY_SOURCE_EVIDENCE_MAP_v0_1.md
     architecture: synthesis/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_ARCHITECTURE_v0_1.md
     machine_tree: synthesis/MULTIWAY_DECISION_TREE_v0_1.json
     learner_cards: learning/anchors/MULTIWAY_ACTION_ORDER_CARDS_v0_1.md
-    direct_drills: learning/drills/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_DRILL_PACK_v0_1.md
-    field_schema: fieldwork/batumi/MULTIWAY_FIELD_CALIBRATION_CARD_v0_1.md
-    qa: analysis/system-audits/MULTIWAY_ACTION_ORDER_WAVE_QA_v1.md
-    report: reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md
-    directional_components:
-      - action_order_roles
-      - shared_defence
-      - opal_nut_ownership
-      - player_behind_gate
-      - bluff_support_hierarchy
-      - field_clear_transition
-      - delayed_range_expression
-      - fast_play_protect_method
     exact_solver_frequencies: pending
+    target_field_magnitude: pending
+  deep_oop:
+    status: accepted_directional_boundary
+    memory_cards: 5
+    evidence: synthesis/DEEP_OOP_SOURCE_EVIDENCE_MAP_v0_1.md
+    architecture: synthesis/DEEP_OOP_PROTECTED_CALL_AND_DEPTH_SPR_ARCHITECTURE_v0_1.md
+    machine_tree: synthesis/DEEP_OOP_DECISION_TREE_v0_1.json
+    learner_cards: learning/anchors/DEEP_OOP_PROTECTED_CALL_CARDS_v0_1.md
+    direct_drills: learning/drills/DEEP_OOP_PROTECTED_CALL_DRILL_PACK_v0_1.md
+    assessment: learning/assessments/DEEP_OOP_CHANGED_NODE_ASSESSMENT_v0_1.md
+    field_schema: fieldwork/batumi/DEEP_OOP_FIELD_CALIBRATION_CARD_v0_1.md
+    qa: analysis/system-audits/DEEP_OOP_BOUNDARY_WAVE_QA_v1.md
+    report: reports/DEEP_OOP_BOUNDARY_WAVE_TERMINAL_REPORT_v1.md
+    directional_components:
+      - post_action_spr
+      - compressed_middle_extended_bands
+      - robust_volatile_frail
+      - board_urgency
+      - bet_shape_response
+      - top_end_raise_gate
+      - protected_call_test
+      - future_aggression_switch
+      - nominal_depth_rejection
+    exact_numeric_thresholds: pending_claim_driven
     target_field_magnitude: pending
 
 system_counts:
@@ -94,73 +87,68 @@ system_counts:
   misconception_classes: 30
   evidence_question_ids: 38
   provisional_synthesis_containers: 16
-  direct_candidate_drills: 33
-  answer_key_gated_direct_drill_gaps: 1
+  direct_candidate_drills: 34
+  answer_key_gated_direct_drill_gaps: 0
   carrot_assessment_families: 74
   admitted_final_rules: 0
 
 candidate_status_counts:
-  drill_ready: 28
-  validation_pending: 6
+  drill_ready: 29
+  validation_pending: 5
   field_test_pending: 0
   admitted: 0
 
-remaining_direct_drill_gaps:
-  - H-W01-006
-
-direct_drill_gap_classification: deep_oop_boundary_evidence_gated
-
 module_state:
-  LCM-01: ready_core_exact_depth_pending
+  LCM-01: ready_core_directional_depth_bands_exact_pending
   LCM-02: ready_directional
-  LCM-03: ready_core_deep_oop_boundary_pending
+  LCM-03: ready_directional_deep_oop_tree_active
   LCM-04: ready
-  LCM-05: ready_core_deep_refinement_pending
-  LCM-06: ready_core_multiway_delayed_branch_active
+  LCM-05: ready_deep_response_overlay_active
+  LCM-06: ready
   LCM-07: ready_directional
   LCM-08: ready_directional_exact_and_field_pending
   LCM-09: ready_mechanism
   LCM-10: ready_methodology_field_pending
-  LCM-11: ready_schema_33_direct_drills
+  LCM-11: ready_schema_34_direct_drills
 
 max_ev_state:
-  authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md
+  authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_4.md
   completed_lanes:
     - independent_preflop_directional_architecture
-    - multiway_action_order_and_delayed_aggression_directional_architecture
+    - multiway_action_order_and_delayed_aggression
+    - deep_oop_protected_call_directional_boundary
   closure_priority:
-    - deep_oop_protected_call_and_exact_depth_spr_boundary
-    - learner_diagnostics_and_priority_update
+    - learner_diagnostics_and_error_probability_reranking
     - target_live_field_calibration
     - targeted_solver_and_visual_calibration
     - final_compression_and_admission
 
 active_milestone:
-  name: deep_oop_protected_call_and_exact_depth_spr_boundary
-  current_step: source_geometry_and_robust_frail_map
+  name: learner_diagnostics_and_error_probability_reranking
+  current_step: build_and_run_initial_diagnostic
   steps:
-    - audit_deep_oop_source_geometry
-    - define_robust_vs_frail_hand_classes
-    - split_static_vs_dynamic_boards
-    - map_100_200_400bb_and_spr_transitions
-    - distinguish_discomfort_raise_from_range_required_raise
-    - define_future_barrel_source_and_passive_branch_protection
-    - activate_h_w01_006_direct_answer_key
-    - validate_changed_nodes
-    - update_ssot_and_readiness
+    - select_high_ev_diagnostic_families
+    - test_action_and_reasoning
+    - measure_latency_and_confidence
+    - map_misconceptions
+    - run_changed_node_retests
+    - estimate_current_error_probability
+    - rerank_affected_candidates
+    - create_first_personalised_micro_cycle
+    - update_ssot_without_global_reset
   success_condition:
-    direct_candidate_drills: 34
-    exact_frequency_overclaim: false
+    learner_error_probability: measured_for_priority_core
+    personalised_micro_cycle: active
+    global_progress_reset: false
 
 open_high_value_gates:
-  - deep_oop_protected_call_boundary
-  - exact_depth_spr_transitions
+  - measured_learner_error_probability
+  - learner_validation
+  - target_live_population_calibration
   - exact_room_rake_and_open_size_calibration
   - exact_preflop_edge_solver_calibration
   - exact_multiway_frequency_calibration
-  - target_live_population_calibration
-  - measured_learner_error_probability
-  - learner_validation
+  - exact_deep_oop_combo_and_spr_calibration
   - field_validation
   - final_admission
 
@@ -168,27 +156,25 @@ active_authorities:
   bootstrap: START_HERE.md
   agent_contract: AGENTS.md
   atlas: PROJECT_ATLAS.md
-  latest_report: reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md
-  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_6.md
-  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_5.md
-  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_5.md
-  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md
-  provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_5.md
-  readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_10.md
+  latest_report: reports/DEEP_OOP_BOUNDARY_WAVE_TERMINAL_REPORT_v1.md
+  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_7.md
+  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_6.md
+  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_6.md
+  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_4.md
+  provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_6.md
+  readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_11.md
 
 latest_integrated_checkpoint:
-  verdict: MULTIWAY_DIRECTIONAL_WAVE_ACCEPTED
+  verdict: DEEP_OOP_DIRECTIONAL_BOUNDARY_ACCEPTED
   facts:
-    - five_multiway_cards_active
-    - action_order_and_shared_defence_directionally_closed
-    - opal_ownership_active
-    - delayed_aggression_direct_answer_key_active
-    - h_r04_007_direct_gap_closed
-    - direct_drill_coverage_33_of_34
-    - lcm_08_ready_directionally
-    - candidate_status_counts_unchanged
-    - exact_solver_and_field_magnitudes_pending
-    - deep_oop_selected_next
+    - post_action_spr_over_nominal_depth
+    - robust_volatile_frail_map_active
+    - protected_call_and_required_raise_separated
+    - h_w01_006_drill_ready
+    - direct_drill_coverage_34_of_34
+    - answer_key_gaps_zero
+    - exact_numeric_thresholds_pending
+    - learner_diagnostics_selected_next
     - no_final_admission
 
 frozen_identities:
@@ -206,18 +192,18 @@ new_chat_bootstrap:
     - AGENTS.md
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
-    - reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md
-    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md
-    - affected_deep_oop_authorities_only
+    - reports/DEEP_OOP_BOUNDARY_WAVE_TERMINAL_REPORT_v1.md
+    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_4.md
+    - affected_diagnostic_authorities_only
   forbidden_behaviour:
     - restart_project_diagnosis
     - broad_unscoped_refactor
     - proprietary_content_copy
-    - directional_architecture_as_exact_solver_output
+    - directional_band_as_exact_solver_threshold
     - population_claim_as_default
     - global_learner_progress_reset
     - compress_to_preset_rule_count
-    - source_completion_or_wave_completion_as_admission
+    - direct_coverage_as_admission
 
 terminal_state:
   handover_ready: true
@@ -225,6 +211,7 @@ terminal_state:
   cross_corpus_audit_complete: true
   preflop_directional_wave_complete: true
   multiway_directional_wave_complete: true
-  direct_drill_coverage_33_of_34: true
-  deep_oop_wave_ready: true
+  deep_oop_directional_wave_complete: true
+  direct_drill_coverage_34_of_34: true
+  learner_diagnostics_ready: true
   global_restructure_expected: false

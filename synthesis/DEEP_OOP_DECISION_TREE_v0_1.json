@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1",
+  "status": "ACTIVE_DIRECTIONAL_DECISION_TREE",
+  "candidate": "H-W01-006",
+  "execution_bands": {
+    "compressed": {"post_action_spr_max": 1.5, "meaning": "roughly one meaningful future investment"},
+    "middle": {"post_action_spr_min_exclusive": 1.5, "post_action_spr_max": 4.0, "meaning": "one to two meaningful future decisions"},
+    "extended": {"post_action_spr_min_exclusive": 4.0, "meaning": "multiple meaningful future decisions"}
+  },
+  "formulas": {
+    "post_call_pot": "P + 2*B",
+    "post_call_stack": "S - B",
+    "post_call_spr": "(S - B) / (P + 2*B)",
+    "post_raise_pot_if_called": "P + 2*R",
+    "post_raise_stack_if_called": "S - R",
+    "post_raise_spr_if_called": "(S - R) / (P + 2*R)"
+  },
+  "hand_classes": {
+    "robust": ["beats plausible bluffs now", "survives many turn classes", "clean redraw or nutted improvement route", "can withstand future pressure", "protects weaker calls"],
+    "volatile": ["often ahead now", "many turns damage equity", "meaningful denial target", "worse hands can continue versus merged bet", "future decisions are difficult"],
+    "frail": ["loses to some bluffs", "dirty or dominated improvement", "few clean nut routes", "cannot withstand future pressure", "depends on opponent give-up"]
+  },
+  "nodes": [
+    {"id": "D0_GEOMETRY", "question": "What is post-call SPR?", "routes": {"compressed": "D1_BET_SHAPE", "middle": "D1_BET_SHAPE", "extended": "D1_BET_SHAPE"}},
+    {"id": "D1_BET_SHAPE", "question": "Is the bet range-wide/merged or selective/polar?", "routes": {"range_wide_or_merged": "D2_BOARD_URGENCY", "selective_or_polar": "D2_BOARD_URGENCY", "unknown": "D2_BOARD_URGENCY"}},
+    {"id": "D2_BOARD_URGENCY", "question": "How many turns materially change ownership or realisation?", "routes": {"low": "D3_HAND_CLASS", "high": "D3_HAND_CLASS"}},
+    {"id": "D3_HAND_CLASS", "question": "Is Hero robust, volatile or frail?", "routes": {"robust": "D4_TOP_END_GATE", "volatile": "D4_TOP_END_GATE", "frail": "D5_FRAIL_TEST"}},
+    {"id": "D4_TOP_END_GATE", "question": "Does OOP own credible top-end value that remains strong when called?", "routes": {"yes": "D6_RAISE_JOB", "no": "D7_PROTECTED_CALL"}},
+    {"id": "D5_FRAIL_TEST", "question": "Is there a coherent bluff-raise with blockers, fold targets and future plan?", "routes": {"yes": "D6_RAISE_JOB", "no": "FOLD"}},
+    {"id": "D6_RAISE_JOB", "question": "Does the raise have value, denial, equity or branch-protection EV versus the continuing range?", "routes": {"yes": "D8_FUTURE_AGGRESSION", "no": "D7_PROTECTED_CALL"}, "reject": ["avoid_turn_decision", "take_control", "probably_ahead", "deep_stack_label"]},
+    {"id": "D7_PROTECTED_CALL", "question": "Can this hand resist future pressure and protect weaker calls?", "routes": {"yes": "D8_FUTURE_AGGRESSION", "no": "FOLD_OR_NARROW_RAISE"}},
+    {"id": "D8_FUTURE_AGGRESSION", "question": "Will Villain provide credible later aggression?", "routes": {"credible": "PRESERVE_MORE_ROBUST_CALLS", "unlikely": "MOVE_MORE_VALUE_FORWARD", "unknown": "BASELINE_PROTECTED_CALL_PLUS_COHERENT_RAISES"}}
+  ],
+  "directional_outputs": {
+    "call_expands_when": ["hand robust", "future tree extended", "bettor retains air", "passive branch needs protection", "board urgency manageable"],
+    "raise_expands_when": ["small or merged bet", "OOP owns top-end", "vulnerable value gains denial", "semi-bluff has future jobs", "future aggression unlikely"],
+    "raise_contracts_when": ["large or polar bet", "OOP lacks top-end", "hand robust but not vulnerable", "raise isolates against strength", "motivation is discomfort"],
+    "fold_expands_when": ["hand frail", "improvements dominated", "future pressure high", "bet range selective", "no coherent bluff-raise"]
+  },
+  "limitations": ["execution bands are product scaffolding, not solver cutoffs", "no exact combo frequencies", "no universal population magnitude", "no automatic rule that deeper means more calling"]
+}
