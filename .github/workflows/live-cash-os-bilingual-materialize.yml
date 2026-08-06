@@ -34,6 +34,9 @@ jobs:
       - name: Apply bilingual runtime
         working-directory: work/apps/live-cash-os
         run: node scripts/apply-bilingual-runtime.mjs
+      - name: Postprocess locale-stable feedback and natural mode labels
+        working-directory: work/apps/live-cash-os
+        run: node scripts/postprocess-bilingual-runtime.mjs
       - name: Extract stable learner-copy keys
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-extract.mjs
