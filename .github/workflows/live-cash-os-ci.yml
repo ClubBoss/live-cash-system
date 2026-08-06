@@ -1,0 +1,54 @@
+name: Live Cash OS CI
+
+on:
+  pull_request:
+    paths:
+      - "apps/live-cash-os/**"
+      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - ".github/workflows/live-cash-os-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/live-cash-os/**"
+      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - ".github/workflows/live-cash-os-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-cash-os-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck, lint, unit and build
+        run: npm test
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Desktop and mobile browser gates
+        run: npm run test:e2e
+      - name: Upload browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-cash-os-playwright-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7

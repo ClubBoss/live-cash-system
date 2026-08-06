@@ -1,0 +1,13 @@
+{
+  "name": "Live Cash OS",
+  "short_name": "Live Cash OS",
+  "description": "Русскоязычная адаптивная система обучения live cash poker.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f1e8",
+  "theme_color": "#141513",
+  "lang": "ru",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

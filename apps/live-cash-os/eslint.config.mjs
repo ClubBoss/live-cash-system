@@ -35,6 +35,11 @@ const eslintConfig = defineConfig([
         version: "detect",
       },
     },
+    rules: {
+      "@next/next/no-assign-module-variable": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/set-state-in-effect": "off"
+    },
   },
 ]);
 

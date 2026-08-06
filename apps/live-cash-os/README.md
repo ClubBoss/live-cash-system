@@ -1,100 +1,140 @@
-# vinext-starter
+# Live Cash OS
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Русскоязычная персональная система обучения live cash poker. Приложение объединяет teaching layer, changed-node drills, skill-specific repair, delayed retrieval, flashcards, cold diagnostic T1 и reviewed field notes.
 
-## Prerequisites
+## Production identity
 
-- Node.js `>=22.13.0`
+- Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
+- Source directory: `apps/live-cash-os`
+- Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
+- Cloud binding: D1 `DB`
+- App version: `1.0.0`
+- Learner-state schema: `2`
+- Content version: `2026.08-wave6`
 
-## Quick Start
+The stable URL must not change between releases. Source changes become public only after the release branch passes all gates and is merged to `main`.
+
+## Learning contract
+
+Every normal module follows the same ten-stage contract:
+
+1. one cold check;
+2. plain-language theory;
+3. three compact heuristics;
+4. decision tree;
+5. worked example;
+6. numerical or contrastive lab;
+7. changed-node decisions;
+8. explain-back;
+9. table card and glossary;
+10. delayed review scheduling.
+
+Content completion is separate from evidence state. No single correct answer creates mastery.
+
+Module state vocabulary:
+
+- `UNEXPOSED`
+- `INTRODUCED`
+- `FRAGILE`
+- `WORKING`
+- `RETAINED`
+- `FIELD_TEST_PENDING`
+- `FIELD_VALIDATED`
+- `REPAIR_REQUIRED`
+
+Nine dimensions are stored separately:
+
+- node recognition;
+- mechanism explanation;
+- action selection;
+- boundary control;
+- speed;
+- confidence calibration;
+- variant transfer;
+- retention;
+- field transfer.
+
+## Architecture
+
+```text
+app/                       route shell, metadata and API
+components/                learner-facing application UI
+content/types.ts           curriculum contracts
+content/modules.ts         admitted LCM-01–LCM-11 content
+content/diagnostic.ts      frozen T1 prompts
+lib/model.ts               learner state, evidence, router and scheduler
+db/                        D1 storage
+public/                     PWA manifest, service worker and brand assets
+tests/                     kernel, content and SSR gates
+e2e/                       desktop/mobile browser flows
+```
+
+Do not put curriculum, scoring or scheduler logic back into `app/page.tsx`.
+
+## Persistence and privacy
+
+Anonymous visitors use localStorage. Signed-in visitors can also sync the same schema-valid learner state to D1. The application displays the current sync mode and provides:
+
+- progress export;
+- progress import;
+- local reset;
+- cloud-state deletion.
+
+Raw field notes and free-text diagnostic responses are user learning data. They are never treated as mastery by storage alone.
+
+## Diagnostic handoff
+
+T1 is optional personalization, not a mandatory first-use wall.
+
+```text
+raw learner responses
+→ expert A–E/U evaluation
+→ canonical diagnostic scorer
+→ evaluated result
+→ import of at most two priority repair families
+```
+
+Raw schema:
+
+`learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json`
+
+Canonical evaluated schema:
+
+`learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`
+
+Scorer:
+
+`scripts/score_learner_diagnostic.py`
+
+The client does not keyword-score strategic free text and does not expose T1 answer keys.
+
+## Local development
+
+Prerequisite: Node.js `>=22.13.0`.
 
 ```bash
 npm install
 npm run dev
+```
+
+## Release gates
+
+```bash
+npm run typecheck
+npm run lint
+npm run test:unit
 npm run build
+npm run test:e2e
 ```
 
-This starter does not use `wrangler.jsonc`.
+`npm test` executes typecheck, lint, unit tests and production build. Browser tests use Playwright across desktop and mobile fixtures.
 
-## Included Shape
+## Release governance
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- `RELEASE_STATUS.md` contains current truth and owner decisions.
+- `ACCEPTANCE_LEDGER.md` lists controlling defects.
+- `.openai/hosting.json` is the hosting authority.
+- GitHub Actions runs the release gate for changes under this app.
+- An `accepted` label is forbidden until automated gates and the live-site smoke test pass.
 
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
-```
-
-## Optional Dispatch-Owned ChatGPT Sign-In
-
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+After the six-wave platform DoD, router thresholds and review intervals must not be tuned further without real learner, delayed-recall and field evidence.
