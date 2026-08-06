@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: post_source_evidence_closure
-  updated_at: 2026-08-06T04:05:00+04:00
+  phase: multiway_closure
+  updated_at: 2026-08-06T04:58:00+04:00
 
 mission:
   summary: >-
@@ -24,6 +24,8 @@ priority_policy:
   authority: system_wide_max_ev
   personal_discomfort_is_input_not_priority: true
   source_order_is_not_priority: true
+  current_error_probability_state: incompletely_measured
+  current_ranking: neutral_prior_v0_2
   factors:
     - spot_frequency
     - average_error_cost
@@ -31,8 +33,6 @@ priority_policy:
     - transfer_value
     - learnability_per_unit_time
     - evidence_confidence
-  current_error_probability_state: incompletely_measured
-  current_ranking: neutral_prior_v0_1
 
 source_state:
   completeness_claim: known_catalogued_corpora_complete
@@ -41,7 +41,7 @@ source_state:
     status: complete
     catalogued_audio_lessons: 66
     preflop_scenarios_indexed: 980
-    remaining: claim_driven_visual_checks_and_independent_anchor_work
+    remaining: claim_driven_visual_checks_only
   ftgu:
     status: complete
     episodes_received: 30
@@ -71,20 +71,8 @@ source_state:
     lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     final_exam_pdf: received_and_audited
     exam_feedback: received_and_mapped
-    final_exam_questions: 10
     answer_key_continuity: complete
     lecture_continuity: complete
-    primary_lecture_supported_exam_rows:
-      - G3-Q01
-      - G3-Q02
-      - G3-Q03
-      - G3-Q04
-      - G3-Q05
-      - G3-Q06
-      - G3-Q07
-      - G3-Q08
-      - G3-Q09
-      - G3-Q10
     original_assessment_families: 30
     feedback_repair_paths: 10
 
@@ -95,16 +83,39 @@ cross_corpus_audit:
   visual_review: claim_driven
   unresolved_package_level_defect: false
   same_assumption_strategic_conflict_open: false
-  material_defect_class: active_synthesis_routing_staleness
-  repaired_authorities:
-    - synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_4.md
-    - synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_3.md
-    - synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_3.md
-    - synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_3.md
-    - synthesis/CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md
-    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
-    - learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_8.md
-    - governance/POST_SOURCE_FREEZE_AND_MUTATION_POLICY_v2.md
+
+preflop_architecture_wave:
+  status: accepted_directional
+  assumptions_authority: ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md
+  machine_library: ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json
+  table_anchors: ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md
+  validation: ranges/validation/PREFLOP_ANCHOR_VALIDATION_REPORT_v0_1.md
+  direct_drills: learning/drills/PREFLOP_SQUEEZE_AND_POLAR_TARGET_DRILL_PACK_v0_1.md
+  qa: analysis/system-audits/PREFLOP_ARCHITECTURE_WAVE_QA_v1.md
+  report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
+  memory_cards:
+    - unopened_pot
+    - limped_pot_iso
+    - facing_open
+    - facing_three_bet
+    - squeeze_and_polar
+  rfi_percent:
+    ep: 14.63
+    hj: 20.06
+    co: 27.30
+    btn: 45.40
+    sb: 40.87
+  validation_state:
+    notation_and_combo_counts: passed
+    position_monotonicity: passed
+    source_purity: passed
+    changed_node_tests: passed
+    equilibrium_solver_validation: pending
+    room_specific_field_validation: pending
+  closed_direct_answer_gaps:
+    - H-W01-002
+    - H-W01-008
+  exact_range_admission: false
 
 system_counts:
   heuristic_candidates: 34
@@ -113,26 +124,24 @@ system_counts:
   evidence_question_ids: 38
   provisional_synthesis_containers: 16
   provisional_containers_are_binding_target: false
-  candidates_with_direct_original_drills: 30
-  answer_key_gated_direct_drill_gaps: 4
+  candidates_with_direct_original_drills: 32
+  answer_key_gated_direct_drill_gaps: 2
   carrot_original_assessment_families: 74
   grade_2_feedback_repair_paths: 10
   grade_3_feedback_repair_paths: 10
   admitted_final_rules: 0
 
 candidate_status_counts:
-  drill_ready: 27
-  validation_pending: 7
+  drill_ready: 28
+  validation_pending: 6
   field_test_pending: 0
   admitted: 0
 
 remaining_direct_drill_gaps:
-  - H-W01-002
   - H-W01-006
-  - H-W01-008
   - H-R04-007
 
-direct_drill_gap_classification: post_source_answer_key_or_evidence_gated
+direct_drill_gap_classification: boundary_or_evidence_gated
 
 stable_module_ids:
   - LCM-01
@@ -148,54 +157,53 @@ stable_module_ids:
   - LCM-11
 
 max_ev_state:
-  ranking_authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
+  ranking_authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md
+  completed_closure_lane: independent_preflop_directional_architecture
   deployment_high_priority:
     - filtering_and_ownership
     - effective_depth
     - source_range_and_origin_reach
+    - preflop_core_flex_architecture
     - value_first_aggression
     - bet_shape_and_response_shape
     - three_bet_four_bet_ancestry
     - exact_branch_exploit_discipline
-    - protected_passive_architecture
   closure_priority:
-    - independent_preflop_architecture_and_anchors
     - multiway_action_order_and_delayed_aggression
-    - depth_spr_straddle_overlays
+    - deep_oop_and_exact_depth_spr_boundaries
     - learner_diagnostics
     - target_live_field_calibration
+    - targeted_preflop_solver_calibration
     - final_compression_and_admission
 
 active_milestone:
-  name: independent_preflop_architecture_and_anchor_specification
-  current_step: define_target_game_assumptions
+  name: multiway_action_order_and_delayed_aggression_closure
+  current_step: define_action_order_roles_and_shared_defence
   steps:
-    - define_rake_player_count_open_sizes_and_stack_bands
-    - define_ante_and_straddle_states
-    - select_minimum_anchor_family_set
-    - use_source_charts_as_private_comparison_only
-    - derive_ranges_independently
-    - validate_range_assumptions_and_outputs
-    - compress_into_table_facing_anchors
-    - activate_squeeze_and_polar_target_drills_when_stable
+    - define_action_order_roles
+    - map_shared_defence_boundary
+    - compress_nut_ownership_by_source_ranges
+    - build_minimum_multiway_bluff_support_hierarchy
+    - define_delayed_aggression_and_sandwich_transitions
+    - activate_h_r04_007_direct_answer_key
+    - update_multiway_module_readiness
+    - preserve_field_gated_fast_play_magnitude
   subsequent_milestones:
-    - multiway_boundary_and_delayed_aggression_closure
-    - depth_spr_and_straddle_overlays
+    - deep_oop_and_exact_depth_spr_boundaries
     - learner_diagnostics_and_priority_update
     - target_live_field_calibration
+    - targeted_preflop_solver_calibration
     - final_rule_optimisation
     - admission_revision_or_rejection
 
 open_high_value_gates:
-  - independent_live_rake_preflop_anchors
-  - squeeze_purification
-  - polar_preflop_target_folds_and_call_branch
-  - players_behind_compression
-  - deep_oop_protected_call_boundaries
+  - deep_oop_protected_call_boundary
   - multiway_shared_defence
   - multiway_bluff_construction
+  - multiway_nut_ownership_compression
   - multiway_delayed_aggression
-  - exact_depth_spr_and_straddle_overlays
+  - exact_room_rake_and_open_size_calibration
+  - exact_preflop_edge_band_solver_calibration
   - target_live_population_calibration
   - measured_learner_error_probability
   - learner_validation
@@ -205,11 +213,12 @@ open_high_value_gates:
 mechanism_state:
   general_postflop_core: mature_at_mechanism_level
   filtering_and_ownership: ready
-  bet_and_response_shape: ready_core
-  aggression_and_future_jobs: ready_core_with_context_splits
-  river_audit: ready_core
-  three_bet_four_bet_postflop: strong_directional
-  preflop_architecture: partial_anchor_pending
+  preflop_directional_architecture: active
+  preflop_exact_equilibrium: pending
+  squeeze_purification: drill_ready
+  polar_target_folds: drill_ready
+  blind_source_ranges: active_directional
+  depth_straddle_structural_overlays: active
   deep_oop_exact_boundaries: pending
   multiway: partial_boundary_pending
   field_population_magnitude: pending
@@ -228,31 +237,32 @@ active_authorities:
   bootstrap: START_HERE.md
   agent_contract: AGENTS.md
   project_atlas: PROJECT_ATLAS.md
-  audit: analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md
-  audit_report: reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md
-  cross_source_index: synthesis/CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md
-  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_4.md
-  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_3.md
-  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_3.md
-  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
-  provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_3.md
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_8.md
-  mutation_policy: governance/POST_SOURCE_FREEZE_AND_MUTATION_POLICY_v2.md
-  course_evaluation: reports/CURRENT_SOURCE_COURSE_EVALUATION_v5.md
+  latest_report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
+  preflop_assumptions: ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md
+  preflop_library: ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json
+  preflop_anchors: ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md
+  preflop_validation: ranges/validation/PREFLOP_ANCHOR_VALIDATION_REPORT_v0_1.md
+  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_5.md
+  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_4.md
+  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_4.md
+  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md
+  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_9.md
 
 latest_integrated_checkpoint:
-  verdict: CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_ACCEPTED
-  report: reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md
+  verdict: PREFLOP_DIRECTIONAL_ARCHITECTURE_WAVE_ACCEPTED
+  report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
   facts:
-    - known_catalogued_source_corpora_complete
-    - no_open_full_rerun
-    - no_unresolved_package_level_defect
-    - active_synthesis_routing_staleness_repaired
-    - max_ev_neutral_prior_created
-    - candidate_counts_unchanged
-    - direct_drill_coverage_remains_30_of_34
-    - final_rule_count_not_preset
-    - preflop_architecture_selected_as_next_build_lane
+    - target_assumption_grid_active
+    - five_preflop_anchor_cards_active
+    - independent_range_library_created
+    - combinatorial_and_source_purity_qa_passed
+    - squeeze_direct_answer_key_active
+    - polar_target_direct_answer_key_active
+    - direct_drill_coverage_32_of_34
+    - h_w01_002_promoted_to_drill_ready
+    - exact_solver_and_field_calibration_pending
+    - multiway_selected_as_next_closure_lane
+    - no_final_admission
 
 new_chat_bootstrap:
   required_read_order:
@@ -260,19 +270,19 @@ new_chat_bootstrap:
     - AGENTS.md
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
-    - analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md
-    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_1.md
-    - affected_authority_files_only
+    - reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
+    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md
+    - affected_multiway_authorities_only
   forbidden_behaviour:
     - restart_project_diagnosis
     - broad_unscoped_refactor
     - author_specific_parallel_curriculum
     - proprietary_content_copy
     - source_chart_as_admitted_anchor
+    - provisional_anchor_as_exact_solver_output
     - population_claim_as_live_default
     - global_learner_progress_reset
     - compress_to_preset_rule_count
-    - treat_personal_discomfort_as_automatic_priority
     - treat_source_completion_as_admission
 
 terminal_state:
@@ -280,7 +290,9 @@ terminal_state:
   atlas_ready: true
   catalogued_source_corpora_complete: true
   cross_corpus_audit_complete: true
-  active_routing_repaired: true
-  general_postflop_core_mature_at_mechanism_level: true
+  preflop_directional_wave_complete: true
+  preflop_anchor_library_active: true
+  direct_drill_coverage_32_of_34: true
+  exact_preflop_solver_calibration_complete: false
+  multiway_closure_ready: true
   global_restructure_expected: false
-  preflop_anchor_specification_ready: true

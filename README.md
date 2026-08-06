@@ -15,7 +15,7 @@ Repository state overrides chat memory.
 
 ## Objective
 
-Convert independent sources and evidence into:
+Build:
 
 - an optimally compact table-facing rule core with no preset count;
 - original adaptive drills and assessments;
@@ -29,56 +29,67 @@ Final-rule policy:
 
 ## Source state
 
-| Source family | Status |
-|---|---|
-| Smash Live Cash | 66/66 catalogued audio lessons complete; claim-driven visuals only |
-| FTGU | 30/30 complete; charts reference-only |
-| Cash Injection | 10/10 complete; ten pool hypotheses field-gated |
-| Carrot Grades 1-3 | each grade complete with L01-L10, Final Exam and Feedback |
+All known catalogued source families are complete:
 
-The cross-corpus audit found no open full rerun or unresolved package-level defect. `Known catalogued corpus complete` does not claim that no unsupplied publisher supplement exists.
+- Smash Live Cash `66/66`;
+- FTGU `30/30`;
+- Cash Injection `10/10`;
+- Carrot Grades 1-3, each with Lectures 01-10, Exam and Feedback.
 
-## System state
+No full rerun is open. Exact visuals remain claim-driven and population magnitudes remain field-gated.
+
+## Current system state
 
 ```text
 heuristic candidates: 34
 stable adaptive modules: 11
-misconception classes: 30
 evidence-question IDs: 38
-provisional synthesis containers: 16 non-binding
-direct original drills: 30
-answer-key-gated drill gaps: 4
+direct candidate drills: 32
+answer-key-gated drill gaps: 2
 Carrot assessment families: 74
 admitted final rules: 0
 ```
 
-## Current milestone
+Candidate statuses:
 
-`INDEPENDENT PREFLOP ARCHITECTURE AND ANCHOR SPECIFICATION`
+```text
+DRILL_READY: 28
+VALIDATION_PENDING: 6
+FIELD_TEST_PENDING: 0
+ADMITTED: 0
+```
 
-Neutral-prior build order:
+## Preflop architecture
 
-1. independent preflop architecture and anchors;
-2. multiway structure and delayed aggression;
-3. depth/SPR/straddle overlays;
-4. learner diagnostics;
-5. target-live field calibration;
-6. final compression and admission.
+The full directional preflop wave is active:
 
-Audit authority:
+- explicit Batumi assumptions grid;
+- five compact anchor cards;
+- independent machine-readable range library;
+- RFI/core-flex anchors;
+- squeeze and polar-target direct drills;
+- source-purity and changed-node validation.
 
-`analysis/system-audits/CROSS_CORPUS_COMPLETENESS_AND_DEFECT_AUDIT_v1.md`
+Main range entry:
+
+`ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md`
 
 Latest report:
 
-`reports/CROSS_CORPUS_AUDIT_TERMINAL_REPORT_v1.md`
+`reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md`
+
+The anchors are directional and executable, but not claimed exact equilibrium or universal Batumi charts.
+
+## Current milestone
+
+`MULTIWAY ACTION-ORDER AND DELAYED-AGGRESSION CLOSURE`
 
 ## Verdict
 
-`CROSS_CORPUS_AUDIT_COMPLETE`
+`PREFLOP_DIRECTIONAL_ARCHITECTURE_ACTIVE`
 
-`NO_FULL_RERUN_REQUIRED`
+`DIRECT_DRILL_COVERAGE_32_OF_34`
 
-`PREFLOP_ARCHITECTURE_NEXT`
+`MULTIWAY_NEXT`
 
 `FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`

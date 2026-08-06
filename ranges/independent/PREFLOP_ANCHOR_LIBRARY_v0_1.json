@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "artifact_id": "PREFLOP_ANCHOR_LIBRARY_v0_1",
+  "status": "PROVISIONAL_EXECUTABLE_INDEPENDENT_SOLVER_CALIBRATION_PENDING",
+  "purpose": "Compact live-cash anchor families; not proprietary charts and not exact equilibrium frequencies.",
+  "baseline_assumptions": {
+    "table_size": "8-9 handed nominal; shorten by position remap when fewer players are dealt in",
+    "effective_stack_bb": 100,
+    "common_stack_band_bb": "100-200",
+    "no_ante": true,
+    "rfi_open_size_bb": {"EP": 3.0, "HJ": 3.0, "CO": 3.0, "BTN": 2.5, "SB": 3.5},
+    "rake_model": "high-capped live sensitivity; room-specific rake must be checked",
+    "straddle": "off in baseline; translate all stacks and sizes into straddle units when on",
+    "mixing_policy": "pure core plus explicit flex band; no RNG required at table"
+  },
+  "rfi": {
+    "EP": {"spec": "44+,A2s+,KTs+,QTs+,JTs,T9s,98s,AJo+,KQo", "hand_classes": 35, "combos": 194, "percent": 14.63},
+    "HJ": {"spec": "22+,A2s+,K9s+,Q9s+,J9s+,T8s+,98s,87s,76s,ATo+,KJo+,QJo", "hand_classes": 46, "combos": 266, "percent": 20.06},
+    "CO": {"spec": "22+,A2s+,K7s+,Q8s+,J8s+,T8s+,97s+,86s+,75s+,65s,54s,A8o+,KTo+,QTo+,JTo", "hand_classes": 60, "combos": 362, "percent": 27.30},
+    "BTN": {"spec": "22+,A2s+,K2s+,Q5s+,J7s+,T7s+,96s+,85s+,74s+,64s+,54s,43s,A2o+,K7o+,Q8o+,J8o+,T9o,98o", "hand_classes": 90, "combos": 602, "percent": 45.40},
+    "SB": {"spec": "22+,A2s+,K2s+,Q5s+,J7s+,T7s+,96s+,85s+,74s+,64s+,54s,43s,A2o+,K9o+,Q9o+,J9o+,T9o", "hand_classes": 85, "combos": 542, "percent": 40.87}
+  },
+  "anchor_families": {
+    "A1_unopened_pot": {
+      "memory_cue": "Position first; open the core, then add or remove one edge band.",
+      "range_source": "rfi"
+    },
+    "A2_limped_pot_iso": {
+      "memory_cue": "Value density first; add isolation bluffs only when folds or position make them real.",
+      "ip_core": "77+,A9s+,KTs+,QTs+,JTs,T9s,AJo+,KQo",
+      "ip_flex": "22-66,A2s-A8s,K9s,Q9s,J9s,T8s,98s,87s,76s,65s,ATo,KJo,QJo",
+      "oop_core": "88+,ATs+,KQs,AQo+",
+      "oop_flex": "55-77,A5s-A2s,A9s,KTs+,QTs+,JTs,AJo,KQo",
+      "size_ip": "4.5bb plus 1bb per additional limper; add 1-2bb only when calls are very inelastic",
+      "size_oop": "5.5bb plus 1bb per additional limper; preserve room to fold marginal flex hands",
+      "reject_first": ["dominated offsuit broadways", "low disconnected offsuit hands", "small suited hands when effective depth is short"]
+    },
+    "A3_facing_open": {
+      "memory_cue": "Price, opener zone, players behind, position, then line.",
+      "bb_vs_ep_3x": {
+        "three_bet_core": "QQ+,AKs,AKo",
+        "three_bet_flex": "JJ,AQs,A5s-A4s",
+        "call_core": "22-JJ,A2s-AQs,KTs+,QTs+,JTs,T9s,98s,87s",
+        "call_flex": "K9s,Q9s,J9s,76s,65s,AJo,KQo",
+        "fold_first_when_rake_or_size_rises": "AJo,KQo,K9s,Q9s,J9s,65s"
+      },
+      "bb_vs_co_3x": {
+        "three_bet_core": "JJ+,AQs+,AKo",
+        "three_bet_flex": "TT,AJs,ATs,AQo,A5s-A2s,KQs,KTs,QTs,JTs",
+        "call_core": "22-TT,A2s-AQs,K8s+,Q9s+,J9s+,T8s+,97s+,86s+,75s+,65s,A9o-AQo,KTo-KQo,QTo+,JTo",
+        "call_flex": "K6s-K7s,Q8s,J8s,76s,54s,A8o,K9o"
+      },
+      "bb_vs_btn_2_5_to_3x": {
+        "three_bet_core": "TT+,AQs+,AKo",
+        "three_bet_flex": "88-99,A9s-AJs,AQo,A5s-A2s,K9s-KQs,Q9s-QJs,J9s-JTs,T9s",
+        "call_core": "22-99,A2s-AQs,K2s+,Q5s+,J7s+,T7s+,96s+,85s+,74s+,64s+,54s,A2o-AJo,K7o-KQo,Q8o+,J8o+,T8o+,98o",
+        "remove_first_vs_4x": "weak offsuit kings/queens, bottom suited gappers, lowest offsuit connectors"
+      },
+      "sb_default": {
+        "rule": "3-bet or fold is the default; flat only as an explicit protected overlay.",
+        "vs_ep_three_bet_core": "QQ+,AKs,AKo",
+        "vs_ep_three_bet_flex": "JJ,AQs,A5s-A4s",
+        "vs_late_three_bet_core": "TT+,AQs+,AKo",
+        "vs_late_three_bet_flex": "77-99,A9s-AJs,AQo,A5s-A2s,KTs+,QTs+,JTs",
+        "flat_overlay_requires": ["150bb+ effective", "passive BB", "small open", "low squeeze risk", "hand benefits more from call than 3-bet"]
+      },
+      "ip_vs_open": {
+        "rule": "Keep pairs and suited hands that realise; 3-bet value and blocker candidates; fold dominated offsuit first.",
+        "late_position_core_continue": "22+,A2s+,K9s+,Q9s+,J9s+,T8s+,98s-65s,AJo+,KQo",
+        "late_position_three_bet_core": "QQ+,AKs,AKo",
+        "late_position_three_bet_flex": "JJ,AQs,A5s-A4s,KTs,K9s",
+        "players_behind_penalty": "remove small pairs and low suited connectors before removing high-card suited hands"
+      }
+    },
+    "A4_facing_three_bet": {
+      "memory_cue": "Who can 3-bet wide, who is value-heavy, and which hands realise as calls?",
+      "tight_ep_configuration": {
+        "four_bet_value": "KK+,AKs",
+        "four_bet_flex": "QQ,AKo",
+        "call_core_ip": "99-QQ,AQs,KQs",
+        "bluff_permission": "A5s-A4s only with evidence of wide 3-bet and real folds"
+      },
+      "late_vs_blind": {
+        "four_bet_value": "QQ+,AKs,AKo",
+        "four_bet_bluff_first": "A5s-A4s",
+        "call_core_ip": "77-JJ,A9s-AQs,KTs+,QTs+,JTs,T9s,98s,AQo,KQo",
+        "call_flex_ip": "22-66,A5s-A2s,K9s,Q9s,J9s,87s,76s,65s,AJo",
+        "fold_first": "KJo,QJo,ATo and other dominated offsuit hands"
+      },
+      "oop_vs_ip": {
+        "four_bet_linear_core": "JJ+,AKs,AKo",
+        "four_bet_flex": "TT,AQs,AQo,A5s-A4s",
+        "call_core_if_150bb_plus": "77-TT,AJs-AQs,KQs,QJs,JTs,T9s",
+        "rule": "call less and protect the calling range with hands that can continue across runouts"
+      },
+      "size_rule_100bb": {
+        "ip": "about 2.2-2.4x the 3-bet",
+        "oop": "about 2.4-2.7x the 3-bet",
+        "note": "geometry anchor only; exact room/open-size calibration remains pending"
+      }
+    },
+    "A5_squeeze_and_polar": {
+      "memory_cue": "Purify candidates; do not invent bluffs.",
+      "size_rule": {
+        "one_caller_ip": "3x the open plus one open-size unit for the caller",
+        "one_caller_oop": "4x the open plus one open-size unit for the caller",
+        "two_callers_ip": "3x the open plus one open-size unit per caller",
+        "two_callers_oop": "4x the open plus one open-size unit per caller",
+        "deep_or_very_sticky": "add 0.5-1 open-size unit, not random fixed big-blind padding"
+      },
+      "vs_early_open": {
+        "value_core": "QQ+,AKs,AKo",
+        "flex": "JJ,AQs,A5s-A4s",
+        "preserve_calls_ip_deep": "22-JJ,AQs,KQs,QJs,JTs,T9s,98s",
+        "reject": "KJo,QJo,ATo and disconnected offsuit bluffs"
+      },
+      "vs_late_open": {
+        "value_core": "TT+,AQs+,AQo+",
+        "flex": "77-99,A9s-AJs,KQs,KJs,QJs,JTs,A5s-A2s",
+        "preserve_calls_ip_deep": "22-99,A2s-AQs,K9s+,Q9s+,J9s+,T8s+,98s-65s",
+        "reject": "hands chosen only because they look too weak to call"
+      },
+      "polar_four_bet_selector": {
+        "first_candidates": "A5s-A4s",
+        "secondary_candidates": "A3s-A2s when blocker and fold-target logic remain intact",
+        "rare_candidates": "KTs-K9s only when the 3-bettor folds KQ/KJ-type hands and does not flat too widely",
+        "not_candidates": "98s/87s when they realise well as calls; offsuit junk; hands dominated by the call branch",
+        "required_target": "a credible set of better hands that fold, plus a narrow enough continue/5-bet region"
+      }
+    }
+  },
+  "overlays": {
+    "open_size": {
+      "2.5x": "add one flex band in position and BB",
+      "3x": "baseline",
+      "4x": "remove one flex band; dominated offsuit hands leave first",
+      "5x_plus": "continue mainly core; treat speculative calls as explicit deep-stack decisions"
+    },
+    "depth": {
+      "50bb": "linearise 3-bet/4-bet, reduce speculative flats and small-pair implied-odds calls",
+      "100bb": "baseline",
+      "200bb": "add IP suited/pair calls, preserve protected flats, reduce OOP automatic stack-offs",
+      "400bb": "prioritise nut potential and position; sharply penalise dominated offsuit and OOP one-pair commitment"
+    },
+    "rake": {
+      "R0_low_or_time": "retain more marginal IP/BB calls",
+      "R1_moderate_4pct_capped": "baseline flex discipline",
+      "R2_high_5pct_or_uncertain_cap": "remove marginal calls first; prefer fold or value-led raise over dominated flats"
+    },
+    "players_behind": {
+      "passive": "retain protected calls",
+      "aggressive_squeezer": "remove weakest flats and promote only true top flex candidates to 3-bet",
+      "multiple_live_callers": "increase value density and sizing; do not widen with random suited hands"
+    },
+    "straddle": {
+      "rule": "divide every stack and raise size by the straddle; rebuild the node in straddle units",
+      "example": "$600 at 1/3 with $6 straddle is 100 straddles, not 200 big blinds"
+    }
+  },
+  "validation_state": {
+    "notation_and_combo_counts": "passed",
+    "position_monotonicity": "passed for EP-HJ-CO-BTN",
+    "source_topology_comparison": "passed",
+    "source_chart_copy": false,
+    "equilibrium_solver_validation": "pending",
+    "room_specific_rake_validation": "pending",
+    "field_validation": "pending"
+  }
+}
