@@ -112,7 +112,7 @@ T1 is optional personalization, not a mandatory wall.
 - Before learning exposure: `COLD_BASELINE`.
 - After learning begins: `POST_LEARNING_DIAGNOSTIC`.
 - RU and EN preserve the same ten diagnostic IDs.
-- Locale is included in the raw handoff.
+- Raw v0.2 stores the current interface locale and the locale of each answer if the language changes mid-diagnostic.
 - Free text is never keyword-scored as strategy.
 
 Active authorities:
@@ -120,7 +120,7 @@ Active authorities:
 - `learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md`;
 - `learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md`;
 - `learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json`;
-- `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json`;
+- `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json`;
 - `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`;
 - `scripts/score_learner_diagnostic.py`.
 
