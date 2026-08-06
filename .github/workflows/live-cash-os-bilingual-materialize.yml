@@ -15,6 +15,9 @@ concurrency:
   group: live-cash-os-bilingual-materialize
   cancel-in-progress: true
 
+env:
+  MATERIALIZATION_REVISION: "2"
+
 jobs:
   materialize:
     runs-on: macos-13
