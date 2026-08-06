@@ -9,14 +9,16 @@ const currentRu = JSON.parse(await readFile(ruPath, "utf8"));
 const currentEn = JSON.parse(await readFile(enPath, "utf8"));
 
 const ruPhrases = [
-  ["teaching layer", "объяснение"],
   ["teaching layers", "уроки"],
+  ["teaching layer", "объяснение"],
   ["working evidence", "подтверждение в практике"],
+  ["field evidence", "подтверждение за столом"],
   ["field transfer", "применение за столом"],
+  ["delayed retrieval", "повторение через время"],
   ["delayed review", "повторение через время"],
   ["due review", "запланированное повторение"],
-  ["changed node", "изменённая ситуация"],
   ["changed nodes", "изменённые ситуации"],
+  ["changed node", "изменённая ситуация"],
   ["explain-back", "объяснение своими словами"],
   ["table card", "памятка за столом"],
   ["cold diagnostic", "диагностика без подсказок"],
@@ -24,19 +26,83 @@ const ruPhrases = [
   ["repair family", "группа связанных ошибок"],
   ["repair", "разбор ошибки"],
   ["mastery", "устойчивый навык"],
+  ["evidence grade", "надёжность наблюдения"],
   ["evidence", "подтверждение"],
   ["feedback", "разбор ответа"],
+  ["structural baseline", "базовая линия"],
   ["baseline", "базовая линия"],
   ["falsifier", "признак, который опровергнет вывод"],
   ["future tree", "дальнейший розыгрыш"],
   ["decision tree", "порядок решения"],
   ["branch-specific", "привязанный к конкретной ветке"],
-  ["branch", "ветка"],
-  ["node signature", "набор условий ситуации"],
-  ["node", "ситуация"],
+  ["node signature", "условия ситуации"],
+  ["arrival ranges", "диапазоны, дошедшие до решения"],
   ["arrival range", "диапазон, дошедший до решения"],
+  ["source ranges", "исходные диапазоны"],
   ["source range", "исходный диапазон"],
   ["range source", "источник диапазона"],
+  ["action history", "история действий"],
+  ["players behind", "игроки сзади"],
+  ["player behind", "игрок сзади"],
+  ["closing action", "закрытие торгов"],
+  ["shared defence", "общая защита нескольких диапазонов"],
+  ["shared defense", "общая защита нескольких диапазонов"],
+  ["realized equity", "реализованное эквити"],
+  ["realised equity", "реализованное эквити"],
+  ["raw equity", "исходное эквити"],
+  ["fold equity", "фолд-эквити"],
+  ["implied odds", "потенциальные шансы банка"],
+  ["pot odds", "шансы банка"],
+  ["check-back", "чек вдогон"],
+  ["check-raise", "чек-рейз"],
+  ["range-bet", "ставка всем диапазоном"],
+  ["near-range", "почти всем диапазоном"],
+  ["small-wide", "маленькая ставка широким диапазоном"],
+  ["large-selective", "крупная выборочная ставка"],
+  ["value-heavy", "сильный и смещённый к вэлью"],
+  ["value first", "сначала вэлью"],
+  ["value-first", "сначала вэлью"],
+  ["bluff supply", "запас возможных блефов"],
+  ["credible bluff supply", "реально возможные блефы"],
+  ["range construction", "построение диапазона"],
+  ["response shape", "форма ответа"],
+  ["betting range", "диапазон ставки"],
+  ["continuing range", "диапазон продолжения"],
+  ["source branch", "исходная ветка"],
+  ["fold targets", "руки, которые действительно могут сфолдить"],
+  ["value targets", "худшие руки, которые продолжат"],
+  ["denial targets", "руки с живым эквити, которые можно выбить"],
+  ["high-confidence miss", "ошибка при высокой уверенности"],
+  ["structural miss", "ошибка в понимании структуры"],
+  ["showdown value", "ценность на вскрытии"],
+  ["showdown", "вскрытие"],
+  ["overfolds", "слишком часто фолдит"],
+  ["overfold", "слишком частый фолд"],
+  ["overcalls", "слишком широко коллирует"],
+  ["overcall", "слишком широкий колл"],
+  ["overbluffs", "слишком часто блефует"],
+  ["overbluff", "переблеф"],
+  ["calls", "коллы"],
+  ["folds", "фолды"],
+  ["raises", "рейзы"],
+  ["bets", "ставки"],
+  ["checks", "чеки"],
+  ["bluffs", "блефы"],
+  ["blockers", "блокеры"],
+  ["ranges", "диапазоны"],
+  ["boards", "доски"],
+  ["turns", "тёрны"],
+  ["rivers", "риверы"],
+  ["branches", "ветки"],
+  ["actions", "действия"],
+  ["players", "игроки"],
+  ["premiums", "премиальные руки"],
+  ["broadways", "бродвеи"],
+  ["continues", "продолжения"],
+  ["survivors", "дошедшие руки"],
+  ["surviving", "дошедшие"],
+  ["branch", "ветка"],
+  ["node", "ситуация"],
   ["range", "диапазон"],
   ["hands", "руки"],
   ["hand", "рука"],
@@ -47,18 +113,15 @@ const ruPhrases = [
   ["call", "колл"],
   ["fold", "фолд"],
   ["raise", "рейз"],
+  ["check", "чек"],
   ["bet", "ставка"],
   ["bluff", "блеф"],
   ["value", "вэлью"],
   ["blocker", "блокер"],
   ["equity", "эквити"],
   ["realisation", "реализация эквити"],
-  ["realized equity", "реализованное эквити"],
-  ["raw equity", "исходное эквити"],
+  ["realization", "реализация эквити"],
   ["size", "размер"],
-  ["player behind", "игрок сзади"],
-  ["players behind", "игроки сзади"],
-  ["closing action", "закрытие торгов"],
   ["multiway", "мультивей"],
   ["heads-up", "один на один"],
   ["OOP", "без позиции"],
@@ -68,7 +131,6 @@ const ruPhrases = [
   ["default", "по умолчанию"],
   ["prior", "исходное предположение"],
   ["sample", "выборка"],
-  ["frequency", "частота"],
   ["frequency", "частота"],
   ["pattern", "схема"],
   ["skill", "навык"],
@@ -86,16 +148,36 @@ const ruPhrases = [
   ["opponent", "соперник"],
   ["Villain", "соперник"],
   ["Hero", "Hero"],
+  ["polar", "полярный"],
+  ["linear", "линейный"],
+  ["condensed", "плотный"],
+  ["merged", "объединённый"],
+  ["robust", "устойчивый"],
+  ["vulnerable", "уязвимый"],
+  ["selective", "выборочный"],
+  ["dynamic", "динамичный"],
+  ["scary", "опасный"],
+  ["wide", "широкий"],
+  ["tight", "тайтовый"],
+  ["air", "воздух"],
 ];
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function naturalizeRussian(value) {
   let text = value;
-  for (const [from, to] of ruPhrases) text = text.replace(new RegExp(`\\b${from.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}\\b`, "gi"), to);
+  for (const [from, to] of ruPhrases) text = text.replace(new RegExp(`\\b${escapeRegExp(from)}\\b`, "gi"), to);
   text = text
     .replace(/\s+/g, " ")
     .replace(/\s+([,.!?;:])/g, "$1")
     .replace(/\bпроверить проверить\b/gi, "проверить")
     .replace(/\bдиапазон диапазон\b/gi, "диапазон")
+    .replace(/\bсоперник коллы\b/gi, "соперник коллирует")
+    .replace(/\bсоперник фолды\b/gi, "соперник фолдит")
+    .replace(/\bсоперник ставки\b/gi, "соперник ставит")
+    .replace(/\bсоперник рейзы\b/gi, "соперник рейзит")
     .trim();
   return text;
 }
@@ -109,8 +191,8 @@ const protectedTerms = [
 function protect(value) {
   const restore = [];
   let text = value;
-  for (const term of protectedTerms.sort((a, b) => b.length - a.length)) {
-    const expression = new RegExp(term.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&"), "gi");
+  for (const term of [...protectedTerms].sort((a, b) => b.length - a.length)) {
+    const expression = new RegExp(escapeRegExp(term), "gi");
     text = text.replace(expression, (match) => {
       const token = `__TERM_${restore.length}__`;
       restore.push(match);
@@ -135,7 +217,7 @@ async function translateGoogle(value) {
   url.searchParams.set("q", text);
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      const response = await fetch(url, { headers: { "user-agent": "LiveCashOS-i18n/1.0" } });
+      const response = await fetch(url, { headers: { "user-agent": "LiveCashOS-i18n/1.1" } });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload = await response.json();
       const translated = payload[0].map((part) => part[0]).join("");
@@ -144,6 +226,7 @@ async function translateGoogle(value) {
         .replace(/\bthe hero\b/gi, "Hero")
         .replace(/\bturne\b/gi, "turn")
         .replace(/\brivere\b/gi, "river")
+        .replace(/\bfloppe\b/gi, "flop")
         .trim();
     } catch (error) {
       if (attempt === 2) throw error;
