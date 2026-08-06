@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live Cash Diagnostic Raw Response Record v0.1",
+  "type": "object",
+  "required": ["schema_version", "learner_id", "tranche_id", "submitted_at", "responses"],
+  "properties": {
+    "schema_version": { "const": "raw-0.1" },
+    "learner_id": { "type": "string", "minLength": 1 },
+    "tranche_id": { "const": "T1" },
+    "submitted_at": { "type": "string" },
+    "responses": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["item_id", "answer", "reasoning", "confidence", "time_seconds"],
+        "properties": {
+          "item_id": { "type": "string", "pattern": "^LD-00[1-9]$|^LD-010$" },
+          "answer": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string", "minLength": 1 },
+          "confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "time_seconds": { "type": "number", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
