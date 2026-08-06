@@ -5,7 +5,7 @@ project:
   default_branch: main
   state_authority: repository_over_chat_memory
   phase: bilingual_learning_runtime_release_candidate
-  updated_at: '2026-08-06T21:10:00+04:00'
+  updated_at: '2026-08-06T23:00:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash system for a strong MTT player moving into live 1/3 and 2/5.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -54,18 +54,21 @@ learner_application:
   locale_switch_resets_evidence: false
   locale_architecture: one_semantic_graph_keyed_copy_layers
   translation_memory_source_snapshot_required: true
+  deterministic_check_can_grant_reviewed: false
   draft_translation_publish_allowed: false
   modules: 11
   drills: 55
   flashcards: 33
   teaching_stages_per_module: 10
+  learner_route_stages: [0, 10, 20, 35, 50, 65, 80, 90, 100]
+  learner_route_is_mastery_percentage: false
   t1_policy: optional_recommended_personalisation
   stable_url_must_not_change: true
   accepted_live_source_sha: a22cd0b676730e4eaea2169c36f979c7192b6413
   current_production_status: ACCEPTED_MAIN_MERGED_LIVE_SMOKE_GREEN
   release_candidate_branch: agent/live-cash-os-bilingual-copy-pass
   release_candidate_status: IN_PROGRESS_NOT_DEPLOYED
-  runtime_admission_is_not_final_rule_admission: true
+  runtime_delivery_is_not_final_rule_admission: true
   content_status:
     LCM-01: GOLD_ACCEPTED_TEACHING_MODULE
     LCM-02_to_LCM-11: VALIDATION_PENDING_REPEAT_AUDIT
@@ -98,22 +101,31 @@ learner_runtime:
   - FIELD_VALIDATED
   - REPAIR_REQUIRED
   content_completion_is_mastery: false
+  variant_transfer_requires_explicit_probe: true
+  variant_distance_values: [NEAR, MEDIUM, FAR]
   raw_field_note_is_field_transfer: false
   immediate_correct_is_retention: false
+  state_merge: entity_level_monotonic_merge_with_id_union
   global_progress_reset: false
 diagnostic_state:
   status: RUNTIME_READY_RESPONSES_PENDING
   policy: optional_recommended
-  cold_baseline_condition: no_prior_learning_exposure
-  post_learning_label: POST_LEARNING_DIAGNOSTIC
+  context_fixed_at_start: true
+  contexts:
+  - COLD_BASELINE
+  - POST_LEARNING_DIAGNOSTIC
+  - MIXED_EXPOSURE_INVALID_FOR_BASELINE
   bilingual_ids_stable: true
-  raw_export_contains_locale: true
+  per_response_locale_required: true
+  strict_scorer_import: true
+  scorer_output_schema: score-0.2
   battery: learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md
   runtime: learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md
   manifest: learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json
-  raw_response_schema: learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json
-  evaluated_response_schema: learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json
+  raw_response_schema: learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json
+  evaluated_response_schema: learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_2.json
   scorer: scripts/score_learner_diagnostic.py
+  scorer_version: 0.2.0
   learner_profile: profiles/CURRENT_LEARNER_BASELINE_PROFILE_v0_1.yaml
   canonical_learner_state: training/learner-state/CURRENT_LEARNER_STATE_v0_1.yaml
   responses_recorded: 0
@@ -138,34 +150,44 @@ accepted_release_evidence:
   chatgpt_site_version: 24
 bilingual_release_candidate:
   branch: agent/live-cash-os-bilingual-copy-pass
+  pull_request: 3
   target_app_version: 1.1.0
   ssot_reconciled: true
   ui_copy_ru_written: true
   ui_copy_en_written: true
   diagnostic_ru_written: true
   diagnostic_en_written: true
+  fixed_t1_context_implemented_in_model: true
+  strict_scorer_import_implemented: true
+  explicit_transfer_probe_implemented: true
+  entity_state_merge_implemented: true
+  explicit_zero_to_hundred_route_authored: true
   stable_key_extractor_added: true
   translation_memory_sync_added: true
   stale_translation_gate_added: true
+  automatic_review_promotion_removed: true
   locale_runtime_materialized: false
   translation_memories_reviewed: false
   repository_ci_green: false
   pull_request_merged: false
   same_site_deployed: false
   bilingual_live_smoke_green: false
-  infrastructure_note: github_actions_service_outage_delaying_materialization
+  infrastructure_note: scheduled isolated materializer added temporarily on main because connector commits did not trigger branch workflows
 active_milestone:
   name: complete_bilingual_copy_and_locale_release_wave
-  current_step: materialize locale runtime and translation memories, then review copy and pass all gates
+  current_step: materialize final runtime and draft memories, perform explicit editorial review, then pass all gates
   success_condition:
     stable_url_unchanged: true
     d1_binding_preserved: true
+    learner_state_schema_preserved: true
     one_semantic_graph: true
     russian_copy_natural: true
     english_copy_complete: true
     ru_en_ids_identical: true
     language_switch_persistent: true
     active_session_preserved_across_locale_switch: true
+    fixed_t1_context: true
+    explicit_variant_transfer_probe: true
     draft_translation_count_zero: true
     typecheck_green: true
     lint_green: true
@@ -173,6 +195,7 @@ active_milestone:
     unit_content_green: true
     production_build_green: true
     desktop_mobile_ru_en_e2e_green: true
+    one_time_migration_tooling_removed: true
     same_site_live_smoke_ru_en_green: true
 active_authorities:
   bootstrap: START_HERE.md
@@ -182,9 +205,12 @@ active_authorities:
   release_status: apps/live-cash-os/RELEASE_STATUS.md
   acceptance_ledger: apps/live-cash-os/ACCEPTANCE_LEDGER.md
   learner_model: apps/live-cash-os/lib/model.ts
+  diagnostic_import: apps/live-cash-os/lib/diagnostic-import.ts
   module_content: apps/live-cash-os/content/modules.ts
+  content_quality: apps/live-cash-os/content/quality.ts
   locale_ui: apps/live-cash-os/content/i18n/ui.ts
   locale_diagnostic: apps/live-cash-os/content/i18n/diagnostic.ts
+  locale_route: apps/live-cash-os/content/i18n/route.ts
   locale_runtime: apps/live-cash-os/content/i18n/runtime.ts
   locale_gate: apps/live-cash-os/scripts/i18n-check.mjs
   hosting: apps/live-cash-os/.openai/hosting.json
@@ -192,19 +218,21 @@ active_authorities:
   max_ev: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_5.md
   readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_12.md
 truth_boundaries:
-- learner-runtime admission is not final-rule admission
+- learner-runtime delivery is not final-rule admission
 - diagnostic readiness is not learner mastery
 - user-reported pain points are priors not confirmed leaks
 - untested mechanisms remain unmeasured
 - one response cannot confirm a leak
 - content completion cannot create retention
+- repair mode alone cannot create variant transfer
 - raw field notes cannot create field validation
 - population magnitudes remain field-gated
 - repo green is not live deployment green
 - accepted v1 remains production truth while v1.1 is a release candidate
 - machine-generated translation drafts are not accepted copy
+- deterministic checks cannot grant reviewed translation status
 next_user_interaction:
-  instruction: do not start a new production learning session during the v1.1 deployment window; after bilingual live smoke, begin LCM-01 in the chosen locale
+  instruction: after bilingual live smoke, begin LCM-01 in the chosen locale; do not tune platform again before delayed and field evidence
   platform_tuning_after_release: stop_until_real_delayed_and_field_evidence
 terminal_state:
   handover_ready: true
