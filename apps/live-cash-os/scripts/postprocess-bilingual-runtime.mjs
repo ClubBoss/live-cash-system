@@ -79,6 +79,11 @@ replaceOnce(
   "card kind label",
 );
 replaceOnce(
+  'const response: DiagnosticRawResponse = { item_id: item.id, answer: answer.trim(), reasoning: reasoning.trim(), confidence, time_seconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)) };',
+  'const response: DiagnosticRawResponse = { item_id: item.id, answer: answer.trim(), reasoning: reasoning.trim(), confidence, time_seconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)), locale };',
+  "per-response diagnostic locale",
+);
+replaceOnce(
   '<p className="eyebrow">T1 · {diagnostic.status}</p>',
   '<p className="eyebrow">T1 · {diagnosticStatusLabel(locale, diagnostic.status)}</p>',
   "diagnostic status label",
@@ -87,4 +92,4 @@ replaceOnce(
 if (source.includes("feedback.drill.")) throw new Error("Locale-stale feedback references remain");
 if (source.includes("if (feedback) return")) throw new Error("Feedback recovery was not installed");
 await writeFile(path, source, "utf8");
-console.log("Postprocessed bilingual runtime labels, locale-stable feedback and reload recovery.");
+console.log("Postprocessed bilingual runtime labels, locale-stable feedback, reload recovery and per-response T1 locale.");
