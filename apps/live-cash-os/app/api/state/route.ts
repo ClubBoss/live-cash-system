@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { getChatGPTUser } from "../../chatgpt-auth";
 import { getDb } from "../../../db";
 import { learnerStates } from "../../../db/schema";
-import { validateLearnerState, type LearnerState } from "../../../lib/model";
+import { migrateLearnerState, validateLearnerState, type LearnerState } from "../../../lib/model";
 
 const MAX_STATE_BYTES = 1_000_000;
 
@@ -20,17 +20,23 @@ async function currentRecord(userId: string) {
   return record ?? null;
 }
 
+function migrateStoredState(value: unknown): LearnerState | null {
+  if (!value || typeof value !== "object") return null;
+  const migrated = migrateLearnerState(value);
+  return validateLearnerState(migrated) ? migrated : null;
+}
+
 export async function GET() {
   const user = await getChatGPTUser();
   if (!user) return Response.json({ error: "Sign in required" }, { status: 401 });
 
   const record = await currentRecord(user.userId);
   if (!record) return Response.json({ state: null });
-  const parsed = safeParse(record.stateJson);
-  if (!validateLearnerState(parsed)) {
-    return Response.json({ state: null, warning: "Stored state failed validation" }, { status: 200 });
+  const migrated = migrateStoredState(safeParse(record.stateJson));
+  if (!migrated) {
+    return Response.json({ state: null, warning: "Stored state could not be migrated safely" }, { status: 200 });
   }
-  return Response.json({ state: parsed });
+  return Response.json({ state: migrated });
 }
 
 export async function POST(request: Request) {
@@ -47,14 +53,14 @@ export async function POST(request: Request) {
 
   let payload: unknown;
   try { payload = JSON.parse(text); } catch { return Response.json({ error: "Malformed JSON" }, { status: 400 }); }
-  const state = payload && typeof payload === "object" && "state" in payload ? (payload as { state: unknown }).state : null;
-  if (!validateLearnerState(state)) return Response.json({ error: "Learner state schema 2 is required" }, { status: 400 });
+  const rawState = payload && typeof payload === "object" && "state" in payload ? (payload as { state: unknown }).state : null;
+  const incoming = migrateStoredState(rawState);
+  if (!incoming) return Response.json({ error: "Learner state schema 2 is required" }, { status: 400 });
 
-  const incoming = state as LearnerState;
   const record = await currentRecord(user.userId);
   if (record) {
-    const existing = safeParse(record.stateJson);
-    if (validateLearnerState(existing)) {
+    const existing = migrateStoredState(safeParse(record.stateJson));
+    if (existing) {
       const existingTime = Date.parse(existing.updatedAt) || 0;
       const incomingTime = Date.parse(incoming.updatedAt) || 0;
       if (existing.revision > incoming.revision || (existing.revision === incoming.revision && existingTime > incomingTime)) {
