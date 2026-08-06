@@ -1,4 +1,4 @@
-import type { ModuleId } from "../lib/model";
+import type { ModuleId, TransferProbe } from "../lib/model";
 
 export type Option = {
   id: string;
@@ -21,6 +21,7 @@ export type Drill = {
   correctActionId: string;
   correctReasonId: string;
   explanation: string;
+  transferProbe: TransferProbe | null;
 };
 
 export type Flashcard = {
