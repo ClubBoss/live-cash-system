@@ -1,4 +1,5 @@
 import "./add-learning-route.mjs";
+import "./i18n-quality-fixes.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
