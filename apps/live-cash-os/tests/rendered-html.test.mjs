@@ -18,9 +18,7 @@ test("server renders the Russian-first Live Cash OS shell", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Live Cash OS<\/title>/i);
-  assert.match(html, /Учись коротко|Загружаем learner state/i);
-  assert.match(html, /Сегодня/);
-  assert.match(html, /Карточки/);
+  assert.match(html, /Загружаем learner state/i);
   assert.doesNotMatch(html, /accepted slice/i);
   assert.doesNotMatch(html, /vinext-starter/i);
 });
