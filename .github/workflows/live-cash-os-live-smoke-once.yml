@@ -14,7 +14,7 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-22.04
-    timeout-minutes: 12
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: apps/live-cash-os
@@ -32,8 +32,8 @@ jobs:
       - name: Smoke stable production URL
         env:
           LIVE_URL: https://live-cash-os.elmarsal.chatgpt.site/
-          SMOKE_ATTEMPTS: "20"
-          SMOKE_WAIT_MS: "15000"
+          SMOKE_ATTEMPTS: "1"
+          SMOKE_WAIT_MS: "0"
         run: node scripts/production-smoke.mjs
       - name: Upload production smoke evidence
         if: always()
