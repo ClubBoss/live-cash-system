@@ -4,6 +4,11 @@ const componentPath = new URL("../components/LiveCashApp.tsx", import.meta.url);
 const cssPath = new URL("../app/globals.css", import.meta.url);
 let source = await readFile(componentPath, "utf8");
 
+if (source.includes('className="learning-route"') && source.includes("getLearningRoute(locale)")) {
+  console.log("Explicit 0-to-100 learner route already materialized.");
+  process.exit(0);
+}
+
 function replaceOnce(from, to, label) {
   if (!source.includes(from)) throw new Error(`Learning-route target missing: ${label}`);
   source = source.replace(from, to);
@@ -21,7 +26,7 @@ replaceOnce(
 );
 replaceOnce(
   '<section className="integrity"><h2>{t("integrityTitle")}</h2><p>{t("integrityBody")}</p></section>',
-  '<section className="learning-route"><div className="section-head"><p className="eyebrow">{locale === "ru" ? "МАРШРУТ ОТ СТАРТА ДО ПОДТВЕРЖДЕНИЯ" : "ROUTE FROM START TO VALIDATION"}</p><h2>{locale === "ru" ? "Что означает путь 0 → 100%" : "What the 0 → 100% route means"}</h2><p>{locale === "ru" ? "Это не общий процент покерного мастерства. Это полный цикл доказательств для одной конкретной темы." : "This is not an overall poker-mastery score. It is the complete evidence cycle for one specific module."}</p></div><div className="route-grid">{route.map((stage) => <article key={stage.percent}><span>{stage.percent}%</span><div><b>{stage.title}</b><p>{stage.description}</p></div></article>)}</div></section><section className="integrity"><h2>{t("integrityTitle")}</h2><p>{t("integrityBody")}</p></section>',
+  '<section className="learning-route"><div className="section-head"><p className="eyebrow">{locale === "ru" ? "МАРШРУТ ОТ СТАРТА ДО ПОДТВЕРЖДЕНИЯ" : "ROUTE FROM START TO VALIDATION"}</p><h2>{locale === "ru" ? "Что означает путь 0 → 100%" : "What the 0 → 100% route means"}</h2><p>{locale === "ru" ? "Это не общий процент покерного мастерства. Это полный цикл подтверждений для одной конкретной темы." : "This is not an overall poker-mastery score. It is the complete evidence cycle for one specific module."}</p></div><div className="route-grid">{route.map((stage) => <article key={stage.percent}><span>{stage.percent}%</span><div><b>{stage.title}</b><p>{stage.description}</p></div></article>)}</div></section><section className="integrity"><h2>{t("integrityTitle")}</h2><p>{t("integrityBody")}</p></section>',
   "route section",
 );
 
