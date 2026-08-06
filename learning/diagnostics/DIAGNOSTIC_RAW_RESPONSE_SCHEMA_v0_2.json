@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live Cash Diagnostic Raw Response Record v0.2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "learner_id",
+    "tranche_id",
+    "measurement_context",
+    "locale",
+    "submitted_at",
+    "responses"
+  ],
+  "properties": {
+    "schema_version": { "const": "raw-0.2" },
+    "learner_id": { "type": "string", "minLength": 1 },
+    "tranche_id": { "const": "T1" },
+    "measurement_context": {
+      "enum": ["COLD_BASELINE", "POST_LEARNING_DIAGNOSTIC"]
+    },
+    "locale": { "enum": ["ru", "en"] },
+    "submitted_at": { "type": "string", "format": "date-time" },
+    "responses": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "answer",
+          "reasoning",
+          "confidence",
+          "time_seconds"
+        ],
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "pattern": "^(LD-00[1-9]|LD-010)$"
+          },
+          "answer": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string", "minLength": 1 },
+          "confidence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "time_seconds": { "type": "number", "minimum": 0 },
+          "locale": { "enum": ["ru", "en"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
