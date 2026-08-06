@@ -15,4 +15,13 @@ manifest.description = "Bilingual adaptive live cash poker learning system.";
 manifest.lang = "ru";
 await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
-console.log("Prepared Live Cash OS bilingual version 1.1.0.");
+const serviceWorkerPath = new URL("../public/sw.js", import.meta.url);
+let serviceWorker = await readFile(serviceWorkerPath, "utf8");
+if (serviceWorker.includes('const CACHE = "live-cash-os-shell-v1";')) {
+  serviceWorker = serviceWorker.replace('const CACHE = "live-cash-os-shell-v1";', 'const CACHE = "live-cash-os-shell-v1.1";');
+} else if (!serviceWorker.includes('const CACHE = "live-cash-os-shell-v1.1";')) {
+  throw new Error("Unexpected service-worker cache authority");
+}
+await writeFile(serviceWorkerPath, serviceWorker, "utf8");
+
+console.log("Prepared Live Cash OS bilingual version 1.1.0 and refreshed the PWA shell cache.");
