@@ -1,11 +1,11 @@
-schema_version: 1
+schema_version: 2
 project:
   name: Live Cash System
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: learner_diagnostics
-  updated_at: '2026-08-06T12:08:00+04:00'
+  phase: live_learning_runtime_release
+  updated_at: '2026-08-06T16:57:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash system for a strong MTT player moving into live 1/3 and 2/5.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -37,50 +37,112 @@ system_counts:
   learner_dimensions: 9
   diagnostic_items: 20
   active_t1_items: 10
+learner_application:
+  name: Live Cash OS
+  stable_url: https://live-cash-os.elmarsal.chatgpt.site/
+  source_path: apps/live-cash-os
+  hosting_project_id: appgprj_6a74674839c88191877199e34e21fc2c
+  cloud_binding: DB
+  app_version: 1.0.0
+  learner_state_schema: 2
+  content_version: 2026.08-wave6
+  primary_language: ru
+  standard_poker_terms_secondary_language: en
+  modules: 11
+  drills: 55
+  flashcards: 33
+  teaching_stages_per_module: 10
+  t1_policy: optional_recommended_personalisation
+  stable_url_must_not_change: true
+  current_release_status: RELEASE_CANDIDATE_PENDING_AUTOMATED_AND_LIVE_GATES
+  runtime_admission_is_not_final_rule_admission: true
+learner_runtime:
+  state_scope: per_module_per_dimension
+  dimensions:
+  - node_recognition
+  - mechanism_explanation
+  - action_selection
+  - boundary_control
+  - speed
+  - confidence_calibration
+  - variant_transfer
+  - retention
+  - field_transfer
+  response_classes:
+    A: action_and_reason_correct
+    B: action_wrong_reason_correct
+    C: action_correct_reason_wrong
+    D: action_and_reason_wrong
+    E: baseline_correct_exploit_confidence_unjustified
+    U: unknown_or_baseline_when_evidence_insufficient
+  module_states:
+  - UNEXPOSED
+  - INTRODUCED
+  - FRAGILE
+  - WORKING
+  - RETAINED
+  - FIELD_TEST_PENDING
+  - FIELD_VALIDATED
+  - REPAIR_REQUIRED
+  content_completion_is_mastery: false
+  raw_field_note_is_field_transfer: false
+  immediate_correct_is_retention: false
+  global_progress_reset: false
 diagnostic_state:
   status: RUNTIME_READY_RESPONSES_PENDING
+  policy: optional_recommended
   battery: learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md
   runtime: learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md
   manifest: learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json
-  response_schema: learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json
+  raw_response_schema: learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json
+  evaluated_response_schema: learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json
   scorer: scripts/score_learner_diagnostic.py
   learner_profile: profiles/CURRENT_LEARNER_BASELINE_PROFILE_v0_1.yaml
-  learner_state: training/learner-state/CURRENT_LEARNER_STATE_v0_1.yaml
-  micro_cycle: training/PERSONALISED_MICRO_CYCLE_v0_1.md
+  canonical_learner_state: training/learner-state/CURRENT_LEARNER_STATE_v0_1.yaml
   responses_recorded: 0
   measured_candidate_error_estimates: 0
   confirmed_strategic_leaks: 0
   prior_hypotheses_only: true
-  global_progress_reset: false
 active_milestone:
-  name: initial_live_diagnostic_execution_and_scoring
-  current_step: run_tranche_T1_LD_001_to_LD_010
+  name: live_cash_os_release_validation_and_first_real_session
+  current_step: pass_ci_merge_preserve_stable_url_then_start_lcm_01_or_optional_t1
   success_condition:
-    t1_responses_recorded: 10
-    action_reason_separated: true
-    tentative_error_estimates_created: true
-    repair_families_selected_max: 2
-    personalised_micro_cycle_evidence_active: true
+    typecheck_green: true
+    lint_green: true
+    unit_content_green: true
+    production_build_green: true
+    desktop_mobile_e2e_green: true
+    live_url_smoke_green: true
+    learner_state_migration_preserved: true
+    first_real_session_started: true
 active_authorities:
   bootstrap: START_HERE.md
   agent_contract: AGENTS.md
   atlas: PROJECT_ATLAS.md
-  latest_report: reports/LEARNER_DIAGNOSTIC_RUNTIME_WAVE_TERMINAL_REPORT_v1.md
+  application: apps/live-cash-os/README.md
+  release_status: apps/live-cash-os/RELEASE_STATUS.md
+  acceptance_ledger: apps/live-cash-os/ACCEPTANCE_LEDGER.md
+  learner_model: apps/live-cash-os/lib/model.ts
+  module_content: apps/live-cash-os/content/modules.ts
+  hosting: apps/live-cash-os/.openai/hosting.json
   max_ev: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_5.md
   readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_12.md
-  diagnostic_map: synthesis/DIAGNOSTIC_CANDIDATE_INSTRUMENTATION_MAP_v0_1.md
 truth_boundaries:
+- learner-runtime admission is not final-rule admission
 - diagnostic readiness is not learner mastery
 - user-reported pain points are priors not confirmed leaks
-- untested candidates remain unmeasured
+- untested mechanisms remain unmeasured
 - one response cannot confirm a leak
-- no final admission
+- content completion cannot create retention
+- raw field notes cannot create field validation
+- population magnitudes remain field-gated
 next_user_interaction:
-  instruction: answer LD-001 through LD-010
-  format: item — action/direction; reason; confidence; rough seconds
+  instruction: after release gates, start LCM-01 or optional T1 in the stable site
+  platform_tuning_after_release: stop_until_real_delayed_and_field_evidence
 terminal_state:
   handover_ready: true
+  source_corpus_complete: true
   diagnostic_runtime_ready: true
-  t1_ready: true
+  learning_runtime_release_candidate: true
   learner_error_probability_measured: false
   global_restructure_expected: false
