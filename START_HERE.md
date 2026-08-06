@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `ACTIVE / LIVE_CASH_OS_RELEASE_CANDIDATE / LEARNING_CAN_START`
+Status: `ACTIVE / LIVE_CASH_OS_REPO_ACCEPTED / CHATGPT_SITE_DEPLOY_PENDING`
 
 ## Bootstrap
 
@@ -12,8 +12,9 @@ Read:
 2. `AGENTS.md`;
 3. `state/CURRENT_PROJECT_STATE.yaml`;
 4. `PROJECT_ATLAS.md`;
-5. `apps/live-cash-os/README.md` for the learner application;
-6. only authorities required for the active milestone.
+5. `apps/live-cash-os/README.md`;
+6. `apps/live-cash-os/RELEASE_STATUS.md`;
+7. only authorities required for the active milestone.
 
 Repository state overrides chat memory. Do not restart source ingestion or diagnosis.
 
@@ -36,7 +37,7 @@ misconception IDs: 30
 learner-state dimensions: 9
 ```
 
-The application’s `ADMITTED` module label means admitted into the learner-facing runtime as directional educational content. It does **not** convert any candidate into an admitted final strategic rule.
+The application’s learner-runtime admission does **not** convert any candidate into an admitted final strategic rule.
 
 ## Live Cash OS
 
@@ -48,6 +49,14 @@ Deploy source:
 
 `apps/live-cash-os`
 
+Accepted six-wave source SHA:
+
+`ba927405642a7aa7238c06db4348ef5b02921fdf`
+
+PR `#2` is squash-merged. Pre-merge and post-merge CI are green, including typecheck, lint, unit/content tests, production build and desktop/mobile browser gates.
+
+**Deployment truth:** the stable ChatGPT Site has not updated automatically from GitHub `main`. Production smoke run `31116142028` reached the URL but did not find the new Russian runtime. Do not call the live URL accepted until the existing Site project is explicitly republished and the manual production smoke passes.
+
 Runtime authorities:
 
 - `apps/live-cash-os/README.md`;
@@ -55,9 +64,10 @@ Runtime authorities:
 - `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
 - `apps/live-cash-os/lib/model.ts`;
 - `apps/live-cash-os/content/modules.ts`;
-- `apps/live-cash-os/.openai/hosting.json`.
+- `apps/live-cash-os/.openai/hosting.json`;
+- `apps/live-cash-os/scripts/production-smoke.mjs`.
 
-Current runtime contract:
+Current source runtime contract:
 
 - Russian-first learner language;
 - 11 structured modules;
@@ -69,11 +79,18 @@ Current runtime contract:
 - nine separate learner dimensions;
 - reviewed field-note lifecycle;
 - local state plus optional D1 sync;
-- one stable live URL.
+- stable URL preserved.
+
+Content truth:
+
+- `LCM-01` is the gold accepted teaching module;
+- `LCM-02–LCM-11` are migrated and remain `VALIDATION_PENDING` for the repeat content audit.
 
 ## Diagnostic runtime
 
-T1 remains available as optional personalization. It is no longer a mandatory wall before the first lesson.
+T1 is optional personalization, not a mandatory wall.
+
+It is a `COLD_BASELINE` only before any learning exposure. After learning begins, export must be labeled `POST_LEARNING_DIAGNOSTIC`.
 
 Active authorities:
 
@@ -93,27 +110,27 @@ measured error probability: no
 confirmed strategic leaks: 0
 ```
 
-User-reported discomfort remains prior evidence, not confirmed performance.
-
 ## Active milestone
 
-`LIVE CASH OS RELEASE VALIDATION AND FIRST REAL LEARNER SESSION`
+`REPUBLISH EXISTING CHATGPT SITE PROJECT FROM CURRENT MAIN`
 
-After release gates are green:
+Required order:
 
-1. start LCM-01 or optional T1;
-2. preserve action and reasoning separately;
-3. route only evidenced repair families;
-4. collect delayed retrieval after time;
-5. review real field hands;
-6. stop platform-only tuning until evidence exists.
+1. explicitly publish the existing Site project from current `main`;
+2. preserve the same stable URL and learner-state migration;
+3. manually run `Live Cash OS Production Smoke`;
+4. require Russian desktop/mobile live smoke green;
+5. then start the first real LCM-01 session;
+6. collect delayed and field evidence;
+7. run the requested repeat audit.
 
 ## Frozen constraints
 
 Do not:
 
+- call repo-green live-green;
 - reveal T1 answer keys before completion;
-- infer mastery or weakness from untested modules;
+- infer mastery from untested modules;
 - treat content completion as mastery;
 - grant retention from immediate repetition;
 - grant field transfer from a raw note;
@@ -127,8 +144,8 @@ Do not:
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`LEARNING_MAY_START_WITH_LCM_01`
+`SIX_WAVE_SOURCE_MERGED_AND_GREEN`
 
-`T1_OPTIONAL_PERSONALISATION`
+`LIVE_DEPLOYMENT_NOT_YET_GREEN`
 
-`NO_FAKE_PERSONAL_RERANK`
+`NEXT = REPUBLISH SITE THEN MANUAL SMOKE`
