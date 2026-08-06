@@ -7,18 +7,22 @@
     "learner_id",
     "tranche_id",
     "measurement_context",
-    "locale",
+    "locale_at_start",
     "submitted_at",
     "responses"
   ],
   "properties": {
     "schema_version": { "const": "raw-0.2" },
-    "learner_id": { "type": "string", "minLength": 1 },
+    "learner_id": { "const": "current_learner" },
     "tranche_id": { "const": "T1" },
     "measurement_context": {
-      "enum": ["COLD_BASELINE", "POST_LEARNING_DIAGNOSTIC"]
+      "enum": [
+        "COLD_BASELINE",
+        "POST_LEARNING_DIAGNOSTIC",
+        "MIXED_EXPOSURE_INVALID_FOR_BASELINE"
+      ]
     },
-    "locale": { "enum": ["ru", "en"] },
+    "locale_at_start": { "enum": ["ru", "en"] },
     "submitted_at": { "type": "string", "format": "date-time" },
     "responses": {
       "type": "array",
@@ -31,7 +35,8 @@
           "answer",
           "reasoning",
           "confidence",
-          "time_seconds"
+          "time_seconds",
+          "locale"
         ],
         "properties": {
           "item_id": {
