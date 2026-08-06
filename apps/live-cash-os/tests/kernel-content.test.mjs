@@ -22,6 +22,24 @@ async function loadTypeScriptModule(relativePath) {
 
 const modelPromise = loadTypeScriptModule("lib/model.ts");
 const contentPromise = loadTypeScriptModule("content/modules.ts");
+const diagnosticImportPromise = loadTypeScriptModule("lib/diagnostic-import.ts");
+
+function decision(overrides = {}) {
+  return {
+    moduleId: "geometry",
+    drillId: "geo-01",
+    nodeKey: "mandatory-straddle",
+    variantGroup: "denominator",
+    mode: "practice",
+    actionOk: true,
+    reasonOk: true,
+    confidence: 80,
+    elapsedSeconds: 12,
+    targetSeconds: 30,
+    isBoundary: false,
+    ...overrides,
+  };
+}
 
 test("uses canonical response-class semantics", async () => {
   const model = await modelPromise;
@@ -41,26 +59,66 @@ test("initialises nine separate evidence dimensions per module", async () => {
 
 test("keeps evidence local to the tested module and queues same-skill repair", async () => {
   const model = await modelPromise;
-  const state = model.emptyLearnerState();
-  const next = model.recordDecision(state, {
+  const next = model.recordDecision(model.emptyLearnerState(), decision({
     moduleId: "river",
     drillId: "riv-01",
     nodeKey: "before-blocker",
     variantGroup: "river-audit",
-    mode: "practice",
     actionOk: false,
     reasonOk: false,
     confidence: 90,
-    elapsedSeconds: 15,
-    targetSeconds: 35,
-    isBoundary: false,
-  });
+  }));
   assert.equal(next.modules.river.state, "REPAIR_REQUIRED");
   assert.equal(next.modules.geometry.evidence.action_selection.exposures, 0);
   assert.equal(next.reviewQueue.length, 1);
   assert.equal(next.reviewQueue[0].moduleId, "river");
   assert.equal(next.reviewQueue[0].variantGroup, "river-audit");
   assert.equal(next.reviewQueue[0].kind, "repair");
+});
+
+test("repair, review and mixed modes do not imply transfer", async () => {
+  const model = await modelPromise;
+  for (const mode of ["repair", "review", "mixed"]) {
+    const next = model.recordDecision(model.emptyLearnerState(), decision({ mode }));
+    assert.equal(next.modules.geometry.evidence.variant_transfer.exposures, 0, mode);
+    assert.equal(next.interactions[0].transferProbe, null, mode);
+  }
+});
+
+test("only an explicit changed-node probe creates transfer evidence", async () => {
+  const model = await modelPromise;
+  const next = model.recordDecision(model.emptyLearnerState(), decision({
+    transferProbe: {
+      isTransferProbe: true,
+      variantDistance: "NEAR",
+      changedVariables: ["effective_stack", "forced_bet_unit"],
+    },
+  }));
+  assert.equal(next.modules.geometry.evidence.variant_transfer.exposures, 1);
+  assert.equal(next.modules.geometry.evidence.variant_transfer.successes, 1);
+  assert.deepEqual(next.interactions[0].transferProbe.changedVariables, ["effective_stack", "forced_bet_unit"]);
+});
+
+test("retention requires a due delayed review item", async () => {
+  const model = await modelPromise;
+  const immediate = model.recordDecision(model.emptyLearnerState(), decision({ mode: "review" }));
+  assert.equal(immediate.modules.geometry.evidence.retention.exposures, 0);
+
+  const seeded = model.emptyLearnerState();
+  seeded.reviewQueue.push({
+    id: "review-due",
+    moduleId: "geometry",
+    sourceDrillId: "geo-00",
+    variantGroup: "denominator",
+    kind: "retention",
+    dueAt: "2020-01-01T00:00:00.000Z",
+    attempts: 0,
+    sourceInteractionId: "source",
+  });
+  const delayed = model.recordDecision(seeded, decision({ mode: "review" }));
+  assert.equal(delayed.modules.geometry.evidence.retention.exposures, 1);
+  assert.equal(delayed.modules.geometry.evidence.retention.successes, 1);
+  assert.equal(delayed.reviewQueue.length, 0);
 });
 
 test("content completion does not create mastery", async () => {
@@ -71,10 +129,9 @@ test("content completion does not create mastery", async () => {
   assert.equal(state.modules.geometry.evidence.retention.exposures, 0);
 });
 
-test("raw field notes do not grant field transfer", async () => {
+test("raw field notes and one reviewed note cannot create field validation", async () => {
   const model = await modelPromise;
-  const initial = model.emptyLearnerState();
-  const captured = model.addFieldNote(initial, {
+  const captured = model.addFieldNote(model.emptyLearnerState(), {
     moduleId: "multiway",
     cue: "Player remained behind",
     action: "Called",
@@ -85,9 +142,88 @@ test("raw field notes do not grant field transfer", async () => {
   const reviewed = model.reviewFieldNote(captured, captured.fieldNotes[0].id, "REVIEWED_VALID", "Reasoning matches the mechanism.");
   assert.equal(reviewed.modules.multiway.evidence.field_transfer.exposures, 1);
   assert.equal(reviewed.modules.multiway.evidence.field_transfer.successes, 1);
+  assert.notEqual(reviewed.modules.multiway.state, "FIELD_VALIDATED");
 });
 
-test("newer learner state wins deterministic merge", async () => {
+test("T1 freezes start context and invalidates a contaminated cold run", async () => {
+  const model = await modelPromise;
+  const cold = model.startDiagnosticRun(model.emptyLearnerState(), "ru");
+  assert.equal(cold.diagnostic.measurementContext, "COLD_BASELINE");
+  assert.equal(cold.diagnostic.learningExposureAtStart, false);
+  assert.equal(cold.diagnostic.localeAtStart, "ru");
+  assert.match(cold.diagnostic.runId, /^t1-/u);
+
+  const contaminated = model.completeLesson(cold, "geometry");
+  assert.equal(contaminated.diagnostic.measurementContext, "MIXED_EXPOSURE_INVALID_FOR_BASELINE");
+
+  const exposed = model.completeLesson(model.emptyLearnerState(), "geometry");
+  const post = model.startDiagnosticRun(exposed, "en");
+  assert.equal(post.diagnostic.measurementContext, "POST_LEARNING_DIAGNOSTIC");
+  assert.equal(post.diagnostic.learningExposureAtStart, true);
+  assert.equal(post.diagnostic.localeAtStart, "en");
+});
+
+test("T1 stores each answer locale and rejects duplicates", async () => {
+  const model = await modelPromise;
+  const started = model.startDiagnosticRun(model.emptyLearnerState(), "ru");
+  const response = {
+    item_id: "LD-001",
+    answer: "140 straddle blinds",
+    reasoning: "The forced ten-dollar unit prices the tree.",
+    confidence: 70,
+    time_seconds: 20,
+    locale: "en",
+  };
+  const once = model.recordDiagnosticResponse(started, response, ["LD-001"]);
+  const duplicate = model.recordDiagnosticResponse(once, response, ["LD-001"]);
+  assert.equal(once.diagnostic.responses[0].locale, "en");
+  assert.equal(once.diagnostic.status, "AWAITING_REVIEW");
+  assert.equal(duplicate.diagnostic.responses.length, 1);
+});
+
+test("migrates accepted schema-2 state without resetting progress", async () => {
+  const model = await modelPromise;
+  const legacy = model.emptyLearnerState();
+  legacy.appVersion = "1.0.0";
+  legacy.contentVersion = "2026.08-wave6";
+  legacy.modules.geometry.contentCompleted = true;
+  legacy.interactions = [{
+    id: "old",
+    at: "2026-08-06T10:00:00.000Z",
+    moduleId: "geometry",
+    drillId: "geo-01",
+    nodeKey: "denominator",
+    mode: "practice",
+    actionOk: true,
+    reasonOk: true,
+    responseClass: "A",
+    confidence: 80,
+    elapsedSeconds: 10,
+  }];
+  legacy.diagnostic = {
+    status: "IN_PROGRESS",
+    startedAt: "2026-08-06T09:00:00.000Z",
+    submittedAt: null,
+    responses: [{
+      item_id: "LD-001",
+      answer: "140",
+      reasoning: "straddle unit",
+      confidence: 80,
+      time_seconds: 10,
+    }],
+    priorityModules: [],
+    importedAt: null,
+  };
+  const migrated = model.migrateLearnerState(legacy);
+  assert.equal(migrated.modules.geometry.contentCompleted, true);
+  assert.equal(migrated.interactions.length, 1);
+  assert.equal(migrated.interactions[0].transferProbe, null);
+  assert.equal(migrated.diagnostic.responses[0].locale, "ru");
+  assert.equal(migrated.diagnostic.measurementContext, "MIXED_EXPOSURE_INVALID_FOR_BASELINE");
+  assert.equal(migrated.appVersion, "1.1.0");
+});
+
+test("keeps deterministic LWW sync semantics without pretending event merge", async () => {
   const model = await modelPromise;
   const older = model.emptyLearnerState();
   older.updatedAt = "2026-08-06T10:00:00.000Z";
@@ -98,7 +234,39 @@ test("newer learner state wins deterministic merge", async () => {
   assert.equal(model.mergeLearnerStates(newer, older).revision, 4);
 });
 
-test("ships a complete admitted Russian-first module corpus", async () => {
+test("strict score import requires exact T1 identity and coverage", async () => {
+  const parser = await diagnosticImportPromise;
+  const moduleSummary = Object.fromEntries(Array.from({ length: 10 }, (_, index) => [
+    `LCM-${String(index + 1).padStart(2, "0")}`,
+    { observed_error_rate: index === 9 ? 0.8 : 0.1, exposures: 1, items: [`LD-${String(index + 1).padStart(3, "0")}`] },
+  ]));
+  const valid = {
+    schema_version: "score-0.2",
+    scorer_version: "0.2.0",
+    learner_id: "current_learner",
+    tranche_id: "T1",
+    run_id: "t1-abc-123",
+    measurement_context: "COLD_BASELINE",
+    locale_at_start: "ru",
+    submitted_at: "2026-08-07T00:00:00.000Z",
+    responses_scored: 10,
+    rerank_ready: true,
+    module_summary: moduleSummary,
+    misconception_evidence: {},
+    tentative_priority_order: ["H-GEOMETRY"],
+  };
+  const parsed = parser.parseDiagnosticScore(valid);
+  assert.equal(parsed.run_id, "t1-abc-123");
+  assert.deepEqual(parser.deriveDiagnosticPriorityModules(parsed), ["evidence", "geometry"]);
+
+  assert.throws(() => parser.parseDiagnosticScore({ ...valid, run_id: "wrong" }), /run identity/u);
+  assert.throws(() => parser.parseDiagnosticScore({ ...valid, unknown: true }), /unknown fields/u);
+  const incomplete = structuredClone(valid);
+  delete incomplete.module_summary["LCM-10"];
+  assert.throws(() => parser.parseDiagnosticScore(incomplete), /exactly LD-001 through LD-010/u);
+});
+
+test("ships one runtime-deliverable corpus with stable IDs", async () => {
   const content = await contentPromise;
   assert.equal(content.modules.length, 11);
   assert.equal(content.allDrills.length, 55);
