@@ -27,14 +27,17 @@ test("server-renders the Live Cash OS learning surface", async () => {
   assert.match(html, /Preflop range architecture/);
   assert.match(html, /Bet &amp; response shape/);
   assert.match(html, /Context-switch review/);
+  assert.match(html, /PERSONAL DIAGNOSTIC/);
+  assert.match(html, /Measure before you personalise/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site|SkeletonPreview/i);
 });
 
 test("keeps progression and evidence claims honest in the runtime source", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const flashcardSource = page.slice(page.indexOf("const flashcards = ["), page.indexOf("const intensiveRoute = ["));
 
   assert.match(page, /const flashcards = \[/);
-  assert.equal((page.match(/id: "/g) ?? []).length, 12);
+  assert.equal((flashcardSource.match(/id: "/g) ?? []).length, 12);
   assert.match(page, /if \(module === "preflop" && !hasCompleted\("geometry"\)\) return/);
   assert.match(page, /if \(module === "blinds" && !hasCompleted\("preflop"\)\) return/);
   assert.match(page, /if \(module === "filtering" && !hasCompleted\("blinds"\)\) return/);
@@ -48,4 +51,10 @@ test("keeps progression and evidence claims honest in the runtime source", async
   assert.doesNotMatch(page, /nextDimensions\.transfer\s*=/);
   assert.match(page, /fieldNotes: Array\.isArray\(old\.fieldNotes\)/);
   assert.match(page, /transfer: 0/);
+  assert.match(page, /const diagnosticT1: DiagnosticItem\[\] = \[/);
+  assert.equal((page.match(/id: "LD-0/g) ?? []).length, 10);
+  assert.match(page, /feedback is withheld until the whole tranche is reviewed/);
+  assert.match(page, /status: final \? "AWAITING_REVIEW" : "IN_PROGRESS"/);
+  assert.match(page, /Download T1 response record/);
+  assert.doesNotMatch(page, /type DiagnosticResponse = [^;]*evaluation/);
 });

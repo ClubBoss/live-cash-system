@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 
 type ModuleId = "geometry" | "preflop" | "blinds" | "filtering" | "shape" | "aggression" | "ancestry" | "multiway" | "river" | "mixed";
 type Drill = { module: ModuleId; cue: string; question: string; action: string; reason: string };
+type DiagnosticItem = { id: string; title: string; prompt: string; targetSeconds: number };
+type DiagnosticResponse = { item_id: string; answer: string; reasoning: string; confidence: number; time_seconds: number };
+type DiagnosticState = { status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_REVIEW"; startedAt: string | null; responses: DiagnosticResponse[]; submittedAt: string | null };
 type LearnerState = {
   version: "0.4.1";
   completed: number;
@@ -13,6 +16,7 @@ type LearnerState = {
   history: Array<{ module: ModuleId; score: number; at: string }>;
   recallDueAt: string | null;
   fieldNotes: Array<{ cue: string; action: string; reason: string; at: string }>;
+  diagnostic: DiagnosticState;
 };
 type ResponseClass = "A" | "B" | "C" | "D";
 
@@ -27,6 +31,7 @@ const emptyState = (): LearnerState => ({
   history: [],
   recallDueAt: null,
   fieldNotes: [],
+  diagnostic: { status: "NOT_STARTED", startedAt: null, responses: [], submittedAt: null },
 });
 
 const drills: Record<ModuleId, Drill[]> = {
@@ -132,6 +137,21 @@ const intensiveRoute = [
   ["Phase 6", "LCM-11 · Transfer & repair", "Use delayed retrieval, a compact repair block, and reviewed field notes to decide what is genuinely stable."],
 ] as const;
 
+// T1 wording is copied from the active source diagnostic. Answers remain free text so the
+// client cannot pretend to evaluate strategic reasoning from a keyword match.
+const diagnosticT1: DiagnosticItem[] = [
+  { id: "LD-001", title: "Straddle denominator", targetSeconds: 30, prompt: "Game is $2/$5/$10 with a mandatory live straddle. Hero and the one relevant opponent each have $1,400. Which effective depth do you use first for strategy and why? Also give ordinary BB." },
+  { id: "LD-002", title: "Pairwise multiway depth", targetSeconds: 25, prompt: "Game is $1/$3. Hero has $900, Villain A $270, Villain B $1,200. What is Hero’s effective depth versus each opponent? Can the whole pot be described with one number?" },
+  { id: "LD-003", title: "Blind source identity", targetSeconds: 35, prompt: "CO opens 3bb. Once A-7-2 rainbow reaches BB defend, once it reaches an SB cold-call. Which caller is usually more condensed, and can the same c-bet plan be used automatically?" },
+  { id: "LD-004", title: "Value-heavy 3-bet defence", targetSeconds: 40, prompt: "150bb. HJ opens 3bb, BTN makes it 12bb. A reliable sample is almost only premiums/strong broadways with few suited bluffs. Which family loses defensive value first: dominated offsuit big cards or the best suited connectors? Explain without an exact chart cell." },
+  { id: "LD-005", title: "Over-wide 3-bet compensation", targetSeconds: 45, prompt: "CO calls a BTN 3-bet. BTN 3-bets noticeably wider than normal, then c-bets 25% on Q-7-4 rainbow with almost all of range. What compensation test is needed, and where does OOP defence move if BTN does not compensate excess preflop air with extra checks?" },
+  { id: "LD-006", title: "Small-wide vulnerable pair", targetSeconds: 50, prompt: "BTN vs BB, 200bb. Flop T-5-5 rainbow. BTN bets 25% with almost all range. Compare T6s and KTs in BB: which top-pair family has more directional raise incentive and why? No frequency is required." },
+  { id: "LD-007", title: "Large-selective changed node", targetSeconds: 35, prompt: "Same BTN vs BB, 200bb, T-5-5 rainbow, but BTN bets 80% with a selective/polar range. What happens to T6s’ thin/protection raise branch compared with the 25% near-range node?" },
+  { id: "LD-008", title: "Deep OOP protected call", targetSeconds: 50, prompt: "BTN vs BB, 200bb. Flop 8-7-6 two-tone. BTN bets 75% pot. BB has TT. Should the hand automatically check-raise to avoid difficult turns, or is protecting check-call a meaningful part of its function? Why?" },
+  { id: "LD-009", title: "Sandwich shared defence", targetSeconds: 45, prompt: "HJ open, BTN call, BB call. Flop K-9-7 two-tone. HJ bets; Hero is BTN with KQ and BB remains behind with an uncapped continuing range. Should Hero defend as heads-up and carry all MDF? Name the main gate before call/raise." },
+  { id: "LD-010", title: "River blocker ancestry", targetSeconds: 55, prompt: "River: Hero holds the nut-flush blocker and faces a jam after bet-call flop and overbet-call turn. This branch has no reliable population evidence. Which checks come before the blocker, and what response is acceptable if bluff supply cannot be justified?" },
+];
+
 function migrate(raw: unknown): LearnerState {
   const base = emptyState();
   if (!raw || typeof raw !== "object") return base;
@@ -145,6 +165,12 @@ function migrate(raw: unknown): LearnerState {
     history: Array.isArray(old.history) ? old.history : [],
     fieldNotes: Array.isArray(old.fieldNotes) ? old.fieldNotes : [],
     recallDueAt: typeof old.recallDueAt === "string" ? old.recallDueAt : null,
+    diagnostic: old.diagnostic && typeof old.diagnostic === "object" ? {
+      status: old.diagnostic.status === "IN_PROGRESS" || old.diagnostic.status === "AWAITING_REVIEW" ? old.diagnostic.status : "NOT_STARTED",
+      startedAt: typeof old.diagnostic.startedAt === "string" ? old.diagnostic.startedAt : null,
+      responses: Array.isArray(old.diagnostic.responses) ? old.diagnostic.responses.filter((entry): entry is DiagnosticResponse => Boolean(entry && typeof entry === "object" && typeof entry.item_id === "string" && typeof entry.answer === "string" && typeof entry.reasoning === "string" && typeof entry.confidence === "number" && typeof entry.time_seconds === "number")) : [],
+      submittedAt: typeof old.diagnostic.submittedAt === "string" ? old.diagnostic.submittedAt : null,
+    } : base.diagnostic,
   };
 }
 
@@ -158,7 +184,7 @@ function stableOrder(values: string[], seed: number) {
 export default function Home() {
   const [state, setState] = useState<LearnerState>(emptyState);
   const [ready, setReady] = useState(false);
-  const [mode, setMode] = useState<"home" | "practice" | "feedback" | "summary" | "repair" | "repairSummary" | "recall" | "recallSummary" | "cards">("home");
+  const [mode, setMode] = useState<"home" | "practice" | "feedback" | "summary" | "repair" | "repairSummary" | "recall" | "recallSummary" | "cards" | "diagnostic" | "diagnosticComplete">("home");
   const [index, setIndex] = useState(0);
   const [action, setAction] = useState<string | null>(null);
   const [reason, setReason] = useState<string | null>(null);
@@ -171,6 +197,9 @@ export default function Home() {
   const [fieldCue, setFieldCue] = useState("");
   const [fieldAction, setFieldAction] = useState("");
   const [fieldReason, setFieldReason] = useState("");
+  const [diagnosticAnswer, setDiagnosticAnswer] = useState("");
+  const [diagnosticReasoning, setDiagnosticReasoning] = useState("");
+  const [diagnosticSeconds, setDiagnosticSeconds] = useState("");
   const [feedback, setFeedback] = useState<{ actionOk: boolean; reasonOk: boolean; responseClass: ResponseClass; action: string; reason: string; final: boolean; origin: "practice" | "repair" | "recall" } | null>(null);
 
   useEffect(() => {
@@ -210,6 +239,8 @@ export default function Home() {
   const mastery = Math.round(Object.values(state.dimension).reduce((a, b) => a + b, 0) / 8);
   const recallDue = Boolean(state.recallDueAt && Date.parse(state.recallDueAt) <= appLoadedAt);
   const hasCompleted = (module: ModuleId) => state.history.some(entry => entry.module === module) || (!state.history.length && state.completed >= 5 && module === "geometry");
+  const diagnosticIndex = state.diagnostic.responses.length;
+  const diagnosticItem = diagnosticT1[diagnosticIndex];
 
   function begin(module: ModuleId) {
     if (module === "preflop" && !hasCompleted("geometry")) return;
@@ -231,6 +262,27 @@ export default function Home() {
     setMode("recall"); setIndex(0); setScores([]); setClasses([]); setAction(null); setReason(null); setStartedAt(Date.now());
   }
   function beginCards() { setMode("cards"); setCardIndex(0); setCardRevealed(false); }
+  function beginDiagnostic() {
+    if (state.diagnostic.status === "AWAITING_REVIEW") { setMode("diagnosticComplete"); return; }
+    setState(s => s.diagnostic.status === "NOT_STARTED" ? { ...s, diagnostic: { ...s.diagnostic, status: "IN_PROGRESS", startedAt: new Date().toISOString() } } : s);
+    setDiagnosticAnswer(""); setDiagnosticReasoning(""); setDiagnosticSeconds(""); setConfidence(70); setStartedAt(Date.now()); setMode("diagnostic");
+  }
+  function submitDiagnostic() {
+    if (!diagnosticItem || !diagnosticAnswer.trim() || !diagnosticReasoning.trim()) return;
+    const elapsed = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+    const timeSeconds = diagnosticSeconds.trim() ? Number(diagnosticSeconds) : elapsed;
+    if (!Number.isFinite(timeSeconds) || timeSeconds < 0) return;
+    const response: DiagnosticResponse = { item_id: diagnosticItem.id, answer: diagnosticAnswer.trim(), reasoning: diagnosticReasoning.trim(), confidence, time_seconds: timeSeconds };
+    const final = diagnosticIndex === diagnosticT1.length - 1;
+    setState(s => ({ ...s, diagnostic: { ...s.diagnostic, status: final ? "AWAITING_REVIEW" : "IN_PROGRESS", responses: [...s.diagnostic.responses, response], submittedAt: final ? new Date().toISOString() : null } }));
+    setDiagnosticAnswer(""); setDiagnosticReasoning(""); setDiagnosticSeconds(""); setConfidence(70); setStartedAt(Date.now()); setMode(final ? "diagnosticComplete" : "diagnostic");
+  }
+  function downloadDiagnostic() {
+    if (state.diagnostic.status !== "AWAITING_REVIEW") return;
+    const payload = { schema_version: "0.1", learner_id: "current_learner", tranche_id: "T1", submitted_at: state.diagnostic.submittedAt, responses: state.diagnostic.responses };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = "live-cash-t1-responses.json"; anchor.click(); URL.revokeObjectURL(url);
+  }
   function gradeCard(remembered: boolean) {
     const card = flashcards[cardIndex];
     setState(s => ({ ...s, cardStates: { ...s.cardStates, [card.id]: remembered } }));
@@ -280,6 +332,7 @@ export default function Home() {
     {mode === "home" && <>
       <section className="hero"><p className="eyebrow">ADAPTIVE TABLE TRAINING</p><h1>Think in trees.<br/><em>Play the next decision.</em></h1><p className="lede">A compact practice system for live cash: depth, range ancestry, action, reason, confidence, and honest evidence.</p><button className="primary" onClick={() => begin("geometry")}>Start a 5-decision block <span>→</span></button></section>
       <section className="metrics"><div><b>{state.completed}</b><span>decisions logged</span></div><div><b>{mastery}%</b><span>evidence-weighted readiness</span></div><div><b>{state.history.length}</b><span>completed blocks</span></div></section>
+      <section className="diagnostic-status"><div><p className="eyebrow">T1 · PERSONAL DIAGNOSTIC</p><h2>{state.diagnostic.status === "AWAITING_REVIEW" ? "Cold answers saved. Review is next." : state.diagnostic.status === "IN_PROGRESS" ? `${state.diagnostic.responses.length} of 10 cold answers saved.` : "Measure before you personalise."}</h2><p>{state.diagnostic.status === "AWAITING_REVIEW" ? "The answer key stays hidden here. Export this exact response record for expert evaluation and conservative routing into no more than two repair families." : "Ten free-text decisions across depth, blind identity, range shape, multiway and river ancestry. There is no feedback until all ten are complete, and no automatic keyword score."}</p></div><button className="primary" onClick={beginDiagnostic}>{state.diagnostic.status === "AWAITING_REVIEW" ? "Open T1 handoff" : state.diagnostic.status === "IN_PROGRESS" ? "Continue T1" : "Start cold T1"} <span>→</span></button></section>
       <section className="recall-status"><p className="eyebrow">DELAYED RETRIEVAL</p>{recallDue ? <><h2>Your recall check is ready.</h2><p>Three changed-node decisions. This is the only route that raises retention evidence.</p><button className="primary" onClick={beginRecall}>Start delayed recall <span>→</span></button></> : <><h2>Retention is earned later.</h2><p>{state.recallDueAt ? `Your next recall check opens after ${new Date(state.recallDueAt).toLocaleDateString()}.` : "Complete a decision block to schedule a changed-node recall check for the next day."}</p></>}</section>
       <section className="cards-status"><div><p className="eyebrow">ACTIVE RECALL · 12 CARDS</p><h2>Retrieve the cue before seeing the answer.</h2><p>Cards support vocabulary and table cues. They track review state but do not raise retention or readiness on their own.</p></div><button className="primary" onClick={beginCards}>Review cards <span>→</span></button></section>
       <section className="field-note"><div><p className="eyebrow">FIELD NOTE · PENDING REVIEW</p><h2>Capture the cue before the action.</h2><p>A note is raw evidence, not field mastery. It becomes useful only when its reasoning is reviewed against the relevant mechanism.</p></div><div className="field-form"><label>What did you notice before acting?<textarea value={fieldCue} onChange={event => setFieldCue(event.target.value)} placeholder="Example: CO opened, BTN called, I was in SB with TT…"/></label><label>What did you do?<textarea value={fieldAction} onChange={event => setFieldAction(event.target.value)} placeholder="Example: I squeezed…"/></label><label>Why did you choose it?<textarea value={fieldReason} onChange={event => setFieldReason(event.target.value)} placeholder="Name the range, depth, action-filter or blind logic."/></label><button className="primary" disabled={!fieldCue.trim() || !fieldAction.trim() || !fieldReason.trim()} onClick={saveFieldNote}>Save for review <span>→</span></button><p className="note-count">{state.fieldNotes.length} note{state.fieldNotes.length === 1 ? "" : "s"} captured · 0 field-transfer claims</p></div></section>
@@ -288,6 +341,8 @@ export default function Home() {
       <section className="route"><div><p className="eyebrow">ADAPTIVE HIGH-EV ROUTE</p><h2>Gradual by design.<br/><em>Fast when earned.</em></h2><p className="lede">Use compact 15–25 minute sessions as a default, not a deadline. One new mechanism at a time; each session mixes a clean example, a changed-node contrast, and two decisions. Progress unlocks from reliable evidence, not from the calendar: accelerate when stable, repair when needed.</p></div><ol>{intensiveRoute.map(([phase, title, description], routeIndex) => <li key={title} className={routeIndex === 0 ? "current" : ""}><span>{phase}</span><div><b>{title}</b><p>{description}</p></div>{routeIndex === 0 && <small>Now</small>}</li>)}</ol></section>
       <section className="integrity"><h2>What this score does <em>not</em> claim</h2><p>Retention only rises after delayed retrieval. Field transfer requires cue-before-action and reviewed reasoning. No single correct answer creates global mastery.</p><button className="quiet" onClick={reset}>Reset this device’s practice data</button></section>
     </>}
+    {mode === "diagnostic" && diagnosticItem && <section className="practice diagnostic"><div className="progress"><span>T1 · COLD {diagnosticIndex + 1} / {diagnosticT1.length}</span><div><i style={{ width: `${((diagnosticIndex + 1) / diagnosticT1.length) * 100}%` }}/></div></div><p className="eyebrow">{diagnosticItem.id} · {diagnosticItem.title}</p><p className="cue">Answer from your current process. Do not look up charts or keys; feedback is withheld until the whole tranche is reviewed.</p><h2>{diagnosticItem.prompt}</h2><label className="diagnostic-input">Action / direction<textarea value={diagnosticAnswer} onChange={event => setDiagnosticAnswer(event.target.value)} placeholder="State the action or directional conclusion." /></label><label className="diagnostic-input">One-sentence reason<textarea value={diagnosticReasoning} onChange={event => setDiagnosticReasoning(event.target.value)} placeholder="Name the mechanism, range or boundary that makes it true." /></label><label className="confidence">Confidence <b>{confidence}%</b><input type="range" min="0" max="100" value={confidence} onChange={e => setConfidence(Number(e.target.value))}/></label><label className="diagnostic-input compact">Rough time in seconds <input inputMode="numeric" type="number" min="0" placeholder="Auto-record elapsed time" value={diagnosticSeconds} onChange={event => setDiagnosticSeconds(event.target.value)} /><small>Optional; blank records elapsed time when you lock the response. Target: {diagnosticItem.targetSeconds}s.</small></label><button className="primary" disabled={!diagnosticAnswer.trim() || !diagnosticReasoning.trim()} onClick={submitDiagnostic}>Lock cold response <span>→</span></button></section>}
+    {mode === "diagnosticComplete" && <section className="summary"><p className="eyebrow">T1 COMPLETE · AWAITING EXPERT REVIEW</p><h1>10 / 10 cold responses saved.</h1><p className="lede">No answer key or score is shown here. Free-text action and reasoning require an evaluator to classify each response A–E/U, then route only the highest-priority mechanisms. Until that review, readiness and transfer remain unmeasured.</p><div className="score-row"><div><span>responses</span><b>{state.diagnostic.responses.length}</b></div><div><span>feedback shown</span><b>0</b></div><div><span>repair families selected</span><b>0</b></div><div><span>status</span><b>review</b></div></div><button className="primary" onClick={downloadDiagnostic}>Download T1 response record <span>↓</span></button><button className="textbutton" onClick={() => setMode("home")}>Return to dashboard →</button></section>}
     {(mode === "practice" || mode === "repair" || mode === "recall") && <section className="practice"><div className="progress"><span>{isRecall ? "RECALL" : isRepair ? "REPAIR" : "BLOCK"} {index + 1} / {activeDrills.length}</span><div><i style={{ width: `${((index + 1) / activeDrills.length) * 100}%` }}/></div></div><p className="eyebrow">{isRecall ? "DELAYED CHANGED-NODE RETRIEVAL" : isRepair ? "CONTRASTIVE REPAIR" : drill.module === "geometry" ? "LCM-01 · GEOMETRY" : drill.module === "preflop" ? "LCM-02 · PREFLOP ARCHITECTURE" : drill.module === "blinds" ? "LCM-03 · BLIND IDENTITY" : drill.module === "filtering" ? "LCM-04 · FILTERING" : drill.module === "shape" ? "LCM-05 · BET & RESPONSE SHAPE" : drill.module === "aggression" ? "LCM-06 · AGGRESSION & FUTURE JOBS" : drill.module === "ancestry" ? "LCM-07 · 3-BET-POT ANCESTRY" : drill.module === "multiway" ? "LCM-08 · MULTIWAY STRUCTURE" : "LCM-09 · RIVER AUDIT"}</p><p className="cue">{drill.cue}</p><h2>{drill.question}</h2><div className="answer-set"><p>Select the action</p>{actionOptions.map(x => <button key={x} className={action === x ? "selected" : ""} onClick={() => setAction(x)}>{x}</button>)}</div><div className="answer-set"><p>Select the reason</p>{reasonOptions.map(x => <button key={x} className={reason === x ? "selected" : ""} onClick={() => setReason(x)}>{x}</button>)}</div><label className="confidence">Confidence <b>{confidence}%</b><input type="range" min="0" max="100" value={confidence} onChange={e => setConfidence(Number(e.target.value))}/></label><button className="primary" disabled={!action || !reason} onClick={submit}>Lock decision <span>→</span></button></section>}
     {mode === "feedback" && feedback && <section className="practice feedback"><p className="eyebrow">DECISION REVIEW · CLASS {feedback.responseClass}</p><h2>{feedback.actionOk && feedback.reasonOk ? "Correct decision structure." : feedback.actionOk ? "Action right. Reason needs repair." : feedback.reasonOk ? "Reason right. Action needs repair." : "Structural miss: rebuild the decision routine."}</h2><div className="feedback-card"><p><b>Correct action</b>{feedback.action}</p><p><b>Why</b>{feedback.reason}</p></div><p className="lede">Class A = action and reason; B = action only; C = reason only; D = neither. This review explains the current item; retention and field transfer still require their separate evidence gates.</p><button className="primary" onClick={continueFromFeedback}>{feedback.final ? "See block result" : "Next decision"} <span>→</span></button></section>}
     {mode === "summary" && <section className="summary"><p className="eyebrow">BLOCK COMPLETE</p><h1>{scores.reduce((a,b)=>a+b,0)} / 10 evidence points</h1><p className="lede">A = action and reason; B = action only; C = reason only; D = structural miss. Retention and field transfer remain unchanged until their own evidence gates are met.</p><div className="score-row">{(["A","B","C","D"] as ResponseClass[]).map(kind => <div key={kind}><span>class {kind}</span><b>{classes.filter(value => value === kind).length}</b></div>)}{Object.entries(state.dimension).map(([key, value]) => <div key={key}><span>{key}</span><b>{value}%</b></div>)}</div>{classes.some(value => value === "D") && <button className="textbutton" onClick={beginRepair}>Start a 3-decision repair →</button>}<button className="primary" onClick={() => setMode("home")}>Return to dashboard <span>→</span></button></section>}
