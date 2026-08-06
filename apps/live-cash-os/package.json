@@ -12,10 +12,11 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "i18n:extract": "node scripts/i18n-extract.mjs",
+    "i18n:source-check": "node scripts/i18n-extract.mjs --check",
     "i18n:sync": "node scripts/i18n-sync.mjs",
     "i18n:check": "node scripts/i18n-check.mjs",
     "test:unit": "node --test tests/*.test.mjs",
-    "test": "npm run typecheck && npm run lint && npm run i18n:check && npm run build && npm run test:unit",
+    "test": "npm run typecheck && npm run lint && npm run i18n:source-check && npm run i18n:check && npm run build && npm run test:unit",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate"
   },
