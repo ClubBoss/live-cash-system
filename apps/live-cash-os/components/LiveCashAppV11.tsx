@@ -43,8 +43,9 @@ import {
 const STORAGE_KEY = "live-cash-os:learner-state";
 const LOCALE_KEY = "live-cash-os:locale";
 const T1_IDS = diagnosticT1.map((item) => item.id);
+const PRIMARY_TABS = ["today", "learn", "review", "cards", "map", "field", "diagnostic"] as const;
 
-type Tab = "today" | "learn" | "review" | "cards" | "map" | "field" | "diagnostic" | "debug";
+type Tab = (typeof PRIMARY_TABS)[number] | "debug";
 type SyncStatus = "loading" | "local" | "syncing" | "synced" | "offline" | "conflict" | "error";
 
 function mutate(state: LearnerState, change: (next: LearnerState) => void): LearnerState {
@@ -355,7 +356,7 @@ export default function LiveCashAppV11() {
       </div>
     </header>
     <nav className="tabs" aria-label={locale === "ru" ? "Основная навигация" : "Primary navigation"}>
-      {(["today", "learn", "review", "cards", "map", "field", "diagnostic"] as Tab[]).map((id) =>
+      {PRIMARY_TABS.map((id) =>
         <button key={id} aria-current={tab === id ? "page" : undefined} onClick={() => setTab(id)}>{t.nav[id]}</button>)}
     </nav>
     <div className="sr-live" aria-live="polite">{notice}</div>
