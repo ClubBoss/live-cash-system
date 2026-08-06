@@ -1,13 +1,15 @@
-name: Live Cash OS Production Smoke Once
+name: Live Cash OS Production Smoke
 
 on:
   push:
     branches: [main]
     paths:
+      - "apps/live-cash-os/**"
       - ".github/workflows/live-cash-os-live-smoke-once.yml"
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   smoke:
@@ -18,9 +20,6 @@ jobs:
         working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
@@ -30,128 +29,12 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Wait for deploy and smoke stable URL
+      - name: Smoke stable production URL
         env:
           LIVE_URL: https://live-cash-os.elmarsal.chatgpt.site/
-        run: |
-          cat > /tmp/live-smoke.mjs <<'JS'
-          import { chromium } from '@playwright/test';
-          import { mkdir } from 'node:fs/promises';
-
-          const url = process.env.LIVE_URL;
-          const expected = ['Учись коротко', 'T1 — дополнительный cold diagnostic', 'LIVE CASH OS'];
-          let lastError;
-          await mkdir('smoke-evidence', { recursive: true });
-
-          for (let attempt = 1; attempt <= 20; attempt += 1) {
-            const browser = await chromium.launch({ headless: true });
-            try {
-              const context = await browser.newContext();
-              const page = await context.newPage();
-              await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 });
-              await page.getByRole('heading', { name: /Учись коротко/i }).waitFor({ timeout: 20_000 });
-              const body = await page.locator('body').innerText();
-              for (const text of expected) {
-                if (!body.includes(text)) throw new Error(`Missing production marker: ${text}`);
-              }
-              if (body.includes('accepted slice') || body.includes('Calculate post-action SPR')) {
-                throw new Error('Old runtime marker is still present');
-              }
-              await page.screenshot({ path: 'smoke-evidence/desktop.png', fullPage: true });
-
-              const mobile = await context.newPage();
-              await mobile.setViewportSize({ width: 390, height: 844 });
-              await mobile.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 });
-              await mobile.getByRole('heading', { name: /Учись коротко/i }).waitFor({ timeout: 20_000 });
-              const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-              if (overflow > 1) throw new Error(`Mobile horizontal overflow: ${overflow}px`);
-              await mobile.screenshot({ path: 'smoke-evidence/mobile.png', fullPage: true });
-
-              console.log(`LIVE_SMOKE_GREEN attempt=${attempt} url=${url}`);
-              await browser.close();
-              process.exit(0);
-            } catch (error) {
-              lastError = error;
-              console.log(`attempt ${attempt}/20 not ready: ${error.message}`);
-              await browser.close();
-              if (attempt < 20) await new Promise((resolve) => setTimeout(resolve, 15_000));
-            }
-          }
-          throw lastError;
-          JS
-          node /tmp/live-smoke.mjs
-      - name: Record accepted release truth
-        env:
-          RELEASE_SOURCE_SHA: ba927405642a7aa7238c06db4348ef5b02921fdf
-          PREMERGE_CI_RUN: "31115462552"
-          MAIN_CI_RUN: "31115738775"
-        run: |
-          cd ../..
-          python - <<'PY'
-          from pathlib import Path
-          import os
-
-          status = Path('apps/live-cash-os/RELEASE_STATUS.md')
-          status.write_text(f'''# Live Cash OS — Release Status
-
-Status: `ACCEPTED / MAIN_MERGED / LIVE_SMOKE_GREEN`
-
-- Stable live URL: `https://live-cash-os.elmarsal.chatgpt.site/`
-- Deploy source: `apps/live-cash-os`
-- Accepted source SHA: `{os.environ['RELEASE_SOURCE_SHA']}`
-- Pull request: `#2` — squash merged
-- Pre-merge CI run: `{os.environ['PREMERGE_CI_RUN']}` — green
-- Post-merge main CI run: `{os.environ['MAIN_CI_RUN']}` — green
-- Production smoke run: `{os.environ['GITHUB_RUN_ID']}` — green
-- App release: `1.0.0`
-- Learner-state schema: `2`
-- Content version: `2026.08-wave6`
-
-## Accepted runtime scope
-
-- Russian-first ten-stage learning kernel;
-- canonical response classes and nine evidence dimensions;
-- per-module learner state;
-- skill-specific repair and delayed review;
-- 33 scheduled flashcards;
-- reviewed field-note lifecycle;
-- optional T1 raw/evaluated handoff;
-- revision-safe local/D1 persistence;
-- session resume;
-- desktop/mobile browser gates;
-- stable production URL.
-
-## Content truth boundary
-
-- `LCM-01` is the gold accepted teaching module.
-- `LCM-02–LCM-11` are migrated structured content and remain `VALIDATION_PENDING` for the planned repeat content audit.
-- Learner-runtime admission does not admit final strategic rules.
-- Content completion is not mastery.
-- A raw field note is not field transfer.
-- T1 is a cold baseline only before any learning exposure; later runs are `POST_LEARNING_DIAGNOSTIC`.
-
-## Next milestone
-
-Start the first real LCM-01 learner session, collect delayed-recall and field evidence, then run the requested repeat audit. Platform-only tuning stops until that evidence exists.
-''', encoding='utf-8')
-
-          state = Path('state/CURRENT_PROJECT_STATE.yaml')
-          text = state.read_text(encoding='utf-8')
-          text = text.replace('current_release_status: RELEASE_CANDIDATE_PENDING_AUTOMATED_AND_LIVE_GATES', 'current_release_status: ACCEPTED_LIVE')
-          text = text.replace('current_step: pass_ci_merge_preserve_stable_url_then_start_lcm_01_or_optional_t1', 'current_step: start_first_real_lcm_01_session_and_collect_delayed_evidence')
-          text = text.replace('learning_runtime_release_candidate: true', 'learning_runtime_release_candidate: false\n  learning_runtime_release_accepted: true')
-          state.write_text(text, encoding='utf-8')
-
-          Path('.github/workflows/live-cash-os-live-smoke-once.yml').unlink()
-          PY
-      - name: Commit production acceptance record
-        working-directory: .
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Record Live Cash OS production acceptance"
-          git push origin HEAD:main
+          SMOKE_ATTEMPTS: "20"
+          SMOKE_WAIT_MS: "15000"
+        run: node scripts/production-smoke.mjs
       - name: Upload production smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
