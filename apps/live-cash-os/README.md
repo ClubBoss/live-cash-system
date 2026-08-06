@@ -13,7 +13,7 @@
 - Learner-state schema: `2`
 - Stable content graph: `2026.08-wave6`
 
-The stable URL, hosting project and D1 binding must not change between releases.
+The stable URL, hosting project, D1 binding and learner-state schema must not change between these releases.
 
 ## Language model
 
@@ -32,7 +32,8 @@ one semantic content graph
 - `content/i18n/ru.json` and `content/i18n/en.json` are translation memories.
 - Every translation stores the exact source string from which it was produced.
 - A changed source string automatically becomes stale instead of silently reusing an old translation.
-- `DRAFT` machine-assisted copy cannot pass the production release gate.
+- Machine-assisted entries remain `DRAFT` until an explicit poker-language review accepts them.
+- Deterministic checks can reject bad copy but cannot grant `REVIEWED` status.
 - English T1 and Russian T1 are independently written but preserve the same ten diagnostic IDs.
 
 Future workflow:
@@ -43,8 +44,6 @@ npm run i18n:source-check  # fail if the extracted catalogue is stale
 npm run i18n:sync          # preserve reviewed copy and draft only changed strings
 npm run i18n:check         # fail on missing, stale, draft or mismatched locale copy
 ```
-
-Machine translation is a drafting aid, not publication authority. Poker-language review remains required before entries become `REVIEWED`.
 
 ## Learning contract
 
@@ -62,6 +61,24 @@ Every normal module follows the same ten-stage contract:
 10. delayed review scheduling.
 
 Content completion is separate from evidence state. No single correct answer creates mastery.
+
+### Visible route from 0 to 100%
+
+The home screen shows the complete evidence cycle for one module:
+
+```text
+0%   start
+10%  baseline
+20%  understand the mechanism
+35%  worked example and lab
+50%  changed-node transfer
+65%  targeted repair
+80%  delayed retrieval
+90%  real-hand capture
+100% reviewed field validation
+```
+
+This is not an overall poker-mastery percentage. A module reaches the end only through changed-node, delayed and reviewed field evidence.
 
 Module states:
 
@@ -86,6 +103,8 @@ Nine dimensions are stored separately:
 - retention;
 - field transfer.
 
+Variant transfer is awarded only to an explicit changed-node probe carrying variant distance and changed variables. The name of a mode such as `repair` or `review` is not sufficient.
+
 ## Architecture
 
 ```text
@@ -93,14 +112,17 @@ app/                           route shell, metadata and API
 components/                    learner-facing application UI
 content/types.ts               locale-neutral curriculum contracts
 content/modules.ts             canonical LCM-01–LCM-11 graph and stable IDs
+content/quality.ts             content acceptance status by module
 content/diagnostic.ts          diagnostic authority
 content/i18n/ui.ts             reviewed RU/EN interface copy
 content/i18n/diagnostic.ts     reviewed RU/EN T1 copy
-content/i18n/runtime.ts        keyed locale application with safe fallback
+content/i18n/route.ts          reviewed RU/EN learner route
+content/i18n/runtime.ts        keyed locale application with safe development fallback
 content/i18n/source.ru.json    extracted source catalogue
 content/i18n/ru.json           Russian translation memory
 content/i18n/en.json           English translation memory
 lib/model.ts                   learner state, evidence, router and scheduler
+lib/diagnostic-import.ts       strict score-0.2 import validation and routing
 db/                            D1 storage
 public/                        PWA manifest, service worker and assets
 scripts/i18n-*.mjs             extraction, draft sync and release validation
@@ -119,6 +141,8 @@ Anonymous visitors use localStorage. Signed-in visitors can also sync the same s
 - local reset;
 - cloud-state deletion.
 
+Local and cloud copies are merged by entity IDs and monotonic evidence fields rather than replacing the entire state solely by timestamp. This reduces independent-device data loss, while revision conflict responses remain visible.
+
 Language preference is presentation state, not poker evidence. Raw field notes and free-text diagnostic responses are user learning data and never create mastery by storage alone.
 
 ## Diagnostic handoff
@@ -126,25 +150,30 @@ Language preference is presentation state, not poker evidence. Raw field notes a
 T1 is optional personalization, not a mandatory first-use wall.
 
 ```text
-raw learner responses
-→ expert A–E/U evaluation
-→ canonical diagnostic scorer
-→ evaluated result
-→ import of at most two priority repair families
+raw learner responses v0.2
+→ expert A–E/U evaluation v0.2
+→ canonical scorer 0.2
+→ score-0.2 result
+→ strict import of at most two priority repair modules
 ```
 
-- Before the first lesson, T1 may be labelled `COLD_BASELINE`.
-- After learning begins, it is labelled `POST_LEARNING_DIAGNOSTIC`.
-- The raw v0.2 record stores the current interface locale and, when T1 is switched mid-run, the locale of each response.
+- Measurement context is fixed when T1 starts.
+- Before learning exposure: `COLD_BASELINE`.
+- After learning begins: `POST_LEARNING_DIAGNOSTIC`.
+- If learning begins during a cold run: `MIXED_EXPOSURE_INVALID_FOR_BASELINE`.
+- The raw record stores `locale_at_start` and the locale of every response.
+- The evaluated record and scorer output preserve the same context and provenance.
+- Import requires the correct learner, all ten T1 IDs, scorer version, context and valid module/misconception rows.
 - The client does not keyword-score strategic free text or expose answer keys.
 
 Authorities:
 
 - `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json`
-- `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`
+- `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_2.json`
+- `learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json`
 - `scripts/score_learner_diagnostic.py`
 
-`DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json` remains available only for old exports.
+The v0.1 schemas remain available only for historical records.
 
 ## Local development
 
@@ -167,13 +196,23 @@ npm run test:unit
 npm run test:e2e
 ```
 
-`npm test` executes typecheck, lint, bilingual copy integrity, production build and unit tests. Browser gates verify RU/EN switching, locale persistence, session continuity, desktop/mobile layouts and the first learning route.
+`npm test` executes typecheck, lint, accepted bilingual copy integrity, production build and unit tests. Browser gates verify:
+
+- RU/EN switching and document language;
+- locale persistence;
+- session continuity;
+- feedback recovery without duplicate evidence;
+- fixed T1 context;
+- the visible 0→100 module route;
+- desktop/mobile layouts and horizontal overflow.
 
 ## Release governance
 
 - `RELEASE_STATUS.md` contains current production truth.
 - `ACCEPTANCE_LEDGER.md` contains closed defects and current release-candidate gates.
 - `.openai/hosting.json` is the hosting authority.
-- An `accepted` label is forbidden until repository CI and authenticated live smoke are green in both locales.
+- `content/quality.ts` is the module-level content-quality authority.
+- Runtime delivery status must not be confused with final strategic admission.
+- An accepted release is forbidden until repository CI and authenticated live smoke are green in both locales.
 
 After the bilingual DoD, copy and routing thresholds must be calibrated with real learner, delayed-recall and field evidence rather than further platform-only tuning.
