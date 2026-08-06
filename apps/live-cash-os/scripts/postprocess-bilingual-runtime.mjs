@@ -47,6 +47,13 @@ replaceOnce(
   "decision locale",
 );
 replaceOnce(
+  'const reasonOptions = useMemo(() => shuffle(drill.reasonOptions, `${session.startedAt}:${drill.id}:reason`), [drill.reasonOptions, drill.id, session.startedAt]); function lock()',
+  'const reasonOptions = useMemo(() => shuffle(drill.reasonOptions, `${session.startedAt}:${drill.id}:reason`), [drill.reasonOptions, drill.id, session.startedAt]); const recoveredInteraction = [...state.interactions].reverse().find((item) => item.drillId === drill.id && Date.parse(item.at) >= Date.parse(session.itemStartedAt)); const resolvedFeedback: Feedback | null = feedback ?? (recoveredInteraction ? { drillId: drill.id, actionOk: recoveredInteraction.actionOk, reasonOk: recoveredInteraction.reasonOk, responseClass: recoveredInteraction.responseClass } : null); function lock()',
+  "feedback recovery from persisted interaction",
+);
+replaceOnce('if (feedback) return <div className="feedback-view"', 'if (resolvedFeedback) return <div className="feedback-view"', "recovered feedback branch");
+source = source.replaceAll("feedback.responseClass", "resolvedFeedback.responseClass");
+replaceOnce(
   '<p className="eyebrow">{drill.moduleId.toUpperCase()} · {drill.kind}</p>',
   '<p className="eyebrow">{drill.moduleId.toUpperCase()} · {drillKindLabel(locale, drill.kind)}</p>',
   "drill kind label",
@@ -78,5 +85,6 @@ replaceOnce(
 );
 
 if (source.includes("feedback.drill.")) throw new Error("Locale-stale feedback references remain");
+if (source.includes("if (feedback) return")) throw new Error("Feedback recovery was not installed");
 await writeFile(path, source, "utf8");
-console.log("Postprocessed bilingual runtime labels and locale-stable feedback.");
+console.log("Postprocessed bilingual runtime labels, locale-stable feedback and reload recovery.");
