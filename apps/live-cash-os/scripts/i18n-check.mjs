@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
-const source = JSON.parse(await readFile(new URL("../content/i18n/source.ru.json", import.meta.url), "utf8"));
+const sourceText = await readFile(new URL("../content/i18n/source.ru.json", import.meta.url), "utf8");
+const source = JSON.parse(sourceText);
 const ru = JSON.parse(await readFile(new URL("../content/i18n/ru.json", import.meta.url), "utf8"));
 const en = JSON.parse(await readFile(new URL("../content/i18n/en.json", import.meta.url), "utf8"));
+const reviewLock = JSON.parse(await readFile(new URL("../content/i18n/review-lock.json", import.meta.url), "utf8"));
 const sourceKeys = Object.keys(source).sort();
 
 function verifyMemory(locale, memory) {
@@ -21,6 +24,11 @@ function verifyMemory(locale, memory) {
 verifyMemory("ru", ru);
 verifyMemory("en", en);
 
+const expectedSourceHash = createHash("sha256").update(sourceText).digest("hex");
+assert.equal(reviewLock.source_sha256, expectedSourceHash, "The editorial review lock is stale");
+assert.equal(reviewLock.reviewed_entries_per_locale, sourceKeys.length, "The editorial review lock has the wrong entry count");
+assert.deepEqual(reviewLock.locales, ["ru", "en"], "The editorial review lock must cover both locales");
+
 const englishCyrillic = sourceKeys.filter((key) => /[А-Яа-яЁё]/u.test(en[key].text));
 assert.deepEqual(englishCyrillic, [], `English memory contains Cyrillic: ${englishCyrillic.slice(0, 10).join(", ")}`);
 
@@ -35,6 +43,7 @@ const bannedRussianSystemJargon = [
   /\btable card\b/iu,
   /\bcold diagnostic\b/iu,
   /\bmastery\b/iu,
+  /\bnode signature\b/iu,
 ];
 for (const key of sourceKeys) {
   for (const pattern of bannedRussianSystemJargon) assert.ok(!pattern.test(ru[key].text), `ru:${key}: learner-facing system jargon ${pattern}`);
