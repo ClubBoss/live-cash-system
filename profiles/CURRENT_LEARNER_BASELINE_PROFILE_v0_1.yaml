@@ -1,0 +1,53 @@
+schema_version: 1
+status: PRIOR_ONLY_DIAGNOSTIC_PENDING
+learner_id: current_learner
+updated_at: '2026-08-06T12:08:00+04:00'
+declared_profile:
+  primary_background: strong MTT player
+  target_game:
+  - live 1/3
+  - live 2/5
+  primary_depth_bb: 100-200
+  secondary_depth_bb: 300-400
+  environment: Batumi live cash
+  known_discomfort:
+  - SB vs BB
+  - BB defence and realisation
+  - OOP versus frequent 3-bets
+  - deep-stack future streets
+  learning_constraints:
+  - minimal chart memorisation
+  - compact heuristics
+  - decision trees
+  - daily small portions
+  - spaced repetition
+  - practical drills
+hypotheses:
+  L-001:
+    domain: deep-stack transition
+    status: HYPOTHESIS
+    source: user report
+  L-002:
+    domain: OOP versus aggression
+    status: HYPOTHESIS
+    source: user report
+  L-003:
+    domain: SB versus BB
+    status: HYPOTHESIS
+    source: user report
+  L-004:
+    domain: BB defence
+    status: HYPOTHESIS
+    source: user report
+  L-005:
+    domain: large chart burden
+    status: CONFIRMED_CONSTRAINT
+    source: user preference
+performance:
+  diagnostic_tranche_completed: null
+  responses_recorded: 0
+  measured_error_probability: false
+  confirmed_strategic_leaks: []
+  retained_modules: []
+  global_progress_reset: false
+next_action: complete_T1_LD_001_to_LD_010

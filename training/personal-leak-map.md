@@ -1,25 +1,32 @@
 # Personal Leak Map
 
-Initial hypotheses based on user-reported experience. These are not treated as proven leaks until validated through decisions, hand histories, or drills.
+Status: `PRIOR HYPOTHESES / DIAGNOSTIC T1 PENDING`
 
-| Leak ID | Node | Initial hypothesis | Evidence | Priority | Validation method | Status |
+Initial hypotheses are based on user-reported experience. They are not confirmed strategic leaks until repeated decision evidence exists.
+
+| Leak ID | Node | Initial hypothesis | Evidence | Priority prior | Validation | Status |
 |---|---|---|---|---|---|---|
-| L-001 | Deep-stack transition | Tournament-trained intuitions may not fully account for 150bb+ future-street leverage and reverse implied odds | User report | CRITICAL | Hand reviews and deep-stack drills | HYPOTHESIS |
-| L-002 | OOP vs aggression | Frequent 3-bets and sustained pressure OOP create decision uncertainty | User report | CRITICAL | Preflop node tests and 3-bet-pot drills | HYPOTHESIS |
-| L-003 | SB vs BB | Blind-vs-blind architecture is insufficiently consolidated | User report | CRITICAL | Range recall and postflop decision tests | HYPOTHESIS |
-| L-004 | BB defence | BB defence requires reinforcement and compression | User report | CRITICAL | Anchor-range and adjustment drills | HYPOTHESIS |
-| L-005 | Cognitive load | Large chart sets are unlikely to be learned or executed reliably | User report | CRITICAL | Compare chart recall with heuristic execution | CONFIRMED_CONSTRAINT |
+| `L-001` | deep-stack transition | MTT intuitions may underweight long future trees and reverse-implied-odds costs | user report | high | `LD-001`, `LD-006`–`LD-008`, changed/delayed retest | `HYPOTHESIS` |
+| `L-002` | OOP versus aggression | frequent 3-bets and sustained pressure OOP create uncertainty | user report | high | `LD-004`, `LD-005`, `LD-008` | `HYPOTHESIS` |
+| `L-003` | SB versus BB | blind source identities may be insufficiently consolidated | user report | high | `LD-003` plus later blind variants | `HYPOTHESIS` |
+| `L-004` | BB defence | BB defence/realisation may need compression and transfer work | user report | high | `LD-003`, `LD-006`–`LD-009` | `HYPOTHESIS` |
+| `L-005` | cognitive load | large chart sets are unlikely to be retained or executed reliably | explicit preference | constraint | compare heuristic latency with chart recall only if useful | `CONFIRMED_CONSTRAINT` |
+
+## Confirmation gate
+
+A strategic hypothesis becomes `CONFIRMED_LEAK` only after:
+
+- at least two structurally related failures;
+- distinct visible variants;
+- mapped reasoning failure, not only a wrong action;
+- target-game relevance.
+
+A single answer may trigger repair but cannot confirm a leak.
 
 ## Status values
 
-- `HYPOTHESIS`
-- `CONFIRMED_CONSTRAINT`
-- `CONFIRMED_LEAK`
-- `IMPROVING`
-- `CONTROLLED`
-- `DORMANT`
-- `REJECTED`
+`HYPOTHESIS`, `TENTATIVE_HIGH_RISK`, `CONFIRMED_CONSTRAINT`, `CONFIRMED_LEAK`, `IMPROVING`, `CONTROLLED`, `DORMANT`, `REJECTED`.
 
-## Update rule
+## Next action
 
-Do not label a strategic error as a confirmed leak from a single outcome. Validate the decision process, relevant assumptions, and recurrence.
+`RUN DIAG-T1`

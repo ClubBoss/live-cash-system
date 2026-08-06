@@ -1,48 +1,37 @@
-# Learning Layer
+# Learning
 
-Status: `ACTIVE / 34_DIRECT_CANDIDATE_DRILLS`
+## Active entry
 
-## Learner-facing systems
+`diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md`
 
-### Preflop
+## Runtime authorities
 
-`ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md`
+- `ADAPTIVE_COURSE_RUNTIME_v0_1.md`;
+- `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`;
+- `MISCONCEPTION_TAXONOMY_v0_1.md`;
+- `diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md`;
+- `diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json`;
+- `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_12.md`.
 
-### Multiway
-
-- `anchors/MULTIWAY_ACTION_ORDER_CARDS_v0_1.md`;
-- `drills/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_DRILL_PACK_v0_1.md`.
-
-### Deep OOP
-
-- `anchors/DEEP_OOP_PROTECTED_CALL_CARDS_v0_1.md`;
-- `drills/DEEP_OOP_PROTECTED_CALL_DRILL_PACK_v0_1.md`;
-- `assessments/DEEP_OOP_CHANGED_NODE_ASSESSMENT_v0_1.md`.
-
-## Coverage
+## Current inventory
 
 ```text
-candidate mechanisms: 34
-direct drills: 34
-answer-key gaps: 0
-assessment families from Carrot: 74
+34/34 direct candidate drills
+74 Carrot assessment families
+20 initial personalised diagnostic items
+10 active T1 items
+30 frozen misconception IDs
+9 learner-state dimensions
 ```
 
-## Diagnostic loop
+## Active rule
 
-```text
-action
-→ reasoning step
-→ misconception
-→ minimal repair
-→ changed-node retest
-→ delayed retest
-```
+No answer key or teaching before T1 is complete. Correct action with wrong reasoning requires repair.
 
-## Active next lane
+## Historical note
 
-Measure accuracy, latency, confidence, reasoning quality, changed-node transfer and delayed retention. Then rerank only affected candidates and generate a personalised micro-cycle.
+`INITIAL_DIAGNOSTIC_v0_1.md` remains useful historical scaffolding but is superseded for current execution by the personalised free-text battery.
 
-## Constraint
+## Next action
 
-Direct coverage does not equal mastery or admission.
+`RUN LD-001 … LD-010`

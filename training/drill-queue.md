@@ -1,21 +1,37 @@
 # Drill Queue
 
-No active drills yet. Drills are created from analysed and admitted concepts, not directly from unverified transcripts.
+Status: `ACTIVE_DIAGNOSTIC_QUEUE / T1_NEXT`
 
-| Drill ID | Concept | Skill type | Difficulty | Source / rule | Due | Result | Status |
-|---|---|---|---|---|---|---|---|
+## Active
 
-## Skill types
+| Drill/Tranche | Purpose | Items | Due | Result | Status |
+|---|---|---|---|---|---|
+| `DIAG-T1` | cold high-EV baseline | `LD-001`–`LD-010` | next interaction | pending | `AWAITING_LEARNER_RESPONSES` |
+| `DIAG-T2` | targeted disambiguation | selected from `LD-011`–`LD-020` | after T1 score | pending | `LOCKED` |
+| `REPAIR-01` | highest measured structural family | generated after T1 | after T1 | pending | `NOT_GENERATED` |
+| `DELAYED-01` | delayed changed-node retrieval | generated after repair | later session | pending | `NOT_GENERATED` |
 
-- `RECALL` — reproduce a rule or range shape without prompts.
-- `DISCRIMINATION` — distinguish similar nodes requiring different actions.
-- `APPLICATION` — apply a rule to a concrete hand.
-- `MIXED` — identify the relevant concept without being told the topic.
-- `FIELD_REVIEW` — compare real execution with the playbook.
+## Answer contract
 
-## Daily load guard
+Every active item requires:
 
-- Maximum three new core rules per study block.
-- Prefer 5-10 high-quality decisions over broad passive review.
-- Include old material in mixed drills before adding more complexity.
-- Failure creates a simpler follow-up drill before more source ingestion.
+```text
+action/direction
++ one-sentence reason
++ confidence 0–100
++ rough time in seconds
+```
+
+## Load guard
+
+- complete the active tranche before feedback;
+- at most two repair families after T1;
+- 5–10 high-quality decisions per block;
+- no exact mixed-frequency memorisation;
+- failure creates a changed-node repair, not a global reset.
+
+## Authority
+
+- battery: `../learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md`;
+- scoring: `../learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md`;
+- learner state: `learner-state/CURRENT_LEARNER_STATE_v0_1.yaml`.

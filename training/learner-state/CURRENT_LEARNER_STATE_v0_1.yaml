@@ -1,0 +1,42 @@
+schema_version: 1
+status: ACTIVE_EMPTY_MEASUREMENT_STATE
+learner_id: current_learner
+source_scope_version: diagnostic_wave_v0_1
+updated_at: '2026-08-06T12:08:00+04:00'
+response_authority: learning/ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md
+dimension_defaults:
+  NODE_RECOGNITION: UNMEASURED
+  MECHANISM_EXPLANATION: UNMEASURED
+  ACTION_SELECTION: UNMEASURED
+  BOUNDARY_CONTROL: UNMEASURED
+  SPEED: UNMEASURED
+  CONFIDENCE_CALIBRATION: UNMEASURED
+  VARIANT_TRANSFER: UNMEASURED
+  RETENTION: UNMEASURED
+  FIELD_TRANSFER: UNMEASURED
+modules:
+  LCM-01: {state: UNEXPOSED, interaction_count: 0}
+  LCM-02: {state: UNEXPOSED, interaction_count: 0}
+  LCM-03: {state: UNEXPOSED, interaction_count: 0}
+  LCM-04: {state: UNEXPOSED, interaction_count: 0}
+  LCM-05: {state: UNEXPOSED, interaction_count: 0}
+  LCM-06: {state: UNEXPOSED, interaction_count: 0}
+  LCM-07: {state: UNEXPOSED, interaction_count: 0}
+  LCM-08: {state: UNEXPOSED, interaction_count: 0}
+  LCM-09: {state: UNEXPOSED, interaction_count: 0}
+  LCM-10: {state: UNEXPOSED, interaction_count: 0}
+  LCM-11: {state: UNEXPOSED, interaction_count: 0}
+candidate_estimates:
+  status: UNMEASURED
+  prior: Beta(2,2)
+  items_scored: 0
+misconception_evidence:
+  frozen_id_count: 30
+  status: UNMEASURED
+  observations: 0
+retention_queue: []
+active_tranche:
+  id: T1
+  items: [LD-001, LD-002, LD-003, LD-004, LD-005, LD-006, LD-007, LD-008, LD-009, LD-010]
+  status: AWAITING_LEARNER_RESPONSES
+global_progress_reset: false

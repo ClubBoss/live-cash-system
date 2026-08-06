@@ -1,48 +1,36 @@
 # Live Cash System
 
-Private source-of-truth for a compact, adaptive and executable No-Limit Hold'em live-cash learning system.
+Private source-of-truth for a compact, adaptive No-Limit Hold'em live-cash learning system.
 
 ## Entry
 
-Read:
-
-1. `START_HERE.md`;
-2. `AGENTS.md`;
-3. `state/CURRENT_PROJECT_STATE.yaml`;
-4. `PROJECT_ATLAS.md`.
+Read `START_HERE.md`, `AGENTS.md`, `state/CURRENT_PROJECT_STATE.yaml`, then `PROJECT_ATLAS.md`.
 
 Repository state overrides chat memory.
 
 ## Objective
 
-Build independently derived anchors, original adaptive drills, field-calibrated overlays and a minimal table-facing core.
+Build original table-facing heuristics, drills, learner measurement and field-calibrated overlays.
 
 `MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
 
 ## Current state
 
 ```text
-catalogued source corpora: complete
-heuristic candidates: 34
-DRILL_READY: 29
-VALIDATION_PENDING: 5
-ADMITTED: 0
-
-direct candidate drills: 34/34
+source corpora: complete
+candidate mechanisms: 34
+direct drills: 34/34
+directional systems: preflop + multiway + deep OOP
+diagnostic battery: 20 items
+active T1: 10 items
+responses measured: 0
+final admitted rules: 0
 ```
 
-Completed directional systems:
+## Immediate action
 
-- preflop;
-- multiway;
-- deep OOP protected-call and depth/SPR.
+Complete `LD-001` through `LD-010` from:
 
-Latest report:
+`learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md`
 
-`reports/DEEP_OOP_BOUNDARY_WAVE_TERMINAL_REPORT_v1.md`
-
-Active milestone:
-
-`LEARNER DIAGNOSTICS AND ERROR-PROBABILITY RERANKING`
-
-No exact solver frequency, population magnitude or final rule is implied by directional readiness.
+The system then scores action, reasoning, confidence, latency and transfer before creating the first evidence-personalised micro-cycle.

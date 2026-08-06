@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `ACTIVE / THREE_DIRECTIONAL_WAVES_COMPLETE / DIAGNOSTICS_NEXT`
+Status: `ACTIVE / DIAGNOSTIC_RUNTIME_READY / T1_NEXT`
 
 ## Bootstrap
 
@@ -18,128 +18,89 @@ Repository state overrides chat memory. Do not restart diagnosis.
 
 ## Mission
 
-Build a compact adaptive system for live `1/3` and `2/5`, usually `100–200bb`, sometimes short or `300–400bb`, with straddles and multiway pots possible.
+Build a compact adaptive live-cash system for `1/3` and `2/5`, primarily `100–200bb`, with controlled `300–400bb`, straddle and multiway branches.
 
 `MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
-
-## Source truth
-
-Known catalogued corpora are complete:
-
-- Smash `66/66`;
-- FTGU `30/30`;
-- Cash Injection `10/10`;
-- Carrot Grades 1–3 with lectures, exams and feedback.
-
-No full rerun is open. Exact visuals are claim-driven; population magnitude is field-gated.
 
 ## System truth
 
 ```text
+catalogued source corpora: complete
 heuristic candidates: 34
 DRILL_READY: 29
 VALIDATION_PENDING: 5
-FIELD_TEST_PENDING: 0
 ADMITTED: 0
-
 direct candidate drills: 34/34
-answer-key-gated direct gaps: 0
-Carrot assessment families: 74
+misconception IDs: 30
+learner-state dimensions: 9
 ```
 
-## Completed directional waves
+## Completed directional systems
 
-### Preflop
+- preflop A1–A5;
+- multiway M1–M5;
+- deep OOP D1–D5.
 
-Authority: `ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md`.
+## Diagnostic runtime
 
-### Multiway
+Active authorities:
 
-Cards: role, OPAL, shared defence, bluff support, field clear/delayed aggression.
+- `learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md`;
+- `learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md`;
+- `learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json`;
+- `profiles/CURRENT_LEARNER_BASELINE_PROFILE_v0_1.yaml`;
+- `training/learner-state/CURRENT_LEARNER_STATE_v0_1.yaml`;
+- `training/PERSONALISED_MICRO_CYCLE_v0_1.md`;
+- `reports/LEARNER_DIAGNOSTIC_RUNTIME_WAVE_TERMINAL_REPORT_v1.md`.
 
-Authority: `learning/anchors/MULTIWAY_ACTION_ORDER_CARDS_v0_1.md`.
+Current truth:
 
-### Deep OOP
+```text
+T1 items: 10
+responses recorded: 0
+measured error probability: no
+confirmed strategic leaks: 0
+```
 
-Cards:
-
-- geometry before depth label;
-- robust/volatile/frail;
-- bet shape;
-- protect call branch;
-- raise for a job.
-
-Authorities:
-
-- `synthesis/DEEP_OOP_PROTECTED_CALL_AND_DEPTH_SPR_ARCHITECTURE_v0_1.md`;
-- `synthesis/DEEP_OOP_DECISION_TREE_v0_1.json`;
-- `learning/anchors/DEEP_OOP_PROTECTED_CALL_CARDS_v0_1.md`;
-- `learning/drills/DEEP_OOP_PROTECTED_CALL_DRILL_PACK_v0_1.md`;
-- `reports/DEEP_OOP_BOUNDARY_WAVE_TERMINAL_REPORT_v1.md`.
-
-## Deep-OOP use boundary
-
-Approved:
-
-- post-action SPR calculation;
-- directional call/raise/fold routing;
-- 100/200/400 changed nodes;
-- original drills and diagnosis;
-- field observation.
-
-Not claimed:
-
-- universal deep threshold;
-- exact combo frequencies;
-- exact solver cutoffs;
-- Batumi population magnitude;
-- final admission.
+User-reported discomfort remains prior evidence, not confirmed performance.
 
 ## Active milestone
 
-`LEARNER DIAGNOSTICS AND ERROR-PROBABILITY RERANKING`
+`INITIAL LIVE DIAGNOSTIC EXECUTION AND SCORING`
 
-Target:
+Current step:
 
-1. test action and reasoning;
-2. measure latency/confidence;
-3. identify dominant misconceptions;
-4. rerank deployment priority;
-5. build the first personalised micro-cycle;
-6. preserve existing learner progress.
+`RUN LD-001 THROUGH LD-010`
 
-## Active authority cone
+After responses:
 
-1. `START_HERE.md`;
-2. `AGENTS.md`;
-3. `state/CURRENT_PROJECT_STATE.yaml`;
-4. `PROJECT_ATLAS.md`;
-5. `reports/DEEP_OOP_BOUNDARY_WAVE_TERMINAL_REPORT_v1.md`;
-6. `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_7.md`;
-7. `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_6.md`;
-8. `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_6.md`;
-9. `synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_4.md`;
-10. `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_11.md`;
-11. diagnostic authorities only.
+1. evaluate action and reason separately;
+2. record confidence and latency;
+3. run conservative posterior scorer;
+4. update only affected states;
+5. select at most two repair families;
+6. activate the first evidence-personalised micro-cycle.
 
 ## Frozen constraints
 
-Do not rename stable IDs, copy source charts, turn directional bands into exact claims, invent field tendencies, reset learner progress, compress to a preset count or admit a rule because coverage is complete.
+Do not:
+
+- reveal answer keys before T1 completion;
+- infer mastery or weakness from untested modules;
+- treat one result as a confirmed leak;
+- reset learner progress globally;
+- copy proprietary source hands/charts;
+- turn directional bands into solver cutoffs;
+- admit final rules from quiz readiness.
 
 ## Latest checkpoint
 
-`DEEP_OOP_DIRECTIONAL_BOUNDARY_ACCEPTED`
-
-- `H-W01-006` is `DRILL_READY`;
-- direct coverage is `34/34`;
-- `LCM-03` is ready directionally;
-- exact numeric boundaries remain gated;
-- diagnostics selected next.
+`DIAGNOSTIC_RUNTIME_ACCEPTED / T1_READY_NOW`
 
 ## Verdict
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`THREE_DIRECTIONAL_WAVES_ACTIVE`
+`RUN_T1_NEXT`
 
-`CONTINUE_WITH_DIAGNOSTICS / DO_NOT_RESTART`
+`NO_FAKE_PERSONAL_RERANK`
