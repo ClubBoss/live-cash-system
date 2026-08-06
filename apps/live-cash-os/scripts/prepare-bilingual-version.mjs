@@ -1,3 +1,4 @@
+import "./normalize-misconceptions.mjs";
 import { readFile, writeFile } from "node:fs/promises";
 
 const modelPath = new URL("../lib/model.ts", import.meta.url);
@@ -26,4 +27,4 @@ if (serviceWorker.includes('const CACHE = "live-cash-os-shell-v1";')) {
 }
 await writeFile(serviceWorkerPath, serviceWorker, "utf8");
 
-console.log("Prepared Live Cash OS 1.1.0 metadata against the hardened learner-state model.");
+console.log("Prepared Live Cash OS 1.1.0 metadata against the hardened learner-state model and canonical misconception taxonomy.");
