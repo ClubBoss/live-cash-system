@@ -33,6 +33,13 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole("button", { name: "RU" })).toHaveAttribute("aria-pressed", "true");
 });
 
+test("shows an explicit route from zero to field validation", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: /Что означает путь 0.*100%/i })).toBeVisible();
+  await expect(page.locator(".route-grid article")).toHaveCount(9);
+  await expect(page.locator(".route-grid article").first()).toContainText("0%");
+  await expect(page.locator(".route-grid article").last()).toContainText("100%");
+});
+
 test("completes the Russian cold decision and reaches the teaching layer", async ({ page }) => {
   await openFirstLesson(page, "ru");
   await expect(page.getByText("1 · ВОПРОС БЕЗ ПОДСКАЗКИ")).toBeVisible();
@@ -79,6 +86,22 @@ test("switches RU and EN without resetting or losing the active session", async 
   await page.getByRole("button", { name: "RU" }).click();
   await expect(page.getByText("2 · ПОНЯТНОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "ru");
+});
+
+test("locks T1 context at start and invalidates a cold run after learning exposure", async ({ page }) => {
+  await mainNav(page).getByRole("button", { name: "T1", exact: true }).click();
+  await page.getByRole("button", { name: /Начать T1/ }).click();
+  let context = await page.evaluate(() => JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "{}").diagnostic?.measurementContext);
+  expect(context).toBe("COLD_BASELINE");
+
+  await openFirstLesson(page, "ru");
+  await answerFirstColdDecision(page);
+  await page.waitForTimeout(900);
+  context = await page.evaluate(() => JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "{}").diagnostic?.measurementContext);
+  expect(context).toBe("MIXED_EXPOSURE_INVALID_FOR_BASELINE");
+
+  await mainNav(page).getByRole("button", { name: "T1", exact: true }).click();
+  await expect(page.getByText(/нельзя считать исходным замером/i)).toBeVisible();
 });
 
 test("offers T1 without blocking the first lesson in both languages", async ({ page }) => {
