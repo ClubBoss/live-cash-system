@@ -38,15 +38,15 @@ const ruEditorial = [
   [/\bevidence\b/gi, "подтверждение"],
   [/\bfalsifier\b/gi, "признак, который опровергнет вывод"],
   [/\bbranch-specific\b/gi, "привязанный к конкретной ветке"],
+  [/\bsource ranges\b/gi, "исходные диапазоны"],
   [/\bsource range\b/gi, "исходный диапазон"],
   [/\brange source\b/gi, "источник диапазона"],
   [/\barrival range\b/gi, "диапазон, дошедший до решения"],
-  [/\bsource ranges\b/gi, "исходные диапазоны"],
   [/\baction history\b/gi, "история действий"],
   [/\bfuture tree\b/gi, "дальнейший розыгрыш"],
   [/\bdecision tree\b/gi, "порядок решения"],
-  [/\bplayer behind\b/gi, "игрок сзади"],
   [/\bplayers behind\b/gi, "игроки сзади"],
+  [/\bplayer behind\b/gi, "игрок сзади"],
   [/\bclosing action\b/gi, "закрытие торгов"],
   [/\bshared defence\b/gi, "общая защита нескольких диапазонов"],
   [/\braw equity\b/gi, "исходное эквити"],
@@ -61,8 +61,8 @@ const ruEditorial = [
   [/\bfeedback\b/gi, "разбор ответа"],
   [/\bskill\b/gi, "навык"],
   [/\blearner\b/gi, "ученик"],
-  [/\bitem\b/gi, "задание"],
   [/\bitems\b/gi, "задания"],
+  [/\bitem\b/gi, "задание"],
 ];
 
 const enEditorial = [
@@ -75,7 +75,6 @@ const enEditorial = [
   [/\bfloppe\b/gi, "flop"],
   [/\bpreflop tree price\b/gi, "preflop decision tree"],
   [/\bworking proof\b/gi, "practice evidence"],
-  [/\brepair family\b/gi, "repair family"],
   [/\bdispersal\b/gi, "range construction"],
   [/\bdistribution owner\b/gi, "range owner"],
 ];
@@ -110,6 +109,14 @@ function edit(value, replacements) {
   return text.replace(/\s+/g, " ").replace(/\s+([,.!?;:])/g, "$1").trim();
 }
 
+function containsSemanticToken(text, token, localeTokens) {
+  if (localeTokens.includes(token)) return true;
+  const upper = text.toUpperCase();
+  if (token === "OOP" && /БЕЗ ПОЗИЦИИ/u.test(upper)) return true;
+  if (token === "IP" && /В ПОЗИЦИИ/u.test(upper)) return true;
+  return false;
+}
+
 const reviewedRu = {};
 const reviewedEn = {};
 const issues = [];
@@ -133,7 +140,7 @@ for (const key of keys) {
   const ruTokens = tokens(ruText);
   const enTokens = tokens(enText);
   for (const token of sourceTokens) {
-    if (!ruTokens.includes(token)) issues.push(`RU lost critical token ${token}: ${key}`);
+    if (!containsSemanticToken(ruText, token, ruTokens)) issues.push(`RU lost critical token ${token}: ${key}`);
     if (!enTokens.includes(token)) issues.push(`EN lost critical token ${token}: ${key}`);
   }
 
