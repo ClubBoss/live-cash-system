@@ -4,28 +4,26 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: multiway_closure
-  updated_at: 2026-08-06T04:58:00+04:00
+  phase: deep_oop_boundary_closure
+  updated_at: 2026-08-06T09:40:00+04:00
 
 mission:
   summary: >-
-    Build a compact, adaptive and interactive No-Limit Hold'em live-cash
-    learning system for a strong MTT player moving into live 1/3 and 2/5.
+    Build a compact adaptive No-Limit Hold'em live-cash system for a strong
+    MTT player moving into live 1/3 and 2/5.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
   final_rule_count: emergent_not_fixed
-  target_games:
+  target:
+    environment: Batumi live cash
     stakes: [1/3, 2/5]
     common_effective_depth_bb: 100-200
     occasional_effective_depth_bb: 300-400
-    environment: Batumi live cash
-    may_include: [straddles, short_effective_stacks]
+    may_include: [short_stacks, straddles, multiway_pots]
 
 priority_policy:
   authority: system_wide_max_ev
-  personal_discomfort_is_input_not_priority: true
-  source_order_is_not_priority: true
-  current_error_probability_state: incompletely_measured
-  current_ranking: neutral_prior_v0_2
+  ranking: neutral_prior_v0_3
+  current_error_probability: incompletely_measured
   factors:
     - spot_frequency
     - average_error_cost
@@ -36,86 +34,59 @@ priority_policy:
 
 source_state:
   completeness_claim: known_catalogued_corpora_complete
-  unknown_unsupplied_supplements: not_assumed_present_or_missing
-  smash_live_cash:
+  full_rerun_queue: empty
+  visual_review: claim_driven
+  population_magnitudes: field_gated
+  smash:
     status: complete
     catalogued_audio_lessons: 66
     preflop_scenarios_indexed: 980
-    remaining: claim_driven_visual_checks_only
   ftgu:
     status: complete
-    episodes_received: 30
-    episodes_total: 30
-    charts: reference_only
+    episodes: 30
   cash_injection:
     status: complete
-    episodes_received: 10
-    episodes_total: 10
+    episodes: 10
     pool_hypotheses: 10
-    population_claim_state: field_gated
-  carrot_grade_1:
+  carrot:
     status: complete
-    lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    final_exam_pdf: received_and_audited
-    exam_feedback: received_and_mapped
-    original_assessment_families: 24
-  carrot_grade_2:
-    status: complete
-    lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    final_exam_pdf: received_and_audited
-    exam_feedback: received_and_mapped
-    original_assessment_families: 20
-    feedback_repair_paths: 10
-  carrot_grade_3:
-    status: complete
-    lectures_received: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    final_exam_pdf: received_and_audited
-    exam_feedback: received_and_mapped
-    answer_key_continuity: complete
-    lecture_continuity: complete
-    original_assessment_families: 30
-    feedback_repair_paths: 10
+    grades: [1, 2, 3]
+    lectures_per_grade: 10
+    exams_and_feedback: complete
+    original_assessment_families: 74
 
-cross_corpus_audit:
-  status: accepted
-  full_rerun_queue: empty
-  targeted_audio_rerun_queue: empty_until_material_claim_failure
-  visual_review: claim_driven
-  unresolved_package_level_defect: false
-  same_assumption_strategic_conflict_open: false
-
-preflop_architecture_wave:
-  status: accepted_directional
-  assumptions_authority: ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md
-  machine_library: ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json
-  table_anchors: ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md
-  validation: ranges/validation/PREFLOP_ANCHOR_VALIDATION_REPORT_v0_1.md
-  direct_drills: learning/drills/PREFLOP_SQUEEZE_AND_POLAR_TARGET_DRILL_PACK_v0_1.md
-  qa: analysis/system-audits/PREFLOP_ARCHITECTURE_WAVE_QA_v1.md
-  report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
-  memory_cards:
-    - unopened_pot
-    - limped_pot_iso
-    - facing_open
-    - facing_three_bet
-    - squeeze_and_polar
-  rfi_percent:
-    ep: 14.63
-    hj: 20.06
-    co: 27.30
-    btn: 45.40
-    sb: 40.87
-  validation_state:
-    notation_and_combo_counts: passed
-    position_monotonicity: passed
-    source_purity: passed
-    changed_node_tests: passed
-    equilibrium_solver_validation: pending
-    room_specific_field_validation: pending
-  closed_direct_answer_gaps:
-    - H-W01-002
-    - H-W01-008
-  exact_range_admission: false
+completed_directional_waves:
+  preflop:
+    status: accepted_directional
+    memory_cards: 5
+    assumptions: ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md
+    machine_library: ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json
+    learner_anchors: ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md
+    report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
+    exact_solver_calibration: pending
+    room_field_calibration: pending
+  multiway:
+    status: accepted_directional
+    memory_cards: 5
+    evidence: synthesis/MULTIWAY_SOURCE_EVIDENCE_MAP_v0_1.md
+    architecture: synthesis/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_ARCHITECTURE_v0_1.md
+    machine_tree: synthesis/MULTIWAY_DECISION_TREE_v0_1.json
+    learner_cards: learning/anchors/MULTIWAY_ACTION_ORDER_CARDS_v0_1.md
+    direct_drills: learning/drills/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_DRILL_PACK_v0_1.md
+    field_schema: fieldwork/batumi/MULTIWAY_FIELD_CALIBRATION_CARD_v0_1.md
+    qa: analysis/system-audits/MULTIWAY_ACTION_ORDER_WAVE_QA_v1.md
+    report: reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md
+    directional_components:
+      - action_order_roles
+      - shared_defence
+      - opal_nut_ownership
+      - player_behind_gate
+      - bluff_support_hierarchy
+      - field_clear_transition
+      - delayed_range_expression
+      - fast_play_protect_method
+    exact_solver_frequencies: pending
+    target_field_magnitude: pending
 
 system_counts:
   heuristic_candidates: 34
@@ -123,12 +94,9 @@ system_counts:
   misconception_classes: 30
   evidence_question_ids: 38
   provisional_synthesis_containers: 16
-  provisional_containers_are_binding_target: false
-  candidates_with_direct_original_drills: 32
-  answer_key_gated_direct_drill_gaps: 2
-  carrot_original_assessment_families: 74
-  grade_2_feedback_repair_paths: 10
-  grade_3_feedback_repair_paths: 10
+  direct_candidate_drills: 33
+  answer_key_gated_direct_drill_gaps: 1
+  carrot_assessment_families: 74
   admitted_final_rules: 0
 
 candidate_status_counts:
@@ -139,130 +107,98 @@ candidate_status_counts:
 
 remaining_direct_drill_gaps:
   - H-W01-006
-  - H-R04-007
 
-direct_drill_gap_classification: boundary_or_evidence_gated
+direct_drill_gap_classification: deep_oop_boundary_evidence_gated
 
-stable_module_ids:
-  - LCM-01
-  - LCM-02
-  - LCM-03
-  - LCM-04
-  - LCM-05
-  - LCM-06
-  - LCM-07
-  - LCM-08
-  - LCM-09
-  - LCM-10
-  - LCM-11
+module_state:
+  LCM-01: ready_core_exact_depth_pending
+  LCM-02: ready_directional
+  LCM-03: ready_core_deep_oop_boundary_pending
+  LCM-04: ready
+  LCM-05: ready_core_deep_refinement_pending
+  LCM-06: ready_core_multiway_delayed_branch_active
+  LCM-07: ready_directional
+  LCM-08: ready_directional_exact_and_field_pending
+  LCM-09: ready_mechanism
+  LCM-10: ready_methodology_field_pending
+  LCM-11: ready_schema_33_direct_drills
 
 max_ev_state:
-  ranking_authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md
-  completed_closure_lane: independent_preflop_directional_architecture
-  deployment_high_priority:
-    - filtering_and_ownership
-    - effective_depth
-    - source_range_and_origin_reach
-    - preflop_core_flex_architecture
-    - value_first_aggression
-    - bet_shape_and_response_shape
-    - three_bet_four_bet_ancestry
-    - exact_branch_exploit_discipline
+  authority: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md
+  completed_lanes:
+    - independent_preflop_directional_architecture
+    - multiway_action_order_and_delayed_aggression_directional_architecture
   closure_priority:
-    - multiway_action_order_and_delayed_aggression
-    - deep_oop_and_exact_depth_spr_boundaries
-    - learner_diagnostics
+    - deep_oop_protected_call_and_exact_depth_spr_boundary
+    - learner_diagnostics_and_priority_update
     - target_live_field_calibration
-    - targeted_preflop_solver_calibration
+    - targeted_solver_and_visual_calibration
     - final_compression_and_admission
 
 active_milestone:
-  name: multiway_action_order_and_delayed_aggression_closure
-  current_step: define_action_order_roles_and_shared_defence
+  name: deep_oop_protected_call_and_exact_depth_spr_boundary
+  current_step: source_geometry_and_robust_frail_map
   steps:
-    - define_action_order_roles
-    - map_shared_defence_boundary
-    - compress_nut_ownership_by_source_ranges
-    - build_minimum_multiway_bluff_support_hierarchy
-    - define_delayed_aggression_and_sandwich_transitions
-    - activate_h_r04_007_direct_answer_key
-    - update_multiway_module_readiness
-    - preserve_field_gated_fast_play_magnitude
-  subsequent_milestones:
-    - deep_oop_and_exact_depth_spr_boundaries
-    - learner_diagnostics_and_priority_update
-    - target_live_field_calibration
-    - targeted_preflop_solver_calibration
-    - final_rule_optimisation
-    - admission_revision_or_rejection
+    - audit_deep_oop_source_geometry
+    - define_robust_vs_frail_hand_classes
+    - split_static_vs_dynamic_boards
+    - map_100_200_400bb_and_spr_transitions
+    - distinguish_discomfort_raise_from_range_required_raise
+    - define_future_barrel_source_and_passive_branch_protection
+    - activate_h_w01_006_direct_answer_key
+    - validate_changed_nodes
+    - update_ssot_and_readiness
+  success_condition:
+    direct_candidate_drills: 34
+    exact_frequency_overclaim: false
 
 open_high_value_gates:
   - deep_oop_protected_call_boundary
-  - multiway_shared_defence
-  - multiway_bluff_construction
-  - multiway_nut_ownership_compression
-  - multiway_delayed_aggression
+  - exact_depth_spr_transitions
   - exact_room_rake_and_open_size_calibration
-  - exact_preflop_edge_band_solver_calibration
+  - exact_preflop_edge_solver_calibration
+  - exact_multiway_frequency_calibration
   - target_live_population_calibration
   - measured_learner_error_probability
   - learner_validation
   - field_validation
   - final_admission
 
-mechanism_state:
-  general_postflop_core: mature_at_mechanism_level
-  filtering_and_ownership: ready
-  preflop_directional_architecture: active
-  preflop_exact_equilibrium: pending
-  squeeze_purification: drill_ready
-  polar_target_folds: drill_ready
-  blind_source_ranges: active_directional
-  depth_straddle_structural_overlays: active
-  deep_oop_exact_boundaries: pending
-  multiway: partial_boundary_pending
-  field_population_magnitude: pending
+active_authorities:
+  bootstrap: START_HERE.md
+  agent_contract: AGENTS.md
+  atlas: PROJECT_ATLAS.md
+  latest_report: reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md
+  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_6.md
+  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_5.md
+  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_5.md
+  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md
+  provisional_slots: synthesis/PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_5.md
+  readiness: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_10.md
+
+latest_integrated_checkpoint:
+  verdict: MULTIWAY_DIRECTIONAL_WAVE_ACCEPTED
+  facts:
+    - five_multiway_cards_active
+    - action_order_and_shared_defence_directionally_closed
+    - opal_ownership_active
+    - delayed_aggression_direct_answer_key_active
+    - h_r04_007_direct_gap_closed
+    - direct_drill_coverage_33_of_34
+    - lcm_08_ready_directionally
+    - candidate_status_counts_unchanged
+    - exact_solver_and_field_magnitudes_pending
+    - deep_oop_selected_next
+    - no_final_admission
 
 frozen_identities:
   source_ids: true
   heuristic_candidate_ids: true
   misconception_ids: true
   adaptive_module_ids: true
-  existing_original_drill_ids: true
-  learner_state_dimensions: true
-  relation_vocabulary: true
   evidence_question_ids: true
-
-active_authorities:
-  bootstrap: START_HERE.md
-  agent_contract: AGENTS.md
-  project_atlas: PROJECT_ATLAS.md
-  latest_report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
-  preflop_assumptions: ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md
-  preflop_library: ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json
-  preflop_anchors: ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md
-  preflop_validation: ranges/validation/PREFLOP_ANCHOR_VALIDATION_REPORT_v0_1.md
-  candidate_registry: synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_5.md
-  evidence_questions: synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_4.md
-  validation_workbench: synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_4.md
-  max_ev_ranking: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md
-  readiness_manifest: learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_9.md
-
-latest_integrated_checkpoint:
-  verdict: PREFLOP_DIRECTIONAL_ARCHITECTURE_WAVE_ACCEPTED
-  report: reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
-  facts:
-    - target_assumption_grid_active
-    - five_preflop_anchor_cards_active
-    - independent_range_library_created
-    - combinatorial_and_source_purity_qa_passed
-    - squeeze_direct_answer_key_active
-    - polar_target_direct_answer_key_active
-    - direct_drill_coverage_32_of_34
-    - h_w01_002_promoted_to_drill_ready
-    - exact_solver_and_field_calibration_pending
-    - multiway_selected_as_next_closure_lane
-    - no_final_admission
+  existing_drill_ids: true
+  learner_state_dimensions: true
 
 new_chat_bootstrap:
   required_read_order:
@@ -270,29 +206,25 @@ new_chat_bootstrap:
     - AGENTS.md
     - state/CURRENT_PROJECT_STATE.yaml
     - PROJECT_ATLAS.md
-    - reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md
-    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md
-    - affected_multiway_authorities_only
+    - reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md
+    - synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md
+    - affected_deep_oop_authorities_only
   forbidden_behaviour:
     - restart_project_diagnosis
     - broad_unscoped_refactor
-    - author_specific_parallel_curriculum
     - proprietary_content_copy
-    - source_chart_as_admitted_anchor
-    - provisional_anchor_as_exact_solver_output
-    - population_claim_as_live_default
+    - directional_architecture_as_exact_solver_output
+    - population_claim_as_default
     - global_learner_progress_reset
     - compress_to_preset_rule_count
-    - treat_source_completion_as_admission
+    - source_completion_or_wave_completion_as_admission
 
 terminal_state:
   handover_ready: true
-  atlas_ready: true
   catalogued_source_corpora_complete: true
   cross_corpus_audit_complete: true
   preflop_directional_wave_complete: true
-  preflop_anchor_library_active: true
-  direct_drill_coverage_32_of_34: true
-  exact_preflop_solver_calibration_complete: false
-  multiway_closure_ready: true
+  multiway_directional_wave_complete: true
+  direct_drill_coverage_33_of_34: true
+  deep_oop_wave_ready: true
   global_restructure_expected: false

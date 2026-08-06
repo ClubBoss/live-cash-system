@@ -1,122 +1,81 @@
 # Learning System Index
 
-Status: `ADAPTIVE_RUNTIME_ACTIVE / PREFLOP_DIRECTIONAL_ARCHITECTURE_ACTIVE`
+Status: `ADAPTIVE_RUNTIME_ACTIVE / MULTIWAY_DIRECTIONAL_ARCHITECTURE_ACTIVE`
 
 ## Authorities
 
-- adaptive route: `GENERAL_LIVE_CASH_ADAPTIVE_ROUTE_v0_2.md`;
-- learner state: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`;
 - runtime: `ADAPTIVE_COURSE_RUNTIME_v0_1.md`;
-- readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_9.md`;
+- learner state: `ADAPTIVE_LEARNER_STATE_SCHEMA_v0_1.md`;
+- readiness: `ADAPTIVE_MODULE_READINESS_MANIFEST_v0_10.md`;
 - misconceptions: `MISCONCEPTION_TAXONOMY_v0_1.md`;
-- preflop direct drills: `drills/PREFLOP_SQUEEZE_AND_POLAR_TARGET_DRILL_PACK_v0_1.md`;
-- validation workbench: `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_4.md`;
-- Max-EV ranking: `../synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md`.
+- preflop cards: `../ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md`;
+- multiway cards: `anchors/MULTIWAY_ACTION_ORDER_CARDS_v0_1.md`;
+- preflop drills: `drills/PREFLOP_SQUEEZE_AND_POLAR_TARGET_DRILL_PACK_v0_1.md`;
+- multiway drills: `drills/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_DRILL_PACK_v0_1.md`;
+- workbench: `../synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_5.md`;
+- Max-EV: `../synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md`.
 
-## Navigation rule
+## Navigation loop
 
 ```text
 diagnostic
--> update error probability
--> highest-Max-EV gap
--> prerequisite check
--> one mechanism/anchor card
--> contrastive assessment
--> minimal feedback
+-> highest-Max-EV measured gap
+-> prerequisite
+-> one card/mechanism
+-> contrastive question
+-> minimal repair
 -> changed variant
 -> delayed retrieval
 -> field cue
 ```
 
-## Current coverage
+## Coverage
 
 ```text
 candidate mechanisms: 34
-direct original candidate drills: 32
-answer-key-gated direct gaps: 2
-Carrot original assessment families: 74
-Grade 2 feedback repair paths: 10
-Grade 3 feedback repair paths: 10
+direct candidate drills: 33
+answer-key-gated gaps: 1
+Carrot assessment families: 74
 ```
 
-Remaining direct-answer gaps:
+Remaining direct gap:
 
-- `H-W01-006` deep OOP protected-call boundary;
-- `H-R04-007` multiway delayed aggression.
+`H-W01-006 — deep OOP protected-call boundary`
 
-## Active preflop memory system
+## Active memory cards
 
-### A1 Unopened
+### Preflop A1-A5
 
-`position -> core/flex edge`
+Unopened, isolation, facing open, facing 3-bet, squeeze/polar.
 
-### A2 Isolation
+### Multiway M1-M5
 
-`value density -> position -> caller elasticity -> size`
+Role, OPAL ownership, shared defence, bluff support, field clear/delayed aggression.
 
-### A3 Facing open
+## Multiway diagnostic dimensions
 
-`price -> opener zone -> players behind -> position -> line`
-
-### A4 Facing 3-bet
-
-`3-bet width -> value region -> call realisation -> polar target`
-
-### A5 Squeeze/polar
-
-`candidate or invention?`
-
-## Preflop diagnostic dimensions
-
-Score:
-
-- position remap;
-- effective depth/straddle denominator;
-- core versus flex recognition;
-- players-behind penalty;
-- call-branch preservation;
-- value-range-first construction;
-- real better-hand fold target;
-- blocker direction;
+- correct action-order role;
+- source-range distinction;
+- OPAL ownership;
+- player-behind collision;
+- size/range-shape interpretation;
+- bluff backup equity/removal;
+- action filtering;
+- field-clear node rebuild;
+- suppressed aggression identification;
+- fast-play/protect opponent switch;
 - action/reason/confidence.
-
-## Current deployment order
-
-Teach early:
-
-- filtering and ownership;
-- effective depth;
-- preflop source range/core-flex anchors;
-- value-first aggression;
-- bet/response shape;
-- 3-bet/4-bet ancestry;
-- exact-branch exploit discipline.
-
-Build before broad deployment:
-
-- multiway action order;
-- deep OOP exact boundary;
-- room-specific edge bands;
-- population magnitudes.
 
 ## Current next transaction
 
-Build the full multiway action-order and delayed-aggression wave, including the direct `H-R04-007` answer key.
-
-## Progress preservation
-
-The preflop wave extends existing modules. Preserve prior learner state and mark only new anchor branches untested. Do not reset postflop mastery.
-
-## Final-rule policy
-
-`MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
+Build the full deep OOP protected-call and depth/SPR wave, including direct `H-W01-006` drills. Preserve all existing learner progress and mark only the new branch untested.
 
 ## Verdict
 
 `ADAPTIVE_RUNTIME_ACTIVE`
 
-`PREFLOP_FIVE_CARD_MEMORY_SYSTEM_ACTIVE`
+`PREFLOP_AND_MULTIWAY_MEMORY_SYSTEMS_ACTIVE`
 
-`DIRECT_DRILL_COVERAGE_32_OF_34`
+`DIRECT_DRILL_COVERAGE_33_OF_34`
 
-`MULTIWAY_NEXT`
+`DEEP_OOP_NEXT`

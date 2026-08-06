@@ -1,98 +1,59 @@
 # Synthesis System Index
 
-Status: `ACTIVE_AUTHORITY_INDEX / PREFLOP_DIRECTIONAL_WAVE_COMPLETE`
+Status: `ACTIVE / MULTIWAY_DIRECTIONAL_WAVE_COMPLETE`
 
-## Active authorities
+## Current authorities
 
-### Latest milestone
+- latest report: `../reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md`;
+- QA: `../analysis/system-audits/MULTIWAY_ACTION_ORDER_WAVE_QA_v1.md`;
+- evidence map: `MULTIWAY_SOURCE_EVIDENCE_MAP_v0_1.md`;
+- architecture: `MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_ARCHITECTURE_v0_1.md`;
+- machine tree: `MULTIWAY_DECISION_TREE_v0_1.json`;
+- candidate registry: `HEURISTIC_CANDIDATE_REGISTRY_v0_6.md`;
+- evidence questions: `REMAINING_SOURCE_QUESTION_MATRIX_v1_5.md`;
+- workbench: `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_5.md`;
+- priority: `MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md`;
+- provisional containers: `PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_5.md`.
 
-- `../reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md`;
-- `../analysis/system-audits/PREFLOP_ARCHITECTURE_WAVE_QA_v1.md`.
-
-### Strategic inventory
-
-- `HEURISTIC_CANDIDATE_REGISTRY_v0_5.md` - 34-candidate authority;
-- `REMAINING_SOURCE_QUESTION_MATRIX_v1_4.md` - 38 evidence-question authority;
-- `CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_4.md` - ownership and direct-drill authority;
-- `MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md` - current deployment/closure ranking;
-- `PROVISIONAL_FINAL_RULE_SLOT_ARCHITECTURE_v0_4.md` - non-binding synthesis containers.
-
-### Range authorities
-
-- `../ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md`;
-- `../ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json`;
-- `../ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md`;
-- `../ranges/validation/PREFLOP_ANCHOR_VALIDATION_REPORT_v0_1.md`.
-
-### Source evidence
-
-- `CROSS_SOURCE_EVIDENCE_INDEX_v0_2.md`;
-- `CROSS_SOURCE_EVIDENCE_MATRIX_v0_1.md` - historical Smash/FTGU detail;
-- `CASH_INJECTION_EVIDENCE_MATRIX_v0_1.md`;
-- `CARROT_EVIDENCE_MATRIX_v0_5.md`.
-
-## Authority order
-
-1. canonical source record;
-2. source registry/gap ledger;
-3. source evidence and cross-corpus audit;
-4. independent assumptions/range validation;
-5. evidence-question matrix;
-6. candidate registry;
-7. validation workbench;
-8. Max-EV ranking;
-9. provisional containers;
-10. readiness;
-11. learner/field evidence;
-12. Playbook admission.
-
-## Current counts
+## Counts
 
 ```text
-candidate count: 34
+candidates: 34
 DRILL_READY: 28
 VALIDATION_PENDING: 6
-direct candidate drills: 32/34
-answer-key gaps: 2
-stable modules: 11
-provisional containers: 16 non-binding
+direct drills: 33/34
+answer-key gaps: 1
 admitted rules: 0
 ```
 
-## Preflop-wave effect
+## Completed directional lanes
 
-Active:
+1. preflop architecture;
+2. multiway action order and delayed aggression.
 
-- five anchor cards;
-- original RFI/core-flex ranges;
-- squeeze and polar target-fold answer keys;
-- depth/rake/open-size/players-behind/straddle overlays.
+## Active lane
 
-Pending:
+`DEEP OOP PROTECTED-CALL AND EXACT DEPTH/SPR BOUNDARY`
 
-- exact solver edge bands;
-- room-specific field calibration;
-- deep OOP boundary;
-- multiway architecture.
-
-## Current active path
+## Authority order
 
 ```text
-multiway action-order and delayed aggression
--> deep OOP/depth boundaries
--> learner diagnostics
--> field calibration
--> targeted solver calibration
--> final compression
+source record
+-> source evidence
+-> independent architecture/validation
+-> evidence questions
+-> candidate registry
+-> workbench
+-> Max-EV priority
+-> readiness
+-> learner/field evidence
 -> admission
 ```
 
 ## Verdict
 
-`PREFLOP_DIRECTIONAL_ARCHITECTURE_ACTIVE`
+`MULTIWAY_DIRECTIONAL_ARCHITECTURE_ACTIVE`
 
-`DIRECT_COVERAGE_32_OF_34`
+`H_R04_007_DIRECT_GAP_CLOSED`
 
-`MULTIWAY_NEXT`
-
-`NO_ADMISSION_PROMOTION`
+`DEEP_OOP_NEXT`

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "artifact_id": "MULTIWAY_DECISION_TREE_v0_1",
+  "status": "ACTIVE_DIRECTIONAL_NOT_EXACT_SOLVER_OUTPUT",
+  "entry_sequence": [
+    "source_ranges",
+    "nut_premium_ownership",
+    "action_order_role",
+    "shared_defence",
+    "player_behind_gate",
+    "bet_size_shape",
+    "response_geography",
+    "action_filter",
+    "field_clear_transition",
+    "delayed_range_expression",
+    "call_call_filter",
+    "fast_play_or_protect"
+  ],
+  "roles": {
+    "R1_opening_actor": {
+      "collision_risk": "multiple live ranges behind",
+      "default": "check more than initiative intuition when ownership or position is poor",
+      "special_branch": "reopen after bet-call with filtered information"
+    },
+    "R2_middle_sandwich": {
+      "collision_risk": "highest",
+      "default": "tighten calls and raises; require resilience and backup equity",
+      "question": "who can wake up behind"
+    },
+    "R3_closing_actor": {
+      "collision_risk": "no unseen active range behind for current action",
+      "default": "defend and raise more freely than middle actor after prior actions are observed",
+      "question": "what did earlier actions remove"
+    },
+    "R4_reopener": {
+      "collision_risk": "filtered rather than unseen",
+      "default": "use value/protection-led linear raises when bettor is wide and caller capped",
+      "question": "what do bet and call say about both ranges"
+    },
+    "R5_survivor_after_clear": {
+      "collision_risk": "heads-up now but multiway-filtered",
+      "default": "rebuild the node; recover only aggression suppressed by the former player behind",
+      "question": "which flop action was blocked and why is it available now"
+    }
+  },
+  "ownership_audit": {
+    "mnemonic": "OPAL",
+    "dimensions": {
+      "O": "offsuit nut combinations",
+      "P": "premiums retained or removed preflop",
+      "A": "action order and position",
+      "L": "low-card and suited coverage"
+    },
+    "anti_rule": "preflop initiative alone does not establish nut ownership"
+  },
+  "shared_defence": {
+    "principle": "defence burden is distributed across active ranges",
+    "directional_order": [
+      "heads_up_or_closing_action",
+      "multiway_closing_action",
+      "middle_with_capped_player_behind",
+      "middle_with_uncapped_player_behind"
+    ],
+    "exceptions": [
+      "player_behind_nearly_certain_to_fold",
+      "player_behind_demonstrably_capped_and_passive",
+      "player_behind_all_in_for_negligible_side_amount",
+      "player_behind_cannot_raise"
+    ],
+    "exact_frequency_claim": false
+  },
+  "player_behind_gate": [
+    "can_player_behind_contain_nutted_value",
+    "can_player_behind_raise_after_hero_calls",
+    "does_hero_survive_call_plus_later_aggression",
+    "does_hero_block_range_behind_or_only_bettor",
+    "does_continue_create_reverse_implied_odds"
+  ],
+  "bet_shapes": {
+    "tiny_small": {
+      "functions": ["field_clear", "thin_value_protection", "cheap_bluff", "condensed_stab"],
+      "audit": ["who_overfolds", "who_should_raise_but_will_not"],
+      "anti_rule": "tiny does not automatically mean weak"
+    },
+    "medium": {
+      "functions": ["one_size_simplification", "merged_value_and_supported_bluffs"],
+      "condition": "preserve strategic purpose and response plan"
+    },
+    "large_polar": {
+      "functions": ["narrow_field", "polar_value_and_bluffs"],
+      "response": "more folds, fewer merged raises, stronger continues"
+    }
+  },
+  "response_geography": {
+    "call": ["robust_showdown", "nutted_improvement", "later_action_resilience"],
+    "raise_inputs": ["bet_range_shape", "relative_polarisation", "player_behind_risk", "closing_action_status"],
+    "fold_first": ["fragile_bluff_catchers", "dominated_top_pairs", "poor_nut_potential_draws", "collision_intolerant_bluff_raises"]
+  },
+  "bluff_support_tiers": {
+    "A": ["strong_draw_plus_removal", "pair_plus_draw", "nutted_improvement_plus_future_barrels", "block_continues_unblock_folds"],
+    "B": ["overcards_plus_backdoors", "gutter_plus_blocker", "low_card_or_pair_vs_filtered_call_call", "thin_protection_plus_improvement"],
+    "C_exploit_only": ["low_equity_air_at_minimum_price_vs_observed_overfold_and_under_raise", "precise_later_street_removal_bluff"],
+    "reject": ["random_heads_up_air", "blocks_folds_unblocks_calls", "clears_only_first_range", "no_plan_when_one_opponent_continues"]
+  },
+  "field_clear_gate": {
+    "required_inputs": ["original_ranges", "middle_role", "bet_size", "who_folded", "survivor_action", "suppressed_aggression"],
+    "anti_rule": "do not load a generic heads-up strategy after one player folds"
+  },
+  "delayed_aggression_gate": {
+    "requirements": [
+      "specific_flop_aggression_was_suppressed",
+      "blocking_player_has_folded_or_lost_raise_rights",
+      "surviving_range_contains_value",
+      "bluffs_have_equity_removal_or_filtered_targets",
+      "turn_does_not_restore_opponent",
+      "size_matches_new_range_shape"
+    ],
+    "anti_rule": "turn helps my range is not sufficient"
+  },
+  "call_call_barrel_audit": [
+    "define_value_region",
+    "reconstruct_both_call_ranges",
+    "identify_surviving_folds",
+    "block_continues_without_blocking_folds",
+    "assign_future_river_job"
+  ],
+  "fast_play_gate": {
+    "protect_more_when": ["credible_future_aggressor", "robust_hand", "passive_branch_needs_strength", "checking_retains_air"],
+    "fast_play_more_when": ["closing_player_under_raises", "ip_checks_back_too_much", "population_under_barrels", "hand_vulnerable", "free_cards_costly"],
+    "magnitude": "field_gated"
+  },
+  "validation": {
+    "directional_source_support": "passed",
+    "cross_source_confirmation": "passed",
+    "direct_drill_answer_key": "supported",
+    "exact_solver_frequencies": "pending",
+    "batumi_field_magnitude": "pending",
+    "final_admission": false
+  }
+}

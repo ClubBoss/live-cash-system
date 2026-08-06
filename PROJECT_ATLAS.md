@@ -1,6 +1,6 @@
 # Live Cash System - Project Atlas
 
-Status: `ACTIVE / POST_SOURCE / PREFLOP_DIRECTIONAL_ARCHITECTURE_ACTIVE`
+Status: `ACTIVE / PREFLOP_AND_MULTIWAY_DIRECTIONAL_ARCHITECTURE_ACTIVE`
 
 ## Fast navigation
 
@@ -8,17 +8,19 @@ Status: `ACTIVE / POST_SOURCE / PREFLOP_DIRECTIONAL_ARCHITECTURE_ACTIVE`
 |---|---|
 | New chat | `START_HERE.md`, then `AGENTS.md` |
 | Machine state | `state/CURRENT_PROJECT_STATE.yaml` |
-| Latest milestone | `reports/PREFLOP_ARCHITECTURE_WAVE_TERMINAL_REPORT_v1.md` |
-| Target assumptions | `ranges/assumptions/BATUMI_LIVE_PREFLOP_ASSUMPTIONS_v1.md` |
-| Machine range library | `ranges/independent/PREFLOP_ANCHOR_LIBRARY_v0_1.json` |
-| Table-facing anchors | `ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md` |
-| Anchor validation | `ranges/validation/PREFLOP_ANCHOR_VALIDATION_REPORT_v0_1.md` |
-| Preflop drills | `learning/drills/PREFLOP_SQUEEZE_AND_POLAR_TARGET_DRILL_PACK_v0_1.md` |
-| Candidate statuses | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_5.md` |
-| Evidence questions | `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_4.md` |
-| Validation workbench | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_4.md` |
-| Max-EV priority | `synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_2.md` |
-| Readiness | `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_9.md` |
+| Latest report | `reports/MULTIWAY_ACTION_ORDER_WAVE_TERMINAL_REPORT_v1.md` |
+| Preflop anchors | `ranges/anchors/LIVE_CASH_PREFLOP_ANCHORS_v0_1.md` |
+| Multiway evidence | `synthesis/MULTIWAY_SOURCE_EVIDENCE_MAP_v0_1.md` |
+| Multiway architecture | `synthesis/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_ARCHITECTURE_v0_1.md` |
+| Multiway machine tree | `synthesis/MULTIWAY_DECISION_TREE_v0_1.json` |
+| Multiway learner cards | `learning/anchors/MULTIWAY_ACTION_ORDER_CARDS_v0_1.md` |
+| Multiway drills | `learning/drills/MULTIWAY_ACTION_ORDER_AND_DELAYED_AGGRESSION_DRILL_PACK_v0_1.md` |
+| Field calibration | `fieldwork/batumi/MULTIWAY_FIELD_CALIBRATION_CARD_v0_1.md` |
+| Candidate registry | `synthesis/HEURISTIC_CANDIDATE_REGISTRY_v0_6.md` |
+| Evidence questions | `synthesis/REMAINING_SOURCE_QUESTION_MATRIX_v1_5.md` |
+| Workbench | `synthesis/CANDIDATE_TO_MODULE_VALIDATION_WORKBENCH_v0_5.md` |
+| Max-EV priority | `synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_3.md` |
+| Readiness | `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_10.md` |
 
 ## Whole-system map
 
@@ -47,80 +49,71 @@ population magnitudes field-gated
 ## Strategic inventory
 
 ```text
-34 heuristic candidates
+34 candidates
 28 DRILL_READY
 6 VALIDATION_PENDING
-0 FIELD_TEST_PENDING
 0 ADMITTED
-32/34 direct candidate drills
+33/34 direct candidate drills
 16 non-binding synthesis containers
 ```
 
-## Range layer
+## Directional memory systems
 
-Current active preflop architecture:
+### Preflop A1-A5
 
-```text
-A1 unopened pot
-A2 limped pot / isolation
-A3 facing open
-A4 facing 3-bet
-A5 squeeze / polar target
-```
+- unopened;
+- isolation;
+- facing open;
+- facing 3-bet;
+- squeeze/polar.
 
-Overlay dimensions:
+### Multiway M1-M5
 
-- open size;
-- rake tier;
-- effective depth;
-- players behind;
-- opener zone;
-- position/realisation;
-- straddle denominator.
+- role;
+- OPAL ownership;
+- shared defence;
+- bluff support;
+- field clear/delayed aggression.
 
-The v0.1 ranges are directional anchors, not exact equilibrium charts.
+## Adaptive module atlas
 
-## Adaptive modules
+| Module | Current state |
+|---|---|
+| `LCM-01` depth | core ready; exact deep boundaries pending |
+| `LCM-02` preflop | ready directional |
+| `LCM-03` blind/OOP realisation | source anchors active; deep boundary next |
+| `LCM-04` filtering | ready |
+| `LCM-05` bet/response | ready core; deep refinement pending |
+| `LCM-06` aggression | ready core; delayed branch active |
+| `LCM-07` 3-bet/4-bet | ready directional |
+| `LCM-08` multiway | ready directional; exact frequencies/field pending |
+| `LCM-09` river | ready mechanism |
+| `LCM-10` opponent evidence | methodology ready; field pending |
+| `LCM-11` transfer/repair | runtime ready; 33 direct drills + 74 assessments |
 
-| ID | Purpose | Current state |
-|---|---|---|
-| `LCM-01` | node/depth | core ready; structural bands active; exact thresholds pending |
-| `LCM-02` | preflop architecture | ready directionally; five anchor cards active |
-| `LCM-03` | blind identity/realisation | directional anchors active; deep OOP boundary pending |
-| `LCM-04` | filtering/ownership | ready |
-| `LCM-05` | bet/response shape | ready core |
-| `LCM-06` | aggression/future jobs | ready core |
-| `LCM-07` | 3-bet/4-bet ancestry | directional preflop + strong postflop active |
-| `LCM-08` | multiway | next build lane; boundaries partial |
-| `LCM-09` | river audit | ready mechanism |
-| `LCM-10` | opponent/environment | methodology ready; field pending |
-| `LCM-11` | transfer/repair | runtime ready; 32 direct drills + 74 assessments |
+## Current Max-EV order
 
-## Max-EV closure order
-
-1. multiway action order and delayed aggression;
-2. deep OOP and exact depth/SPR boundaries;
-3. learner diagnostics;
-4. target-live field calibration;
-5. targeted preflop solver calibration;
-6. final compression and admission.
+1. deep OOP protected-call and exact depth/SPR boundary;
+2. learner diagnostics;
+3. target-live field calibration;
+4. targeted solver/visual calibration;
+5. final compression and admission.
 
 ## Product purity
 
-- source charts remain internal reference;
-- product-facing ranges are independently constructed;
-- exact mixes are not fabricated;
-- public room data defines assumptions, not population strategy;
-- final compression has no numeric target.
+- proprietary charts remain private reference;
+- learner examples and drills are original;
+- directional mechanisms are separated from exact frequencies;
+- public room data never becomes population strategy;
+- final compression has no numerical target.
 
 ## Active path
 
 ```text
-multiway action-order and delayed-aggression closure
--> deep OOP boundary
+deep OOP boundary
 -> learner diagnostics
--> field calibration
--> targeted solver calibration
+-> Batumi field calibration
+-> targeted solver/visual review
 -> final compression
 -> admission
 ```
@@ -129,8 +122,8 @@ multiway action-order and delayed-aggression closure
 
 `ONE_REPOSITORY / ONE_ADAPTIVE_CURRICULUM`
 
-`PREFLOP_DIRECTIONAL_ARCHITECTURE_ACTIVE`
+`PREFLOP_AND_MULTIWAY_DIRECTIONAL_WAVES_COMPLETE`
 
-`MULTIWAY_NEXT`
+`DEEP_OOP_NEXT`
 
 `FINAL_RULE_COUNT_EMERGENT_NOT_FIXED`
