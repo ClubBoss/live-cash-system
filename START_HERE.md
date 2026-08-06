@@ -1,10 +1,12 @@
 # Live Cash System — Start Here
 
-Status: `ACTIVE / LIVE_CASH_OS_REPO_ACCEPTED / CHATGPT_SITE_DEPLOY_PENDING`
+Status: `ACTIVE / LIVE_V1_ACCEPTED / BILINGUAL_V1_1_RELEASE_CANDIDATE`
 
 ## Bootstrap
 
-Use live `main` of `ClubBoss/live-cash-system`.
+Use live `main` of `ClubBoss/live-cash-system` for production truth. For the active bilingual wave, use branch:
+
+`agent/live-cash-os-bilingual-copy-pass`
 
 Read:
 
@@ -14,7 +16,8 @@ Read:
 4. `PROJECT_ATLAS.md`;
 5. `apps/live-cash-os/README.md`;
 6. `apps/live-cash-os/RELEASE_STATUS.md`;
-7. only authorities required for the active milestone.
+7. `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
+8. only authorities required for the active milestone.
 
 Repository state overrides chat memory. Do not restart source ingestion or diagnosis.
 
@@ -37,9 +40,9 @@ misconception IDs: 30
 learner-state dimensions: 9
 ```
 
-The application’s learner-runtime admission does **not** convert any candidate into an admitted final strategic rule.
+Learner-runtime admission does **not** convert any candidate into an admitted final strategic rule.
 
-## Live Cash OS
+## Accepted production
 
 Stable URL:
 
@@ -49,48 +52,68 @@ Deploy source:
 
 `apps/live-cash-os`
 
-Accepted six-wave source SHA:
+Production facts:
 
-`ba927405642a7aa7238c06db4348ef5b02921fdf`
-
-PR `#2` is squash-merged. Pre-merge and post-merge CI are green, including typecheck, lint, unit/content tests, production build and desktop/mobile browser gates.
-
-**Deployment truth:** the existing ChatGPT Site project was explicitly republished from the current `main` application tree. Owner-authenticated Chromium smoke confirmed HTTP `200`, Russian runtime markers, reachable CTAs and zero mobile horizontal overflow at the stable URL. Historical smoke run `31116142028` remains evidence that merge alone did not publish the Site.
-
-Runtime authorities:
-
-- `apps/live-cash-os/README.md`;
-- `apps/live-cash-os/RELEASE_STATUS.md`;
-- `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
-- `apps/live-cash-os/lib/model.ts`;
-- `apps/live-cash-os/content/modules.ts`;
-- `apps/live-cash-os/.openai/hosting.json`;
-- `apps/live-cash-os/scripts/production-smoke.mjs`.
-
-Current source runtime contract:
-
-- Russian-first learner language;
-- 11 structured modules;
-- one cold check inside each lesson;
-- theory, heuristics, decision tree, worked example and lab;
-- changed-node practice and explain-back;
-- skill-specific repair and delayed review;
-- 33 scheduled flashcards;
-- nine separate learner dimensions;
-- reviewed field-note lifecycle;
-- local state plus optional D1 sync;
-- stable URL preserved.
-
-Content truth:
-
+- app `1.0.0`;
+- learner-state schema `2`;
+- content graph `2026.08-wave6`;
+- hosting project `appgprj_6a74674839c88191877199e34e21fc2c`;
+- D1 binding `DB`;
+- PR `#2` squash-merged;
+- repository CI green before and after merge;
+- owner-authenticated desktop/mobile live smoke green;
 - `LCM-01` is the gold accepted teaching module;
-- `LCM-02–LCM-11` are migrated and remain `VALIDATION_PENDING` for the repeat content audit.
+- `LCM-02–LCM-11` remain content-validation pending.
+
+The current accepted site remains valid while v1.1 is developed separately.
+
+## Active bilingual release
+
+Branch:
+
+`agent/live-cash-os-bilingual-copy-pass`
+
+Target app:
+
+`1.1.0`
+
+Required architecture:
+
+```text
+one canonical poker graph and stable IDs
+→ extracted source catalogue
+→ reviewed RU and EN copy layers
+→ one runtime
+→ one learner state
+```
+
+The language switch must:
+
+- show a persistent `RU / EN` pill;
+- change the whole learner-facing interface and curriculum copy;
+- update the document language;
+- survive reload;
+- preserve the current lesson, answer IDs, review queue and evidence;
+- never create a second learner profile.
+
+Translation governance:
+
+- source changes are extracted automatically;
+- unchanged reviewed translations are preserved;
+- changed or new strings become `DRAFT`;
+- production rejects missing, orphaned, stale and draft entries;
+- machine translation is a drafting aid, not publication authority;
+- standard poker terms may remain conventional where literal translation would be worse.
 
 ## Diagnostic runtime
 
 T1 is optional personalization, not a mandatory wall.
 
-It is a `COLD_BASELINE` only before any learning exposure. After learning begins, export must be labeled `POST_LEARNING_DIAGNOSTIC`.
+- Before learning exposure: `COLD_BASELINE`.
+- After learning begins: `POST_LEARNING_DIAGNOSTIC`.
+- RU and EN preserve the same ten diagnostic IDs.
+- Locale is included in the raw handoff.
+- Free text is never keyword-scored as strategy.
 
 Active authorities:
 
@@ -101,33 +124,43 @@ Active authorities:
 - `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`;
 - `scripts/score_learner_diagnostic.py`.
 
-Current truth:
+Current learner truth:
 
 ```text
 T1 items: 10
 responses recorded: 0
 measured error probability: no
 confirmed strategic leaks: 0
+real delayed-recall evidence: 0
+reviewed field evidence: 0
 ```
 
 ## Active milestone
 
-`REPUBLISH EXISTING CHATGPT SITE PROJECT FROM CURRENT MAIN`
+`COMPLETE BILINGUAL COPY AND LOCALE RELEASE WAVE`
 
 Required order:
 
-1. explicitly publish the existing Site project from current `main`;
-2. preserve the same stable URL and learner-state migration;
-3. manually run `Live Cash OS Production Smoke`;
-4. require Russian desktop/mobile live smoke green;
-5. then start the first real LCM-01 session;
-6. collect delayed and field evidence;
-7. run the requested repeat audit.
+1. keep accepted v1.0 live and untouched;
+2. close stale SSOT contradictions;
+3. materialize the single-graph locale runtime;
+4. rewrite Russian UI in natural poker language;
+5. complete the independent English version;
+6. pass locale parity and stale-translation gates;
+7. pass typecheck, lint, build, unit/content and RU/EN browser gates;
+8. merge through a reviewed PR;
+9. republish the existing Site project without changing URL or D1;
+10. run authenticated desktop/mobile smoke in both languages;
+11. only then update production truth to v1.1;
+12. begin the first real learner session and repeat content audit.
 
 ## Frozen constraints
 
 Do not:
 
+- maintain two copies of poker logic or answer keys;
+- publish machine-generated draft copy;
+- let language switching reset learner state;
 - call repo-green live-green;
 - reveal T1 answer keys before completion;
 - infer mastery from untested modules;
@@ -138,14 +171,14 @@ Do not:
 - copy proprietary source hands or charts;
 - turn directional bands into solver cutoffs;
 - treat learner-runtime admission as final-rule admission;
-- change the stable live URL.
+- change the stable live URL, hosting project or D1 binding.
 
 ## Verdict
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`SIX_WAVE_SOURCE_MERGED_AND_GREEN`
+`V1_0_ACCEPTED_LIVE`
 
-`LIVE_SMOKE_GREEN`
+`V1_1_BILINGUAL_RELEASE_CANDIDATE_IN_PROGRESS`
 
-`NEXT = BEGIN LCM-01 OR OPTIONAL PRE-EXPOSURE T1`
+`NEXT = LOCALE PARITY → CI → PR → SAME-SITE DEPLOY → RU_EN_LIVE_SMOKE`
