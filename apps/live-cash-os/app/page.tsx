@@ -1,5 +1,5 @@
-import LiveCashApp from "../components/LiveCashApp";
+import LiveCashAppV11 from "../components/LiveCashAppV11";
 
 export default function Home() {
-  return <LiveCashApp />;
+  return <LiveCashAppV11 />;
 }
