@@ -38,9 +38,10 @@ one semantic content graph
 Future workflow:
 
 ```bash
-npm run i18n:extract   # refresh stable keys after content changes
-npm run i18n:sync      # preserve current translations and draft changed strings
-npm run i18n:check     # fail on missing, stale, draft or mismatched locale copy
+npm run i18n:extract       # refresh stable keys after content changes
+npm run i18n:source-check  # fail if the extracted catalogue is stale
+npm run i18n:sync          # preserve reviewed copy and draft only changed strings
+npm run i18n:check         # fail on missing, stale, draft or mismatched locale copy
 ```
 
 Machine translation is a drafting aid, not publication authority. Poker-language review remains required before entries become `REVIEWED`.
@@ -134,14 +135,16 @@ raw learner responses
 
 - Before the first lesson, T1 may be labelled `COLD_BASELINE`.
 - After learning begins, it is labelled `POST_LEARNING_DIAGNOSTIC`.
-- Locale is exported with the raw response record.
+- The raw v0.2 record stores the current interface locale and, when T1 is switched mid-run, the locale of each response.
 - The client does not keyword-score strategic free text or expose answer keys.
 
 Authorities:
 
-- `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json`
+- `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json`
 - `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`
 - `scripts/score_learner_diagnostic.py`
+
+`DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json` remains available only for old exports.
 
 ## Local development
 
@@ -157,6 +160,7 @@ npm run dev
 ```bash
 npm run typecheck
 npm run lint
+npm run i18n:source-check
 npm run i18n:check
 npm run build
 npm run test:unit
