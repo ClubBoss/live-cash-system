@@ -5,6 +5,7 @@ export type DiagnosticScoreOutput = {
   scorer_version: string;
   learner_id: "current_learner";
   tranche_id: "T1";
+  run_id: string;
   measurement_context: MeasurementContext;
   locale_at_start: "ru" | "en";
   submitted_at: string;
@@ -29,6 +30,7 @@ const LCM_TO_MODULE: Record<string, ModuleId> = {
   "LCM-11": "transfer",
 };
 const T1_IDS = new Set(Array.from({ length: 10 }, (_, index) => `LD-${String(index + 1).padStart(3, "0")}`));
+const CANONICAL_MC = new Set(Array.from({ length: 30 }, (_, index) => `MC-${String(index + 1).padStart(3, "0")}`));
 const CONTEXTS = new Set<MeasurementContext>([
   "COLD_BASELINE",
   "POST_LEARNING_DIAGNOSTIC",
@@ -45,9 +47,10 @@ function finite(value: unknown): value is number {
 export function parseDiagnosticScore(value: unknown): DiagnosticScoreOutput {
   if (!isRecord(value)) throw new Error("Scorer output must be a JSON object.");
   if (value.schema_version !== "score-0.2") throw new Error("Unsupported scorer schema. Expected score-0.2.");
-  if (typeof value.scorer_version !== "string" || !value.scorer_version.trim()) throw new Error("Missing scorer version.");
+  if (typeof value.scorer_version !== "string" || !/^0\.2\./u.test(value.scorer_version)) throw new Error("Unsupported or missing scorer version.");
   if (value.learner_id !== "current_learner") throw new Error("The scorer result belongs to another learner.");
   if (value.tranche_id !== "T1") throw new Error("Only a complete T1 scorer result can be imported here.");
+  if (typeof value.run_id !== "string" || !/^t1-[A-Za-z0-9-]+$/u.test(value.run_id)) throw new Error("Invalid diagnostic run identity.");
   if (!CONTEXTS.has(value.measurement_context as MeasurementContext)) throw new Error("Invalid diagnostic measurement context.");
   if (value.locale_at_start !== "ru" && value.locale_at_start !== "en") throw new Error("Invalid diagnostic start locale.");
   if (typeof value.submitted_at !== "string" || Number.isNaN(Date.parse(value.submitted_at))) throw new Error("Invalid diagnostic submission timestamp.");
@@ -67,10 +70,11 @@ export function parseDiagnosticScore(value: unknown): DiagnosticScoreOutput {
   if (seen.size !== T1_IDS.size || [...T1_IDS].some((item) => !seen.has(item))) throw new Error("Scorer output does not cover exactly LD-001 through LD-010.");
 
   for (const [misconceptionId, unknownRow] of Object.entries(value.misconception_evidence)) {
-    if (!/^MC-\d{3}$/u.test(misconceptionId) || !isRecord(unknownRow)) throw new Error(`Invalid misconception row: ${misconceptionId}`);
+    if (!CANONICAL_MC.has(misconceptionId) || !isRecord(unknownRow)) throw new Error(`Invalid misconception row: ${misconceptionId}`);
     if (!finite(unknownRow.observations) || unknownRow.observations < 0 || !finite(unknownRow.high_confidence) || unknownRow.high_confidence < 0 || !Array.isArray(unknownRow.items)) throw new Error(`Invalid misconception evidence: ${misconceptionId}`);
+    if (!unknownRow.items.every((item) => typeof item === "string" && T1_IDS.has(item))) throw new Error(`Invalid misconception item list: ${misconceptionId}`);
   }
-  if (!value.tentative_priority_order.every((item) => typeof item === "string")) throw new Error("Invalid candidate priority order.");
+  if (!value.tentative_priority_order.every((item) => typeof item === "string" && /^H-[A-Z0-9-]+$/u.test(item))) throw new Error("Invalid candidate priority order.");
   return value as DiagnosticScoreOutput;
 }
 
