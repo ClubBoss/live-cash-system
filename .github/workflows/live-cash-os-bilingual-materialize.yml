@@ -8,12 +8,14 @@ on:
       - ".github/workflows/live-cash-os-bilingual-materialize.yml"
       - "apps/live-cash-os/scripts/apply-bilingual-runtime.mjs"
       - "apps/live-cash-os/scripts/postprocess-bilingual-runtime.mjs"
+      - "apps/live-cash-os/scripts/add-learning-route.mjs"
       - "apps/live-cash-os/scripts/prepare-bilingual-version.mjs"
       - "apps/live-cash-os/scripts/i18n-extract.mjs"
       - "apps/live-cash-os/scripts/i18n-sync.mjs"
       - "apps/live-cash-os/scripts/i18n-curated-overrides.mjs"
       - "apps/live-cash-os/scripts/i18n-review-current.mjs"
       - "apps/live-cash-os/scripts/i18n-check.mjs"
+      - "apps/live-cash-os/content/i18n/route.ts"
   push:
     branches:
       - agent/live-cash-os-bilingual-copy-pass
@@ -21,12 +23,14 @@ on:
       - ".github/workflows/live-cash-os-bilingual-materialize.yml"
       - "apps/live-cash-os/scripts/apply-bilingual-runtime.mjs"
       - "apps/live-cash-os/scripts/postprocess-bilingual-runtime.mjs"
+      - "apps/live-cash-os/scripts/add-learning-route.mjs"
       - "apps/live-cash-os/scripts/prepare-bilingual-version.mjs"
       - "apps/live-cash-os/scripts/i18n-extract.mjs"
       - "apps/live-cash-os/scripts/i18n-sync.mjs"
       - "apps/live-cash-os/scripts/i18n-curated-overrides.mjs"
       - "apps/live-cash-os/scripts/i18n-review-current.mjs"
       - "apps/live-cash-os/scripts/i18n-check.mjs"
+      - "apps/live-cash-os/content/i18n/route.ts"
 
 permissions:
   contents: write
@@ -58,6 +62,9 @@ jobs:
       - name: Postprocess locale-stable runtime
         working-directory: work/apps/live-cash-os
         run: node scripts/postprocess-bilingual-runtime.mjs
+      - name: Add explicit learner route
+        working-directory: work/apps/live-cash-os
+        run: node scripts/add-learning-route.mjs
       - name: Extract stable learner-copy keys
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-extract.mjs
