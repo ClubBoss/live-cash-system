@@ -23,8 +23,13 @@ async function verifyHomeLocale(page, locale) {
   const isRussian = locale === "ru";
   const heading = isRussian ? /Учись коротко/i : /Learn in small pieces/i;
   const t1 = isRussian ? /T1 — дополнительная диагностика без подсказок/i : /T1 — optional cold diagnostic/i;
+  const routeHeading = isRussian ? /Что означает путь 0.*100%/i : /What the 0.*100% route means/i;
   await page.getByRole("heading", { name: heading }).waitFor({ timeout: 20_000 });
   await page.getByText(t1).waitFor({ timeout: 10_000 });
+  await page.getByRole("heading", { name: routeHeading }).waitFor({ timeout: 10_000 });
+  if (await page.locator(".route-grid article").count() !== 9) throw new Error(`${locale} learner route does not contain nine evidence stages`);
+  const routeText = await page.locator(".route-grid").innerText();
+  if (!routeText.includes("0%") || !routeText.includes("100%")) throw new Error(`${locale} learner route endpoints are missing`);
   const selected = isRussian ? "RU" : "EN";
   const toggle = page.getByRole("button", { name: selected });
   if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${selected} toggle is not active`);
@@ -92,7 +97,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       http_status: response?.status(),
       title: "Live Cash OS",
       locales: ["ru", "en"],
-      verified_routes: ["home", "LCM-01 cold decision"],
+      verified_routes: ["home", "explicit 0-to-100 learner route", "LCM-01 cold decision"],
       locale_switch_preserves_active_session: true,
       locale_persists_reload: true,
       mobile_viewport: "390x844",
