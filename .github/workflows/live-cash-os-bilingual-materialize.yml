@@ -43,6 +43,9 @@ jobs:
       - name: Refresh translation memory drafts
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-sync.mjs
+      - name: Apply curated gold-module copy
+        working-directory: work/apps/live-cash-os
+        run: node scripts/i18n-curated-overrides.mjs
       - name: Apply semantic editorial review gate
         working-directory: work/apps/live-cash-os
         run: node scripts/i18n-review-current.mjs
