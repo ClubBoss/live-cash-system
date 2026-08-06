@@ -36,14 +36,53 @@ jobs:
           node-version: 22.13.0
           cache: npm
           cache-dependency-path: apps/live-cash-os/package-lock.json
+
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Typecheck, lint, unit and build
-        run: npm test
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        id: typecheck
+        continue-on-error: true
+        run: npm run typecheck
+
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Editorial integrity
+        id: editorial
+        continue-on-error: true
+        run: npm run check:editorial
+
+      - name: Unit tests
+        id: unit
+        continue-on-error: true
+        run: npm run test:unit
+
+      - name: Build
+        id: build
+        continue-on-error: true
+        run: npm run build
+
+      - name: Core gate verdict
+        if: always()
+        run: |
+          if [[ "${{ steps.typecheck.outcome }}" != "success" \
+            || "${{ steps.lint.outcome }}" != "success" \
+            || "${{ steps.editorial.outcome }}" != "success" \
+            || "${{ steps.unit.outcome }}" != "success" \
+            || "${{ steps.build.outcome }}" != "success" ]]; then
+            echo "One or more core gates failed. Review the individual steps above."
+            exit 1
+          fi
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+
       - name: Desktop and mobile browser gates
         run: npm run test:e2e
+
       - name: Upload browser evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
