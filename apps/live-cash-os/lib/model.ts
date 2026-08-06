@@ -111,6 +111,7 @@ const nowIso = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 const clone = <T>(value: T): T => structuredClone(value);
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
 export function emptyEvidenceCell(): EvidenceCell { return { exposures: 0, successes: 0, distinctNodes: [], lastAt: null }; }
 export function emptyModuleProgress(): ModuleProgress {
@@ -173,7 +174,8 @@ export function deriveModuleState(progress: ModuleProgress): ModuleState {
   const variant = progress.evidence.variant_transfer;
   const retention = progress.evidence.retention;
   const field = progress.evidence.field_transfer;
-  if (field.successes >= 1) return "FIELD_VALIDATED";
+  const fieldValidated = field.successes >= 2 && field.distinctNodes.length >= 2 && retention.successes >= 1 && variant.successes >= 1;
+  if (fieldValidated) return "FIELD_VALIDATED";
   if (retention.successes >= 1 && variant.successes >= 2 && boundary.successes >= 1) return "FIELD_TEST_PENDING";
   if (retention.successes >= 1 && variant.successes >= 1) return "RETAINED";
   if (action.successes >= 2 && mechanism.successes >= 2 && new Set([...action.distinctNodes, ...mechanism.distinctNodes]).size >= 2) return "WORKING";
@@ -211,6 +213,7 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   else if (both && input.mode !== "lesson") progress.highConfidenceError = false;
   next.interactions.push({ id: interactionId, at, moduleId: input.moduleId, drillId: input.drillId, nodeKey: input.nodeKey, mode: input.mode, actionOk: input.actionOk, reasonOk: input.reasonOk, responseClass, confidence: input.confidence, elapsedSeconds: input.elapsedSeconds });
   next.interactions = next.interactions.slice(-500);
+
   if (input.mode === "review") {
     const due = next.reviewQueue.find((item) => item.moduleId === input.moduleId && item.variantGroup === input.variantGroup && item.kind === "retention" && Date.parse(item.dueAt) <= Date.now());
     if (due) {
@@ -218,7 +221,19 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
       if (both) next.reviewQueue = next.reviewQueue.filter((item) => item.id !== due.id);
       else due.dueAt = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
     }
-  } else queueReview(next, input, interactionId, both);
+  } else if (input.mode === "repair") {
+    const due = next.reviewQueue.find((item) => item.moduleId === input.moduleId && item.variantGroup === input.variantGroup && item.kind === "repair" && Date.parse(item.dueAt) <= Date.now());
+    if (due) {
+      due.attempts += 1;
+      if (both) next.reviewQueue = next.reviewQueue.filter((item) => item.id !== due.id);
+      else due.dueAt = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+    }
+    if (both) queueReview(next, input, interactionId, true);
+    else if (!due) queueReview(next, input, interactionId, false);
+  } else {
+    queueReview(next, input, interactionId, both);
+  }
+
   progress.state = deriveModuleState(progress);
   return touch(next);
 }
@@ -281,7 +296,7 @@ export function addFieldNote(state: LearnerState, input: Omit<FieldNote, "id" | 
 export function reviewFieldNote(state: LearnerState, noteId: string, status: FieldNote["status"], evaluatorNote: string): LearnerState {
   const next = clone(state);
   const note = next.fieldNotes.find((item) => item.id === noteId);
-  if (!note) return state;
+  if (!note || note.status !== "PENDING_REVIEW") return state;
   note.status = status;
   note.evaluatorNote = evaluatorNote.trim();
   if (status === "REVIEWED_VALID" && note.cueBeforeAction) {
@@ -289,7 +304,10 @@ export function reviewFieldNote(state: LearnerState, noteId: string, status: Fie
     addEvidence(progress.evidence.field_transfer, true, `field:${note.id}`, nowIso());
     progress.state = deriveModuleState(progress);
   }
-  if (status === "REVIEWED_REPAIR") next.reviewQueue.push({ id: id("review"), moduleId: note.moduleId, sourceDrillId: `field:${note.id}`, variantGroup: `field-${note.moduleId}`, kind: "repair", dueAt: nowIso(), attempts: 0, sourceInteractionId: note.id });
+  if (status === "REVIEWED_REPAIR") {
+    const exists = next.reviewQueue.some((item) => item.sourceDrillId === `field:${note.id}` && item.kind === "repair");
+    if (!exists) next.reviewQueue.push({ id: id("review"), moduleId: note.moduleId, sourceDrillId: `field:${note.id}`, variantGroup: `field-${note.moduleId}`, kind: "repair", dueAt: nowIso(), attempts: 0, sourceInteractionId: note.id });
+  }
   return touch(next);
 }
 export function mergeLearnerStates(local: LearnerState, remote: LearnerState | null): LearnerState {
@@ -299,11 +317,37 @@ export function mergeLearnerStates(local: LearnerState, remote: LearnerState | n
   if (localTime !== remoteTime) return localTime > remoteTime ? local : remote;
   return local.revision >= remote.revision ? local : remote;
 }
+
+function validEvidenceCell(value: unknown): value is EvidenceCell {
+  if (!isRecord(value)) return false;
+  return isFiniteNumber(value.exposures)
+    && isFiniteNumber(value.successes)
+    && value.exposures >= 0
+    && value.successes >= 0
+    && value.successes <= value.exposures
+    && Array.isArray(value.distinctNodes)
+    && value.distinctNodes.every((node) => typeof node === "string")
+    && (value.lastAt === null || typeof value.lastAt === "string");
+}
+function validModuleProgress(value: unknown): value is ModuleProgress {
+  if (!isRecord(value) || typeof value.contentCompleted !== "boolean" || !isFiniteNumber(value.lessonStep) || !isRecord(value.evidence)) return false;
+  if (!["UNEXPOSED", "INTRODUCED", "FRAGILE", "WORKING", "RETAINED", "FIELD_TEST_PENDING", "FIELD_VALIDATED", "REPAIR_REQUIRED"].includes(String(value.state))) return false;
+  if (!Array.isArray(value.recentClasses) || !value.recentClasses.every((item) => ["A", "B", "C", "D", "E", "U"].includes(String(item)))) return false;
+  if (typeof value.highConfidenceError !== "boolean" || !isFiniteNumber(value.completedBlocks)) return false;
+  const evidence = value.evidence as Record<string, unknown>;
+  return DIMENSION_KEYS.every((key) => validEvidenceCell(evidence[key]));
+}
 export function validateLearnerState(value: unknown): value is LearnerState {
-  if (!isRecord(value) || value.schemaVersion !== STATE_SCHEMA_VERSION || typeof value.revision !== "number" || typeof value.updatedAt !== "string") return false;
-  if (!isRecord(value.modules) || !Array.isArray(value.interactions) || !Array.isArray(value.reviewQueue)) return false;
+  if (!isRecord(value) || value.schemaVersion !== STATE_SCHEMA_VERSION || !isFiniteNumber(value.revision) || typeof value.updatedAt !== "string") return false;
+  if (typeof value.appVersion !== "string" || typeof value.contentVersion !== "string") return false;
+  if (!isRecord(value.modules) || !Array.isArray(value.interactions) || !Array.isArray(value.reviewQueue) || !isRecord(value.cards) || !Array.isArray(value.fieldNotes) || !isRecord(value.diagnostic)) return false;
+  if (!(value.activeSession === null || isRecord(value.activeSession))) return false;
   const moduleRecord = value.modules as Record<string, unknown>;
-  return MODULE_IDS.every((moduleId) => isRecord(moduleRecord[moduleId]));
+  if (!MODULE_IDS.every((moduleId) => validModuleProgress(moduleRecord[moduleId]))) return false;
+  const diagnostic = value.diagnostic as Record<string, unknown>;
+  if (!["NOT_STARTED", "IN_PROGRESS", "AWAITING_REVIEW", "SCORED", "ROUTED"].includes(String(diagnostic.status))) return false;
+  if (!Array.isArray(diagnostic.responses) || !Array.isArray(diagnostic.priorityModules)) return false;
+  return true;
 }
 export function migrateLearnerState(raw: unknown): LearnerState {
   if (validateLearnerState(raw)) return raw;
