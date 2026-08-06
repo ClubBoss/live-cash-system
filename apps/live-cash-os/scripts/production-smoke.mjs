@@ -4,16 +4,28 @@ import { mkdir, writeFile } from "node:fs/promises";
 const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os.elmarsal.chatgpt.site/";
 const attempts = Number(process.env.SMOKE_ATTEMPTS ?? 4);
 const waitMs = Number(process.env.SMOKE_WAIT_MS ?? 15_000);
-const expectedMarkers = [
-  "Учись коротко",
-  "T1 — дополнительный cold diagnostic",
-  "LIVE CASH OS",
-];
-const forbiddenMarkers = ["accepted slice", "Calculate post-action SPR"];
+const forbiddenMarkers = ["accepted slice", "Calculate post-action SPR", "T1 — дополнительный cold diagnostic"];
 
 console.log(`production-smoke target=${liveUrl} attempts=${attempts}`);
 await mkdir("smoke-evidence", { recursive: true });
 let lastError = new Error("Production smoke did not start");
+
+async function assertNoOverflow(page, label) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (overflow > 1) throw new Error(`${label} horizontal overflow: ${overflow}px`);
+}
+
+async function verifyLocale(page, locale) {
+  const isRussian = locale === "ru";
+  const heading = isRussian ? /Учись коротко/i : /Learn in small pieces/i;
+  const t1 = isRussian ? /T1 — дополнительная диагностика без подсказок/i : /T1 — optional cold diagnostic/i;
+  await page.getByRole("heading", { name: heading }).waitFor({ timeout: 20_000 });
+  await page.getByText(t1).waitFor({ timeout: 10_000 });
+  const selected = isRussian ? "RU" : "EN";
+  const toggle = page.getByRole("button", { name: selected });
+  if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${selected} toggle is not active`);
+  if ((await page.locator("html").getAttribute("lang")) !== locale) throw new Error(`Document lang is not ${locale}`);
+}
 
 for (let attempt = 1; attempt <= attempts; attempt += 1) {
   const browser = await chromium.launch({ headless: true });
@@ -23,29 +35,47 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     desktop = await desktopContext.newPage();
     const response = await desktop.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     console.log(`attempt=${attempt} status=${response?.status() ?? "none"} finalUrl=${desktop.url()} title=${await desktop.title()}`);
-    await desktop.getByRole("heading", { name: /Учись коротко/i }).waitFor({ timeout: 20_000 });
+    if (response?.status() !== 200) throw new Error(`Unexpected HTTP status: ${response?.status() ?? "none"}`);
+    if ((await desktop.title()) !== "Live Cash OS") throw new Error("Unexpected document title");
 
-    const body = await desktop.locator("body").innerText();
-    for (const marker of expectedMarkers) {
-      if (!body.includes(marker)) throw new Error(`Missing production marker: ${marker}`);
-    }
-    for (const marker of forbiddenMarkers) {
-      if (body.includes(marker)) throw new Error(`Old runtime marker is still present: ${marker}`);
-    }
-    await desktop.screenshot({ path: "smoke-evidence/desktop.png", fullPage: true });
+    await verifyLocale(desktop, "ru");
+    let body = await desktop.locator("body").innerText();
+    if (!body.includes("LIVE CASH OS")) throw new Error("Brand marker is missing");
+    for (const marker of forbiddenMarkers) if (body.includes(marker)) throw new Error(`Forbidden old marker is present: ${marker}`);
+    await desktop.screenshot({ path: "smoke-evidence/desktop-ru.png", fullPage: true });
+
+    await desktop.getByRole("button", { name: "EN" }).click();
+    await verifyLocale(desktop, "en");
+    body = await desktop.locator("body").innerText();
+    if (/[А-Яа-яЁё]/u.test(body.replace(/T1/g, ""))) throw new Error("English interface contains a Russian fallback");
+    await desktop.screenshot({ path: "smoke-evidence/desktop-en.png", fullPage: true });
+
+    await desktop.reload({ waitUntil: "domcontentloaded" });
+    await verifyLocale(desktop, "en");
     await desktopContext.close();
 
     const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const mobile = await mobileContext.newPage();
     await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
-    await mobile.getByRole("heading", { name: /Учись коротко/i }).waitFor({ timeout: 20_000 });
-    const overflow = await mobile.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    if (overflow > 1) throw new Error(`Mobile horizontal overflow: ${overflow}px`);
-    await mobile.screenshot({ path: "smoke-evidence/mobile.png", fullPage: true });
+    await verifyLocale(mobile, "ru");
+    await assertNoOverflow(mobile, "Russian mobile");
+    await mobile.screenshot({ path: "smoke-evidence/mobile-ru.png", fullPage: true });
+    await mobile.getByRole("button", { name: "EN" }).click();
+    await verifyLocale(mobile, "en");
+    await assertNoOverflow(mobile, "English mobile");
+    await mobile.screenshot({ path: "smoke-evidence/mobile-en.png", fullPage: true });
     await mobileContext.close();
 
+    const report = {
+      result: "LIVE_SMOKE_GREEN",
+      url: liveUrl,
+      http_status: response?.status(),
+      title: "Live Cash OS",
+      locales: ["ru", "en"],
+      mobile_viewport: "390x844",
+      timestamp: new Date().toISOString(),
+    };
+    await writeFile("smoke-evidence/report.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
     console.log(`LIVE_SMOKE_GREEN attempt=${attempt} url=${liveUrl}`);
     await browser.close();
     process.exit(0);
