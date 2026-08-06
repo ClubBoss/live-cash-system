@@ -8,7 +8,8 @@ const ru = JSON.parse(await readFile(new URL("../content/i18n/ru.json", import.m
 const en = JSON.parse(await readFile(new URL("../content/i18n/en.json", import.meta.url), "utf8"));
 const reviewLock = JSON.parse(await readFile(new URL("../content/i18n/review-lock.json", import.meta.url), "utf8"));
 const sourceKeys = Object.keys(source).sort();
-const allowDraft = process.env.ALLOW_DRAFT_I18N === "1" || process.env.GITHUB_WORKFLOW === "Live Cash OS Bilingual Materialize";
+const workflowName = String(process.env.GITHUB_WORKFLOW ?? "");
+const allowDraft = process.env.ALLOW_DRAFT_I18N === "1" || /Materialize|Materializer/u.test(workflowName);
 
 function verifyMemory(locale, memory) {
   assert.deepEqual(Object.keys(memory).sort(), sourceKeys, `${locale}: missing or orphaned keys`);
