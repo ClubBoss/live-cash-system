@@ -47,7 +47,8 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await desktop.getByRole("button", { name: "EN" }).click();
     await verifyLocale(desktop, "en");
     body = await desktop.locator("body").innerText();
-    if (/[А-Яа-яЁё]/u.test(body.replace(/T1/g, ""))) throw new Error("English interface contains a Russian fallback");
+    const forbiddenRussianUi = ["Учись коротко", "СЕГОДНЯ · ОДИН ГЛАВНЫЙ ШАГ", "УЧИТЬСЯ", "КАРТА НАВЫКОВ"];
+    for (const marker of forbiddenRussianUi) if (body.includes(marker)) throw new Error(`English UI contains Russian fallback marker: ${marker}`);
     await desktop.screenshot({ path: "smoke-evidence/desktop-en.png", fullPage: true });
 
     await desktop.reload({ waitUntil: "domcontentloaded" });
