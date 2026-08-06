@@ -1,0 +1,47 @@
+name: Live Cash OS i18n Extract
+
+on:
+  push:
+    branches:
+      - agent/live-cash-os-bilingual-copy-pass
+    paths:
+      - "apps/live-cash-os/content/modules.ts"
+      - "apps/live-cash-os/scripts/i18n-extract.mjs"
+      - ".github/workflows/live-cash-os-i18n-extract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-cash-os-i18n-extract
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/live-cash-os-bilingual-copy-pass
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/i18n-extract.mjs
+      - name: Commit extracted catalog
+        run: |
+          if git diff --quiet -- content/i18n/source.ru.json; then
+            echo "Catalog already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/i18n/source.ru.json
+          git commit -m "Extract bilingual learner-copy catalog"
+          git push origin HEAD:agent/live-cash-os-bilingual-copy-pass
