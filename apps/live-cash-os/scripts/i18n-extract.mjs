@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -60,6 +61,15 @@ const { modules } = await load("content/modules.ts");
 const catalog = {};
 modules.forEach((module) => collectModule(catalog, module));
 const sorted = Object.fromEntries(Object.entries(catalog).sort(([left], [right]) => left.localeCompare(right)));
-await mkdir(new URL("../content/i18n/", import.meta.url), { recursive: true });
-await writeFile(new URL("../content/i18n/source.ru.json", import.meta.url), `${JSON.stringify(sorted, null, 2)}\n`, "utf8");
-console.log(`Extracted ${Object.keys(sorted).length} learner-facing source strings.`);
+const output = `${JSON.stringify(sorted, null, 2)}\n`;
+const outputUrl = new URL("../content/i18n/source.ru.json", import.meta.url);
+
+if (process.argv.includes("--check")) {
+  const current = await readFile(outputUrl, "utf8").catch(() => "");
+  assert.equal(current, output, "The extracted localization source catalogue is stale. Run npm run i18n:extract.");
+  console.log(`Localization source catalogue is current: ${Object.keys(sorted).length} strings.`);
+} else {
+  await mkdir(new URL("../content/i18n/", import.meta.url), { recursive: true });
+  await writeFile(outputUrl, output, "utf8");
+  console.log(`Extracted ${Object.keys(sorted).length} learner-facing source strings.`);
+}
