@@ -11,6 +11,7 @@ const expectedMarkers = [
 ];
 const forbiddenMarkers = ["accepted slice", "Calculate post-action SPR"];
 
+console.log(`production-smoke target=${liveUrl} attempts=${attempts}`);
 await mkdir("smoke-evidence", { recursive: true });
 let lastError = new Error("Production smoke did not start");
 
