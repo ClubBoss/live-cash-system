@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: live_learning_runtime_deploy_pending
-  updated_at: '2026-08-06T19:52:00+04:00'
+  phase: bilingual_learning_runtime_release_candidate
+  updated_at: '2026-08-06T21:10:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash system for a strong MTT player moving into live 1/3 and 2/5.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -43,19 +43,28 @@ learner_application:
   source_path: apps/live-cash-os
   hosting_project_id: appgprj_6a74674839c88191877199e34e21fc2c
   cloud_binding: DB
-  app_version: 1.0.0
+  accepted_live_app_version: 1.0.0
+  bilingual_release_candidate_version: 1.1.0
   learner_state_schema: 2
   content_version: 2026.08-wave6
-  primary_language: ru
-  standard_poker_terms_secondary_language: en
+  accepted_live_locales: [ru]
+  release_candidate_locales: [ru, en]
+  locale_default: ru
+  locale_switch_persistent: true
+  locale_switch_resets_evidence: false
+  locale_architecture: one_semantic_graph_keyed_copy_layers
+  translation_memory_source_snapshot_required: true
+  draft_translation_publish_allowed: false
   modules: 11
   drills: 55
   flashcards: 33
   teaching_stages_per_module: 10
   t1_policy: optional_recommended_personalisation
   stable_url_must_not_change: true
-  accepted_source_sha: ba927405642a7aa7238c06db4348ef5b02921fdf
-  current_release_status: ACCEPTED_MAIN_MERGED_LIVE_SMOKE_GREEN
+  accepted_live_source_sha: a22cd0b676730e4eaea2169c36f979c7192b6413
+  current_production_status: ACCEPTED_MAIN_MERGED_LIVE_SMOKE_GREEN
+  release_candidate_branch: agent/live-cash-os-bilingual-copy-pass
+  release_candidate_status: IN_PROGRESS_NOT_DEPLOYED
   runtime_admission_is_not_final_rule_admission: true
   content_status:
     LCM-01: GOLD_ACCEPTED_TEACHING_MODULE
@@ -97,6 +106,8 @@ diagnostic_state:
   policy: optional_recommended
   cold_baseline_condition: no_prior_learning_exposure
   post_learning_label: POST_LEARNING_DIAGNOSTIC
+  bilingual_ids_stable: true
+  raw_export_contains_locale: true
   battery: learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md
   runtime: learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md
   manifest: learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json
@@ -109,7 +120,7 @@ diagnostic_state:
   measured_candidate_error_estimates: 0
   confirmed_strategic_leaks: 0
   prior_hypotheses_only: true
-release_evidence:
+accepted_release_evidence:
   pull_request: 2
   merge_method: squash
   accepted_source_sha: ba927405642a7aa7238c06db4348ef5b02921fdf
@@ -125,17 +136,44 @@ release_evidence:
   live_smoke_result: HTTP_200_RUSSIAN_RUNTIME_MARKERS_DESKTOP_MOBILE_GREEN
   deployed_source_sha: a22cd0b676730e4eaea2169c36f979c7192b6413
   chatgpt_site_version: 24
-  deploy_inference: existing_chatgpt_site_explicitly_republished_from_main_app_tree
+bilingual_release_candidate:
+  branch: agent/live-cash-os-bilingual-copy-pass
+  target_app_version: 1.1.0
+  ssot_reconciled: true
+  ui_copy_ru_written: true
+  ui_copy_en_written: true
+  diagnostic_ru_written: true
+  diagnostic_en_written: true
+  stable_key_extractor_added: true
+  translation_memory_sync_added: true
+  stale_translation_gate_added: true
+  locale_runtime_materialized: false
+  translation_memories_reviewed: false
+  repository_ci_green: false
+  pull_request_merged: false
+  same_site_deployed: false
+  bilingual_live_smoke_green: false
+  infrastructure_note: github_actions_service_outage_delaying_materialization
 active_milestone:
-  name: first_real_lcm_01_session_and_evidence_collection
-  current_step: begin LCM-01, then collect delayed and field evidence before further platform tuning
+  name: complete_bilingual_copy_and_locale_release_wave
+  current_step: materialize locale runtime and translation memories, then review copy and pass all gates
   success_condition:
     stable_url_unchanged: true
-    current_main_published: true
-    russian_runtime_visible: true
-    desktop_live_smoke_green: true
-    mobile_live_smoke_green: true
-    learner_state_migration_preserved: true
+    d1_binding_preserved: true
+    one_semantic_graph: true
+    russian_copy_natural: true
+    english_copy_complete: true
+    ru_en_ids_identical: true
+    language_switch_persistent: true
+    active_session_preserved_across_locale_switch: true
+    draft_translation_count_zero: true
+    typecheck_green: true
+    lint_green: true
+    i18n_gate_green: true
+    unit_content_green: true
+    production_build_green: true
+    desktop_mobile_ru_en_e2e_green: true
+    same_site_live_smoke_ru_en_green: true
 active_authorities:
   bootstrap: START_HERE.md
   agent_contract: AGENTS.md
@@ -145,6 +183,10 @@ active_authorities:
   acceptance_ledger: apps/live-cash-os/ACCEPTANCE_LEDGER.md
   learner_model: apps/live-cash-os/lib/model.ts
   module_content: apps/live-cash-os/content/modules.ts
+  locale_ui: apps/live-cash-os/content/i18n/ui.ts
+  locale_diagnostic: apps/live-cash-os/content/i18n/diagnostic.ts
+  locale_runtime: apps/live-cash-os/content/i18n/runtime.ts
+  locale_gate: apps/live-cash-os/scripts/i18n-check.mjs
   hosting: apps/live-cash-os/.openai/hosting.json
   production_smoke: apps/live-cash-os/scripts/production-smoke.mjs
   max_ev: synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_5.md
@@ -159,15 +201,16 @@ truth_boundaries:
 - raw field notes cannot create field validation
 - population magnitudes remain field-gated
 - repo green is not live deployment green
+- accepted v1 remains production truth while v1.1 is a release candidate
+- machine-generated translation drafts are not accepted copy
 next_user_interaction:
-  instruction: begin the first LCM-01 session; use T1 only before exposure when a cold personal baseline is wanted
+  instruction: do not start a new production learning session during the v1.1 deployment window; after bilingual live smoke, begin LCM-01 in the chosen locale
   platform_tuning_after_release: stop_until_real_delayed_and_field_evidence
 terminal_state:
   handover_ready: true
   source_corpus_complete: true
   diagnostic_runtime_ready: true
-  learning_runtime_repo_accepted: true
-  learning_runtime_live_accepted: true
-  live_deploy_blocked: false
+  accepted_live_v1: true
+  bilingual_release_candidate_in_progress: true
   learner_error_probability_measured: false
   global_restructure_expected: false
