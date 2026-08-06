@@ -31,6 +31,9 @@ test("server-renders the Live Cash OS learning surface", async () => {
   assert.match(html, /Transfer &amp; repair/);
   assert.match(html, /PERSONAL DIAGNOSTIC/);
   assert.match(html, /Measure before you personalise/);
+  assert.match(html, /New here\? Start T1 diagnostic/);
+  assert.match(html, /START HERE · ONE CLEAR ROUTE/);
+  assert.match(html, /Train the next mechanism/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site|SkeletonPreview/i);
 });
 
