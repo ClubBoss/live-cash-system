@@ -5,8 +5,8 @@ Status: `V1.1_REPOSITORY_GREEN / PRODUCTION_V1.0_UNCHANGED`
 ## Repository
 
 - Default branch: `main`
-- Current main SHA: `0d9e220a47c1655ec544b2e8430358be63be316f`
 - Live Cash OS 1.1 merge commit: `812c186cf454cf5056aee63926613234f9c331ec`
+- CI simplification commit: `0d9e220a47c1655ec544b2e8430358be63be316f`
 - Source PR: `#7` — merged
 - Validated PR head: `5a6899183f65639cd5b597b4cb5d7d20affdf02a`
 - Pre-merge CI: `31132310933` — green
