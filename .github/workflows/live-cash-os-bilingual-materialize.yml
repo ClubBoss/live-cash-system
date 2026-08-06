@@ -17,11 +17,10 @@ concurrency:
 
 jobs:
   materialize:
-    runs-on: windows-2025
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
       run:
-        shell: bash
         working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v4
