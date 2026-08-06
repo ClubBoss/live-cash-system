@@ -12,20 +12,20 @@ async function render(path = "/") {
   );
 }
 
-test("server renders the Russian-first Live Cash OS shell", async () => {
+test("server renders the bilingual Live Cash OS shell with Russian default", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Live Cash OS<\/title>/i);
-  assert.match(html, /Загружаем learner state/i);
+  assert.match(html, /Загружаем прогресс/i);
+  assert.match(html, /lang="ru"/i);
   assert.doesNotMatch(html, /accepted slice/i);
   assert.doesNotMatch(html, /vinext-starter/i);
 });
 
-test("metadata exposes the PWA manifest and Russian document language", async () => {
+test("metadata exposes the PWA manifest", async () => {
   const response = await render();
   const html = await response.text();
-  assert.match(html, /lang="ru"/i);
   assert.match(html, /manifest\.webmanifest/i);
 });
