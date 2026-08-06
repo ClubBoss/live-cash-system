@@ -1,0 +1,29 @@
+{
+  "schema_version": 3,
+  "status": "GOLD_SLICE_ACCEPTED",
+  "reviewer": "GPT-5.6 Thinking",
+  "review_policy": "Learner-facing copy is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks can reject stale or invalid copy but can never create an approval.",
+  "source_blobs": {
+    "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
+    "content/i18n/runtime-core.ts": "867be28b3cce8c009a8757c036ddf4605f8c27e0",
+    "content/i18n/runtime.ts": "b26b7dbec2a7affae3f979d561755747bb539a8b",
+    "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
+    "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
+    "content/i18n/geometry-locale.ts": "a6345119af896cd75c161c5441103aaaa5e9eefa",
+    "content/i18n/learning-route.ts": "ab787de99f366c32d8c68346e0637fbb734eaddf",
+    "components/LiveCashApp.tsx": "836bb22422a09d8b701fb0d5abb1c7602f4535ef"
+  },
+  "modules": {
+    "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated bilingual gold module with stable drill and card IDs." },
+    "preflop": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "blinds": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "filtering": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "shape": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "aggression": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "ancestry": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "multiway": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "river": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "evidence": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
+    "transfer": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." }
+  }
+}
