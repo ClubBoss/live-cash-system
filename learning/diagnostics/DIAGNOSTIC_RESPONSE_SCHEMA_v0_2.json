@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live Cash Diagnostic Evaluated Response Record v0.2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "learner_id",
+    "tranche_id",
+    "measurement_context",
+    "locale_at_start",
+    "submitted_at",
+    "responses"
+  ],
+  "properties": {
+    "schema_version": { "const": "evaluated-0.2" },
+    "learner_id": { "const": "current_learner" },
+    "tranche_id": { "const": "T1" },
+    "measurement_context": {
+      "enum": [
+        "COLD_BASELINE",
+        "POST_LEARNING_DIAGNOSTIC",
+        "MIXED_EXPOSURE_INVALID_FOR_BASELINE"
+      ]
+    },
+    "locale_at_start": { "enum": ["ru", "en"] },
+    "submitted_at": { "type": "string", "format": "date-time" },
+    "responses": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "answer",
+          "reasoning",
+          "confidence",
+          "time_seconds",
+          "locale",
+          "evaluation"
+        ],
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "pattern": "^(LD-00[1-9]|LD-010)$"
+          },
+          "answer": { "type": "string", "minLength": 1 },
+          "reasoning": { "type": "string", "minLength": 1 },
+          "confidence": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "time_seconds": { "type": "number", "minimum": 0 },
+          "locale": { "enum": ["ru", "en"] },
+          "evaluation": {
+            "type": "object",
+            "required": [
+              "response_class",
+              "action_score",
+              "reasoning_score",
+              "boundary_score",
+              "misconceptions"
+            ],
+            "properties": {
+              "response_class": { "enum": ["A", "B", "C", "D", "E", "U"] },
+              "action_score": { "type": "number", "minimum": 0, "maximum": 1 },
+              "reasoning_score": { "type": "number", "minimum": 0, "maximum": 2 },
+              "boundary_score": { "type": "number", "minimum": 0, "maximum": 1 },
+              "misconceptions": {
+                "type": "array",
+                "items": { "type": "string", "pattern": "^MC-[0-9]{3}$" }
+              },
+              "evaluator_note": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
