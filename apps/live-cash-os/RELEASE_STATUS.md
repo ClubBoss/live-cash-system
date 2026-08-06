@@ -1,6 +1,6 @@
 # Live Cash OS — Release Status
 
-Status: `RELEASE_CANDIDATE / FINAL_CI_PENDING / NOT_YET_LIVE_ACCEPTED`
+Status: `RELEASE_CANDIDATE / CLEAN_FINAL_CI_PENDING / NOT_YET_LIVE_ACCEPTED`
 
 - Stable live URL: `https://live-cash-os.elmarsal.chatgpt.site/`
 - Deploy source: `apps/live-cash-os`
@@ -26,6 +26,7 @@ Status: `RELEASE_CANDIDATE / FINAL_CI_PENDING / NOT_YET_LIVE_ACCEPTED`
 - T1 exports `COLD_BASELINE` only before learning has begun; later runs are explicitly marked `POST_LEARNING_DIAGNOSTIC`.
 - Successful repair removes the corresponding due repair item.
 - One reviewed field note cannot by itself create `FIELD_VALIDATED` status.
+- Duplicate final-patch insertions were removed and guarded by regression tests.
 - Temporary one-time workflow files have been removed.
 
 ## Owner decisions
@@ -43,6 +44,6 @@ Status: `RELEASE_CANDIDATE / FINAL_CI_PENDING / NOT_YET_LIVE_ACCEPTED`
 
 ## Acceptance truth
 
-The branch may merge only after the owner-triggered final CI passes typecheck, lint, unit/content tests, production build and desktop/mobile browser gates.
+The branch may merge only after this clean owner-triggered CI passes typecheck, lint, unit/content tests, production build and desktop/mobile browser gates.
 
 `ACCEPTED` may be written only after merge, deployment and a smoke check against the stable live URL.
