@@ -40,7 +40,7 @@ misconception IDs: 30
 learner-state dimensions: 9
 ```
 
-Learner-runtime admission does **not** convert any candidate into an admitted final strategic rule.
+Learner-runtime delivery does **not** convert any candidate into an admitted final strategic rule.
 
 ## Accepted production
 
@@ -82,7 +82,7 @@ Required architecture:
 ```text
 one canonical poker graph and stable IDs
 → extracted source catalogue
-→ reviewed RU and EN copy layers
+→ RU and EN copy layers
 → one runtime
 → one learner state
 ```
@@ -101,18 +101,41 @@ Translation governance:
 - source changes are extracted automatically;
 - unchanged reviewed translations are preserved;
 - changed or new strings become `DRAFT`;
+- deterministic checks cannot grant `REVIEWED` status;
 - production rejects missing, orphaned, stale and draft entries;
 - machine translation is a drafting aid, not publication authority;
 - standard poker terms may remain conventional where literal translation would be worse.
+
+## Learner route
+
+The app must show an explicit route from `0%` to `100%` for each module:
+
+```text
+0 start
+→ 10 baseline
+→ 20 explanation
+→ 35 worked example and lab
+→ 50 changed-node transfer
+→ 65 targeted repair
+→ 80 delayed retrieval
+→ 90 real-hand capture
+→ 100 reviewed field validation
+```
+
+This is a completion/evidence route for one module, not an overall poker-mastery percentage.
 
 ## Diagnostic runtime
 
 T1 is optional personalization, not a mandatory wall.
 
+- The context is fixed when T1 starts.
 - Before learning exposure: `COLD_BASELINE`.
 - After learning begins: `POST_LEARNING_DIAGNOSTIC`.
+- If learning begins during a cold T1 run: `MIXED_EXPOSURE_INVALID_FOR_BASELINE`.
 - RU and EN preserve the same ten diagnostic IDs.
-- Raw v0.2 stores the current interface locale and the locale of each answer if the language changes mid-diagnostic.
+- Raw v0.2 stores `locale_at_start` and the locale of every response.
+- Evaluated v0.2 preserves the same context and locale provenance.
+- Scorer output is `score-0.2` and carries scorer version, context and submission provenance.
 - Free text is never keyword-scored as strategy.
 
 Active authorities:
@@ -121,7 +144,7 @@ Active authorities:
 - `learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md`;
 - `learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json`;
 - `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_2.json`;
-- `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`;
+- `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_2.json`;
 - `scripts/score_learner_diagnostic.py`.
 
 Current learner truth:
@@ -145,14 +168,15 @@ Required order:
 2. close stale SSOT contradictions;
 3. materialize the single-graph locale runtime;
 4. rewrite Russian UI in natural poker language;
-5. complete the independent English version;
-6. pass locale parity and stale-translation gates;
+5. complete and review the independent English version;
+6. pass locale parity, source-lock and draft-count gates;
 7. pass typecheck, lint, build, unit/content and RU/EN browser gates;
-8. merge through a reviewed PR;
-9. republish the existing Site project without changing URL or D1;
-10. run authenticated desktop/mobile smoke in both languages;
-11. only then update production truth to v1.1;
-12. begin the first real learner session and repeat content audit.
+8. remove one-time migration tooling;
+9. merge through a reviewed PR;
+10. republish the existing Site project without changing URL or D1;
+11. run authenticated desktop/mobile smoke in both languages;
+12. only then update production truth to v1.1;
+13. begin the first real learner session and repeat content audit.
 
 ## Frozen constraints
 
@@ -160,17 +184,20 @@ Do not:
 
 - maintain two copies of poker logic or answer keys;
 - publish machine-generated draft copy;
+- let deterministic checks mark translation drafts as reviewed;
 - let language switching reset learner state;
 - call repo-green live-green;
 - reveal T1 answer keys before completion;
+- recompute T1 context after the run begins;
 - infer mastery from untested modules;
 - treat content completion as mastery;
+- grant variant transfer merely because a task is called repair or review;
 - grant retention from immediate repetition;
 - grant field transfer from a raw note;
 - reset learner progress globally;
 - copy proprietary source hands or charts;
 - turn directional bands into solver cutoffs;
-- treat learner-runtime admission as final-rule admission;
+- treat learner-runtime delivery as final-rule admission;
 - change the stable live URL, hosting project or D1 binding.
 
 ## Verdict
@@ -181,4 +208,4 @@ Do not:
 
 `V1_1_BILINGUAL_RELEASE_CANDIDATE_IN_PROGRESS`
 
-`NEXT = LOCALE PARITY → CI → PR → SAME-SITE DEPLOY → RU_EN_LIVE_SMOKE`
+`NEXT = MATERIALIZE → EDITORIAL REVIEW → CI → PR → SAME-SITE DEPLOY → RU_EN_LIVE_SMOKE`
