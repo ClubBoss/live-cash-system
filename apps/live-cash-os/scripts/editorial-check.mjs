@@ -79,13 +79,13 @@ const bannedRuPhrases = [
 ];
 const runtimeRu = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
 const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
+const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
 for (const pattern of bannedRuPhrases) {
-  assert.doesNotMatch(`${runtimeRu}\n${geometryRu}\n${route}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
+  assert.doesNotMatch(`${runtimeRu}\n${geometryRu}\n${ruRoute}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
 }
 
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
 assert.equal((route.match(/evidenceGate:/gu) ?? []).length, 19, "Every route stage must name an evidence gate");
-const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
 for (const pattern of [/evidence/iu, /probe/iu, /repair/iu, /retention/iu, /field validation/iu]) {
   assert.doesNotMatch(ruRoute, pattern, `Russian route contains internal terminology ${pattern}`);
 }
