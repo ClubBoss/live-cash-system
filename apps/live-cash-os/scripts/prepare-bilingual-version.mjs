@@ -7,6 +7,17 @@ if (model.includes('export const APP_VERSION = "1.0.0";')) {
 } else if (!model.includes('export const APP_VERSION = "1.1.0";')) {
   throw new Error("Unexpected APP_VERSION authority");
 }
+
+const oldDiagnosticType = 'export type DiagnosticRawResponse = { item_id: string; answer: string; reasoning: string; confidence: number; time_seconds: number };';
+const newDiagnosticType = 'export type DiagnosticRawResponse = { item_id: string; answer: string; reasoning: string; confidence: number; time_seconds: number; locale?: "ru" | "en" };';
+if (model.includes(oldDiagnosticType)) model = model.replace(oldDiagnosticType, newDiagnosticType);
+else if (!model.includes(newDiagnosticType)) throw new Error("Unexpected DiagnosticRawResponse authority");
+
+const oldMigration = 'base.diagnostic.responses = diagnostic.responses.filter(isRecord).map((entry) => ({ item_id: String(entry.item_id ?? ""), answer: String(entry.answer ?? ""), reasoning: String(entry.reasoning ?? ""), confidence: Number(entry.confidence ?? 0), time_seconds: Number(entry.time_seconds ?? 0) }));';
+const newMigration = 'base.diagnostic.responses = diagnostic.responses.filter(isRecord).map((entry) => ({ item_id: String(entry.item_id ?? ""), answer: String(entry.answer ?? ""), reasoning: String(entry.reasoning ?? ""), confidence: Number(entry.confidence ?? 0), time_seconds: Number(entry.time_seconds ?? 0), locale: entry.locale === "en" ? "en" : entry.locale === "ru" ? "ru" : undefined }));';
+if (model.includes(oldMigration)) model = model.replace(oldMigration, newMigration);
+else if (!model.includes(newMigration)) throw new Error("Unexpected diagnostic migration authority");
+
 await writeFile(modelPath, model, "utf8");
 
 const manifestPath = new URL("../public/manifest.webmanifest", import.meta.url);
@@ -24,4 +35,4 @@ if (serviceWorker.includes('const CACHE = "live-cash-os-shell-v1";')) {
 }
 await writeFile(serviceWorkerPath, serviceWorker, "utf8");
 
-console.log("Prepared Live Cash OS bilingual version 1.1.0 and refreshed the PWA shell cache.");
+console.log("Prepared Live Cash OS bilingual version 1.1.0, per-response diagnostic locale and refreshed PWA cache.");
