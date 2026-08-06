@@ -21,7 +21,7 @@ export type Drill = {
   correctActionId: string;
   correctReasonId: string;
   explanation: string;
-  transferProbe: TransferProbe | null;
+  transferProbe?: TransferProbe | null;
 };
 
 export type Flashcard = {
