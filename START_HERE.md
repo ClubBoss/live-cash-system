@@ -55,7 +55,7 @@ Accepted six-wave source SHA:
 
 PR `#2` is squash-merged. Pre-merge and post-merge CI are green, including typecheck, lint, unit/content tests, production build and desktop/mobile browser gates.
 
-**Deployment truth:** the stable ChatGPT Site has not updated automatically from GitHub `main`. Production smoke run `31116142028` reached the URL but did not find the new Russian runtime. Do not call the live URL accepted until the existing Site project is explicitly republished and the manual production smoke passes.
+**Deployment truth:** the existing ChatGPT Site project was explicitly republished from the current `main` application tree. Owner-authenticated Chromium smoke confirmed HTTP `200`, Russian runtime markers, reachable CTAs and zero mobile horizontal overflow at the stable URL. Historical smoke run `31116142028` remains evidence that merge alone did not publish the Site.
 
 Runtime authorities:
 
@@ -146,6 +146,6 @@ Do not:
 
 `SIX_WAVE_SOURCE_MERGED_AND_GREEN`
 
-`LIVE_DEPLOYMENT_NOT_YET_GREEN`
+`LIVE_SMOKE_GREEN`
 
-`NEXT = REPUBLISH SITE THEN MANUAL SMOKE`
+`NEXT = BEGIN LCM-01 OR OPTIONAL PRE-EXPOSURE T1`

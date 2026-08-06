@@ -55,7 +55,7 @@ learner_application:
   t1_policy: optional_recommended_personalisation
   stable_url_must_not_change: true
   accepted_source_sha: ba927405642a7aa7238c06db4348ef5b02921fdf
-  current_release_status: MAIN_MERGED_REPO_GREEN_LIVE_DEPLOY_PENDING
+  current_release_status: ACCEPTED_MAIN_MERGED_LIVE_SMOKE_GREEN
   runtime_admission_is_not_final_rule_admission: true
   content_status:
     LCM-01: GOLD_ACCEPTED_TEACHING_MODULE
@@ -120,13 +120,15 @@ release_evidence:
   unit_content_green: true
   production_build_green: true
   desktop_mobile_e2e_green: true
-  live_url_smoke_green: false
-  live_smoke_run: 31116142028
-  live_smoke_result: EXPECTED_NEW_RUNTIME_NOT_PRESENT
-  deploy_inference: chatgpt_site_not_auto_published_from_github_main
+  live_url_smoke_green: true
+  live_smoke_run: owner_authenticated_chromium_manual_smoke
+  live_smoke_result: HTTP_200_RUSSIAN_RUNTIME_MARKERS_DESKTOP_MOBILE_GREEN
+  deployed_source_sha: a22cd0b676730e4eaea2169c36f979c7192b6413
+  chatgpt_site_version: 24
+  deploy_inference: existing_chatgpt_site_explicitly_republished_from_main_app_tree
 active_milestone:
-  name: republish_chatgpt_site_and_validate_live_runtime
-  current_step: explicitly publish current main to the existing ChatGPT Site project, then run the manual production smoke
+  name: first_real_lcm_01_session_and_evidence_collection
+  current_step: begin LCM-01, then collect delayed and field evidence before further platform tuning
   success_condition:
     stable_url_unchanged: true
     current_main_published: true
@@ -158,14 +160,14 @@ truth_boundaries:
 - population magnitudes remain field-gated
 - repo green is not live deployment green
 next_user_interaction:
-  instruction: republish the existing ChatGPT Site from current main, keep the stable URL, then run the manual production smoke
+  instruction: begin the first LCM-01 session; use T1 only before exposure when a cold personal baseline is wanted
   platform_tuning_after_release: stop_until_real_delayed_and_field_evidence
 terminal_state:
   handover_ready: true
   source_corpus_complete: true
   diagnostic_runtime_ready: true
   learning_runtime_repo_accepted: true
-  learning_runtime_live_accepted: false
-  live_deploy_blocked: true
+  learning_runtime_live_accepted: true
+  live_deploy_blocked: false
   learner_error_probability_measured: false
   global_restructure_expected: false

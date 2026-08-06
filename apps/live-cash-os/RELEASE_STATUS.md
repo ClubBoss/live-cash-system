@@ -1,6 +1,6 @@
 # Live Cash OS — Release Status
 
-Status: `MAIN_MERGED / REPO_CI_GREEN / LIVE_DEPLOY_PENDING`
+Status: `ACCEPTED / MAIN_MERGED / LIVE_SMOKE_GREEN`
 
 - Stable live URL: `https://live-cash-os.elmarsal.chatgpt.site/`
 - Deploy source: `apps/live-cash-os`
@@ -11,6 +11,8 @@ Status: `MAIN_MERGED / REPO_CI_GREEN / LIVE_DEPLOY_PENDING`
 - App release target: `1.0.0`
 - Learner-state schema: `2`
 - Content version: `2026.08-wave6`
+- Deployed GitHub source SHA: `a22cd0b676730e4eaea2169c36f979c7192b6413`
+- Existing Site version: `24`
 
 ## Completed six-wave scope
 
@@ -30,11 +32,11 @@ Status: `MAIN_MERGED / REPO_CI_GREEN / LIVE_DEPLOY_PENDING`
 - Duplicate final-patch insertions were removed and guarded by regression tests.
 - Typecheck, lint, unit/content tests, production build and desktop/mobile browser gates pass on the accepted source.
 
-## Live deployment blocker
+## Live deployment evidence
 
-GitHub merge does not publish this ChatGPT Site automatically. Production smoke run `31116142028` reached the stable URL twenty times but the new Russian heading `Учись коротко` never appeared. Therefore the live URL is still serving an earlier deployment or is not connected to the current `main` source.
+The existing ChatGPT Site project was explicitly republished from the current `main` application tree. Owner-authenticated Chromium smoke then confirmed the stable URL with HTTP `200`, title `Live Cash OS`, the Russian runtime markers `Учись коротко`, `T1 — дополнительный cold diagnostic` and `LIVE CASH OS`, no old runtime markers, reachable CTAs, and `0px` horizontal overflow at `390×844`.
 
-The production smoke workflow is intentionally manual. Run it only after the ChatGPT Site project is explicitly republished from current `main`.
+The earlier failed smoke run `31116142028` remains historical evidence that GitHub merge alone did not publish the Site; it is superseded by the successful manual production evidence above.
 
 ## Owner decisions
 
@@ -55,6 +57,6 @@ The production smoke workflow is intentionally manual. Run it only after the Cha
 - `LCM-02–LCM-11` are migrated structured content and remain `VALIDATION_PENDING` for the planned repeat content audit.
 - Learner-runtime admission does not admit final strategic rules.
 
-## Final acceptance gate
+## Final acceptance
 
-`ACCEPTED_LIVE` may be written only after the ChatGPT Site project is republished and the manual production smoke passes on desktop and mobile.
+`ACCEPTED / MAIN_MERGED / LIVE_SMOKE_GREEN`
