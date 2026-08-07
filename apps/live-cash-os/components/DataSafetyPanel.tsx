@@ -2,7 +2,7 @@
 
 import { APP_VERSION, CONTENT_VERSION, STATE_SCHEMA_VERSION, saveActiveSession, type LocaleCode } from "../lib/model";
 import { buildSafeDebugSummary } from "../lib/reliability";
-import type { ReliableLearnerStateController } from "../lib/use-learner-state-sync";
+import type { RecoveryCode, ReliableLearnerStateController, SyncStatus } from "../lib/use-learner-state-sync";
 
 function downloadJson(filename: string, value: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }));
@@ -29,6 +29,59 @@ function importFailure(locale: LocaleCode, reason?: string) {
   }
   if (reason === "malformed_json") return ru ? "Файл не является корректным JSON." : "The file is not valid JSON.";
   return ru ? "Файл прогресса не прошёл проверку и ничего не изменил." : "The progress file failed validation and nothing was changed.";
+}
+
+function syncStatusLabel(locale: LocaleCode, status: SyncStatus) {
+  const ru = locale === "ru";
+  const labels: Record<SyncStatus, [string, string]> = {
+    loading: ["Загрузка…", "Loading…"],
+    local: ["Сохранено на устройстве", "Saved on this device"],
+    syncing: ["Синхронизация…", "Syncing…"],
+    synced: ["Синхронизировано", "Synced"],
+    offline: ["Нет сети — сохранено локально", "Offline — saved locally"],
+    conflict: ["Нужно выбрать версию", "Choose a progress version"],
+    error: ["Синхронизация требует внимания", "Sync needs attention"],
+  };
+  return labels[status][ru ? 0 : 1];
+}
+
+function recoveryMessage(locale: LocaleCode, code: Exclude<RecoveryCode, null>) {
+  const ru = locale === "ru";
+  const messages: Record<Exclude<RecoveryCode, null>, [string, string]> = {
+    LOCAL_STATE_RECOVERED: [
+      "Локальная копия прогресса была безопасно восстановлена после проверки.",
+      "Your local progress copy was safely recovered after validation.",
+    ],
+    LOCAL_STATE_CORRUPT: [
+      "Локальную копию не удалось безопасно прочитать. Исходные данные не были молча перезаписаны — используй сохранённую recovery-копию или облачную версию.",
+      "The local copy could not be read safely. The original data was not silently overwritten — use the preserved recovery copy or the cloud version.",
+    ],
+    FUTURE_STATE_UNSUPPORTED: [
+      "Эти данные созданы более новой версией приложения. Обнови приложение перед продолжением; исходная копия сохранена.",
+      "This data was created by a newer app version. Update the app before continuing; the original copy was preserved.",
+    ],
+    CLOUD_STATE_UNREADABLE: [
+      "Облачную копию не удалось безопасно прочитать. Локальный прогресс не был заменён.",
+      "The cloud copy could not be read safely. Your local progress was not replaced.",
+    ],
+    STATE_CONFLICT: [
+      "Найдены две разные версии прогресса. Ни одна не была удалена — выбери основную ниже.",
+      "Two different progress versions were found. Neither was deleted — choose the version to keep below.",
+    ],
+    UPDATE_REQUIRED: [
+      "Эта версия приложения слишком старая для безопасной синхронизации. Обнови или перезагрузи приложение перед следующей облачной записью.",
+      "This app version is too old for safe sync. Update or reload the app before the next cloud write.",
+    ],
+    LOCAL_WRITE_FAILED: [
+      "Не удалось надёжно сохранить прогресс на этом устройстве. Проверь доступное место и повтори действие перед продолжением обучения.",
+      "Progress could not be saved reliably on this device. Check available storage and retry before continuing your session.",
+    ],
+    STATE_TOO_LARGE: [
+      "Объём прогресса превышает лимит облачной копии. Локальная версия остаётся доступной; при необходимости экспортируй её перед дальнейшими изменениями.",
+      "Your progress exceeds the cloud-copy size limit. The local version remains available; export it before further changes if needed.",
+    ],
+  };
+  return messages[code][ru ? 0 : 1];
 }
 
 export default function DataSafetyPanel({
@@ -138,14 +191,12 @@ export default function DataSafetyPanel({
 
     <div className="debug-grid">
       <div><span>{ru ? "Режим" : "Mode"}</span><b>{cloudMode === "cloud" ? (ru ? "локально + облако" : "local + cloud") : (ru ? "только локально" : "local only")}</b></div>
-      <div><span>{ru ? "Синхронизация" : "Sync"}</span><b>{syncStatus}</b></div>
+      <div><span>{ru ? "Синхронизация" : "Sync"}</span><b>{syncStatusLabel(locale, syncStatus)}</b></div>
       <div><span>{ru ? "Локально сохранено" : "Local save"}</span><b>{lastLocalSaveAt ? new Date(lastLocalSaveAt).toLocaleString() : "—"}</b></div>
       <div><span>{ru ? "Облако сохранено" : "Cloud save"}</span><b>{lastCloudSaveAt ? new Date(lastCloudSaveAt).toLocaleString() : "—"}</b></div>
     </div>
 
-    {recoveryCode && <div className="notice"><span>{ru
-      ? `Требуется внимание к данным: ${recoveryCode}. Исходная копия сохранена, если это было возможно.`
-      : `Data attention required: ${recoveryCode}. The original copy was preserved when possible.`}</span></div>}
+    {recoveryCode && <div className="notice" role="status" aria-live="polite"><span>{recoveryMessage(locale, recoveryCode)}</span></div>}
 
     {conflict && <div className="counterexample">
       <b>{ru ? "Обнаружены две разные версии прогресса" : "Two different progress versions were found"}</b>
