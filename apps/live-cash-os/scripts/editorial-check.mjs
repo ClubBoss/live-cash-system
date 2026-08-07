@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const moduleIds = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
 const approvedModuleIds = ["geometry", "preflop", "blinds", "aggression"];
+const approvedLcmCodes = ["LCM-01", "LCM-02", "LCM-03", "LCM-06"];
 const manifestPath = new URL("../content/i18n/editorial-manifest.json", import.meta.url);
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 const requireFull = process.env.REQUIRE_FULL_EDITORIAL === "1";
@@ -129,7 +130,10 @@ assert.match(app, /not a decorative overall percentage/u, "Route UI must reject 
 assert.match(app, /applyGeometryLocale/u, "Direct LCM-01 locale application is missing");
 assert.match(app, /applyWave3PriorityLocale/u, "Wave 3 bilingual locale application is missing");
 assert.match(app, /data-editorial-gold/u, "Approved-module editorial banner boundary is missing");
-assert.ok(app.includes("LCM-0[1236]"), "Approved gold LCM set is not represented in runtime status logic");
+for (const code of approvedLcmCodes) assert.ok(app.includes(`"${code}"`), `Approved gold runtime set misses ${code}`);
+assert.match(app, /const attributeObserver = new MutationObserver\(syncLocaleAndRoute\)/u, "Locale observer must remain isolated from structural mutations");
+assert.match(app, /const structureObserver = new MutationObserver\(markGold\)/u, "Structural observer must only update editorial markers");
+assert.match(app, /characterData: true/u, "Editorial marker observer must follow card/module text replacement safely");
 assert.match(app, /РАЗБОР РЕШЕНИЯ/u, "Hard-coded learner labels are not localized");
 
 const runtimeCore = await readFile(new URL("../content/i18n/runtime-core.ts", import.meta.url), "utf8");

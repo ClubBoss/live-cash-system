@@ -16,7 +16,7 @@
     "content/i18n/geometry-locale.ts": "9ff8657186622db1849aa6e22b5d47a7885762d4",
     "content/i18n/wave3-priority-gold.ts": "2d6d996339d82f601a563628874e4d7e5885a48b",
     "content/i18n/learning-route.ts": "ab787de99f366c32d8c68346e0637fbb734eaddf",
-    "components/LiveCashApp.tsx": "37d88365b3cfb8bc7ed9be75eb523719b7f590dc"
+    "components/LiveCashApp.tsx": "099dd56493764c2209a44f4582119642a9fe0d9c"
   },
   "modules": {
     "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated bilingual gold module with stable drill and card IDs." },

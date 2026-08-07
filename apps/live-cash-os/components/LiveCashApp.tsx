@@ -35,6 +35,22 @@ const SESSION_LABELS: Record<string, string> = {
   MIXED: "СМЕШАННАЯ ПРАКТИКА",
 };
 
+const MODULE_LCM: Record<string, string> = {
+  geometry: "LCM-01",
+  preflop: "LCM-02",
+  blinds: "LCM-03",
+  filtering: "LCM-04",
+  shape: "LCM-05",
+  aggression: "LCM-06",
+  ancestry: "LCM-07",
+  multiway: "LCM-08",
+  river: "LCM-09",
+  evidence: "LCM-10",
+  transfer: "LCM-11",
+};
+
+const GOLD_LCMS = new Set(["LCM-01", "LCM-02", "LCM-03", "LCM-06"]);
+
 function setExactText(selector: string, source: string, target: string) {
   document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
     if (element.textContent?.trim() === source && source !== target) element.textContent = target;
@@ -127,14 +143,41 @@ function localizeHardcodedLabels(locale: LocaleCode) {
   });
 }
 
+function codeFromText(text: string): string | null {
+  return text.match(/LCM-\d{2}/u)?.[0] ?? null;
+}
+
+function activeSessionCode(): string | null {
+  try {
+    const raw = localStorage.getItem("live-cash-os:learner-state");
+    if (!raw) return null;
+    const moduleId = JSON.parse(raw)?.activeSession?.moduleId;
+    return typeof moduleId === "string" ? MODULE_LCM[moduleId] ?? null : null;
+  } catch {
+    return null;
+  }
+}
+
+function setGoldMarker(element: HTMLElement, code: string | null) {
+  if (!code) return;
+  if (GOLD_LCMS.has(code)) element.dataset.editorialGold = "approved";
+  else delete element.dataset.editorialGold;
+}
+
+function markEditorialGoldSurfaces() {
+  document.querySelectorAll<HTMLElement>(".module-list article").forEach((article) => {
+    setGoldMarker(article, codeFromText(article.querySelector<HTMLElement>(".module-code")?.textContent ?? ""));
+  });
+
+  document.querySelectorAll<HTMLElement>(".session").forEach((session) => {
+    const visibleCode = codeFromText(session.querySelector<HTMLElement>(".session-head span, .module-code")?.textContent ?? "");
+    setGoldMarker(session, visibleCode ?? activeSessionCode());
+  });
+}
+
 function currentRuntimeView(): { locale: LocaleCode; showRoute: boolean } {
   const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
   const activeTab = document.querySelector<HTMLButtonElement>(".tabs button[aria-current='page']")?.textContent?.trim();
-  const sessionLabel = document.querySelector<HTMLElement>(".session-head span")?.textContent ?? "";
-  const decisionLabel = document.querySelector<HTMLElement>(".decision-card .eyebrow")?.textContent ?? "";
-  const cardLabel = document.querySelector<HTMLElement>(".session .module-code")?.textContent ?? "";
-  const approvedGold = /LCM-0[1236]/u.test(sessionLabel) || /GEOMETRY|PREFLOP|BLINDS|AGGRESSION|ЭФФЕКТИВНЫЙ СТЕК|ПРЕФЛОП|БЛАЙНДЫ|3-БЕТ-БАНКИ/u.test(decisionLabel) || /LCM-0[1236]/u.test(cardLabel);
-  document.documentElement.dataset.editorialGold = approvedGold ? "approved" : "";
   return { locale, showRoute: activeTab === "Сегодня" || activeTab === "Today" };
 }
 
@@ -165,32 +208,60 @@ export default function LiveCashApp() {
   const [view, setView] = useState<{ locale: LocaleCode; showRoute: boolean }>({ locale: "ru", showRoute: false });
 
   useEffect(() => {
-    let scheduled = false;
-    const sync = () => {
-      if (scheduled) return;
-      scheduled = true;
+    let syncScheduled = false;
+    let markerScheduled = false;
+
+    const syncLocaleAndRoute = () => {
+      if (syncScheduled) return;
+      syncScheduled = true;
       requestAnimationFrame(() => {
-        scheduled = false;
+        syncScheduled = false;
         const next = currentRuntimeView();
         applyGeometryLocale(next.locale);
         applyWave3PriorityLocale(next.locale);
         localizeHardcodedLabels(next.locale);
+        markEditorialGoldSurfaces();
         setView((previous) => previous.locale === next.locale && previous.showRoute === next.showRoute ? previous : next);
       });
     };
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.documentElement, {
+
+    const markGold = () => {
+      if (markerScheduled) return;
+      markerScheduled = true;
+      requestAnimationFrame(() => {
+        markerScheduled = false;
+        markEditorialGoldSurfaces();
+      });
+    };
+
+    syncLocaleAndRoute();
+    markGold();
+
+    const attributeObserver = new MutationObserver(syncLocaleAndRoute);
+    attributeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["lang", "aria-current"],
-      childList: true,
       subtree: true,
     });
-    return () => observer.disconnect();
+
+    const structureObserver = new MutationObserver(markGold);
+    structureObserver.observe(document.documentElement, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+
+    return () => {
+      attributeObserver.disconnect();
+      structureObserver.disconnect();
+    };
   }, []);
 
   return <>
-    <style>{`html[data-editorial-gold="approved"] .session > .session-head + .assumption-strip { display: none; }`}</style>
+    <style>{`
+      .module-list article[data-editorial-gold="approved"] > .assumption-strip,
+      .session[data-editorial-gold="approved"] > .assumption-strip { display: none; }
+    `}</style>
     <LiveCashAppCore />
     {view.showRoute && <LearningRoute locale={view.locale} />}
   </>;
