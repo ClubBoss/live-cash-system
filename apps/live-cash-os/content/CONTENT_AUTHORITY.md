@@ -1,6 +1,6 @@
 # Live Cash OS — Content Authority
 
-Status: `WAVE_4_FULL_CURRICULUM_ACCEPTED`
+Status: `WAVE_2_GOVERNANCE_ENFORCED / CURRICULUM_STRATEGY_GOLD / LANGUAGE_REVIEW_REQUIRED`
 
 This is the application-level admission contract for learner-facing poker content. It complements the repository-wide framework in `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md` and the immutable source-family registries under `sources/`.
 
@@ -16,7 +16,7 @@ This is the application-level admission contract for learner-facing poker conten
 | Product evidence model | `apps/live-cash-os/lib/model-core.ts` | authoritative product semantics for completion, transfer, retention and reviewed field evidence | product contract only; current numeric thresholds are not universal learning-science claims |
 | Field evidence | reviewed learner hand records | prioritise cues, calibrate priors and test table transfer | does not prove universal theory and cannot silently rewrite source claims |
 
-A registry entry marked incomplete, visually dependent, transcription-uncertain or pending blocks any claim that depends on the missing information from reaching `MODULE_GOLD`.
+A registry entry marked incomplete, visually dependent, transcription-uncertain or pending blocks any claim that materially depends on the missing information from reaching learner admission. The machine-readable bridge is `content/claims/source-gap-dependencies.json`: every current claim must be explicitly source-gap reviewed, and any unresolved `MATERIAL_BLOCKING` dependency must keep the claim `BLOCKED_SOURCE_GAP` or rejected. A `NON_BLOCKING_SCOPED` dependency is allowed only with a written rationale that narrows the admitted claim below the missing evidence.
 
 ## 2. Claim contract
 
@@ -32,7 +32,9 @@ Every strategic teaching claim admitted into an approved module must conform to 
 - unresolved conflicts or missing evidence;
 - current admission status.
 
-Claim types remain `BASELINE`, `HEURISTIC`, `EXPLOIT`, `SIMPLIFICATION`, and `OPEN_QUESTION`. `LOW` and `UNRESOLVED` evidence cannot be promoted into learner-facing prescription.
+Every current claim ID must also be present in `content/claims/source-gap-dependencies.json`. Adding a claim without a source-gap dependency review is a governance failure, even when the claim JSON itself is schema-valid.
+
+Claim types remain `BASELINE`, `HEURISTIC`, `EXPLOIT`, `SIMPLIFICATION`, and `OPEN_QUESTION`. `LOW` and `UNRESOLVED` evidence cannot be `ADMITTED` or `FIELD_VALIDATED`. `OPEN_QUESTION` may remain research/candidate/blocked/rejected only and cannot become learner prescription.
 
 ## 3. Required strategic scope
 
@@ -67,6 +69,12 @@ Russian copy must be natural poker Russian rather than word-for-word translation
 
 Deterministic scripts may reject stale hashes, missing metadata, prohibited terminology, invalid status transitions and locale/ID regressions. They may never create poker, RU, EN, accessibility, production or empirical approval.
 
+`RU_APPROVED` and `EN_APPROVED` are human-only states. Each `APPROVED` locale in `content/i18n/editorial-manifest.json` requires explicit evidence with `reviewer_kind: HUMAN`, reviewer identity, review date and the exact current corpus fingerprint. Model review, automated checks, successful CI or a generated manifest cannot satisfy this evidence contract.
+
+The corpus fingerprint is derived from the manifest's locked claim and learner-copy blobs. If any locked approved claim/copy blob changes, the old approval evidence becomes stale and release governance rejects it until the relevant human review is renewed. The lock intentionally errs on the conservative side: a shared corpus change may reopen more review than the smallest theoretical scope, but it may never preserve stale approval.
+
+While the upper acceptance ledger contains `LANGUAGE_REPAIR_REQUIRED`, `W4R` is the single owner of learner-facing language repair and language-specific enforcement. Wave 2 governance must not create a competing terminology scanner or edit learner copy.
+
 ## 7. Module admission states
 
 - `SOURCE_MAPPED`
@@ -83,9 +91,16 @@ Deterministic scripts may reject stale hashes, missing metadata, prohibited term
 
 `MODULE_GOLD` requires applicable gates in `content/MODULE_GOLD_CHECKLIST.md`; runtime existence or automated tests alone cannot create the status.
 
-## 8. Current admission boundary — 11/11 repository curriculum gold
+Acceptance truth has two editorial-manifest states:
 
-Accepted modules:
+- `TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED` — strategy truth may remain gold while one or more locale approvals are invalidated or pending;
+- `FULLY_ACCEPTED` — all required locale approvals have current human evidence and the upper acceptance ledger has no contradictory repair state.
+
+A lower manifest may never contradict the upper `ACCEPTANCE_LEDGER.md`. A transitional state is mandatory when the ledger explicitly reopens language truth.
+
+## 8. Current admission boundary — 11/11 strategic curriculum gold, language review reopened
+
+Strategically admitted modules:
 
 - LCM-01: effective-stack and pot-geometry reasoning; exact strategic depth/SPR/straddle thresholds remain excluded.
 - LCM-02: source-backed call/3-bet/fold branch construction; exact chart cells, mixed frequencies and squeeze-size tables remain excluded.
@@ -99,22 +114,24 @@ Accepted modules:
 - LCM-10: branch-specific evidence discipline, one-observation boundary and field-gated population calibration.
 - LCM-11: current Live Cash OS exposure/transfer/retention/reviewed-field evidence contract; current numeric thresholds are product rules rather than universal scientific claims.
 
-Wave 4 implementation acceptance:
+Wave 4 strategic implementation evidence remains historical evidence, not current bilingual approval evidence:
 
 - accepted implementation SHA: `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`;
 - full release run: `31164756544`;
 - validation job: `92822910319`;
 - TypeScript, lint, editorial, build: PASS;
 - unit/integration: `55/55 PASS`;
-- Playwright: `21 passed / 1 intentionally skipped`;
-- editorial manifest: `11 bilingual gold modules approved; 0 pending`.
+- Playwright: `21 passed / 1 intentionally skipped`.
 
-See `content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md` for the reviewed Wave 4 scope and exclusions.
+Current language/editorial truth is `LANGUAGE_REPAIR_REQUIRED`; the active owner is W4R. No current RU/EN locale is represented as human-approved in the manifest until W4R records valid evidence.
+
+See `content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md` for the historical reviewed Wave 4 strategic scope and exclusions, and `reports/WAVE_4R_LANGUAGE_TRUTH_REPAIR_LEDGER_2026-08-07.md` for current language repair truth.
 
 ## 9. Current global limitations
 
-Repository curriculum gold does not close later waves. Still explicitly excluded or pending are:
+Repository curriculum strategy gold does not close later waves. Still explicitly excluded or pending are:
 
+- current corpus-wide human RU/EN approval after W4R repair;
 - exact 100/150/200/300–400bb chart overlays where source visuals are required;
 - exact squeeze and 4-bet combo frequencies;
 - exact board-specific solver frequencies and EVs;
@@ -129,8 +146,10 @@ Repository curriculum gold does not close later waves. Still explicitly excluded
 
 ## 10. Production boundary
 
-`MODULE_GOLD` here is repository curriculum truth. Wave 4 was **not deployed by repository automation** and this document does not claim that production currently serves implementation SHA `5a6af4ed...`.
+Strategic `MODULE_GOLD` here is repository curriculum truth. Wave 4 was **not deployed by repository automation** and this document does not claim that production currently serves implementation SHA `5a6af4ed...`.
 
-## 11. Change rule
+## 11. Change and transition rule
 
-Any edit to an approved strategic claim, answer, explanation, table card or glossary term invalidates the affected approval until the relevant review and source lock are renewed. Cosmetic layout changes do not automatically invalidate strategic approval but must preserve meaning and accessibility.
+Any edit to a locked strategic claim, learner-facing answer, explanation, table card, glossary term or other locked learner-copy source changes the corpus fingerprint and invalidates existing locale approval evidence until the required human review is renewed. Cosmetic layout changes outside the locked corpus do not automatically invalidate strategic/editorial approval but must preserve meaning and accessibility.
+
+Automated checks may only reject an invalid transition. They must never write `APPROVED`, `RU_APPROVED`, `EN_APPROVED`, `MODULE_GOLD`, human reviewer evidence or an equivalent acceptance state. Approval is a reviewed repository fact, not a build product.
