@@ -1,6 +1,6 @@
 # Live Cash OS — Content Authority
 
-Status: `WAVE_2_GOVERNANCE_ENFORCED / CURRICULUM_STRATEGY_REPAIR_REQUIRED / LANGUAGE_REVIEW_REQUIRED`
+Status: `WAVE_2_GOVERNANCE_ENFORCED / CURRICULUM_STRATEGY_REVIEW_PENDING / LANGUAGE_REVIEW_REQUIRED`
 
 This is the application-level admission contract for learner-facing poker content. It complements the repository-wide framework in `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md` and the immutable source-family registries under `sources/`.
 
@@ -118,28 +118,35 @@ The wider module admission vocabulary remains:
 
 `MODULE_GOLD` requires applicable gates in `content/MODULE_GOLD_CHECKLIST.md`; runtime existence or automated tests alone cannot create the status.
 
-## 8. Current admission boundary after Wave 3 revalidation
+## 8. Current admission boundary after Wave 3 implementation repair
 
-The independent Wave 3 revalidation supersedes the prior corpus-wide strategy-gold claim for the current priority-module runtime.
+The independent Wave 3 revalidation superseded the prior corpus-wide strategy-gold claim for the current priority-module runtime. The scoped source repair is now implemented on `repair/w3-strategy-closure`; the affected dimensions have advanced from repair-required to human review pending, not to gold/approved.
 
 Current affected strategy scope:
 
-- LCM-02 / preflop — repair required for unsupported depth-scope metadata and priority drill boundary;
-- LCM-03 / blinds — repair required for unsupported depth-scope metadata;
-- LCM-06 / aggression — repair required for unsupported depth metadata and final drill semantic integrity.
+- LCM-02 / preflop — `STRATEGY_REVIEW_PENDING` after unsupported exact depth scope was removed from the claim and `pre-05`;
+- LCM-03 / blinds — `STRATEGY_REVIEW_PENDING` after the direct 200bb source example was separated from broader mechanism-level generalisation;
+- LCM-06 / aggression — `STRATEGY_REVIEW_PENDING` after unsupported exact stack depth was removed from the wide-3bet compensation claim and Wave 3 source drill/example.
 
 Current affected drill-content scope:
 
-- LCM-02 / preflop;
-- LCM-06 / aggression.
+- LCM-02 / preflop — `DRILLS_REVIEW_PENDING`;
+- LCM-06 / aggression — `DRILLS_REVIEW_PENDING`.
 
-Unaffected strategic modules retain their reviewed mechanism boundaries as historical/current strategic gold until another review reopens them. This governance reconciliation does not repair any W3 claim or drill and does not integrate W4R.
+Unaffected strategic modules retain their reviewed mechanism boundaries as historical/current strategic gold until another review reopens them. This Wave 3 branch does not edit W4R-owned files or merge FINAL W4R.
 
 Wave 3 revalidation evidence:
 
 - branch `audit/w3-strategy-revalidation`;
 - head `c30facc624ff208862a65083f96dc51a87601ee0`;
 - verdict `WAVE_3_STRATEGY_REPAIR_REQUIRED`.
+
+Wave 3 implementation-repair evidence boundary:
+
+- branch `repair/w3-strategy-closure`;
+- base `74bf73f15a539d692af53253cfaf06755693e727`;
+- prior strategy/drill approvals remain invalidated;
+- final composition remains stale until FINAL W4R semantic reconciliation and human poker/drill review.
 
 Historical Wave 4 implementation evidence remains historical evidence only:
 
@@ -149,15 +156,16 @@ Historical Wave 4 implementation evidence remains historical evidence only:
 - unit/integration: `55/55 PASS`;
 - Playwright: `21 passed / 1 intentionally skipped`.
 
-Current language/editorial truth is still `LANGUAGE_REPAIR_REQUIRED`; later W4R integration and independent RU/EN review remain required. The final learner-facing composition digest is intentionally not re-locked in this Wave 2 reconciliation because W3 will still mutate the candidate corpus.
+Current language/editorial truth on this branch is still `LANGUAGE_REPAIR_REQUIRED`; FINAL W4R `9b5b5a997663bd381857f1e06a2edeadd7b20c1a` remains a later integration input. The final learner-facing composition digest is intentionally not re-locked before that reconciliation and the required human reviews.
 
 ## 9. Current global limitations
 
 Still explicitly excluded or pending are:
 
-- W3 repair and re-review for LCM-02 / LCM-03 / LCM-06;
-- current corpus-wide human RU/EN approval after later W4R integration;
-- current final learner-facing composition digest and approval lock;
+- human strategy re-review for repaired LCM-02 / LCM-03 / LCM-06;
+- human drill re-review for repaired preflop/aggression priority content;
+- FINAL W4R semantic reconciliation and current final learner-facing composition digest;
+- current corpus-wide human RU/EN approval after W4R integration;
 - exact 100/150/200/300–400bb chart overlays where source visuals are required;
 - exact squeeze and 4-bet combo frequencies;
 - exact board-specific solver frequencies and EVs;
