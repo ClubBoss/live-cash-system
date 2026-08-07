@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./v11-overrides.css";
 import "./w8-premium.css";
+import "./mobile-visual-closure.css";
 
 export const metadata: Metadata = {
   title: "Live Cash OS",
