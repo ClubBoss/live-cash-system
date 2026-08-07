@@ -125,24 +125,30 @@ test("glossary defines priority terms and explicitly rejects hybrid learner jarg
   assert.match(glossary, /not approval tools/i);
 });
 
-test("module gold remains an explicit human admission decision with only reviewed modules approved", async () => {
+test("module gold remains an explicit reviewed admission decision for the full curriculum", async () => {
   const checklist = await text("content/MODULE_GOLD_CHECKLIST.md");
-  const conformance = await text("content/LCM-01_CONFORMANCE.md");
+  const lcm01Conformance = await text("content/LCM-01_CONFORMANCE.md");
+  const wave4Conformance = await text("content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md");
   const manifest = JSON.parse(await text("content/i18n/editorial-manifest.json"));
-  const approved = new Set(["geometry", "preflop", "blinds", "aggression"]);
+  const expectedModules = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
 
   assert.match(checklist, /No script may fill `Decision: MODULE_GOLD`/);
-  assert.match(conformance, /Decision: `MODULE_GOLD_REVALIDATED`/);
-  assert.match(conformance, /Exact depth\/SPR\/straddle strategic thresholds remain open/);
-  assert.equal(Object.keys(manifest.modules).length, 11);
+  assert.match(lcm01Conformance, /Decision: `MODULE_GOLD_REVALIDATED`/);
+  assert.match(lcm01Conformance, /Exact depth\/SPR\/straddle strategic thresholds remain open/);
+  assert.match(wave4Conformance, /STRATEGY_REVIEWED \/ RU_APPROVED \/ EN_APPROVED/);
+  assert.match(wave4Conformance, /TECHNICAL_GATE_PENDING/);
 
-  for (const [moduleId, localeStatus] of Object.entries(manifest.modules)) {
-    if (approved.has(moduleId)) {
-      assert.equal(localeStatus.ru, "APPROVED", `${moduleId}: RU should be approved`);
-      assert.equal(localeStatus.en, "APPROVED", `${moduleId}: EN should be approved`);
-    } else {
-      assert.equal(localeStatus.ru, "PENDING", `${moduleId}: RU should remain pending`);
-      assert.equal(localeStatus.en, "PENDING", `${moduleId}: EN should remain pending`);
-    }
+  assert.equal(manifest.status, "FULLY_ACCEPTED");
+  assert.equal(typeof manifest.reviewer, "string");
+  assert.ok(manifest.reviewer.trim().length > 0, "Editorial manifest must record a reviewer");
+  assert.match(manifest.review_policy, /can never create an approval/i);
+  assert.deepEqual(Object.keys(manifest.modules), expectedModules);
+
+  for (const moduleId of expectedModules) {
+    const localeStatus = manifest.modules[moduleId];
+    assert.equal(localeStatus.ru, "APPROVED", `${moduleId}: RU should be approved after explicit review`);
+    assert.equal(localeStatus.en, "APPROVED", `${moduleId}: EN should be approved after explicit review`);
+    assert.equal(typeof localeStatus.note, "string", `${moduleId}: approval boundary note is required`);
+    assert.ok(localeStatus.note.trim().length > 0, `${moduleId}: approval boundary note must not be empty`);
   }
 });
