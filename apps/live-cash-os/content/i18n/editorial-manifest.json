@@ -1,6 +1,9 @@
 {
   "schema_version": 3,
   "status": "FULLY_ACCEPTED",
+  "status_scope": "CURRICULUM_BILINGUAL_MODULE_APPROVAL",
+  "curriculum_truth": "CURRICULUM_STRATEGY_GOLD",
+  "language_truth": "WAVE_4R_REPAIR_CANDIDATE",
   "reviewer": "GPT-5.6 Thinking",
   "review_policy": "Learner-facing copy is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks can reject stale or invalid copy but can never create an approval.",
   "source_blobs": {
@@ -18,7 +21,7 @@
     "content/claims/lcm-10.claims.json": "a68387189194af69af64c75f692b40d578570691",
     "content/claims/lcm-11.claims.json": "c92e8d0dd63ab0fdd7d16664860054e9530ee423",
     "content/i18n/runtime-core.ts": "867be28b3cce8c009a8757c036ddf4605f8c27e0",
-    "content/i18n/runtime.ts": "cb7bf8f0f06336d45ad5d282d7402eebeb23d308",
+    "content/i18n/runtime.ts": "698a5b2ee6877c5fb38061cfc7f298bd520db94c",
     "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
     "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
     "content/i18n/geometry-locale.ts": "9ff8657186622db1849aa6e22b5d47a7885762d4",
@@ -28,7 +31,11 @@
     "content/i18n/wave4r-poker-native.ts": "6cf8b515a2a1c91771a604fc2b9867c82af8bf6e",
     "content/i18n/wave5-practice-copy.ts": "62d07d3a80b352ed0550c2eb51d74a0bb859bcfd",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
-    "components/LiveCashApp.tsx": "f600425468b0f090fde6fb431e54990925cab2ab"
+    "content/i18n/locale-pipeline.ts": "8bc3e7f63b1ad163ba3b1f5b9cd7e756d589c054",
+    "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
+    "components/LiveCashApp.tsx": "db3f009a0f1839bdca3de541a171e59d1fcd82e6",
+    "components/LiveCashAppCore.tsx": "6e21855dc73941218ebebbb1b48b6994639fad34",
+    "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32"
   },
   "modules": {
     "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated bilingual gold module for effective-stack and pot-geometry reasoning; exact strategic depth thresholds remain excluded." },
