@@ -41,6 +41,17 @@ function identity(module) {
   };
 }
 
+function learnerDrill(drill) {
+  return {
+    assumptions: drill.assumptions,
+    cue: drill.cue,
+    question: drill.question,
+    actionOptions: drill.actionOptions.map(({ text, misconceptionId }) => ({ text, misconceptionId })),
+    reasonOptions: drill.reasonOptions.map(({ text, misconceptionId }) => ({ text, misconceptionId })),
+    explanation: drill.explanation,
+  };
+}
+
 function learnerText(module) {
   return JSON.stringify({
     title: module.title,
@@ -59,8 +70,8 @@ function learnerText(module) {
     explainBackPrompt: module.explainBackPrompt,
     tableCard: module.tableCard,
     glossary: module.glossary,
-    drills: module.drills,
-    flashcards: module.flashcards,
+    drills: module.drills.map(learnerDrill),
+    flashcards: module.flashcards.map(({ kind, front, back }) => ({ kind, front, back })),
   });
 }
 
@@ -86,7 +97,7 @@ test("Wave 3 priority gold is fully bilingual rather than mixed fallback copy", 
   gold.applyWave3PriorityLocale("en");
   for (const id of ids) {
     const text = learnerText(modules.moduleById[id]);
-    assert.equal(/[А-Яа-яЁё]/u.test(text), false, `${id}: English gold contains Cyrillic`);
+    assert.equal(/[А-Яа-яЁё]/u.test(text), false, `${id}: English learner-facing gold contains Cyrillic`);
   }
 
   gold.applyWave3PriorityLocale("ru");
@@ -100,7 +111,7 @@ test("Wave 3 priority gold is fully bilingual rather than mixed fallback copy", 
     /credible bluff supply/iu,
     /realisation\/implied/iu,
   ]) {
-    assert.doesNotMatch(russian, pattern, `Russian Wave 3 gold contains hybrid jargon ${pattern}`);
+    assert.doesNotMatch(russian, pattern, `Russian learner-facing Wave 3 gold contains hybrid jargon ${pattern}`);
   }
 });
 
