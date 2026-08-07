@@ -127,7 +127,10 @@ test("reduced motion suppresses meaningful transitions", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openLocal(page);
   const duration = await page.getByRole("button", { name: "Начать", exact: true }).evaluate((element) => getComputedStyle(element).transitionDuration);
-  expect(duration).toMatch(/0\.001ms|0s/);
+  const seconds = duration.endsWith("ms")
+    ? Number.parseFloat(duration) / 1000
+    : Number.parseFloat(duration);
+  expect(seconds).toBeLessThanOrEqual(0.000001);
 });
 
 test("key primary surfaces remain overflow-free across target viewport sanity matrix", async ({ page }) => {
