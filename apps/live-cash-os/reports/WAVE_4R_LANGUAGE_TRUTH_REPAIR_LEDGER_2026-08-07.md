@@ -160,3 +160,16 @@ Until all DoD points pass, repository truth must remain:
 `CURRICULUM_STRATEGY_GOLD / LANGUAGE_REPAIR_REQUIRED`
 
 Only after explicit poker-aware RU and EN re-review may language status return to full bilingual acceptance.
+
+## Wave 1 closure handoff - 2026-08-07
+
+Independent Wave 1 closure audit on main `26b1dec72822a706f82cf485042c18e166397bdd` did not edit Wave 4R-owned learner copy. The following Wave 1 DoD-relevant language findings remain owned here:
+
+- final RU/EN shell approval cannot be re-asserted while this ledger remains `LANGUAGE_REPAIR_REQUIRED`;
+- the EN 0->100 route remains within 4R-04 and must be checked specifically for learner-facing state/evidence terminology before strict Wave 1 acceptance;
+- any remaining learner-facing `T1` occurrence must remain clearly secondary to `Starting decision check` / `Стартовая проверка мышления`, not become the unexplained primary navigation concept;
+- learner-state labels must remain human-readable on the final rendered Map/Skill Map surface in both locales, not only in source mappings;
+- diagnostic evaluation wording must continue to distinguish separate reviewed results from automatic strategic scoring without introducing internal measurement/state vocabulary;
+- the final rendered shell, not only `runtime.ts`, must be used for RU/EN parity approval because wrapper/runtime compatibility layers can alter learner-facing output.
+
+These are handoff observations, not new strategic requirements. They must be closed by Wave 4R's existing final-rendered-surface and manual bilingual review gates. Wave 1 does not duplicate or override 4R copy work.
