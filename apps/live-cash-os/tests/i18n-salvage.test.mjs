@@ -68,7 +68,7 @@ test("LCM-01 switches approved RU/EN copy while preserving stable IDs", async ()
   assert.deepEqual(geometry.flashcards.map((item) => item.id), cardIds);
 });
 
-test("the bilingual route contains nine locale-appropriate evidence stages", async () => {
+test("the bilingual route contains nine natural locale-appropriate learner stages", async () => {
   const { route } = await loadI18nFixture();
   const russian = route.getLearningRoute("ru");
   const english = route.getLearningRoute("en");
@@ -80,6 +80,7 @@ test("the bilingual route contains nine locale-appropriate evidence stages", asy
   assert.match(russian[4].evidenceGate, /новой ситуации/i);
   assert.match(russian[8].evidenceGate, /подтверждён/i);
   assert.doesNotMatch(russian.map((item) => `${item.description} ${item.evidenceGate}`).join(" "), /evidence|probe|repair|retention|field validated/i);
-  assert.match(english[4].evidenceGate, /transfer/i);
-  assert.match(english[8].evidenceGate, /validated/i);
+  assert.match(english[4].evidenceGate, /changed conditions/i);
+  assert.match(english[8].evidenceGate, /confirmed/i);
+  assert.doesNotMatch(english.map((item) => `${item.description} ${item.evidenceGate}`).join(" "), /skill evidence|probe|repair resolved|retention|field validated|learner-state/i);
 });
