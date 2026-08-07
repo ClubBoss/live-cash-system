@@ -52,7 +52,7 @@ test("mixed practice requires three completed topics and conceals the topic befo
   const eyebrow = decision.locator(":scope > .eyebrow");
   await expect(eyebrow).toHaveAttribute("aria-hidden", "true");
   await expect(eyebrow).toHaveCSS("font-size", "0px");
-  await expect(page.locator(".session-head")).toContainText("СМЕШАННАЯ ПРАКТИКА");
+  await expect(page.locator(".session-head > div > span")).toContainText(/^MIXED · 1\//);
 });
 
 test("lesson lab requires a prediction, validates inputs and tests a material change before continuing", async ({ page }) => {
@@ -70,6 +70,8 @@ test("lesson lab requires a prediction, validates inputs and tests a material ch
   await expect(gate.getByRole("heading", { name: "Измени хотя бы одну важную переменную." })).toBeVisible();
   await gate.getByLabel("Оставшийся стек").fill("20");
   await gate.getByLabel("Ставка / колл").fill("30");
+  await expect(gate.getByLabel("Оставшийся стек")).toHaveValue("20");
+  await expect(gate.getByLabel("Ставка / колл")).toHaveValue("30");
   await expect(gate.getByRole("alert")).toContainText("не может быть больше");
   await expect(gate.getByRole("button", { name: /Зафиксировать вывод/ })).toBeDisabled();
 
