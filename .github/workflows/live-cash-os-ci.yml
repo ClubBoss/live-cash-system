@@ -2,7 +2,7 @@ name: Live Cash OS CI
 
 on:
   push:
-    branches: [main, "wave/w7-diagnostic-field-progress"]
+    branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
@@ -10,10 +10,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: live-cash-os-${{ github.ref_name }}
+  group: live-cash-os-main
   cancel-in-progress: true
 
 jobs:
@@ -33,42 +33,11 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Apply bounded Wave 7 runtime wiring
-        if: github.ref_name == 'wave/w7-diagnostic-field-progress'
-        run: |
-          node scripts/wave7-type-narrow.mjs
-          node scripts/wave7-branch-apply.mjs
-          node scripts/wave7-locale-contract.mjs
-
-      - name: Wave 7 targeted integrity
-        run: node --import ./tests/register-model-loader.mjs --test tests/wave7-integrity.test.mjs
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Wave 7 targeted browser flows
-        run: npx playwright test e2e/wave7.spec.mjs
-
       - name: Release gate
         run: npm run test:release
-
-      - name: Commit verified Wave 7 runtime wiring
-        if: success() && github.ref_name == 'wave/w7-diagnostic-field-progress'
-        working-directory: .
-        env:
-          W7_BRANCH: ${{ github.ref_name }}
-        run: |
-          git fetch origin main --depth=1
-          git checkout FETCH_HEAD -- .github/workflows/live-cash-os-ci.yml
-          git rm apps/live-cash-os/scripts/wave7-branch-apply.mjs apps/live-cash-os/scripts/wave7-type-narrow.mjs apps/live-cash-os/scripts/wave7-locale-contract.mjs
-          git add apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/components/Wave7Experience.tsx apps/live-cash-os/app/globals.css apps/live-cash-os/lib/wave7.ts .github/workflows/live-cash-os-ci.yml
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Wave 7: wire Play Ready evidence loop"
-          git push origin "HEAD:${W7_BRANCH}"
 
       - name: Upload browser evidence on failure
         if: failure()

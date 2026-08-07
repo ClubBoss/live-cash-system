@@ -28,7 +28,6 @@ import {
   CONTENT_VERSION,
   DIMENSION_KEYS,
   STATE_SCHEMA_VERSION,
-  addFieldNote,
   classifyResponse,
   completeBlock,
   completeLesson,
@@ -41,8 +40,6 @@ import {
   moduleAvailable,
   recordDecision,
   recordDiagnosticResponse,
-  reviewFieldNote,
-  routeDiagnosticPriorities,
   saveActiveSession,
   startDiagnosticRun,
   validateLearnerState,
@@ -54,7 +51,9 @@ import {
   type ResponseClass,
   type TransferProbe,
 } from "../lib/model";
+import { applyReviewedDiagnostic, pendingHumanReviewCount, saveExplainBack } from "../lib/wave7";
 import LearningRoute from "./LearningRoute";
+import { Wave7ExplainBackHistory, Wave7FieldPanel, Wave7ProgressDetails } from "./Wave7Experience";
 
 const STORAGE_KEY = "live-cash-os:learner-state";
 const LOCALE_KEY = "live-cash-os:locale";
@@ -447,24 +446,25 @@ export default function LiveCashAppV11() {
     <div className="sr-live" aria-live="polite">{notice}</div>
     {notice && <div className="notice"><span>{notice}</span><button onClick={() => setNotice("")}>{t.close}</button></div>}
 
-    {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} />}
+    {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} onField={() => setTab("field")} />}
     {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} />}
     {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} />}
     {tab === "review" && <Review locale={locale} state={state} onReview={openReview} onRepair={openRepair} />}
     {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} />}
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
-    {tab === "field" && <Field locale={locale} state={state} setState={setState} />}
+    {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
     {tab === "diagnostic" && <Diagnostic locale={locale} state={state} setState={setState} onExit={() => setTab("today")} />}
     {tab === "debug" && <Debug locale={locale} state={state} setState={setState} syncStatus={syncStatus} setSyncStatus={setSyncStatus} />}
   </main>;
 }
 
-function Today({ locale, state, plan, budget, onBudget, onRun, onCards, onDiagnostic }: { locale: LocaleCode; state: LearnerState; plan: DailyPlan; budget: DailyBudget; onBudget: (value: DailyBudget) => void; onRun: () => void; onCards: () => void; onDiagnostic: () => void }) {
+function Today({ locale, state, plan, budget, onBudget, onRun, onCards, onDiagnostic, onField }: { locale: LocaleCode; state: LearnerState; plan: DailyPlan; budget: DailyBudget; onBudget: (value: DailyBudget) => void; onRun: () => void; onCards: () => void; onDiagnostic: () => void; onField: () => void }) {
   const t = runtimeCopy[locale];
   const primary = plan.items[0];
   const next = primary ? dailyPlanItemCopy(locale, primary) : dailyPlanItemCopy(locale, { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
   const completed = modules.filter((module) => state.modules[module.id].contentCompleted).length;
   const working = modules.filter((module) => ["WORKING", "RETAINED", "FIELD_TEST_PENDING", "FIELD_VALIDATED"].includes(state.modules[module.id].state)).length;
+  const pendingHuman = pendingHumanReviewCount(state);
   const budgets: DailyBudget[] = ["5", "15", "30", "warmup", "post"];
   const returnCopy = locale === "ru"
     ? "После паузы берём ограниченный набор самых полезных повторений — весь накопившийся хвост сразу не показываем."
@@ -488,6 +488,7 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onCards, onDiagno
     <section className="quick-grid">
       <article><p className="eyebrow">{locale === "ru" ? "ПЛАН" : "PLAN"}</p><h3>{locale === "ru" ? "Что входит дальше" : "What comes next"}</h3>{plan.items.slice(0, 3).map((item, index) => { const copy = dailyPlanItemCopy(locale, item); return <p key={`${item.kind}-${item.moduleId ?? index}`}>{index + 1}. {copy.title} · ≈{item.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p>; })}</article>
       <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{t.openT1}</button></article>
+      <article><p className="eyebrow">{locale === "ru" ? "РАЗБОР" : "REVIEW"}</p><h3>{locale === "ru" ? "Реальные руки и объяснения" : "Real hands and explanations"}</h3><p>{pendingHuman > 0 ? (locale === "ru" ? pendingHuman + " записей ждут явного разбора." : pendingHuman + " records are waiting for explicit review.") : (locale === "ru" ? "Запиши решение до результата или открой историю объяснений." : "Record a decision before the result or review your explanation history.")}</p><button className="textbutton" onClick={onField}>{locale === "ru" ? "Открыть разбор" : "Open review"}</button></article>
       <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{t.warmupDescription}</p><button className="textbutton" onClick={onCards}>{t.quickWarmup}</button></article>
     </section>
     <section className="integrity"><h2>{t.integrityTitle}</h2><p>{t.integrityBody}</p></section>
@@ -539,7 +540,7 @@ function LessonSession({ locale, state, setState, source, onExit }: { locale: Lo
     {session.step === 4 && <Worked locale={locale} module={source} onNext={() => setStep(5)} />}
     {session.step === 5 && <Lab locale={locale} module={source} onNext={() => setStep(6, 1)} />}
     {session.step === 6 && <><p className="eyebrow">7 · {t.changedSituation}</p><h2>{t.changedSituationTitle}</h2><p className="support">{t.changedSituationHelp}</p><Decision locale={locale} state={state} setState={setState} drill={drillById[session.drillIds[session.currentIndex]]} onContinue={() => session.currentIndex + 1 < session.drillIds.length ? setStep(6, session.currentIndex + 1) : setStep(7)} /></>}
-    {session.step === 7 && <ExplainBack locale={locale} state={state} setState={setState} module={source} onNext={() => setStep(8)} />}
+    {session.step === 7 && <ExplainBack locale={locale} state={state} setState={setState} module={source} />}
     {session.step === 8 && <TableCard locale={locale} module={source} onNext={() => setStep(9)} />}
     {session.step === 9 && <section className="summary"><p className="eyebrow">10 · {t.lessonFinished}</p><h1>{t.lessonIntroduced}<br/><em>{t.lessonNotMastered}</em></h1><p className="lede">{t.lessonNext}</p><button className="primary" onClick={() => setState(completeLesson(state, source.id))}>{t.saveReturn} <span>→</span></button></section>}
   </section>;
@@ -572,11 +573,37 @@ function Lab({ locale, module, onNext }: { locale: LocaleCode; module: ModuleCon
   return <><p className="eyebrow">6 · {labels.eyebrow}</p><h2>{lab.title}</h2><p className="support">{lab.description}</p>{lab.type === "spr" ? <div className="spr-lab"><label>{labels.pot}<input type="number" value={pot} onChange={(event) => setPot(Number(event.target.value))} /></label><label>{labels.stack}<input type="number" value={stack} onChange={(event) => setStack(Number(event.target.value))} /></label><label>{labels.betCall}<input type="number" value={bet} onChange={(event) => setBet(Number(event.target.value))} /></label><div className="spr-result"><span>SPR</span><b>{spr.toFixed(2)}</b><small>({stack}−{bet}) / ({pot}+2×{bet})</small></div></div> : <div className="compare-lab"><article><b>{lab.leftTitle}</b><p>{lab.leftText}</p></article><article><b>{lab.rightTitle}</b><p>{lab.rightText}</p></article></div>}<button className="primary" onClick={onNext}>{t.changedSituation} <span>→</span></button></>;
 }
 
-function ExplainBack({ locale, state, setState, module, onNext }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; module: ModuleContent; onNext: () => void }) {
+function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; module: ModuleContent }) {
   const t = runtimeCopy[locale];
-  const value = state.activeSession?.explainBack ?? "";
-  return <><p className="eyebrow">8 · {t.explainBack}</p><h2>{module.explainBackPrompt}</h2><textarea className="large-input" value={value} onChange={(event) => setState(patchSession(state, { explainBack: event.target.value }))} placeholder={t.explainPlaceholder}/><button className="primary" disabled={value.trim().length < 30} onClick={onNext}>{t.saveExplanation} <span>→</span></button></>;
+  const [value, setValue] = useState(state.activeSession?.explainBack ?? "");
+  const savedDraft = state.activeSession?.explainBack ?? "";
+
+  function persistDraft() {
+    if (value !== savedDraft) setState(patchSession(state, { explainBack: value }));
+  }
+
+  function saveAndContinue() {
+    if (value.trim().length < 30) return;
+    const withDraft = value === savedDraft ? state : patchSession(state, { explainBack: value });
+    const saved = saveExplainBack(withDraft, module.id, module.id + ".explainBack", value);
+    if (!saved.activeSession) return;
+    setState(patchSession(saved, {
+      step: 8,
+      selectedActionId: null,
+      selectedReasonId: null,
+      itemStartedAt: new Date().toISOString(),
+    }));
+  }
+
+  return <>
+    <p className="eyebrow">8 · {t.explainBack}</p>
+    <h2>{module.explainBackPrompt}</h2>
+    <Wave7ExplainBackHistory locale={locale} state={state} moduleId={module.id} />
+    <textarea className="large-input" value={value} onChange={(event) => setValue(event.target.value)} onBlur={persistDraft} placeholder={t.explainPlaceholder}/>
+    <button className="primary" disabled={value.trim().length < 30} onClick={saveAndContinue}>{t.saveExplanation} <span>→</span></button>
+  </>;
 }
+
 
 function TableCard({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
   const t = runtimeCopy[locale];
@@ -661,21 +688,26 @@ function Cards({ locale, state, setState, warmupIds }: { locale: LocaleCode; sta
 
 function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode; state: LearnerState; onLesson: (id: ModuleId) => void; onPractice: (id: ModuleId) => void }) {
   const t = runtimeCopy[locale];
-  return <section className="surface"><div className="section-head"><p className="eyebrow">{t.skillMap}</p><h1>{t.mapTitle}<br/><em>{t.mapEmphasis}</em></h1></div><div className="map-grid">{modules.map((source) => { const module = localizedModule(source, locale); return <article key={module.id}><div className="map-title"><span>{module.lcm}</span><b>{moduleStateLabel(locale, state.modules[module.id].state)}</b></div><h3>{module.shortTitle}</h3><div className="dimension-grid">{DIMENSION_KEYS.map((key) => { const cell = state.modules[module.id].evidence[key]; const score = evidencePercent(cell); return <div key={key}><span>{dimensionLabel(locale, key)}</span><b>{score === null ? "—" : `${score}%`}</b><small>{cell.exposures}</small></div>; })}</div><div className="module-actions"><button className="textbutton" onClick={() => onLesson(module.id)}>{t.theory}</button><button className="textbutton" disabled={!state.modules[module.id].contentCompleted} onClick={() => onPractice(module.id)}>{t.practice}</button></div></article>; })}</div></section>;
+  return <section className="surface">
+    <div className="section-head"><p className="eyebrow">{t.skillMap}</p><h1>{t.mapTitle}<br/><em>{t.mapEmphasis}</em></h1></div>
+    <div className="map-grid">{modules.map((source) => {
+      const module = localizedModule(source, locale);
+      return <article key={module.id}>
+        <div className="map-title"><span>{module.lcm}</span><b>{moduleStateLabel(locale, state.modules[module.id].state)}</b></div>
+        <h3>{module.shortTitle}</h3>
+        <div className="dimension-grid">{DIMENSION_KEYS.map((key) => {
+          const cell = state.modules[module.id].evidence[key];
+          const score = evidencePercent(cell);
+          return <div key={key}><span>{dimensionLabel(locale, key)}</span><b>{score === null ? "—" : String(score) + "%"}</b><small>{cell.exposures}</small></div>;
+        })}</div>
+        <Wave7ProgressDetails locale={locale} state={state} moduleId={module.id} />
+        <div className="module-actions"><button className="textbutton" onClick={() => onLesson(module.id)}>{t.theory}</button><button className="textbutton" disabled={!state.modules[module.id].contentCompleted} onClick={() => onPractice(module.id)}>{t.practice}</button></div>
+      </article>;
+    })}</div>
+  </section>;
 }
 
-function Field({ locale, state, setState }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void }) {
-  const t = runtimeCopy[locale];
-  const labels = fieldFactLabels(locale);
-  const [moduleId, setModuleId] = useState<ModuleId>("geometry");
-  const [cue, setCue] = useState("");
-  const [action, setAction] = useState("");
-  const [reason, setReason] = useState("");
-  const [cueBeforeAction, setCueBeforeAction] = useState(true);
-  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
-  const save = () => { if (cue.trim() && action.trim() && reason.trim()) { setState(addFieldNote(state, { moduleId, cue: cue.trim(), action: action.trim(), reason: reason.trim(), cueBeforeAction })); setCue(""); setAction(""); setReason(""); } };
-  return <section className="surface"><div className="section-head"><p className="eyebrow">{t.realHands}</p><h1>{t.fieldTitle}<br/><em>{t.fieldEmphasis}</em></h1></div><div className="field-layout"><div className="field-form"><label>{t.mechanism}<select value={moduleId} onChange={(event) => setModuleId(event.target.value as ModuleId)}>{modules.map((module) => <option key={module.id} value={module.id}>{module.lcm} · {localizedModule(module, locale).shortTitle}</option>)}</select></label><label>{t.cuePrompt}<textarea value={cue} onChange={(event) => setCue(event.target.value)} /></label><label>{t.actionPrompt}<textarea value={action} onChange={(event) => setAction(event.target.value)} /></label><label>{t.reasonPrompt}<textarea value={reason} onChange={(event) => setReason(event.target.value)} /></label><label className="check"><input type="checkbox" checked={cueBeforeAction} onChange={(event) => setCueBeforeAction(event.target.checked)} /> {t.cueBeforeAction}</label><button className="primary" disabled={!cue.trim() || !action.trim() || !reason.trim()} onClick={save}>{t.savePendingNote} <span>→</span></button></div><div className="field-list">{[...state.fieldNotes].reverse().map((note) => { const reviewText = reviewNotes[note.id] ?? ""; return <article key={note.id}><span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatusLabel(locale, note.status)}</span><h3>{localizedModule(moduleById[note.moduleId], locale).shortTitle}</h3><p><b>{labels.cue}:</b> {note.cue}</p><p><b>{labels.action}:</b> {note.action}</p><p><b>{labels.reason}:</b> {note.reason}</p>{note.status === "PENDING_REVIEW" ? <><textarea placeholder={`${t.reviewLabel}…`} value={reviewText} onChange={(event) => setReviewNotes({ ...reviewNotes, [note.id]: event.target.value })} /><div className="review-actions"><button onClick={() => setState(reviewFieldNote(state, note.id, "INSUFFICIENT", reviewText))}>{t.insufficient}</button><button disabled={!reviewText.trim()} onClick={() => setState(reviewFieldNote(state, note.id, "REVIEWED_REPAIR", reviewText))}>{t.needsRepair}</button><button className="primary" disabled={!note.cueBeforeAction || !reviewText.trim()} onClick={() => setState(reviewFieldNote(state, note.id, "REVIEWED_VALID", reviewText))}>{t.valid}</button></div></> : <p className="support">{t.reviewLabel}: {note.evaluatorNote || "—"}</p>}</article>; })}</div></div></section>;
-}
+
 
 function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void }) {
   const t = runtimeCopy[locale];
@@ -716,8 +748,17 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
       if (!diagnostic.runId || score.run_id !== diagnostic.runId) throw new Error("run");
       if (score.measurement_context !== diagnostic.measurementContext) throw new Error("context");
       if (score.locale_at_start !== diagnostic.localeAtStart) throw new Error("locale");
+      if (!score.item_reviews || !score.reviewer_kind || !score.reviewed_at) throw new Error("human-review");
       const priority = deriveDiagnosticPriorityModules(score);
-      setState(routeDiagnosticPriorities(state, priority));
+      setState(applyReviewedDiagnostic(state, priority, {
+        reviewerKind: score.reviewer_kind === "human" ? "HUMAN" : "HUMAN_ASSISTED",
+        reviewedAt: score.reviewed_at,
+        itemReviews: score.item_reviews.map((item) => ({
+          itemId: item.item_id,
+          responseClass: item.response_class,
+          reviewerNote: item.reviewer_note,
+        })),
+      }));
     } catch {
       alert(locale === "ru" ? "Не удалось загрузить результат разбора для этой проверки T1." : "Could not import the reviewed result for this T1 check.");
     }
@@ -729,7 +770,7 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
 
   if (["AWAITING_REVIEW", "SCORED", "ROUTED"].includes(diagnostic.status)) {
     const exportReady = Boolean(diagnostic.runId && diagnostic.measurementContext && diagnostic.localeAtStart && diagnostic.submittedAt && diagnostic.responses.length === 10);
-    return <section className="surface"><div className="section-head"><p className="eyebrow">T1 · {diagnosticStatusLabel(locale, diagnostic.status)}</p><h1>{diagnostic.responses.length}/10 {t.answersSaved}.</h1><p>{t.rawBoundary}</p><div className="button-row"><button className="primary" disabled={!exportReady} onClick={() => downloadJson("live-cash-t1-raw-v0.2.json", {
+    return <section className="surface"><div className="section-head"><p className="eyebrow">T1 · {diagnosticStatusLabel(locale, diagnostic.status)}</p><h1>{diagnostic.responses.length}/10 {t.answersSaved}.</h1><p>{t.rawBoundary}</p><p className="support">{locale === "ru" ? "Семантический разбор делает человек или человек с инструментом. Импорт может поднять тему в очереди, но сам по себе не подтверждает навык, запоминание после паузы или игру за столом." : "Semantic review is done by a human or human-assisted reviewer. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."}</p><div className="button-row"><button className="primary" disabled={!exportReady} onClick={() => downloadJson("live-cash-t1-raw-v0.2.json", {
       schema_version: "raw-0.2",
       learner_id: "current_learner",
       tranche_id: "T1",

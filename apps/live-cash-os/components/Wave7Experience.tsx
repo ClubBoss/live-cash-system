@@ -63,10 +63,10 @@ function copy(locale: LocaleCode) {
     review: "Разбор",
     reviewPlaceholder: "Коротко: что подтверждено или что нужно исправить…",
     insufficient: "Недостаточно данных",
-    reviewedOk: "Разобрано, без repair",
+    reviewedOk: "Разобрано, дополнительная практика не нужна",
     repair: "Нужна практика",
     supports: "Поддерживает перенос",
-    explainInbox: "Explain-back ждёт разбора",
+    explainInbox: "Объяснение своими словами ждёт разбора",
     noInbox: "Новых explain-back для разбора нет.",
     earlier: "Раннее объяснение",
     later: "Последнее объяснение",
@@ -78,9 +78,9 @@ function copy(locale: LocaleCode) {
     under: "верных ответов с низкой уверенностью",
     notEnoughCalibration: "Пока мало решений для полезной картины уверенности.",
     fieldSupports: "разобранных рук в поддержку",
-    delayed: "успешных delayed review",
+    delayed: "успешных повторов после паузы",
     variants: "успешных изменённых ситуаций",
-    pendingRepair: "repair в очереди",
+    pendingRepair: "заданий на работу над ошибкой",
   } : {
     captureTitle: "Record the decision before the result",
     captureBody: "Lock the spot, what you noticed, your action and your reason first. Add the result only after that snapshot is saved.",
@@ -108,10 +108,10 @@ function copy(locale: LocaleCode) {
     review: "Review",
     reviewPlaceholder: "Briefly: what was supported or what needs repair…",
     insufficient: "Not enough information",
-    reviewedOk: "Reviewed, no repair",
+    reviewedOk: "Reviewed, no extra practice",
     repair: "Needs practice",
     supports: "Supports transfer",
-    explainInbox: "Explain-back awaiting review",
+    explainInbox: "Your explanation is awaiting review",
     noInbox: "No new explain-back is waiting for review.",
     earlier: "Earlier explanation",
     later: "Latest explanation",
@@ -123,26 +123,26 @@ function copy(locale: LocaleCode) {
     under: "correct low-confidence answers",
     notEnoughCalibration: "There are not enough decisions yet for a useful confidence pattern.",
     fieldSupports: "reviewed supporting hands",
-    delayed: "successful delayed reviews",
+    delayed: "successful reviews after a delay",
     variants: "successful changed spots",
-    pendingRepair: "repairs queued",
+    pendingRepair: "mistake-practice tasks queued",
   };
 }
 
-function fieldStatus(locale: LocaleCode, note: StructuredFieldNote): string {
+function fieldStatus(locale: LocaleCode, note: StructuredFieldNote, baseStatusLabel: (locale: LocaleCode, status: string) => string): string {
   const outcome = note.reviewOutcome;
   if (locale === "ru") {
     if (outcome === "SUPPORTS_TRANSFER") return "разобрано: поддерживает перенос";
     if (outcome === "REPAIR_REQUIRED") return "разобрано: нужна практика";
-    if (outcome === "REVIEWED_OK") return "разобрано: без repair";
+    if (outcome === "REVIEWED_OK") return "разобрано: дополнительная практика не нужна";
     if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "недостаточно данных";
-    return "ждёт разбора";
+    return baseStatusLabel(locale, note.status);
   }
   if (outcome === "SUPPORTS_TRANSFER") return "reviewed: supports transfer";
   if (outcome === "REPAIR_REQUIRED") return "reviewed: needs practice";
-  if (outcome === "REVIEWED_OK") return "reviewed: no repair";
+  if (outcome === "REVIEWED_OK") return "reviewed: no extra practice";
   if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "not enough information";
-  return "awaiting review";
+  return baseStatusLabel(locale, note.status);
 }
 
 export function Wave7ExplainBackHistory({ locale, state, moduleId }: { locale: LocaleCode; state: LearnerState; moduleId: ModuleId }) {
@@ -171,8 +171,9 @@ export function Wave7ProgressDetails({ locale, state, moduleId }: { locale: Loca
   </div>;
 }
 
-export function Wave7FieldPanel({ locale, state, setState }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void }) {
+export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fieldFactLabels }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; fieldStatusLabel: (locale: LocaleCode, status: string) => string; fieldFactLabels: (locale: LocaleCode) => { cue: string; action: string; reason: string } }) {
   const c = copy(locale);
+  const facts = fieldFactLabels(locale);
   const [hand, setHand] = useState<FieldHandInput>(emptyHand);
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [resultDrafts, setResultDrafts] = useState<Record<string, string>>({});
@@ -230,9 +231,9 @@ export function Wave7FieldPanel({ locale, state, setState }: { locale: LocaleCod
         <label>{c.actionSequence}<textarea value={hand.actionSequence} onChange={(event) => patch("actionSequence", event.target.value)} /></label>
         <label>{c.board}<input value={hand.board} onChange={(event) => patch("board", event.target.value)} placeholder="Qh 7d 4c / preflop" /></label>
         <label>{c.sizings}<input value={hand.sizings} onChange={(event) => patch("sizings", event.target.value)} placeholder="3bb → 12bb; flop 25%" /></label>
-        <label>{c.cue}<textarea value={hand.cue} onChange={(event) => patch("cue", event.target.value)} /></label>
-        <label>{c.action}<textarea value={hand.action} onChange={(event) => patch("action", event.target.value)} /></label>
-        <label>{c.reason}<textarea value={hand.reason} onChange={(event) => patch("reason", event.target.value)} /></label>
+        <label>{facts.cue}<textarea value={hand.cue} onChange={(event) => patch("cue", event.target.value)} /></label>
+        <label>{facts.action}<textarea value={hand.action} onChange={(event) => patch("action", event.target.value)} /></label>
+        <label>{facts.reason} — {locale === "ru" ? "до результата" : "before the result"}<textarea value={hand.reason} onChange={(event) => patch("reason", event.target.value)} /></label>
         <label className="confidence">{c.confidence} <b>{hand.confidence}%</b><input type="range" min="0" max="100" value={hand.confidence} onChange={(event) => patch("confidence", Number(event.target.value))} /></label>
         <label>{c.populationRead}<textarea value={hand.populationRead ?? ""} onChange={(event) => patch("populationRead", event.target.value)} /></label>
         {(hand.populationRead ?? "").trim() && <label className="confidence">{c.populationConfidence} <b>{hand.populationReadConfidence ?? 50}%</b><input type="range" min="0" max="100" value={hand.populationReadConfidence ?? 50} onChange={(event) => patch("populationReadConfidence", Number(event.target.value))} /></label>}
@@ -244,7 +245,7 @@ export function Wave7FieldPanel({ locale, state, setState }: { locale: LocaleCod
         const resultText = resultDrafts[note.id] ?? "";
         const showdownText = showdownDrafts[note.id] ?? "";
         return <article key={note.id}>
-          <span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatus(locale, note)}</span>
+          <span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatus(locale, note, fieldStatusLabel)}</span>
           <h3>{moduleById[note.moduleId].shortTitle}</h3>
           {note.decisionLockedAt && <p className="assumption-strip"><b>{c.locked}</b> · {new Date(note.decisionLockedAt).toLocaleString(locale === "ru" ? "ru-RU" : "en-US")}</p>}
           {note.stakes && <p><b>{c.stakes}:</b> {note.stakes}</p>}
@@ -255,9 +256,9 @@ export function Wave7FieldPanel({ locale, state, setState }: { locale: LocaleCod
           {note.actionSequence && <p><b>{c.actionSequence}:</b> {note.actionSequence}</p>}
           {note.board && <p><b>{c.board}:</b> {note.board}</p>}
           {note.sizings && <p><b>{c.sizings}:</b> {note.sizings}</p>}
-          <p><b>{c.cue}:</b> {note.cue}</p>
-          <p><b>{c.action}:</b> {note.action}</p>
-          <p><b>{c.reason}:</b> {note.reason}</p>
+          <p><b>{facts.cue}:</b> {note.cue}</p>
+          <p><b>{facts.action}:</b> {note.action}</p>
+          <p><b>{facts.reason}:</b> {note.reason}</p>
           {typeof note.confidence === "number" && <p><b>{c.confidence}:</b> {note.confidence}%</p>}
           {note.populationRead && <p><b>{c.populationRead}:</b> {note.populationRead} ({note.populationReadConfidence ?? "—"}%)</p>}
 

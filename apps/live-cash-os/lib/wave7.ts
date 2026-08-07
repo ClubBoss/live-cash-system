@@ -227,7 +227,7 @@ export function captureFieldHand(state: LearnerState, input: FieldHandInput): Le
 
 export function addFieldResult(state: LearnerState, noteId: string, result: string, showdown = ""): LearnerState {
   const next = asWave7(state);
-  const note = next.fieldNotes.find((row) => row.id === noteId);
+  const note = next.fieldNotes.find((row) => row.id === noteId) as StructuredFieldNote | undefined;
   if (!note?.decisionLockedAt || !result.trim()) return state;
   note.result = result.trim();
   note.showdown = showdown.trim() || undefined;
@@ -242,7 +242,7 @@ export function reviewFieldHand(
   reviewerNote: string,
 ): LearnerState {
   const next = asWave7(state);
-  const note = next.fieldNotes.find((row) => row.id === noteId);
+  const note = next.fieldNotes.find((row) => row.id === noteId) as StructuredFieldNote | undefined;
   const reviewText = reviewerNote.trim();
   if (!note || note.status !== "PENDING_REVIEW" || !reviewText) return state;
 
@@ -305,7 +305,7 @@ export function deriveProgressExplanation(state: LearnerState, moduleId: ModuleI
     WORKING: ru ? "Действие и объяснение уже получаются на нескольких ситуациях." : "Action and reasoning are working across more than one spot.",
     RETAINED: ru ? "Навык удалось вспомнить после паузы и перенести на изменённую ситуацию." : "The skill survived a delay and a changed spot.",
     FIELD_TEST_PENDING: ru ? "Учебные проверки пройдены; теперь нужны разобранные реальные руки." : "Study checks are in place; reviewed real hands are the missing step.",
-    FIELD_VALIDATED: ru ? "Есть минимум две разобранные реальные руки плюс delayed review и перенос на вариант." : "At least two reviewed real hands are supported by delayed recall and changed-spot evidence.",
+    FIELD_VALIDATED: ru ? "Есть минимум две разобранные реальные руки, успешное повторение после паузы и перенос на изменённую ситуацию." : "At least two reviewed real hands are supported by delayed recall and changed-spot evidence.",
     REPAIR_REQUIRED: ru ? "Есть конкретная ошибка, которую нужно исправить до дальнейшего продвижения." : "A specific mistake needs repair before moving forward.",
   };
   const nextByState: Record<typeof progress.state, string> = {
@@ -316,7 +316,7 @@ export function deriveProgressExplanation(state: LearnerState, moduleId: ModuleI
     RETAINED: ru ? "Проверить границу правила и реальную раздачу." : "Test a boundary and then a real hand.",
     FIELD_TEST_PENDING: ru ? "Записать и разобрать реальные решения." : "Capture and review real table decisions.",
     FIELD_VALIDATED: ru ? "Поддерживать навык обычными повторениями." : "Maintain it through normal review.",
-    REPAIR_REQUIRED: ru ? "Сделать назначенный repair." : "Complete the assigned repair.",
+    REPAIR_REQUIRED: ru ? "Сделать назначенную работу над ошибкой." : "Complete the assigned mistake practice.",
   };
   return { reason: reasonByState[progress.state], next: nextByState[progress.state], fieldSupports, delayedSuccesses, variantSuccesses, pendingRepairs };
 }

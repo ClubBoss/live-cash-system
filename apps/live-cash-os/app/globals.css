@@ -203,3 +203,19 @@ p { line-height: 1.55; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+
+.w7-review-inbox { margin: 0 0 30px; padding: 24px; border: 1px solid var(--line); }
+.w7-history { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+.w7-history article, .w7-progress, .w7-result { padding: 16px; border: 1px solid var(--line); background: var(--paper); }
+.w7-history article p:last-child { white-space: pre-wrap; }
+.w7-progress { margin: 18px 0; }
+.w7-progress p { margin: 7px 0; }
+.w7-result { margin: 22px 0; }
+.w7-result label { display: block; margin: 12px 0; font-size: 12px; font-weight: 800; }
+.w7-result textarea { width: 100%; min-height: 72px; margin-top: 7px; border: 1px solid var(--line); background: transparent; padding: 12px; color: var(--ink); resize: vertical; }
+
+@media (max-width: 650px) {
+  .w7-history { grid-template-columns: 1fr; }
+  .w7-review-inbox { padding: 18px; }
+}
