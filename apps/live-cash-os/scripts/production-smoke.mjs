@@ -56,7 +56,7 @@ async function verifyHomeLocale(page, locale) {
 async function openGoldLesson(page, locale) {
   const russian = locale === "ru";
   await mainNav(page).getByRole("button", { name: russian ? "Учиться" : "Learn", exact: true }).click();
-  await page.locator(".module-list article").first().getByRole("button", { name: russian ? "Изучить" : "Study", exact: true }).click();
+  await page.locator(".module-list article").first().getByRole("button", { name: russian ? /^Изучить/ : /^Study/ }).click();
   await page.getByText(russian ? "1 · РЕШИ БЕЗ ПОДСКАЗКИ" : "1 · COLD CHECK").waitFor({ timeout: 10_000 });
   await page.getByRole("heading", { name: russian ? /В каких единицах сначала оценить глубину/i : /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
 }
