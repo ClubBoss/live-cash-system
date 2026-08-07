@@ -33,30 +33,24 @@ jobs:
           lines = Path('/tmp/w6-source.yml').read_text(encoding='utf-8').splitlines()
           start = next(index for index, line in enumerate(lines) if line.strip() == "python <<'PY'") + 1
           end = next(index for index in range(start, len(lines)) if lines[index].strip() == 'PY')
-          body = []
-          for line in lines[start:end]:
-              body.append(line[10:] if line.startswith('          ') else line)
+          body = [line[10:] if line.startswith('          ') else line for line in lines[start:end]]
           patch = '\n'.join(body) + '\n'
           old = '  const newAllowed = options.budget !== "post" && !hasUnresolvedRepair && !recentLessonExposure(state, options.now);'
           new = '  const newAllowed = options.budget !== "post" && options.budget !== "5" && !hasUnresolvedRepair && !recentLessonExposure(state, options.now);'
           if old not in patch:
               raise SystemExit('five-minute policy patch target not found')
-          patch = patch.replace(old, new, 1)
-          Path('/tmp/w6_apply.py').write_text(patch, encoding='utf-8')
+          Path('/tmp/w6_apply.py').write_text(patch.replace(old, new, 1), encoding='utf-8')
           PY
           python /tmp/w6_apply.py
           python <<'PY'
           from pathlib import Path
           path = Path('apps/live-cash-os/components/LiveCashAppCore.tsx')
           text = path.read_text(encoding='utf-8')
-          old = '''  function openReview() {
-    const drills = selectReview(state);'''
-          new = '''  function openReview(limit = 3) {
-    const drills = selectReview(state, limit);'''
+          old = '  function openReview() {\n    const drills = selectReview(state);'
+          new = '  function openReview(limit = 3) {\n    const drills = selectReview(state, limit);'
           if old not in text:
               raise SystemExit('openReview wiring target not found')
-          text = text.replace(old, new, 1)
-          text = text.replace('  MODULE_IDS,\n', '', 1)
+          text = text.replace(old, new, 1).replace('  MODULE_IDS,\n', '', 1)
           path.write_text(text, encoding='utf-8')
           PY
       - name: Install dependencies
