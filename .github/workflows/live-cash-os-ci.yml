@@ -2,7 +2,7 @@ name: Live Cash OS CI
 
 on:
   push:
-    branches: [main, wave/pre-learning-closure-human-review-lock]
+    branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
