@@ -9,7 +9,7 @@ test("cloud sync is driven by learner-state changes, not sync-label changes", as
   const source = await sourcePromise;
   const hook = await syncHookPromise;
   assert.match(source, /useReliableLearnerState\(\)/u);
-  assert.match(hook, /\[postState, ready, recoveryCode, retryNonce, state\]\);/u);
+  assert.match(hook, /\[postState, ready, recoveryBlocked, retryNonce, state\]\);/u);
   assert.doesNotMatch(hook, /\[[^\]]*syncStatus[^\]]*\]\);/u);
 });
 
