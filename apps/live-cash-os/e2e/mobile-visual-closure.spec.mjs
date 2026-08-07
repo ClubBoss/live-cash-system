@@ -8,7 +8,7 @@ async function openLocal(page) {
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 }
 
-test("real-device mobile closure keeps Today action above the fold at 390x844", async ({ page }) => {
+test("real-device mobile closure keeps Today action above the fold at 390x844", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openLocal(page);
 
@@ -41,6 +41,8 @@ test("real-device mobile closure keeps Today action above the fold at 390x844", 
   const start = page.getByRole("button", { name: "Начать", exact: true });
   await expect(start).toBeVisible();
   await expect(start).toBeInViewport();
+
+  await page.screenshot({ path: testInfo.outputPath("today-390x844.png"), fullPage: true });
 });
 
 test("mobile header remains compact without horizontal document overflow at 360px", async ({ page }) => {
