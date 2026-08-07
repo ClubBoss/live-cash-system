@@ -1,162 +1,278 @@
 # Wave 4R — Language Truth Repair Ledger
 
-**Opened:** 2026-08-07  
-**Trigger audit base:** `1dc35d3af42f52a521d86609e9c9f34965f42abc`  
-**Status:** `CURRICULUM_STRATEGY_GOLD / LANGUAGE_REPAIR_REQUIRED`
+**Date:** 2026-08-07  
+**Fresh GREEN base:** `26b1dec72822a706f82cf485042c18e166397bdd`  
+**Base CI:** run `31175320582`  
+**Repair branch:** `repair/w4r-language-truth`  
+**Accepted code candidate:** `4da3d57d01cc7abedb3cb17a48a37ae7bd973053`  
+**Accepted code CI:** run `31180900856`, job `92873731809`  
+**Truth:** `CURRICULUM_STRATEGY_GOLD / WAVE_4R_ACCEPTED`
 
-## Why Wave 4 is reopened
+No merge to `main`, production deploy, learner-state reset/migration or Wave 6 work was performed.
 
-Wave 4's source-first strategic reconstruction remains accepted. An independent read-only audit demonstrated that the final learner-facing locale/runtime layer still contains system-level truth and language defects that the previous editorial gate did not detect.
+## 1. Fresh-HEAD revalidation of the nine known defect classes
 
-The repair is not a strategic rollback. It is a localization, single-source-of-truth and poker-native language repair before any Wave 6 work.
+| # | Audit result at fresh HEAD | Wave 4R action |
+|---|---|---|
+| 1. RU T1 hybrid machine language | **ALREADY REPAIRED** in `content/diagnostic.ts`; all ten RU items were already materially natural and stable | Revalidated; did not rewrite gratuitously. Added regression coverage for IDs and banned jargon. |
+| 2. Competing EN `moduleHeadings` | **PARTIALLY PRESENT AS ARCHITECTURAL RISK** | Converted `moduleHeadings` into an empty compatibility export. Final semantic copy now comes through the canonical locale pipeline and final language pass. |
+| 3. APPROVED EN vs `EN REVIEW REQUIRED` | **CONFIRMED** as stale fallback/review truth risk | Removed approved-locale pending/fallback rendering; gate rejects contradictory review-required text. |
+| 4. EN 0→100 evidence/state-machine jargon | Route data itself was already substantially human, but composition and regression protection were incomplete | Route now renders directly in React through `LearningRoute`; RU/EN internal-jargon checks and browser assertions added. |
+| 5. Learner UI hardcodes/raw enums | **CONFIRMED** | Replaced raw session/drill/card/T1/field statuses and generic labels with direct locale helpers. |
+| 6. Gold RU/EN research/architecture prose | **CONFIRMED**, especially EN T1 and high-risk modules | Natural EN T1 plus final language-only pass for LCM-02/05/06/07/09/10; LCM-11 existing poker-native repair revalidated. |
+| 7. Editorial gate too narrow | **CONFIRMED** | Expanded `editorial-check.mjs` and added `wave4r-runtime-check.mjs`; browser coverage now checks rendered output, locale identity and Wave 5 behavior. |
+| 8. Post-render DOM localisation / temporary overlays | **CONFIRMED** | Removed Wave 4R locale `MutationObserver`/`textContent` overlay entirely. Wave5 compatibility layer no longer uses `MutationObserver` or `textContent` state inference. |
+| 9. Manifest/acceptance truth contradictions | **CONFIRMED** | Manifest now scopes `FULLY_ACCEPTED` to curriculum bilingual module approval and separately records `curriculum_truth` and `language_truth`; acceptance/release ledgers synchronized after explicit human review. |
 
-## P1 repair scope
+## 2. Full learner-facing string inventory
 
-### 4R-01 — Russian T1 rewrite
+The final rendered paths were reviewed, not only individual source files.
 
-Rewrite all ten learner-facing diagnostic items in natural Russian while preserving:
+### Diagnostic / T1
 
-- diagnostic IDs `LD-001` through `LD-010`;
-- ordering and target timing;
-- underlying poker mechanism;
-- export/import identity;
-- cold/post-learning measurement semantics.
+Reviewed:
 
-Remove unexplained hybrid research language such as `compensation-test`, `OOP defence`, `preflop air`, `near-range node`, `gate`, `bluff supply`, raw `MDF` framing and similar internal constructions. Standard poker terms may remain when they are the clearest table language.
+- intro/purpose/optional wording;
+- all RU `LD-001`…`LD-010` titles/prompts;
+- all EN `LD-001`…`LD-010` titles/prompts;
+- answer/reason/confidence labels;
+- raw-response boundary;
+- reviewed-result import text;
+- diagnostic status labels;
+- cold/post-learning/mixed-exposure instructions;
+- first-item timer semantics and locale-at-start behavior.
 
-### 4R-02 — One EN module source of truth
+Result: stable IDs preserved; no known P1 hybrid/research language remains in learner-facing T1.
 
-Remove the competing `moduleHeadings` overlay that can replace newer gold `title`, `shortTitle`, `plainGoal` or `tableCue` in `localizedModule()`.
+### 0→100 route
 
-Final RU and EN module identity must come from the reviewed gold locale content only.
+Reviewed all nine stages in RU and EN plus the route boundary explanation.
 
-### 4R-03 — Remove false EN editorial-pending UI
+Result: no learner-facing evidence-gate/state-machine language such as `probe`, `retention`, `field validation`, `learner-state` or `state machine` remains on the route.
 
-When all current modules are approved, learner UI must not show:
+### Shell / navigation / Today / empty states
 
-- `EN REVIEW REQUIRED`;
-- `still under poker-aware editorial review`;
-- stale source-lock approval warnings.
+Reviewed:
 
-If a future module becomes pending, status must be driven by actual editorial metadata rather than unconditional locale logic.
+- primary navigation;
+- Today promise and next-action explanation;
+- T1 entry card;
+- pre-session card entry;
+- progress explanation;
+- Learn/Review/Cards/Map/Hands headings;
+- empty review/card states;
+- save/sync/local/offline labels;
+- import/reset errors visible to learners.
 
-### 4R-04 — Rewrite EN 0→100 route
+Result: learner actions are described as learner actions rather than architecture operations.
 
-Replace learner-facing internal/state-machine language such as:
+### Module corpus
 
-- skill evidence;
-- current model;
-- admitted probe;
-- explicit transfer probe;
-- repair resolved;
-- due retention passed;
-- reviewed field hand;
-- field validated;
-- learner-state event.
+For LCM-01…LCM-11 reviewed final locale output across:
 
-The route should communicate the same meaning as the natural Russian route: start → understand → practise → apply under changed conditions → recall after delay → reviewed real-hand use.
+- title;
+- short title;
+- description;
+- plain goal;
+- table cue;
+- theory;
+- heuristics;
+- decision tree;
+- worked example;
+- counterexample/boundary;
+- drill assumptions;
+- cues;
+- questions;
+- action options;
+- reason options;
+- explanations;
+- table card;
+- glossary;
+- flashcards;
+- lab copy.
 
-### 4R-05 — Hardcoded learner UI localization
+High-risk EN focus was applied to LCM-02/05/06/07/11 as required. LCM-09/10 received additional direct-language cleanup because the same defect class appeared there. LCM-11 already had a substantial poker-native Wave 4R layer on fresh HEAD and was revalidated rather than rewritten without need.
 
-Inventory and localize all learner-facing hardcodes in normal React/locale flow, including current examples:
+### Review / cards / field / status surfaces
 
-- `Pot`, `Stack`, `Bet / call`;
-- `ACTIVE RECALL`;
-- raw card kinds;
-- `DECISION REVIEW · CLASS ...`;
-- `Cue`, `Action`, `Reason`;
-- raw field-review statuses;
-- diagnostic `AWAITING_REVIEW / SCORED / ROUTED` labels;
-- import/export errors and alerts.
+Reviewed direct rendering of:
 
-Do not rely on post-render DOM text replacement as the primary localization architecture.
+- lesson/practice/repair/review/mixed session mode;
+- drill type;
+- card type;
+- recall mode;
+- decision review;
+- ResponseClass summary;
+- field-note review status;
+- T1 review status;
+- `Cue / Action / Reason` equivalents;
+- lab `Pot / Stack / Bet / call` equivalents.
 
-### 4R-06 — Full poker-native RU/EN corpus pass
+Result: raw implementation enums are no longer the learner-facing copy source.
 
-Review final learner-facing strings after all overlays, not individual source layers.
+## 3. High-risk before → after examples
 
-Remove research/AI-style phrasing where a good live-cash coach would say the same mechanism more directly. Standard poker language such as `3-bet`, `c-bet`, `range`, `blocker`, `SPR`, `straddle`, `squeeze` may remain when useful.
+| Before | After | Reason |
+|---|---|---|
+| EN T1 `Straddle denominator` | `Depth with a straddle` | Same stack-depth concept, normal poker English. |
+| EN T1 `Pairwise multiway depth` | `Effective stacks in a multiway pot` | Removes research naming while preserving opponent-specific effective-stack meaning. |
+| EN T1 `compensation test` | Direct question about whether the wider 3-bettor checks more weak hands postflop | Teaches the actual decision rather than an internal test name. |
+| EN T1 `directional raise incentive` / `MDF burden` | Direct value/protection and multiway action-order questions | Preserves mechanism without pseudo-formal labels. |
+| LCM-05 `Bet size and response shape` | `How bet size changes your response` | Human learner title. |
+| LCM-07 `Range ancestry` | `Trace the range through the hand` | Same source-range filtering mechanism, poker-native phrasing. |
+| Raw `ACTIVE RECALL` | RU `ВСПОМНИ БЕЗ ПОДСКАЗКИ` / EN `RECALL WITHOUT HINTS` | Learner instruction instead of internal mode label. |
+| Raw `PENDING_REVIEW` | RU `ждёт разбора` / EN `awaiting review` | Human status. |
+| RU screen showing `Pot / Stack / Bet / call` | `Банк / Стек / Ставка / колл` | Locale parity. |
+| Raw `Cue / Action / Reason` in RU | `Что заметил / Как сыграл / Почему` | Natural hand-review language. |
+| Approved EN plus stale `EN REVIEW REQUIRED` path | Approved EN with no review-required fallback | Manifest/UI truth agreement. |
+| Locale `MutationObserver` + `textContent` rewriting after React render | `applyLocaleData(locale)` before render + direct React locale helpers | Eliminates reconciliation/localisation hack. |
 
-Priority examples to eliminate or simplify include:
+## 4. Canonical language/runtime architecture
 
-- направленная архитектура;
-- нижняя мастевая часть базового колл-региона;
-- существующий смешанный кандидат;
-- очистка существующих миксов;
-- недокомпенсированная c-bet-частота;
-- селективное bet/check-разделение;
-- range compensation;
-- claim-driven visual review;
-- OOP raise gate;
-- arriving/source branch language where direct poker language is clearer;
-- credible bluff candidates where concrete bluff supply can be named.
+Final locale application order is explicit in `content/i18n/locale-pipeline.ts`:
 
-### 4R-07 — Editorial gate expansion
+1. geometry gold locale;
+2. Wave 3 priority gold locale;
+3. Wave 4 curriculum gold locale;
+4. Wave 4 final editorial locale;
+5. existing Wave 5 practice copy / earlier Wave4R native layer;
+6. Wave 4R final language-only pass.
 
-The gate must reject recurrence of the defect class, not only known phrases.
+The last layer is language-only. It does not change strategic claim files, semantic IDs, correct answer IDs, state schema or mastery rules.
 
-Required coverage:
+`moduleHeadings` remains only as an empty compatibility export and cannot override the canonical final module copy.
 
-- final T1 RU learner copy;
-- EN internal/state-machine jargon;
-- final 0→100 route;
-- final module heading source-of-truth;
-- stale `EN REVIEW REQUIRED` / fallback contradictions;
-- hardcoded Core learner labels;
-- final RU and EN curriculum output after all locale overlays;
-- locale completeness for diagnostic, cards, field notes and primary lesson UI.
+## 5. State / identity / strategy safety
 
-Automated checks remain rejection tools, not automatic editorial approval.
+Wave 4R changed no files under strategic claims or learner-state model logic.
 
-### 4R-08 — Consolidate temporary DOM overlays
+Preserved:
 
-Wave 5 introduced narrow DOM/CSS compatibility layers to avoid a large Core rewrite before language repair. Because 4R already owns Core/localization, migrate these behaviors into normal React/locale contracts where practical:
+- module IDs;
+- drill IDs;
+- action/reason option IDs;
+- card IDs;
+- diagnostic IDs `LD-001`…`LD-010`;
+- state schema;
+- existing learner history;
+- correct-answer identities;
+- module prerequisites;
+- review/mastery/field-validation transitions.
 
-- mixed-practice generic pre-answer label;
-- prediction-first lab rendering and validation;
-- Wave 5 flashcard copy sync;
-- hardcoded label localization;
-- editorial-gold status handling.
+The only adjacent functional fix was T1 measurement truth: the first-item timer now starts when the learner presses `Start`, not while reading the diagnostic landing screen.
 
-Preserve all Wave 5 browser behavior and stable learner-state IDs.
+## 6. Wave 5 non-regression
 
-## Full learner-facing inventory requirement
+Wave 5 behavior remains separately owned and accepted.
 
-4R may not stop after repairing the examples above. Audit all of:
+Verified after Wave 4R:
 
-- `content/diagnostic.ts`;
-- `content/i18n/learning-route.ts`;
-- module heading/localization sources;
-- final LCM-01–LCM-11 RU and EN output;
-- `LiveCashAppCore.tsx` learner-facing labels and statuses;
-- wrapper/post-processing localization;
-- cards;
-- review/repair screens;
-- field hand screens;
-- diagnostic result/import/export screens;
-- labs;
-- empty/error/success states visible before later visual/accessibility waves.
+- mixed practice remains locked until three completed topics;
+- topic identity remains concealed before a mixed decision;
+- prediction-before-interaction lab gate remains present;
+- a material variable must change;
+- invalid lab input cannot continue;
+- boundary feedback remains present;
+- the flow continues to the changed-node stage;
+- option/card semantic identities remain unchanged.
 
-## Measurable DoD
+One duplicate lab gate found during Wave 4R was traced to composing `Wave5PracticeLayer` twice (`app/page.tsx` plus the temporary wrapper). The wrapper duplicate was removed; the accepted layer is composed once.
 
-Wave 4R is accepted only when:
+## 7. Editorial / runtime gate expansion
 
-1. T1 RU has zero known unexplained research/internal hybrid phrases and preserves all ten stable IDs.
-2. There is one canonical source for approved EN module headings/goals/cues.
-3. Zero learner-facing stale EN editorial-pending message appears for approved modules.
-4. EN 0→100 route contains zero prohibited internal state-machine terminology.
-5. RU primary flows contain zero known untranslated generic UI labels where a natural RU equivalent is required.
-6. Final RU/EN module corpus passes poker-native manual review; no known P1 machine-style phrase remains.
-7. Editorial regression tests cover diagnostic + route + Core hardcodes + final locale outputs.
-8. RU↔EN switching preserves module/drill/action/reason/card/diagnostic identities and existing learner evidence.
-9. Wave 5 mixed-practice and lab browser contracts remain green on desktop and mobile.
-10. `npm run test:release` passes on the exact 4R head.
-11. A manual language ledger records any intentionally retained English poker term and why it remains useful.
+`check:editorial` now runs:
 
-## Acceptance verdict rule
+- `scripts/editorial-check.mjs`;
+- `scripts/wave4r-runtime-check.mjs`.
 
-Until all DoD points pass, repository truth must remain:
+The gates reject:
 
-`CURRICULUM_STRATEGY_GOLD / LANGUAGE_REPAIR_REQUIRED`
+- stale source-locks;
+- missing bilingual module coverage;
+- changed T1 IDs;
+- Cyrillic in EN T1/runtime/gold scopes;
+- known T1/research jargon;
+- route state-machine jargon;
+- stale/competing `moduleHeadings` semantic copy;
+- `EN REVIEW REQUIRED` contradictions;
+- rendered raw session/drill/card/field/T1 labels;
+- Wave 4R `MutationObserver`/`textContent` locale reconciliation;
+- `MutationObserver`/`textContent` state inference in the Wave 5 compatibility layer;
+- missing browser coverage for RU→EN→RU identity, T1 naturalness, final EN headings and raw-status suppression.
 
-Only after explicit poker-aware RU and EN re-review may language status return to full bilingual acceptance.
+The gate does **not** write approval. Human approval is represented separately by `language_truth: WAVE_4R_ACCEPTED` after review.
+
+## 8. Test evidence
+
+Accepted code candidate `4da3d57d01cc7abedb3cb17a48a37ae7bd973053`:
+
+- workflow run `31180900856`;
+- validation job `92873731809`;
+- `npm run typecheck`: PASS;
+- `npm run lint`: PASS;
+- `npm run check:editorial`: PASS;
+- Wave 4R runtime gate: PASS;
+- `npm run build`: PASS;
+- unit/integration: `64/64 PASS`;
+- Playwright: `36 passed / 1 intentionally skipped`;
+- desktop: PASS;
+- mobile: PASS;
+- RU→EN→RU active decision identity: PASS;
+- no Cyrillic EN T1/rendered session checks: PASS;
+- no stale approved-EN review banner: PASS;
+- Wave 5 practice regression: PASS.
+
+A prior red run was intentionally not accepted. Its Playwright evidence exposed three issues: two stale selectors and one real duplicate Wave 5 composition. Those were repaired before the accepted run.
+
+## 9. Exact changed files in accepted code candidate
+
+Relative to fresh base `26b1dec72822a706f82cf485042c18e166397bdd`:
+
+- `.github/workflows/live-cash-os-ci.yml` — temporary branch-only validation trigger; must be restored to base before handoff;
+- `apps/live-cash-os/components/LiveCashApp.tsx`;
+- `apps/live-cash-os/components/LiveCashAppCore.tsx`;
+- `apps/live-cash-os/components/LearningRoute.tsx` (new);
+- `apps/live-cash-os/components/Wave5PracticeLayer.tsx`;
+- `apps/live-cash-os/content/i18n/editorial-manifest.json`;
+- `apps/live-cash-os/content/i18n/learner-ui.ts` (new);
+- `apps/live-cash-os/content/i18n/locale-pipeline.ts` (new);
+- `apps/live-cash-os/content/i18n/runtime.ts`;
+- `apps/live-cash-os/content/i18n/wave4r-final-language.ts` (new);
+- `apps/live-cash-os/e2e/live-cash.spec.mjs`;
+- `apps/live-cash-os/e2e/wave5-practice.spec.mjs`;
+- `apps/live-cash-os/package.json`;
+- `apps/live-cash-os/scripts/editorial-check.mjs`;
+- `apps/live-cash-os/scripts/wave4r-runtime-check.mjs` (new).
+
+Acceptance/release/report files are updated after the accepted code gate and are documentation-only follow-up commits.
+
+## 10. Intentionally retained poker terms
+
+The following are retained where they are the most natural table language and already part of the approved glossary/context:
+
+- `3-bet`;
+- `4-bet`;
+- `c-bet`;
+- `range`;
+- `blocker`;
+- `squeeze`;
+- `SPR`;
+- `straddle`;
+- `OOP` where context makes it standard and clear;
+- `value`, `bluff`, `polar`, `linear` when directly describing poker range construction.
+
+These are poker terms, not architecture/research leakage.
+
+## 11. Remaining P2 only
+
+One diminishing-return architecture item remains:
+
+`Wave5PracticeLayer` is still a separate compatibility component and still uses narrow DOM selection/attributes to preserve already-accepted prediction-first lab and mixed-practice concealment behavior. It no longer uses `MutationObserver` or `textContent`, does not localize by rewriting React text, and passes the Wave 5 browser contract. Full integration into Core is deferred because it is not needed to close language truth and would materially raise regression risk inside Wave 4R.
+
+External/non-4R debt remains unchanged: authenticated production smoke, exact deployed SHA, release-version/tag synchronization and empirical learning validation.
+
+## 12. Verdict
+
+`WAVE_4R_ACCEPTED`
+
+Wave 6 was not started.

@@ -52,7 +52,7 @@ test("mixed practice requires three completed topics and conceals the topic befo
   const eyebrow = decision.locator(":scope > .eyebrow");
   await expect(eyebrow).toHaveAttribute("aria-hidden", "true");
   await expect(eyebrow).toHaveCSS("font-size", "0px");
-  await expect(page.locator(".session-head > div > span")).toContainText(/^MIXED · 1\//);
+  await expect(page.locator(".session-head > div > span")).toContainText(/^СМЕШАННАЯ ПРАКТИКА · 1\//);
 });
 
 test("lesson lab requires a prediction, validates inputs and tests a material change before continuing", async ({ page }) => {
