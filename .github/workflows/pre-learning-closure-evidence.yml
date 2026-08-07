@@ -1,0 +1,48 @@
+name: Pre-learning closure evidence
+
+on:
+  push:
+    branches: [wave/pre-learning-closure-evidence]
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Chromium Firefox and WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: W8 cross-browser critical UX matrix
+        run: npx playwright test e2e/wave8-ux.spec.mjs --config=playwright.cross-browser.config.mjs
+
+      - name: Production learner smoke
+        env:
+          LIVE_URL: https://live-cash-os.elmarsal.chatgpt.site/
+        run: npm run smoke:production
+
+      - name: Upload closure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-learning-closure-evidence
+          path: |
+            apps/live-cash-os/smoke-evidence
+            apps/live-cash-os/test-results
+            apps/live-cash-os/playwright-report
+          if-no-files-found: ignore
+          retention-days: 14
