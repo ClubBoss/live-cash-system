@@ -56,13 +56,13 @@
     "source_refs": [
       "sources/smash-live-cash/transcripts/SLC_M02_L05_big_blind_vs_small_blind.md"
     ],
-    "interpretation": "Board texture must be interpreted through the source range. Blind identity remains strategically relevant after the flop.",
+    "interpretation": "Board texture must be interpreted through the source range. The direct reviewed source example is HJ versus SB/BB at 200bb; applying the source-range mechanism at other depths is a project generalisation, not direct numeric source evidence.",
     "claim_type": "BASELINE",
     "confidence": "HIGH",
     "assumptions": ["SB and BB use broadly different baseline calling structures", "No strong opponent-specific evidence collapses the difference"],
-    "exceptions": ["A specific SB who repeatedly over-calls can reach the flop wider than the baseline prior suggests"],
+    "exceptions": ["A specific SB who repeatedly over-calls can reach the flop wider than the baseline prior suggests", "Exact depth-specific c-bet frequencies outside the reviewed 200bb example require separate source support"],
     "target_games": ["Live cash 1/3", "Live cash 2/5"],
-    "depth_scope": ["100bb", "200bb and deeper"],
+    "depth_scope": ["Direct source example: 200bb", "Other depths: mechanism-level generalisation only; no exact frequency or threshold is admitted"],
     "positions": ["PFR versus SB", "PFR versus BB"],
     "player_count_scope": "HEADS_UP",
     "sizing_scope": ["Single-raised pots"],
@@ -72,7 +72,7 @@
     "status": "ADMITTED",
     "reviewer": "GPT-5.6 Thinking",
     "reviewed_at": "2026-08-07",
-    "notes": "Exact board frequencies remain visual-dependent."
+    "notes": "Blind-source identity is admitted as a mechanism. Exact board frequencies, suits and depth-specific outputs remain visual-dependent."
   },
   {
     "claim_id": "LCM-03-CL-004",

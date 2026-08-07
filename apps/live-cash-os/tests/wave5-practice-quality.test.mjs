@@ -33,10 +33,8 @@ async function fixture() {
   const wave3Path = await compileInto(root, "content/i18n/wave3-priority-gold.ts", "content/i18n/wave3-priority-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const wave4Path = await compileInto(root, "content/i18n/wave4-curriculum-gold.ts", "content/i18n/wave4-curriculum-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const finalPath = await compileInto(root, "content/i18n/wave4-final-editorial.ts", "content/i18n/wave4-final-editorial.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
-  await compileInto(root, "content/i18n/wave4r-poker-native.ts", "content/i18n/wave4r-poker-native.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
-  const wave5CopyPath = await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled
-    .replace('from "../modules"', 'from "../modules.mjs"')
-    .replace('from "./wave4r-poker-native"', 'from "./wave4r-poker-native.mjs"'));
+  const wave5CopyPath = await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  const finalLanguagePath = await compileInto(root, "content/i18n/wave4r-final-language.ts", "content/i18n/wave4r-final-language.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   return {
     modules: await import(pathToFileURL(modulesPath).href),
     geometry: await import(pathToFileURL(geometryPath).href),
@@ -44,6 +42,7 @@ async function fixture() {
     wave4: await import(pathToFileURL(wave4Path).href),
     finalEditorial: await import(pathToFileURL(finalPath).href),
     wave5Copy: await import(pathToFileURL(wave5CopyPath).href),
+    finalLanguage: await import(pathToFileURL(finalLanguagePath).href),
   };
 }
 
@@ -53,6 +52,7 @@ function applyLocale(value, locale) {
   value.wave4.applyWave4CurriculumLocale(locale);
   value.finalEditorial.applyWave4FinalEditorialLocale(locale);
   value.wave5Copy.applyWave5PracticeCopy(locale);
+  value.finalLanguage.applyWave4RFinalLanguage(locale);
 }
 
 function normalized(value) {
@@ -127,7 +127,7 @@ function auditCards(modules, locale) {
   }
 }
 
-test("Wave 5 audits the final learner-facing RU and EN corpus rather than stale base copy", async () => {
+test("Wave 5 audits the canonical final learner-facing RU and EN corpus", async () => {
   const value = await fixture();
   for (const locale of ["ru", "en"]) {
     applyLocale(value, locale);
@@ -143,7 +143,7 @@ test("Wave 5 practice copy keeps blocker cards distinct without changing stable 
   assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front,
     "What should be rebuilt before judging a blocker on a new street?");
   assert.equal(value.modules.moduleById.ancestry.flashcards.find((card) => card.id === "anc-card-before").front,
-    "What comes before a blocker?");
+    "What comes before blocker analysis?");
   applyLocale(value, "ru");
   assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front,
     "Что восстановить перед оценкой блокера на новой улице?");

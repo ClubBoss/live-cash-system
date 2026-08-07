@@ -1,12 +1,39 @@
 {
-  "schema_version": 3,
-  "status": "FULLY_ACCEPTED",
-  "reviewer": "GPT-5.6 Thinking",
-  "review_policy": "Learner-facing copy is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks can reject stale or invalid copy but can never create an approval.",
+  "schema_version": 5,
+  "status": "TRANSITIONAL_REVIEW_REQUIRED",
+  "strategy_status": "CURRICULUM_STRATEGY_REVIEW_PENDING",
+  "strategy_repair_scope": ["preflop", "blinds", "aggression"],
+  "drill_content_status": "DRILLS_REVIEW_PENDING",
+  "drill_repair_scope": ["preflop", "aggression"],
+  "language_repair_owner": "W4R",
+  "review_policy": "Learner-facing and strategic approval requires explicit independent human review. Deterministic checks may reject stale, invalid, or out-of-scope mutations but can never create an approval.",
+  "strategy_approval": null,
+  "drill_approval": null,
+  "human_approvals": {},
+  "final_composition": {
+    "status": "REVIEW_PENDING",
+    "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
+    "approved_digest": null,
+    "note": "W1-W5 integrated learner-facing composition is materialized. W3 repaired strategy/drills, FINAL W4R runtime/language, W4R-SEM-01 and the inert compatibility-path correction are source-locked; human poker, RU and EN review remain required before CURRENT/approved status."
+  },
+  "repair_source_paths": {
+    "strategy": [
+      "content/claims/lcm-02.claims.json",
+      "content/claims/lcm-03.claims.json",
+      "content/claims/lcm-06.claims.json"
+    ],
+    "drills": [
+      "content/i18n/wave3-priority-gold.ts"
+    ],
+    "language": []
+  },
   "source_blobs": {
     "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
     "content/diagnostic.ts": "b629a8e7fc40fd3451dc32c58e0929802e035c8f",
     "content/POKER_GLOSSARY_RU_EN.md": "ad43c90de79ad764fb1838d86fa237bedeb71c70",
+    "content/claims/claim.schema.json": "f30b7175b8123aac7d214f1de783e152106544a1",
+    "content/claims/source-gap-dependencies.json": "16aac91e7b0b809da7879b4262a4f36e8dd9eb37",
+    "content/claims/lcm-01.claims.json": "44a43d33607cd0c0fcfae59993ad4cec29b2886b",
     "content/claims/lcm-02.claims.json": "886197f4285b64810c1d21266b0e01cb4d47a7c0",
     "content/claims/lcm-03.claims.json": "7946c32b771017777fd0e1c9a036be21bf72fb83",
     "content/claims/lcm-04.claims.json": "c34de6433c0c36d97d326342c366b5895d83bb9a",
@@ -18,29 +45,34 @@
     "content/claims/lcm-10.claims.json": "a68387189194af69af64c75f692b40d578570691",
     "content/claims/lcm-11.claims.json": "c92e8d0dd63ab0fdd7d16664860054e9530ee423",
     "content/i18n/runtime-core.ts": "867be28b3cce8c009a8757c036ddf4605f8c27e0",
-    "content/i18n/runtime.ts": "cb7bf8f0f06336d45ad5d282d7402eebeb23d308",
+    "content/i18n/runtime.ts": "b622da3479b8b71024bc4ed304b406c1e50918e2",
     "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
     "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
     "content/i18n/geometry-locale.ts": "9ff8657186622db1849aa6e22b5d47a7885762d4",
-    "content/i18n/wave3-priority-gold.ts": "2d6d996339d82f601a563628874e4d7e5885a48b",
+    "content/i18n/wave3-priority-gold.ts": "96d8ae487f75e7c18468944b414e17f70d57fa68",
     "content/i18n/wave4-curriculum-gold.ts": "7f8798ebeb9d38c7f177a4ac561ceb0448889d37",
     "content/i18n/wave4-final-editorial.ts": "9fc4da2e53ef1c013cfb3d6523f52c68b058e1d9",
-    "content/i18n/wave4r-poker-native.ts": "6cf8b515a2a1c91771a604fc2b9867c82af8bf6e",
-    "content/i18n/wave5-practice-copy.ts": "62d07d3a80b352ed0550c2eb51d74a0bb859bcfd",
+    "content/i18n/wave5-practice-copy.ts": "d5a79ff83a7bee91dfa88c653e97558b89d466c8",
+    "content/i18n/wave4r-final-language.ts": "64dcbd684031ac910d4369c91b88f504c5e6d16b",
+    "content/i18n/locale-pipeline.ts": "30f695b934b073408359a1d1b2a4724bddd60eae",
+    "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
-    "components/LiveCashApp.tsx": "f600425468b0f090fde6fb431e54990925cab2ab"
+    "components/LiveCashApp.tsx": "20a92d512c5c6decb892d9c1bd8ca100fb9346ea",
+    "components/LiveCashAppCore.tsx": "5d860a2e045e9aa5af585da75d8a0d7f313bbde1",
+    "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
+    "components/Wave5PracticeLayer.tsx": "95ec1e475e164296e25e91c668e11b01feb16075"
   },
   "modules": {
-    "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated bilingual gold module for effective-stack and pot-geometry reasoning; exact strategic depth thresholds remain excluded." },
-    "preflop": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-02 is gold for source-backed call/3-bet/fold branch construction; exact chart cells, mixed frequencies and squeeze size tables remain excluded." },
-    "blinds": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-03 is gold for BB price/closing action, SB squeeze exposure, equity realisation and blind-source identity without fixed chart boundaries." },
-    "filtering": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-04 is gold for source-range reconstruction after each action, protected checks and branch-specific exploit reset; exact combo maps remain node-specific." },
-    "shape": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-05 is gold for value-driven sizing, range-wide versus selective response shape and protected calls; exact sizes, frequencies and mix thresholds remain excluded." },
-    "aggression": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-06 is gold for 3-bet-pot range compensation, board ownership, turn filtering and the OOP top-end raising gate; exact solver frequencies remain excluded." },
-    "ancestry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-07 is gold for branch ancestry, preflop-to-postflop bluff supply, blocker ordering and action-specific opponent models; exact combo frequencies remain excluded." },
-    "multiway": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-08 is gold for sandwich pressure, closing action, shared defence and source-range ownership; no exact multiway MDF or solver-frequency claim is admitted." },
-    "river": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-09 is gold for origin/filter/value/bluff/size/blocker river auditing; exact solver EV and population underbluff magnitude remain field- or node-gated." },
-    "evidence": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-10 is gold for branch-specific evidence discipline and calibrated reads; source population priors do not become proven Batumi magnitudes without field evidence." },
-    "transfer": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-11 is gold for the current Live Cash OS evidence contract separating exposure, variant transfer, delayed retention and reviewed field evidence; current numeric thresholds are product rules, not universal scientific claims." }
+    "geometry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold historically; exact integrated RU/EN composition now requires fresh human review." },
+    "preflop": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair is materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending." },
+    "blinds": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair is materialized for LCM-03; strategy and exact integrated RU/EN review remain pending." },
+    "filtering": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
+    "shape": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
+    "aggression": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair and active W4R-SEM-01 reconciliation are materialized; strategy, drill and exact integrated RU/EN review remain pending." },
+    "ancestry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
+    "multiway": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
+    "river": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
+    "evidence": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
+    "transfer": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." }
   }
 }

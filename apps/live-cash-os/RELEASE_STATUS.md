@@ -1,101 +1,87 @@
 # Live Cash OS — Release Status
 
-Status: `REPOSITORY_PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_GOLD / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / PRODUCTION_UPDATE_NOT_PERFORMED`
+Status: `W1_W5_INTEGRATION_CANDIDATE / REVIEW_PENDING / PRODUCTION_UPDATE_NOT_PERFORMED`
 
-## Repository
+## Repository candidate
 
-- Default and only permanent branch: `main`
-- Canonical release command: `npm run test:release`
-- Automation: one `main` CI workflow
-- Wave 5 accepted implementation SHA: `e54ae03627398eff09c10b87971c15d5858b3ceb`
-- Wave 5 release run: `31171850884`
-- Validation job: `92845201804`
+- baseline main: `26b1dec72822a706f82cf485042c18e166397bdd`
+- reconciliation branch: `integration/w1-w5-reconciliation`
+- reconciliation base: exact repaired W3 head `a73dd43a2b6cf460023c67429522c9cadddabab8`
+- repaired W2 governance is already in W3 ancestry
+- FINAL W4R input: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`
+- W1 input: `fcb2e7b73c7459b8d7b15d7ab80866baa5f69b16`
+- W5 evidence input: `d13a350e960cb887847d16cc0418e0d38003c53e`
+- canonical release command: `npm run test:release`
+- `main` has not been merged or modified by this work
+- Wave 6 has not started
 
-Wave 5 release evidence:
+## Current candidate truth
 
-- TypeScript: PASS;
-- ESLint: PASS;
-- current editorial/source-lock gate: PASS;
-- build: PASS;
-- unit/integration: `58/58 PASS`;
-- Playwright: `25 passed / 1 intentionally skipped`;
-- desktop and mobile mixed-practice/lab scenarios: PASS;
-- no failed-browser evidence upload required.
+The candidate has materialized the W1-W5 implementation composition without restoring invalidated approval claims.
 
-## Repository scope accepted
+Current manifest truth:
 
-Platform integrity remains accepted.
+`TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
 
-Strategic curriculum remains accepted for LCM-01 through LCM-11 in their scoped teaching boundaries. Exact unsupported solver/chart/population claims remain outside admitted scope.
+Final-composition current digest:
 
-Wave 5 decision-practice quality is accepted:
+`7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`
 
-- mixed practice unlocks after three completed topics;
-- topic identity is concealed before mixed decisions;
-- action/reason answer order remains session-shuffled;
-- mixed selection already varies drills across recently completed modules;
-- prediction-first lab contract is enforced;
-- invalid/unmodified lab states cannot continue;
-- final RU/EN drill/card corpus passes structural QA;
-- one real duplicate blocker-card prompt was repaired with stable IDs preserved.
+No active strategy, drill or RU/EN human approval evidence is carried forward from stale compositions.
 
-## Language/editorial truth boundary
+## Integration boundaries
 
-Wave 4 strategic work is **not rolled back**, but language/editorial acceptance is reopened.
+### W1
 
-Current truthful status:
+`WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
 
-`CURRICULUM_STRATEGY_GOLD / LANGUAGE_REPAIR_REQUIRED`
+FINAL W4R closes the former implementation-language blocker relevant to W1. Strict W1 acceptance still requires genuine fresh-context walkthrough evidence and current human language/release evidence.
 
-Confirmed P1 classes:
+### W2/W3
 
-- hybrid RU/EN research language in T1;
-- competing EN heading/goal source in `moduleHeadings` vs gold copy;
-- approved EN content still receiving `EN REVIEW REQUIRED` UI;
-- internal evidence/state-machine language in EN 0→100 route;
-- untranslated/raw UI labels and statuses;
-- residual research/AI-style learner prose;
-- editorial gate gaps that allowed these contradictions;
-- temporary DOM localization/practice layers that should be consolidated during repair.
+W2/W3 remain authoritative for governance lifecycle and repaired priority strategy. Repaired strategy/drills remain human-review pending; neither `CURRICULUM_STRATEGY_GOLD` nor `DRILLS_APPROVED` is restored automatically.
 
-Active next block:
+### FINAL W4R
 
-**Wave 4R — Language Truth Repair**
+FINAL W4R remains authoritative for `LiveCashApp*`, `LearningRoute`, canonical locale runtime/pipeline, learner-facing language implementation, direct React localisation, W4R rejection checks and the current Wave5 practice composition.
 
-No Wave 6 work is allowed before Wave 4R is accepted.
+Active semantic reconciliation:
+
+- EN aggression worked example: unsupported exact `200bb` removed, with no replacement exact depth.
+
+Composition-path reconciliation:
+
+- `wave4r-poker-native.ts` remains present only as compatibility source;
+- canonical `locale-pipeline.ts` does not import/call it;
+- `applyWave5PracticeCopy()` no longer imports/calls it transitively;
+- therefore it cannot overwrite repaired W3 RU `agg-01`, `agg-02` or `agg-04` semantics.
+
+### W5
+
+Current disposition:
+
+`WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
+
+W5 branch contributions are audit/handoff reports only. FINAL W4R `Wave5PracticeLayer` is retained; superseded temporary implementation is not restored.
+
+## Gate boundary
+
+A materialized candidate is not yet a technically green candidate until the exact integrated source executes its required gates.
+
+Candidate governance is designed to pass while the manifest is `REVIEW_PENDING` and source locks are current. Full approval is designed to remain red until human strategy/drill/RU/EN evidence and a current approved composition digest exist.
+
+Historical CI/test counts are not current integration evidence and must not be copied forward.
 
 ## Production boundary
 
-- Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
-- Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
-- D1 binding: `DB`
-- The owner reported publishing a post-PR #7 Site version on `2026-08-07`.
-- Current Wave 4/Wave 5 repository changes are **not claimed deployed**.
-- Exact production Git SHA is not exposed to available automation and is not invented.
-- Unauthenticated automation reaches the ChatGPT sign-in boundary; authenticated application DOM smoke remains externally blocked.
-- No production D1 reset, learner-state reset, URL change or migration action was performed during Waves 4–5.
+- stable production URL remains outside this integration operation;
+- no publish is performed;
+- no production D1 or learner-state migration/reset is performed;
+- no exact deployed-SHA claim is made for this candidate;
+- production smoke belongs to the later owner-authorised release stage.
 
-## Production evidence status
+## Current verdict boundary
 
-| Gate | Status | Evidence boundary |
-|---|---|---|
-| Earlier Site publication | `OWNER_CONFIRMED` | Owner report, 2026-08-07 |
-| Stable URL protected surface | `PASS_PROTECTED` | ChatGPT auth boundary reachable |
-| Authenticated DOM smoke | `BLOCKED_EXTERNAL` | No inherited authorised browser session |
-| Exact deployed Git SHA | `UNKNOWN_EXTERNAL` | Hosting does not expose it to available automation |
-| Wave 5 repository release gate | `PASS` | Run `31171850884` on `e54ae036...` |
-| Wave 5 production publish | `NOT_PERFORMED` | No deployment executed |
-| D1/state reset avoided | `PASS_BY_CHANGE_SCOPE` | No storage/deploy mutation performed |
+Until current candidate gate execution is recorded, the truthful repository state is:
 
-## Remaining Wave 0 release-truth debt
-
-- authenticated production DOM smoke;
-- exact deployed SHA;
-- package/release-version synchronization;
-- release tag/GitHub Release identity if still absent.
-
-## Verdict
-
-`WAVE_5_REPOSITORY_ACCEPTED / WAVE_4_LANGUAGE_REPAIR_ACTIVE / PRODUCTION_UPDATE_NOT_PERFORMED`
-
-The next repository work is Wave 4R. Wave 6 is intentionally blocked until language truth is repaired and re-accepted.
+`W1_W5_INTEGRATION_CANDIDATE_MATERIALIZED / TECHNICAL_GATE_EXECUTION_PENDING / HUMAN_REVIEW_PENDING / PRODUCTION_NOT_CHANGED`

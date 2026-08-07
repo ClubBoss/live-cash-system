@@ -1,161 +1,152 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_GOLD / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
+Status: `W1_W5_INTEGRATION_CANDIDATE_MATERIALIZED / TECHNICAL_RELEASE_GATE_PENDING / HUMAN_REVIEW_PENDING / PRODUCTION_NOT_CHANGED`
 
-This ledger separates platform, strategic curriculum, language/editorial truth, practice quality, production evidence and empirical learning evidence. A green technical/content gate does not override an independently confirmed learner-facing language defect.
+This ledger records the exact W1-W5 reconciliation candidate. It separates implementation closure, automated rejection gates, human approval, first-use comprehension evidence and production truth. A materialized candidate is not an accepted release until the exact source passes its required gates.
 
-## Accepted platform scope
+## Integration identity
 
-- learner-state integrity kernel;
-- schema-2 migration at local and D1 boundaries;
-- stable learner, module, drill, action/reason option, misconception, card and diagnostic identities across RU/EN;
-- resumable active sessions and persisted locale;
-- optional T1 diagnostic handoff;
-- canonical content/evidence semantics;
-- skill-specific repair and delayed-review architecture;
-- separation of completion, working evidence, retention, variant transfer and field validation;
-- local/cloud state controls;
-- production build and desktop/mobile Playwright gates;
-- one permanent branch (`main`), one CI workflow, one canonical release command.
+- integration branch: `integration/w1-w5-reconciliation`
+- integration base: W3 repaired head `a73dd43a2b6cf460023c67429522c9cadddabab8`
+- W3 already contains repaired W2 governance ancestry
+- FINAL W4R input: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`
+- W1 input: `fcb2e7b73c7459b8d7b15d7ab80866baa5f69b16`
+- W5 audit/evidence input: `d13a350e960cb887847d16cc0418e0d38003c53e`
+- baseline main: `26b1dec72822a706f82cf485042c18e166397bdd`
+- `main` is not merged or modified by this reconciliation
+- Wave 6 is not started
 
-## Strategic curriculum scope
+## Wave 1 truth
 
-All eleven current modules remain strategically admitted in their reviewed mechanism boundaries:
+Current verdict:
 
-- LCM-01 — effective stack and pot geometry;
-- LCM-02 — preflop call/3-bet/fold branch construction;
-- LCM-03 — blind-source identity, price, closing action and realisation;
-- LCM-04 — action filtering and current-range reconstruction;
-- LCM-05 — sizing and response shape;
-- LCM-06 — 3-bet-pot aggression/defence architecture;
-- LCM-07 — range ancestry and branch-specific blocker logic;
-- LCM-08 — multiway action order, sandwich and shared defence;
-- LCM-09 — river value/bluff/blocker audit;
-- LCM-10 — calibrated branch-specific reads and evidence;
-- LCM-11 — transfer/retention/field-evidence contract.
+`WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
 
-Wave 4 strategic implementation evidence:
+The combined candidate retains the focused first-use E2E, walkthrough protocol, evidence template, production smoke and acceptance-truth regression from W1. FINAL W4R closes the former implementation-language blocker relevant to Wave 1, but this does not create fresh human RU/EN approval.
 
-- SHA `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`;
-- run `31164756544`;
-- job `92822910319`;
-- unit/integration `55/55 PASS`;
-- Playwright `21 passed / 1 intentionally skipped`.
+Strict `WAVE_1_ACCEPTED` remains blocked until genuine fresh-context evidence exists:
 
-Exact visual-only solver outputs, chart cells/frequencies, exact multiway MDF and unvalidated Batumi population magnitudes remain outside admitted scope.
+- at least 3 eligible walkthroughs;
+- at least 90% diagnostic purpose/optionality comprehension;
+- at least 90% Learn/Review/Real Hands navigation comprehension;
+- the remaining Master Plan first-use thresholds.
 
-## Wave 4 language truth reopened
+## Wave 2 governance truth
 
-An independent read-only audit of accepted Wave 4 surfaces found confirmed P1 language/localization truth defects that the previous gate did not detect.
+Wave 2 governance lifecycle is authoritative in the combined candidate:
 
-Therefore Wave 4 is now split honestly:
+- deterministic checks are rejection-only;
+- candidate and release approval are separate states/gates;
+- strategy and drill repairs may advance to `REVIEW_PENDING` without becoming approved;
+- old approval evidence is invalidated after material mutation;
+- human evidence is required to restore strategy gold, drill approval or locale approval;
+- locale approval binds to the exact final-composition digest.
 
-- strategic curriculum: `GOLD`;
-- language/editorial/localization: `LANGUAGE_REPAIR_REQUIRED`.
+Current governance state:
 
-Active repair ledger:
+- manifest: `TRANSITIONAL_REVIEW_REQUIRED`
+- strategy: `CURRICULUM_STRATEGY_REVIEW_PENDING`
+- drills: `DRILLS_REVIEW_PENDING`
+- strategy approval: `null`
+- drill approval: `null`
+- human locale approvals: none
+- final composition: `REVIEW_PENDING`
+- current composition digest: `7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`
+- approved digest: `null`
 
-`reports/WAVE_4R_LANGUAGE_TRUTH_REPAIR_LEDGER_2026-08-07.md`
+## Wave 3 strategy and final-composition truth
 
-Confirmed repair classes include:
+The repaired W3 source/strategy implementation remains authoritative for LCM-02, LCM-03 and LCM-06. It is not overwritten by stale W4R strategy-gold governance claims.
 
-- hybrid RU T1 diagnostic language;
-- competing EN module-heading source of truth;
-- false `EN REVIEW REQUIRED` messages despite approved content;
-- internal/state-machine jargon in EN 0→100 route;
-- hardcoded untranslated/raw UI labels and statuses;
-- residual research/AI-style prose in approved RU/EN modules;
-- insufficient editorial regression coverage;
-- temporary DOM localization/practice compatibility layers that should be consolidated into normal React/locale contracts.
+Pending human poker review remains required for:
 
-No Wave 6 work is allowed before Wave 4R acceptance.
+- repaired LCM-02 claims;
+- repaired LCM-03 claims;
+- repaired LCM-06 claims;
+- all 15 final-composition W3 drills;
+- affected runtime distractor semantics.
 
-## Wave 5 practice quality accepted
+The final canonical RU/EN composition is materialized through the locale pipeline. The candidate regression locks:
 
-Accepted implementation SHA:
+- no unsupported approximately-60bb boundary in `pre-05`;
+- no unsupported exact stack depth in `agg-01`;
+- canonical W3 RU identity for `agg-01`, `agg-02`, `agg-04`;
+- canonical turn-filter identity for EN `agg-04`;
+- OOP large-raise/value gate for `agg-05`;
+- exactly 15 stable W3 drill IDs across locales;
+- ID-based one-best-answer integrity.
 
-`e54ae03627398eff09c10b87971c15d5858b3ceb`
+These are candidate facts, not human poker approval.
 
-Release evidence:
+## FINAL W4R language/runtime truth
 
-- run `31171850884`;
-- job `92845201804`;
-- TypeScript: PASS;
-- ESLint: PASS;
-- editorial/source-lock gate: PASS;
-- build: PASS;
-- unit/integration: `58/58 PASS`;
-- Playwright: `25 passed / 1 intentionally skipped`.
+FINAL W4R is authoritative for the learner-facing runtime, locale pipeline, direct React localisation, language implementation, W4R runtime/editorial rejection rules and current `Wave5PracticeLayer` composition.
 
-Wave 5 closed:
+The active reconciliation item is only:
 
-- three-topic mixed-practice unlock;
-- pre-answer topic concealment;
-- existing per-session answer-option shuffle verified;
-- mixed-pool diversity verified without unnecessary rebuild;
-- prediction-before-interaction labs;
-- material-change and invalid-input lab gates;
-- final learner-facing RU/EN audit across 55 drills and 33 cards;
-- changed-node/boundary context checks;
-- >=20% boundary-practice coverage;
-- honest uncertainty coverage;
-- unique stable option/card IDs and unique learner-facing card prompts;
-- real duplicate blocker-card prompt repaired without learner-history reset.
+- `W4R-SEM-01`: the EN aggression worked example no longer asserts unsupported exact `200bb`; no replacement exact depth was introduced.
 
-Wave 5 does not claim empirical learning effectiveness or final language quality.
+During exact integration inspection, `wave4r-poker-native.ts` was found to be transitively reactivated by FINAL W4R `applyWave5PracticeCopy()`, despite not being directly imported by `locale-pipeline.ts`. The combined candidate removes that compatibility call from `wave5-practice-copy.ts`. The compatibility file may remain present, but it is inert in the canonical locale path and therefore cannot overwrite repaired W3 RU semantics.
 
-## Pending product / evidence scope
+No W3 `W4R_SEM-02/03/04` copy repair was restored.
 
-After Wave 4R, later waves still own:
+Fresh human RU and EN review of the exact integrated composition remains required. Automated language/runtime checks cannot create approval.
 
-- repair/retention/personalization routing closure;
-- complete T1 end-to-end evaluation workflow beyond language truth;
-- field-hand transfer workflow;
-- premium visual/mobile/accessibility closure;
-- failure recovery, privacy, performance and observability;
-- real delayed recall, misconception repair effectiveness, confidence calibration and field-transfer evidence.
+## Wave 5 disposition
 
-## Production evidence boundary
+Current integrated disposition:
 
-- Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
-- Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
-- D1 binding: `DB`
-- Owner reported an earlier post-PR #7 publication on 2026-08-07.
-- Current Wave 4/Wave 5 repository heads are **not claimed deployed**.
-- Exact deployed Git SHA is not exposed to available automation and is not invented.
-- Unauthenticated automation reaches the ChatGPT sign-in boundary; authenticated DOM smoke remains externally blocked.
-- No production D1 reset, learner-state reset, URL change or migration action was performed in Waves 4–5.
+`WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
 
-## Wave 0 debt retained
+The W5 branch contributes audit/handoff evidence only. It does not reintroduce its superseded temporary runtime architecture. FINAL W4R owns the current `Wave5PracticeLayer`.
 
-- authenticated production DOM smoke: pending / externally blocked;
-- exact deployed SHA: unavailable to current automation;
-- package/release-version truth remains to be synchronized;
-- release tag/GitHub Release identity remains to be reconciled if absent.
+Preserved mechanics include:
 
-## Severity ledger
+- one-best-answer / assumption / legal-sequence / numeric integrity coverage;
+- ID-safe option shuffle;
+- three-module mixed-practice unlock;
+- pre-decision topic concealment;
+- prediction-first labs;
+- valid-input and material-change gates;
+- changed-node continuation;
+- flashcards and mixed practice;
+- stable learner history/IDs.
 
-### P0
+Accepted P2 compatibility debt may remain until a later justified refactor:
 
-None currently known in accepted repository platform/strategy/practice scope.
+- localStorage read;
+- event listeners/polling;
+- querySelector contract;
+- dataset/ARIA/button mutation;
+- CSS lab overlay;
+- programmatic Core click;
+- split mixed-unlock ownership.
 
-### P1 — current active wave blockers
+The integration must not restore MutationObserver state inference, textContent localisation, duplicate composition or superseded compatibility behavior.
 
-- material RU/EN meaning or truth mismatch;
-- learner-facing internal/system language that violates the approved editorial contract;
-- contradictory editorial status in UI vs manifest;
-- competing locale source of truth;
-- strategically ambiguous drill or missing material assumption;
-- false mastery/field-validation transition.
+## Technical gate boundary
 
-### P2
+The current candidate has not yet earned a current full-release result merely because its source is materialized. Historical test counts remain historical only.
 
-- non-critical microcopy/visual-density polish;
-- optional debug completeness;
-- release identity/version synchronization;
-- external authenticated smoke pending;
-- empirical evidence not yet available.
+Required current execution:
+
+- targeted governance lifecycle tests;
+- W3 strategy/final-composition tests;
+- W4R language/runtime tests;
+- W5 practice tests;
+- W1 first-use/acceptance tests;
+- canonical `npm run test:release` from the exact checkout;
+- candidate governance gate, expected GREEN in `REVIEW_PENDING`;
+- `npm run check:approval`, expected RED while human approvals/final release approval are pending.
+
+An expected approval-gate RED is correct governance behavior and must not be bypassed.
+
+## Production boundary
+
+No integration commit is claimed deployed. No production publish, D1 reset, learner-state reset, URL change or Wave 6 work is performed here.
+
+Authenticated production smoke, exact deployed SHA and later release truth remain external to this W1-W5 candidate until an owner-authorised release stage.
 
 ## Governing rule
 
-Automated checks may reject invalid work but cannot create poker-content, RU/EN editorial, accessibility, production-authenticated or empirical-learning approval by themselves. Wave 4R requires explicit learner-facing RU/EN re-review after the technical gates pass.
+`REVIEW_PENDING` is a legal candidate state and never an approval state. Automated checks may reject invalid work but cannot create poker-content, drill, RU/EN, first-use comprehension, production-authenticated or empirical-learning approval.

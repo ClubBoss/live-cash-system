@@ -13,6 +13,7 @@ type PracticeSnapshot = {
   labActive: boolean;
   mixedActive: boolean;
   completedModules: number;
+  revision: number;
 };
 
 type SprLab = Extract<Lab, { type: "spr" }>;
@@ -24,6 +25,7 @@ const EMPTY_SNAPSHOT: PracticeSnapshot = {
   labActive: false,
   mixedActive: false,
   completedModules: 0,
+  revision: -1,
 };
 
 function sameSnapshot(left: PracticeSnapshot, right: PracticeSnapshot): boolean {
@@ -31,36 +33,37 @@ function sameSnapshot(left: PracticeSnapshot, right: PracticeSnapshot): boolean 
     && left.moduleId === right.moduleId
     && left.labActive === right.labActive
     && left.mixedActive === right.mixedActive
-    && left.completedModules === right.completedModules;
+    && left.completedModules === right.completedModules
+    && left.revision === right.revision;
 }
 
-function readLearnerState(): { moduleId: ModuleId | null; completedModules: number } {
+function readPracticeSnapshot(): PracticeSnapshot {
+  const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { moduleId: null, completedModules: 0 };
+    if (!raw) return { ...EMPTY_SNAPSHOT, locale };
     const state = JSON.parse(raw) as {
-      activeSession?: { moduleId?: string } | null;
+      revision?: number;
+      activeSession?: { moduleId?: string; mode?: string; step?: number } | null;
       modules?: Record<string, { contentCompleted?: boolean }>;
     };
     const moduleId = typeof state.activeSession?.moduleId === "string" && state.activeSession.moduleId in moduleById
       ? state.activeSession.moduleId as ModuleId
       : null;
-    const completedModules = Object.values(state.modules ?? {}).filter((entry) => entry?.contentCompleted === true).length;
-    return { moduleId, completedModules };
+    return {
+      locale,
+      moduleId,
+      labActive: state.activeSession?.mode === "lesson" && state.activeSession?.step === 5,
+      mixedActive: state.activeSession?.mode === "mixed",
+      completedModules: Object.values(state.modules ?? {}).filter((entry) => entry?.contentCompleted === true).length,
+      revision: typeof state.revision === "number" ? state.revision : 0,
+    };
   } catch {
-    return { moduleId: null, completedModules: 0 };
+    return { ...EMPTY_SNAPSHOT, locale };
   }
 }
 
-function inspectPracticeDom(): PracticeSnapshot {
-  const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
-  const session = document.querySelector<HTMLElement>("main .session");
-  const header = session?.querySelector<HTMLElement>(".session-head > div > span")?.textContent?.trim() ?? "";
-  const mixedActive = /^(MIXED|СМЕШАННАЯ ПРАКТИКА) ·/u.test(header);
-  const labActive = Boolean(session && Array.from(session.querySelectorAll<HTMLElement>(".eyebrow"))
-    .some((element) => ["6 · LAB", "6 · ТРЕНАЖЁР"].includes(element.textContent?.trim() ?? "")));
-  const learner = readLearnerState();
-
+function applyPracticeDom(snapshot: PracticeSnapshot) {
   document.querySelectorAll<HTMLElement>(".decision-card[data-wave5-mixed='true']").forEach((card) => {
     delete card.dataset.wave5Mixed;
     card.removeAttribute("role");
@@ -68,34 +71,26 @@ function inspectPracticeDom(): PracticeSnapshot {
     card.querySelector<HTMLElement>(":scope > .eyebrow")?.removeAttribute("aria-hidden");
   });
 
-  if (mixedActive) {
-    const card = session?.querySelector<HTMLElement>(".decision-card");
+  if (snapshot.mixedActive) {
+    const card = document.querySelector<HTMLElement>("main .session .decision-card");
     const eyebrow = card?.querySelector<HTMLElement>(":scope > .eyebrow");
     if (card && eyebrow) {
       card.dataset.wave5Mixed = "true";
       card.setAttribute("role", "group");
-      card.setAttribute("aria-label", locale === "ru" ? "Смешанная задача" : "Mixed decision");
+      card.setAttribute("aria-label", snapshot.locale === "ru" ? "Смешанная задача" : "Mixed decision");
       eyebrow.setAttribute("aria-hidden", "true");
     }
   }
 
   const mixedButton = document.querySelector<HTMLButtonElement>("button.secondary.wide");
-  if (mixedButton && learner.completedModules < 3) {
+  if (mixedButton && snapshot.completedModules < 3) {
     mixedButton.disabled = true;
-    mixedButton.title = locale === "ru"
+    mixedButton.title = snapshot.locale === "ru"
       ? "Смешанная тренировка откроется после трёх пройденных тем."
       : "Mixed practice unlocks after three completed topics.";
   } else if (mixedButton) {
     mixedButton.removeAttribute("title");
   }
-
-  return {
-    locale,
-    moduleId: learner.moduleId,
-    labActive,
-    mixedActive,
-    completedModules: learner.completedModules,
-  };
 }
 
 function usePracticeSnapshot(): PracticeSnapshot {
@@ -106,23 +101,25 @@ function usePracticeSnapshot(): PracticeSnapshot {
     const sync = () => {
       if (scheduled) return;
       scheduled = true;
-      requestAnimationFrame(() => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
         scheduled = false;
-        const next = inspectPracticeDom();
+        const next = readPracticeSnapshot();
+        applyPracticeDom(next);
         setSnapshot((previous) => sameSnapshot(previous, next) ? previous : next);
-      });
+      }));
     };
 
     sync();
-    const structureObserver = new MutationObserver(sync);
-    structureObserver.observe(document.documentElement, { childList: true, subtree: true });
-    const localeObserver = new MutationObserver(sync);
-    localeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+    const events: Array<keyof DocumentEventMap> = ["click", "input", "change", "keydown"];
+    for (const event of events) document.addEventListener(event, sync, true);
     window.addEventListener("storage", sync);
+    window.addEventListener("focus", sync);
+    const fallback = window.setInterval(sync, 500);
     return () => {
-      structureObserver.disconnect();
-      localeObserver.disconnect();
+      for (const event of events) document.removeEventListener(event, sync, true);
       window.removeEventListener("storage", sync);
+      window.removeEventListener("focus", sync);
+      window.clearInterval(fallback);
     };
   }, []);
 

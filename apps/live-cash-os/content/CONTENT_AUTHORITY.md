@@ -1,136 +1,170 @@
 # Live Cash OS — Content Authority
 
-Status: `WAVE_4_FULL_CURRICULUM_ACCEPTED`
+Status: `WAVE_2_GOVERNANCE_ENFORCED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
 
-This is the application-level admission contract for learner-facing poker content. It complements the repository-wide framework in `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md` and the immutable source-family registries under `sources/`.
+This is the application-level admission contract for learner-facing poker content. It complements the repository-wide cross-source framework and immutable source-family registries under `sources/`.
 
-## 1. Canonical source authorities
+## 1. Canonical authority hierarchy
 
-| Family | Canonical registry | Primary role | Current boundary |
-|---|---|---|---|
-| Smash Live Cash | `sources/source-registry.md` and `sources/smash-live-cash/` | advanced live-cash mechanisms, deep stacks, node-specific exploits, 3-bet and multiway examples | corpus processed; visual-dependent claims remain gated by source QA status |
-| Carrot Poker | `sources/carrot-poker/source-registry.md` and `sources/carrot-poker/source-gap-ledger.md` | mechanism explanation, theory progression, range construction, exam feedback | Grades 1–3, exams and feedback mapped; exact visual/solver claims remain claim-gated |
-| Cash Injection | `sources/cash-injection/` | population hypotheses and practical exploit candidates | directional population mechanisms may support scoped hypotheses; magnitude remains field-gated |
-| From the Ground Up | `sources/ftgu/source-registry.md` | foundations, executable defaults, prerequisite and teachability checks | 30/30 episodes processed; charts and exact visual boundaries are reference-only |
-| Independent analysis | `analysis/`, `synthesis/`, module ledgers | reconcile assumptions, compress mechanisms, create original drills | inference must be labeled and cannot impersonate a source claim |
-| Product evidence model | `apps/live-cash-os/lib/model-core.ts` | authoritative product semantics for completion, transfer, retention and reviewed field evidence | product contract only; current numeric thresholds are not universal learning-science claims |
-| Field evidence | reviewed learner hand records | prioritise cues, calibrate priors and test table transfer | does not prove universal theory and cannot silently rewrite source claims |
+Strategic source authority remains the admitted course/source corpus plus explicitly labelled project inference. Product evidence semantics remain owned by the learner-state model. Learner-facing language implementation is materialized through the canonical locale pipeline. No runtime layer may silently override reviewed strategic identity.
 
-A registry entry marked incomplete, visually dependent, transcription-uncertain or pending blocks any claim that depends on the missing information from reaching `MODULE_GOLD`.
+Canonical governance/source references are:
 
-## 2. Claim contract
+- `sources/source-registry.md` — repository-wide source registry;
+- `sources/carrot-poker/source-registry.md` — admitted Carrot Poker source family;
+- `sources/carrot-poker/source-gap-ledger.md` — Carrot Poker continuity/gap truth;
+- `sources/ftgu/source-registry.md` — admitted FTGU source family;
+- `content/claims/claim.schema.json` — strategic claim contract;
+- `content/claims/source-gap-dependencies.json` — machine-readable dependency/gap registry;
+- `content/MODULE_GOLD_CHECKLIST.md` — human module-admission checklist.
 
-Every strategic teaching claim admitted into an approved module must conform to `content/claims/claim.schema.json` and identify:
+The exact W1-W5 candidate is built from:
 
-- stable claim ID and module ID;
-- learner-facing claim;
-- exact internal source references;
-- independent project interpretation;
-- claim type and confidence;
-- assumptions and exceptions;
-- target games and depth scope;
-- unresolved conflicts or missing evidence;
-- current admission status.
+- repaired W2 governance as inherited by W3;
+- repaired W3 priority strategy and drills;
+- FINAL W4R learner-facing runtime/language implementation;
+- FINAL W4R current Wave5 practice composition;
+- W1 first-use closure assets;
+- W5 audit/handoff evidence only.
 
-Claim types remain `BASELINE`, `HEURISTIC`, `EXPLOIT`, `SIMPLIFICATION`, and `OPEN_QUESTION`. `LOW` and `UNRESOLVED` evidence cannot be promoted into learner-facing prescription.
+## 2. Claim and strategic admission contract
 
-## 3. Required strategic scope
+Every admitted strategic claim must continue to satisfy `content/claims/claim.schema.json` and the machine-readable source-gap dependency registry. Material unresolved source gaps block admission. LOW/UNRESOLVED evidence cannot be admitted, and an `OPEN_QUESTION` cannot become learner prescription.
 
-Before a recommendation can be taught, its record and learner-facing task must state all material variables, including positions, players left to act, heads-up/multiway state, effective stack, relevant sizings, rake/ante/straddle sensitivity, baseline versus exploit model, known reads, and exceptions that can reverse the recommendation.
+Material variables remain explicit where they affect the recommendation: positions, players left to act, heads-up/multiway state, effective stack, sizings, rake/ante/straddle sensitivity, baseline versus exploit model, reads and exceptions.
 
-A broad phrase such as “live players overfold” is never sufficient by itself. The exact branch, evidence relevance and confidence must be specified.
+A directional mechanism may not be upgraded into an unsupported exact threshold, chart cell, solver frequency or population magnitude.
 
-## 4. Source reconciliation
+## 3. Originality and source purity
 
-- Different depths are scoped branches, not automatic contradictions.
-- Equilibrium and population advice are baseline and exploit layers, not interchangeable rules.
-- Simplification must state what complexity is removed and when the shortcut fails.
-- Unresolved same-node contradictions block promotion.
-- Transcript uncertainty is not silently repaired from generic model knowledge.
-- Batumi population magnitude is not inferred merely because an external source reports a directional tendency.
+Learner-facing material remains original compression. Proprietary transcript passages, charts, screenshots or source-specific hand sequences are not republished. Internal source references support provenance rather than becoming learner-facing reproduction.
 
-## 5. Originality and source purity
+## 4. Editorial and locale authority
 
-Learner-facing content must remain original compression:
+`content/POKER_GLOSSARY_RU_EN.md` remains the terminology authority. Russian and English require independent natural-language review while preserving shared stable semantic IDs.
 
-- no transcript passages or close paraphrases;
-- no proprietary charts, screenshots or exported ranges;
-- no course-specific hand sequence required for understanding;
-- original examples and drills;
-- source references remain internal provenance rather than republished course material.
+FINAL W4R owns the current learner-facing implementation and language/runtime rejection rules. Its authority does not include restoring stale strategy/drill approvals.
 
-## 6. Editorial and language authority
+The canonical locale pipeline order is:
 
-Approved learner-facing text conforms to `content/POKER_GLOSSARY_RU_EN.md`.
+1. `applyGeometryLocale`;
+2. `applyWave3PriorityLocale`;
+3. `applyWave4CurriculumLocale`;
+4. `applyWave4FinalEditorialLocale`;
+5. `applyWave5PracticeCopy`;
+6. `applyWave4RFinalLanguage`.
 
-Russian copy must be natural poker Russian rather than word-for-word translation or architecture jargon. English copy must be independently natural and preserve the same strategic meaning. Stable semantic IDs are shared across locales.
+`applyWave4RFinalLanguage(locale)` applies its final language pass only for English. `wave4r-poker-native.ts` is not part of the active canonical pipeline. The integrated `applyWave5PracticeCopy()` also no longer reactivates it transitively.
 
-Deterministic scripts may reject stale hashes, missing metadata, prohibited terminology, invalid status transitions and locale/ID regressions. They may never create poker, RU, EN, accessibility, production or empirical approval.
+Therefore the compatibility file may remain present without becoming learner-facing authority.
 
-## 7. Module admission states
+## 5. Governance lifecycle
 
-- `SOURCE_MAPPED`
-- `STRATEGY_REVIEWED`
-- `NUMERIC_REVIEWED`
-- `RU_APPROVED`
-- `EN_APPROVED`
-- `DRILLS_APPROVED`
-- `LAB_APPROVED`
-- `CARDS_APPROVED`
-- `MODULE_GOLD`
-- `BLOCKED_SOURCE_GAP`
-- `REJECTED_OR_SUPERSEDED`
+Deterministic checks are rejection-only and may not create approval.
 
-`MODULE_GOLD` requires applicable gates in `content/MODULE_GOLD_CHECKLIST.md`; runtime existence or automated tests alone cannot create the status.
+Strategic lifecycle:
 
-## 8. Current admission boundary — 11/11 repository curriculum gold
+`CURRICULUM_STRATEGY_GOLD -> CURRICULUM_STRATEGY_REPAIR_REQUIRED -> CURRICULUM_STRATEGY_REVIEW_PENDING -> CURRICULUM_STRATEGY_GOLD`
 
-Accepted modules:
+The final transition requires explicit human poker review of the current corpus.
 
-- LCM-01: effective-stack and pot-geometry reasoning; exact strategic depth/SPR/straddle thresholds remain excluded.
-- LCM-02: source-backed call/3-bet/fold branch construction; exact chart cells, mixed frequencies and squeeze-size tables remain excluded.
-- LCM-03: BB price/closing action, SB squeeze exposure, equity realisation and blind-source identity; exact blind charts remain excluded.
-- LCM-04: source/action/survivor filtering, protected checks and branch-specific exploit reset.
-- LCM-05: value-driven sizing, range-wide versus selective response shape, thin raise gates and protected calls.
-- LCM-06: 3-bet-pot range compensation, board ownership, turn filtering and OOP top-end raising gates; exact solver frequencies remain excluded.
-- LCM-07: branch ancestry, inherited bluff supply, blocker ordering and action-specific opponent models.
-- LCM-08: sandwich pressure, closing action, shared defence and multiway range ownership; exact multiway MDF remains excluded.
-- LCM-09: river origin/filter/value/bluff/size/blocker/evidence audit; exact solver EV and population magnitude remain gated.
-- LCM-10: branch-specific evidence discipline, one-observation boundary and field-gated population calibration.
-- LCM-11: current Live Cash OS exposure/transfer/retention/reviewed-field evidence contract; current numeric thresholds are product rules rather than universal scientific claims.
+Drill lifecycle:
 
-Wave 4 implementation acceptance:
+`DRILLS_APPROVED -> DRILLS_REPAIR_REQUIRED -> DRILLS_REVIEW_PENDING -> DRILLS_APPROVED`
 
-- accepted implementation SHA: `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`;
-- full release run: `31164756544`;
-- validation job: `92822910319`;
-- TypeScript, lint, editorial, build: PASS;
-- unit/integration: `55/55 PASS`;
-- Playwright: `21 passed / 1 intentionally skipped`;
-- editorial manifest: `11 bilingual gold modules approved; 0 pending`.
+The final transition requires explicit human drill review of the current corpus.
 
-See `content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md` for the reviewed Wave 4 scope and exclusions.
+Locale lifecycle:
 
-## 9. Current global limitations
+`REVIEW_REQUIRED -> APPROVED`
 
-Repository curriculum gold does not close later waves. Still explicitly excluded or pending are:
+Locale approval is human-only and binds to the exact current final-composition digest.
 
-- exact 100/150/200/300–400bb chart overlays where source visuals are required;
-- exact squeeze and 4-bet combo frequencies;
-- exact board-specific solver frequencies and EVs;
-- exact multiway MDF and fixed sizing matrices;
-- exact Batumi population overbluff/underbluff magnitudes;
-- Wave 5 corpus-wide drill ambiguity, variant-depth, mixed-practice concealment, lab prediction and flashcard quality closure;
-- Wave 6 scheduling/routing validation;
-- Wave 7 diagnostic/field lifecycle UX closure;
-- Waves 8–9 accessibility, reliability, privacy and performance closure;
-- Wave 10 empirical proof that the product improves long-term reasoning, recall and table transfer;
-- Wave 0 authenticated production DOM smoke and exact deployed SHA.
+Application top states remain:
 
-## 10. Production boundary
+- `TRANSITIONAL_REVIEW_REQUIRED` while any strategy, drill, locale or final-composition dimension is under review;
+- `FULLY_ACCEPTED` only when all required human evidence is current and the approved final-composition digest equals the current digest.
 
-`MODULE_GOLD` here is repository curriculum truth. Wave 4 was **not deployed by repository automation** and this document does not claim that production currently serves implementation SHA `5a6af4ed...`.
+`REVIEW_PENDING` is a valid candidate state and never a release/full-approval state.
 
-## 11. Change rule
+## 6. Source locks and final composition
 
-Any edit to an approved strategic claim, answer, explanation, table card or glossary term invalidates the affected approval until the relevant review and source lock are renewed. Cosmetic layout changes do not automatically invalidate strategic approval but must preserve meaning and accessibility.
+Git blob locks are stale-mutation detectors, not a mechanism for carrying old approval across changed content.
+
+The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
+
+`7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`
+
+Current status:
+
+- final composition: `REVIEW_PENDING`;
+- approved composition digest: `null`;
+- strategy approval: `null`;
+- drill approval: `null`;
+- RU/EN human approval evidence: none.
+
+Refreshing current hashes or materializing the digest does not create approval.
+
+## 7. Current repaired W3 authority
+
+The current affected strategy scope remains:
+
+- LCM-02 / preflop — `STRATEGY_REVIEW_PENDING`;
+- LCM-03 / blinds — `STRATEGY_REVIEW_PENDING`;
+- LCM-06 / aggression — `STRATEGY_REVIEW_PENDING`.
+
+Affected drill-content scope remains:
+
+- LCM-02 / preflop — `DRILLS_REVIEW_PENDING`;
+- LCM-06 / aggression — `DRILLS_REVIEW_PENDING`.
+
+The final composition must preserve the repaired W3 semantics rather than reintroduce compatibility overlays. Candidate regressions explicitly protect:
+
+- `pre-05` from an unsupported approximately-60bb boundary;
+- `agg-01` from unsupported exact stack-depth precision;
+- RU `agg-01` as the W3 wide-range compensation/defence identity;
+- RU `agg-02` as the normal strong-range/dry-board identity;
+- RU and EN `agg-04` as the turn-filter identity;
+- `agg-05` as the OOP large-raise/value gate;
+- all 15 W3 drill identities across RU/EN.
+
+These candidate protections do not substitute for human poker review.
+
+## 8. Active W4R semantic reconciliation
+
+Only one active learner-facing semantic defect required direct copy repair during integration:
+
+`W4R-SEM-01` — the English aggression worked example asserted unsupported exact `200bb` depth. The exact depth was removed and no new exact depth was added.
+
+Exact inspection also revealed that FINAL W4R `wave5-practice-copy.ts` transitively called the compatibility overlay even though `locale-pipeline.ts` did not. The integration removes that call so the compatibility file is genuinely inert. No RU `agg-01`, `agg-02` or `agg-04` wording is edited to accommodate dead compatibility semantics.
+
+## 9. Wave 5 boundary
+
+The current integrated disposition is:
+
+`WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
+
+The W5 audit branch contributes reports only. FINAL W4R owns the current practice layer. Superseded MutationObserver/textContent localisation or duplicate-composition behavior is not restored.
+
+Accepted P2 compatibility debt is documented separately and does not create strategy, language, accessibility or empirical approval.
+
+## 10. Human review required before approval
+
+Human poker review must cover:
+
+- three repaired W3 claim sets;
+- all 15 final-composition W3 drills;
+- affected runtime distractor semantics.
+
+Separate human language review must cover:
+
+- exact final RU composition;
+- exact final EN composition.
+
+Wave 1 first-use comprehension requires its own fresh-context empirical evidence and is not satisfied by editorial review.
+
+## 11. Production / later-wave boundary
+
+This content authority document does not claim deployment of the integration branch. Production publish/smoke, exact deployed SHA, later routing/retention, field transfer, accessibility, reliability/privacy/performance and empirical effectiveness remain outside this W1-W5 integration operation.
+
+Wave 6 must not begin as part of this reconciliation.

@@ -120,7 +120,7 @@ const RU_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
         explanation: "Источник прямо поддерживает «очистку» существующих миксов: чаще используй хорошие кандидаты, а не придумывай случайные блефы.",
       },
       "pre-05": {
-        assumptions: ["сравнение около 60bb и 200bb", "одни и те же позиции", "без особого рида на соперника"],
+        assumptions: ["сравнение более короткого и более глубокого эффективного стека", "одни и те же позиции", "без особого рида на соперника"],
         cue: "Та же префлоп-ситуация становится значительно короче по эффективному стеку.",
         question: "Какое направление изменения наиболее надёжно?",
         actions: ["Больше прямых линейных 3-бетов и меньше ценности у спекулятивных коллов", "Больше защищённых глубоких коллов и меньше 3-бетов", "Глубина не должна менять префлоп-ветку"],
@@ -261,7 +261,7 @@ const RU_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
       "После колла перестрой диапазоны; для OOP-рейза отдельно проверь наличие верхнего вэлью и подходящих блефов.",
     ],
     workedExample: {
-      situation: "200bb. BB 3-бетит BTN заметно шире нормы, но на сухом флопе продолжает маленькой ставкой почти всем диапазоном, как будто префлоп-подстройки не было.",
+      situation: "BB 3-бетит BTN заметно шире нормы, но на сухом флопе продолжает маленькой ставкой почти всем диапазоном, как будто префлоп-подстройки не было.",
       steps: [
         "Лишние префлоп-комбинации добавили в диапазон BB слабый материал.",
         "Такой диапазон должен чаще чекать, чтобы не ставить слишком много воздуха.",
@@ -287,7 +287,7 @@ const RU_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
     ],
     drills: {
       "agg-01": {
-        assumptions: ["200bb", "BB 3-бетит BTN заметно шире базового", "флоп сухой", "BB всё равно ставит маленьким размером почти всем диапазоном"],
+        assumptions: ["BB 3-бетит BTN заметно шире базового", "флоп сухой", "BB всё равно ставит маленьким размером почти всем диапазоном"],
         cue: "Соперник добавил много слабых рук префлоп, но не добавил нужные чеки на флопе.",
         question: "Какой вывод наиболее важен для BTN?",
         actions: ["Защищаться шире против недокомпенсированной c-bet-частоты", "Защищаться тайтовее, потому что 3-беттор всегда сильнее", "Игнорировать префлоп-ширину и смотреть только на размер ставки"],
@@ -321,10 +321,10 @@ const RU_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
       "agg-05": {
         assumptions: ["OOP защищается в 3-бет-банке", "низкий SPR", "в рассматриваемой ветке у OOP почти нет рук верхнего вэлью-класса"],
         cue: "Hero хочет построить крупный рейз или пуш только ради лишения эквити.",
-        question: "Какой gate важнее всего?",
+        question: "Что важнее всего перед крупным рейзом или пушем без позиции?",
         actions: ["Без достаточного верхнего вэлью рейз может почти исчезнуть", "Пушить среднюю часть диапазона ради защиты", "Рейзить любую руку, которая не хочет коллировать"],
         reasons: ["Правдоподобная агрессивная ветка требует сильного вэлью; denial усиливает подходящего кандидата, но не создаёт его из середины диапазона", "Низкий SPR превращает любое made hand в вэлью-пуш", "Плохой колл автоматически означает хороший блеф-рейз"],
-        explanation: "Carrot прямо ставит наличие top-end holdings перед построением OOP raise range. Denial — дополнительная выгода, а не самостоятельное разрешение на пуш.",
+        explanation: "Сначала в диапазоне должны быть достаточно сильные руки на верхнее вэлью. Выбивание эквити — дополнительная выгода, но само по себе оно не оправдывает агрессию.",
       },
     },
     cards: {
@@ -421,7 +421,7 @@ const EN_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
         explanation: "The source explicitly supports purifying existing mixes: use good candidates more often rather than inventing random bluffs.",
       },
       "pre-05": {
-        assumptions: ["compare roughly 60bb with 200bb", "same positions", "no special opponent read"],
+        assumptions: ["compare a shorter effective stack with a deeper effective stack", "same positions", "no special opponent read"],
         cue: "The same preflop situation becomes much shorter in effective depth.",
         question: "Which directional shift is most reliable?",
         actions: ["More direct linear 3-betting and less value in speculative calls", "More protected deep calls and fewer 3-bets", "Depth should not change the preflop branch"],
@@ -562,7 +562,7 @@ const EN_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
       "After a call, rebuild the ranges; for an OOP raise, separately verify top-end value and credible bluff candidates.",
     ],
     workedExample: {
-      situation: "200bb. BB 3-bets BTN clearly wider than normal, then uses a small bet on a dry flop with almost the whole range as if the preflop adjustment never happened.",
+      situation: "BB 3-bets BTN clearly wider than normal, then uses a small bet on a dry flop with almost the whole range as if the preflop adjustment never happened.",
       steps: [
         "The extra preflop combos added weak material to BB's range.",
         "That weaker range should compensate by checking more often.",
@@ -588,7 +588,7 @@ const EN_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
     ],
     drills: {
       "agg-01": {
-        assumptions: ["200bb", "BB 3-bets BTN materially wider than baseline", "dry flop", "BB still small-bets almost the whole range"],
+        assumptions: ["BB 3-bets BTN materially wider than baseline", "dry flop", "BB still small-bets almost the whole range"],
         cue: "Villain added many weak hands preflop but did not add the required flop checks.",
         question: "What matters most for BTN?",
         actions: ["Defend wider against the uncompensated c-bet frequency", "Defend tighter because the 3-bettor is always stronger", "Ignore preflop width and look only at bet size"],

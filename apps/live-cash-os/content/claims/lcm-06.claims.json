@@ -7,13 +7,13 @@
       "sources/smash-live-cash/transcripts/SLC_M03_L25_preflop_adjustments_vs_locked_3bet_ranges_part_2.md",
       "sources/smash-live-cash/transcripts/SLC_M03_L26_preflop_adjustments_vs_locked_3bet_ranges_part_3.md"
     ],
-    "interpretation": "Postflop decisions must remain consistent with the actual preflop range shape rather than the label '3-bettor'.",
+    "interpretation": "Postflop decisions must remain consistent with the actual preflop range shape rather than the label '3-bettor'. The compensation mechanism is source-supported, while the exact stack depth of the reviewed solver node is not source-locked in the current evidence package.",
     "claim_type": "EXPLOIT",
     "confidence": "HIGH",
     "assumptions": ["Villain genuinely 3-bets wider than baseline", "Villain does not fully compensate by checking more"],
-    "exceptions": ["Some boards still strongly favour the 3-bettor", "The adjustment shrinks when Villain compensates correctly"],
+    "exceptions": ["Some boards still strongly favour the 3-bettor", "The adjustment shrinks when Villain compensates correctly", "Exact depth-specific frequencies require the source visuals"],
     "target_games": ["Live cash 1/3", "Live cash 2/5"],
-    "depth_scope": ["150-200bb", "Deep live cash"],
+    "depth_scope": ["Directional mechanism only; exact stack depth is not source-locked in the current evidence package"],
     "positions": ["Heads-up 3-bet pots"],
     "player_count_scope": "HEADS_UP",
     "sizing_scope": ["Flop continuation-bet branches"],
@@ -23,7 +23,7 @@
     "status": "ADMITTED",
     "reviewer": "GPT-5.6 Thinking",
     "reviewed_at": "2026-08-07",
-    "notes": "Exact boards, sizes and frequencies remain visual-dependent."
+    "notes": "Compensation mechanism admitted. Exact board cards, suits, stack depth, sizes, frequencies and EV remain visual-dependent."
   },
   {
     "claim_id": "LCM-06-CL-002",
