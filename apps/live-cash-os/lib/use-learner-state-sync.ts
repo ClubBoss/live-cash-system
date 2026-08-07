@@ -111,6 +111,7 @@ export function useReliableLearnerState() {
 
   const rememberConflict = useCallback((local: LearnerState, remote: LearnerState | null) => {
     const snapshot: ConflictSnapshot = { at: new Date().toISOString(), local, remote };
+    setState(local);
     conflictRef.current = snapshot;
     setConflict(snapshot);
     setSyncStatus("conflict");
