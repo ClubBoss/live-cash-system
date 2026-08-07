@@ -1,0 +1,36 @@
+name: Mobile visual closure validation
+
+on:
+  push:
+    branches: [wave/real-device-mobile-visual-closure]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full release gate
+        run: npm run test:release
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-visual-closure-evidence
+          path: apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 14
