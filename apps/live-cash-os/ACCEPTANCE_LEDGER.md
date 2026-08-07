@@ -1,6 +1,6 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_REPAIR_REQUIRED / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
+Status: `PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_REVIEW_PENDING / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
 
 This ledger separates platform, strategic curriculum, language/editorial truth, practice quality, production evidence and empirical learning evidence. A green technical/content candidate gate does not override an independently confirmed strategy, drill-semantic or learner-facing language defect.
 
@@ -18,25 +18,25 @@ This ledger separates platform, strategic curriculum, language/editorial truth, 
 - production build and desktop/mobile Playwright gates;
 - one permanent branch (`main`), one CI workflow, one canonical technical release-test command.
 
-## Strategic curriculum truth reopened by Wave 3 revalidation
+## Strategic curriculum truth after Wave 3 implementation repair
 
-The historical Wave 4 strategy review remains evidence, but it is no longer sufficient to claim current corpus-wide `CURRICULUM_STRATEGY_GOLD` after the independent Wave 3 revalidation.
+The independent Wave 3 revalidation reopened three claim scopes and two priority drill modules. The scoped implementation repair is now applied on `repair/w3-strategy-closure`, but automation cannot restore `CURRICULUM_STRATEGY_GOLD` or `DRILLS_APPROVED`.
 
 Current strategy truth:
 
 - LCM-01 — strategic scope remains gold within its reviewed effective-stack and pot-geometry boundaries;
-- LCM-02 — `STRATEGY_REPAIR_REQUIRED` for unsupported depth-scope metadata and one priority drill boundary;
-- LCM-03 — `STRATEGY_REPAIR_REQUIRED` for unsupported depth-scope metadata;
+- LCM-02 — `STRATEGY_REVIEW_PENDING` after removal of unsupported depth precision from the claim and `pre-05`;
+- LCM-03 — `STRATEGY_REVIEW_PENDING` after direct 200bb source evidence was separated from broader mechanism-level generalisation;
 - LCM-04 — strategic scope remains gold;
 - LCM-05 — strategic scope remains gold;
-- LCM-06 — `STRATEGY_REPAIR_REQUIRED` for unsupported depth metadata and final drill semantic integrity;
+- LCM-06 — `STRATEGY_REVIEW_PENDING` after unsupported exact stack depth was removed from the wide-3bet compensation claim and Wave 3 source drill/example;
 - LCM-07 — strategic scope remains gold;
 - LCM-08 — strategic scope remains gold;
 - LCM-09 — strategic scope remains gold;
 - LCM-10 — strategic scope remains gold;
 - LCM-11 — strategic scope remains gold.
 
-Wave 3 revalidation evidence:
+Wave 3 revalidation evidence remains:
 
 - branch: `audit/w3-strategy-revalidation`;
 - head: `c30facc624ff208862a65083f96dc51a87601ee0`;
@@ -44,7 +44,15 @@ Wave 3 revalidation evidence:
 - affected claim modules: LCM-02 / LCM-03 / LCM-06;
 - affected drill-semantic modules: LCM-02 / LCM-06.
 
-No W3 repair content is integrated by this ledger update. The purpose of this state is to make the known repair legally representable before claims/drills are changed.
+Wave 3 implementation-repair boundary:
+
+- repaired source branch: `repair/w3-strategy-closure`;
+- base: `74bf73f15a539d692af53253cfaf06755693e727`;
+- strategy lifecycle: `CURRICULUM_STRATEGY_REVIEW_PENDING`;
+- drill lifecycle: `DRILLS_REVIEW_PENDING`;
+- previous strategy/drill approvals remain invalidated;
+- final learner-facing composition remains stale until FINAL W4R semantic reconciliation and human poker/drill review;
+- no W4R code is merged into this branch.
 
 Historical Wave 4 strategic implementation evidence remains retained as historical evidence only:
 
@@ -56,32 +64,21 @@ Historical Wave 4 strategic implementation evidence remains retained as historic
 
 Exact visual-only solver outputs, chart cells/frequencies, exact multiway MDF and unvalidated Batumi population magnitudes remain outside admitted scope.
 
-## Wave 4 language truth reopened
+## Wave 4 language / integration truth
 
-An independent read-only audit of accepted Wave 4 surfaces found confirmed P1 language/localization truth defects that the previous gate did not detect.
+The FINAL W4R handoff `9b5b5a997663bd381857f1e06a2edeadd7b20c1a` is a separate integration input and is not merged into this W3 branch.
 
-Therefore current truth is split honestly:
+Current branch truth therefore remains:
 
 - unaffected strategic modules: historical/current gold within their reviewed boundaries;
-- LCM-02 / LCM-03 / LCM-06 strategy: `REPAIR_REQUIRED` pending W3 repair and re-review;
-- language/editorial/localization: `LANGUAGE_REPAIR_REQUIRED` pending later W4R integration and human re-review.
+- LCM-02 / LCM-03 / LCM-06 strategy: `REVIEW_PENDING` after scoped W3 repair;
+- priority drill semantics: `DRILLS_REVIEW_PENDING` for preflop/aggression;
+- language/editorial/localization: `LANGUAGE_REPAIR_REQUIRED` until the FINAL W4R handoff is integrated and its materialized priority-module semantics are reconciled;
+- final composition: stale / review required.
 
-Active language repair ledger:
+Read-only comparison against FINAL W4R found that integration must re-check the final materialized aggression copy rather than trusting the historical W4R acceptance label alone. No hidden W3 overlay is permitted as a workaround.
 
-`reports/WAVE_4R_LANGUAGE_TRUTH_REPAIR_LEDGER_2026-08-07.md`
-
-Confirmed language repair classes include:
-
-- hybrid RU T1 diagnostic language;
-- competing EN module-heading source of truth;
-- false `EN REVIEW REQUIRED` messages despite approved content;
-- internal/state-machine jargon in EN 0→100 route;
-- hardcoded untranslated/raw UI labels and statuses;
-- residual research/AI-style prose in accepted RU/EN modules;
-- insufficient editorial regression coverage;
-- temporary DOM localization/practice compatibility layers that should be consolidated into normal React/locale contracts.
-
-No Wave 6 work is allowed before strategy and language repair truth is reconciled.
+No Wave 6 work is allowed before strategy/drill review and language/final-composition reconciliation are complete.
 
 ## Wave 5 practice quality accepted
 
@@ -114,11 +111,11 @@ Wave 5 mechanics remain accepted:
 - unique stable option/card IDs and unique learner-facing card prompts;
 - duplicate blocker-card prompt repair without learner-history reset.
 
-This practice-mechanics acceptance does not override W3's reopened semantic review for affected priority drills, does not claim final language quality and does not claim empirical learning effectiveness.
+This practice-mechanics acceptance does not override W3's pending semantic review for affected priority drills, does not claim final language quality and does not claim empirical learning effectiveness.
 
 ## Pending product / evidence scope
 
-After W3 strategy repair and later W4R integration, later waves still own:
+After W3 strategy/drill review and later W4R integration, later waves still own:
 
 - repair/retention/personalization routing closure;
 - complete T1 end-to-end evaluation workflow beyond language truth;
@@ -153,8 +150,9 @@ None currently known in accepted repository platform scope.
 
 ### P1 — current active wave blockers
 
-- W3 unsupported exact/semi-exact depth claims in LCM-02 / LCM-03 / LCM-06;
-- W3 final drill semantic mismatch in affected priority drills;
+- human poker re-review of repaired LCM-02 / LCM-03 / LCM-06 strategy;
+- human drill re-review of repaired preflop/aggression priority content;
+- FINAL W4R priority-module semantic reconciliation before a current composition digest can be approved;
 - material RU/EN meaning or truth mismatch;
 - learner-facing internal/system language that violates the editorial contract;
 - contradictory editorial status in UI vs manifest;
