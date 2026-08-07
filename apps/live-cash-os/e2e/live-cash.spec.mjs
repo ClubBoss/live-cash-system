@@ -114,7 +114,7 @@ test("RU to EN to RU preserves the active decision and learner identity", async 
   await expect(page.locator(".session")).not.toContainText(/[А-Яа-яЁё]/u);
 
   await page.getByRole("button", { name: "RU", exact: true }).click();
-  await expect(page.getByRole("heading", { name: /Какой единицей сначала описывать глубину/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /В каких единицах сначала оценить глубину/i })).toBeVisible();
   await expect(page.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" })).toHaveAttribute("aria-pressed", "true");
   const afterRoundTrip = await localState(page);
   expect(afterRoundTrip.revision).toBe(before.revision);
@@ -150,7 +150,7 @@ test("the starting check freezes the start locale, item locale and real first-it
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.getByLabel("How would you play?").fill("270 and 900 pairwise");
   await page.getByLabel("Why?").fill("Effective depth is opponent-specific in a multiway pot.");
-  await page.getByRole("button", { name: /^Answer$/ }).click();
+  await page.getByRole("button", { name: /^Answer/ }).click();
 
   const state = await localState(page);
   expect(state.diagnostic.localeAtStart).toBe("ru");
