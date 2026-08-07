@@ -1,5 +1,12 @@
 import type { MeasurementContext, ModuleId } from "./model";
 
+export type ReviewedDiagnosticClass = "A" | "B" | "C" | "D" | "U";
+export type DiagnosticReviewedItem = {
+  item_id: string;
+  response_class: ReviewedDiagnosticClass;
+  reviewer_note?: string;
+};
+
 export type DiagnosticScoreOutput = {
   schema_version: "score-0.2";
   scorer_version: string;
@@ -14,6 +21,9 @@ export type DiagnosticScoreOutput = {
   module_summary: Record<string, { observed_error_rate: number; exposures: number; items: string[] }>;
   misconception_evidence: Record<string, { observations: number; high_confidence: number; items: string[] }>;
   tentative_priority_order: string[];
+  reviewer_kind?: "human" | "human-assisted";
+  reviewed_at?: string;
+  item_reviews?: DiagnosticReviewedItem[];
 };
 
 const LCM_TO_MODULE: Record<string, ModuleId> = {
@@ -36,6 +46,7 @@ const CONTEXTS = new Set<MeasurementContext>([
   "POST_LEARNING_DIAGNOSTIC",
   "MIXED_EXPOSURE_INVALID_FOR_BASELINE",
 ]);
+const REVIEWED_CLASSES = new Set<ReviewedDiagnosticClass>(["A", "B", "C", "D", "U"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -46,6 +57,35 @@ function finite(value: unknown): value is number {
 function exactKeys(value: Record<string, unknown>, allowed: string[], label: string) {
   const extras = Object.keys(value).filter((key) => !allowed.includes(key));
   if (extras.length) throw new Error(`${label} contains unknown fields: ${extras.join(", ")}`);
+}
+
+function validateReviewedItems(value: Record<string, unknown>) {
+  if (value.item_reviews === undefined) {
+    if (value.reviewer_kind !== undefined || value.reviewed_at !== undefined) {
+      throw new Error("Reviewer metadata requires item_reviews.");
+    }
+    return;
+  }
+  if (!Array.isArray(value.item_reviews) || value.item_reviews.length !== 10) {
+    throw new Error("Reviewed T1 output must contain exactly ten item reviews.");
+  }
+  if (value.reviewer_kind !== "human" && value.reviewer_kind !== "human-assisted") {
+    throw new Error("Reviewed T1 output requires human or human-assisted reviewer identity.");
+  }
+  if (typeof value.reviewed_at !== "string" || Number.isNaN(Date.parse(value.reviewed_at))) {
+    throw new Error("Reviewed T1 output requires a valid review timestamp.");
+  }
+  const seen = new Set<string>();
+  for (const unknownItem of value.item_reviews) {
+    if (!isRecord(unknownItem)) throw new Error("Invalid reviewed T1 item.");
+    exactKeys(unknownItem, ["item_id", "response_class", "reviewer_note"], "Reviewed T1 item");
+    if (typeof unknownItem.item_id !== "string" || !T1_IDS.has(unknownItem.item_id)) throw new Error("Invalid reviewed T1 item ID.");
+    if (seen.has(unknownItem.item_id)) throw new Error(`Duplicate reviewed T1 item: ${unknownItem.item_id}`);
+    seen.add(unknownItem.item_id);
+    if (!REVIEWED_CLASSES.has(unknownItem.response_class as ReviewedDiagnosticClass)) throw new Error(`Invalid reviewed response class: ${String(unknownItem.response_class)}`);
+    if (unknownItem.reviewer_note !== undefined && typeof unknownItem.reviewer_note !== "string") throw new Error("Invalid reviewed T1 note.");
+  }
+  if ([...T1_IDS].some((item) => !seen.has(item))) throw new Error("Reviewed T1 output must cover LD-001 through LD-010 exactly once.");
 }
 
 export function parseDiagnosticScore(value: unknown): DiagnosticScoreOutput {
@@ -67,6 +107,9 @@ export function parseDiagnosticScore(value: unknown): DiagnosticScoreOutput {
     "response_class_counts",
     "candidate_summary",
     "notes",
+    "reviewer_kind",
+    "reviewed_at",
+    "item_reviews",
   ], "Scorer output");
   if (value.schema_version !== "score-0.2") throw new Error("Unsupported scorer schema. Expected score-0.2.");
   if (typeof value.scorer_version !== "string" || !/^0\.2\./u.test(value.scorer_version)) throw new Error("Unsupported or missing scorer version.");
@@ -105,6 +148,7 @@ export function parseDiagnosticScore(value: unknown): DiagnosticScoreOutput {
   }
   if (!value.tentative_priority_order.every((item) => typeof item === "string" && /^H-[A-Z0-9-]+$/u.test(item))) throw new Error("Invalid candidate priority order.");
   if (new Set(value.tentative_priority_order).size !== value.tentative_priority_order.length) throw new Error("Candidate priority order contains duplicates.");
+  validateReviewedItems(value);
   return value as DiagnosticScoreOutput;
 }
 
