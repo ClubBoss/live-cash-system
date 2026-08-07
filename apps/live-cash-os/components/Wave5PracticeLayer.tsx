@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { moduleById } from "../content/modules";
+import type { Lab } from "../content/types";
 import type { LocaleCode, ModuleId } from "../lib/model";
 
 const STORAGE_KEY = "live-cash-os:learner-state";
@@ -13,6 +14,9 @@ type PracticeSnapshot = {
   mixedActive: boolean;
   completedModules: number;
 };
+
+type SprLab = Extract<Lab, { type: "spr" }>;
+type CompareLab = Extract<Lab, { type: "compare" }>;
 
 const EMPTY_SNAPSHOT: PracticeSnapshot = {
   locale: "ru",
@@ -163,10 +167,8 @@ function PredictionStep({ locale, prompt, prediction, setPrediction, onContinue 
   </>;
 }
 
-function SprInteraction({ locale, moduleId, onComplete }: { locale: LocaleCode; moduleId: ModuleId; onComplete: () => void }) {
+function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: SprLab; onComplete: () => void }) {
   const module = moduleById[moduleId];
-  if (module.lab.type !== "spr") return null;
-  const lab = module.lab;
   const [pot, setPot] = useState(String(lab.initialPot));
   const [stack, setStack] = useState(String(lab.stack));
   const [bet, setBet] = useState(String(lab.bet));
@@ -214,10 +216,8 @@ function SprInteraction({ locale, moduleId, onComplete }: { locale: LocaleCode; 
   </>;
 }
 
-function CompareInteraction({ locale, moduleId, onComplete }: { locale: LocaleCode; moduleId: ModuleId; onComplete: () => void }) {
+function CompareInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: CompareLab; onComplete: () => void }) {
   const module = moduleById[moduleId];
-  if (module.lab.type !== "compare") return null;
-  const lab = module.lab;
   const [active, setActive] = useState<"left" | "right" | null>(null);
   const [seen, setSeen] = useState<Array<"left" | "right">>([]);
   const visit = (side: "left" | "right") => {
@@ -266,8 +266,8 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
     {phase === "prediction"
       ? <PredictionStep locale={locale} prompt={module.lab.description} prediction={prediction} setPrediction={setPrediction} onContinue={() => setPhase("interact")} />
       : module.lab.type === "spr"
-        ? <SprInteraction locale={locale} moduleId={moduleId} onComplete={nextCoreLabStep} />
-        : <CompareInteraction locale={locale} moduleId={moduleId} onComplete={nextCoreLabStep} />}
+        ? <SprInteraction locale={locale} moduleId={moduleId} lab={module.lab} onComplete={nextCoreLabStep} />
+        : <CompareInteraction locale={locale} moduleId={moduleId} lab={module.lab} onComplete={nextCoreLabStep} />}
   </section>;
 }
 
