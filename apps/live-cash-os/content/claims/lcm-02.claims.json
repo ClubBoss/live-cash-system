@@ -92,7 +92,7 @@
     "assumptions": ["Same positions and broadly similar opponent model", "No extreme rake or sizing discontinuity"],
     "exceptions": ["Exact stack-off thresholds and hand frequencies remain visual-dependent", "Opponent-specific folds can override the baseline direction"],
     "target_games": ["Live cash 1/3", "Live cash 2/5", "Deep live cash"],
-    "depth_scope": ["Roughly 60-100bb", "150-200bb", "300-400bb and deeper"],
+    "depth_scope": ["Directional depth comparison only", "Direct source examples at 100bb, 200bb and 400bb; no exact transition threshold is admitted"],
     "positions": ["All positions"],
     "player_count_scope": "BOTH",
     "sizing_scope": ["3-bet, squeeze and versus-4-bet branches"],
@@ -102,6 +102,6 @@
     "status": "ADMITTED",
     "reviewer": "GPT-5.6 Thinking",
     "reviewed_at": "2026-08-07",
-    "notes": "Directional only."
+    "notes": "Directional heuristic only; 100bb/200bb/400bb are source examples, not universal transition boundaries."
   }
 ]
