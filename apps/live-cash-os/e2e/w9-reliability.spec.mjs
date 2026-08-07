@@ -168,7 +168,7 @@ test("divergent local and cloud histories preserve both and require explicit rec
   }, { key: LOCAL_KEY, syncKey: SYNC_KEY, state: local });
   await page.reload();
 
-  await expect(page.getByText(/Обнаружены две разные версии прогресса/i)).toBeVisible();
+  await expect(page.locator(".notice").getByText(/Обнаружены две разные версии прогресса/i)).toBeVisible();
   const live = await storedState(page);
   expect(live.fieldNotes.some((row) => row.id === "local-hand")).toBe(true);
   const backup = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), CONFLICT_KEY);
@@ -202,7 +202,7 @@ test("network save failure keeps local progress and retry can acknowledge it", a
   expect(local.activeSession).not.toBeNull();
 
   await page.getByRole("button", { name: "Данные", exact: true }).click();
-  await expect(page.getByText(/Облачное сохранение сейчас недоступно/i)).toBeVisible();
+  await expect(page.locator(".notice").getByText(/Облачное сохранение сейчас недоступно/i)).toBeVisible();
   server.failPost = false;
   await page.getByRole("button", { name: "Повторить синхронизацию", exact: true }).click();
   await expect(page.getByText("synced", { exact: true })).toBeVisible();
@@ -244,7 +244,7 @@ test("malformed localStorage is quarantined and the app remains recoverable", as
   await page.reload();
 
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
-  await expect(page.getByText(/Локальная копия потребовала восстановления/i)).toBeVisible();
+  await expect(page.locator(".notice").getByText(/Локальная копия потребовала восстановления/i)).toBeVisible();
   const preserved = await page.evaluate((key) => localStorage.getItem(key), RECOVERY_KEY);
   expect(preserved).toBe(broken);
 });
@@ -259,7 +259,7 @@ test("future local schema is preserved and not downgraded destructively", async 
   }, { key: LOCAL_KEY, syncKey: SYNC_KEY, value: future });
   await page.reload();
 
-  await expect(page.getByText(/Версии приложения и сохранённых данных не совпадают/i)).toBeVisible();
+  await expect(page.locator(".notice").getByText(/Версии приложения и сохранённых данных не совпадают/i)).toBeVisible();
   expect(await page.evaluate((key) => localStorage.getItem(key), LOCAL_KEY)).toBe(future);
   expect(await page.evaluate((key) => localStorage.getItem(key), RECOVERY_KEY)).toBe(future);
 });
@@ -269,7 +269,7 @@ test("state endpoint outage at startup keeps a valid local session usable", asyn
   await page.route(API, async (route) => route.abort("failed"));
   const local = makeMeaningful(template, "local");
   local.activeSession = {
-    mode: "practice",
+    mode: "lesson",
     moduleId: "geometry",
     step: 0,
     drillIds: ["geo-01"],
@@ -287,10 +287,10 @@ test("state endpoint outage at startup keeps a valid local session usable", asyn
   }, { key: LOCAL_KEY, syncKey: SYNC_KEY, state: local });
   await page.reload();
 
-  await expect(page.getByText(/РЕШИ БЕЗ ПОДСКАЗКИ/)).toBeVisible();
+  await expect(page.getByText(/РЕШИ БЕЗ ПОДСКАЗКИ/).last()).toBeVisible();
   const restored = await storedState(page);
   expect(restored.activeSession.moduleId).toBe("geometry");
-  await expect(page.getByText(/Нет сети/i)).toBeVisible();
+  await expect(page.locator(".notice").getByText(/Нет сети/i)).toBeVisible();
 });
 
 test("server runtime skew blocks cloud mutation and asks for refresh", async ({ page }) => {
@@ -306,7 +306,7 @@ test("server runtime skew blocks cloud mutation and asks for refresh", async ({ 
   }, { key: LOCAL_KEY, syncKey: SYNC_KEY, state: local });
   await page.reload();
 
-  await expect(page.getByText(/Версии приложения и сохранённых данных не совпадают/i)).toBeVisible();
+  await expect(page.locator(".notice").getByText(/Версии приложения и сохранённых данных не совпадают/i)).toBeVisible();
   await page.waitForTimeout(1_000);
   expect(server.postBodies).toHaveLength(0);
 });
@@ -317,5 +317,6 @@ test("data screen explains private learning text and keeps raw debug content hid
   await page.getByRole("button", { name: "Данные", exact: true }).click();
   await expect(page.getByText(/ответы T1, сохранённые объяснения и записанные реальные руки/i)).toBeVisible();
   await expect(page.getByText(/не отправляются автоматически на AI-разбор/i)).toBeVisible();
+  await page.getByText("Техническая диагностика", { exact: true }).click();
   await expect(page.getByText(/Диагностический экспорт не содержит тексты T1/i)).toBeVisible();
 });
