@@ -46,10 +46,26 @@ test("completes the cold check and reaches the plain explanation", async ({ page
   await expect(page.getByRole("heading", { name: /Быстро определять эффективный стек/ })).toBeVisible();
 });
 
-test("T1 remains optional before the first lesson", async ({ page }) => {
-  await expect(page.getByText(/T1 — необязательная стартовая проверка/)).toBeVisible();
+test("the starting check explains its purpose and remains optional", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Стартовая проверка мышления" })).toBeVisible();
+  await expect(page.getByText(/10 решений без подсказок, около 15 минут/i)).toBeVisible();
+  await expect(page.getByText(/Можно пропустить и сразу начать первый урок/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Проверка", exact: true })).toBeVisible();
+
   await page.getByRole("button", { name: "Учиться" }).click();
   await expect(page.getByRole("button", { name: /^Изучить/ }).first()).toBeEnabled();
+});
+
+test("the starting check has a clear start screen in both locales", async ({ page }) => {
+  await page.getByRole("button", { name: "Проверка", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
+  await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Начать проверку" })).toBeVisible();
+
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /Check how you make decisions now/i })).toBeVisible();
+  await expect(page.getByText(/10 spots · about 15 minutes · optional/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start the check" })).toBeVisible();
 });
 
 test("language persists without changing learner state", async ({ page }) => {
@@ -95,10 +111,10 @@ test("submitted feedback survives reload without duplicate evidence", async ({ p
   expect(after.interactions).toHaveLength(1);
 });
 
-test("T1 freezes the start locale, item locale and real first-item timer", async ({ page }) => {
-  await page.getByRole("button", { name: "T1", exact: true }).click();
+test("the starting check freezes the start locale, item locale and real first-item timer", async ({ page }) => {
+  await page.getByRole("button", { name: "Проверка", exact: true }).click();
   await page.waitForTimeout(5_000);
-  await page.getByRole("button", { name: "Начать T1" }).click();
+  await page.getByRole("button", { name: "Начать проверку" }).click();
   await page.getByLabel("Как бы ты сыграл?").fill("140 страддлов");
   await page.getByLabel("Почему?").fill("Страддл задаёт рабочую ставку.");
   await page.getByRole("button", { name: /^Ответить/ }).click();
@@ -115,9 +131,9 @@ test("T1 freezes the start locale, item locale and real first-item timer", async
   expect(state.diagnostic.responses[0].time_seconds).toBeLessThanOrEqual(4);
 });
 
-test("learning during a cold T1 invalidates baseline interpretation", async ({ page }) => {
-  await page.getByRole("button", { name: "T1", exact: true }).click();
-  await page.getByRole("button", { name: "Начать T1" }).click();
+test("learning during a cold starting check invalidates baseline interpretation", async ({ page }) => {
+  await page.getByRole("button", { name: "Проверка", exact: true }).click();
+  await page.getByRole("button", { name: "Начать проверку" }).click();
   await page.getByRole("button", { name: "Учиться" }).click();
   await page.getByRole("button", { name: /^Изучить/ }).first().click();
   await answerGeometryColdCheck(page);
