@@ -1,0 +1,40 @@
+name: Pre-learning smoke repair validation
+
+on:
+  push:
+    branches: [wave/pre-learning-closure-smoke-repair]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full release gate
+        run: npm run test:release
+      - name: Live production smoke
+        env:
+          LIVE_URL: https://live-cash-os.elmarsal.chatgpt.site/
+        run: npm run smoke:production
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-learning-smoke-repair-evidence
+          path: apps/live-cash-os/smoke-evidence
+          if-no-files-found: ignore
+          retention-days: 14
