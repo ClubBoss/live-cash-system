@@ -23,7 +23,7 @@ async function fillHand(page) {
   await page.getByLabel("Последовательность действий").fill("BTN opens 3bb, BB calls; flop BTN bets 25%");
   await page.getByLabel("Борд (для префлопа: preflop)").fill("Qh 7d 4c");
   await page.getByLabel("Сайзинги").fill("3bb preflop; 25% flop");
-  await page.getByLabel("Что заметил до решения").fill("BTN uses a small wide flop bet");
+  await page.getByLabel("Что заметил").fill("BTN uses a small wide flop bet");
   await page.getByLabel("Как сыграл").fill("Call");
   await page.getByLabel("Почему — до результата").fill("Keep weaker hands in and avoid turning the hand into a raise without enough reason.");
 }
