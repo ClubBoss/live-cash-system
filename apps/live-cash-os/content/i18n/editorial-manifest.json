@@ -3,7 +3,7 @@
   "status": "FULLY_ACCEPTED",
   "status_scope": "CURRICULUM_BILINGUAL_MODULE_APPROVAL",
   "curriculum_truth": "CURRICULUM_STRATEGY_GOLD",
-  "language_truth": "WAVE_4R_REPAIR_CANDIDATE",
+  "language_truth": "WAVE_4R_ACCEPTED",
   "reviewer": "GPT-5.6 Thinking",
   "review_policy": "Learner-facing copy is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks can reject stale or invalid copy but can never create an approval.",
   "source_blobs": {
