@@ -36,7 +36,13 @@ jobs:
           body = []
           for line in lines[start:end]:
               body.append(line[10:] if line.startswith('          ') else line)
-          Path('/tmp/w6_apply.py').write_text('\n'.join(body) + '\n', encoding='utf-8')
+          patch = '\n'.join(body) + '\n'
+          old = '  const newAllowed = options.budget !== "post" && !hasUnresolvedRepair && !recentLessonExposure(state, options.now);'
+          new = '  const newAllowed = options.budget !== "post" && options.budget !== "5" && !hasUnresolvedRepair && !recentLessonExposure(state, options.now);'
+          if old not in patch:
+              raise SystemExit('five-minute policy patch target not found')
+          patch = patch.replace(old, new, 1)
+          Path('/tmp/w6_apply.py').write_text(patch, encoding='utf-8')
           PY
           python /tmp/w6_apply.py
       - name: Install dependencies
