@@ -71,7 +71,7 @@ test("W3 repaired candidate remains explicitly review-pending with approvals inv
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_approval, null);
   assert.deepEqual(manifest.human_approvals, {});
-  assert.equal(manifest.final_composition.status, "STALE_REVIEW_REQUIRED");
-  assert.equal(manifest.final_composition.current_digest, null);
+  assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
+  assert.match(manifest.final_composition.current_digest, /^[a-f0-9]{64}$/u);
   assert.equal(manifest.final_composition.approved_digest, null);
 });
