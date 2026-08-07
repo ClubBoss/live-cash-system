@@ -616,7 +616,10 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
   const context = diagnostic.measurementContext;
   const instructions = context === "MIXED_EXPOSURE_INVALID_FOR_BASELINE" ? t.mixedInstructions : context === "COLD_BASELINE" ? t.coldInstructions : t.postInstructions;
 
-  const begin = () => setState(startDiagnosticRun(state, locale));
+  const begin = () => {
+    setStartedAt(Date.now());
+    setState(startDiagnosticRun(state, locale));
+  };
   const submit = () => {
     if (!item || !answer.trim() || !reasoning.trim()) return;
     setState(recordDiagnosticResponse(state, {
