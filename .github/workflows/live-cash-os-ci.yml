@@ -33,13 +33,13 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Install Playwright Chromium
+      - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Release gate
         run: npm run test:release
 
-      - name: Upload Playwright evidence on failure
+      - name: Upload browser evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
