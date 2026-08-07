@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 import test from "node:test";
 import ts from "typescript";
 
-async function loadTypeScriptModule(relativePath) {
+async function compileInto(root, relativePath, outputPath, transform = (value) => value) {
   const source = await readFile(new URL(`../${relativePath}`, import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, {
     compilerOptions: {
@@ -14,98 +15,118 @@ async function loadTypeScriptModule(relativePath) {
       importsNotUsedAsValues: ts.ImportsNotUsedAsValues.Remove,
     },
   }).outputText;
-  const directory = await mkdtemp(join(tmpdir(), "live-cash-os-wave5-"));
-  const output = join(directory, `${relativePath.replaceAll("/", "-").replace(/\.ts$/, "")}.mjs`);
-  await writeFile(output, compiled, "utf8");
-  return import(`${new URL(`file://${output}`).href}?${Date.now()}-${Math.random()}`);
+  const output = join(root, outputPath);
+  await mkdir(dirname(output), { recursive: true });
+  await writeFile(output, transform(compiled), "utf8");
+  return output;
 }
 
-const contentPromise = loadTypeScriptModule("content/modules.ts");
+async function fixture() {
+  const root = await mkdtemp(join(tmpdir(), "live-cash-os-wave5-"));
+  const modulesPath = await compileInto(root, "content/modules.ts", "content/modules.mjs");
+  await compileInto(root, "content/i18n/geometry-gold.ts", "content/i18n/geometry-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/geometry-ru-gold.ts", "content/i18n/geometry-ru-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  const geometryPath = await compileInto(root, "content/i18n/geometry-locale.ts", "content/i18n/geometry-locale.mjs", (compiled) => compiled
+    .replace('from "../modules"', 'from "../modules.mjs"')
+    .replace('from "./geometry-gold"', 'from "./geometry-gold.mjs"')
+    .replace('from "./geometry-ru-gold"', 'from "./geometry-ru-gold.mjs"'));
+  const wave3Path = await compileInto(root, "content/i18n/wave3-priority-gold.ts", "content/i18n/wave3-priority-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  const wave4Path = await compileInto(root, "content/i18n/wave4-curriculum-gold.ts", "content/i18n/wave4-curriculum-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  const finalPath = await compileInto(root, "content/i18n/wave4-final-editorial.ts", "content/i18n/wave4-final-editorial.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  return {
+    modules: await import(pathToFileURL(modulesPath).href),
+    geometry: await import(pathToFileURL(geometryPath).href),
+    wave3: await import(pathToFileURL(wave3Path).href),
+    wave4: await import(pathToFileURL(wave4Path).href),
+    finalEditorial: await import(pathToFileURL(finalPath).href),
+  };
+}
+
+function applyLocale(value, locale) {
+  value.geometry.applyGeometryLocale(locale);
+  value.wave3.applyWave3PriorityLocale(locale);
+  value.wave4.applyWave4CurriculumLocale(locale);
+  value.finalEditorial.applyWave4FinalEditorialLocale(locale);
+}
 
 function normalized(value) {
   return value.trim().toLocaleLowerCase("en-US").replace(/\s+/g, " ");
 }
 
-test("Wave 5 corpus keeps one unambiguous answer contract for every drill", async () => {
-  const { modules } = await contentPromise;
+function auditDrills(modules, locale) {
   const drills = modules.flatMap((module) => module.drills);
-  assert.equal(modules.length, 11);
-  assert.equal(drills.length, 55);
+  assert.equal(modules.length, 11, `${locale}: expected 11 modules`);
+  assert.equal(drills.length, 55, `${locale}: expected 55 drills`);
 
   for (const module of modules) {
-    assert.ok(module.drills.length >= 5, `${module.id}: needs at least five core practice decisions`);
-    assert.ok(module.drills.some((drill) => drill.kind === "changed"), `${module.id}: missing changed-node practice`);
-    assert.ok(module.drills.some((drill) => drill.kind === "boundary"), `${module.id}: missing boundary practice`);
+    assert.equal(module.drills.length, 5, `${locale}/${module.id}: expected five stable decisions`);
+    assert.ok(module.drills.some((drill) => drill.kind === "changed"), `${locale}/${module.id}: missing changed-node practice`);
+    assert.ok(module.drills.some((drill) => drill.kind === "boundary"), `${locale}/${module.id}: missing boundary practice`);
 
     for (const drill of module.drills) {
-      assert.ok(drill.assumptions.length > 0, `${drill.id}: missing assumptions`);
-      assert.ok(drill.cue.trim().length > 0, `${drill.id}: missing cue`);
-      assert.ok(drill.question.trim().length > 0, `${drill.id}: missing question`);
-      assert.ok(drill.explanation.trim().length > 0, `${drill.id}: missing explanation`);
-      assert.ok(drill.targetSeconds > 0, `${drill.id}: invalid target time`);
-      assert.ok(drill.actionOptions.length >= 3, `${drill.id}: action distractor set is too small`);
-      assert.ok(drill.reasonOptions.length >= 3, `${drill.id}: reason distractor set is too small`);
+      assert.ok(drill.assumptions.length > 0, `${locale}/${drill.id}: missing assumptions`);
+      assert.ok(drill.cue.trim().length > 0, `${locale}/${drill.id}: missing cue`);
+      assert.ok(drill.question.trim().length > 0, `${locale}/${drill.id}: missing question`);
+      assert.ok(drill.explanation.trim().length > 0, `${locale}/${drill.id}: missing explanation`);
+      assert.ok(drill.targetSeconds > 0, `${locale}/${drill.id}: invalid target time`);
+      assert.equal(drill.actionOptions.length, 3, `${locale}/${drill.id}: expected three action options`);
+      assert.equal(drill.reasonOptions.length, 3, `${locale}/${drill.id}: expected three reason options`);
 
       const actionIds = drill.actionOptions.map((option) => option.id);
       const reasonIds = drill.reasonOptions.map((option) => option.id);
-      assert.equal(new Set(actionIds).size, actionIds.length, `${drill.id}: duplicate action ID`);
-      assert.equal(new Set(reasonIds).size, reasonIds.length, `${drill.id}: duplicate reason ID`);
-      assert.equal(actionIds.filter((id) => id === drill.correctActionId).length, 1, `${drill.id}: correct action must exist exactly once`);
-      assert.equal(reasonIds.filter((id) => id === drill.correctReasonId).length, 1, `${drill.id}: correct reason must exist exactly once`);
-
-      const actionText = drill.actionOptions.map((option) => normalized(option.text));
-      const reasonText = drill.reasonOptions.map((option) => normalized(option.text));
-      assert.equal(new Set(actionText).size, actionText.length, `${drill.id}: duplicate action wording`);
-      assert.equal(new Set(reasonText).size, reasonText.length, `${drill.id}: duplicate reason wording`);
+      assert.equal(new Set(actionIds).size, actionIds.length, `${locale}/${drill.id}: duplicate action ID`);
+      assert.equal(new Set(reasonIds).size, reasonIds.length, `${locale}/${drill.id}: duplicate reason ID`);
+      assert.equal(actionIds.filter((id) => id === drill.correctActionId).length, 1, `${locale}/${drill.id}: correct action must exist exactly once`);
+      assert.equal(reasonIds.filter((id) => id === drill.correctReasonId).length, 1, `${locale}/${drill.id}: correct reason must exist exactly once`);
+      assert.equal(new Set(drill.actionOptions.map((option) => normalized(option.text))).size, drill.actionOptions.length, `${locale}/${drill.id}: duplicate action wording`);
+      assert.equal(new Set(drill.reasonOptions.map((option) => normalized(option.text))).size, drill.reasonOptions.length, `${locale}/${drill.id}: duplicate reason wording`);
     }
-  }
-});
 
-test("changed-node practice changes material context instead of repeating the core prompt", async () => {
-  const { modules } = await contentPromise;
-  for (const module of modules) {
     const core = module.drills.find((drill) => drill.kind === "core") ?? module.drills[0];
     const coreSignature = normalized(`${core.assumptions.join(" ")} ${core.cue} ${core.question}`);
+    const coreAssumptions = new Set(core.assumptions.map(normalized));
     for (const drill of module.drills.filter((item) => item.kind === "changed" || item.kind === "boundary")) {
       const signature = normalized(`${drill.assumptions.join(" ")} ${drill.cue} ${drill.question}`);
-      assert.notEqual(signature, coreSignature, `${drill.id}: variant repeats the core context`);
-      assert.ok(drill.transferProbe?.changedVariables?.length || drill.kind === "boundary" || drill.variantGroup !== core.variantGroup,
-        `${drill.id}: variant lacks an explicit changed-variable signal`);
+      assert.notEqual(signature, coreSignature, `${locale}/${drill.id}: variant repeats the core context`);
+      const assumptions = new Set(drill.assumptions.map(normalized));
+      const changedAssumption = [...assumptions].some((item) => !coreAssumptions.has(item))
+        || [...coreAssumptions].some((item) => !assumptions.has(item));
+      assert.equal(changedAssumption, true, `${locale}/${drill.id}: variant does not change any stated assumption`);
     }
   }
-});
 
-test("at least one fifth of the current corpus is explicit boundary practice and uncertainty is represented", async () => {
-  const { modules } = await contentPromise;
-  const drills = modules.flatMap((module) => module.drills);
   const boundary = drills.filter((drill) => drill.kind === "boundary");
-  assert.ok(boundary.length / drills.length >= 0.20, `Boundary share ${boundary.length}/${drills.length} is below 20%`);
+  assert.ok(boundary.length / drills.length >= 0.20, `${locale}: boundary share ${boundary.length}/${drills.length} is below 20%`);
+  const learnerText = JSON.stringify(drills).toLocaleLowerCase(locale === "ru" ? "ru-RU" : "en-US");
+  assert.match(learnerText, locale === "ru" ? /(недостаточ|неизвест|неопредел)/u : /(insufficient|unknown|uncertain)/u,
+    `${locale}: corpus needs explicit honest-uncertainty practice`);
+}
 
-  const allLearnerText = JSON.stringify(drills).toLocaleLowerCase("en-US");
-  assert.match(allLearnerText, /(insufficient|unknown|uncertain|недостаточ|неизвест|неопредел)/u,
-    "Corpus needs at least one explicit honest-uncertainty decision");
-});
-
-test("flashcards are unique, concise and tied to table-usable recall", async () => {
-  const { modules } = await contentPromise;
+function auditCards(modules, locale) {
   const cards = modules.flatMap((module) => module.flashcards);
-  assert.equal(cards.length, 33);
+  assert.equal(cards.length, 33, `${locale}: expected 33 cards`);
   const ids = new Set();
   const fronts = new Set();
 
-  for (const module of modules) {
-    assert.ok(module.flashcards.length >= 3, `${module.id}: needs at least three cards`);
-  }
-
+  for (const module of modules) assert.equal(module.flashcards.length, 3, `${locale}/${module.id}: expected three cards`);
   for (const card of cards) {
-    assert.equal(ids.has(card.id), false, `Duplicate card ID: ${card.id}`);
+    assert.equal(ids.has(card.id), false, `${locale}: duplicate card ID ${card.id}`);
     ids.add(card.id);
     const front = normalized(card.front);
-    assert.equal(fronts.has(front), false, `Duplicate card prompt: ${card.front}`);
+    assert.equal(fronts.has(front), false, `${locale}: duplicate card prompt: ${card.front}`);
     fronts.add(front);
-    assert.ok(card.front.trim().length >= 8 && card.front.trim().length <= 180, `${card.id}: front is not concise`);
-    assert.ok(card.back.trim().length >= 5 && card.back.trim().length <= 320, `${card.id}: back is not concise`);
-    assert.ok(["heuristic", "boundary", "procedure"].includes(card.kind), `${card.id}: unsupported card kind`);
+    assert.ok(card.front.trim().length >= 8 && card.front.trim().length <= 180, `${locale}/${card.id}: front is not concise`);
+    assert.ok(card.back.trim().length >= 5 && card.back.trim().length <= 320, `${locale}/${card.id}: back is not concise`);
+    assert.ok(["heuristic", "boundary", "procedure"].includes(card.kind), `${locale}/${card.id}: unsupported card kind`);
+  }
+}
+
+test("Wave 5 audits the final learner-facing RU and EN corpus rather than stale base copy", async () => {
+  const value = await fixture();
+  for (const locale of ["ru", "en"]) {
+    applyLocale(value, locale);
+    auditDrills(value.modules.modules, locale);
+    auditCards(value.modules.modules, locale);
   }
 });
 
