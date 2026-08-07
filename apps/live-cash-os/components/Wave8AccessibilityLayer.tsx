@@ -4,10 +4,16 @@ import { useEffect } from "react";
 
 const HEADING_SELECTOR = ".session h1, .session h2, .surface h1, .surface h2, .wave5-lab-gate h2";
 
+function visibleHeading(): HTMLElement | null {
+  return [...document.querySelectorAll<HTMLElement>(HEADING_SELECTOR)]
+    .find((heading) => heading.offsetParent !== null) ?? null;
+}
+
 function ensureAccessibleNames() {
   document.querySelectorAll<HTMLTextAreaElement>("textarea.large-input:not([aria-label]):not([aria-labelledby])").forEach((textarea, index) => {
     const container = textarea.closest(".session, .surface") ?? textarea.parentElement;
-    const heading = container?.querySelector<HTMLElement>("h1, h2");
+    const heading = [...(container?.querySelectorAll<HTMLElement>("h1, h2") ?? [])]
+      .find((candidate) => candidate.offsetParent !== null);
     if (!heading) return;
     if (!heading.id) heading.id = `w8-textarea-heading-${index}`;
     textarea.setAttribute("aria-labelledby", heading.id);
@@ -16,7 +22,9 @@ function ensureAccessibleNames() {
   document.querySelectorAll<HTMLElement>(".progress").forEach((progress) => {
     const fill = progress.querySelector<HTMLElement>("i");
     const value = Math.max(0, Math.min(100, Number.parseFloat(fill?.style.width ?? "0") || 0));
+    const locale = document.documentElement.lang === "en" ? "en" : "ru";
     progress.setAttribute("role", "progressbar");
+    progress.setAttribute("aria-label", locale === "ru" ? "Прогресс сессии" : "Session progress");
     progress.setAttribute("aria-valuemin", "0");
     progress.setAttribute("aria-valuemax", "100");
     progress.setAttribute("aria-valuenow", String(Math.round(value)));
@@ -33,7 +41,7 @@ function focusRenderedContext(previous: HTMLElement) {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (document.contains(previous) && previous.offsetParent !== null) return;
     if (document.activeElement && document.activeElement !== document.body) return;
-    const heading = document.querySelector<HTMLElement>(HEADING_SELECTOR);
+    const heading = visibleHeading();
     if (!heading) return;
     const hadTabIndex = heading.hasAttribute("tabindex");
     heading.setAttribute("tabindex", "-1");
