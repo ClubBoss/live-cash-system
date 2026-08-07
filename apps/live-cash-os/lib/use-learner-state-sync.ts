@@ -56,9 +56,9 @@ type StateApiPayload = {
   runtime?: RuntimeIdentity;
   cloudDeleted?: boolean;
   deletedAt?: string;
+  cloudToken?: string | null;
   code?: string;
   revision?: number;
-  updatedAt?: string;
 };
 
 function safeSet(key: string, value: string): boolean {
@@ -102,7 +102,7 @@ export function useReliableLearnerState() {
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const serverRevision = useRef<number | null>(null);
-  const serverUpdatedAt = useRef<string | null>(null);
+  const serverCloudToken = useRef<string | null>(null);
   const cloudDisabled = useRef(false);
   const authUnavailable = useRef(false);
   const updateRequired = useRef(false);
@@ -121,7 +121,7 @@ export function useReliableLearnerState() {
 
   const acceptCloudAck = useCallback((payload: StateApiPayload, fallback: LearnerState) => {
     serverRevision.current = typeof payload.revision === "number" ? payload.revision : fallback.revision;
-    serverUpdatedAt.current = typeof payload.updatedAt === "string" ? payload.updatedAt : fallback.updatedAt;
+    serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : serverCloudToken.current;
     const savedAt = new Date().toISOString();
     setLastCloudSaveAt(savedAt);
     setLastErrorCode(null);
@@ -129,7 +129,7 @@ export function useReliableLearnerState() {
     const meta: SyncMeta = {
       cloudDisabled: false,
       lastCloudRevision: serverRevision.current,
-      lastCloudUpdatedAt: serverUpdatedAt.current,
+      lastCloudUpdatedAt: serverCloudToken.current,
       lastCloudSaveAt: savedAt,
     };
     writeSyncMeta(meta);
@@ -137,7 +137,7 @@ export function useReliableLearnerState() {
 
   const postState = useCallback(async (
     candidate: LearnerState,
-    options: { baseRevision?: number | null; baseUpdatedAt?: string | null; resumeCloudSync?: boolean } = {},
+    options: { baseRevision?: number | null; baseCloudToken?: string | null; resumeCloudSync?: boolean } = {},
   ) => {
     const response = await fetch("/api/state", {
       method: "POST",
@@ -145,7 +145,7 @@ export function useReliableLearnerState() {
       body: JSON.stringify({
         state: candidate,
         baseRevision: options.baseRevision ?? serverRevision.current,
-        baseUpdatedAt: options.baseUpdatedAt ?? serverUpdatedAt.current,
+        baseCloudToken: options.baseCloudToken ?? serverCloudToken.current,
         resumeCloudSync: options.resumeCloudSync === true,
       }),
     });
@@ -175,11 +175,15 @@ export function useReliableLearnerState() {
       return { ok: false, response, payload };
     }
     if (response.status === 409) {
-      rememberConflict(candidate, payloadState(payload));
+      const remote = payloadState(payload);
+      if (remote) serverRevision.current = remote.revision;
+      if (typeof payload.cloudToken === "string") serverCloudToken.current = payload.cloudToken;
+      rememberConflict(candidate, remote);
       return { ok: false, response, payload };
     }
     if (response.status === 410 || payload.cloudDeleted) {
       cloudDisabled.current = true;
+      if (typeof payload.cloudToken === "string") serverCloudToken.current = payload.cloudToken;
       setCloudMode("local");
       setSyncStatus("local");
       setLastErrorCode("CLOUD_STATE_DELETED");
@@ -202,7 +206,7 @@ export function useReliableLearnerState() {
       const meta = parseSyncMeta(safeGet(SYNC_META_KEY));
       cloudDisabled.current = meta.cloudDisabled;
       serverRevision.current = meta.lastCloudRevision;
-      serverUpdatedAt.current = meta.lastCloudUpdatedAt;
+      serverCloudToken.current = meta.lastCloudUpdatedAt;
       setLastCloudSaveAt(meta.lastCloudSaveAt);
       if (meta.cloudDisabled) setCloudMode("local");
 
@@ -239,6 +243,8 @@ export function useReliableLearnerState() {
             setSyncStatus("error");
           } else if (response.ok) {
             remoteAvailable = true;
+            if (typeof remotePayload.cloudToken === "string") serverCloudToken.current = remotePayload.cloudToken;
+            else if (remotePayload.cloudToken === null) serverCloudToken.current = null;
             if (remotePayload.cloudDeleted) {
               cloudDisabled.current = true;
               setCloudMode("local");
@@ -250,13 +256,7 @@ export function useReliableLearnerState() {
               setSyncStatus("error");
             } else {
               remote = payloadState(remotePayload);
-              if (remote) {
-                serverRevision.current = remote.revision;
-                serverUpdatedAt.current = remote.updatedAt;
-              } else {
-                serverRevision.current = null;
-                serverUpdatedAt.current = null;
-              }
+              serverRevision.current = remote?.revision ?? null;
               setSyncStatus("synced");
             }
           } else if (response.status === 401) {
@@ -284,7 +284,6 @@ export function useReliableLearnerState() {
 
       if (remoteAvailable && remote && decision.kind !== "conflict") {
         serverRevision.current = remote.revision;
-        serverUpdatedAt.current = remote.updatedAt;
       }
 
       if (localRead.kind === "future") setSyncStatus("error");
@@ -349,7 +348,7 @@ export function useReliableLearnerState() {
       }
       cloudDisabled.current = true;
       serverRevision.current = null;
-      serverUpdatedAt.current = null;
+      serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : null;
       setCloudMode("local");
       setSyncStatus("local");
       setLastErrorCode(null);
@@ -365,7 +364,7 @@ export function useReliableLearnerState() {
   const enableCloud = useCallback(async () => {
     try {
       setSyncStatus("syncing");
-      const result = await postState(state, { baseRevision: null, baseUpdatedAt: null, resumeCloudSync: true });
+      const result = await postState(state, { baseRevision: null, baseCloudToken: null, resumeCloudSync: true });
       if (result.ok) {
         cloudDisabled.current = false;
         setCloudMode("cloud");
@@ -384,7 +383,6 @@ export function useReliableLearnerState() {
     if (!current?.remote) return false;
     setState(current.remote);
     serverRevision.current = current.remote.revision;
-    serverUpdatedAt.current = current.remote.updatedAt;
     conflictRef.current = null;
     setConflict(null);
     safeRemove(CONFLICT_BACKUP_KEY);
@@ -400,7 +398,7 @@ export function useReliableLearnerState() {
     try {
       const result = await postState(current.local, {
         baseRevision: current.remote?.revision ?? null,
-        baseUpdatedAt: current.remote?.updatedAt ?? null,
+        baseCloudToken: serverCloudToken.current,
       });
       if (!result.ok) return false;
       setState(current.local);
@@ -455,7 +453,7 @@ export function useReliableLearnerState() {
         const remote = payloadState(payload);
         if (remote) {
           serverRevision.current = remote.revision;
-          serverUpdatedAt.current = remote.updatedAt;
+          serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : null;
           setState(remote);
           setSyncStatus("synced");
           return true;
