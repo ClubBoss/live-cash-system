@@ -245,6 +245,17 @@ function diagnosticPreserved(candidate: LearnerState, base: LearnerState): boole
   return true;
 }
 
+function reviewQueuePreserved(candidate: LearnerState, base: LearnerState): boolean {
+  const candidateItems = new Map(candidate.reviewQueue.map((item) => [item.id, item]));
+  for (const previous of base.reviewQueue) {
+    const next = candidateItems.get(previous.id);
+    if (next && JSON.stringify(next) === JSON.stringify(previous)) continue;
+    const consumedByExactReview = candidate.interactions.some((interaction) => interaction.sourceReviewId === previous.id);
+    if (!consumedByExactReview) return false;
+  }
+  return true;
+}
+
 function modulesDoNotRegress(candidate: LearnerState, base: LearnerState): boolean {
   for (const moduleId of MODULE_IDS) {
     const next = candidate.modules[moduleId];
@@ -300,6 +311,7 @@ export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): bo
   if (!fieldRowsPreserved(candidate, base)) return false;
   if (!explainRowsPreserved(candidate, base)) return false;
   if (!diagnosticPreserved(candidate, base)) return false;
+  if (!reviewQueuePreserved(candidate, base)) return false;
   if (!modulesDoNotRegress(candidate, base)) return false;
   if (!cardsDoNotRegress(candidate, base)) return false;
   if (!activeSessionPreserved(candidate, base)) return false;
