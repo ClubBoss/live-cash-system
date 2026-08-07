@@ -1,0 +1,132 @@
+[
+  {
+    "claim_id": "LCM-01-CL-001",
+    "module_id": "geometry",
+    "claim": "In a multiway pot, effective stack is calculated separately between Hero and each relevant opponent.",
+    "source_refs": [
+      "playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md#rule-1-start-with-pairwise-effective-stack",
+      "synthesis/DEEP_OOP_PROTECTED_CALL_AND_DEPTH_SPR_ARCHITECTURE_v0_1.md#1-geometry-first"
+    ],
+    "interpretation": "The learner must not collapse a multiway decision into one shortest-stack number when different opponents can contest different amounts.",
+    "claim_type": "BASELINE",
+    "confidence": "HIGH",
+    "assumptions": [
+      "More than one opponent remains relevant to the pot",
+      "No side-pot simplification removes an opponent from the decision"
+    ],
+    "exceptions": [
+      "A later action can make only one opponent strategically relevant",
+      "Side-pot rules can require separate pot and eligibility accounting"
+    ],
+    "target_games": ["Live cash 1/3", "Live cash 2/5", "Straddled live cash"],
+    "depth_scope": ["All depths"],
+    "positions": ["All positions"],
+    "player_count_scope": "MULTIWAY",
+    "sizing_scope": [],
+    "rake_or_structure_notes": ["The pairwise amount is independent of rake; pot-odds calculations are not"],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "General geometry claim; no exact range or frequency is asserted."
+  },
+  {
+    "claim_id": "LCM-01-CL-002",
+    "module_id": "geometry",
+    "claim": "When a mandatory straddle sets the current preflop price, depth should first be expressed in straddle units while ordinary big blinds may remain a secondary reference.",
+    "source_refs": [
+      "playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md#rule-1-start-with-pairwise-effective-stack",
+      "synthesis/DEEP_OOP_PROTECTED_CALL_AND_DEPTH_SPR_ARCHITECTURE_v0_1.md#9-100--200--400bb-overlay",
+      "sources/carrot-poker/source-gap-ledger.md#strategic-gaps-still-open"
+    ],
+    "interpretation": "The working compulsory stake determines the price of preflop actions, so the learner should not describe a $2/$5/$10 mandatory-straddle spot only as ordinary $5 big blinds.",
+    "claim_type": "HEURISTIC",
+    "confidence": "MEDIUM",
+    "assumptions": [
+      "The straddle is mandatory or reliably live for the hand",
+      "The straddle amount governs the first voluntary preflop action"
+    ],
+    "exceptions": [
+      "An optional straddle that is not posted does not change the unit",
+      "Exact strategic overlays by depth, rake, and straddle structure remain claim-gated",
+      "Ordinary big-blind depth can still be recorded as a secondary comparison"
+    ],
+    "target_games": ["Mandatory-straddle live cash", "Live-straddle live cash"],
+    "depth_scope": ["All depths, directional only"],
+    "positions": ["All positions"],
+    "player_count_scope": "BOTH",
+    "sizing_scope": ["Preflop actions priced from the straddle"],
+    "rake_or_structure_notes": ["Exact thresholds can change with rake, ante, open size, and straddle rules"],
+    "conflicts": ["Exact depth/SPR/straddle overlays remain an open strategic gap; this claim does not set exact thresholds"],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "Admitted only as a measurement heuristic, not as an exact strategy chart."
+  },
+  {
+    "claim_id": "LCM-01-CL-003",
+    "module_id": "geometry",
+    "claim": "After facing a bet or considering a raise, future decision depth should be evaluated from the post-action pot and remaining effective stack.",
+    "source_refs": [
+      "synthesis/DEEP_OOP_PROTECTED_CALL_AND_DEPTH_SPR_ARCHITECTURE_v0_1.md#1-geometry-first",
+      "playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md#rule-1-start-with-pairwise-effective-stack"
+    ],
+    "interpretation": "Starting big blinds alone do not show how compressed the next street becomes; recalculate the pot, remaining stack, and post-action SPR before planning later streets.",
+    "claim_type": "BASELINE",
+    "confidence": "HIGH",
+    "assumptions": [
+      "The relevant opponent and effective stack are identified",
+      "The contemplated action size is known"
+    ],
+    "exceptions": [
+      "SPR does not replace pot odds, equity, position, range shape, or board analysis",
+      "Multiway pots require pairwise stack and eligibility awareness"
+    ],
+    "target_games": ["Live cash 1/3", "Live cash 2/5", "Straddled live cash"],
+    "depth_scope": ["All depths"],
+    "positions": ["All positions"],
+    "player_count_scope": "BOTH",
+    "sizing_scope": ["Bet-call and raise-call branches"],
+    "rake_or_structure_notes": ["Use the actual pot after rake treatment relevant to the game when precision matters"],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "The module uses the post-call formula (S-B)/(P+2B) under its stated heads-up-after-call assumption."
+  },
+  {
+    "claim_id": "LCM-01-CL-004",
+    "module_id": "geometry",
+    "claim": "A deep starting stack can produce a low-SPR postflop pot, while a 100bb start can still leave several meaningful decisions when the pot remains small.",
+    "source_refs": [
+      "synthesis/DEEP_OOP_PROTECTED_CALL_AND_DEPTH_SPR_ARCHITECTURE_v0_1.md#9-100--200--400bb-overlay",
+      "playbook/GENERAL_LIVE_CASH_PLAYBOOK_PROVISIONAL_v0_1.md#rule-1-start-with-pairwise-effective-stack"
+    ],
+    "interpretation": "The learner should avoid treating starting depth as a permanent label for the entire hand and instead rebuild geometry after major actions.",
+    "claim_type": "HEURISTIC",
+    "confidence": "HIGH",
+    "assumptions": [
+      "Pot and remaining effective stack can be reconstructed",
+      "No exact strategic threshold is inferred from the label alone"
+    ],
+    "exceptions": [
+      "Starting depth still affects preflop ranges and available future branches",
+      "SPR alone does not determine the correct action"
+    ],
+    "target_games": ["Live cash 1/3", "Live cash 2/5", "Deep live cash"],
+    "depth_scope": ["100bb", "150-200bb", "300-400bb and deeper"],
+    "positions": ["All positions"],
+    "player_count_scope": "BOTH",
+    "sizing_scope": ["Any branch that materially changes pot size"],
+    "rake_or_structure_notes": [],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "Directional geometry claim; no exact commitment rule is implied."
+  }
+]

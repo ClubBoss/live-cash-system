@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://live-cash-os.local/schemas/claim.schema.json",
+  "title": "Live Cash OS Strategic Claim",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "claim_id",
+    "module_id",
+    "claim",
+    "source_refs",
+    "interpretation",
+    "claim_type",
+    "confidence",
+    "assumptions",
+    "exceptions",
+    "target_games",
+    "depth_scope",
+    "conflicts",
+    "status"
+  ],
+  "properties": {
+    "claim_id": {
+      "type": "string",
+      "pattern": "^LCM-[0-9]{2}-CL-[0-9]{3}$"
+    },
+    "module_id": {
+      "enum": [
+        "geometry",
+        "preflop",
+        "blinds",
+        "filtering",
+        "shape",
+        "aggression",
+        "ancestry",
+        "multiway",
+        "river",
+        "evidence",
+        "transfer"
+      ]
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 20
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 3
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "interpretation": {
+      "type": "string",
+      "minLength": 20
+    },
+    "claim_type": {
+      "enum": ["BASELINE", "HEURISTIC", "EXPLOIT", "SIMPLIFICATION", "OPEN_QUESTION"]
+    },
+    "confidence": {
+      "enum": ["HIGH", "MEDIUM", "LOW", "UNRESOLVED"]
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 },
+      "minItems": 1
+    },
+    "exceptions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 }
+    },
+    "target_games": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 },
+      "minItems": 1
+    },
+    "depth_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 2 },
+      "minItems": 1
+    },
+    "positions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 2 }
+    },
+    "player_count_scope": {
+      "enum": ["HEADS_UP", "MULTIWAY", "BOTH", "NOT_APPLICABLE"]
+    },
+    "sizing_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "rake_or_structure_notes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 }
+    },
+    "ip_purity_status": {
+      "enum": [
+        "INTERNAL_SOURCE_NOTE",
+        "ORIGINAL_COMPRESSION_PENDING",
+        "ORIGINAL_COMPRESSION_COMPLETE",
+        "EXAMPLE_REPLACEMENT_REQUIRED",
+        "INDEPENDENT_VALIDATION_REQUIRED",
+        "PRODUCT_SAFE_CANDIDATE",
+        "LEGAL_REVIEW_REQUIRED"
+      ]
+    },
+    "status": {
+      "enum": [
+        "RESEARCH_NOTE",
+        "CANDIDATE",
+        "CROSS_SOURCE_SUPPORTED",
+        "DRILL_VALIDATED",
+        "FIELD_TEST_PENDING",
+        "ADMITTED",
+        "FIELD_VALIDATED",
+        "BLOCKED_SOURCE_GAP",
+        "REJECTED_OR_SUPERSEDED"
+      ]
+    },
+    "reviewer": { "type": "string" },
+    "reviewed_at": { "type": "string", "format": "date" },
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "claim_type": { "const": "OPEN_QUESTION" }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": ["RESEARCH_NOTE", "CANDIDATE", "BLOCKED_SOURCE_GAP", "REJECTED_OR_SUPERSEDED"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "confidence": { "enum": ["LOW", "UNRESOLVED"] }
+        }
+      },
+      "then": {
+        "not": {
+          "properties": {
+            "status": { "enum": ["ADMITTED", "FIELD_VALIDATED"] }
+          },
+          "required": ["status"]
+        }
+      }
+    }
+  ]
+}
