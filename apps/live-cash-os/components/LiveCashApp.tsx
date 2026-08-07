@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { applyGeometryLocale } from "../content/i18n/geometry-locale";
 import { getLearningRoute } from "../content/i18n/learning-route";
+import { applyWave3PriorityLocale } from "../content/i18n/wave3-priority-gold";
 import type { LocaleCode } from "../lib/model";
 import LiveCashAppCore from "./LiveCashAppCore";
 
@@ -12,7 +13,7 @@ const MODULE_LABELS: Record<string, string> = {
   BLINDS: "БЛАЙНДЫ",
   FILTERING: "СУЖЕНИЕ ДИАПАЗОНА",
   SHAPE: "РАЗМЕР СТАВКИ",
-  AGGRESSION: "АГРЕССИЯ",
+  AGGRESSION: "3-БЕТ-БАНКИ",
   ANCESTRY: "ИСТОРИЯ ДИАПАЗОНА",
   MULTIWAY: "МУЛЬТИВЕЙ",
   RIVER: "РИВЕР",
@@ -132,8 +133,8 @@ function currentRuntimeView(): { locale: LocaleCode; showRoute: boolean } {
   const sessionLabel = document.querySelector<HTMLElement>(".session-head span")?.textContent ?? "";
   const decisionLabel = document.querySelector<HTMLElement>(".decision-card .eyebrow")?.textContent ?? "";
   const cardLabel = document.querySelector<HTMLElement>(".session .module-code")?.textContent ?? "";
-  const geometryApproved = sessionLabel.includes("LCM-01") || decisionLabel.includes("GEOMETRY") || decisionLabel.includes("ЭФФЕКТИВНЫЙ СТЕК") || cardLabel.includes("LCM-01");
-  document.documentElement.dataset.editorialGeometry = geometryApproved ? "approved" : "";
+  const approvedGold = /LCM-0[1236]/u.test(sessionLabel) || /GEOMETRY|PREFLOP|BLINDS|AGGRESSION|ЭФФЕКТИВНЫЙ СТЕК|ПРЕФЛОП|БЛАЙНДЫ|3-БЕТ-БАНКИ/u.test(decisionLabel) || /LCM-0[1236]/u.test(cardLabel);
+  document.documentElement.dataset.editorialGold = approvedGold ? "approved" : "";
   return { locale, showRoute: activeTab === "Сегодня" || activeTab === "Today" };
 }
 
@@ -164,22 +165,32 @@ export default function LiveCashApp() {
   const [view, setView] = useState<{ locale: LocaleCode; showRoute: boolean }>({ locale: "ru", showRoute: false });
 
   useEffect(() => {
+    let scheduled = false;
     const sync = () => {
-      const next = currentRuntimeView();
-      applyGeometryLocale(next.locale);
-      localizeHardcodedLabels(next.locale);
-      setView((previous) => previous.locale === next.locale && previous.showRoute === next.showRoute ? previous : next);
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        const next = currentRuntimeView();
+        applyGeometryLocale(next.locale);
+        applyWave3PriorityLocale(next.locale);
+        localizeHardcodedLabels(next.locale);
+        setView((previous) => previous.locale === next.locale && previous.showRoute === next.showRoute ? previous : next);
+      });
     };
     sync();
     const observer = new MutationObserver(sync);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["lang", "aria-current"],
+      childList: true,
+      subtree: true,
     });
     return () => observer.disconnect();
   }, []);
 
   return <>
+    <style>{`html[data-editorial-gold="approved"] .session > .session-head + .assumption-strip { display: none; }`}</style>
     <LiveCashAppCore />
     {view.showRoute && <LearningRoute locale={view.locale} />}
   </>;

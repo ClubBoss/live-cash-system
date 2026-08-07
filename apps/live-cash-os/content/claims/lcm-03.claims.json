@@ -1,0 +1,103 @@
+[
+  {
+    "claim_id": "LCM-03-CL-001",
+    "module_id": "blinds",
+    "claim": "Big-blind calls can be wider because the posted blind improves the price and the BB often closes the preflop action.",
+    "source_refs": [
+      "sources/ftgu/transcripts/FTGU_E05_calling_out_of_the_big_blind.md"
+    ],
+    "interpretation": "The relevant comparison is call EV versus the loss from folding the blind, with actual equity realisation and rake included.",
+    "claim_type": "BASELINE",
+    "confidence": "HIGH",
+    "assumptions": ["Hero is in the BB", "The action closes or nearly closes after Hero", "The hand has some postflop playability"],
+    "exceptions": ["High rake, large open sizes, strong early-position ranges or poor realisation can remove marginal calls"],
+    "target_games": ["Live cash 1/3", "Live cash 2/5"],
+    "depth_scope": ["All normal live-cash depths"],
+    "positions": ["BB"],
+    "player_count_scope": "BOTH",
+    "sizing_scope": ["Facing opens and open-plus-call branches"],
+    "rake_or_structure_notes": ["Rake can turn marginal BB calls from acceptable to folds"],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "No exact chart boundary is claimed."
+  },
+  {
+    "claim_id": "LCM-03-CL-002",
+    "module_id": "blinds",
+    "claim": "Small-blind passive calls are structurally more expensive because the SB pays a worse price, remains out of position and leaves the BB able to squeeze.",
+    "source_refs": [
+      "sources/ftgu/transcripts/FTGU_E06_sb_3bet_or_fold_strategies.md"
+    ],
+    "interpretation": "A passive SB call must include the probability of not reaching the flop after a BB squeeze and the cost of future out-of-position realisation.",
+    "claim_type": "BASELINE",
+    "confidence": "HIGH",
+    "assumptions": ["Hero is in the SB", "The BB has not acted", "No special passive-BB read removes squeeze risk"],
+    "exceptions": ["Some flats can survive when the BB is weak/passive or a versatile hand benefits from keeping weaker ranges in"],
+    "target_games": ["Live cash 1/3", "Live cash 2/5"],
+    "depth_scope": ["All normal live-cash depths"],
+    "positions": ["SB"],
+    "player_count_scope": "BOTH",
+    "sizing_scope": ["Facing opens and open-plus-call branches"],
+    "rake_or_structure_notes": ["Winning preflop through 3-betting can avoid paying rake in some structures"],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "3-bet-or-fold is taught as a useful default, not an absolute law."
+  },
+  {
+    "claim_id": "LCM-03-CL-003",
+    "module_id": "blinds",
+    "claim": "The same flop can require materially different c-bet strategies versus an SB caller and a BB caller because their preflop source ranges have different shapes.",
+    "source_refs": [
+      "sources/smash-live-cash/transcripts/SLC_M02_L05_big_blind_vs_small_blind.md"
+    ],
+    "interpretation": "Board texture must be interpreted through the source range. Blind identity remains strategically relevant after the flop.",
+    "claim_type": "BASELINE",
+    "confidence": "HIGH",
+    "assumptions": ["SB and BB use broadly different baseline calling structures", "No strong opponent-specific evidence collapses the difference"],
+    "exceptions": ["A specific SB who repeatedly over-calls can reach the flop wider than the baseline prior suggests"],
+    "target_games": ["Live cash 1/3", "Live cash 2/5"],
+    "depth_scope": ["100bb", "200bb and deeper"],
+    "positions": ["PFR versus SB", "PFR versus BB"],
+    "player_count_scope": "HEADS_UP",
+    "sizing_scope": ["Single-raised pots"],
+    "rake_or_structure_notes": [],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "Exact board frequencies remain visual-dependent."
+  },
+  {
+    "claim_id": "LCM-03-CL-004",
+    "module_id": "blinds",
+    "claim": "Raw equity is not enough to justify a blind defence; position, domination, squeeze exposure, rake and future betting determine how much equity can actually be realised.",
+    "source_refs": [
+      "sources/ftgu/transcripts/FTGU_E05_calling_out_of_the_big_blind.md",
+      "sources/ftgu/transcripts/FTGU_E06_sb_3bet_or_fold_strategies.md"
+    ],
+    "interpretation": "The trainer should ask about realisation explicitly instead of framing defence as a simple equity-versus-range comparison.",
+    "claim_type": "HEURISTIC",
+    "confidence": "HIGH",
+    "assumptions": ["Future postflop decisions matter", "The hand is not all-in preflop"],
+    "exceptions": ["At very low SPR some realisation problems shrink because fewer future decisions remain"],
+    "target_games": ["Live cash 1/3", "Live cash 2/5", "Deep live cash"],
+    "depth_scope": ["All non-all-in depths"],
+    "positions": ["SB", "BB"],
+    "player_count_scope": "BOTH",
+    "sizing_scope": ["Calls and 3-bet branches"],
+    "rake_or_structure_notes": ["Rake lowers realised value of marginal calls"],
+    "conflicts": [],
+    "ip_purity_status": "PRODUCT_SAFE_CANDIDATE",
+    "status": "ADMITTED",
+    "reviewer": "GPT-5.6 Thinking",
+    "reviewed_at": "2026-08-07",
+    "notes": "Mechanism-level admission."
+  }
+]

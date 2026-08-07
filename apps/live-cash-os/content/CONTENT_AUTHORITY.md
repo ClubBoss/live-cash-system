@@ -1,6 +1,6 @@
 # Live Cash OS — Content Authority
 
-Status: `WAVE_2_GOVERNANCE_ACTIVE`
+Status: `WAVE_3_PRIORITY_ADMISSION_IN_PROGRESS`
 
 This is the application-level admission contract for learner-facing poker content. It complements, rather than replaces, the repository-wide framework in `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md` and the immutable source-family registries under `sources/`.
 
@@ -119,8 +119,11 @@ Deterministic scripts may never create poker, RU, EN, accessibility, or empirica
 ## 8. Current admission boundary
 
 - LCM-01: bilingual gold slice, revalidated in `content/LCM-01_CONFORMANCE.md`.
-- LCM-02–LCM-11: structured candidates only; strategic and bilingual admission remains pending.
-- Source-family completion does not close open strategic gaps. Current examples include exact depth/SPR/straddle overlays, squeeze purification, multiway shared defence and target-live population calibration.
+- LCM-02: strategic and bilingual review complete for the call/3-bet/fold architecture; exact chart cells remain out of scope; current-head technical gate still required for final `MODULE_GOLD` admission.
+- LCM-03: strategic and bilingual review complete for BB price/closing action, SB squeeze exposure and blind-source identity; exact blind charts remain out of scope; current-head technical gate still required.
+- LCM-06: strategic and bilingual review complete for 3-bet-pot range compensation, board ownership, turn filtering and OOP raising gates; exact solver frequencies remain out of scope; current-head technical gate still required.
+- LCM-04, LCM-05 and LCM-07–LCM-11: structured candidates only; strategic and bilingual admission remains pending.
+- Source-family completion does not close open strategic gaps. Current examples include exact depth/SPR/straddle overlays, squeeze combo boundaries, multiway shared defence and target-live population calibration.
 
 ## 9. Change rule
 
