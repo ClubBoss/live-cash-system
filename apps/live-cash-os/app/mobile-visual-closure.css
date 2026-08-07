@@ -2,7 +2,7 @@
 
 @media (max-width: 650px) {
   :root {
-    --mobile-visual-closure: 20260808;
+    --mobile-visual-closure: closure-20260808;
   }
 
   main {
