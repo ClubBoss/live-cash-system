@@ -137,17 +137,17 @@ test("W7 explain-back and structured field data survive normal schema-v2 persist
 test("cloud contract makes identical retry idempotent", async () => {
   const [core, cloud] = await Promise.all([loadCore(), loadCloudContract()]);
   const existing = meaningfulState(core);
-  assert.deepEqual(cloud.assessCloudWrite(existing, structuredClone(existing), 0, null), { kind: "idempotent" });
+  assert.deepEqual(cloud.assessCloudWrite(existing, structuredClone(existing), 0, null, "cloud-1"), { kind: "idempotent" });
 });
 
-test("cloud contract accepts exact CAS advance and rejects stale divergent device", async () => {
+test("cloud contract accepts exact opaque-token CAS advance and rejects stale divergent device", async () => {
   const [core, cloud] = await Promise.all([loadCore(), loadCloudContract()]);
   const existing = meaningfulState(core);
   const next = structuredClone(existing);
   next.revision += 1;
   next.updatedAt = "2026-08-07T12:04:00.000Z";
   next.modules.geometry.completedBlocks += 1;
-  assert.equal(cloud.assessCloudWrite(existing, next, existing.revision, existing.updatedAt).kind, "accept");
+  assert.equal(cloud.assessCloudWrite(existing, next, existing.revision, "cloud-1", "cloud-1").kind, "accept");
 
   const divergent = structuredClone(next);
   divergent.interactions.push({
@@ -155,7 +155,27 @@ test("cloud contract accepts exact CAS advance and rejects stale divergent devic
     variantGroup: "vg3", mode: "practice", actionOk: false, reasonOk: false, responseClass: "D", confidence: 90,
     elapsedSeconds: 15, transferProbe: null,
   });
-  assert.equal(cloud.assessCloudWrite(existing, divergent, existing.revision - 1, "old-token").kind, "conflict");
+  assert.equal(cloud.assessCloudWrite(existing, divergent, existing.revision - 1, "old-token", "cloud-1").kind, "conflict");
+});
+
+test("same learner timestamp does not bypass an opaque cloud token", async () => {
+  const [core, cloud] = await Promise.all([loadCore(), loadCloudContract()]);
+  const firstWriter = meaningfulState(core);
+  firstWriter.revision = 5;
+  firstWriter.interactions.push({
+    id: "first", at: "2026-08-07T12:05:00.000Z", moduleId: "geometry", drillId: "geo-01", nodeKey: "n1",
+    variantGroup: "vg", mode: "practice", actionOk: true, reasonOk: true, responseClass: "A", confidence: 80,
+    elapsedSeconds: 10, transferProbe: null,
+  });
+  const staleSecondWriter = meaningfulState(core);
+  staleSecondWriter.revision = 5;
+  staleSecondWriter.updatedAt = firstWriter.updatedAt;
+  staleSecondWriter.interactions.push({
+    id: "second", at: "2026-08-07T12:05:00.000Z", moduleId: "geometry", drillId: "geo-02", nodeKey: "n2",
+    variantGroup: "vg2", mode: "practice", actionOk: false, reasonOk: true, responseClass: "B", confidence: 75,
+    elapsedSeconds: 11, transferProbe: null,
+  });
+  assert.equal(cloud.assessCloudWrite(firstWriter, staleSecondWriter, 4, "cloud-before-first", "cloud-after-first").kind, "conflict");
 });
 
 test("safe debug summary excludes learner prose", async () => {
