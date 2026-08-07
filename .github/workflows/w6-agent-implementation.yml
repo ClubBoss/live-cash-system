@@ -64,6 +64,9 @@ jobs:
       - name: Install dependencies
         working-directory: apps/live-cash-os
         run: npm ci
+      - name: Install Playwright Chromium
+        working-directory: apps/live-cash-os
+        run: npx playwright install --with-deps chromium
       - name: Targeted W6 unit and truth checks
         working-directory: apps/live-cash-os
         run: |
