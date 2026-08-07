@@ -98,6 +98,11 @@ const ruWave4 = wave4.slice(wave4.indexOf("const RU_WAVE4"), wave4.indexOf("cons
 const enWave4 = wave4.slice(wave4.indexOf("const EN_WAVE4"), wave4.indexOf("function applyDrillCopy"));
 assert.equal(/[А-Яа-яЁё]/u.test(enWave4), false, "English Wave 4 gold contains Cyrillic copy");
 
+const wave4Final = await readFile(new URL("../content/i18n/wave4-final-editorial.ts", import.meta.url), "utf8");
+assert.match(wave4Final, /applyEvidenceRussianFinal/u, "Final LCM-10 Russian editorial layer is missing");
+assert.match(wave4Final, /applyTransferRussianFinal/u, "Final LCM-11 Russian editorial layer is missing");
+assert.match(wave4Final, /if \(locale !== "ru"\) return/u, "Final Wave 4 editorial layer must not mutate English gold");
+
 const bannedRuPhrases = [
   /Переноси глубоко/u,
   /due review/iu,
@@ -117,15 +122,28 @@ const bannedRuPhrases = [
   /credible bluff supply/iu,
   /range ownership audit/iu,
   /bluff any two/iu,
+  /WORKING evidence/iu,
+  /transfer probe/iu,
+  /PENDING_REVIEW/iu,
+  /REVIEWED_VALID/iu,
+  /REVIEWED_REPAIR/iu,
+  /RETAINED/iu,
+  /FIELD_VALIDATED/iu,
+  /CONTENT_COMPLETED/iu,
+  /product contract/iu,
+  /field evidence/iu,
+  /retention evidence/iu,
 ];
 const runtime = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
 const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
 const ruRuntimeLearnerCopy = quotedStringValues(ruRuntime);
+const ruWave4BeforeEvidence = ruWave4.slice(0, ruWave4.indexOf("  evidence: {"));
+const finalWave4LearnerCopy = quotedStringValues(wave4Final);
 const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
 const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
 const ruRouteLearnerCopy = quotedStringValues(ruRoute);
 for (const pattern of bannedRuPhrases) {
-  assert.doesNotMatch(`${ruRuntimeLearnerCopy}\n${quotedStringValues(geometryRu)}\n${quotedStringValues(ruPriority)}\n${quotedStringValues(ruWave4)}\n${ruRouteLearnerCopy}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
+  assert.doesNotMatch(`${ruRuntimeLearnerCopy}\n${quotedStringValues(geometryRu)}\n${quotedStringValues(ruPriority)}\n${quotedStringValues(ruWave4BeforeEvidence)}\n${finalWave4LearnerCopy}\n${ruRouteLearnerCopy}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
 }
 
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
@@ -139,6 +157,8 @@ assert.match(app, /not a decorative overall percentage/u, "Route UI must reject 
 assert.match(app, /applyGeometryLocale/u, "Direct LCM-01 locale application is missing");
 assert.match(app, /applyWave3PriorityLocale/u, "Wave 3 bilingual locale application is missing");
 assert.match(app, /applyWave4CurriculumLocale/u, "Wave 4 bilingual locale application is missing");
+assert.match(app, /applyWave4FinalEditorialLocale/u, "Final Wave 4 Russian editorial application is missing");
+assert.match(app, /applyWave4CurriculumLocale\(next\.locale\);\s*applyWave4FinalEditorialLocale\(next\.locale\)/u, "Final Wave 4 editorial layer must run after the curriculum overlay");
 assert.match(app, /data-editorial-gold/u, "Approved-module editorial banner boundary is missing");
 for (const code of approvedLcmCodes) assert.ok(app.includes(`"${code}"`), `Approved gold runtime set misses ${code}`);
 assert.match(app, /Array\.from\(\{ length: 11 \}/u, "Runtime gold marker must cover all eleven curriculum modules");

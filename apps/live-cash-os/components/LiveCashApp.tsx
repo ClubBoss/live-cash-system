@@ -5,6 +5,7 @@ import { applyGeometryLocale } from "../content/i18n/geometry-locale";
 import { getLearningRoute } from "../content/i18n/learning-route";
 import { applyWave3PriorityLocale } from "../content/i18n/wave3-priority-gold";
 import { applyWave4CurriculumLocale } from "../content/i18n/wave4-curriculum-gold";
+import { applyWave4FinalEditorialLocale } from "../content/i18n/wave4-final-editorial";
 import type { LocaleCode } from "../lib/model";
 import LiveCashAppCore from "./LiveCashAppCore";
 
@@ -221,6 +222,7 @@ export default function LiveCashApp() {
         applyGeometryLocale(next.locale);
         applyWave3PriorityLocale(next.locale);
         applyWave4CurriculumLocale(next.locale);
+        applyWave4FinalEditorialLocale(next.locale);
         localizeHardcodedLabels(next.locale);
         markEditorialGoldSurfaces();
         setView((previous) => previous.locale === next.locale && previous.showRoute === next.showRoute ? previous : next);
