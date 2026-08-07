@@ -2,7 +2,7 @@ name: Live Cash OS CI
 
 on:
   push:
-    branches: [main, wave/w9-reliability-data-safety]
+    branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
@@ -38,10 +38,6 @@ jobs:
 
       - name: Release gate
         run: npm run test:release
-
-      - name: Production dependency audit
-        if: always()
-        run: npm audit --omit=dev --json || true
 
       - name: Upload browser evidence on failure
         if: failure()
