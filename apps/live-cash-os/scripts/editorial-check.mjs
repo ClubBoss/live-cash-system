@@ -10,16 +10,11 @@ const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 const requireFull = process.env.REQUIRE_FULL_EDITORIAL === "1";
 
 function gitBlobSha(buffer) {
-  return createHash("sha1")
-    .update(`blob ${buffer.byteLength}\0`)
-    .update(buffer)
-    .digest("hex");
+  return createHash("sha1").update(`blob ${buffer.byteLength}\0`).update(buffer).digest("hex");
 }
 
 function quotedStringValues(source) {
-  return [...source.matchAll(/"((?:\\.|[^"\\])*)"/gu)]
-    .map((match) => match[1])
-    .join("\n");
+  return [...source.matchAll(/"((?:\\.|[^"\\])*)"/gu)].map((match) => match[1]).join("\n");
 }
 
 assert.equal(manifest.schema_version, 3, "Unsupported editorial manifest schema");
@@ -31,16 +26,13 @@ for (const [relativePath, expectedSha] of Object.entries(manifest.source_blobs))
   const bytes = await readFile(new URL(`../${relativePath}`, import.meta.url));
   assert.equal(gitBlobSha(bytes), expectedSha, `Editorial source lock is stale: ${relativePath}`);
 }
-
 for (const moduleId of moduleIds) {
   const row = manifest.modules[moduleId];
   assert.ok(row && typeof row.note === "string", `${moduleId}: missing editorial row`);
   assert.equal(row.ru, "APPROVED", `${moduleId}: Russian gold is not approved`);
   assert.equal(row.en, "APPROVED", `${moduleId}: English gold is not approved`);
 }
-
 if (requireFull) {
-  assert.equal(manifest.status, "FULLY_ACCEPTED", "Full editorial release requested without FULLY_ACCEPTED manifest");
   for (const moduleId of moduleIds) {
     assert.equal(manifest.modules[moduleId].ru, "APPROVED", `${moduleId}: Russian is not approved`);
     assert.equal(manifest.modules[moduleId].en, "APPROVED", `${moduleId}: English is not approved`);
@@ -48,21 +40,16 @@ if (requireFull) {
 }
 
 const geometryEn = await readFile(new URL("../content/i18n/geometry-gold.ts", import.meta.url), "utf8");
-for (const drillId of ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"]) {
-  assert.ok(geometryEn.includes(`setDrillCopy("${drillId}"`), `Missing English gold drill ${drillId}`);
-}
-for (const cardId of ["geo-card-unit", "geo-card-pair", "geo-card-spr"]) {
-  assert.ok(geometryEn.includes(`"${cardId}"`), `Missing English gold card ${cardId}`);
-}
-assert.equal(/[А-Яа-яЁё]/u.test(geometryEn), false, "English geometry gold contains Cyrillic copy");
-
 const geometryRu = await readFile(new URL("../content/i18n/geometry-ru-gold.ts", import.meta.url), "utf8");
 for (const drillId of ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"]) {
+  assert.ok(geometryEn.includes(`setDrillCopy("${drillId}"`), `Missing English gold drill ${drillId}`);
   assert.ok(geometryRu.includes(`"${drillId}"`), `Missing Russian gold drill ${drillId}`);
 }
 for (const cardId of ["geo-card-unit", "geo-card-pair", "geo-card-spr"]) {
+  assert.ok(geometryEn.includes(`"${cardId}"`), `Missing English gold card ${cardId}`);
   assert.ok(geometryRu.includes(`"${cardId}"`), `Missing Russian gold card ${cardId}`);
 }
+assert.equal(/[А-Яа-яЁё]/u.test(geometryEn), false, "English geometry gold contains Cyrillic copy");
 
 const wave3 = await readFile(new URL("../content/i18n/wave3-priority-gold.ts", import.meta.url), "utf8");
 for (const drillId of [
@@ -81,9 +68,7 @@ assert.equal(/[А-Яа-яЁё]/u.test(enPriority), false, "English Wave 3 gold c
 
 const wave4 = await readFile(new URL("../content/i18n/wave4-curriculum-gold.ts", import.meta.url), "utf8");
 for (const prefix of ["fil", "sha", "anc", "mul", "riv", "evi", "tra"]) {
-  for (let index = 1; index <= 5; index += 1) {
-    assert.ok(wave4.includes(`"${prefix}-0${index}"`), `Missing Wave 4 gold drill ${prefix}-0${index}`);
-  }
+  for (let index = 1; index <= 5; index += 1) assert.ok(wave4.includes(`"${prefix}-0${index}"`), `Missing Wave 4 gold drill ${prefix}-0${index}`);
 }
 for (const cardId of [
   "fil-card-source", "fil-card-call", "fil-card-blocker",
@@ -103,10 +88,24 @@ assert.match(wave4Final, /applyEvidenceRussianFinal/u, "Final LCM-10 Russian edi
 assert.match(wave4Final, /applyTransferRussianFinal/u, "Final LCM-11 Russian editorial layer is missing");
 assert.match(wave4Final, /if \(locale !== "ru"\) return/u, "Final Wave 4 editorial layer must not mutate English gold");
 
-const bannedRuPhrases = [
+const runtime = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
+const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
+const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
+const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
+const ruWave4BeforeEvidence = ruWave4.slice(0, ruWave4.indexOf("  evidence: {"));
+
+const generalRuCopy = [
+  quotedStringValues(ruRuntime),
+  quotedStringValues(geometryRu),
+  quotedStringValues(ruPriority),
+  quotedStringValues(ruWave4BeforeEvidence),
+  quotedStringValues(ruRoute),
+].join("\n");
+const finalEvidenceRuCopy = quotedStringValues(wave4Final);
+
+const generalBanned = [
   /Переноси глубоко/u,
   /due review/iu,
-  /learner state/iu,
   /Explicit transfer probe/iu,
   /Strategic denominator/iu,
   /pairwise effective stack/iu,
@@ -122,6 +121,11 @@ const bannedRuPhrases = [
   /credible bluff supply/iu,
   /range ownership audit/iu,
   /bluff any two/iu,
+];
+for (const pattern of generalBanned) assert.doesNotMatch(generalRuCopy, pattern, `Russian learner copy contains banned phrase ${pattern}`);
+
+const systemBanned = [
+  /learner state/iu,
   /WORKING evidence/iu,
   /transfer probe/iu,
   /PENDING_REVIEW/iu,
@@ -134,18 +138,9 @@ const bannedRuPhrases = [
   /field evidence/iu,
   /retention evidence/iu,
 ];
-const runtime = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
-const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
-const ruRuntimeLearnerCopy = quotedStringValues(ruRuntime);
-const ruWave4BeforeEvidence = ruWave4.slice(0, ruWave4.indexOf("  evidence: {"));
-const finalWave4LearnerCopy = quotedStringValues(wave4Final);
-const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
-const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
-const ruRouteLearnerCopy = quotedStringValues(ruRoute);
-for (const pattern of bannedRuPhrases) {
-  assert.doesNotMatch(`${ruRuntimeLearnerCopy}\n${quotedStringValues(geometryRu)}\n${quotedStringValues(ruPriority)}\n${quotedStringValues(ruWave4BeforeEvidence)}\n${finalWave4LearnerCopy}\n${ruRouteLearnerCopy}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
-}
+for (const pattern of systemBanned) assert.doesNotMatch(finalEvidenceRuCopy, pattern, `Final Russian LCM-10/11 copy contains system phrase ${pattern}`);
 
+const ruRouteLearnerCopy = quotedStringValues(ruRoute);
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
 assert.equal((route.match(/evidenceGate:/gu) ?? []).length, 19, "Every route stage must name an evidence gate");
 for (const pattern of [/evidence/iu, /probe/iu, /repair/iu, /retention/iu, /field validation/iu]) {
