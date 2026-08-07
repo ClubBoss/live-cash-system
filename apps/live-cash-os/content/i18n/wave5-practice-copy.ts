@@ -1,6 +1,5 @@
 import { moduleById } from "../modules";
 import type { LocaleCode } from "../../lib/model";
-import { applyWave4RPokerNativeLocale } from "./wave4r-poker-native";
 
 const FILTER_CARD_ID = "fil-card-blocker";
 
@@ -10,5 +9,4 @@ export function applyWave5PracticeCopy(locale: LocaleCode) {
   card.front = locale === "ru"
     ? "Что восстановить перед оценкой блокера на новой улице?"
     : "What should be rebuilt before judging a blocker on a new street?";
-  applyWave4RPokerNativeLocale(locale);
 }

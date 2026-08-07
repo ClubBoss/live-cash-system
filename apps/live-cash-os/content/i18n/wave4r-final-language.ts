@@ -92,7 +92,7 @@ function applyEnglishFinalLanguage() {
       "After a call, rebuild both ranges. Before a large OOP raise, separately identify strong value and realistic bluffs.",
     ],
     workedExample: {
-      situation: "200bb. BB 3-bets BTN clearly wider than normal, then uses a small c-bet on a dry flop with almost the whole range.",
+      situation: "BB 3-bets BTN clearly wider than normal, then uses a small c-bet on a dry flop with almost the whole range.",
       steps: [
         "The wider preflop range brings more weak hands to the flop.",
         "Those extra weak hands should create more checks than a normal stronger range would use.",
