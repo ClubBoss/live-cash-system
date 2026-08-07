@@ -2,7 +2,7 @@ name: Live Cash OS CI
 
 on:
   push:
-    branches: [main, closure/w1-w9-final-polish]
+    branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-closure-polish
+  group: live-cash-os-main
   cancel-in-progress: true
 
 jobs:
