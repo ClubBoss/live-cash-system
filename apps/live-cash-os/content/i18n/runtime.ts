@@ -243,7 +243,7 @@ Object.assign(runtimeCopy.en, {
   reviewEyebrow: "REVIEW AND WORK ON MISTAKES",
   reviewTitle: "Come back to the topic",
   reviewEmphasis: "after a delay or a recent mistake.",
-  nothingDue: "Nothing needs review today.",
+  nothingDue: "Nothing is due for review today.",
   reviewEmptyBody: "After lessons and independent practice, focused review tasks will appear here.",
   allCardsDone: "All cards for today are complete.",
   showAnswer: "Show answer",

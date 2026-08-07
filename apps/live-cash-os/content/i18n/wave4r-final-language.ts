@@ -231,6 +231,8 @@ function applyEnglishFinalLanguage() {
   const evidence = moduleById.evidence;
   evidence.description = "A useful read is tied to a specific action, carries honest confidence, and can be weakened by new observations.";
   evidence.tableCue = "What happened → where → how often → what changes → what would weaken the read.";
+
+  moduleById.transfer.title = "From understanding to real-table use";
 }
 
 export function applyWave4RFinalLanguage(locale: LocaleCode) {

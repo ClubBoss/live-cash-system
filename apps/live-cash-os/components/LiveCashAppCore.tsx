@@ -409,7 +409,7 @@ function Today({ locale, state, action, onRun, onCards, onDiagnostic }: { locale
       <p className="eyebrow">{t.todayEyebrow}</p>
       <h1>{t.todayTitle}<br/><em>{t.todayEmphasis}</em></h1>
       <p className="lede">{t.todayDescription}</p>
-      <div className="today-card"><p className="eyebrow">{t.now}</p><h2>{next.title}</h2><p>{next.reason}</p><button className="primary" onClick={onRun}>{t.start} <span>→</span></button></div>
+      <div className="today-card"><p className="eyebrow">{t.now}</p><h2>{next.title}</h2><p>{next.reason}</p><button className="primary" aria-label={t.start} onClick={onRun}>{t.start} <span>→</span></button></div>
     </section>
     <section className="metrics">
       <div><b>{completed}/11</b><span>{t.completedLessons}</span></div>
@@ -658,7 +658,7 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
   }
 
   if (diagnostic.status === "NOT_STARTED") {
-    return <section className="surface"><div className="section-head"><p className="eyebrow">{preExposure ? t.coldAvailable : t.postLearning}</p><h1>{t.diagnosticMeasureTitle}<br/><em>{t.diagnosticMeasureEmphasis}</em></h1><p>{preExposure ? t.coldIntro : t.postIntro}</p><button className="primary" onClick={begin}>{t.startT1} <span>→</span></button></div></section>;
+    return <section className="surface"><div className="section-head"><p className="eyebrow">{preExposure ? t.coldAvailable : t.postLearning}</p><h1>{t.diagnosticMeasureTitle}<br/><em>{t.diagnosticMeasureEmphasis}</em></h1><p>{preExposure ? t.coldIntro : t.postIntro}</p><button className="primary" aria-label={t.startT1} onClick={begin}>{t.startT1} <span>→</span></button></div></section>;
   }
 
   if (["AWAITING_REVIEW", "SCORED", "ROUTED"].includes(diagnostic.status)) {
