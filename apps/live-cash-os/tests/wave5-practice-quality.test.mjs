@@ -33,7 +33,10 @@ async function fixture() {
   const wave3Path = await compileInto(root, "content/i18n/wave3-priority-gold.ts", "content/i18n/wave3-priority-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const wave4Path = await compileInto(root, "content/i18n/wave4-curriculum-gold.ts", "content/i18n/wave4-curriculum-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const finalPath = await compileInto(root, "content/i18n/wave4-final-editorial.ts", "content/i18n/wave4-final-editorial.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
-  const wave5CopyPath = await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/wave4r-poker-native.ts", "content/i18n/wave4r-poker-native.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  const wave5CopyPath = await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled
+    .replace('from "../modules"', 'from "../modules.mjs"')
+    .replace('from "./wave4r-poker-native"', 'from "./wave4r-poker-native.mjs"'));
   return {
     modules: await import(pathToFileURL(modulesPath).href),
     geometry: await import(pathToFileURL(geometryPath).href),
