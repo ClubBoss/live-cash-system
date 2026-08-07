@@ -1,107 +1,101 @@
 # Live Cash OS — Release Status
 
-Status: `REPOSITORY_PLATFORM_ACCEPTED / CURRICULUM_11_OF_11_GOLD / PRODUCTION_WAVE4_NOT_PUBLISHED / AUTHENTICATED_SMOKE_PENDING`
+Status: `REPOSITORY_PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_GOLD / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / PRODUCTION_UPDATE_NOT_PERFORMED`
 
 ## Repository
 
 - Default and only permanent branch: `main`
-- Source PR #7: merged
 - Canonical release command: `npm run test:release`
 - Automation: one `main` CI workflow
-- Wave 4 accepted implementation SHA: `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`
-- Wave 4 full release run: `31164756544`
-- Validation job: `92822910319`
+- Wave 5 accepted implementation SHA: `e54ae03627398eff09c10b87971c15d5858b3ceb`
+- Wave 5 release run: `31171850884`
+- Validation job: `92845201804`
 
-The canonical release gate covers TypeScript, ESLint, editorial/source-lock integrity, production build, unit/integration tests and desktop/mobile Playwright.
-
-Wave 4 release evidence on the accepted implementation:
+Wave 5 release evidence:
 
 - TypeScript: PASS;
 - ESLint: PASS;
-- editorial: PASS — `11 bilingual gold modules approved; 0 pending`;
+- current editorial/source-lock gate: PASS;
 - build: PASS;
-- unit/integration: `55/55 PASS`;
-- Playwright: `21 passed / 1 intentionally skipped`;
-- no failed-browser evidence artifact was required.
+- unit/integration: `58/58 PASS`;
+- Playwright: `25 passed / 1 intentionally skipped`;
+- desktop and mobile mixed-practice/lab scenarios: PASS;
+- no failed-browser evidence upload required.
 
-## Repository product/content scope now admitted
+## Repository scope accepted
 
-Platform scope remains accepted, including learner-state integrity, schema-2 migration, stable semantic identities, persisted locale/session, optional T1, separation of completion/retention/transfer/field validation and local/cloud state controls.
+Platform integrity remains accepted.
 
-Repository curriculum truth is now **11/11 gold** in the reviewed mechanism scope:
+Strategic curriculum remains accepted for LCM-01 through LCM-11 in their scoped teaching boundaries. Exact unsupported solver/chart/population claims remain outside admitted scope.
 
-- LCM-01 effective-stack / geometry;
-- LCM-02 preflop architecture;
-- LCM-03 blinds;
-- LCM-04 range filtering;
-- LCM-05 sizing and response shape;
-- LCM-06 3-bet-pot aggression/defence;
-- LCM-07 range ancestry;
-- LCM-08 multiway;
-- LCM-09 river audit;
-- LCM-10 evidence/reads;
-- LCM-11 transfer and evidence semantics.
+Wave 5 decision-practice quality is accepted:
 
-Exact visual-only solver outputs, chart-cell frequencies, exact multiway MDF and unvalidated Batumi population magnitudes remain explicitly outside the admitted scope.
+- mixed practice unlocks after three completed topics;
+- topic identity is concealed before mixed decisions;
+- action/reason answer order remains session-shuffled;
+- mixed selection already varies drills across recently completed modules;
+- prediction-first lab contract is enforced;
+- invalid/unmodified lab states cannot continue;
+- final RU/EN drill/card corpus passes structural QA;
+- one real duplicate blocker-card prompt was repaired with stable IDs preserved.
+
+## Language/editorial truth boundary
+
+Wave 4 strategic work is **not rolled back**, but language/editorial acceptance is reopened.
+
+Current truthful status:
+
+`CURRICULUM_STRATEGY_GOLD / LANGUAGE_REPAIR_REQUIRED`
+
+Confirmed P1 classes:
+
+- hybrid RU/EN research language in T1;
+- competing EN heading/goal source in `moduleHeadings` vs gold copy;
+- approved EN content still receiving `EN REVIEW REQUIRED` UI;
+- internal evidence/state-machine language in EN 0→100 route;
+- untranslated/raw UI labels and statuses;
+- residual research/AI-style learner prose;
+- editorial gate gaps that allowed these contradictions;
+- temporary DOM localization/practice layers that should be consolidated during repair.
+
+Active next block:
+
+**Wave 4R — Language Truth Repair**
+
+No Wave 6 work is allowed before Wave 4R is accepted.
 
 ## Production boundary
 
 - Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
 - Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
 - D1 binding: `DB`
-- The owner reported publishing the post-PR #7 Site version on `2026-08-07`.
-- Repository automation did **not** publish Wave 4 implementation SHA `5a6af4ed...`.
-- The hosting interface does not expose the exact deployed Git SHA to the available repository automation, so no exact production SHA is claimed.
-- Automated unauthenticated access reaches the protected ChatGPT sign-in surface; this does not constitute an authenticated application DOM smoke.
-- No production D1 reset, learner-state reset, URL change or migration action was performed during Wave 4 work.
+- The owner reported publishing a post-PR #7 Site version on `2026-08-07`.
+- Current Wave 4/Wave 5 repository changes are **not claimed deployed**.
+- Exact production Git SHA is not exposed to available automation and is not invented.
+- Unauthenticated automation reaches the ChatGPT sign-in boundary; authenticated application DOM smoke remains externally blocked.
+- No production D1 reset, learner-state reset, URL change or migration action was performed during Waves 4–5.
 
 ## Production evidence status
 
 | Gate | Status | Evidence boundary |
 |---|---|---|
-| Previously reported Site publication | `OWNER_CONFIRMED` | Owner report, 2026-08-07 |
-| Stable URL reachable | `PASS_PROTECTED` | Automation reaches ChatGPT authentication boundary |
-| Authenticated DOM smoke | `BLOCKED_EXTERNAL` | No authorised browser session available to repository automation |
-| Exact deployed Git SHA | `UNKNOWN_EXTERNAL` | Hosting surface does not expose it to current automation |
-| Wave 4 repository release gate | `PASS` | Run `31164756544` on `5a6af4ed...` |
-| Wave 4 production publish | `NOT_PERFORMED` | No deploy requested or executed |
-| D1/state reset avoided | `PASS_BY_CHANGE_SCOPE` | No deployment/storage mutation performed |
-
-## Content truth boundary
-
-Repository:
-
-- LCM-01–LCM-11: `MODULE_GOLD` in approved scoped teaching boundaries;
-- RU/EN editorial manifest: 11/11 approved;
-- content completion, working evidence, retention, variant transfer and field validation remain separate states;
-- T1 remains optional;
-- raw strategic free text is not keyword-scored in the client.
-
-Production:
-
-- current Wave 4 repository content is **not claimed deployed**;
-- production content must be verified separately after an explicit publish.
+| Earlier Site publication | `OWNER_CONFIRMED` | Owner report, 2026-08-07 |
+| Stable URL protected surface | `PASS_PROTECTED` | ChatGPT auth boundary reachable |
+| Authenticated DOM smoke | `BLOCKED_EXTERNAL` | No inherited authorised browser session |
+| Exact deployed Git SHA | `UNKNOWN_EXTERNAL` | Hosting does not expose it to available automation |
+| Wave 5 repository release gate | `PASS` | Run `31171850884` on `e54ae036...` |
+| Wave 5 production publish | `NOT_PERFORMED` | No deployment executed |
+| D1/state reset avoided | `PASS_BY_CHANGE_SCOPE` | No storage/deploy mutation performed |
 
 ## Remaining Wave 0 release-truth debt
 
-- authenticated production DOM smoke remains externally blocked;
-- exact deployed SHA remains unavailable;
-- `package.json` version synchronization remains a known release-truth task;
-- release tag/GitHub Release identity should be reconciled before final Wave 11 acceptance if still absent.
-
-## Active next wave
-
-Wave 5 — Decision Practice and Learning Asset Quality.
-
-Initial audit has already established:
-
-- option order is session-shuffled, so fixed first-answer leakage is already controlled;
-- mixed practice currently reveals the module label before the decision and must be repaired;
-- labs do not yet implement the Wave 5 prediction-before-reveal contract;
-- corpus-wide ambiguity, hidden-assumption, changed-node-distance, boundary/uncertainty and flashcard audits remain pending.
+- authenticated production DOM smoke;
+- exact deployed SHA;
+- package/release-version synchronization;
+- release tag/GitHub Release identity if still absent.
 
 ## Verdict
 
-`WAVE_4_REPOSITORY_ACCEPTED / PRODUCTION_UPDATE_NOT_PERFORMED / WAVE_5_IN_PROGRESS`
+`WAVE_5_REPOSITORY_ACCEPTED / WAVE_4_LANGUAGE_REPAIR_ACTIVE / PRODUCTION_UPDATE_NOT_PERFORMED`
 
-Wave 0 remains partially open because production-authenticated evidence and release identity/version synchronization are not fully closed. This does not block repository content/practice work, but it must be resolved before final Wave 11 acceptance.
+The next repository work is Wave 4R. Wave 6 is intentionally blocked until language truth is repaired and re-accepted.

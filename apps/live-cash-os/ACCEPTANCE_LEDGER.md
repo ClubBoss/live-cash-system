@@ -1,14 +1,14 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `PLATFORM_ACCEPTED / CURRICULUM_11_OF_11_GOLD / WAVE_5_PRACTICE_QUALITY_PENDING / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
+Status: `PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_GOLD / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
 
-This ledger separates repository platform/content acceptance from production evidence, product-polish, and empirical-learning acceptance. Curriculum gold does not imply that every later practice, UX, reliability or efficacy wave is complete.
+This ledger separates platform, strategic curriculum, language/editorial truth, practice quality, production evidence and empirical learning evidence. A green technical/content gate does not override an independently confirmed learner-facing language defect.
 
 ## Accepted platform scope
 
 - learner-state integrity kernel;
 - schema-2 migration at local and D1 boundaries;
-- stable learner, drill, action/reason option, misconception and card identities across RU/EN;
+- stable learner, module, drill, action/reason option, misconception, card and diagnostic identities across RU/EN;
 - resumable active sessions and persisted locale;
 - optional T1 diagnostic handoff;
 - canonical content/evidence semantics;
@@ -18,9 +18,9 @@ This ledger separates repository platform/content acceptance from production evi
 - production build and desktop/mobile Playwright gates;
 - one permanent branch (`main`), one CI workflow, one canonical release command.
 
-## Accepted curriculum scope — repository truth
+## Strategic curriculum scope
 
-All eleven current curriculum modules are `MODULE_GOLD` in the reviewed mechanism scope:
+All eleven current modules remain strategically admitted in their reviewed mechanism boundaries:
 
 - LCM-01 — effective stack and pot geometry;
 - LCM-02 — preflop call/3-bet/fold branch construction;
@@ -32,97 +32,130 @@ All eleven current curriculum modules are `MODULE_GOLD` in the reviewed mechanis
 - LCM-08 — multiway action order, sandwich and shared defence;
 - LCM-09 — river value/bluff/blocker audit;
 - LCM-10 — calibrated branch-specific reads and evidence;
-- LCM-11 — current product transfer/retention/field-evidence contract.
+- LCM-11 — transfer/retention/field-evidence contract.
 
-Wave 4 accepted implementation:
+Wave 4 strategic implementation evidence:
 
 - SHA `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`;
-- Actions run `31164756544`;
+- run `31164756544`;
 - job `92822910319`;
-- editorial: `11 bilingual gold modules approved; 0 pending`;
-- unit/integration: `55/55 PASS`;
-- Playwright: `21 passed / 1 intentionally skipped`.
+- unit/integration `55/55 PASS`;
+- Playwright `21 passed / 1 intentionally skipped`.
 
-Approved curriculum boundaries remain explicit: exact visual-only solver grids/frequencies, exact multiway MDF, exact chart cells where source visuals are required, and exact Batumi population magnitudes are not silently claimed.
+Exact visual-only solver outputs, chart cells/frequencies, exact multiway MDF and unvalidated Batumi population magnitudes remain outside admitted scope.
 
-## Pending Wave 5 practice-quality scope
+## Wave 4 language truth reopened
 
-Curriculum gold does **not** yet certify the full decision-practice layer required by the Master Wave Plan.
+An independent read-only audit of accepted Wave 4 surfaces found confirmed P1 language/localization truth defects that the previous gate did not detect.
 
-Known Wave 5 work already identified:
+Therefore Wave 4 is now split honestly:
 
-- mixed practice currently reveals `drill.moduleId` in the pre-answer eyebrow, leaking the topic before the decision;
-- option order is already deterministic-shuffled per session, so first-position answer leakage is not an open defect;
-- labs currently lack an explicit prediction-before-reveal/interaction contract;
-- full corpus audit for hidden assumptions and ambiguous best answers remains pending;
-- changed-node variants must be checked for materially changed variables rather than cosmetic changes;
-- boundary and honest-insufficient-information coverage must be measured corpus-wide;
-- flashcard duplication/table-utility audit remains pending;
-- mixed-practice breadth and anti-memorisation coverage remain pending.
+- strategic curriculum: `GOLD`;
+- language/editorial/localization: `LANGUAGE_REPAIR_REQUIRED`.
 
-No Wave 5 acceptance is claimed yet.
+Active repair ledger:
 
-## Pending product-polish scope
+`reports/WAVE_4R_LANGUAGE_TRUTH_REPAIR_LEDGER_2026-08-07.md`
 
-Still subject to later waves:
+Confirmed repair classes include:
 
-- remaining first-use/T1 comprehension evidence against fresh-context users;
+- hybrid RU T1 diagnostic language;
+- competing EN module-heading source of truth;
+- false `EN REVIEW REQUIRED` messages despite approved content;
+- internal/state-machine jargon in EN 0→100 route;
+- hardcoded untranslated/raw UI labels and statuses;
+- residual research/AI-style prose in approved RU/EN modules;
+- insufficient editorial regression coverage;
+- temporary DOM localization/practice compatibility layers that should be consolidated into normal React/locale contracts.
+
+No Wave 6 work is allowed before Wave 4R acceptance.
+
+## Wave 5 practice quality accepted
+
+Accepted implementation SHA:
+
+`e54ae03627398eff09c10b87971c15d5858b3ceb`
+
+Release evidence:
+
+- run `31171850884`;
+- job `92845201804`;
+- TypeScript: PASS;
+- ESLint: PASS;
+- editorial/source-lock gate: PASS;
+- build: PASS;
+- unit/integration: `58/58 PASS`;
+- Playwright: `25 passed / 1 intentionally skipped`.
+
+Wave 5 closed:
+
+- three-topic mixed-practice unlock;
+- pre-answer topic concealment;
+- existing per-session answer-option shuffle verified;
+- mixed-pool diversity verified without unnecessary rebuild;
+- prediction-before-interaction labs;
+- material-change and invalid-input lab gates;
+- final learner-facing RU/EN audit across 55 drills and 33 cards;
+- changed-node/boundary context checks;
+- >=20% boundary-practice coverage;
+- honest uncertainty coverage;
+- unique stable option/card IDs and unique learner-facing card prompts;
+- real duplicate blocker-card prompt repaired without learner-history reset.
+
+Wave 5 does not claim empirical learning effectiveness or final language quality.
+
+## Pending product / evidence scope
+
+After Wave 4R, later waves still own:
+
+- repair/retention/personalization routing closure;
+- complete T1 end-to-end evaluation workflow beyond language truth;
+- field-hand transfer workflow;
 - premium visual/mobile/accessibility closure;
-- complete failure-recovery and privacy explanation;
-- owner debug and production evidence closure;
-- cross-browser/manual accessibility matrices.
-
-## Pending learning-evidence scope
-
-- real delayed-recall evidence;
-- misconception-repair effectiveness;
-- changed-node transfer evidence from sustained use;
-- confidence calibration;
-- reviewed field-hand support;
-- sustained learner-use evidence;
-- evidence-based scheduler/routing validation.
-
-These remain Wave 10 or earlier empirical dependencies and are not inferred from repository tests.
+- failure recovery, privacy, performance and observability;
+- real delayed recall, misconception repair effectiveness, confidence calibration and field-transfer evidence.
 
 ## Production evidence boundary
 
-- The owner reported publishing the post-PR #7 Site version on `2026-08-07`.
-- Repository automation has **not** published the accepted Wave 4 implementation.
-- The exact Git SHA currently deployed at the protected Site is not exposed to available automation and is not invented.
-- Automated unauthenticated access reaches the ChatGPT sign-in boundary; authenticated DOM smoke remains externally blocked.
-- No production D1 reset, learner-state reset, URL change or migration action was performed during Wave 4 repository work.
+- Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
+- Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
+- D1 binding: `DB`
+- Owner reported an earlier post-PR #7 publication on 2026-08-07.
+- Current Wave 4/Wave 5 repository heads are **not claimed deployed**.
+- Exact deployed Git SHA is not exposed to available automation and is not invented.
+- Unauthenticated automation reaches the ChatGPT sign-in boundary; authenticated DOM smoke remains externally blocked.
+- No production D1 reset, learner-state reset, URL change or migration action was performed in Waves 4–5.
 
-## Wave 0 debt retained explicitly
+## Wave 0 debt retained
 
 - authenticated production DOM smoke: pending / externally blocked;
-- exact deployed Git SHA: unknown to available automation;
-- package/release-version truth still requires final synchronization (`package.json` remains a known release-truth debt until Wave 0 closure);
-- release tag/release record remains to be reconciled if still absent.
+- exact deployed SHA: unavailable to current automation;
+- package/release-version truth remains to be synchronized;
+- release tag/GitHub Release identity remains to be reconciled if absent.
 
 ## Severity ledger
 
-### P0 — none currently known in accepted repository platform/curriculum scope
+### P0
 
-A new P0 is created immediately for confirmed learner-state loss, invalid strategic admission, privacy/security breach or production-unavailable defect.
+None currently known in accepted repository platform/strategy/practice scope.
 
-### P1 — blocks the active wave
+### P1 — current active wave blockers
 
-- ambiguous drill with more than one best answer under stated assumptions;
-- strategically material missing assumption;
-- material RU/EN meaning mismatch;
-- false mastery/field-validation transition;
-- practice cue that defeats the intended assessment mechanism when Wave 5 requires concealment;
-- inaccessible primary learner workflow in an accessibility wave.
+- material RU/EN meaning or truth mismatch;
+- learner-facing internal/system language that violates the approved editorial contract;
+- contradictory editorial status in UI vs manifest;
+- competing locale source of truth;
+- strategically ambiguous drill or missing material assumption;
+- false mastery/field-validation transition.
 
-### P2 — polish/evidence debt
+### P2
 
-- non-critical microcopy inconsistency;
-- minor visual-density issue;
-- incomplete optional debug information;
-- package/release tag synchronization debt;
-- external authenticated production smoke pending;
-- evidence unavailable because real learner use has not yet occurred.
+- non-critical microcopy/visual-density polish;
+- optional debug completeness;
+- release identity/version synchronization;
+- external authenticated smoke pending;
+- empirical evidence not yet available.
 
-## Governing acceptance rule
+## Governing rule
 
-A wave is accepted only against the current Master Wave Plan DoD. Automated checks may reject invalid work but cannot create poker-content, RU/EN editorial, accessibility, production-authenticated or empirical-learning approval by themselves.
+Automated checks may reject invalid work but cannot create poker-content, RU/EN editorial, accessibility, production-authenticated or empirical-learning approval by themselves. Wave 4R requires explicit learner-facing RU/EN re-review after the technical gates pass.
