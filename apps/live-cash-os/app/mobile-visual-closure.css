@@ -1,0 +1,189 @@
+/* Real-device mobile visual closure — high-ROI iPhone hierarchy polish only. */
+
+@media (max-width: 650px) {
+  :root {
+    --mobile-visual-closure: closure-20260808;
+  }
+
+  main {
+    padding-top: 10px;
+  }
+
+  .topbar {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 0 8px;
+  }
+
+  .brand {
+    flex: 0 0 82px;
+    max-width: 82px;
+    min-height: 44px;
+    font-size: 11px;
+    line-height: 1.28;
+    text-align: left;
+  }
+
+  .topmeta {
+    width: auto;
+    min-width: 0;
+    margin-left: auto;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+
+  .sync {
+    flex: 0 1 104px;
+    max-width: 104px;
+    min-height: 44px;
+    padding: 5px 7px;
+    border-radius: 12px;
+    font-size: 11px;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .topmeta .mode-switch {
+    flex: 0 0 auto;
+    gap: 3px;
+  }
+
+  .topmeta .mode-switch button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 6px 8px;
+    border-radius: 12px;
+  }
+
+  .topmeta .quiet {
+    flex: 0 0 auto;
+    min-height: 44px;
+    margin-left: 0;
+    padding: 6px 2px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .tabs {
+    gap: 4px;
+    padding-top: 7px;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  }
+
+  .tabs button {
+    min-height: 44px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    scroll-snap-align: start;
+  }
+
+  .hero,
+  .compact-hero {
+    padding: 26px 0 24px;
+  }
+
+  h1 {
+    margin: 10px 0 16px;
+    font-size: clamp(38px, 11.8vw, 50px);
+    line-height: .96;
+    letter-spacing: -.055em;
+  }
+
+  .lede {
+    max-width: 34rem;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .hero > .mode-switch {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin: 18px -4px 0;
+    padding: 0 4px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+  }
+
+  .hero > .mode-switch::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hero > .mode-switch button {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 44px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    scroll-snap-align: start;
+  }
+
+  .today-card {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .today-card h2 {
+    margin: 8px 0 10px;
+    font-size: clamp(26px, 7.5vw, 32px);
+    line-height: 1.04;
+    letter-spacing: -.035em;
+  }
+
+  .today-card p {
+    line-height: 1.45;
+  }
+
+  .today-card .primary {
+    margin-top: 6px;
+  }
+}
+
+@media (max-width: 390px) {
+  .brand {
+    flex-basis: 72px;
+    max-width: 72px;
+    font-size: 10.5px;
+  }
+
+  .sync {
+    flex-basis: 94px;
+    max-width: 94px;
+    font-size: 10.5px;
+  }
+
+  .topmeta {
+    gap: 4px;
+  }
+
+  .topmeta .mode-switch {
+    gap: 2px;
+  }
+
+  .topmeta .mode-switch button {
+    min-width: 44px;
+    width: 44px;
+    padding-inline: 5px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 11.6vw, 46px);
+  }
+}
