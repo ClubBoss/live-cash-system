@@ -1,0 +1,64 @@
+{
+  "protocol": "WAVE_1_FIRST_USE_WALKTHROUGH_PROTOCOL_2026-08-07.md",
+  "evidence_state": "HUMAN_EVIDENCE_PENDING",
+  "participant": {
+    "anonymous_id": "",
+    "fresh_context_eligible": false,
+    "eligibility_notes": ""
+  },
+  "environment": {
+    "tested_at": "",
+    "locale": "ru|en",
+    "device_or_viewport": "",
+    "url_or_build": "",
+    "source_sha": "",
+    "fresh_storage_confirmed": false
+  },
+  "first_screen": {
+    "view_seconds": 0,
+    "purpose_answer": "",
+    "purpose_pass": false,
+    "next_action_answer": "",
+    "next_action_pass": false,
+    "boundary_answer": "",
+    "boundary_pass": false
+  },
+  "navigation": {
+    "today_pass": false,
+    "learn_pass": false,
+    "review_pass": false,
+    "cards_pass": false,
+    "skill_map_pass": false,
+    "real_hands_pass": false,
+    "diagnostic_pass": false,
+    "core_learn_review_real_hands_pass": false
+  },
+  "first_lesson": {
+    "intentional_actions": [],
+    "action_count": 0,
+    "pass_le_2": false
+  },
+  "diagnostic": {
+    "purpose_answer": "",
+    "purpose_pass": false,
+    "optional_answer": "",
+    "optional_pass": false,
+    "duration_answer": "",
+    "duration_pass": false,
+    "output_answer": "",
+    "output_pass": false,
+    "skip_answer": "",
+    "skip_pass": false,
+    "evaluation_answer": "",
+    "evaluation_pass": false,
+    "exam_or_automatic_judgment_answer": "",
+    "non_exam_non_automatic_judgment_pass": false,
+    "threshold_bundle_pass": false
+  },
+  "empty_states": [],
+  "unclear_terms": [],
+  "internal_terms_observed": [],
+  "moderator_interventions": [],
+  "evidence_refs": [],
+  "notes": ""
+}
