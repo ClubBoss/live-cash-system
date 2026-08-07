@@ -2,9 +2,16 @@
   "schema_version": 5,
   "status": "TRANSITIONAL_REVIEW_REQUIRED",
   "strategy_status": "CURRICULUM_STRATEGY_REVIEW_PENDING",
-  "strategy_repair_scope": ["preflop", "blinds", "aggression"],
+  "strategy_repair_scope": [
+    "preflop",
+    "blinds",
+    "aggression"
+  ],
   "drill_content_status": "DRILLS_REVIEW_PENDING",
-  "drill_repair_scope": ["preflop", "aggression"],
+  "drill_repair_scope": [
+    "preflop",
+    "aggression"
+  ],
   "language_repair_owner": "W4R",
   "review_policy": "Learner-facing and strategic approval requires explicit independent human review. Deterministic checks may reject stale, invalid, or out-of-scope mutations but can never create an approval.",
   "strategy_approval": null,
@@ -14,7 +21,7 @@
     "status": "REVIEW_PENDING",
     "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
     "approved_digest": null,
-    "note": "W1-W5 integrated learner-facing composition is materialized. W3 repaired strategy/drills, FINAL W4R runtime/language, W4R-SEM-01 and the inert compatibility-path correction are source-locked; human poker, RU and EN review remain required before CURRENT/approved status."
+    "note": "W1-W5 integrated learner-facing composition plus the bounded W6 Today/scheduler/resume surface is materialized. Strategy, drill and exact integrated RU/EN human review remain pending; this candidate does not claim approval."
   },
   "repair_source_paths": {
     "strategy": [
@@ -25,7 +32,9 @@
     "drills": [
       "content/i18n/wave3-priority-gold.ts"
     ],
-    "language": []
+    "language": [
+      "components/LiveCashAppCore.tsx"
+    ]
   },
   "source_blobs": {
     "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
@@ -63,16 +72,60 @@
     "components/Wave5PracticeLayer.tsx": "95ec1e475e164296e25e91c668e11b01feb16075"
   },
   "modules": {
-    "geometry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold historically; exact integrated RU/EN composition now requires fresh human review." },
-    "preflop": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair is materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending." },
-    "blinds": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair is materialized for LCM-03; strategy and exact integrated RU/EN review remain pending." },
-    "filtering": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
-    "shape": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
-    "aggression": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair and active W4R-SEM-01 reconciliation are materialized; strategy, drill and exact integrated RU/EN review remain pending." },
-    "ancestry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
-    "multiway": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
-    "river": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
-    "evidence": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." },
-    "transfer": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending." }
+    "geometry": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "Strategic scope remains gold historically; exact integrated RU/EN composition now requires fresh human review."
+    },
+    "preflop": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "W3 source repair is materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending."
+    },
+    "blinds": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "W3 claim-scope repair is materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."
+    },
+    "filtering": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "shape": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "aggression": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "W3 repair and active W4R-SEM-01 reconciliation are materialized; strategy, drill and exact integrated RU/EN review remain pending."
+    },
+    "ancestry": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "multiway": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "river": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "evidence": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "transfer": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    }
   }
 }

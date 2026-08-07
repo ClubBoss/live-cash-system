@@ -199,3 +199,30 @@ test("mobile layout has no document-level horizontal overflow in both locales", 
     await page.getByRole("button", { name: locale === "ru" ? "Сегодня" : "Today" }).click();
   }
 });
+
+
+test("W6 Today exposes bounded session budgets in both locales", async ({ page }) => {
+  for (const label of ["5 мин", "15 мин", "30 мин", "Перед игрой", "После игры"]) {
+    await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
+  }
+  await page.getByRole("button", { name: "5 мин", exact: true }).click();
+  await expect(page.getByText(/≈\d+ мин/u).first()).toBeVisible();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  for (const label of ["5 min", "15 min", "30 min", "Before play", "After play"]) {
+    await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
+  }
+});
+
+test("Save and exit preserves the unfinished session across Today and reload", async ({ page }) => {
+  await openGeometryColdCheck(page);
+  await page.getByRole("button", { name: /Выйти и сохранить/u }).click();
+  await expect(page.getByRole("heading", { name: /Продолжить сохранённую сессию/u })).toBeVisible();
+  const saved = await localState(page);
+  expect(saved.activeSession).not.toBeNull();
+  expect(saved.activeSession.moduleId).toBe("geometry");
+  await page.reload();
+  await expect(page.getByText("1 · РЕШИ БЕЗ ПОДСКАЗКИ")).toBeVisible();
+  const restored = await localState(page);
+  expect(restored.activeSession.moduleId).toBe("geometry");
+  expect(restored.activeSession.step).toBe(saved.activeSession.step);
+});
