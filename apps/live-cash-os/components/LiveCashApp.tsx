@@ -6,6 +6,7 @@ import { getLearningRoute } from "../content/i18n/learning-route";
 import { applyWave3PriorityLocale } from "../content/i18n/wave3-priority-gold";
 import { applyWave4CurriculumLocale } from "../content/i18n/wave4-curriculum-gold";
 import { applyWave4FinalEditorialLocale } from "../content/i18n/wave4-final-editorial";
+import { applyWave5PracticeCopy } from "../content/i18n/wave5-practice-copy";
 import type { LocaleCode } from "../lib/model";
 import LiveCashAppCore from "./LiveCashAppCore";
 
@@ -19,7 +20,7 @@ const MODULE_LABELS: Record<string, string> = {
   ANCESTRY: "ИСТОРИЯ ДИАПАЗОНА",
   MULTIWAY: "МУЛЬТИВЕЙ",
   RIVER: "РИВЕР",
-  EVIDENCE: "НАДЁЖНОСТЬ РИДСА",
+  EVIDENCE: "НАДЁЖНОСТЬ РИДА",
   TRANSFER: "ПРИМЕНЕНИЕ В ИГРЕ",
 };
 
@@ -35,6 +36,27 @@ const SESSION_LABELS: Record<string, string> = {
   REPAIR: "РАБОТА НАД ОШИБКОЙ",
   REVIEW: "ПОВТОР ПОСЛЕ ПАУЗЫ",
   MIXED: "СМЕШАННАЯ ПРАКТИКА",
+};
+
+const CARD_KIND_LABELS: Record<string, string> = {
+  heuristic: "ОРИЕНТИР",
+  boundary: "ГРАНИЦА ПРАВИЛА",
+  procedure: "ПОРЯДОК РЕШЕНИЯ",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  repair: "исправление ошибки",
+  retention: "повторение после паузы",
+  PENDING_REVIEW: "ждёт разбора",
+  REVIEWED_VALID: "разобрано: решение подтверждено",
+  REVIEWED_REPAIR: "разобрано: нужна тренировка",
+  INSUFFICIENT: "данных недостаточно",
+};
+
+const DIAGNOSTIC_STATUS_LABELS: Record<string, string> = {
+  AWAITING_REVIEW: "ЖДЁТ РАЗБОРА",
+  SCORED: "РАЗОБРАНО",
+  ROUTED: "ПРИОРИТЕТЫ ВЫБРАНЫ",
 };
 
 const MODULE_LCM: Record<string, string> = {
@@ -53,95 +75,107 @@ const MODULE_LCM: Record<string, string> = {
 
 const GOLD_LCMS = new Set(Array.from({ length: 11 }, (_, index) => `LCM-${String(index + 1).padStart(2, "0")}`));
 
-function setExactText(selector: string, source: string, target: string) {
-  document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
-    if (element.textContent?.trim() === source && source !== target) element.textContent = target;
-  });
-}
+function localizedLeafText(locale: LocaleCode, text: string): string | null {
+  const ru = locale === "ru";
+  const exact: Record<string, [string, string]> = {
+    "1 · COLD CHECK": ["1 · РЕШИ БЕЗ ПОДСКАЗКИ", "1 · COLD CHECK"],
+    "1 · РЕШИ БЕЗ ПОДСКАЗКИ": ["1 · РЕШИ БЕЗ ПОДСКАЗКИ", "1 · COLD CHECK"],
+    "6 · LAB": ["6 · ТРЕНАЖЁР", "6 · LAB"],
+    "6 · ТРЕНАЖЁР": ["6 · ТРЕНАЖЁР", "6 · LAB"],
+    "90 sec": ["90 сек", "90 sec"],
+    "90 сек": ["90 сек", "90 sec"],
+    Due: ["К повторению", "Due"],
+    "К повторению": ["К повторению", "Due"],
+    All: ["Все", "All"],
+    "Все": ["Все", "All"],
+    "Cue:": ["Что заметил:", "Cue:"],
+    "Что заметил:": ["Что заметил:", "Cue:"],
+    "Action:": ["Как сыграл:", "Action:"],
+    "Как сыграл:": ["Как сыграл:", "Action:"],
+    "Reason:": ["Почему:", "Reason:"],
+    "Почему:": ["Почему:", "Reason:"],
+  };
+  if (text in exact) return exact[text][ru ? 0 : 1];
 
-function parseLocalizedDrillLabel(text: string): { moduleId: string; kind: string } | null {
-  const english = text.match(/^([A-Z]+) · (core|changed|boundary|mixed)$/u);
-  if (english) return { moduleId: english[1], kind: english[2] };
-  for (const [moduleId, label] of Object.entries(MODULE_LABELS)) {
-    if (!text.startsWith(`${label} · `)) continue;
-    const localizedKind = text.slice(label.length + 3);
-    const kind = Object.entries(KIND_LABELS).find(([, value]) => value === localizedKind)?.[0];
-    if (kind) return { moduleId, kind };
+  const review = text.match(/^DECISION REVIEW · CLASS ([A-Z])$/u) ?? text.match(/^РАЗБОР РЕШЕНИЯ · ([A-Z])$/u);
+  if (review) return ru ? `РАЗБОР РЕШЕНИЯ · ${review[1]}` : `DECISION REVIEW · CLASS ${review[1]}`;
+
+  const drill = text.match(/^([A-Z]+) · (core|changed|boundary|mixed)$/u);
+  if (drill) return ru ? `${MODULE_LABELS[drill[1]] ?? drill[1]} · ${KIND_LABELS[drill[2]] ?? drill[2]}` : text;
+  for (const [moduleId, moduleLabel] of Object.entries(MODULE_LABELS)) {
+    if (!text.startsWith(`${moduleLabel} · `)) continue;
+    const localizedKind = text.slice(moduleLabel.length + 3);
+    const kind = Object.entries(KIND_LABELS).find(([, label]) => label === localizedKind)?.[0];
+    if (kind) return ru ? text : `${moduleId} · ${kind}`;
   }
+
+  const session = text.match(/^(PRACTICE|REPAIR|REVIEW|MIXED) · (.+)$/u);
+  if (session) return ru ? `${SESSION_LABELS[session[1]]} · ${session[2]}` : text;
+  for (const [mode, label] of Object.entries(SESSION_LABELS)) {
+    if (text.startsWith(`${label} · `)) return ru ? text : `${mode} · ${text.slice(label.length + 3)}`;
+  }
+
+  const recall = text.match(/^(?:ACTIVE RECALL|АКТИВНОЕ ВСПОМИНАНИЕ) · (.+)$/u);
+  if (recall) return ru ? `АКТИВНОЕ ВСПОМИНАНИЕ · ${recall[1]}` : `ACTIVE RECALL · ${recall[1]}`;
+
+  const card = text.match(/^(LCM-\d{2}) · (heuristic|boundary|procedure)$/u);
+  if (card) return ru ? `${card[1]} · ${CARD_KIND_LABELS[card[2]]}` : text;
+  const localizedCard = text.match(/^(LCM-\d{2}) · (ОРИЕНТИР|ГРАНИЦА ПРАВИЛА|ПОРЯДОК РЕШЕНИЯ)$/u);
+  if (localizedCard) {
+    const kind = Object.entries(CARD_KIND_LABELS).find(([, label]) => label === localizedCard[2])?.[0];
+    return ru || !kind ? text : `${localizedCard[1]} · ${kind}`;
+  }
+
+  if (text in STATUS_LABELS) return ru ? STATUS_LABELS[text] : text;
+  const status = Object.entries(STATUS_LABELS).find(([, label]) => label === text)?.[0];
+  if (status) return ru ? text : status;
+
+  const diagnostic = text.match(/^T1 · (AWAITING_REVIEW|SCORED|ROUTED)$/u);
+  if (diagnostic) return ru ? `T1 · ${DIAGNOSTIC_STATUS_LABELS[diagnostic[1]]}` : `T1 · ${diagnostic[1].toLowerCase().replaceAll("_", " ")}`;
+  for (const [statusKey, label] of Object.entries(DIAGNOSTIC_STATUS_LABELS)) {
+    if (text === `T1 · ${label}`) return ru ? text : `T1 · ${statusKey.toLowerCase().replaceAll("_", " ")}`;
+  }
+
+  if (text === "English UI and T1 are active. Module bodies remain source-locked until poker-aware editorial approval.") {
+    return ru ? "Английская версия включена. Текущая сессия и прогресс сохранены." : "English interface enabled. Your current session and progress are preserved.";
+  }
+  if (text === "Русская версия включена. Текущая сессия и прогресс сохранены.") {
+    return ru ? text : "English interface enabled. Your current session and progress are preserved.";
+  }
+
   return null;
 }
 
-function parseSessionLabel(text: string): { mode: string; progress: string } | null {
-  const separator = " · ";
-  const index = text.indexOf(separator);
-  if (index < 0) return null;
-  const label = text.slice(0, index);
-  const progress = text.slice(index + separator.length);
-  if (label in SESSION_LABELS) return { mode: label, progress };
-  const mode = Object.entries(SESSION_LABELS).find(([, value]) => value === label)?.[0];
-  return mode ? { mode, progress } : null;
-}
-
-function localizeHardcodedLabels(locale: LocaleCode) {
-  const ru = locale === "ru";
-  const exact: Array<[string, string, string]> = [
-    [".session .eyebrow", "1 · COLD CHECK", ru ? "1 · РЕШИ БЕЗ ПОДСКАЗКИ" : "1 · COLD CHECK"],
-    [".session .eyebrow", "1 · РЕШИ БЕЗ ПОДСКАЗКИ", ru ? "1 · РЕШИ БЕЗ ПОДСКАЗКИ" : "1 · COLD CHECK"],
-    [".session .eyebrow", "6 · LAB", ru ? "6 · ТРЕНАЖЁР" : "6 · LAB"],
-    [".session .eyebrow", "6 · ТРЕНАЖЁР", ru ? "6 · ТРЕНАЖЁР" : "6 · LAB"],
-    [".mode-switch button", "90 sec", ru ? "90 сек" : "90 sec"],
-    [".mode-switch button", "90 сек", ru ? "90 сек" : "90 sec"],
-    [".mode-switch button", "Due", ru ? "К повторению" : "Due"],
-    [".mode-switch button", "К повторению", ru ? "К повторению" : "Due"],
-    [".mode-switch button", "All", ru ? "Все" : "All"],
-    [".mode-switch button", "Все", ru ? "Все" : "All"],
-    [".field-list b", "Cue:", ru ? "Что заметил:" : "Cue:"],
-    [".field-list b", "Что заметил:", ru ? "Что заметил:" : "Cue:"],
-    [".field-list b", "Action:", ru ? "Как сыграл:" : "Action:"],
-    [".field-list b", "Как сыграл:", ru ? "Как сыграл:" : "Action:"],
-    [".field-list b", "Reason:", ru ? "Почему:" : "Reason:"],
-    [".field-list b", "Почему:", ru ? "Почему:" : "Reason:"],
-  ];
-  for (const [selector, source, target] of exact) setExactText(selector, source, target);
-
-  document.querySelectorAll<HTMLElement>(".session .eyebrow").forEach((element) => {
+function annotateLegacyUi(locale: LocaleCode) {
+  const selector = [
+    ".session .eyebrow",
+    ".session-head > div > span",
+    ".mode-switch button",
+    ".field-list b",
+    ".kind",
+    ".session .module-code",
+    ".notice span",
+  ].join(",");
+  document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
     const text = element.textContent?.trim() ?? "";
-    const review = text.match(/^DECISION REVIEW · CLASS ([A-Z])$/u) ?? text.match(/^РАЗБОР РЕШЕНИЯ · ([A-Z])$/u);
-    if (review) {
-      const target = ru ? `РАЗБОР РЕШЕНИЯ · ${review[1]}` : `DECISION REVIEW · CLASS ${review[1]}`;
-      if (text !== target) element.textContent = target;
-      return;
+    const target = localizedLeafText(locale, text);
+    if (target && target !== text) {
+      element.dataset.wave4rLabel = target;
+      element.setAttribute("aria-label", target);
+    } else {
+      delete element.dataset.wave4rLabel;
+      element.removeAttribute("aria-label");
     }
-    const parsed = parseLocalizedDrillLabel(text);
-    if (!parsed) return;
-    const target = ru
-      ? `${MODULE_LABELS[parsed.moduleId] ?? parsed.moduleId} · ${KIND_LABELS[parsed.kind] ?? parsed.kind}`
-      : `${parsed.moduleId} · ${parsed.kind}`;
-    if (text !== target) element.textContent = target;
   });
 
-  document.querySelectorAll<HTMLElement>(".session-head > div > span").forEach((element) => {
-    const text = element.textContent?.trim() ?? "";
-    const parsed = parseSessionLabel(text);
-    if (!parsed) return;
-    const target = `${ru ? SESSION_LABELS[parsed.mode] : parsed.mode} · ${parsed.progress}`;
-    if (text !== target) element.textContent = target;
-  });
-
-  const badges: Record<string, [string, string]> = {
-    repair: ["исправление ошибки", "repair"],
-    retention: ["повторение после паузы", "retention"],
-    PENDING_REVIEW: ["ждёт разбора", "PENDING_REVIEW"],
-    REVIEWED_VALID: ["подтверждено", "REVIEWED_VALID"],
-    REVIEWED_REPAIR: ["нужна тренировка", "REVIEWED_REPAIR"],
-    INSUFFICIENT: ["данных недостаточно", "INSUFFICIENT"],
-  };
-  document.querySelectorAll<HTMLElement>(".kind").forEach((element) => {
-    const text = element.textContent?.trim() ?? "";
-    const entry = Object.entries(badges).find(([key, values]) => key === text || values.includes(text));
-    if (!entry) return;
-    const target = ru ? entry[1][0] : entry[1][1];
-    if (text !== target) element.textContent = target;
+  document.querySelectorAll<HTMLElement>(".assumption-strip").forEach((element) => {
+    if (element.textContent?.trim() === ":") {
+      element.dataset.wave4rEmptyFallback = "true";
+      element.hidden = true;
+    } else if (element.dataset.wave4rEmptyFallback === "true") {
+      delete element.dataset.wave4rEmptyFallback;
+      element.hidden = false;
+    }
   });
 }
 
@@ -183,12 +217,20 @@ function currentRuntimeView(): { locale: LocaleCode; showRoute: boolean } {
   return { locale, showRoute: activeTab === "Сегодня" || activeTab === "Today" };
 }
 
+function applyLocaleData(locale: LocaleCode) {
+  applyGeometryLocale(locale);
+  applyWave3PriorityLocale(locale);
+  applyWave4CurriculumLocale(locale);
+  applyWave4FinalEditorialLocale(locale);
+  applyWave5PracticeCopy(locale);
+}
+
 function LearningRoute({ locale }: { locale: LocaleCode }) {
   const route = getLearningRoute(locale);
   const title = locale === "ru" ? "Что означает путь 0→100%" : "What the 0→100% route means";
   const boundary = locale === "ru"
     ? "Это не общий процент мастерства. Каждый этап подтверждается отдельной практикой."
-    : "This is an evidence map, not a decorative overall percentage. Every stage requires a distinct learner-state event.";
+    : "This is not one overall mastery score. Each step is confirmed by a different kind of practice.";
   return <section className="surface learning-route" aria-labelledby="learning-route-title">
     <div className="section-head">
       <p className="eyebrow">{locale === "ru" ? "МАРШРУТ НАВЫКА" : "SKILL ROUTE"}</p>
@@ -211,7 +253,7 @@ export default function LiveCashApp() {
 
   useEffect(() => {
     let syncScheduled = false;
-    let markerScheduled = false;
+    let structureScheduled = false;
 
     const syncLocaleAndRoute = () => {
       if (syncScheduled) return;
@@ -219,27 +261,26 @@ export default function LiveCashApp() {
       requestAnimationFrame(() => {
         syncScheduled = false;
         const next = currentRuntimeView();
-        applyGeometryLocale(next.locale);
-        applyWave3PriorityLocale(next.locale);
-        applyWave4CurriculumLocale(next.locale);
-        applyWave4FinalEditorialLocale(next.locale);
-        localizeHardcodedLabels(next.locale);
+        applyLocaleData(next.locale);
+        annotateLegacyUi(next.locale);
         markEditorialGoldSurfaces();
         setView((previous) => previous.locale === next.locale && previous.showRoute === next.showRoute ? previous : next);
       });
     };
 
-    const markGold = () => {
-      if (markerScheduled) return;
-      markerScheduled = true;
+    const syncStructure = () => {
+      if (structureScheduled) return;
+      structureScheduled = true;
       requestAnimationFrame(() => {
-        markerScheduled = false;
+        structureScheduled = false;
+        const next = currentRuntimeView();
+        annotateLegacyUi(next.locale);
         markEditorialGoldSurfaces();
       });
     };
 
     syncLocaleAndRoute();
-    markGold();
+    syncStructure();
 
     const attributeObserver = new MutationObserver(syncLocaleAndRoute);
     attributeObserver.observe(document.documentElement, {
@@ -248,7 +289,7 @@ export default function LiveCashApp() {
       subtree: true,
     });
 
-    const structureObserver = new MutationObserver(markGold);
+    const structureObserver = new MutationObserver(syncStructure);
     structureObserver.observe(document.documentElement, {
       childList: true,
       characterData: true,
@@ -263,6 +304,10 @@ export default function LiveCashApp() {
 
   return <>
     <style>{`
+      [data-wave4r-label] { font-size: 0 !important; }
+      [data-wave4r-label]::after { content: attr(data-wave4r-label); font-size: .75rem; }
+      .notice [data-wave4r-label]::after,
+      .field-list b[data-wave4r-label]::after { font-size: inherit; }
       .module-list article[data-editorial-gold="approved"] > .assumption-strip,
       .session[data-editorial-gold="approved"] > .assumption-strip { display: none; }
     `}</style>
