@@ -1,10 +1,32 @@
 {
-  "schema_version": 4,
-  "status": "TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED",
-  "strategy_status": "CURRICULUM_STRATEGY_GOLD",
+  "schema_version": 5,
+  "status": "TRANSITIONAL_REVIEW_REQUIRED",
+  "strategy_status": "CURRICULUM_STRATEGY_REPAIR_REQUIRED",
+  "strategy_repair_scope": ["preflop", "blinds", "aggression"],
+  "drill_content_status": "DRILLS_REPAIR_REQUIRED",
+  "drill_repair_scope": ["preflop", "aggression"],
   "language_repair_owner": "W4R",
-  "review_policy": "Learner-facing copy requires explicit independent human RU and EN review. Deterministic checks can reject stale or invalid copy but can never create an approval.",
+  "review_policy": "Learner-facing and strategic approval requires explicit independent human review. Deterministic checks may reject stale, invalid, or out-of-scope mutations but can never create an approval.",
+  "strategy_approval": null,
+  "drill_approval": null,
   "human_approvals": {},
+  "final_composition": {
+    "status": "STALE_REVIEW_REQUIRED",
+    "current_digest": null,
+    "approved_digest": null,
+    "note": "W3 revalidation found strategy/drill P1 defects. Final learner-facing composition must be re-materialized and reviewed after W3 repair and later W4R integration; no final digest is asserted here."
+  },
+  "repair_source_paths": {
+    "strategy": [
+      "content/claims/lcm-02.claims.json",
+      "content/claims/lcm-03.claims.json",
+      "content/claims/lcm-06.claims.json"
+    ],
+    "drills": [
+      "content/i18n/wave3-priority-gold.ts"
+    ],
+    "language": []
+  },
   "source_blobs": {
     "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
     "content/diagnostic.ts": "b629a8e7fc40fd3451dc32c58e0929802e035c8f",
@@ -37,12 +59,12 @@
     "components/LiveCashAppCore.tsx": "7736e4188b9b7c1e8dd3786c9c64cad407ab4505"
   },
   "modules": {
-    "geometry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. Prior bilingual approval is invalidated until explicit human RU/EN evidence is recorded against the current corpus fingerprint." },
-    "preflop": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
-    "blinds": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
+    "geometry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. Prior bilingual approval is invalidated until explicit human RU/EN evidence is recorded against the current reviewed final composition." },
+    "preflop": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 revalidation reopened strategy for LCM-02. Language review also remains open; no prior approval is current." },
+    "blinds": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 revalidation reopened strategy for LCM-03 claim scope. Language review also remains open; no prior approval is current." },
     "filtering": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
     "shape": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
-    "aggression": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
+    "aggression": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 revalidation reopened strategy and drill semantics for LCM-06. Language review also remains open; no prior approval is current." },
     "ancestry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
     "multiway": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
     "river": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },

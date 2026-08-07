@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { validateSourceLockState } from "./governance-contract.mjs";
 
 const moduleIds = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
 const approvedLcmCodes = Array.from({ length: 11 }, (_, index) => `LCM-${String(index + 1).padStart(2, "0")}`);
 const manifest = JSON.parse(await readFile(new URL("../content/i18n/editorial-manifest.json", import.meta.url), "utf8"));
-const requireFull = process.env.REQUIRE_FULL_EDITORIAL === "1";
+const requireFull = process.env.REQUIRE_FULL_EDITORIAL === "1" || process.argv.includes("--release");
 
 function gitBlobSha(buffer) {
   return createHash("sha1").update(`blob ${buffer.byteLength}\0`).update(buffer).digest("hex");
@@ -15,18 +16,21 @@ function quoted(source) {
   return [...source.matchAll(/"((?:\\.|[^"\\])*)"/gu)].map((match) => match[1]).join("\n");
 }
 
-assert.equal(manifest.schema_version, 4, "Unsupported editorial manifest schema");
+assert.equal(manifest.schema_version, 5, "Unsupported editorial manifest schema");
 assert.ok(
-  ["FULLY_ACCEPTED", "TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED"].includes(manifest.status),
+  ["FULLY_ACCEPTED", "TRANSITIONAL_REVIEW_REQUIRED"].includes(manifest.status),
   `Unsupported editorial acceptance state: ${manifest.status}`,
 );
 assert.deepEqual(Object.keys(manifest.modules), moduleIds, "Editorial manifest module order or coverage changed");
 assert.match(manifest.review_policy, /can never create an approval/u, "Review policy must forbid automatic approval");
 
-for (const [relativePath, expectedSha] of Object.entries(manifest.source_blobs)) {
+const actualSourceBlobs = {};
+for (const relativePath of Object.keys(manifest.source_blobs)) {
   const bytes = await readFile(new URL(`../${relativePath}`, import.meta.url));
-  assert.equal(gitBlobSha(bytes), expectedSha, `Editorial source lock is stale: ${relativePath}`);
+  actualSourceBlobs[relativePath] = gitBlobSha(bytes);
 }
+const sourceLockResult = validateSourceLockState(manifest, actualSourceBlobs, { requireFull });
+
 for (const moduleId of moduleIds) {
   const row = manifest.modules[moduleId];
   assert.ok(row && typeof row.note === "string" && row.note.trim(), `${moduleId}: missing editorial row`);
@@ -36,6 +40,17 @@ for (const moduleId of moduleIds) {
     assert.equal(row.ru, "APPROVED", `${moduleId}: Russian is not approved in full mode`);
     assert.equal(row.en, "APPROVED", `${moduleId}: English is not approved in full mode`);
   }
+}
+if (requireFull) {
+  assert.equal(manifest.status, "FULLY_ACCEPTED", "Full editorial mode requires FULLY_ACCEPTED");
+  assert.equal(manifest.strategy_status, "CURRICULUM_STRATEGY_GOLD", "Full editorial mode requires strategy gold");
+  assert.equal(manifest.drill_content_status, "DRILLS_APPROVED", "Full editorial mode requires approved drills");
+  assert.equal(manifest.final_composition?.status, "CURRENT", "Full editorial mode requires a current final composition digest");
+  assert.equal(
+    manifest.final_composition?.approved_digest,
+    manifest.final_composition?.current_digest,
+    "Full editorial mode rejects a stale final composition digest",
+  );
 }
 
 const geometryEn = await readFile(new URL("../content/i18n/geometry-gold.ts", import.meta.url), "utf8");
@@ -142,4 +157,8 @@ for (const pattern of [/learner state/iu, /WORKING evidence/iu, /transfer probe/
   assert.doesNotMatch(finalEvidenceRuCopy, pattern, `Final Russian LCM-10/11 copy contains system phrase ${pattern}`);
 }
 
-console.log(`editorial rejection gate passed: ${moduleIds.length} bilingual strategic modules checked; Wave 4R language-truth regressions checked${requireFull ? " (full approval evidence required)" : ""}.`);
+console.log(
+  `editorial rejection gate passed: ${moduleIds.length} bilingual strategic modules checked; `
+  + `${sourceLockResult.stalePaths.length} source locks intentionally stale under explicit repair scope; `
+  + `Wave 4R language-truth regressions checked${requireFull ? " (full approval evidence required)" : ""}.`,
+);

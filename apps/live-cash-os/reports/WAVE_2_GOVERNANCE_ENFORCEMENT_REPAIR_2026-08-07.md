@@ -2,85 +2,140 @@
 
 Branch: `repair/w2-governance-enforcement`
 Baseline `origin/main`: `26b1dec72822a706f82cf485042c18e166397bdd`
+Lifecycle-reconciliation old head: `c9be010589e790efd3875a35573d23c8e2b55357`
 Baseline CI: `Live Cash OS CI` run `31175320582` — `success`
-Scope: Wave 2 governance only. No learner-facing copy, T1 copy, learning route, `LiveCashApp/Core`, or `Wave5PracticeLayer` changes.
+Scope: Wave 2 governance only. No learner-facing copy, T1 copy, learning route, `LiveCashApp/Core`, Wave 5 practice implementation, W3 claim/drill repair or W4R integration.
 
-## Independent read-only audit
+## Original Wave 2 enforcement repair
 
-| Area | Baseline verdict | Finding |
-|---|---|---|
-| Source authority | PARTIAL | Canonical registries and prose rules existed, but open source gaps were not mechanically bound to the claim set. |
-| Claim schema | PARTIAL | LOW/UNRESOLVED and OPEN_QUESTION constraints existed, but only a subset of claim files was covered by regression tests and no release admission validator applied the contract to the whole claim corpus. |
-| Confidence model | PARTIAL | Definitions were sound; corpus-wide transition enforcement was missing. |
-| Assumptions / exceptions | PASS / PARTIAL | Required by schema and present in reviewed claims; source-gap materiality was not represented separately. |
-| RU/EN glossary | PASS as constitution | The glossary already rejected hybrid architecture/research jargon. The failure was admission enforcement, not the glossary itself. |
-| Module gold checklist | PASS as policy / FAIL as enforcement | Human review was described, but manifest `APPROVED` did not require structured human evidence. |
-| Approval transitions | FAIL | `FULLY_ACCEPTED` could coexist with a top-level `LANGUAGE_REPAIR_REQUIRED` truth. |
-| Human-only approval | FAIL | Locale approvals named a model reviewer and had no human attestation/fingerprint contract. |
-| Provenance | PARTIAL | Claim source refs existed; known source-gap dependency coverage was not machine-readable. |
-| Editorial checks | PARTIAL | Strong rejection scans existed, but the script also required `FULLY_ACCEPTED`/`APPROVED`, turning a rejection gate into an acceptance-truth enforcer. |
-| Acceptance truth | FAIL | `ACCEPTANCE_LEDGER.md` truthfully reopened language review while `editorial-manifest.json` still claimed all 11 RU/EN locales `APPROVED`. |
+The first Wave 2 repair established:
+
+- machine-readable source-gap dependencies;
+- corpus-wide LOW/UNRESOLVED and OPEN_QUESTION rejection;
+- human-only locale approval evidence;
+- rejection-only automation;
+- upper-ledger versus manifest truth checks;
+- corpus-fingerprint invalidation of stale locale approval;
+- `TRANSITIONAL_*` language review instead of fabricated bilingual approval.
+
+That repair correctly prevented stale language approval, but its strategy model still hard-required `CURRICULUM_STRATEGY_GOLD` and its editorial source lock treated every locked mutation as invalid. The independent Wave 3 revalidation exposed the missing lifecycle state.
+
+## Reconciliation trigger
+
+Source truth:
+
+- W3 branch: `audit/w3-strategy-revalidation`;
+- W3 head: `c30facc624ff208862a65083f96dc51a87601ee0`;
+- W3 verdict: `WAVE_3_STRATEGY_REPAIR_REQUIRED`;
+- affected strategy modules: LCM-02 / LCM-03 / LCM-06;
+- affected drill-semantic modules: LCM-02 / LCM-06;
+- final W4R handoff head observed for integration context only: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`;
+- W4R is not integrated by this branch.
 
 ## Root cause
 
-The Wave 2 constitution was substantially correct, but its acceptance states were not evidence-bearing types. A deterministic file could say `APPROVED` without proving who approved it, against which exact corpus, or whether a later source/copy change invalidated that review. Source-gap blocking was also prose-only. This allowed later waves to satisfy the technical gate while carrying learner-facing machine/research language.
+The previous locking design conflated approval protection with content immutability:
 
-## Governance repairs
+- a locked source mutation made `editorial-check` RED even after a legitimate P1 was found;
+- there was no representable strategy `REPAIR_REQUIRED` / `REVIEW_PENDING` state;
+- drill semantic approval had no equivalent repair lifecycle;
+- full acceptance had no explicit final learner-facing composition digest requirement.
 
-1. Added a rejection-only `check:governance` release gate.
-2. Added a machine-readable source-gap dependency registry synchronized to the canonical Carrot source-gap ledger.
-3. Required every current claim ID to receive an explicit source-gap dependency review.
-4. Enforced `LOW` / `UNRESOLVED` cannot be `ADMITTED` or `FIELD_VALIDATED` across the full claim corpus.
-5. Enforced `OPEN_QUESTION` cannot become learner prescription.
-6. Enforced unresolved `MATERIAL_BLOCKING` dependencies must remain `BLOCKED_SOURCE_GAP` or rejected; scoped non-blocking use requires an explicit rationale.
-7. Repaired editorial acceptance truth: strategy gold remains separate, while bilingual language status is explicitly `TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED` with W4R as owner.
-8. Removed model-generated locale approval truth. Current `human_approvals` is intentionally empty rather than fabricated.
-9. Defined human-only locale approval evidence: reviewer kind `HUMAN`, reviewer identity, review date, and exact corpus fingerprint.
-10. Bound approval validity to locked claim/copy blobs. Any locked claim/copy change changes the fingerprint and invalidates prior approval evidence.
-11. Kept the existing W4R language-specific scanner as the single language enforcement owner; Wave 2 adds no competing phrase list or copy mutation.
-12. Added regression tests proving the forbidden transitions fail.
+The correct rule is that old approval is immutable evidence for the old reviewed version, while the content itself may be repaired. A legal repair must invalidate active approval before mutation, permit only explicitly scoped stale source locks during candidate work, and remain non-releasable until re-review and re-lock.
 
-## Exact W4R contract
+## Lifecycle reconciliation implemented
 
-W4R owns learner-facing language repair and language-specific enforcement. Wave 2 does **not** edit learner copy or create a parallel scanner.
+### Strategy
 
-For each locale that W4R wants to move from `REVIEW_REQUIRED` to `APPROVED`, W4R must:
+`CURRICULUM_STRATEGY_GOLD`
+→ `CURRICULUM_STRATEGY_REPAIR_REQUIRED`
+→ `CURRICULUM_STRATEGY_REVIEW_PENDING`
+→ `CURRICULUM_STRATEGY_GOLD`
 
-1. finish the learner-facing copy repair under the existing W4R language gate;
-2. run the technical rejection gates successfully;
-3. obtain an independent human review of the complete affected learner-facing locale in context;
-4. record `human_approvals["<module>.<locale>"]` with:
-   - `reviewer_kind: "HUMAN"`;
-   - non-empty reviewer identity;
-   - ISO review date;
-   - `corpus_fingerprint` exactly matching the fingerprint produced from the current manifest `source_blobs`;
-5. change that locale status to `APPROVED` only in the same reviewed change;
-6. leave the top-level manifest `TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED` while any locale is still `REVIEW_REQUIRED` or while `ACCEPTANCE_LEDGER.md` still contains `LANGUAGE_REPAIR_REQUIRED`;
-7. move to `FULLY_ACCEPTED` only after every required RU/EN locale has current human evidence **and** the upper acceptance ledger has removed the repair state through an explicit reviewed acceptance transition.
+Current branch truth is `CURRICULUM_STRATEGY_REPAIR_REQUIRED`; active strategy approval evidence is `null`.
 
-A model review, CI pass, script output, generated manifest, or previous approval against a different corpus fingerprint is insufficient.
+### Drill/content
 
-## Regression contract
+`DRILLS_APPROVED`
+→ `DRILLS_REPAIR_REQUIRED`
+→ `DRILLS_REVIEW_PENDING`
+→ `DRILLS_APPROVED`
 
-The governance suite covers:
+Current branch truth is `DRILLS_REPAIR_REQUIRED`; active drill approval evidence is `null`.
 
-- LOW + ADMITTED -> reject;
-- UNRESOLVED + ADMITTED -> reject;
-- OPEN_QUESTION + ADMITTED -> reject;
-- unresolved material source gap + admitted dependent claim -> reject;
-- non-blocking scoped gap without rationale -> reject;
-- `FULLY_ACCEPTED` while upper ledger says `LANGUAGE_REPAIR_REQUIRED` -> reject;
-- `APPROVED` without human evidence -> reject;
-- automated/model reviewer as approval evidence -> reject;
-- stale corpus fingerprint after approved claim/copy change -> reject;
-- governance/editorial scripts writing approval truth -> reject.
+### Top-level acceptance
 
-## Acceptance boundary
+- `TRANSITIONAL_REVIEW_REQUIRED` is the legal candidate state while any strategy, drill, locale or final-composition review is open.
+- `FULLY_ACCEPTED` requires strategy gold, drill approval, all locale approvals, no contradictory upper-ledger repair state and a current approved final-composition digest.
 
-Wave 2 can close governance enforcement without claiming that language repair itself is complete. Current truthful target verdict:
+## Candidate source-lock behavior
 
-`GOVERNANCE_ACCEPTED / ENFORCEMENT_REPAIR_PENDING`
+Git stale detection is retained.
 
-`ENFORCEMENT_REPAIR_PENDING` refers only to W4R-owned learner-facing language repair and human RU/EN approval evidence. It is not permission for Wave 2 to edit copy, T1, learning route, `LiveCashApp/Core`, or Wave 5 practice content.
+During `REPAIR_REQUIRED` / `REVIEW_PENDING`, a changed source blob is accepted by the candidate gate only when its path is explicitly listed under the matching `repair_source_paths` group. Any other stale source lock remains a hard failure.
 
-Wave 3 is not started by this repair branch.
+The current W3 repair allowance is intentionally narrow:
+
+Strategy paths:
+
+- `content/claims/lcm-02.claims.json`;
+- `content/claims/lcm-03.claims.json`;
+- `content/claims/lcm-06.claims.json`.
+
+Drill path:
+
+- `content/i18n/wave3-priority-gold.ts`.
+
+No W4R language repair paths are admitted here.
+
+## Approval invalidation rules
+
+- strategy/drill repair or review state cannot retain active strategy/drill approval evidence;
+- drill semantic repair forces affected RU/EN locale rows back to `REVIEW_REQUIRED`;
+- a changed corpus fingerprint invalidates prior human evidence;
+- refreshing `source_blobs` does not carry old approval forward;
+- an open strategy/drill repair cannot retain a `CURRENT` approved final composition;
+- `FULLY_ACCEPTED` rejects a stale or missing final learner-facing composition digest;
+- reviewer kind other than `HUMAN` cannot satisfy an approval transition;
+- deterministic scripts remain rejection-only and cannot write approval truth.
+
+## Candidate gate versus full-approval gate
+
+`npm run check:governance` and `npm run check:editorial` are candidate rejection gates. They may be GREEN in an honest repair state.
+
+`npm run check:approval` is the explicit full-approval gate. It invokes governance and editorial checks in release mode and must remain RED while the current W3 strategy/drill repair, language review or final-composition review is unresolved.
+
+`npm run test:release` remains the canonical technical candidate test suite; a technical GREEN result is not an approval transition.
+
+## Regression evidence
+
+Targeted local lifecycle suite after reconciliation:
+
+- `node --test tests/governance-enforcement.test.mjs`;
+- 14/14 PASS.
+
+Covered regressions include:
+
+- `GOLD -> REPAIR_REQUIRED` is legal;
+- semantic/hash mutation invalidates old approval;
+- scoped stale source lock passes candidate governance in repair state;
+- unscoped stale source lock fails;
+- release/full approval fails in `REPAIR_REQUIRED` and `REVIEW_PENDING`;
+- automated reviewer evidence cannot promote `REVIEW_PENDING -> APPROVED`;
+- hash refresh cannot carry old approval evidence forward;
+- `FULLY_ACCEPTED` rejects stale final-composition digest;
+- deterministic governance/editorial scripts cannot write approval truth.
+
+## Validation boundary
+
+The execution environment used for this reconciliation has GitHub connector access but no local repository checkout, no network DNS to clone GitHub, and no GitHub Actions workflow-dispatch capability. The repository workflow is `main`-only. Therefore the exact reconciliation head cannot obtain a branch CI run from this environment without changing the CI workflow, which is outside this repair scope.
+
+`npm run test:release` was invoked against the local governance-only reconstruction. It stopped at `tsc --noEmit` because that reconstruction intentionally does not contain the repository `tsconfig.json` or application checkout. This is an environment/checkout limitation, not release evidence and not a code PASS/FAIL claim for the repository.
+
+The branch must not be called full release-green until `npm run test:release` is executed on the exact reconciliation head by an environment with the repository checkout/dependencies or by an explicitly triggered CI run.
+
+## Current acceptance boundary
+
+This repair is intended only to unblock lawful W3 mutation without weakening approval protection. It does not repair W3 content, integrate W4R, create human approval, calculate the final resolved learner composition digest, or restore `MODULE_GOLD`.
+
+Target state after this reconciliation: `GOVERNANCE_READY_FOR_W3_REPAIR`, subject to exact-head technical release validation evidence.

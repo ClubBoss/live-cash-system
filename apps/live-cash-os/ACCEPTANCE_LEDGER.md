@@ -1,8 +1,8 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_GOLD / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
+Status: `PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_REPAIR_REQUIRED / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / AUTHENTICATED_PRODUCTION_SMOKE_PENDING`
 
-This ledger separates platform, strategic curriculum, language/editorial truth, practice quality, production evidence and empirical learning evidence. A green technical/content gate does not override an independently confirmed learner-facing language defect.
+This ledger separates platform, strategic curriculum, language/editorial truth, practice quality, production evidence and empirical learning evidence. A green technical/content candidate gate does not override an independently confirmed strategy, drill-semantic or learner-facing language defect.
 
 ## Accepted platform scope
 
@@ -16,25 +16,37 @@ This ledger separates platform, strategic curriculum, language/editorial truth, 
 - separation of completion, working evidence, retention, variant transfer and field validation;
 - local/cloud state controls;
 - production build and desktop/mobile Playwright gates;
-- one permanent branch (`main`), one CI workflow, one canonical release command.
+- one permanent branch (`main`), one CI workflow, one canonical technical release-test command.
 
-## Strategic curriculum scope
+## Strategic curriculum truth reopened by Wave 3 revalidation
 
-All eleven current modules remain strategically admitted in their reviewed mechanism boundaries:
+The historical Wave 4 strategy review remains evidence, but it is no longer sufficient to claim current corpus-wide `CURRICULUM_STRATEGY_GOLD` after the independent Wave 3 revalidation.
 
-- LCM-01 — effective stack and pot geometry;
-- LCM-02 — preflop call/3-bet/fold branch construction;
-- LCM-03 — blind-source identity, price, closing action and realisation;
-- LCM-04 — action filtering and current-range reconstruction;
-- LCM-05 — sizing and response shape;
-- LCM-06 — 3-bet-pot aggression/defence architecture;
-- LCM-07 — range ancestry and branch-specific blocker logic;
-- LCM-08 — multiway action order, sandwich and shared defence;
-- LCM-09 — river value/bluff/blocker audit;
-- LCM-10 — calibrated branch-specific reads and evidence;
-- LCM-11 — transfer/retention/field-evidence contract.
+Current strategy truth:
 
-Wave 4 strategic implementation evidence:
+- LCM-01 — strategic scope remains gold within its reviewed effective-stack and pot-geometry boundaries;
+- LCM-02 — `STRATEGY_REPAIR_REQUIRED` for unsupported depth-scope metadata and one priority drill boundary;
+- LCM-03 — `STRATEGY_REPAIR_REQUIRED` for unsupported depth-scope metadata;
+- LCM-04 — strategic scope remains gold;
+- LCM-05 — strategic scope remains gold;
+- LCM-06 — `STRATEGY_REPAIR_REQUIRED` for unsupported depth metadata and final drill semantic integrity;
+- LCM-07 — strategic scope remains gold;
+- LCM-08 — strategic scope remains gold;
+- LCM-09 — strategic scope remains gold;
+- LCM-10 — strategic scope remains gold;
+- LCM-11 — strategic scope remains gold.
+
+Wave 3 revalidation evidence:
+
+- branch: `audit/w3-strategy-revalidation`;
+- head: `c30facc624ff208862a65083f96dc51a87601ee0`;
+- verdict: `WAVE_3_STRATEGY_REPAIR_REQUIRED`;
+- affected claim modules: LCM-02 / LCM-03 / LCM-06;
+- affected drill-semantic modules: LCM-02 / LCM-06.
+
+No W3 repair content is integrated by this ledger update. The purpose of this state is to make the known repair legally representable before claims/drills are changed.
+
+Historical Wave 4 strategic implementation evidence remains retained as historical evidence only:
 
 - SHA `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`;
 - run `31164756544`;
@@ -48,27 +60,28 @@ Exact visual-only solver outputs, chart cells/frequencies, exact multiway MDF an
 
 An independent read-only audit of accepted Wave 4 surfaces found confirmed P1 language/localization truth defects that the previous gate did not detect.
 
-Therefore Wave 4 is now split honestly:
+Therefore current truth is split honestly:
 
-- strategic curriculum: `GOLD`;
-- language/editorial/localization: `LANGUAGE_REPAIR_REQUIRED`.
+- unaffected strategic modules: historical/current gold within their reviewed boundaries;
+- LCM-02 / LCM-03 / LCM-06 strategy: `REPAIR_REQUIRED` pending W3 repair and re-review;
+- language/editorial/localization: `LANGUAGE_REPAIR_REQUIRED` pending later W4R integration and human re-review.
 
-Active repair ledger:
+Active language repair ledger:
 
 `reports/WAVE_4R_LANGUAGE_TRUTH_REPAIR_LEDGER_2026-08-07.md`
 
-Confirmed repair classes include:
+Confirmed language repair classes include:
 
 - hybrid RU T1 diagnostic language;
 - competing EN module-heading source of truth;
 - false `EN REVIEW REQUIRED` messages despite approved content;
 - internal/state-machine jargon in EN 0→100 route;
 - hardcoded untranslated/raw UI labels and statuses;
-- residual research/AI-style prose in approved RU/EN modules;
+- residual research/AI-style prose in accepted RU/EN modules;
 - insufficient editorial regression coverage;
 - temporary DOM localization/practice compatibility layers that should be consolidated into normal React/locale contracts.
 
-No Wave 6 work is allowed before Wave 4R acceptance.
+No Wave 6 work is allowed before strategy and language repair truth is reconciled.
 
 ## Wave 5 practice quality accepted
 
@@ -82,12 +95,12 @@ Release evidence:
 - job `92845201804`;
 - TypeScript: PASS;
 - ESLint: PASS;
-- editorial/source-lock gate: PASS;
+- editorial/source-lock gate: PASS at the historical reviewed corpus;
 - build: PASS;
 - unit/integration: `58/58 PASS`;
 - Playwright: `25 passed / 1 intentionally skipped`.
 
-Wave 5 closed:
+Wave 5 mechanics remain accepted:
 
 - three-topic mixed-practice unlock;
 - pre-answer topic concealment;
@@ -95,18 +108,17 @@ Wave 5 closed:
 - mixed-pool diversity verified without unnecessary rebuild;
 - prediction-before-interaction labs;
 - material-change and invalid-input lab gates;
-- final learner-facing RU/EN audit across 55 drills and 33 cards;
 - changed-node/boundary context checks;
 - >=20% boundary-practice coverage;
 - honest uncertainty coverage;
 - unique stable option/card IDs and unique learner-facing card prompts;
-- real duplicate blocker-card prompt repaired without learner-history reset.
+- duplicate blocker-card prompt repair without learner-history reset.
 
-Wave 5 does not claim empirical learning effectiveness or final language quality.
+This practice-mechanics acceptance does not override W3's reopened semantic review for affected priority drills, does not claim final language quality and does not claim empirical learning effectiveness.
 
 ## Pending product / evidence scope
 
-After Wave 4R, later waves still own:
+After W3 strategy repair and later W4R integration, later waves still own:
 
 - repair/retention/personalization routing closure;
 - complete T1 end-to-end evaluation workflow beyond language truth;
@@ -121,10 +133,10 @@ After Wave 4R, later waves still own:
 - Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
 - D1 binding: `DB`
 - Owner reported an earlier post-PR #7 publication on 2026-08-07.
-- Current Wave 4/Wave 5 repository heads are **not claimed deployed**.
+- Current Wave 3/4/5 repair branches are **not claimed deployed**.
 - Exact deployed Git SHA is not exposed to available automation and is not invented.
 - Unauthenticated automation reaches the ChatGPT sign-in boundary; authenticated DOM smoke remains externally blocked.
-- No production D1 reset, learner-state reset, URL change or migration action was performed in Waves 4–5.
+- No production D1 reset, learner-state reset, URL change or migration action was performed in this governance reconciliation.
 
 ## Wave 0 debt retained
 
@@ -137,12 +149,14 @@ After Wave 4R, later waves still own:
 
 ### P0
 
-None currently known in accepted repository platform/strategy/practice scope.
+None currently known in accepted repository platform scope.
 
 ### P1 — current active wave blockers
 
+- W3 unsupported exact/semi-exact depth claims in LCM-02 / LCM-03 / LCM-06;
+- W3 final drill semantic mismatch in affected priority drills;
 - material RU/EN meaning or truth mismatch;
-- learner-facing internal/system language that violates the approved editorial contract;
+- learner-facing internal/system language that violates the editorial contract;
 - contradictory editorial status in UI vs manifest;
 - competing locale source of truth;
 - strategically ambiguous drill or missing material assumption;
@@ -158,4 +172,4 @@ None currently known in accepted repository platform/strategy/practice scope.
 
 ## Governing rule
 
-Automated checks may reject invalid work but cannot create poker-content, RU/EN editorial, accessibility, production-authenticated or empirical-learning approval by themselves. Wave 4R requires explicit learner-facing RU/EN re-review after the technical gates pass.
+Automated checks may reject invalid work but cannot create poker-content, drill, RU/EN editorial, accessibility, production-authenticated or empirical-learning approval by themselves. `REPAIR_REQUIRED` and `REVIEW_PENDING` are legal candidate states; they are never release/full-approval states. A full approval claim is valid only after the affected repair is reviewed, stale approval evidence is replaced, source locks are current, and the final learner-facing composition digest is current.

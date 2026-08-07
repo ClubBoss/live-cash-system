@@ -5,6 +5,7 @@ import {
   validateManifest,
 } from "./governance-contract.mjs";
 
+const requireRelease = process.argv.includes("--release");
 const manifest = JSON.parse(await readFile(new URL("../content/i18n/editorial-manifest.json", import.meta.url), "utf8"));
 const acceptanceLedger = await readFile(new URL("../ACCEPTANCE_LEDGER.md", import.meta.url), "utf8");
 const gapRegistry = JSON.parse(await readFile(new URL("../content/claims/source-gap-dependencies.json", import.meta.url), "utf8"));
@@ -21,8 +22,10 @@ for (const file of claimFiles) {
 
 const openGapIds = validateGapRegistryAgainstLedger(gapRegistry, sourceGapLedger);
 validateClaimSet(claims, gapRegistry, openGapIds);
-const result = validateManifest(manifest, acceptanceLedger);
+const result = validateManifest(manifest, acceptanceLedger, { requireRelease });
 
 console.log(
-  `governance gate passed: ${claims.length} claims source-gap reviewed; ${result.approvedCount} locale approvals current; ${result.reviewRequiredCount} locale reviews pending.`,
+  `${requireRelease ? "release/full-approval" : "candidate"} governance gate passed: ${claims.length} claims source-gap reviewed; `
+  + `strategy=${result.strategyStatus}; drills=${result.drillContentStatus}; final=${result.finalCompositionStatus}; `
+  + `${result.approvedCount} locale approvals current; ${result.reviewRequiredCount} locale reviews pending.`,
 );

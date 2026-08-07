@@ -126,7 +126,7 @@ test("glossary defines priority terms and explicitly rejects hybrid learner jarg
   assert.match(glossary, /not approval tools/i);
 });
 
-test("module gold strategy truth is separated from reopened bilingual approval", async () => {
+test("governance truth represents Wave 3 repair without claiming release approval", async () => {
   const checklist = await text("content/MODULE_GOLD_CHECKLIST.md");
   const lcm01Conformance = await text("content/LCM-01_CONFORMANCE.md");
   const wave4Conformance = await text("content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md");
@@ -135,20 +135,37 @@ test("module gold strategy truth is separated from reopened bilingual approval",
   const expectedModules = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
 
   assert.match(checklist, /No script may fill `Decision: MODULE_GOLD`/);
+  assert.match(checklist, /DRILLS_REPAIR_REQUIRED/);
+  assert.match(checklist, /check:approval/);
   assert.match(lcm01Conformance, /Decision: `MODULE_GOLD_REVALIDATED`/);
   assert.match(lcm01Conformance, /Exact depth\/SPR\/straddle strategic thresholds remain open/);
   assert.match(wave4Conformance, /MODULE_GOLD \/ TECHNICAL_GATE_GREEN \/ WAVE_4_ACCEPTED/);
   assert.match(wave4Conformance, /5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86/);
   assert.match(wave4Conformance, /31164756544/);
-  assert.match(acceptanceLedger, /CURRICULUM_STRATEGY_GOLD/);
+  assert.match(acceptanceLedger, /CURRICULUM_STRATEGY_REPAIR_REQUIRED/);
+  assert.match(acceptanceLedger, /WAVE_3_STRATEGY_REPAIR_REQUIRED/);
   assert.match(acceptanceLedger, /LANGUAGE_REPAIR_REQUIRED/);
 
-  assert.equal(manifest.status, "TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED");
-  assert.equal(manifest.strategy_status, "CURRICULUM_STRATEGY_GOLD");
+  assert.equal(manifest.schema_version, 5);
+  assert.equal(manifest.status, "TRANSITIONAL_REVIEW_REQUIRED");
+  assert.equal(manifest.strategy_status, "CURRICULUM_STRATEGY_REPAIR_REQUIRED");
+  assert.deepEqual(manifest.strategy_repair_scope, ["preflop", "blinds", "aggression"]);
+  assert.equal(manifest.strategy_approval, null);
+  assert.equal(manifest.drill_content_status, "DRILLS_REPAIR_REQUIRED");
+  assert.deepEqual(manifest.drill_repair_scope, ["preflop", "aggression"]);
+  assert.equal(manifest.drill_approval, null);
+  assert.equal(manifest.final_composition.status, "STALE_REVIEW_REQUIRED");
+  assert.equal(manifest.final_composition.approved_digest, null);
   assert.equal(manifest.language_repair_owner, "W4R");
   assert.deepEqual(manifest.human_approvals, {});
   assert.match(manifest.review_policy, /can never create an approval/i);
   assert.deepEqual(Object.keys(manifest.modules), expectedModules);
+  assert.deepEqual(manifest.repair_source_paths.strategy, [
+    "content/claims/lcm-02.claims.json",
+    "content/claims/lcm-03.claims.json",
+    "content/claims/lcm-06.claims.json",
+  ]);
+  assert.deepEqual(manifest.repair_source_paths.drills, ["content/i18n/wave3-priority-gold.ts"]);
 
   for (const moduleId of expectedModules) {
     const localeStatus = manifest.modules[moduleId];

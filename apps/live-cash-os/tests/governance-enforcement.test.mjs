@@ -7,10 +7,13 @@ import {
   corpusFingerprint,
   validateClaimAdmission,
   validateManifest,
+  validateSourceLockState,
 } from "../scripts/governance-contract.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const openGapIds = new Set(["GAP-X"]);
+const digestA = "a".repeat(64);
+const digestB = "b".repeat(64);
 
 function claim(overrides = {}) {
   return {
@@ -22,20 +25,67 @@ function claim(overrides = {}) {
   };
 }
 
-function manifest(overrides = {}) {
+function humanEvidence(fingerprint, overrides = {}) {
+  return {
+    reviewer_kind: "HUMAN",
+    reviewer: "reviewer-a",
+    reviewed_at: "2026-08-07",
+    corpus_fingerprint: fingerprint,
+    ...overrides,
+  };
+}
+
+function repairManifest(overrides = {}) {
   const sourceBlobs = { "content/example.ts": "0123456789abcdef0123456789abcdef01234567" };
   return {
-    schema_version: 4,
-    status: "TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED",
-    strategy_status: "CURRICULUM_STRATEGY_GOLD",
+    schema_version: 5,
+    status: "TRANSITIONAL_REVIEW_REQUIRED",
+    strategy_status: "CURRICULUM_STRATEGY_REPAIR_REQUIRED",
+    strategy_repair_scope: ["geometry"],
+    drill_content_status: "DRILLS_REPAIR_REQUIRED",
+    drill_repair_scope: ["geometry"],
     language_repair_owner: "W4R",
     review_policy: "Deterministic checks can reject work but can never create an approval.",
+    strategy_approval: null,
+    drill_approval: null,
     source_blobs: sourceBlobs,
+    repair_source_paths: {
+      strategy: ["content/example.ts"],
+      drills: ["content/example.ts"],
+      language: [],
+    },
+    final_composition: {
+      status: "STALE_REVIEW_REQUIRED",
+      current_digest: null,
+      approved_digest: null,
+    },
     human_approvals: {},
     modules: { geometry: { ru: "REVIEW_REQUIRED", en: "REVIEW_REQUIRED", note: "fixture" } },
     ...overrides,
   };
 }
+
+function goldManifest() {
+  const manifest = repairManifest();
+  const fingerprint = corpusFingerprint(manifest.source_blobs);
+  manifest.status = "FULLY_ACCEPTED";
+  manifest.strategy_status = "CURRICULUM_STRATEGY_GOLD";
+  manifest.strategy_repair_scope = [];
+  manifest.strategy_approval = humanEvidence(fingerprint);
+  manifest.drill_content_status = "DRILLS_APPROVED";
+  manifest.drill_repair_scope = [];
+  manifest.drill_approval = humanEvidence(fingerprint, { reviewer: "reviewer-b" });
+  manifest.final_composition = { status: "CURRENT", current_digest: digestA, approved_digest: digestA };
+  manifest.modules.geometry = { ru: "APPROVED", en: "APPROVED", note: "fixture" };
+  manifest.human_approvals = {
+    "geometry.ru": humanEvidence(fingerprint, { reviewer: "reviewer-ru", final_composition_digest: digestA }),
+    "geometry.en": humanEvidence(fingerprint, { reviewer: "reviewer-en", final_composition_digest: digestA }),
+  };
+  return manifest;
+}
+
+const repairLedger = "CURRICULUM_STRATEGY_REPAIR_REQUIRED / LANGUAGE_REPAIR_REQUIRED";
+const goldLedger = "CURRICULUM_STRATEGY_GOLD";
 
 test("LOW and UNRESOLVED claims cannot become admitted", () => {
   for (const confidence of ["LOW", "UNRESOLVED"]) {
@@ -74,52 +124,94 @@ test("scoped non-blocking source gap requires an explicit rationale", () => {
   ));
 });
 
-test("upper acceptance ledger forces an explicit transitional manifest state", () => {
-  const contradictory = manifest({
-    status: "FULLY_ACCEPTED",
-    modules: { geometry: { ru: "REVIEW_REQUIRED", en: "REVIEW_REQUIRED", note: "fixture" } },
-  });
-  assert.throws(() => validateManifest(contradictory, "LANGUAGE_REPAIR_REQUIRED"), /cannot contradict upper acceptance ledger|FULLY_ACCEPTED/);
-  assert.doesNotThrow(() => validateManifest(manifest(), "LANGUAGE_REPAIR_REQUIRED"));
+test("GOLD -> REPAIR_REQUIRED is a valid governance transition", () => {
+  const approved = goldManifest();
+  assert.doesNotThrow(() => validateManifest(approved, goldLedger));
+
+  const reopened = repairManifest();
+  assert.doesNotThrow(() => validateManifest(reopened, repairLedger));
+  assert.equal(reopened.strategy_approval, null);
+  assert.equal(reopened.drill_approval, null);
 });
 
-test("APPROVED is human-only and bound to the current corpus fingerprint", () => {
-  const base = manifest({ status: "FULLY_ACCEPTED", language_repair_owner: undefined });
-  base.modules.geometry = { ru: "APPROVED", en: "APPROVED", note: "fixture" };
+test("semantic or hash mutation invalidates old approval evidence", () => {
+  const approved = goldManifest();
+  const oldFingerprint = corpusFingerprint(approved.source_blobs);
+  assert.equal(approved.strategy_approval.corpus_fingerprint, oldFingerprint);
 
-  assert.throws(() => validateManifest(base, "CURRICULUM_STRATEGY_GOLD"), /requires explicit human evidence/);
-
-  const fingerprint = corpusFingerprint(base.source_blobs);
-  base.human_approvals = {
-    "geometry.ru": { reviewer_kind: "AUTOMATED", reviewer: "script", reviewed_at: "2026-08-07", corpus_fingerprint: fingerprint },
-    "geometry.en": { reviewer_kind: "HUMAN", reviewer: "reviewer-b", reviewed_at: "2026-08-07", corpus_fingerprint: fingerprint },
-  };
-  assert.throws(() => validateManifest(base, "CURRICULUM_STRATEGY_GOLD"), /approval is human-only/);
-
-  base.human_approvals["geometry.ru"] = { reviewer_kind: "HUMAN", reviewer: "reviewer-a", reviewed_at: "2026-08-07", corpus_fingerprint: "stale" };
-  assert.throws(() => validateManifest(base, "CURRICULUM_STRATEGY_GOLD"), /fingerprint is stale/);
-
-  base.human_approvals["geometry.ru"].corpus_fingerprint = fingerprint;
-  assert.doesNotThrow(() => validateManifest(base, "CURRICULUM_STRATEGY_GOLD"));
+  approved.source_blobs["content/example.ts"] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  assert.throws(() => validateManifest(approved, goldLedger), /approved corpus fingerprint is stale/);
 });
 
-test("changing a locked approved claim or copy invalidates prior human review", () => {
-  const sourceBlobs = { "content/example.ts": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
-  const approved = manifest({
-    status: "FULLY_ACCEPTED",
-    language_repair_owner: undefined,
-    source_blobs: sourceBlobs,
-    modules: { geometry: { ru: "APPROVED", en: "APPROVED", note: "fixture" } },
-  });
-  const oldFingerprint = corpusFingerprint(sourceBlobs);
-  approved.human_approvals = {
-    "geometry.ru": { reviewer_kind: "HUMAN", reviewer: "reviewer-a", reviewed_at: "2026-08-07", corpus_fingerprint: oldFingerprint },
-    "geometry.en": { reviewer_kind: "HUMAN", reviewer: "reviewer-b", reviewed_at: "2026-08-07", corpus_fingerprint: oldFingerprint },
-  };
-  assert.doesNotThrow(() => validateManifest(approved, "CURRICULUM_STRATEGY_GOLD"));
+test("REPAIR_REQUIRED candidate governance accepts only explicitly scoped stale locks", () => {
+  const manifest = repairManifest();
+  const actual = { "content/example.ts": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" };
+  assert.doesNotThrow(() => validateManifest(manifest, repairLedger));
+  const result = validateSourceLockState(manifest, actual);
+  assert.deepEqual(result.stalePaths, ["content/example.ts"]);
 
+  manifest.repair_source_paths.strategy = [];
+  manifest.repair_source_paths.drills = [];
+  assert.throws(() => validateSourceLockState(manifest, actual), /outside an explicit repair scope/);
+});
+
+test("release/full-approval gate rejects REPAIR_REQUIRED and REVIEW_PENDING", () => {
+  assert.throws(
+    () => validateManifest(repairManifest(), repairLedger, { requireRelease: true }),
+    /requires FULLY_ACCEPTED|rejects unresolved repair/,
+  );
+
+  const pending = repairManifest({
+    strategy_status: "CURRICULUM_STRATEGY_REVIEW_PENDING",
+    drill_content_status: "DRILLS_REVIEW_PENDING",
+  });
+  assert.doesNotThrow(() => validateManifest(pending, repairLedger));
+  assert.throws(() => validateManifest(pending, repairLedger, { requireRelease: true }), /requires FULLY_ACCEPTED|unresolved repair/);
+});
+
+test("REVIEW_PENDING -> APPROVED cannot be satisfied by deterministic reviewer evidence", () => {
+  const pending = repairManifest({ strategy_status: "CURRICULUM_STRATEGY_REVIEW_PENDING" });
+  assert.doesNotThrow(() => validateManifest(pending, repairLedger));
+
+  const fingerprint = corpusFingerprint(pending.source_blobs);
+  pending.strategy_status = "CURRICULUM_STRATEGY_GOLD";
+  pending.strategy_repair_scope = [];
+  pending.strategy_approval = {
+    reviewer_kind: "AUTOMATED",
+    reviewer: "governance-check",
+    reviewed_at: "2026-08-07",
+    corpus_fingerprint: fingerprint,
+  };
+  assert.throws(() => validateManifest(pending, "LANGUAGE_REPAIR_REQUIRED"), /approval is human-only/);
+});
+
+test("refreshing hashes cannot carry old APPROVED evidence forward", () => {
+  const approved = goldManifest();
+  const oldFingerprint = corpusFingerprint(approved.source_blobs);
   approved.source_blobs["content/example.ts"] = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-  assert.throws(() => validateManifest(approved, "CURRICULUM_STRATEGY_GOLD"), /fingerprint is stale/);
+  assert.notEqual(corpusFingerprint(approved.source_blobs), oldFingerprint);
+  assert.throws(() => validateManifest(approved, goldLedger), /approved corpus fingerprint is stale/);
+});
+
+test("FULLY_ACCEPTED rejects stale final learner-facing composition digest", () => {
+  const approved = goldManifest();
+  approved.final_composition.approved_digest = digestB;
+  assert.throws(() => validateManifest(approved, goldLedger), /final composition digest is stale/);
+});
+
+test("FULLY_ACCEPTED cannot coexist with strategy repair truth", () => {
+  const contradictory = repairManifest({ status: "FULLY_ACCEPTED" });
+  assert.throws(() => validateManifest(contradictory, repairLedger), /cannot contradict an upper repair state|FULLY_ACCEPTED/);
+});
+
+test("APPROVED locale remains human-only and final-composition-bound", () => {
+  const approved = goldManifest();
+  approved.human_approvals["geometry.ru"].reviewer_kind = "AUTOMATED";
+  assert.throws(() => validateManifest(approved, goldLedger), /approval is human-only/);
+
+  approved.human_approvals["geometry.ru"].reviewer_kind = "HUMAN";
+  approved.human_approvals["geometry.ru"].final_composition_digest = digestB;
+  assert.throws(() => validateManifest(approved, goldLedger), /final composition digest is stale/);
 });
 
 test("governance and editorial scripts are rejection tools, not approval writers", async () => {
@@ -127,7 +219,7 @@ test("governance and editorial scripts are rejection tools, not approval writers
   const scripts = (await readdir(scriptsDir)).filter((name) => name.endsWith(".mjs"));
   for (const name of scripts) {
     const source = await readFile(path.join(scriptsDir, name), "utf8");
-    if (!/editorial-manifest\.json|MODULE_GOLD|RU_APPROVED|EN_APPROVED/u.test(source)) continue;
+    if (!/editorial-manifest\.json|MODULE_GOLD|RU_APPROVED|EN_APPROVED|DRILLS_APPROVED|CURRICULUM_STRATEGY_GOLD/u.test(source)) continue;
     assert.doesNotMatch(source, /\b(?:writeFile|appendFile|rename|copyFile|truncate|unlink)\s*\(/u, `${name} can write approval truth`);
   }
 });

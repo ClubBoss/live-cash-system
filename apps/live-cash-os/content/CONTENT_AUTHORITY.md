@@ -1,6 +1,6 @@
 # Live Cash OS — Content Authority
 
-Status: `WAVE_2_GOVERNANCE_ENFORCED / CURRICULUM_STRATEGY_GOLD / LANGUAGE_REVIEW_REQUIRED`
+Status: `WAVE_2_GOVERNANCE_ENFORCED / CURRICULUM_STRATEGY_REPAIR_REQUIRED / LANGUAGE_REVIEW_REQUIRED`
 
 This is the application-level admission contract for learner-facing poker content. It complements the repository-wide framework in `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md` and the immutable source-family registries under `sources/`.
 
@@ -61,95 +61,124 @@ Learner-facing content must remain original compression:
 - original examples and drills;
 - source references remain internal provenance rather than republished course material.
 
-## 6. Editorial and language authority
+## 6. Editorial, approval and source-lock authority
 
 Approved learner-facing text conforms to `content/POKER_GLOSSARY_RU_EN.md`.
 
-Russian copy must be natural poker Russian rather than word-for-word translation or architecture jargon. English copy must be independently natural and preserve the same strategic meaning. Stable semantic IDs are shared across locales.
+Russian copy must be natural poker Russian rather than word-for-word translation or architecture jargon. English copy must be independently natural and preserve the same strategic meaning. Stable semantic IDs are shared across locales, but stable identity does not prove unchanged semantics after a copy/overlay mutation.
 
-Deterministic scripts may reject stale hashes, missing metadata, prohibited terminology, invalid status transitions and locale/ID regressions. They may never create poker, RU, EN, accessibility, production or empirical approval.
+Deterministic scripts may reject stale hashes, missing metadata, prohibited terminology, invalid status transitions and locale/ID regressions. They may never create poker, drill, RU, EN, accessibility, production or empirical approval.
 
-`RU_APPROVED` and `EN_APPROVED` are human-only states. Each `APPROVED` locale in `content/i18n/editorial-manifest.json` requires explicit evidence with `reviewer_kind: HUMAN`, reviewer identity, review date and the exact current corpus fingerprint. Model review, automated checks, successful CI or a generated manifest cannot satisfy this evidence contract.
+Strategy, drill and locale approval are human-only repository facts. Current approval evidence must identify the human reviewer, review date and exact reviewed corpus fingerprint. Locale approval additionally binds to the exact current final learner-facing composition digest.
 
-The corpus fingerprint is derived from the manifest's locked claim and learner-copy blobs. If any locked approved claim/copy blob changes, the old approval evidence becomes stale and release governance rejects it until the relevant human review is renewed. The lock intentionally errs on the conservative side: a shared corpus change may reopen more review than the smallest theoretical scope, but it may never preserve stale approval.
+Git blob locks remain a stale-change detector, not an immutability rule. A P1 repair may legally change a locked source only after the affected approval dimension is explicitly moved to `*_REPAIR_REQUIRED` or `*_REVIEW_PENDING`. In those candidate states, stale hashes are allowed only for paths listed in `repair_source_paths` for that repair dimension. Unscoped stale mutations remain rejected.
 
-While the upper acceptance ledger contains `LANGUAGE_REPAIR_REQUIRED`, `W4R` is the single owner of learner-facing language repair and language-specific enforcement. Wave 2 governance must not create a competing terminology scanner or edit learner copy.
+Refreshing hashes does not preserve old approval. Any new corpus fingerprint invalidates old strategy/drill/locale evidence until the required human re-review is recorded. `FULLY_ACCEPTED` additionally requires the approved final-composition digest to equal the current final-composition digest.
 
-## 7. Module admission states
+While language truth remains open, `W4R` is the single owner of learner-facing language repair and language-specific enforcement. Wave 2 governance does not create a competing terminology scanner or edit learner copy.
 
-- `SOURCE_MAPPED`
-- `STRATEGY_REVIEWED`
-- `NUMERIC_REVIEWED`
-- `RU_APPROVED`
-- `EN_APPROVED`
-- `DRILLS_APPROVED`
-- `LAB_APPROVED`
-- `CARDS_APPROVED`
-- `MODULE_GOLD`
-- `BLOCKED_SOURCE_GAP`
-- `REJECTED_OR_SUPERSEDED`
+## 7. Admission and repair lifecycle
+
+Strategic curriculum lifecycle:
+
+- `CURRICULUM_STRATEGY_GOLD`;
+- `CURRICULUM_STRATEGY_REPAIR_REQUIRED`;
+- `CURRICULUM_STRATEGY_REVIEW_PENDING`;
+- back to `CURRICULUM_STRATEGY_GOLD` only after explicit human re-review against the current corpus.
+
+Drill/content lifecycle:
+
+- `DRILLS_APPROVED`;
+- `DRILLS_REPAIR_REQUIRED`;
+- `DRILLS_REVIEW_PENDING`;
+- back to `DRILLS_APPROVED` only after explicit human re-review against the current corpus.
+
+Locale lifecycle remains `REVIEW_REQUIRED -> APPROVED` with current human evidence. A discovered defect in previously approved locale copy reopens it to `REVIEW_REQUIRED`; old evidence is no longer active approval evidence.
+
+The application-level manifest has two top states:
+
+- `TRANSITIONAL_REVIEW_REQUIRED` — one or more strategy, drill, locale or final-composition dimensions are under repair/review;
+- `FULLY_ACCEPTED` — strategy is gold, drills are approved, all required RU/EN locales are human-approved, source locks are current, the approved final-composition digest equals the current digest, and the upper acceptance ledger contains no contradictory repair state.
+
+`REPAIR_REQUIRED` and `REVIEW_PENDING` are valid candidate-governance states. They are never full-release approval states.
+
+The wider module admission vocabulary remains:
+
+- `SOURCE_MAPPED`;
+- `STRATEGY_REVIEWED`;
+- `NUMERIC_REVIEWED`;
+- `RU_APPROVED`;
+- `EN_APPROVED`;
+- `DRILLS_APPROVED`;
+- `LAB_APPROVED`;
+- `CARDS_APPROVED`;
+- `MODULE_GOLD`;
+- `BLOCKED_SOURCE_GAP`;
+- `REJECTED_OR_SUPERSEDED`.
 
 `MODULE_GOLD` requires applicable gates in `content/MODULE_GOLD_CHECKLIST.md`; runtime existence or automated tests alone cannot create the status.
 
-Acceptance truth has two editorial-manifest states:
+## 8. Current admission boundary after Wave 3 revalidation
 
-- `TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED` — strategy truth may remain gold while one or more locale approvals are invalidated or pending;
-- `FULLY_ACCEPTED` — all required locale approvals have current human evidence and the upper acceptance ledger has no contradictory repair state.
+The independent Wave 3 revalidation supersedes the prior corpus-wide strategy-gold claim for the current priority-module runtime.
 
-A lower manifest may never contradict the upper `ACCEPTANCE_LEDGER.md`. A transitional state is mandatory when the ledger explicitly reopens language truth.
+Current affected strategy scope:
 
-## 8. Current admission boundary — 11/11 strategic curriculum gold, language review reopened
+- LCM-02 / preflop — repair required for unsupported depth-scope metadata and priority drill boundary;
+- LCM-03 / blinds — repair required for unsupported depth-scope metadata;
+- LCM-06 / aggression — repair required for unsupported depth metadata and final drill semantic integrity.
 
-Strategically admitted modules:
+Current affected drill-content scope:
 
-- LCM-01: effective-stack and pot-geometry reasoning; exact strategic depth/SPR/straddle thresholds remain excluded.
-- LCM-02: source-backed call/3-bet/fold branch construction; exact chart cells, mixed frequencies and squeeze-size tables remain excluded.
-- LCM-03: BB price/closing action, SB squeeze exposure, equity realisation and blind-source identity; exact blind charts remain excluded.
-- LCM-04: source/action/survivor filtering, protected checks and branch-specific exploit reset.
-- LCM-05: value-driven sizing, range-wide versus selective response shape, thin raise gates and protected calls.
-- LCM-06: 3-bet-pot range compensation, board ownership, turn filtering and OOP top-end raising gates; exact solver frequencies remain excluded.
-- LCM-07: branch ancestry, inherited bluff supply, blocker ordering and action-specific opponent models.
-- LCM-08: sandwich pressure, closing action, shared defence and multiway range ownership; exact multiway MDF remains excluded.
-- LCM-09: river origin/filter/value/bluff/size/blocker/evidence audit; exact solver EV and population magnitude remain gated.
-- LCM-10: branch-specific evidence discipline, one-observation boundary and field-gated population calibration.
-- LCM-11: current Live Cash OS exposure/transfer/retention/reviewed-field evidence contract; current numeric thresholds are product rules rather than universal scientific claims.
+- LCM-02 / preflop;
+- LCM-06 / aggression.
 
-Wave 4 strategic implementation evidence remains historical evidence, not current bilingual approval evidence:
+Unaffected strategic modules retain their reviewed mechanism boundaries as historical/current strategic gold until another review reopens them. This governance reconciliation does not repair any W3 claim or drill and does not integrate W4R.
+
+Wave 3 revalidation evidence:
+
+- branch `audit/w3-strategy-revalidation`;
+- head `c30facc624ff208862a65083f96dc51a87601ee0`;
+- verdict `WAVE_3_STRATEGY_REPAIR_REQUIRED`.
+
+Historical Wave 4 implementation evidence remains historical evidence only:
 
 - accepted implementation SHA: `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`;
 - full release run: `31164756544`;
 - validation job: `92822910319`;
-- TypeScript, lint, editorial, build: PASS;
 - unit/integration: `55/55 PASS`;
 - Playwright: `21 passed / 1 intentionally skipped`.
 
-Current language/editorial truth is `LANGUAGE_REPAIR_REQUIRED`; the active owner is W4R. No current RU/EN locale is represented as human-approved in the manifest until W4R records valid evidence.
-
-See `content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md` for the historical reviewed Wave 4 strategic scope and exclusions, and `reports/WAVE_4R_LANGUAGE_TRUTH_REPAIR_LEDGER_2026-08-07.md` for current language repair truth.
+Current language/editorial truth is still `LANGUAGE_REPAIR_REQUIRED`; later W4R integration and independent RU/EN review remain required. The final learner-facing composition digest is intentionally not re-locked in this Wave 2 reconciliation because W3 will still mutate the candidate corpus.
 
 ## 9. Current global limitations
 
-Repository curriculum strategy gold does not close later waves. Still explicitly excluded or pending are:
+Still explicitly excluded or pending are:
 
-- current corpus-wide human RU/EN approval after W4R repair;
+- W3 repair and re-review for LCM-02 / LCM-03 / LCM-06;
+- current corpus-wide human RU/EN approval after later W4R integration;
+- current final learner-facing composition digest and approval lock;
 - exact 100/150/200/300–400bb chart overlays where source visuals are required;
 - exact squeeze and 4-bet combo frequencies;
 - exact board-specific solver frequencies and EVs;
 - exact multiway MDF and fixed sizing matrices;
 - exact Batumi population overbluff/underbluff magnitudes;
-- Wave 5 corpus-wide drill ambiguity, variant-depth, mixed-practice concealment, lab prediction and flashcard quality closure;
-- Wave 6 scheduling/routing validation;
-- Wave 7 diagnostic/field lifecycle UX closure;
-- Waves 8–9 accessibility, reliability, privacy and performance closure;
-- Wave 10 empirical proof that the product improves long-term reasoning, recall and table transfer;
+- later routing, diagnostic/field lifecycle, accessibility, reliability, privacy, performance and empirical-learning waves;
 - Wave 0 authenticated production DOM smoke and exact deployed SHA.
 
 ## 10. Production boundary
 
-Strategic `MODULE_GOLD` here is repository curriculum truth. Wave 4 was **not deployed by repository automation** and this document does not claim that production currently serves implementation SHA `5a6af4ed...`.
+Repository governance truth does not claim that any repair branch is deployed. Production acceptance requires the separate release and authenticated-smoke evidence owned by later integration/release work.
 
-## 11. Change and transition rule
+## 11. Change, repair and re-lock rule
 
-Any edit to a locked strategic claim, learner-facing answer, explanation, table card, glossary term or other locked learner-copy source changes the corpus fingerprint and invalidates existing locale approval evidence until the required human review is renewed. Cosmetic layout changes outside the locked corpus do not automatically invalidate strategic/editorial approval but must preserve meaning and accessibility.
+A locked-source mismatch has two meanings:
 
-Automated checks may only reject an invalid transition. They must never write `APPROVED`, `RU_APPROVED`, `EN_APPROVED`, `MODULE_GOLD`, human reviewer evidence or an equivalent acceptance state. Approval is a reviewed repository fact, not a build product.
+1. outside an explicit repair scope: governance failure;
+2. inside an explicit `REPAIR_REQUIRED` / `REVIEW_PENDING` scope: legal candidate mutation that invalidates prior approval and must be re-reviewed before full acceptance.
+
+The lawful transition is:
+
+`APPROVED/GOLD -> REPAIR_REQUIRED -> candidate mutation -> REVIEW_PENDING -> human re-review -> re-lock current hashes/fingerprint -> APPROVED/GOLD`.
+
+Final acceptance additionally requires materialising the final learner-facing composition, recording its current digest, completing the required human reviews, and setting the approved digest to that exact current value. A deterministic script may compute or reject technical evidence, but it must never write `APPROVED`, `RU_APPROVED`, `EN_APPROVED`, `DRILLS_APPROVED`, `MODULE_GOLD`, human reviewer evidence or an equivalent acceptance state.
