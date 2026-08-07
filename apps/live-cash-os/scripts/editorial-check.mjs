@@ -118,12 +118,14 @@ const bannedRuPhrases = [
   /range ownership audit/iu,
   /bluff any two/iu,
 ];
-const runtimeRu = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
+const runtime = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
+const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
+const ruRuntimeLearnerCopy = quotedStringValues(ruRuntime);
 const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
 const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
 const ruRouteLearnerCopy = quotedStringValues(ruRoute);
 for (const pattern of bannedRuPhrases) {
-  assert.doesNotMatch(`${runtimeRu}\n${geometryRu}\n${ruPriority}\n${ruWave4}\n${ruRouteLearnerCopy}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
+  assert.doesNotMatch(`${ruRuntimeLearnerCopy}\n${quotedStringValues(geometryRu)}\n${quotedStringValues(ruPriority)}\n${quotedStringValues(ruWave4)}\n${ruRouteLearnerCopy}`, pattern, `Russian learner copy contains banned phrase ${pattern}`);
 }
 
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
