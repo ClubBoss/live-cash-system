@@ -94,7 +94,7 @@ test("final W3 RU and EN composition preserves stable IDs and repaired semantics
   const value = await fixture();
   const before = Object.fromEntries(PRIORITY_IDS.map((id) => [id, identity(value.modules.moduleById[id])]));
 
-  value.pipeline.applyCanonicalLocalePipeline("ru");
+  value.pipeline.applyLocaleData("ru");
   assertPriorityIntegrity(value.modules, "ru");
   for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), before[id], `ru/${id}: stable identity drift`);
 
@@ -114,7 +114,7 @@ test("final W3 RU and EN composition preserves stable IDs and repaired semantics
   assert.equal(ruAgg04.actionOptions[0].text, "Нет; заново отфильтровать оба диапазона и стать селективнее");
   assert.match(`${ruAgg05.question} ${ruAgg05.explanation}`, /крупн.*(?:рейз|пуш)|верхн.*вэлью/iu);
 
-  value.pipeline.applyCanonicalLocalePipeline("en");
+  value.pipeline.applyLocaleData("en");
   assertPriorityIntegrity(value.modules, "en");
   for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), before[id], `en/${id}: stable identity drift`);
 
@@ -133,7 +133,7 @@ test("final W3 RU and EN composition preserves stable IDs and repaired semantics
   assert.equal(enAggression.workedExample.situation, "BB 3-bets BTN clearly wider than normal, then uses a small c-bet on a dry flop with almost the whole range.");
   assert.doesNotMatch(enAggression.workedExample.situation, /\b\d+\s*bb\b/iu);
 
-  value.pipeline.applyCanonicalLocalePipeline("ru");
+  value.pipeline.applyLocaleData("ru");
   assertPriorityIntegrity(value.modules, "ru-return");
   for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), before[id], `ru-return/${id}: stable identity drift`);
 });
