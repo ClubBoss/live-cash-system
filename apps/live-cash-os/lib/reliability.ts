@@ -245,17 +245,6 @@ function diagnosticPreserved(candidate: LearnerState, base: LearnerState): boole
   return true;
 }
 
-function reviewQueuePreserved(candidate: LearnerState, base: LearnerState): boolean {
-  const candidateItems = new Map(candidate.reviewQueue.map((item) => [item.id, item]));
-  for (const previous of base.reviewQueue) {
-    const next = candidateItems.get(previous.id);
-    if (next && JSON.stringify(next) === JSON.stringify(previous)) continue;
-    const consumedByExactReview = candidate.interactions.some((interaction) => interaction.sourceReviewId === previous.id);
-    if (!consumedByExactReview) return false;
-  }
-  return true;
-}
-
 function modulesDoNotRegress(candidate: LearnerState, base: LearnerState): boolean {
   for (const moduleId of MODULE_IDS) {
     const next = candidate.modules[moduleId];
@@ -300,18 +289,20 @@ function activeSessionPreserved(candidate: LearnerState, base: LearnerState): bo
  * Conservative whole-snapshot ancestry check.
  *
  * This is not a merge. It only proves that accepting a newer whole snapshot
- * cannot discard already-recorded learner evidence or an unfinished answer.
- * If that proof is unavailable, callers surface a conflict instead of guessing
- * a winner.
+ * cannot discard already-recorded learner evidence, review work, or an
+ * unfinished answer. If proof is unavailable, callers surface a conflict.
  */
 export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): boolean {
   if (sameLearnerState(candidate, base)) return true;
   if (candidate.revision < base.revision) return false;
   if (!immutableRowsPreserved(candidate.interactions, base.interactions)) return false;
+  // Without the exact current cloud CAS token, review mutation ancestry is not
+  // persisted strongly enough to infer. Existing review items therefore must
+  // remain byte-equivalent or the snapshots conflict.
+  if (!immutableRowsPreserved(candidate.reviewQueue, base.reviewQueue)) return false;
   if (!fieldRowsPreserved(candidate, base)) return false;
   if (!explainRowsPreserved(candidate, base)) return false;
   if (!diagnosticPreserved(candidate, base)) return false;
-  if (!reviewQueuePreserved(candidate, base)) return false;
   if (!modulesDoNotRegress(candidate, base)) return false;
   if (!cardsDoNotRegress(candidate, base)) return false;
   if (!activeSessionPreserved(candidate, base)) return false;
