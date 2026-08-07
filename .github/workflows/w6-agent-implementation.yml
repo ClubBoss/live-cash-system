@@ -45,6 +45,20 @@ jobs:
           Path('/tmp/w6_apply.py').write_text(patch, encoding='utf-8')
           PY
           python /tmp/w6_apply.py
+          python <<'PY'
+          from pathlib import Path
+          path = Path('apps/live-cash-os/components/LiveCashAppCore.tsx')
+          text = path.read_text(encoding='utf-8')
+          old = '''  function openReview() {
+    const drills = selectReview(state);'''
+          new = '''  function openReview(limit = 3) {
+    const drills = selectReview(state, limit);'''
+          if old not in text:
+              raise SystemExit('openReview wiring target not found')
+          text = text.replace(old, new, 1)
+          text = text.replace('  MODULE_IDS,\n', '', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
       - name: Install dependencies
         working-directory: apps/live-cash-os
         run: npm ci
