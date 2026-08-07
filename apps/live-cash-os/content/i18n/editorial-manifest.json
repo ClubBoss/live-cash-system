@@ -21,7 +21,8 @@
     "status": "REVIEW_PENDING",
     "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
     "approved_digest": null,
-    "note": "W1-W9 implementation is materialized on the current main lineage. Strategy, drill and exact final RU/EN human review remain pending; W6-W9 learner-facing surfaces are included in the pre-learning review scope. This candidate does not claim human approval."
+    "review_corpus_fingerprint": "c623a7669ed85e47e411b8b268dee682b2254b934a165330f74647b29dfa9b81",
+    "note": "W1-W9 implementation is materialized on the current main lineage. The current_digest remains the canonical curriculum RU/EN composition digest; the review_corpus_fingerprint additionally locks current W6-W9 learner-facing surfaces. Strategy, drill and exact final RU/EN human review remain pending. This candidate does not claim human approval."
   },
   "repair_source_paths": {
     "strategy": [
@@ -43,11 +44,11 @@
     "content/claims/claim.schema.json": "f30b7175b8123aac7d214f1de783e152106544a1",
     "content/claims/source-gap-dependencies.json": "16aac91e7b0b809da7879b4262a4f36e8dd9eb37",
     "content/claims/lcm-01.claims.json": "44a43d33607cd0c0fcfae59993ad4cec29b2886b",
-    "content/claims/lcm-02.claims.json": "886197f4285b64810c1d21266b0e01cb4d47a7c0",
-    "content/claims/lcm-03.claims.json": "7946c32b771017777fd0e1c9a036be21bf72fb83",
+    "content/claims/lcm-02.claims.json": "675a2f46174e0f89b53492a6fb14a78f1ff77c05",
+    "content/claims/lcm-03.claims.json": "f844ab1a22cf338e5a10667b4f8e04b111cc105f",
     "content/claims/lcm-04.claims.json": "c34de6433c0c36d97d326342c366b5895d83bb9a",
     "content/claims/lcm-05.claims.json": "9b2bfaab87d02aeb2d3cf576481305a38aed6734",
-    "content/claims/lcm-06.claims.json": "165e0f96f829c7f34395fc673087be60729b1620",
+    "content/claims/lcm-06.claims.json": "d9cbbf324ba62f6a6ac212335e694f45f70c7fba",
     "content/claims/lcm-07.claims.json": "37dc9f2ac3e41cc73f19d7886c3373981d7559b2",
     "content/claims/lcm-08.claims.json": "c519ac691f975b61de3bd813cebf28523d1046f2",
     "content/claims/lcm-09.claims.json": "b32f103ddfc5280b2ce56812687d553fd7771ca4",
@@ -58,7 +59,7 @@
     "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
     "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
     "content/i18n/geometry-locale.ts": "9ff8657186622db1849aa6e22b5d47a7885762d4",
-    "content/i18n/wave3-priority-gold.ts": "96d8ae487f75e7c18468944b414e17f70d57fa68",
+    "content/i18n/wave3-priority-gold.ts": "5c22681a219ba3a35fa2dee8f6afc280a033e934",
     "content/i18n/wave4-curriculum-gold.ts": "7f8798ebeb9d38c7f177a4ac561ceb0448889d37",
     "content/i18n/wave4-final-editorial.ts": "9fc4da2e53ef1c013cfb3d6523f52c68b058e1d9",
     "content/i18n/wave5-practice-copy.ts": "d5a79ff83a7bee91dfa88c653e97558b89d466c8",
@@ -67,9 +68,12 @@
     "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "20a92d512c5c6decb892d9c1bd8ca100fb9346ea",
-    "components/LiveCashAppCore.tsx": "5d860a2e045e9aa5af585da75d8a0d7f313bbde1",
+    "components/LiveCashAppCore.tsx": "cf7e46f50fad27df946071ccb5ac0c496a19bbe4",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/Wave5PracticeLayer.tsx": "95ec1e475e164296e25e91c668e11b01feb16075"
+    "components/Wave5PracticeLayer.tsx": "95ec1e475e164296e25e91c668e11b01feb16075",
+    "components/Wave7Experience.tsx": "49c098d0d1ce16f896a107225f8fb524fa1222e1",
+    "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
+    "components/DataSafetyPanel.tsx": "a984637b34547027b805f542c560e9d1d6f16ce3"
   },
   "modules": {
     "geometry": {
