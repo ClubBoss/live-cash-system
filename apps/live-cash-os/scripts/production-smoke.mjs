@@ -8,6 +8,8 @@ const forbiddenMarkers = [
   "accepted slice",
   "Calculate post-action SPR",
   "T1 — дополнительный cold diagnostic",
+  "T1 — необязательная стартовая проверка",
+  "T1 — optional diagnostic",
   "Переноси глубоко",
   "due review",
   "Нет evidence",
@@ -31,12 +33,21 @@ async function assertNoOverflow(page, label) {
 async function verifyHomeLocale(page, locale) {
   const russian = locale === "ru";
   await page.getByRole("heading", { name: russian ? /Учись понемногу/i : /Learn in small blocks/i }).waitFor({ timeout: 20_000 });
-  await page.getByText(russian ? /T1 — необязательная стартовая проверка/i : /T1 — optional diagnostic/i).waitFor({ timeout: 10_000 });
+  await page.getByRole("heading", { name: russian ? /Стартовая проверка мышления/i : /Starting decision check/i }).waitFor({ timeout: 10_000 });
+  await page.getByText(russian ? /Можно пропустить и сразу начать первый урок/i : /You can skip it and start lesson one/i).waitFor({ timeout: 10_000 });
   await page.getByRole("heading", { name: russian ? /Что означает путь 0.*100%/i : /What the 0.*100% route means/i }).waitFor({ timeout: 10_000 });
   if (await page.locator(".route-grid article").count() !== 9) throw new Error(`${locale}: route does not contain nine stages`);
   const routeText = await page.locator(".route-grid").innerText();
   if (!routeText.includes("0%") || !routeText.includes("100%")) throw new Error(`${locale}: route endpoints are missing`);
   if (russian && /evidence|probe|repair|retention|field validated/iu.test(routeText)) throw new Error("Russian route exposes internal terminology");
+
+  const expectedNav = russian
+    ? ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Проверка"]
+    : ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Check"];
+  const nav = mainNav(page);
+  if (await nav.getByRole("button").count() !== expectedNav.length) throw new Error(`${locale}: primary navigation does not contain seven destinations`);
+  for (const name of expectedNav) await nav.getByRole("button", { name, exact: true }).waitFor({ timeout: 10_000 });
+
   const toggle = page.getByRole("button", { name: russian ? "RU" : "EN", exact: true });
   if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${locale}: locale toggle is not active`);
   if ((await page.locator("html").getAttribute("lang")) !== locale) throw new Error(`${locale}: document lang mismatch`);
@@ -109,8 +120,10 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       url: liveUrl,
       http_status: response?.status(),
       locales: ["ru", "en"],
-      verified_routes: ["home", "0-to-100 skill route", "LCM-01 cold decision"],
-      revised_russian_home_and_route: true,
+      verified_routes: ["home", "primary navigation", "0-to-100 skill route", "LCM-01 cold decision"],
+      wave1_first_use_shell_contract: true,
+      diagnostic_optionality_visible: true,
+      superseded_wave1_shell_markers_rejected: true,
       bilingual_lcm01_approved: true,
       stable_ids_and_state_across_locale_switch: true,
       locale_and_active_session_persist_reload: true,
