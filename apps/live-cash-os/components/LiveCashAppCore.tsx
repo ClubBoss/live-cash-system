@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { diagnosticT1 } from "../content/diagnostic";
 import { diagnosticEnglish, moduleHeadings, runtimeCopy, classMessage } from "../content/i18n/runtime";
 import { applyLocaleData } from "../content/i18n/locale-pipeline";
@@ -25,24 +25,18 @@ import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
 import { planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
 import {
   APP_VERSION,
-  CONTENT_VERSION,
   DIMENSION_KEYS,
-  STATE_SCHEMA_VERSION,
   classifyResponse,
   completeBlock,
   completeLesson,
   dueReviewItems,
-  emptyLearnerState,
   evidencePercent,
   gradeCard,
-  mergeLearnerStates,
-  migrateLearnerState,
   moduleAvailable,
   recordDecision,
   recordDiagnosticResponse,
   saveActiveSession,
   startDiagnosticRun,
-  validateLearnerState,
   type ActiveSession,
   type LearnerState,
   type LearningMode,
@@ -51,11 +45,12 @@ import {
   type ResponseClass,
   type TransferProbe,
 } from "../lib/model";
+import { useReliableLearnerState, type RecoveryCode } from "../lib/use-learner-state-sync";
 import { applyReviewedDiagnostic, pendingHumanReviewCount, saveExplainBack } from "../lib/wave7";
+import DataSafetyPanel from "./DataSafetyPanel";
 import LearningRoute from "./LearningRoute";
 import { Wave7ExplainBackHistory, Wave7FieldPanel, Wave7ProgressDetails } from "./Wave7Experience";
 
-const STORAGE_KEY = "live-cash-os:learner-state";
 const LOCALE_KEY = "live-cash-os:locale";
 const T1_IDS = diagnosticT1.map((item) => item.id);
 const PRIMARY_TABS = ["today", "learn", "review", "cards", "map", "field", "diagnostic"] as const;
@@ -76,7 +71,6 @@ const SCHEDULER_CATALOG = {
 };
 
 type Tab = (typeof PRIMARY_TABS)[number] | "debug";
-type SyncStatus = "loading" | "local" | "syncing" | "synced" | "offline" | "conflict" | "error";
 
 function mutate(state: LearnerState, change: (next: LearnerState) => void): LearnerState {
   const next = structuredClone(state);
@@ -84,7 +78,6 @@ function mutate(state: LearnerState, change: (next: LearnerState) => void): Lear
   next.revision += 1;
   next.updatedAt = new Date().toISOString();
   next.appVersion = APP_VERSION;
-  next.contentVersion = CONTENT_VERSION;
   return next;
 }
 
@@ -231,6 +224,35 @@ function dailyBudgetLabel(locale: LocaleCode, budget: DailyBudget): string {
   return labels[locale][budget];
 }
 
+function reliabilityNotice(locale: LocaleCode, code: RecoveryCode, syncStatus: string): string {
+  const ru = locale === "ru";
+  if (code === "STATE_CONFLICT") return ru
+    ? "Обнаружены две разные версии прогресса. Ни одна не удалена. Открой «Данные» и выбери версию."
+    : "Two different progress versions were found. Neither was deleted. Open Data and choose the version.";
+  if (code === "FUTURE_STATE_UNSUPPORTED" || code === "UPDATE_REQUIRED") return ru
+    ? "Версии приложения и сохранённых данных не совпадают. Обнови страницу перед продолжением; текущая копия не будет перезаписана вслепую."
+    : "The app and saved-data versions do not match. Refresh before continuing; the current copy will not be overwritten blindly.";
+  if (code === "LOCAL_STATE_CORRUPT" || code === "LOCAL_STATE_RECOVERED") return ru
+    ? "Локальная копия потребовала восстановления. Исходный файл сохранён в разделе «Данные»."
+    : "The local copy required recovery. The original snapshot is preserved in Data.";
+  if (code === "CLOUD_STATE_UNREADABLE") return ru
+    ? "Облачную копию нельзя безопасно прочитать. Локальный прогресс сохранён; облако не будет перезаписано автоматически."
+    : "The cloud copy cannot be read safely. Local progress is preserved and the cloud copy will not be overwritten automatically.";
+  if (code === "LOCAL_WRITE_FAILED") return ru
+    ? "Не удалось записать прогресс в хранилище браузера. Не закрывай вкладку до экспорта копии в разделе «Данные»."
+    : "Browser storage could not save progress. Keep this tab open until you export a copy from Data.";
+  if (code === "STATE_TOO_LARGE") return ru
+    ? "Копия прогресса стала слишком большой для облачной синхронизации. Локальная копия сохранена; экспортируй её в разделе «Данные»."
+    : "The progress snapshot is too large for cloud sync. The local copy is preserved; export it from Data.";
+  if (!code && syncStatus === "offline") return ru
+    ? "Нет сети. Прогресс сохраняется на этом устройстве; синхронизация повторится после подключения."
+    : "You are offline. Progress is saved on this device and sync will retry after reconnecting.";
+  if (!code && syncStatus === "error") return ru
+    ? "Облачное сохранение сейчас недоступно. Локальная копия остаётся на устройстве; детали и повтор — в разделе «Данные»."
+    : "Cloud saving is currently unavailable. The local copy remains on this device; open Data for details and retry.";
+  return "";
+}
+
 function downloadJson(filename: string, value: unknown) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }));
   const anchor = document.createElement("a");
@@ -289,47 +311,35 @@ function selectMixed(state: LearnerState): Drill[] {
 }
 
 export default function LiveCashAppV11() {
-  const [state, setState] = useState<LearnerState>(emptyLearnerState);
   const [locale, setLocale] = useState<LocaleCode>("ru");
   const [tab, setTab] = useState<Tab>("today");
-  const [ready, setReady] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [notice, setNotice] = useState("");
   const [dailyBudget, setDailyBudget] = useState<DailyBudget>("15");
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const syncStatusRef = useRef(syncStatus);
+  const dataSafety = useReliableLearnerState();
+  const { state, setState, ready, syncStatus, recoveryCode } = dataSafety;
   const t = runtimeCopy[locale];
 
   useEffect(() => {
-    syncStatusRef.current = syncStatus;
-  }, [syncStatus]);
+    const storedLocale = localStorage.getItem(LOCALE_KEY);
+    const nextLocale: LocaleCode = storedLocale === "en" ? "en" : "ru";
+    applyLocaleData(nextLocale);
+    setLocale(nextLocale);
+    document.documentElement.lang = nextLocale;
 
-  useEffect(() => {
-    async function restore() {
-      const storedLocale = localStorage.getItem(LOCALE_KEY);
-      const nextLocale: LocaleCode = storedLocale === "en" ? "en" : "ru";
-      applyLocaleData(nextLocale);
-      setLocale(nextLocale);
-      document.documentElement.lang = nextLocale;
-
-      let local = emptyLearnerState();
-      try { local = migrateLearnerState(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null")); } catch { local = emptyLearnerState(); }
-      let remote: LearnerState | null = null;
-      try {
-        const response = await fetch("/api/state", { cache: "no-store" });
-        if (response.ok) {
-          const payload = await response.json() as { state?: unknown };
-          remote = payload.state ? migrateLearnerState(payload.state) : null;
-          setSyncStatus("synced");
-        } else setSyncStatus(response.status === 401 ? "local" : "error");
-      } catch { setSyncStatus("offline"); }
-      const merged = mergeLearnerStates(local, remote);
-      setState(merged);
-      if (merged.activeSession) setTab("learn");
-      setReady(true);
-      if ("serviceWorker" in navigator) void navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    if ("serviceWorker" in navigator) {
+      void navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).then((registration) => {
+        const notifyUpdate = () => setNotice(nextLocale === "ru"
+          ? "Доступно обновление приложения. Обнови страницу перед продолжением работы с облаком."
+          : "An app update is available. Refresh before continuing cloud work.");
+        if (registration.waiting) notifyUpdate();
+        registration.addEventListener("updatefound", () => {
+          const worker = registration.installing;
+          worker?.addEventListener("statechange", () => {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) notifyUpdate();
+          });
+        });
+      }).catch(() => undefined);
     }
-    void restore();
   }, []);
 
   useEffect(() => {
@@ -340,20 +350,13 @@ export default function LiveCashAppV11() {
 
   useEffect(() => {
     if (!ready) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      if (syncStatusRef.current !== "local") setSyncStatus("syncing");
-      try {
-        const response = await fetch("/api/state", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ state }) });
-        if (response.ok) setSyncStatus("synced");
-        else if (response.status === 401) setSyncStatus("local");
-        else if (response.status === 409) setSyncStatus("conflict");
-        else setSyncStatus("error");
-      } catch { setSyncStatus("offline"); }
-    }, 700);
-    return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [ready, state]);
+    const message = reliabilityNotice(locale, recoveryCode, syncStatus);
+    if (message) setNotice(message);
+  }, [locale, ready, recoveryCode, syncStatus]);
+
+  useEffect(() => {
+    if (ready && state.activeSession) setTab("learn");
+  }, [ready]);
 
   const planningNow = Date.now();
   const plan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: dailyBudget, now: planningNow, seed: `${state.revision}:${dailyBudget}` });
@@ -436,7 +439,7 @@ export default function LiveCashAppV11() {
           <button aria-pressed={locale === "ru"} onClick={() => changeLocale("ru")}>RU</button>
           <button aria-pressed={locale === "en"} onClick={() => changeLocale("en")}>EN</button>
         </div>
-        <button className="quiet" onClick={() => setTab("debug")}>{t.system}</button>
+        <button className="quiet" onClick={() => setTab("debug")}>{locale === "ru" ? "Данные" : "Data"}</button>
       </div>
     </header>
     <nav className="tabs" aria-label={locale === "ru" ? "Основная навигация" : "Primary navigation"}>
@@ -454,7 +457,7 @@ export default function LiveCashAppV11() {
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
     {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
     {tab === "diagnostic" && <Diagnostic locale={locale} state={state} setState={setState} onExit={() => setTab("today")} />}
-    {tab === "debug" && <Debug locale={locale} state={state} setState={setState} syncStatus={syncStatus} setSyncStatus={setSyncStatus} />}
+    {tab === "debug" && <DataSafetyPanel locale={locale} controller={dataSafety} route={tab} />}
   </main>;
 }
 
@@ -604,7 +607,6 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
   </>;
 }
 
-
 function TableCard({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
   const t = runtimeCopy[locale];
   return <><p className="eyebrow">9 · {t.tableCard}</p><h2>{localizedModule(module, locale).tableCue}</h2><div className="table-card">{module.tableCard.map((item, index) => <div key={item}><span>{String(index + 1).padStart(2, "0")}</span><b>{item}</b></div>)}</div><div className="glossary">{module.glossary.map((item) => <p key={item.term}><b>{item.term}</b>{item.meaning}</p>)}</div><button className="primary" onClick={onNext}>{t.finishLesson} <span>→</span></button></>;
@@ -707,8 +709,6 @@ function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode;
   </section>;
 }
 
-
-
 function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void }) {
   const t = runtimeCopy[locale];
   const diagnostic = state.diagnostic;
@@ -784,11 +784,4 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
 
   if (!item) return null;
   return <section className="session"><SessionHeader locale={locale} label={`T1 · ${diagnostic.responses.length + 1}/10`} progress={Math.round(((diagnostic.responses.length + 1) / 10) * 100)} onExit={onExit} /><p className="eyebrow">{item.id} · {item.title}</p><p className="support">{instructions}</p><h2>{item.prompt}</h2><label className="diagnostic-input">{t.actionDirection}<textarea value={answer} onChange={(event) => setAnswer(event.target.value)} /></label><label className="diagnostic-input">{t.oneSentenceReason}<textarea value={reasoning} onChange={(event) => setReasoning(event.target.value)} /></label><label className="confidence">{t.confidence} <b>{confidence}%</b><input type="range" min="0" max="100" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label><button className="primary" disabled={!answer.trim() || !reasoning.trim()} onClick={submit}>{t.recordResponse} <span>→</span></button></section>;
-}
-
-function Debug({ locale, state, setState, syncStatus, setSyncStatus }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; setSyncStatus: (value: SyncStatus) => void }) {
-  async function deleteCloud() { try { const response = await fetch("/api/state", { method: "DELETE" }); setSyncStatus(response.ok ? "synced" : response.status === 401 ? "local" : "error"); } catch { setSyncStatus("offline"); } }
-  async function importState(file: File) { try { const migrated = migrateLearnerState(JSON.parse(await file.text())); if (!validateLearnerState(migrated)) throw new Error(); setState(migrated); } catch { alert(locale === "ru" ? "Не удалось импортировать прогресс." : "Progress import failed."); } }
-  function reset() { if (confirm(locale === "ru" ? "Удалить локальный прогресс?" : "Delete local progress?")) { localStorage.removeItem(STORAGE_KEY); setState(emptyLearnerState()); } }
-  return <section className="surface"><div className="section-head"><p className="eyebrow">SYSTEM / OWNER VIEW</p><h1>{locale === "ru" ? "Прозрачное состояние." : "Transparent state."}</h1></div><div className="debug-grid"><div><span>App</span><b>{APP_VERSION}</b></div><div><span>State schema</span><b>{STATE_SCHEMA_VERSION}</b></div><div><span>Content</span><b>{CONTENT_VERSION}</b></div><div><span>Revision</span><b>{state.revision}</b></div><div><span>Sync</span><b>{syncStatus}</b></div><div><span>Review queue</span><b>{state.reviewQueue.length}</b></div><div><span>Interactions</span><b>{state.interactions.length}</b></div><div><span>Field pending</span><b>{state.fieldNotes.filter((note) => note.status === "PENDING_REVIEW").length}</b></div><div><span>T1 context</span><b>{state.diagnostic.measurementContext ?? "—"}</b></div><div><span>T1 locale</span><b>{state.diagnostic.localeAtStart ?? "—"}</b></div></div><div className="button-row"><button className="secondary" onClick={() => downloadJson("live-cash-progress.json", state)}>Export</button><label className="file-button">Import<input type="file" accept="application/json" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importState(file); }} /></label><button className="secondary" onClick={() => void deleteCloud()}>Delete cloud state</button><button className="danger" onClick={reset}>Reset local</button></div><p className="assumption-strip">Sync contract: deterministic last-write-wins. Independent offline events are not claimed to be conflict-safe.</p></section>;
 }
