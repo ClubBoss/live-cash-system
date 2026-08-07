@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "source_ledger": "sources/carrot-poker/source-gap-ledger.md",
+  "open_gaps": [
+    { "gap_id": "GAP-SQUEEZE-PURIFICATION", "label": "squeeze purification" },
+    { "gap_id": "GAP-DEEP-OOP-PROTECTED-CALL", "label": "exact deep OOP protected-call boundaries" },
+    { "gap_id": "GAP-POLAR-PREFLOP-TARGETS", "label": "polar preflop target folds and call branch" },
+    { "gap_id": "GAP-PLAYERS-BEHIND-COMPRESSION", "label": "players-behind compression" },
+    { "gap_id": "GAP-LIVE-RAKE-PREFLOP-ANCHORS", "label": "independent live-rake preflop anchors" },
+    { "gap_id": "GAP-MULTIWAY-SHARED-DEFENCE", "label": "multiway shared defence" },
+    { "gap_id": "GAP-MULTIWAY-BLUFF-CONSTRUCTION", "label": "multiway bluff construction" },
+    { "gap_id": "GAP-MULTIWAY-DELAYED-AGGRESSION", "label": "multiway delayed aggression" },
+    { "gap_id": "GAP-DEPTH-SPR-STRADDLE-OVERLAYS", "label": "exact depth/SPR/straddle overlays" },
+    { "gap_id": "GAP-TARGET-LIVE-POPULATION", "label": "target-live population calibration." },
+    { "gap_id": "GAP-VISUAL-BOARDS-SUITS", "label": "exact boards and suits" },
+    { "gap_id": "GAP-VISUAL-SOLVER-FREQUENCIES-EV", "label": "exact solver frequencies and EV values" },
+    { "gap_id": "GAP-VISUAL-MIXED-CELLS", "label": "exact mixed-strategy cells" },
+    { "gap_id": "GAP-VISUAL-SIZE-MENUS", "label": "exact size menus and numeric thresholds" },
+    { "gap_id": "GAP-VISUAL-SOURCE-SPR", "label": "exact source-example SPR" },
+    { "gap_id": "GAP-VISUAL-PREFLOP-MATRICES", "label": "exact preflop range matrices" },
+    { "gap_id": "GAP-VISUAL-JAM-FREQUENCIES", "label": "exact jam frequencies" },
+    { "gap_id": "GAP-VISUAL-POPULATION-MAGNITUDES", "label": "exact population magnitudes." }
+  ],
+  "reviewed_claim_ids": [
+    "LCM-01-CL-001", "LCM-01-CL-002", "LCM-01-CL-003", "LCM-01-CL-004",
+    "LCM-02-CL-001", "LCM-02-CL-002", "LCM-02-CL-003", "LCM-02-CL-004",
+    "LCM-03-CL-001", "LCM-03-CL-002", "LCM-03-CL-003", "LCM-03-CL-004",
+    "LCM-04-CL-001", "LCM-04-CL-002", "LCM-04-CL-003", "LCM-04-CL-004",
+    "LCM-05-CL-001", "LCM-05-CL-002", "LCM-05-CL-003", "LCM-05-CL-004",
+    "LCM-06-CL-001", "LCM-06-CL-002", "LCM-06-CL-003", "LCM-06-CL-004",
+    "LCM-07-CL-001", "LCM-07-CL-002", "LCM-07-CL-003", "LCM-07-CL-004",
+    "LCM-08-CL-001", "LCM-08-CL-002", "LCM-08-CL-003", "LCM-08-CL-004",
+    "LCM-09-CL-001", "LCM-09-CL-002", "LCM-09-CL-003", "LCM-09-CL-004",
+    "LCM-10-CL-001", "LCM-10-CL-002", "LCM-10-CL-003", "LCM-10-CL-004",
+    "LCM-11-CL-001", "LCM-11-CL-002", "LCM-11-CL-003", "LCM-11-CL-004"
+  ],
+  "dependencies": {
+    "LCM-01-CL-002": [
+      {
+        "gap_id": "GAP-DEPTH-SPR-STRADDLE-OVERLAYS",
+        "materiality": "NON_BLOCKING_SCOPED",
+        "rationale": "The admitted claim is only a measurement-unit heuristic. Exact depth, SPR and straddle strategy thresholds remain explicitly excluded by the claim conflicts and exceptions."
+      }
+    ]
+  },
+  "review_rule": "Every current claim ID must appear in reviewed_claim_ids. A claim with an unresolved MATERIAL_BLOCKING dependency must remain BLOCKED_SOURCE_GAP or REJECTED_OR_SUPERSEDED. NON_BLOCKING_SCOPED is allowed only with an explicit rationale that narrows the claim below the missing evidence."
+}
