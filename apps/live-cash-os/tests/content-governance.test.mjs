@@ -25,6 +25,7 @@ test("content authority points to canonical source families without stale Carrot
     "sources/carrot-poker/source-gap-ledger.md",
     "sources/ftgu/source-registry.md",
     "content/claims/claim.schema.json",
+    "content/claims/source-gap-dependencies.json",
     "content/MODULE_GOLD_CHECKLIST.md",
   ]) {
     assert.match(authority, new RegExp(required.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -125,10 +126,11 @@ test("glossary defines priority terms and explicitly rejects hybrid learner jarg
   assert.match(glossary, /not approval tools/i);
 });
 
-test("module gold remains an explicit reviewed admission decision for the full curriculum", async () => {
+test("module gold strategy truth is separated from reopened bilingual approval", async () => {
   const checklist = await text("content/MODULE_GOLD_CHECKLIST.md");
   const lcm01Conformance = await text("content/LCM-01_CONFORMANCE.md");
   const wave4Conformance = await text("content/WAVE_4_FULL_CURRICULUM_CONFORMANCE.md");
+  const acceptanceLedger = await text("ACCEPTANCE_LEDGER.md");
   const manifest = JSON.parse(await text("content/i18n/editorial-manifest.json"));
   const expectedModules = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
 
@@ -138,17 +140,20 @@ test("module gold remains an explicit reviewed admission decision for the full c
   assert.match(wave4Conformance, /MODULE_GOLD \/ TECHNICAL_GATE_GREEN \/ WAVE_4_ACCEPTED/);
   assert.match(wave4Conformance, /5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86/);
   assert.match(wave4Conformance, /31164756544/);
+  assert.match(acceptanceLedger, /CURRICULUM_STRATEGY_GOLD/);
+  assert.match(acceptanceLedger, /LANGUAGE_REPAIR_REQUIRED/);
 
-  assert.equal(manifest.status, "FULLY_ACCEPTED");
-  assert.equal(typeof manifest.reviewer, "string");
-  assert.ok(manifest.reviewer.trim().length > 0, "Editorial manifest must record a reviewer");
+  assert.equal(manifest.status, "TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED");
+  assert.equal(manifest.strategy_status, "CURRICULUM_STRATEGY_GOLD");
+  assert.equal(manifest.language_repair_owner, "W4R");
+  assert.deepEqual(manifest.human_approvals, {});
   assert.match(manifest.review_policy, /can never create an approval/i);
   assert.deepEqual(Object.keys(manifest.modules), expectedModules);
 
   for (const moduleId of expectedModules) {
     const localeStatus = manifest.modules[moduleId];
-    assert.equal(localeStatus.ru, "APPROVED", `${moduleId}: RU should be approved after explicit review`);
-    assert.equal(localeStatus.en, "APPROVED", `${moduleId}: EN should be approved after explicit review`);
+    assert.equal(localeStatus.ru, "REVIEW_REQUIRED", `${moduleId}: RU human review must remain open`);
+    assert.equal(localeStatus.en, "REVIEW_REQUIRED", `${moduleId}: EN human review must remain open`);
     assert.equal(typeof localeStatus.note, "string", `${moduleId}: approval boundary note is required`);
     assert.ok(localeStatus.note.trim().length > 0, `${moduleId}: approval boundary note must not be empty`);
   }
