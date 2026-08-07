@@ -13,7 +13,7 @@ test("real-device mobile closure keeps Today action above the fold at 390x844", 
   await openLocal(page);
 
   const marker = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--mobile-visual-closure").trim());
-  expect(marker).toBe("20260808");
+  expect(marker).toBe("closure-20260808");
 
   const topbar = page.locator(".topbar");
   const topbarBox = await topbar.boundingBox();
