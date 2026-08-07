@@ -205,7 +205,7 @@ test("network save failure keeps local progress and retry can acknowledge it", a
   await expect(page.locator(".notice").getByText(/Облачное сохранение сейчас недоступно/i)).toBeVisible();
   server.failPost = false;
   await page.getByRole("button", { name: "Повторить синхронизацию", exact: true }).click();
-  await expect(page.getByText("synced", { exact: true })).toBeVisible();
+  await expect(page.getByText("Синхронизировано", { exact: true })).toBeVisible();
   expect(server.state.activeSession).not.toBeNull();
 });
 
