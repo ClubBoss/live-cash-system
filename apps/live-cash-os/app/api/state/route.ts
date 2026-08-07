@@ -66,6 +66,12 @@ function parseTombstone(value: unknown): CloudTombstone | null {
   return { kind: TOMBSTONE_KIND, deletedAt: value.deletedAt };
 }
 
+function incomingRuntimeMatches(rawState: Record<string, unknown>): boolean {
+  return rawState.schemaVersion === CURRENT_RUNTIME.schemaVersion
+    && rawState.appVersion === CURRENT_RUNTIME.appVersion
+    && rawState.contentVersion === CURRENT_RUNTIME.contentVersion;
+}
+
 async function conflictFromLatest(userId: string) {
   const latest = await currentRecord(userId);
   if (!latest) {
@@ -141,7 +147,11 @@ export async function POST(request: Request) {
   if (!isRecord(payload)) return json({ error: "Malformed request", code: "INVALID_REQUEST" }, 400);
 
   const rawState = "state" in payload ? payload.state : null;
-  if (!isRecord(rawState) || rawState.schemaVersion !== STATE_SCHEMA_VERSION || !validateLearnerState(rawState)) {
+  if (!isRecord(rawState)) return json({ error: "Learner state schema 2 is required", code: "INVALID_STATE" }, 400);
+  if (!incomingRuntimeMatches(rawState)) {
+    return json({ error: "Client state version does not match this deployment", code: "UPDATE_REQUIRED" }, 426);
+  }
+  if (!validateLearnerState(rawState)) {
     return json({ error: "Learner state schema 2 is required", code: "INVALID_STATE" }, 400);
   }
   const incoming = migrateLearnerState(rawState);
@@ -204,12 +214,7 @@ export async function POST(request: Request) {
 
     const decision = assessCloudWrite(existing, incoming, baseRevision, baseCloudToken, record.cloudToken);
     if (decision.kind === "idempotent") {
-      return json({
-        ok: true,
-        idempotent: true,
-        revision: existing.revision,
-        cloudToken: record.cloudToken,
-      });
+      return json({ ok: true, idempotent: true, revision: existing.revision, cloudToken: record.cloudToken });
     }
     if (decision.kind === "conflict") {
       return json({
