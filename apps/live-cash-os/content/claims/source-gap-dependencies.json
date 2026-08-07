@@ -36,11 +36,71 @@
   ],
   "dependencies": {
     "LCM-01-CL-002": [
-      {
-        "gap_id": "GAP-DEPTH-SPR-STRADDLE-OVERLAYS",
-        "materiality": "NON_BLOCKING_SCOPED",
-        "rationale": "The admitted claim is only a measurement-unit heuristic. Exact depth, SPR and straddle strategy thresholds remain explicitly excluded by the claim conflicts and exceptions."
-      }
+      { "gap_id": "GAP-DEPTH-SPR-STRADDLE-OVERLAYS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim is only a measurement-unit heuristic; exact strategic depth, SPR and straddle thresholds are explicitly excluded." }
+    ],
+    "LCM-02-CL-001": [
+      { "gap_id": "GAP-VISUAL-PREFLOP-MATRICES", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim teaches baseline range shape and explicitly excludes exact chart cells." },
+      { "gap_id": "GAP-VISUAL-MIXED-CELLS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The simplification does not prescribe exact mixed frequencies." }
+    ],
+    "LCM-02-CL-003": [
+      { "gap_id": "GAP-SQUEEZE-PURIFICATION", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim preserves only the directional rule to prefer existing coherent squeeze candidates; exact candidate weights remain excluded." },
+      { "gap_id": "GAP-VISUAL-MIXED-CELLS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "No exact mixed squeeze cell or frequency is admitted." }
+    ],
+    "LCM-02-CL-004": [
+      { "gap_id": "GAP-DEPTH-SPR-STRADDLE-OVERLAYS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim is directional by depth and explicitly blocks exact thresholds and overlays." },
+      { "gap_id": "GAP-VISUAL-PREFLOP-MATRICES", "materiality": "NON_BLOCKING_SCOPED", "rationale": "No exact hand matrix or stack-off boundary is admitted." }
+    ],
+    "LCM-03-CL-001": [
+      { "gap_id": "GAP-LIVE-RAKE-PREFLOP-ANCHORS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim states only that rake can remove marginal BB calls; it does not supply a numerical live-rake anchor." }
+    ],
+    "LCM-03-CL-002": [
+      { "gap_id": "GAP-PLAYERS-BEHIND-COMPRESSION", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim uses only the qualitative fact that BB remains live behind the SB; no exact compression factor or range boundary is asserted." }
+    ],
+    "LCM-05-CL-001": [
+      { "gap_id": "GAP-VISUAL-SIZE-MENUS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim teaches value-first sizing architecture without exact size menus or numeric thresholds." },
+      { "gap_id": "GAP-VISUAL-SOLVER-FREQUENCIES-EV", "materiality": "NON_BLOCKING_SCOPED", "rationale": "No exact solver frequency or EV difference is admitted." }
+    ],
+    "LCM-05-CL-004": [
+      { "gap_id": "GAP-VISUAL-SIZE-MENUS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim permits simplification only conditionally and does not claim an exact one-size solution." },
+      { "gap_id": "GAP-VISUAL-SOLVER-FREQUENCIES-EV", "materiality": "NON_BLOCKING_SCOPED", "rationale": "Exact EV-retention proof remains outside the admitted claim." }
+    ],
+    "LCM-06-CL-001": [
+      { "gap_id": "GAP-VISUAL-BOARDS-SUITS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The compensation mechanism is admitted without exact board prescriptions." },
+      { "gap_id": "GAP-VISUAL-SOLVER-FREQUENCIES-EV", "materiality": "NON_BLOCKING_SCOPED", "rationale": "No exact postflop frequency or EV value is admitted." }
+    ],
+    "LCM-06-CL-002": [
+      { "gap_id": "GAP-VISUAL-BOARDS-SUITS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "Only broad board-class direction is taught; exact boards remain visual-review dependent." },
+      { "gap_id": "GAP-VISUAL-SOLVER-FREQUENCIES-EV", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim avoids fixed c-bet frequencies and EV numbers." }
+    ],
+    "LCM-06-CL-004": [
+      { "gap_id": "GAP-VISUAL-MIXED-CELLS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim states a top-end value prerequisite for OOP raising but excludes exact combo selection." }
+    ],
+    "LCM-07-CL-001": [
+      { "gap_id": "GAP-VISUAL-PREFLOP-MATRICES", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The ancestry mechanism is admitted without exact preflop combo maps or late-street combo counts." }
+    ],
+    "LCM-08-CL-001": [
+      { "gap_id": "GAP-MULTIWAY-SHARED-DEFENCE", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim teaches only directional shared-defence/action-order pressure and explicitly excludes exact multiway defence frequencies." }
+    ],
+    "LCM-08-CL-002": [
+      { "gap_id": "GAP-VISUAL-PREFLOP-MATRICES", "materiality": "NON_BLOCKING_SCOPED", "rationale": "Board ownership is taught from range shape without reproducing exact preflop matrices or combo weights." }
+    ],
+    "LCM-08-CL-003": [
+      { "gap_id": "GAP-MULTIWAY-SHARED-DEFENCE", "materiality": "NON_BLOCKING_SCOPED", "rationale": "Small-bet leverage is directional and not converted into an exact shared-defence formula." },
+      { "gap_id": "GAP-VISUAL-SIZE-MENUS", "materiality": "NON_BLOCKING_SCOPED", "rationale": "Exact multiway bet size and frequency remain excluded." }
+    ],
+    "LCM-08-CL-004": [
+      { "gap_id": "GAP-MULTIWAY-BLUFF-CONSTRUCTION", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim only prioritises structurally coherent candidates; exact multiway bluff ordering and frequencies remain open." }
+    ],
+    "LCM-09-CL-002": [
+      { "gap_id": "GAP-VISUAL-SOLVER-FREQUENCIES-EV", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim teaches size/line/range dependence while explicitly excluding exact hand thresholds and EV values." }
+    ],
+    "LCM-09-CL-004": [
+      { "gap_id": "GAP-TARGET-LIVE-POPULATION", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The exploit remains branch-specific and explicitly refuses to infer Batumi population magnitude." },
+      { "gap_id": "GAP-VISUAL-POPULATION-MAGNITUDES", "materiality": "NON_BLOCKING_SCOPED", "rationale": "No exact population underbluff magnitude is admitted." }
+    ],
+    "LCM-10-CL-003": [
+      { "gap_id": "GAP-TARGET-LIVE-POPULATION", "materiality": "NON_BLOCKING_SCOPED", "rationale": "The claim allows a low-confidence source prior but keeps target-environment magnitude field-gated." },
+      { "gap_id": "GAP-VISUAL-POPULATION-MAGNITUDES", "materiality": "NON_BLOCKING_SCOPED", "rationale": "No exact external or Batumi population magnitude is admitted." }
     ]
   },
   "review_rule": "Every current claim ID must appear in reviewed_claim_ids. A claim with an unresolved MATERIAL_BLOCKING dependency must remain BLOCKED_SOURCE_GAP or REJECTED_OR_SUPERSEDED. NON_BLOCKING_SCOPED is allowed only with an explicit rationale that narrows the claim below the missing evidence."
