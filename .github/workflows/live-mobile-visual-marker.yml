@@ -1,0 +1,70 @@
+name: Live mobile visual marker evidence
+
+on:
+  push:
+    branches: [evidence/live-mobile-visual-marker]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify live mobile visual closure
+        env:
+          LIVE_URL: https://live-cash-os.elmarsal.chatgpt.site/
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from '@playwright/test';
+          import { mkdir } from 'node:fs/promises';
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+          const page = await context.newPage();
+          const response = await page.goto(process.env.LIVE_URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
+          await page.getByRole('heading', { name: /Учись понемногу/i }).waitFor({ timeout: 20000 });
+          const evidence = await page.evaluate(() => {
+            const root = getComputedStyle(document.documentElement);
+            const heading = document.querySelector('h1');
+            const card = document.querySelector('.today-card');
+            const start = [...document.querySelectorAll('button')].find((el) => el.textContent?.trim() === 'Начать');
+            const rect = start?.getBoundingClientRect();
+            return {
+              marker: root.getPropertyValue('--mobile-visual-closure').trim(),
+              headingPx: heading ? parseFloat(getComputedStyle(heading).fontSize) : null,
+              cardRadius: card ? parseFloat(getComputedStyle(card).borderTopLeftRadius) : null,
+              startInViewport: Boolean(rect && rect.top >= 0 && rect.bottom <= innerHeight),
+              url: location.href,
+            };
+          });
+          console.log(JSON.stringify({ http: response?.status(), ...evidence }));
+          await mkdir('live-mobile-evidence', { recursive: true });
+          await page.screenshot({ path: 'live-mobile-evidence/live-390x844.png', fullPage: true });
+          await browser.close();
+          if (response?.status() !== 200) throw new Error(`HTTP ${response?.status()}`);
+          if (evidence.marker !== 'closure-20260808') throw new Error(`stale visual marker: ${evidence.marker || '<missing>'}`);
+          if (!(evidence.headingPx <= 50)) throw new Error(`hero still too large: ${evidence.headingPx}`);
+          if (!(evidence.cardRadius >= 18)) throw new Error(`today card not rounded: ${evidence.cardRadius}`);
+          if (!evidence.startInViewport) throw new Error('Today start action is not in initial 390x844 viewport');
+          NODE
+      - name: Upload live evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-mobile-visual-marker-evidence
+          path: apps/live-cash-os/live-mobile-evidence
+          if-no-files-found: ignore
+          retention-days: 14
