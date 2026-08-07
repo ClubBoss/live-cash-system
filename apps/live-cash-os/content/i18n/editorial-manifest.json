@@ -35,7 +35,7 @@
     "content/i18n/locale-pipeline.ts": "30f695b934b073408359a1d1b2a4724bddd60eae",
     "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
     "components/LiveCashApp.tsx": "29eb3513761f4f242d2a04a5c6ac258fb676bbec",
-    "components/LiveCashAppCore.tsx": "6e21855dc73941218ebebbb1b48b6994639fad34",
+    "components/LiveCashAppCore.tsx": "124a400cb4c5181b724208bb43af6debd2c76899",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/Wave5PracticeLayer.tsx": "95ec1e475e164296e25e91c668e11b01feb16075"
   },
