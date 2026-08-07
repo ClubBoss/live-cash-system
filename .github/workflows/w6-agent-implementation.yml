@@ -1,0 +1,1071 @@
+name: W6 Agent Implementation
+
+on:
+  push:
+    branches:
+      - wave/w6-adaptive-scheduler
+    paths:
+      - .github/workflows/w6-agent-implementation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  implement-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wave/w6-adaptive-scheduler
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Apply bounded W6 implementation
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          ROOT = Path("apps/live-cash-os")
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly one match, found {count}")
+              return text.replace(old, new, 1)
+
+          def regex_once(text: str, pattern: str, replacement: str, label: str) -> str:
+              next_text, count = re.subn(pattern, replacement, text, count=1, flags=re.S)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly one regex match, found {count}")
+              return next_text
+
+          scheduler = r'''import type { LearnerState, ModuleId, ReviewItem } from "./model-core";
+
+export type DailyBudget = "5" | "15" | "30" | "warmup" | "post";
+export type SchedulerDrillKind = "core" | "changed" | "boundary" | "mixed";
+export type PlanReasonCode =
+  | "resume"
+  | "overdue_retention"
+  | "repair"
+  | "diagnostic_priority"
+  | "weak"
+  | "stale"
+  | "changed"
+  | "boundary"
+  | "mixed"
+  | "new"
+  | "warmup"
+  | "done";
+export type PlanItemKind = "resume" | "review" | "repair" | "practice" | "mixed" | "lesson" | "cards" | "done";
+
+export type SchedulerDrill = {
+  id: string;
+  moduleId: ModuleId;
+  nodeKey: string;
+  variantGroup: string;
+  kind: SchedulerDrillKind;
+  targetSeconds: number;
+};
+export type SchedulerModule = {
+  id: ModuleId;
+  prerequisites: readonly ModuleId[];
+  drills: readonly SchedulerDrill[];
+};
+export type SchedulerCard = { id: string; moduleId: ModuleId };
+export type SchedulerCatalog = {
+  modules: readonly SchedulerModule[];
+  cards: readonly SchedulerCard[];
+};
+export type PlanItem = {
+  kind: PlanItemKind;
+  moduleId?: ModuleId;
+  drillIds?: string[];
+  cardIds?: string[];
+  sourceReviewId?: string;
+  estimatedMinutes: number;
+  reasonCode: PlanReasonCode;
+};
+export type DailyPlan = {
+  budget: DailyBudget;
+  targetMinutes: number;
+  estimatedMinutes: number;
+  items: PlanItem[];
+  deferredDueCount: number;
+  absenceDays: number;
+  returnAfterBreak: boolean;
+};
+export type PlanDailyTrainingOptions = {
+  budget: DailyBudget;
+  now: number;
+  seed: string;
+  ownerPriorityModules?: readonly ModuleId[];
+};
+
+export const DEFAULT_OWNER_PRIORITY_MODULES: readonly ModuleId[] = ["preflop", "blinds", "aggression"];
+
+const DAY = 86_400_000;
+const TARGET_MINUTES: Record<DailyBudget, number> = { "5": 5, "15": 15, "30": 30, warmup: 2, post: 10 };
+const DUE_LIMIT: Record<DailyBudget, number> = { "5": 2, "15": 4, "30": 6, warmup: 0, post: 4 };
+
+function hash(value: string): number {
+  let result = 2166136261;
+  for (const character of value) result = Math.imul(result ^ character.charCodeAt(0), 16777619);
+  return result >>> 0;
+}
+function daysBetween(now: number, then: number): number {
+  return Math.max(0, Math.floor((now - then) / DAY));
+}
+function parseTime(value: string | null | undefined): number {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+function moduleLastEvidenceAt(state: LearnerState, moduleId: ModuleId): number {
+  return Math.max(0, ...Object.values(state.modules[moduleId].evidence).map((cell) => parseTime(cell.lastAt)));
+}
+function moduleWeakness(state: LearnerState, moduleId: ModuleId): number {
+  const progress = state.modules[moduleId];
+  const recentErrors = progress.recentClasses.filter((value) => value !== "A").length;
+  const actionMisses = progress.evidence.action_selection.exposures - progress.evidence.action_selection.successes;
+  const reasonMisses = progress.evidence.mechanism_explanation.exposures - progress.evidence.mechanism_explanation.successes;
+  return (progress.highConfidenceError ? 12 : 0) + recentErrors * 4 + actionMisses * 2 + reasonMisses * 2;
+}
+function priorityBoost(state: LearnerState, moduleId: ModuleId, ownerPriorityModules: readonly ModuleId[]): number {
+  const t1Index = state.diagnostic.priorityModules.indexOf(moduleId);
+  const t1 = t1Index === 0 ? 18 : t1Index === 1 ? 12 : 0;
+  return t1 + (ownerPriorityModules.includes(moduleId) ? 6 : 0);
+}
+function deterministicTie(seed: string, key: string): number {
+  return hash(`${seed}:${key}`);
+}
+function reviewScore(state: LearnerState, item: ReviewItem, now: number, ownerPriorityModules: readonly ModuleId[]): number {
+  const overdueDays = daysBetween(now, parseTime(item.dueAt));
+  const tier = overdueDays >= 30 ? 3 : overdueDays >= 14 ? 2 : overdueDays >= 7 ? 1 : 0;
+  const kind = item.kind === "retention" ? 500 : 400;
+  return kind + tier * 100 + Math.min(30, overdueDays) + priorityBoost(state, item.moduleId, ownerPriorityModules);
+}
+function sortReviews(state: LearnerState, items: ReviewItem[], now: number, seed: string, ownerPriorityModules: readonly ModuleId[]): ReviewItem[] {
+  return [...items].sort((left, right) => {
+    const score = reviewScore(state, right, now, ownerPriorityModules) - reviewScore(state, left, now, ownerPriorityModules);
+    if (score) return score;
+    const due = parseTime(left.dueAt) - parseTime(right.dueAt);
+    if (due) return due;
+    return deterministicTie(seed, left.id) - deterministicTie(seed, right.id);
+  });
+}
+function diverseTake(items: ReviewItem[], limit: number): ReviewItem[] {
+  const selected: ReviewItem[] = [];
+  const modules = new Set<ModuleId>();
+  for (const item of items) {
+    if (selected.length >= limit) break;
+    if (modules.has(item.moduleId)) continue;
+    selected.push(item);
+    modules.add(item.moduleId);
+  }
+  for (const item of items) {
+    if (selected.length >= limit) break;
+    if (selected.some((candidate) => candidate.id === item.id)) continue;
+    selected.push(item);
+  }
+  return selected;
+}
+function availableModule(state: LearnerState, module: SchedulerModule): boolean {
+  return module.prerequisites.every((required) => state.modules[required].contentCompleted);
+}
+function pickDrills(module: SchedulerModule, kind: SchedulerDrillKind, count: number, seed: string): string[] {
+  return module.drills
+    .filter((drill) => drill.kind === kind)
+    .sort((left, right) => deterministicTie(seed, left.id) - deterministicTie(seed, right.id))
+    .slice(0, count)
+    .map((drill) => drill.id);
+}
+function recentLessonExposure(state: LearnerState, now: number): boolean {
+  return state.interactions.some((item) => item.mode === "lesson" && now - parseTime(item.at) < 18 * 60 * 60 * 1000);
+}
+function chooseRankedModule(
+  state: LearnerState,
+  modules: SchedulerModule[],
+  now: number,
+  seed: string,
+  ownerPriorityModules: readonly ModuleId[],
+  predicate: (module: SchedulerModule) => boolean,
+): SchedulerModule | undefined {
+  return modules
+    .filter(predicate)
+    .map((module) => {
+      const weakness = moduleWeakness(state, module.id);
+      const lastAt = moduleLastEvidenceAt(state, module.id);
+      const stale = lastAt ? Math.min(20, daysBetween(now, lastAt)) : 0;
+      return { module, score: weakness * 10 + stale + priorityBoost(state, module.id, ownerPriorityModules) };
+    })
+    .sort((left, right) => right.score - left.score || deterministicTie(seed, left.module.id) - deterministicTie(seed, right.module.id))[0]?.module;
+}
+
+export function selectWarmupCardIds(
+  state: LearnerState,
+  catalog: SchedulerCatalog,
+  now: number,
+  seed: string,
+  ownerPriorityModules: readonly ModuleId[] = DEFAULT_OWNER_PRIORITY_MODULES,
+): string[] {
+  const eligibleModules = new Set<ModuleId>(catalog.modules
+    .filter((module) => state.modules[module.id].contentCompleted || state.activeSession?.moduleId === module.id)
+    .map((module) => module.id));
+  if (!eligibleModules.size) return [];
+  return catalog.cards
+    .filter((card) => eligibleModules.has(card.moduleId))
+    .map((card) => {
+      const cardState = state.cards[card.id];
+      const due = !cardState || parseTime(cardState.dueAt) <= now;
+      const score = (due ? 100 : 0)
+        + priorityBoost(state, card.moduleId, ownerPriorityModules)
+        + moduleWeakness(state, card.moduleId);
+      return { card, score };
+    })
+    .sort((left, right) => right.score - left.score || deterministicTie(seed, left.card.id) - deterministicTie(seed, right.card.id))
+    .slice(0, 3)
+    .map(({ card }) => card.id);
+}
+
+export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog, options: PlanDailyTrainingOptions): DailyPlan {
+  const ownerPriorityModules = options.ownerPriorityModules ?? DEFAULT_OWNER_PRIORITY_MODULES;
+  const targetMinutes = TARGET_MINUTES[options.budget];
+  const capMinutes = targetMinutes * 1.2;
+  const updatedAt = parseTime(state.updatedAt) || options.now;
+  const absenceDays = daysBetween(options.now, updatedAt);
+  const plan: DailyPlan = {
+    budget: options.budget,
+    targetMinutes,
+    estimatedMinutes: 0,
+    items: [],
+    deferredDueCount: 0,
+    absenceDays,
+    returnAfterBreak: absenceDays >= 7,
+  };
+
+  if (options.budget === "warmup") {
+    const cardIds = selectWarmupCardIds(state, catalog, options.now, options.seed, ownerPriorityModules);
+    plan.items.push(cardIds.length
+      ? { kind: "cards", cardIds, estimatedMinutes: 2, reasonCode: "warmup" }
+      : { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
+    plan.estimatedMinutes = cardIds.length ? 2 : 0;
+    return plan;
+  }
+
+  if (state.activeSession) {
+    const remaining = Math.max(1, state.activeSession.drillIds.length - state.activeSession.currentIndex);
+    const estimate = Math.min(targetMinutes, Math.max(2, remaining * 2));
+    plan.items.push({ kind: "resume", moduleId: state.activeSession.moduleId, estimatedMinutes: estimate, reasonCode: "resume" });
+    plan.estimatedMinutes = estimate;
+    return plan;
+  }
+
+  const add = (item: PlanItem) => {
+    if (plan.items.length && plan.estimatedMinutes + item.estimatedMinutes > capMinutes) return false;
+    plan.items.push(item);
+    plan.estimatedMinutes += item.estimatedMinutes;
+    return true;
+  };
+
+  const due = state.reviewQueue.filter((item) => parseTime(item.dueAt) <= options.now);
+  const orderedDue = sortReviews(state, due, options.now, options.seed, ownerPriorityModules);
+  const selectedDue = diverseTake(orderedDue, DUE_LIMIT[options.budget]);
+  plan.deferredDueCount = Math.max(0, due.length - selectedDue.length);
+  for (const item of selectedDue) {
+    add({
+      kind: item.kind === "retention" ? "review" : "repair",
+      moduleId: item.moduleId,
+      sourceReviewId: item.id,
+      estimatedMinutes: 2,
+      reasonCode: item.kind === "retention" ? "overdue_retention" : "repair",
+    });
+  }
+
+  const plannedModules = new Set(plan.items.flatMap((item) => item.moduleId ? [item.moduleId] : []));
+  const completed = catalog.modules.filter((module) => state.modules[module.id].contentCompleted);
+
+  const priorityWeak = chooseRankedModule(state, completed, options.now, `${options.seed}:priority`, ownerPriorityModules, (module) =>
+    !plannedModules.has(module.id)
+      && moduleWeakness(state, module.id) > 0
+      && (state.diagnostic.priorityModules.includes(module.id) || ownerPriorityModules.includes(module.id)));
+  if (priorityWeak) {
+    const drills = pickDrills(priorityWeak, "changed", 2, options.seed);
+    if (add({
+      kind: "practice",
+      moduleId: priorityWeak.id,
+      drillIds: drills.length ? drills : priorityWeak.drills.slice(0, 2).map((drill) => drill.id),
+      estimatedMinutes: 3,
+      reasonCode: state.diagnostic.priorityModules.includes(priorityWeak.id) ? "diagnostic_priority" : "weak",
+    })) plannedModules.add(priorityWeak.id);
+  }
+
+  const weak = chooseRankedModule(state, completed, options.now, `${options.seed}:weak`, ownerPriorityModules, (module) =>
+    !plannedModules.has(module.id) && moduleWeakness(state, module.id) > 0);
+  if (weak) {
+    const drills = pickDrills(weak, "changed", 2, options.seed);
+    if (add({ kind: "practice", moduleId: weak.id, drillIds: drills.length ? drills : weak.drills.slice(0, 2).map((drill) => drill.id), estimatedMinutes: 3, reasonCode: "weak" })) plannedModules.add(weak.id);
+  }
+
+  const stale = chooseRankedModule(state, completed, options.now, `${options.seed}:stale`, ownerPriorityModules, (module) => {
+    const lastAt = moduleLastEvidenceAt(state, module.id);
+    return !plannedModules.has(module.id) && lastAt > 0 && daysBetween(options.now, lastAt) >= 14;
+  });
+  if (stale) {
+    const drills = pickDrills(stale, "changed", 2, options.seed);
+    if (add({ kind: "practice", moduleId: stale.id, drillIds: drills.length ? drills : stale.drills.slice(0, 2).map((drill) => drill.id), estimatedMinutes: 3, reasonCode: "stale" })) plannedModules.add(stale.id);
+  }
+
+  const transferNeed = chooseRankedModule(state, completed, options.now, `${options.seed}:changed`, ownerPriorityModules, (module) =>
+    !plannedModules.has(module.id) && state.modules[module.id].evidence.variant_transfer.exposures < 2 && module.drills.some((drill) => drill.kind === "changed"));
+  if (transferNeed) {
+    if (add({ kind: "practice", moduleId: transferNeed.id, drillIds: pickDrills(transferNeed, "changed", 2, options.seed), estimatedMinutes: 3, reasonCode: "changed" })) plannedModules.add(transferNeed.id);
+  }
+
+  const boundaryNeed = chooseRankedModule(state, completed, options.now, `${options.seed}:boundary`, ownerPriorityModules, (module) =>
+    !plannedModules.has(module.id) && state.modules[module.id].evidence.boundary_control.exposures < 1 && module.drills.some((drill) => drill.kind === "boundary"));
+  if (boundaryNeed) {
+    if (add({ kind: "practice", moduleId: boundaryNeed.id, drillIds: pickDrills(boundaryNeed, "boundary", 1, options.seed), estimatedMinutes: 3, reasonCode: "boundary" })) plannedModules.add(boundaryNeed.id);
+  }
+
+  if (completed.length >= 3 && plan.estimatedMinutes + 5 <= capMinutes) {
+    const mixedModules = [...completed]
+      .sort((left, right) => priorityBoost(state, right.id, ownerPriorityModules) - priorityBoost(state, left.id, ownerPriorityModules)
+        || deterministicTie(`${options.seed}:mixed`, left.id) - deterministicTie(`${options.seed}:mixed`, right.id))
+      .slice(0, options.budget === "30" ? 5 : 3);
+    const drillIds = mixedModules.map((module, index) => module.drills[deterministicTie(`${options.seed}:mixed:${index}`, module.id) % module.drills.length].id);
+    add({ kind: "mixed", moduleId: mixedModules[0].id, drillIds, estimatedMinutes: 5, reasonCode: "mixed" });
+  }
+
+  const hasUnresolvedRepair = state.reviewQueue.some((item) => item.kind === "repair")
+    || catalog.modules.some((module) => state.modules[module.id].highConfidenceError || state.modules[module.id].recentClasses.includes("D"));
+  const newAllowed = options.budget !== "post" && !hasUnresolvedRepair && !recentLessonExposure(state, options.now);
+  if (newAllowed) {
+    const availableNew = catalog.modules.filter((module) => !state.modules[module.id].contentCompleted && availableModule(state, module));
+    const nextNew = [...availableNew].sort((left, right) =>
+      priorityBoost(state, right.id, ownerPriorityModules) - priorityBoost(state, left.id, ownerPriorityModules)
+        || catalog.modules.indexOf(left) - catalog.modules.indexOf(right))[0];
+    if (nextNew) add({ kind: "lesson", moduleId: nextNew.id, estimatedMinutes: 8, reasonCode: "new" });
+  }
+
+  if (!plan.items.length && completed.length) {
+    const module = chooseRankedModule(state, completed, options.now, `${options.seed}:steady`, ownerPriorityModules, () => true) ?? completed[0];
+    const drills = module.drills.slice(0, 2).map((drill) => drill.id);
+    add({ kind: "practice", moduleId: module.id, drillIds: drills, estimatedMinutes: Math.min(3, targetMinutes), reasonCode: "weak" });
+  }
+
+  if (!plan.items.length) plan.items.push({ kind: "done", estimatedMinutes: 0, reasonCode: "done" });
+  return plan;
+}
+'''
+          (ROOT / "lib/scheduler.ts").write_text(scheduler, encoding="utf-8")
+
+          registry = r'''export type RuntimeRepairKind = "core" | "changed" | "boundary";
+export type RuntimeRepairRule = {
+  errorKey: string;
+  preferredVariantGroup?: string;
+  preferredNodeKey?: string;
+  preferredKind?: RuntimeRepairKind;
+  fallbackKind?: RuntimeRepairKind;
+};
+
+/**
+ * Local runtime repair routing only. Keys are exact drill + option identities.
+ * This registry never infers or exports canonical diagnostic misconception IDs.
+ */
+export const RUNTIME_REPAIR_REGISTRY: Readonly<Record<string, RuntimeRepairRule>> = {
+  "geo-03::geo-03-a1": { errorKey: "current-price-vs-future-geometry", preferredVariantGroup: "future-spr", preferredNodeKey: "nominal-100bb", preferredKind: "boundary", fallbackKind: "changed" },
+  "geo-03::geo-03-a2": { errorKey: "starting-depth-vs-post-action-spr", preferredVariantGroup: "future-spr", preferredNodeKey: "nominal-400bb-compressed", preferredKind: "changed", fallbackKind: "boundary" },
+  "geo-03::geo-03-r1": { errorKey: "call-does-not-end-future-tree", preferredVariantGroup: "future-spr", preferredNodeKey: "nominal-100bb", preferredKind: "boundary", fallbackKind: "changed" },
+  "geo-03::geo-03-r2": { errorKey: "spr-is-not-equity", preferredVariantGroup: "future-spr", preferredNodeKey: "nominal-400bb-compressed", preferredKind: "changed", fallbackKind: "boundary" },
+  "pre-02::pre-02-a1": { errorKey: "suitedness-does-not-force-squeeze", preferredNodeKey: "sb-a5s-late", preferredKind: "changed", fallbackKind: "boundary" },
+  "pre-02::pre-02-r2": { errorKey: "initiative-is-not-a-squeeze-job", preferredNodeKey: "sb-a5s-late", preferredKind: "changed", fallbackKind: "boundary" },
+  "pre-04::pre-04-a1": { errorKey: "polar-candidate-is-not-fixed-cell", preferredNodeKey: "btn-76s-deep", preferredKind: "changed", fallbackKind: "boundary" },
+  "pre-04::pre-04-r1": { errorKey: "blocker-needs-real-fold-targets", preferredNodeKey: "co-kjo-ep", preferredKind: "boundary", fallbackKind: "changed" },
+  "pre-05::pre-05-a1": { errorKey: "shorter-stack-reduces-speculative-flat-value", preferredNodeKey: "btn-76s-deep", preferredKind: "changed", fallbackKind: "boundary" },
+  "pre-05::pre-05-a2": { errorKey: "depth-changes-preflop-branch", preferredNodeKey: "btn-76s-deep", preferredKind: "changed", fallbackKind: "boundary" },
+  "bli-02::bli-02-a1": { errorKey: "closing-call-before-initiative-squeeze", preferredNodeKey: "sb-player-behind", preferredKind: "boundary", fallbackKind: "changed" },
+  "bli-02::bli-02-r2": { errorKey: "closing-action-is-value-not-guarantee", preferredNodeKey: "sb-player-behind", preferredKind: "boundary", fallbackKind: "changed" },
+  "bli-03::bli-03-a1": { errorKey: "player-behind-is-distinct-preflop-risk", preferredNodeKey: "bb-closing-call", preferredKind: "changed", fallbackKind: "boundary" },
+  "bli-03::bli-03-r1": { errorKey: "sb-price-is-not-bb-closing-price", preferredNodeKey: "bb-closing-call", preferredKind: "changed", fallbackKind: "boundary" },
+  "agg-02::agg-02-a1": { errorKey: "low-showdown-does-not-create-bluff-job", preferredNodeKey: "protected-call-vs-denial", preferredKind: "changed", fallbackKind: "boundary" },
+  "agg-02::agg-02-r1": { errorKey: "size-does-not-create-folds-from-nothing", preferredNodeKey: "protected-call-vs-denial", preferredKind: "changed", fallbackKind: "boundary" },
+};
+
+export function getRuntimeRepairRule(drillId: string, optionId: string): RuntimeRepairRule | undefined {
+  return RUNTIME_REPAIR_REGISTRY[`${drillId}::${optionId}`];
+}
+'''
+          (ROOT / "lib/runtime-repair-registry.ts").write_text(registry, encoding="utf-8")
+
+          model_path = ROOT / "lib/model-core.ts"
+          model = model_path.read_text(encoding="utf-8")
+          model = replace_once(model, '''export type InteractionRecord = {
+  id: string;
+  at: string;
+  moduleId: ModuleId;
+  drillId: string;
+  nodeKey: string;
+  mode: LearningMode;
+  actionOk: boolean;
+  reasonOk: boolean;
+  responseClass: ResponseClass;
+  confidence: number;
+  elapsedSeconds: number;
+  transferProbe: TransferProbe | null;
+};
+export type ReviewItem = {
+  id: string;
+  moduleId: ModuleId;
+  sourceDrillId: string;
+  variantGroup: string;
+  kind: "repair" | "retention";
+  dueAt: string;
+  attempts: number;
+  sourceInteractionId: string;
+};''', '''export type InteractionRecord = {
+  id: string;
+  at: string;
+  moduleId: ModuleId;
+  drillId: string;
+  nodeKey: string;
+  variantGroup?: string;
+  selectedActionOptionId?: string;
+  selectedReasonOptionId?: string;
+  mode: LearningMode;
+  actionOk: boolean;
+  reasonOk: boolean;
+  responseClass: ResponseClass;
+  confidence: number;
+  elapsedSeconds: number;
+  transferProbe: TransferProbe | null;
+};
+export type ReviewItem = {
+  id: string;
+  moduleId: ModuleId;
+  sourceDrillId: string;
+  variantGroup: string;
+  kind: "repair" | "retention";
+  dueAt: string;
+  attempts: number;
+  sourceInteractionId: string;
+  sourceActionOptionId?: string;
+  sourceReasonOptionId?: string;
+};''', "state response identity")
+          model = replace_once(model, '''  itemStartedAt: string;
+  explainBack: string;
+};''', '''  itemStartedAt: string;
+  explainBack: string;
+  sourceReviewId?: string;
+};''', "active session repair source")
+          model = replace_once(model, '''  isBoundary: boolean;
+  transferProbe?: TransferProbe | null;
+};''', '''  isBoundary: boolean;
+  selectedActionOptionId?: string;
+  selectedReasonOptionId?: string;
+  sourceReviewId?: string;
+  transferProbe?: TransferProbe | null;
+};''', "decision response identity input")
+          model = replace_once(model, '''  if (progress.recentClasses.some((value) => value !== "A")) return "FRAGILE";
+  return "INTRODUCED";
+}
+function queueReview''', '''  if (progress.recentClasses.some((value) => value !== "A")) return "FRAGILE";
+  return "INTRODUCED";
+}
+
+export function sanitizeDiagnosticRoutingSideEffects(state: LearnerState): LearnerState {
+  const next = clone(state);
+  for (const moduleId of next.diagnostic.priorityModules) {
+    const progress = next.modules[moduleId];
+    const observedError = next.interactions.some((item) => item.moduleId === moduleId && (!item.actionOk || !item.reasonOk))
+      || next.reviewQueue.some((item) => item.moduleId === moduleId && item.kind === "repair")
+      || progress.recentClasses.some((value) => value === "B" || value === "C" || value === "D");
+    if (!observedError) {
+      progress.highConfidenceError = false;
+      progress.state = deriveModuleState(progress);
+    }
+  }
+  return next;
+}
+
+export function routeDiagnosticPriorities(state: LearnerState, priorityModules: ModuleId[]): LearnerState {
+  const next = sanitizeDiagnosticRoutingSideEffects(state);
+  next.diagnostic.status = "ROUTED";
+  next.diagnostic.priorityModules = [...new Set(priorityModules.filter(isModuleId))].slice(0, 2);
+  next.diagnostic.importedAt = nowIso();
+  return touch(next);
+}
+
+function queueReview''', "diagnostic routing invariant")
+          model = regex_once(model, r'''function queueReview\(state: LearnerState, input: DrillEvidenceInput, interactionId: string, passed: boolean\) \{.*?\n\}\nfunction normalizeTransferProbe''', '''function queueReview(state: LearnerState, input: DrillEvidenceInput, interactionId: string, passed: boolean) {
+  const kind: ReviewItem["kind"] = passed ? "retention" : "repair";
+  const dueAt = new Date(Date.now() + (passed ? 24 * 60 * 60 * 1000 : 0)).toISOString();
+  const existing = state.reviewQueue.find((item) => item.moduleId === input.moduleId && item.variantGroup === input.variantGroup && item.kind === kind);
+  if (existing) {
+    existing.dueAt = new Date(Math.min(Date.parse(existing.dueAt), Date.parse(dueAt))).toISOString();
+    existing.sourceInteractionId = interactionId;
+    existing.sourceDrillId = input.drillId;
+    existing.sourceActionOptionId = input.selectedActionOptionId;
+    existing.sourceReasonOptionId = input.selectedReasonOptionId;
+    return;
+  }
+  state.reviewQueue.push({
+    id: id("review"),
+    moduleId: input.moduleId,
+    sourceDrillId: input.drillId,
+    variantGroup: input.variantGroup,
+    kind,
+    dueAt,
+    attempts: 0,
+    sourceInteractionId: interactionId,
+    sourceActionOptionId: input.selectedActionOptionId,
+    sourceReasonOptionId: input.selectedReasonOptionId,
+  });
+}
+function normalizeTransferProbe''', "review source identity")
+          model = replace_once(model, '''    drillId: input.drillId,
+    nodeKey: input.nodeKey,
+    mode: input.mode,''', '''    drillId: input.drillId,
+    nodeKey: input.nodeKey,
+    variantGroup: input.variantGroup,
+    selectedActionOptionId: input.selectedActionOptionId,
+    selectedReasonOptionId: input.selectedReasonOptionId,
+    mode: input.mode,''', "interaction exact selections")
+          model = replace_once(model, '''    const due = next.reviewQueue.find((item) => item.moduleId === input.moduleId && item.variantGroup === input.variantGroup && item.kind === "repair" && Date.parse(item.dueAt) <= Date.now());''', '''    const due = next.reviewQueue.find((item) => item.kind === "repair"
+      && Date.parse(item.dueAt) <= Date.now()
+      && (input.sourceReviewId ? item.id === input.sourceReviewId : item.moduleId === input.moduleId && item.variantGroup === input.variantGroup));''', "cross-variant repair source")
+          model = replace_once(model, '''    && typeof value.nodeKey === "string"
+    && isLearningMode(value.mode)''', '''    && typeof value.nodeKey === "string"
+    && (value.variantGroup === undefined || typeof value.variantGroup === "string")
+    && (value.selectedActionOptionId === undefined || typeof value.selectedActionOptionId === "string")
+    && (value.selectedReasonOptionId === undefined || typeof value.selectedReasonOptionId === "string")
+    && isLearningMode(value.mode)''', "interaction validation")
+          model = replace_once(model, '''    drillId: String(entry.drillId ?? "legacy"),
+    nodeKey: String(entry.nodeKey ?? "legacy"),
+    mode: entry.mode,''', '''    drillId: String(entry.drillId ?? "legacy"),
+    nodeKey: String(entry.nodeKey ?? "legacy"),
+    variantGroup: typeof entry.variantGroup === "string" ? entry.variantGroup : undefined,
+    selectedActionOptionId: typeof entry.selectedActionOptionId === "string" ? entry.selectedActionOptionId : undefined,
+    selectedReasonOptionId: typeof entry.selectedReasonOptionId === "string" ? entry.selectedReasonOptionId : undefined,
+    mode: entry.mode,''', "interaction migration")
+          model = replace_once(model, '''        attempts: Math.max(0, Number(entry.attempts ?? 0)),
+        sourceInteractionId: String(entry.sourceInteractionId ?? "legacy"),
+      }))''', '''        attempts: Math.max(0, Number(entry.attempts ?? 0)),
+        sourceInteractionId: String(entry.sourceInteractionId ?? "legacy"),
+        sourceActionOptionId: typeof entry.sourceActionOptionId === "string" ? entry.sourceActionOptionId : undefined,
+        sourceReasonOptionId: typeof entry.sourceReasonOptionId === "string" ? entry.sourceReasonOptionId : undefined,
+      }))''', "review migration")
+          model = replace_once(model, '''export function migrateLearnerState(raw: unknown): LearnerState {
+  if (validateLearnerState(raw)) return { ...raw, appVersion: APP_VERSION, contentVersion: CONTENT_VERSION };''', '''export function migrateLearnerState(raw: unknown): LearnerState {
+  if (validateLearnerState(raw)) return sanitizeDiagnosticRoutingSideEffects({ ...clone(raw), appVersion: APP_VERSION, contentVersion: CONTENT_VERSION });''', "validated state sanitation")
+          model = replace_once(model, '''    base.revision = Math.max(0, Number(raw.revision ?? 0));
+    base.updatedAt = typeof raw.updatedAt === "string" ? raw.updatedAt : nowIso();
+    return base;
+  }''', '''    base.revision = Math.max(0, Number(raw.revision ?? 0));
+    base.updatedAt = typeof raw.updatedAt === "string" ? raw.updatedAt : nowIso();
+    return sanitizeDiagnosticRoutingSideEffects(base);
+  }''', "schema2 state sanitation")
+          model_path.write_text(model, encoding="utf-8")
+
+          app_path = ROOT / "components/LiveCashAppCore.tsx"
+          app = app_path.read_text(encoding="utf-8")
+          app = replace_once(app, '''import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/diagnostic-import";
+import {''', '''import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/diagnostic-import";
+import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
+import { planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
+import {''', "scheduler imports")
+          app = app.replace('  chooseTodayAction,\n', '', 1)
+          app = replace_once(app, '  reviewFieldNote,\n', '  reviewFieldNote,\n  routeDiagnosticPriorities,\n', "diagnostic routing import")
+          app = app.replace('  type TodayAction,\n', '', 1)
+          app = replace_once(app, '''const PRIMARY_TABS = ["today", "learn", "review", "cards", "map", "field", "diagnostic"] as const;
+''', '''const PRIMARY_TABS = ["today", "learn", "review", "cards", "map", "field", "diagnostic"] as const;
+const SCHEDULER_CATALOG = {
+  modules: modules.map((module) => ({
+    id: module.id,
+    prerequisites: module.prerequisites,
+    drills: module.drills.map((drill) => ({
+      id: drill.id,
+      moduleId: drill.moduleId,
+      nodeKey: drill.nodeKey,
+      variantGroup: drill.variantGroup,
+      kind: drill.kind,
+      targetSeconds: drill.targetSeconds,
+    })),
+  })),
+  cards: allCards.map((card) => ({ id: card.id, moduleId: card.moduleId })),
+};
+''', "scheduler catalog")
+          app = replace_once(app, '''function startSession(state: LearnerState, mode: LearningMode, moduleId: ModuleId, drillIds: string[], step = 0): LearnerState {''', '''function startSession(state: LearnerState, mode: LearningMode, moduleId: ModuleId, drillIds: string[], step = 0, sourceReviewId?: string): LearnerState {''', "start session source")
+          app = replace_once(app, '''    itemStartedAt: now,
+    explainBack: "",
+  });''', '''    itemStartedAt: now,
+    explainBack: "",
+    sourceReviewId,
+  });''', "persist repair source")
+          app = regex_once(app, r'''function todayActionCopy\(.*?\n\}\n\nfunction downloadJson''', '''function dailyPlanItemCopy(locale: LocaleCode, item: PlanItem): { title: string; reason: string } {
+  const copy: Record<LocaleCode, Record<PlanItem["reasonCode"], { title: string; reason: string }>> = {
+    ru: {
+      resume: { title: "Продолжить сохранённую сессию", reason: "Вернёмся ровно к месту остановки." },
+      overdue_retention: { title: "Проверить навык после паузы", reason: "Пришло время вспомнить решение без свежей подсказки." },
+      repair: { title: "Исправить конкретную ошибку", reason: "Сначала разберём промах из последнего решения, затем вернём его позже." },
+      diagnostic_priority: { title: "Подтянуть приоритетную тему", reason: "Проверка T1 подняла эту тему в очереди, но не засчитала навык за тебя." },
+      weak: { title: "Закрепить слабое место", reason: "В последних решениях здесь чаще возникали ошибки." },
+      stale: { title: "Освежить давно не проверенный навык", reason: "Эту тему давно не приходилось вспоминать самостоятельно." },
+      changed: { title: "Решить изменённую ситуацию", reason: "Проверим тот же механизм при других важных условиях." },
+      boundary: { title: "Проверить границу правила", reason: "Короткий контраст помогает не превращать правило в автопилот." },
+      mixed: { title: "Смешанная практика", reason: "Темы перемешаны, чтобы решение начиналось с распознавания ситуации." },
+      new: { title: "Изучить один новый механизм", reason: "Сегодня добавляем не больше одной новой идеи." },
+      warmup: { title: "Быстрая разминка перед игрой", reason: "До трёх знакомых подсказок, без новых тем." },
+      done: { title: "На сейчас достаточно", reason: "Срочных повторений нет; можно вернуться позже или выбрать практику вручную." },
+    },
+    en: {
+      resume: { title: "Resume the saved session", reason: "Continue from the exact point where you stopped." },
+      overdue_retention: { title: "Test the skill after a delay", reason: "It is time to recall the decision without the fresh explanation." },
+      repair: { title: "Fix the exact mistake", reason: "Start with the miss from your last decision, then bring it back later." },
+      diagnostic_priority: { title: "Work on a priority topic", reason: "The reviewed T1 check moved this topic up the queue; it did not award learning credit." },
+      weak: { title: "Reinforce a weak spot", reason: "Recent decisions show more misses here." },
+      stale: { title: "Refresh a stale skill", reason: "You have not recalled this topic independently for a while." },
+      changed: { title: "Solve a changed spot", reason: "Use the same mechanism after an important condition changes." },
+      boundary: { title: "Test the edge of the rule", reason: "A short contrast helps prevent autopilot." },
+      mixed: { title: "Mixed practice", reason: "Topics are mixed so the first job is recognising the spot." },
+      new: { title: "Learn one new mechanism", reason: "Add no more than one new idea today." },
+      warmup: { title: "Quick pre-session warm-up", reason: "Up to three familiar prompts, with no new topics." },
+      done: { title: "Enough for now", reason: "Nothing urgent is due; return later or choose practice manually." },
+    },
+  };
+  return copy[locale][item.reasonCode];
+}
+
+function dailyBudgetLabel(locale: LocaleCode, budget: DailyBudget): string {
+  const labels: Record<LocaleCode, Record<DailyBudget, string>> = {
+    ru: { "5": "5 мин", "15": "15 мин", "30": "30 мин", warmup: "Перед игрой", post: "После игры" },
+    en: { "5": "5 min", "15": "15 min", "30": "30 min", warmup: "Before play", post: "After play" },
+  };
+  return labels[locale][budget];
+}
+
+function downloadJson''', "today plan copy")
+          app = regex_once(app, r'''function selectRepair\(state: LearnerState, moduleId: ModuleId\): Drill\[\] \{.*?\n\}\n\nfunction selectReview''', '''function selectRepair(state: LearnerState, moduleId: ModuleId): { drills: Drill[]; sourceReviewId?: string } {
+  const module = moduleById[moduleId];
+  const target = dueReviewItems(state).find((item) => item.moduleId === moduleId && item.kind === "repair");
+  const candidateRules = target
+    ? [target.sourceActionOptionId, target.sourceReasonOptionId]
+      .filter((optionId): optionId is string => Boolean(optionId))
+      .map((optionId) => getRuntimeRepairRule(target.sourceDrillId, optionId))
+      .filter((rule): rule is NonNullable<typeof rule> => Boolean(rule))
+    : [];
+  const eligible = module.drills.filter((drill) => drill.id !== target?.sourceDrillId);
+  const preferredNode = candidateRules.flatMap((rule) => rule.preferredNodeKey ? eligible.filter((drill) => drill.nodeKey === rule.preferredNodeKey) : []);
+  const preferredFamily = candidateRules.flatMap((rule) => rule.preferredVariantGroup ? eligible.filter((drill) => drill.variantGroup === rule.preferredVariantGroup) : []);
+  const preferredKind = candidateRules.flatMap((rule) => rule.preferredKind ? eligible.filter((drill) => drill.kind === rule.preferredKind) : []);
+  const family = target ? eligible.filter((drill) => drill.variantGroup === target.variantGroup) : [];
+  const boundary = eligible.filter((drill) => drill.kind === "boundary");
+  const changed = eligible.filter((drill) => drill.kind === "changed");
+  const drills = [...preferredNode, ...preferredFamily, ...preferredKind, ...family, ...boundary, ...changed, ...eligible]
+    .filter((drill, index, list) => list.findIndex((candidate) => candidate.id === drill.id) === index)
+    .slice(0, 1);
+  return { drills: drills.length ? drills : module.drills.slice(0, 1), sourceReviewId: target?.id };
+}
+
+function selectReview''', "targeted repair selection")
+          app = app.replace('function selectReview(state: LearnerState): Drill[] {\n  return dueReviewItems(state)', 'function selectReview(state: LearnerState, limit = 3): Drill[] {\n  return dueReviewItems(state)', 1)
+          app = app.replace('    .slice(0, 3)\n    .map((item)', '    .slice(0, limit)\n    .map((item)', 1)
+          app = replace_once(app, '''  const [notice, setNotice] = useState("");''', '''  const [notice, setNotice] = useState("");
+  const [dailyBudget, setDailyBudget] = useState<DailyBudget>("15");''', "daily budget state")
+          app = replace_once(app, '''  const action = useMemo(() => chooseTodayAction(state, [...MODULE_IDS]), [state]);
+  const session = state.activeSession;''', '''  const planningNow = Date.now();
+  const plan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: dailyBudget, now: planningNow, seed: `${state.revision}:${dailyBudget}` });
+  const warmupPlan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: "warmup", now: planningNow, seed: `${state.revision}:warmup` });
+  const warmupCardIds = warmupPlan.items[0]?.cardIds ?? [];
+  const session = state.activeSession;''', "pure daily planner")
+          app = replace_once(app, '''  function openRepair(moduleId: ModuleId) {
+    setState(startSession(state, "repair", moduleId, selectRepair(state, moduleId).map((drill) => drill.id)));
+    setTab("learn");
+  }''', '''  function openRepair(moduleId: ModuleId) {
+    const selection = selectRepair(state, moduleId);
+    if (!selection.drills.length) return;
+    setState(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId));
+    setTab("learn");
+  }''', "open targeted repair")
+          app = regex_once(app, r'''  function runToday\(\) \{.*?\n  \}\n\n  function exitSession\(\) \{.*?\n  \}''', '''  function runToday() {
+    const item = plan.items[0];
+    if (!item || item.kind === "done") return;
+    if (item.kind === "resume") { setTab("learn"); return; }
+    if (item.kind === "review") { openReview(1); return; }
+    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId); return; }
+    if (item.kind === "lesson" && item.moduleId) { openLesson(item.moduleId); return; }
+    if (item.kind === "cards") { setTab("cards"); return; }
+    if ((item.kind === "practice" || item.kind === "mixed") && item.moduleId && item.drillIds?.length) {
+      setState(startSession(state, item.kind === "mixed" ? "mixed" : "practice", item.moduleId, item.drillIds));
+      setTab("learn");
+    }
+  }
+
+  function exitSession() {
+    setNotice(locale === "ru" ? "Сессия сохранена. Можно продолжить с этого места." : "Session saved. You can resume from this exact point.");
+    setTab("today");
+  }''', "today execution and save exit")
+          app = replace_once(app, '''    {tab === "today" && <Today locale={locale} state={state} action={action} onRun={runToday} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} />}''', '''    {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} />}''', "today props")
+          app = replace_once(app, '''    {tab === "cards" && <Cards locale={locale} state={state} setState={setState} />}''', '''    {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} />}''', "warmup cards props")
+          app = regex_once(app, r'''function Today\(.*?\n\}\n\nfunction Learn''', '''function Today({ locale, state, plan, budget, onBudget, onRun, onCards, onDiagnostic }: { locale: LocaleCode; state: LearnerState; plan: DailyPlan; budget: DailyBudget; onBudget: (value: DailyBudget) => void; onRun: () => void; onCards: () => void; onDiagnostic: () => void }) {
+  const t = runtimeCopy[locale];
+  const primary = plan.items[0];
+  const next = primary ? dailyPlanItemCopy(locale, primary) : dailyPlanItemCopy(locale, { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
+  const completed = modules.filter((module) => state.modules[module.id].contentCompleted).length;
+  const working = modules.filter((module) => ["WORKING", "RETAINED", "FIELD_TEST_PENDING", "FIELD_VALIDATED"].includes(state.modules[module.id].state)).length;
+  const budgets: DailyBudget[] = ["5", "15", "30", "warmup", "post"];
+  const returnCopy = locale === "ru"
+    ? "После паузы берём ограниченный набор самых полезных повторений — весь накопившийся хвост сразу не показываем."
+    : "After a break, start with a bounded set of the highest-value reviews instead of dumping the whole backlog at once.";
+  const deferredCopy = locale === "ru"
+    ? `Ещё ${plan.deferredDueCount} повторений останутся в очереди после этой сессии.`
+    : `${plan.deferredDueCount} more review items stay queued after this session.`;
+  return <>
+    <section className="hero compact-hero">
+      <p className="eyebrow">{t.todayEyebrow}</p>
+      <h1>{t.todayTitle}<br/><em>{t.todayEmphasis}</em></h1>
+      <p className="lede">{t.todayDescription}</p>
+      <div className="mode-switch" aria-label={locale === "ru" ? "Длительность занятия" : "Session length"}>{budgets.map((value) => <button key={value} aria-pressed={budget === value} onClick={() => onBudget(value)}>{dailyBudgetLabel(locale, value)}</button>)}</div>
+      <div className="today-card"><p className="eyebrow">{t.now} · ≈{plan.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p><h2>{next.title}</h2><p>{next.reason}</p>{plan.returnAfterBreak && <p className="support">{returnCopy}</p>}{plan.deferredDueCount > 0 && <p className="support">{deferredCopy}</p>}<button className="primary" aria-label={t.start} disabled={!primary || primary.kind === "done"} onClick={onRun}>{t.start} <span>→</span></button></div>
+    </section>
+    <section className="metrics">
+      <div><b>{completed}/11</b><span>{t.completedLessons}</span></div>
+      <div><b>{working}</b><span>{t.workingSkills}</span></div>
+      <div><b>{dueReviewItems(state).length}</b><span>{t.dueItems}</span></div>
+    </section>
+    <section className="quick-grid">
+      <article><p className="eyebrow">{locale === "ru" ? "ПЛАН" : "PLAN"}</p><h3>{locale === "ru" ? "Что входит дальше" : "What comes next"}</h3>{plan.items.slice(0, 3).map((item, index) => { const copy = dailyPlanItemCopy(locale, item); return <p key={`${item.kind}-${item.moduleId ?? index}`}>{index + 1}. {copy.title} · ≈{item.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p>; })}</article>
+      <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{t.openT1}</button></article>
+      <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{t.warmupDescription}</p><button className="textbutton" onClick={onCards}>{t.quickWarmup}</button></article>
+    </section>
+    <section className="integrity"><h2>{t.integrityTitle}</h2><p>{t.integrityBody}</p></section>
+    <LearningRoute locale={locale} />
+  </>;
+}
+
+function Learn''', "today adaptive UX")
+          app = replace_once(app, '''function Cards({ locale, state, setState }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void }) {''', '''function Cards({ locale, state, setState, warmupIds }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; warmupIds: string[] }) {''', "cards warmup signature")
+          app = replace_once(app, '''  const due = allCards.filter((card) => !state.cards[card.id] || Date.parse(state.cards[card.id].dueAt) <= Date.now());
+  const cards = mode === "due" ? due : mode === "warmup" ? (due.length ? due : allCards).slice(0, 3) : allCards;''', '''  const due = allCards.filter((card) => !state.cards[card.id] || Date.parse(state.cards[card.id].dueAt) <= Date.now());
+  const warmup = allCards.filter((card) => warmupIds.includes(card.id));
+  const cards = mode === "due" ? due : mode === "warmup" ? warmup : allCards;''', "bounded warmup cards")
+          app = replace_once(app, '''      actionOk,
+      reasonOk,
+      confidence: session.confidence,''', '''      actionOk,
+      reasonOk,
+      selectedActionOptionId: session.selectedActionId,
+      selectedReasonOptionId: session.selectedReasonId,
+      sourceReviewId: session.sourceReviewId,
+      confidence: session.confidence,''', "persist selected option IDs")
+          app = regex_once(app, r'''      const priority = deriveDiagnosticPriorityModules\(score\);\n      setState\(mutate\(state, \(next\) => \{\n        next\.diagnostic\.status = "ROUTED";\n        next\.diagnostic\.priorityModules = priority;\n        next\.diagnostic\.importedAt = new Date\(\)\.toISOString\(\);\n        for \(const moduleId of priority\) \{\n          next\.modules\[moduleId\]\.state = "REPAIR_REQUIRED";\n          next\.modules\[moduleId\]\.highConfidenceError = true;\n        \}\n      \}\)\);''', '''      const priority = deriveDiagnosticPriorityModules(score);
+      setState(routeDiagnosticPriorities(state, priority));''', "diagnostic side effect removal")
+          app_path.write_text(app, encoding="utf-8")
+
+          tests = r'''import assert from "node:assert/strict";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import ts from "typescript";
+
+async function loadTs(relativePath) {
+  const source = await readFile(new URL(`../${relativePath}`, import.meta.url), "utf8");
+  const compiled = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022, importsNotUsedAsValues: ts.ImportsNotUsedAsValues.Remove },
+  }).outputText;
+  const directory = await mkdtemp(join(tmpdir(), "live-cash-os-w6-"));
+  const output = join(directory, `${relativePath.replaceAll("/", "-").replace(/\.ts$/u, "")}.mjs`);
+  await writeFile(output, compiled, "utf8");
+  return import(`${new URL(`file://${output}`).href}?${Date.now()}-${Math.random()}`);
+}
+
+const schedulerPromise = loadTs("lib/scheduler.ts");
+const modelPromise = loadTs("lib/model-core.ts");
+const registryPromise = loadTs("lib/runtime-repair-registry.ts");
+
+const NOW = Date.parse("2026-08-07T12:00:00.000Z");
+const DAY = 86_400_000;
+const catalog = {
+  modules: [
+    { id: "geometry", prerequisites: [], drills: [
+      { id: "geo-core", moduleId: "geometry", nodeKey: "geo-core", variantGroup: "geo", kind: "core", targetSeconds: 30 },
+      { id: "geo-change", moduleId: "geometry", nodeKey: "geo-change", variantGroup: "geo", kind: "changed", targetSeconds: 30 },
+      { id: "geo-boundary", moduleId: "geometry", nodeKey: "geo-boundary", variantGroup: "geo", kind: "boundary", targetSeconds: 30 },
+    ] },
+    { id: "preflop", prerequisites: ["geometry"], drills: [
+      { id: "pre-core", moduleId: "preflop", nodeKey: "pre-core", variantGroup: "pre", kind: "core", targetSeconds: 30 },
+      { id: "pre-change", moduleId: "preflop", nodeKey: "pre-change", variantGroup: "pre", kind: "changed", targetSeconds: 30 },
+      { id: "pre-boundary", moduleId: "preflop", nodeKey: "pre-boundary", variantGroup: "pre", kind: "boundary", targetSeconds: 30 },
+    ] },
+    { id: "blinds", prerequisites: ["preflop"], drills: [
+      { id: "bli-core", moduleId: "blinds", nodeKey: "bli-core", variantGroup: "bli", kind: "core", targetSeconds: 30 },
+      { id: "bli-change", moduleId: "blinds", nodeKey: "bli-change", variantGroup: "bli", kind: "changed", targetSeconds: 30 },
+      { id: "bli-boundary", moduleId: "blinds", nodeKey: "bli-boundary", variantGroup: "bli", kind: "boundary", targetSeconds: 30 },
+    ] },
+    { id: "filtering", prerequisites: ["blinds"], drills: [{ id: "fil-core", moduleId: "filtering", nodeKey: "fil", variantGroup: "fil", kind: "core", targetSeconds: 30 }] },
+  ],
+  cards: [
+    { id: "geo-card", moduleId: "geometry" },
+    { id: "pre-card", moduleId: "preflop" },
+    { id: "bli-card", moduleId: "blinds" },
+    { id: "fil-card", moduleId: "filtering" },
+  ],
+};
+
+function review(overrides = {}) {
+  return { id: "review-1", moduleId: "geometry", sourceDrillId: "geo-core", variantGroup: "geo", kind: "retention", dueAt: new Date(NOW - DAY).toISOString(), attempts: 0, sourceInteractionId: "source", ...overrides };
+}
+function decision(overrides = {}) {
+  return { moduleId: "geometry", drillId: "geo-01", nodeKey: "node", variantGroup: "source-family", mode: "practice", actionOk: false, reasonOk: true, selectedActionOptionId: "geo-01-a1", selectedReasonOptionId: "geo-01-r0", confidence: 80, elapsedSeconds: 20, targetSeconds: 30, isBoundary: false, ...overrides };
+}
+
+for (const budget of ["5", "15", "30"]) {
+  test(`${budget}-minute plan stays inside the deterministic budget cap`, async () => {
+    const scheduler = await schedulerPromise;
+    const model = await modelPromise;
+    const state = model.emptyLearnerState();
+    state.updatedAt = new Date(NOW).toISOString();
+    const plan = scheduler.planDailyTraining(state, catalog, { budget, now: NOW, seed: "same" });
+    assert.ok(plan.estimatedMinutes <= Number(budget) * 1.2);
+    assert.equal(plan.items.filter((item) => item.kind === "lesson").length <= 1, true);
+  });
+}
+
+test("same state, time and seed produce the same plan without mutating history", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW).toISOString();
+  const before = structuredClone(state);
+  const left = scheduler.planDailyTraining(state, catalog, { budget: "15", now: NOW, seed: "fixed" });
+  const right = scheduler.planDailyTraining(state, catalog, { budget: "15", now: NOW, seed: "fixed" });
+  assert.deepEqual(left, right);
+  assert.deepEqual(state, before);
+});
+
+test("due delayed retrieval outranks a fresh genuine repair", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW).toISOString();
+  state.reviewQueue.push(review(), review({ id: "repair", kind: "repair", dueAt: new Date(NOW).toISOString() }));
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "5", now: NOW, seed: "priority" });
+  assert.equal(plan.items[0].kind, "review");
+});
+
+test("genuine repair is first when no delayed retrieval is due", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW).toISOString();
+  state.reviewQueue.push(review({ id: "repair", kind: "repair", dueAt: new Date(NOW).toISOString() }));
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "5", now: NOW, seed: "repair" });
+  assert.equal(plan.items[0].kind, "repair");
+});
+
+test("diagnostic routing changes priority only and never fabricates learning evidence", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  const routed = model.routeDiagnosticPriorities(state, ["preflop"]);
+  assert.deepEqual(routed.diagnostic.priorityModules, ["preflop"]);
+  assert.equal(routed.modules.preflop.state, "UNEXPOSED");
+  assert.equal(routed.modules.preflop.highConfidenceError, false);
+  assert.equal(routed.modules.preflop.evidence.retention.exposures, 0);
+  assert.equal(routed.modules.preflop.evidence.variant_transfer.exposures, 0);
+  assert.equal(routed.modules.preflop.evidence.field_transfer.exposures, 0);
+  routed.updatedAt = new Date(NOW).toISOString();
+  const plan = scheduler.planDailyTraining(routed, catalog, { budget: "15", now: NOW, seed: "t1" });
+  assert.ok(plan.items.length > 0);
+});
+
+test("migration clears legacy diagnostic-only repair flags but keeps observed errors", async () => {
+  const model = await modelPromise;
+  const legacy = model.emptyLearnerState();
+  legacy.diagnostic.priorityModules = ["preflop"];
+  legacy.diagnostic.status = "ROUTED";
+  legacy.modules.preflop.state = "REPAIR_REQUIRED";
+  legacy.modules.preflop.highConfidenceError = true;
+  const clean = model.migrateLearnerState(legacy);
+  assert.equal(clean.modules.preflop.highConfidenceError, false);
+  assert.equal(clean.modules.preflop.state, "UNEXPOSED");
+
+  const observed = model.recordDecision(model.emptyLearnerState(), decision({ moduleId: "preflop", drillId: "pre-01", nodeKey: "pre", variantGroup: "pre" }));
+  observed.diagnostic.priorityModules = ["preflop"];
+  const preserved = model.migrateLearnerState(observed);
+  assert.equal(preserved.modules.preflop.highConfidenceError, true);
+  assert.equal(preserved.modules.preflop.state, "REPAIR_REQUIRED");
+});
+
+test("wrong response persists exact selected option identities into repair source", async () => {
+  const model = await modelPromise;
+  const next = model.recordDecision(model.emptyLearnerState(), decision());
+  assert.equal(next.interactions[0].selectedActionOptionId, "geo-01-a1");
+  assert.equal(next.interactions[0].selectedReasonOptionId, "geo-01-r0");
+  assert.equal(next.interactions[0].variantGroup, "source-family");
+  assert.equal(next.reviewQueue[0].sourceActionOptionId, "geo-01-a1");
+  assert.equal(next.reviewQueue[0].sourceReasonOptionId, "geo-01-r0");
+});
+
+test("sourceReviewId lets changed-node repair resolve the exact miss and schedules delayed retrieval only", async () => {
+  const model = await modelPromise;
+  const seeded = model.recordDecision(model.emptyLearnerState(), decision());
+  const repairId = seeded.reviewQueue[0].id;
+  const repaired = model.recordDecision(seeded, decision({
+    drillId: "geo-05",
+    nodeKey: "changed-node",
+    variantGroup: "changed-family",
+    mode: "repair",
+    actionOk: true,
+    reasonOk: true,
+    selectedActionOptionId: "geo-05-a0",
+    selectedReasonOptionId: "geo-05-r0",
+    sourceReviewId: repairId,
+    confidence: 70,
+  }));
+  assert.equal(repaired.reviewQueue.some((item) => item.id === repairId), false);
+  assert.equal(repaired.reviewQueue.some((item) => item.kind === "retention" && item.variantGroup === "changed-family"), true);
+  assert.equal(repaired.modules.geometry.evidence.retention.exposures, 0);
+});
+
+test("runtime repair registry uses exact response identity and has a safe no-match path", async () => {
+  const registry = await registryPromise;
+  assert.equal(registry.getRuntimeRepairRule("bli-02", "bli-02-a1").preferredNodeKey, "sb-player-behind");
+  assert.equal(registry.getRuntimeRepairRule("bli-02", "not-an-option"), undefined);
+  assert.equal(registry.getRuntimeRepairRule("unrelated", "bli-02-a1"), undefined);
+});
+
+test("runtime repair registry contains no canonical diagnostic mapping surface", async () => {
+  const source = await readFile(new URL("../lib/runtime-repair-registry.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /MISCONCEPTION_TAXONOMY|canonicalT1|canonicalMisconception/u);
+  assert.doesNotMatch(source, /MC-\d{3}/u);
+});
+
+test("warm-up uses at most three cards from already exposed modules", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW).toISOString();
+  state.modules.geometry.contentCompleted = true;
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "warmup", now: NOW, seed: "warm" });
+  assert.equal(plan.items[0].kind, "cards");
+  assert.deepEqual(plan.items[0].cardIds, ["geo-card"]);
+  assert.ok(plan.estimatedMinutes <= 2);
+});
+
+test("one-new-mechanism guard blocks another new lesson after recent lesson exposure", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.recordDecision(model.emptyLearnerState(), decision({ mode: "lesson", actionOk: true, reasonOk: true, confidence: 60 }));
+  state.updatedAt = new Date(NOW).toISOString();
+  state.interactions[0].at = new Date(NOW - 60_000).toISOString();
+  state.reviewQueue = [];
+  state.modules.geometry.contentCompleted = true;
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "30", now: NOW, seed: "guard" });
+  assert.equal(plan.items.some((item) => item.kind === "lesson"), false);
+});
+
+test("mixed practice spans distinct completed modules when enough material exists", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW).toISOString();
+  for (const moduleId of ["geometry", "preflop", "blinds"]) {
+    state.modules[moduleId].contentCompleted = true;
+    state.modules[moduleId].evidence.variant_transfer.exposures = 2;
+    state.modules[moduleId].evidence.boundary_control.exposures = 1;
+  }
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "15", now: NOW, seed: "mixed" });
+  const mixed = plan.items.find((item) => item.kind === "mixed");
+  assert.ok(mixed);
+  assert.equal(new Set(mixed.drillIds.map((id) => id.slice(0, 3))).size >= 3, true);
+});
+
+test("long absence bounds backlog without resetting mastery", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW - 31 * DAY).toISOString();
+  state.modules.geometry.contentCompleted = true;
+  state.modules.geometry.state = "WORKING";
+  for (let index = 0; index < 10; index += 1) state.reviewQueue.push(review({ id: `old-${index}`, dueAt: new Date(NOW - (8 + index) * DAY).toISOString() }));
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "5", now: NOW, seed: "absence" });
+  assert.equal(plan.returnAfterBreak, true);
+  assert.ok(plan.deferredDueCount >= 8);
+  assert.ok(plan.estimatedMinutes <= 6);
+  assert.equal(state.modules.geometry.state, "WORKING");
+});
+
+test("scheduler works with optional T1 absent and respects prerequisites", async () => {
+  const scheduler = await schedulerPromise;
+  const model = await modelPromise;
+  const state = model.emptyLearnerState();
+  state.updatedAt = new Date(NOW).toISOString();
+  const plan = scheduler.planDailyTraining(state, catalog, { budget: "15", now: NOW, seed: "no-t1" });
+  assert.deepEqual(state.diagnostic.priorityModules, []);
+  assert.equal(plan.items.find((item) => item.kind === "lesson")?.moduleId, "geometry");
+});
+'''
+          (ROOT / "tests/scheduler.test.mjs").write_text(tests, encoding="utf-8")
+
+          e2e_path = ROOT / "e2e/live-cash.spec.mjs"
+          e2e = e2e_path.read_text(encoding="utf-8")
+          marker = 'test("W6 Today exposes bounded session budgets in both locales"'
+          if marker not in e2e:
+              e2e += r'''
+
+test("W6 Today exposes bounded session budgets in both locales", async ({ page }) => {
+  for (const label of ["5 мин", "15 мин", "30 мин", "Перед игрой", "После игры"]) {
+    await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
+  }
+  await page.getByRole("button", { name: "5 мин", exact: true }).click();
+  await expect(page.getByText(/≈\d+ мин/u).first()).toBeVisible();
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  for (const label of ["5 min", "15 min", "30 min", "Before play", "After play"]) {
+    await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
+  }
+});
+
+test("Save and exit preserves the unfinished session across Today and reload", async ({ page }) => {
+  await openGeometryColdCheck(page);
+  await page.getByRole("button", { name: /Сохранить и выйти/u }).click();
+  await expect(page.getByRole("heading", { name: /Продолжить сохранённую сессию/u })).toBeVisible();
+  const saved = await localState(page);
+  expect(saved.activeSession).not.toBeNull();
+  expect(saved.activeSession.moduleId).toBe("geometry");
+  await page.reload();
+  await expect(page.getByText("1 · РЕШИ БЕЗ ПОДСКАЗКИ")).toBeVisible();
+  const restored = await localState(page);
+  expect(restored.activeSession.moduleId).toBe("geometry");
+  expect(restored.activeSession.step).toBe(saved.activeSession.step);
+});
+'''
+          e2e_path.write_text(e2e, encoding="utf-8")
+          PY
+      - name: Install dependencies
+        working-directory: apps/live-cash-os
+        run: npm ci
+      - name: Targeted W6 unit and truth checks
+        working-directory: apps/live-cash-os
+        run: |
+          node --import ./tests/register-model-loader.mjs --test tests/scheduler.test.mjs tests/kernel-content.test.mjs tests/model-integrity-facade.test.mjs tests/repair-order.test.mjs tests/taxonomy-scope.test.mjs
+          npm run typecheck
+          npm run check:governance
+          npm run check:editorial
+      - name: Full release validation
+        working-directory: apps/live-cash-os
+        run: npm run test:release
+      - name: Commit W6 implementation
+        shell: bash
+        run: |
+          git config user.name "OpenAI Wave 6 Agent"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/live-cash-os/lib/model-core.ts apps/live-cash-os/lib/scheduler.ts apps/live-cash-os/lib/runtime-repair-registry.ts apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/tests/scheduler.test.mjs apps/live-cash-os/e2e/live-cash.spec.mjs
+          git diff --cached --check
+          git commit -m "Implement adaptive daily scheduler"
+          git push origin HEAD:wave/w6-adaptive-scheduler
