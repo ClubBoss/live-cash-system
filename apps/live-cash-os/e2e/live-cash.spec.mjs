@@ -31,11 +31,12 @@ test("shows a natural evidence-backed route in both locales", async ({ page }) =
   await expect(page.locator(".route-grid article")).toHaveCount(9);
   await expect(page.locator(".route-grid")).toContainText("0%");
   await expect(page.locator(".route-grid")).toContainText("100%");
-  await expect(page.locator(".route-grid")).not.toContainText(/evidence|probe|repair|retention|field validated/i);
+  await expect(page.locator(".route-grid")).not.toContainText(/evidence|probe|repair|retention|field validated|state machine/i);
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.getByRole("heading", { name: /What the 0.*100% route means/i })).toBeVisible();
   await expect(page.locator(".route-grid article")).toHaveCount(9);
+  await expect(page.locator(".route-grid")).not.toContainText(/evidence gate|probe|field validation|learner state|state machine/i);
 });
 
 test("completes the cold check and reaches the plain explanation", async ({ page }) => {
@@ -56,7 +57,7 @@ test("the starting check explains its purpose and remains optional", async ({ pa
   await expect(page.getByRole("button", { name: /^Изучить/ }).first()).toBeEnabled();
 });
 
-test("the starting check has a clear start screen in both locales", async ({ page }) => {
+test("the starting check has natural T1 copy in both locales", async ({ page }) => {
   await page.getByRole("button", { name: "Проверка", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
@@ -66,6 +67,23 @@ test("the starting check has a clear start screen in both locales", async ({ pag
   await expect(page.getByRole("heading", { name: /Check how you make decisions now/i })).toBeVisible();
   await expect(page.getByText(/10 spots · about 15 minutes · optional/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Start the check" })).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/EN REVIEW REQUIRED|editorial review required/i);
+
+  await page.getByRole("button", { name: "Start the check" }).click();
+  await expect(page.getByText(/LD-001 · Depth with a straddle/i)).toBeVisible();
+  await expect(page.locator(".session")).not.toContainText(/Straddle denominator|Pairwise multiway depth|compensation test|directional raise incentive|MDF burden|credible bluff supply/i);
+  await expect(page.locator(".session")).not.toContainText(/[А-Яа-яЁё]/u);
+});
+
+test("approved EN module cards use final poker-native headings", async ({ page }) => {
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("button", { name: "Learn", exact: true }).click();
+  const list = page.locator(".module-list");
+  await expect(list).toContainText("How bet size changes your response");
+  await expect(list).toContainText("Trace the range through the hand");
+  await expect(list).toContainText("From understanding to real-table use");
+  await expect(list).not.toContainText(/Range ancestry|Bet size and response shape|EN REVIEW REQUIRED|translation pending/i);
+  await expect(list).not.toContainText(/[А-Яа-яЁё]/u);
 });
 
 test("language persists without changing learner state", async ({ page }) => {
@@ -82,11 +100,12 @@ test("language persists without changing learner state", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
 
-test("switching language and reloading preserves an active translated decision", async ({ page }) => {
+test("RU to EN to RU preserves the active decision and learner identity", async ({ page }) => {
   await openGeometryColdCheck(page);
   const russianChoice = page.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" });
   await russianChoice.click();
   await expect(russianChoice).toHaveAttribute("aria-pressed", "true");
+  const before = await localState(page);
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Which unit should describe the depth first/i })).toBeVisible();
@@ -94,6 +113,15 @@ test("switching language and reloading preserves an active translated decision",
   await expect(englishChoice).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".session")).not.toContainText(/[А-Яа-яЁё]/u);
 
+  await page.getByRole("button", { name: "RU", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /Какой единицей сначала описывать глубину/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" })).toHaveAttribute("aria-pressed", "true");
+  const afterRoundTrip = await localState(page);
+  expect(afterRoundTrip.revision).toBe(before.revision);
+  expect(afterRoundTrip.activeSession.selectedActionId).toBe(before.activeSession.selectedActionId);
+  expect(afterRoundTrip.interactions).toEqual(before.interactions);
+
+  await page.getByRole("button", { name: "EN", exact: true }).click();
   await page.reload();
   await expect(page.getByRole("heading", { name: /Which unit should describe the depth first/i })).toBeVisible();
   await expect(page.getByRole("button", { name: "140 straddle big blinds; also note 280 ordinary BB" })).toHaveAttribute("aria-pressed", "true");
@@ -120,9 +148,9 @@ test("the starting check freezes the start locale, item locale and real first-it
   await page.getByRole("button", { name: /^Ответить/ }).click();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.getByLabel("Action or direction").fill("270 and 900 pairwise");
-  await page.getByLabel("One-sentence reason").fill("Effective depth is opponent-specific in a multiway pot.");
-  await page.getByRole("button", { name: /Record response/ }).click();
+  await page.getByLabel("How would you play?").fill("270 and 900 pairwise");
+  await page.getByLabel("Why?").fill("Effective depth is opponent-specific in a multiway pot.");
+  await page.getByRole("button", { name: /^Answer$/ }).click();
 
   const state = await localState(page);
   expect(state.diagnostic.localeAtStart).toBe("ru");
@@ -139,6 +167,16 @@ test("learning during a cold starting check invalidates baseline interpretation"
   await answerGeometryColdCheck(page);
   const state = await localState(page);
   expect(state.diagnostic.measurementContext).toBe("MIXED_EXPOSURE_INVALID_FOR_BASELINE");
+});
+
+test("direct learner labels do not expose raw internal statuses", async ({ page }) => {
+  await page.getByRole("button", { name: "Карточки" }).click();
+  await expect(page.getByText(/ВСПОМНИ БЕЗ ПОДСКАЗКИ/)).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/ACTIVE RECALL|PENDING_REVIEW|REVIEWED_VALID|REVIEWED_REPAIR|FIELD_VALIDATED/);
+
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.getByText(/RECALL WITHOUT HINTS/)).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/ACTIVE RECALL|PENDING_REVIEW|REVIEWED_VALID|REVIEWED_REPAIR|FIELD_VALIDATED/);
 });
 
 test("supports keyboard focus", async ({ page }) => {
