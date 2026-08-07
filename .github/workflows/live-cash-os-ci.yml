@@ -39,6 +39,22 @@ jobs:
       - name: Release gate
         run: npm run test:release
 
+      - name: Production smoke
+        env:
+          LIVE_URL: https://live-cash-os.elmarsal.chatgpt.site/
+          SMOKE_ATTEMPTS: "4"
+          SMOKE_WAIT_MS: "15000"
+        run: npm run smoke:production
+
+      - name: Upload production smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-cash-os-production-smoke
+          path: apps/live-cash-os/smoke-evidence
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Upload browser evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
