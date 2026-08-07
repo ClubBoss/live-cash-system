@@ -79,7 +79,7 @@ core = replaceOne(core,
 `      <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{t.openT1}</button></article>
       <article><p className="eyebrow">{t.beforePlay}</p>`,
 `      <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{t.openT1}</button></article>
-      <article><p className="eyebrow">{locale === "ru" ? "РАЗБОР" : "REVIEW"}</p><h3>{locale === "ru" ? "Реальные руки и explain-back" : "Real hands and explain-back"}</h3><p>{pendingHuman > 0 ? (locale === "ru" ? `${pendingHuman} записей ждут явного разбора.` : `${pendingHuman} records are waiting for explicit review.`) : (locale === "ru" ? "Запиши решение до результата или открой историю объяснений." : "Record a decision before the result or review your explanation history.")}</p><button className="textbutton" onClick={onField}>{locale === "ru" ? "Открыть разбор" : "Open review"}</button></article>
+      <article><p className="eyebrow">{locale === "ru" ? "РАЗБОР" : "REVIEW"}</p><h3>{locale === "ru" ? "Реальные руки и explain-back" : "Real hands and explain-back"}</h3><p>{pendingHuman > 0 ? (locale === "ru" ? pendingHuman + " записей ждут явного разбора." : pendingHuman + " records are waiting for explicit review.") : (locale === "ru" ? "Запиши решение до результата или открой историю объяснений." : "Record a decision before the result or review your explanation history.")}</p><button className="textbutton" onClick={onField}>{locale === "ru" ? "Открыть разбор" : "Open review"}</button></article>
       <article><p className="eyebrow">{t.beforePlay}</p>`,
 "Today review card");
 
@@ -101,7 +101,7 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
   function saveAndContinue() {
     if (value.trim().length < 30) return;
     const withDraft = value === savedDraft ? state : patchSession(state, { explainBack: value });
-    const saved = saveExplainBack(withDraft, module.id, \\`\${module.id}.explainBack\\`, value);
+    const saved = saveExplainBack(withDraft, module.id, module.id + ".explainBack", value);
     if (!saved.activeSession) return;
     setState(patchSession(saved, {
       step: 8,
@@ -136,7 +136,7 @@ function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode;
         <div className="dimension-grid">{DIMENSION_KEYS.map((key) => {
           const cell = state.modules[module.id].evidence[key];
           const score = evidencePercent(cell);
-          return <div key={key}><span>{dimensionLabel(locale, key)}</span><b>{score === null ? "—" : \\`\${score}%\\`}</b><small>{cell.exposures}</small></div>;
+          return <div key={key}><span>{dimensionLabel(locale, key)}</span><b>{score === null ? "—" : String(score) + "%"}</b><small>{cell.exposures}</small></div>;
         })}</div>
         <Wave7ProgressDetails locale={locale} state={state} moduleId={module.id} />
         <div className="module-actions"><button className="textbutton" onClick={() => onLesson(module.id)}>{t.theory}</button><button className="textbutton" disabled={!state.modules[module.id].contentCompleted} onClick={() => onPractice(module.id)}>{t.practice}</button></div>
