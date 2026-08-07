@@ -1,73 +1,87 @@
 # Live Cash OS — Release Status
 
-Status: `REPOSITORY_PLATFORM_ACCEPTED / CURRICULUM_STRATEGY_REVIEW_PENDING / WAVE_5_PRACTICE_ACCEPTED / LANGUAGE_REPAIR_REQUIRED / PRODUCTION_UPDATE_NOT_PERFORMED`
+Status: `W1_W5_INTEGRATION_CANDIDATE / REVIEW_PENDING / PRODUCTION_UPDATE_NOT_PERFORMED`
 
-## Repository
+## Repository candidate
 
-- Default and only permanent branch: `main`
-- Canonical release command: `npm run test:release`
-- Automation: one `main` CI workflow plus manual `workflow_dispatch`
-- Wave 3 strategy-repair branch: `repair/w3-strategy-closure`
-- Wave 3 strategy-repair base: `74bf73f15a539d692af53253cfaf06755693e727`
-- FINAL W4R handoff used for read-only reconciliation: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`
-- Wave 5 accepted implementation SHA: `e54ae03627398eff09c10b87971c15d5858b3ceb`
-- Wave 5 release run: `31171850884`
-- Validation job: `92845201804`
+- baseline main: `26b1dec72822a706f82cf485042c18e166397bdd`
+- reconciliation branch: `integration/w1-w5-reconciliation`
+- reconciliation base: exact repaired W3 head `a73dd43a2b6cf460023c67429522c9cadddabab8`
+- repaired W2 governance is already in W3 ancestry
+- FINAL W4R input: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`
+- W1 input: `fcb2e7b73c7459b8d7b15d7ab80866baa5f69b16`
+- W5 evidence input: `d13a350e960cb887847d16cc0418e0d38003c53e`
+- canonical release command: `npm run test:release`
+- `main` has not been merged or modified by this work
+- Wave 6 has not started
 
-## Repository scope accepted
+## Current candidate truth
 
-Platform integrity remains accepted.
+The candidate has materialized the W1-W5 implementation composition without restoring invalidated approval claims.
 
-The scoped Wave 3 implementation repair removes the three independently confirmed claim-provenance defects and unsupported exact depth precision from the affected Wave 3 source drills/examples. This implementation is **not** an automatic return to strategy gold: LCM-02, LCM-03 and LCM-06 remain `CURRICULUM_STRATEGY_REVIEW_PENDING`, and changed preflop/aggression drill content remains `DRILLS_REVIEW_PENDING` until human poker/drill review.
+Current manifest truth:
 
-Unaffected strategic curriculum evidence remains historical/current within its reviewed boundaries. Exact unsupported solver/chart/population claims remain outside admitted scope.
+`TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
 
-Wave 5 decision-practice mechanics remain accepted independently of the pending W3 semantic review.
+Final-composition current digest:
 
-## Language/editorial and final-composition boundary
+`7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`
 
-The FINAL W4R handoff exists on its own branch and is not merged into this W3 repair branch.
+No active strategy, drill or RU/EN human approval evidence is carried forward from stale compositions.
 
-Current truthful status on this branch:
+## Integration boundaries
 
-`CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / LANGUAGE_REPAIR_REQUIRED / FINAL_COMPOSITION_STALE`
+### W1
 
-The W3 branch does not edit W4R-owned files. Read-only final-composition inspection against `9b5b5a997663bd381857f1e06a2edeadd7b20c1a` identified materialized priority-module semantics that require integration-time reconciliation before final composition can be reviewed and approved. No hidden post-W4R overlay is introduced here.
+`WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
 
-No Wave 6 work is allowed before W3 human review and W4R/final-composition reconciliation are complete.
+FINAL W4R closes the former implementation-language blocker relevant to W1. Strict W1 acceptance still requires genuine fresh-context walkthrough evidence and current human language/release evidence.
 
-## Candidate gate boundary
+### W2/W3
 
-The repaired W2 governance lifecycle intentionally permits stale hashes only on explicitly declared repair/review source paths while the candidate is in `REVIEW_PENDING`. Old strategy, drill and locale approvals remain invalidated.
+W2/W3 remain authoritative for governance lifecycle and repaired priority strategy. Repaired strategy/drills remain human-review pending; neither `CURRICULUM_STRATEGY_GOLD` nor `DRILLS_APPROVED` is restored automatically.
 
-`check:governance` / candidate `check:editorial` may pass in this state. Full approval gates must remain non-approved until:
+### FINAL W4R
 
-- strategy human review restores `CURRICULUM_STRATEGY_GOLD`;
-- drill human review restores `DRILLS_APPROVED`;
-- FINAL W4R composition is reconciled and re-materialized;
-- source locks/fingerprints are refreshed against that reviewed corpus;
-- required RU/EN human approval evidence is current.
+FINAL W4R remains authoritative for `LiveCashApp*`, `LearningRoute`, canonical locale runtime/pipeline, learner-facing language implementation, direct React localisation, W4R rejection checks and the current Wave5 practice composition.
+
+Active semantic reconciliation:
+
+- EN aggression worked example: unsupported exact `200bb` removed, with no replacement exact depth.
+
+Composition-path reconciliation:
+
+- `wave4r-poker-native.ts` remains present only as compatibility source;
+- canonical `locale-pipeline.ts` does not import/call it;
+- `applyWave5PracticeCopy()` no longer imports/calls it transitively;
+- therefore it cannot overwrite repaired W3 RU `agg-01`, `agg-02` or `agg-04` semantics.
+
+### W5
+
+Current disposition:
+
+`WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
+
+W5 branch contributions are audit/handoff reports only. FINAL W4R `Wave5PracticeLayer` is retained; superseded temporary implementation is not restored.
+
+## Gate boundary
+
+A materialized candidate is not yet a technically green candidate until the exact integrated source executes its required gates.
+
+Candidate governance is designed to pass while the manifest is `REVIEW_PENDING` and source locks are current. Full approval is designed to remain red until human strategy/drill/RU/EN evidence and a current approved composition digest exist.
+
+Historical CI/test counts are not current integration evidence and must not be copied forward.
 
 ## Production boundary
 
-- Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
-- Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
-- D1 binding: `DB`
-- The owner reported publishing a post-PR #7 Site version on `2026-08-07`.
-- Current Wave 3/W4R repair candidates are **not claimed deployed**.
-- Exact production Git SHA is not exposed to available automation and is not invented.
-- Unauthenticated automation reaches the ChatGPT sign-in boundary; authenticated application DOM smoke remains externally blocked.
-- No production D1 reset, learner-state reset, URL change or migration action was performed during this Wave 3 repair.
+- stable production URL remains outside this integration operation;
+- no publish is performed;
+- no production D1 or learner-state migration/reset is performed;
+- no exact deployed-SHA claim is made for this candidate;
+- production smoke belongs to the later owner-authorised release stage.
 
-## Remaining Wave 0 release-truth debt
+## Current verdict boundary
 
-- authenticated production DOM smoke;
-- exact deployed SHA;
-- package/release-version synchronization;
-- release tag/GitHub Release identity if still absent.
+Until current candidate gate execution is recorded, the truthful repository state is:
 
-## Verdict
-
-`W3_IMPLEMENTATION_REPAIRED_REVIEW_PENDING / W4R_INTEGRATION_RECONCILIATION_PENDING / PRODUCTION_UPDATE_NOT_PERFORMED`
-
-Wave 6 is intentionally not started.
+`W1_W5_INTEGRATION_CANDIDATE_MATERIALIZED / TECHNICAL_GATE_EXECUTION_PENDING / HUMAN_REVIEW_PENDING / PRODUCTION_NOT_CHANGED`
