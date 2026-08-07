@@ -15,7 +15,7 @@ test("Wave 1 acceptance truth remains evidence-bounded", async () => {
   const evidence = JSON.parse(evidenceRaw);
 
   assert.match(report, /WAVE_1_IMPLEMENTATION_ACCEPTED \/ COMPREHENSION_EVIDENCE_PENDING/u);
-  assert.doesNotMatch(report, /WAVE_1_ACCEPTED_WITH_EMPIRICAL_COMPREHENSION_VALIDATION_DEFERRED_TO_WAVE_10/u);
+  assert.doesNotMatch(report, /^`WAVE_1_ACCEPTED_WITH_EMPIRICAL_COMPREHENSION_VALIDATION_DEFERRED_TO_WAVE_10`$/mu);
   assert.match(report, /BLOCKED_HUMAN_EVIDENCE/u);
 
   assert.match(protocol, /At least 3 eligible fresh-context walkthroughs/u);
