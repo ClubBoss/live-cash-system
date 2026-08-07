@@ -30,6 +30,7 @@ async function loadI18nFixture() {
     compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const localePath = await compileInto(root, "content/i18n/geometry-locale.ts", "content/i18n/geometry-locale.mjs", (compiled) =>
     compiled
+      .replace('from "../modules"', 'from "../modules.mjs"')
       .replace('from "./geometry-gold"', 'from "./geometry-gold.mjs"')
       .replace('from "./geometry-ru-gold"', 'from "./geometry-ru-gold.mjs"'));
   const routePath = await compileInto(root, "content/i18n/learning-route.ts", "content/i18n/learning-route.mjs");
@@ -53,8 +54,9 @@ test("LCM-01 switches approved RU/EN copy while preserving stable IDs", async ()
   assert.deepEqual(geometry.flashcards.map((item) => item.id), cardIds);
 
   locale.applyGeometryLocale("en");
-  assert.equal(geometry.title, "Effective depth and pot geometry");
+  assert.equal(geometry.title, "Effective stack and pot geometry");
   assert.equal(geometry.drills[0].question, "Which unit should describe the depth first?");
+  assert.equal(geometry.drills[1].question, "How should effective stack be described?");
   assert.equal(geometry.flashcards[0].front, "What is the first check when a live straddle is mandatory?");
   assert.deepEqual(geometry.drills.map((item) => item.id), drillIds);
   assert.deepEqual(geometry.flashcards.map((item) => item.id), cardIds);
