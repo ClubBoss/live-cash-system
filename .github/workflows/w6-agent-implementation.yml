@@ -44,14 +44,22 @@ jobs:
           python /tmp/w6_apply.py
           python <<'PY'
           from pathlib import Path
-          path = Path('apps/live-cash-os/components/LiveCashAppCore.tsx')
-          text = path.read_text(encoding='utf-8')
+          import json
+          core = Path('apps/live-cash-os/components/LiveCashAppCore.tsx')
+          text = core.read_text(encoding='utf-8')
           old = '  function openReview() {\n    const drills = selectReview(state);'
           new = '  function openReview(limit = 3) {\n    const drills = selectReview(state, limit);'
           if old not in text:
               raise SystemExit('openReview wiring target not found')
-          text = text.replace(old, new, 1).replace('  MODULE_IDS,\n', '', 1)
-          path.write_text(text, encoding='utf-8')
+          core.write_text(text.replace(old, new, 1).replace('  MODULE_IDS,\n', '', 1), encoding='utf-8')
+          manifest_path = Path('apps/live-cash-os/content/i18n/editorial-manifest.json')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          language_paths = manifest.setdefault('repair_source_paths', {}).setdefault('language', [])
+          core_path = 'components/LiveCashAppCore.tsx'
+          if core_path not in language_paths:
+              language_paths.append(core_path)
+          manifest['final_composition']['note'] = 'W1-W5 integrated learner-facing composition plus the bounded W6 Today/scheduler/resume surface is materialized. Strategy, drill and exact integrated RU/EN human review remain pending; this candidate does not claim approval.'
+          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
           PY
       - name: Install dependencies
         working-directory: apps/live-cash-os
@@ -71,7 +79,7 @@ jobs:
         run: |
           git config user.name "OpenAI Wave 6 Agent"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/live-cash-os/lib/model-core.ts apps/live-cash-os/lib/scheduler.ts apps/live-cash-os/lib/runtime-repair-registry.ts apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/tests/scheduler.test.mjs apps/live-cash-os/e2e/live-cash.spec.mjs
+          git add apps/live-cash-os/lib/model-core.ts apps/live-cash-os/lib/scheduler.ts apps/live-cash-os/lib/runtime-repair-registry.ts apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/content/i18n/editorial-manifest.json apps/live-cash-os/tests/scheduler.test.mjs apps/live-cash-os/e2e/live-cash.spec.mjs
           git diff --cached --check
           git commit -m "Implement adaptive daily scheduler"
           git push origin HEAD:wave/w6-adaptive-scheduler
