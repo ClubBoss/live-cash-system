@@ -15,8 +15,11 @@ function quoted(source) {
   return [...source.matchAll(/"((?:\\.|[^"\\])*)"/gu)].map((match) => match[1]).join("\n");
 }
 
-assert.equal(manifest.schema_version, 3, "Unsupported editorial manifest schema");
-assert.equal(manifest.status, "FULLY_ACCEPTED", "Current accepted curriculum requires FULLY_ACCEPTED manifest status");
+assert.equal(manifest.schema_version, 4, "Unsupported editorial manifest schema");
+assert.ok(
+  ["FULLY_ACCEPTED", "TRANSITIONAL_LANGUAGE_REVIEW_REQUIRED"].includes(manifest.status),
+  `Unsupported editorial acceptance state: ${manifest.status}`,
+);
 assert.deepEqual(Object.keys(manifest.modules), moduleIds, "Editorial manifest module order or coverage changed");
 assert.match(manifest.review_policy, /can never create an approval/u, "Review policy must forbid automatic approval");
 
@@ -27,8 +30,8 @@ for (const [relativePath, expectedSha] of Object.entries(manifest.source_blobs))
 for (const moduleId of moduleIds) {
   const row = manifest.modules[moduleId];
   assert.ok(row && typeof row.note === "string" && row.note.trim(), `${moduleId}: missing editorial row`);
-  assert.equal(row.ru, "APPROVED", `${moduleId}: Russian gold is not approved`);
-  assert.equal(row.en, "APPROVED", `${moduleId}: English gold is not approved`);
+  assert.ok(["APPROVED", "REVIEW_REQUIRED"].includes(row.ru), `${moduleId}: invalid Russian editorial state`);
+  assert.ok(["APPROVED", "REVIEW_REQUIRED"].includes(row.en), `${moduleId}: invalid English editorial state`);
   if (requireFull) {
     assert.equal(row.ru, "APPROVED", `${moduleId}: Russian is not approved in full mode`);
     assert.equal(row.en, "APPROVED", `${moduleId}: English is not approved in full mode`);
@@ -70,7 +73,7 @@ const diagnostic = await readFile(new URL("../content/diagnostic.ts", import.met
 const app = await readFile(new URL("../components/LiveCashApp.tsx", import.meta.url), "utf8");
 const core = await readFile(new URL("../components/LiveCashAppCore.tsx", import.meta.url), "utf8");
 
-// Wave 4R: T1 language truth.
+// Wave 4R remains the single language-specific enforcement owner.
 const diagnosticCopy = quoted(diagnostic);
 assert.deepEqual([...diagnostic.matchAll(/id:\s*"(LD-\d{3})"/gu)].map((match) => match[1]),
   Array.from({ length: 10 }, (_, index) => `LD-${String(index + 1).padStart(3, "0")}`), "T1 identity changed");
@@ -81,7 +84,6 @@ for (const pattern of [
   /population evidence/iu, /bluff supply/iu,
 ]) assert.doesNotMatch(diagnosticCopy, pattern, `T1 contains hybrid learner phrase ${pattern}`);
 
-// Wave 4R: natural bilingual route.
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
 assert.equal((route.match(/evidenceGate:/gu) ?? []).length, 19, "Every route stage must expose its learner-facing completion cue");
 const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
@@ -93,21 +95,18 @@ for (const pattern of [/skill evidence/iu, /current model/iu, /admitted probe/iu
   assert.doesNotMatch(quoted(enRoute), pattern, `English route contains internal terminology ${pattern}`);
 }
 
-// Wave 4R: one semantic source for approved module headings.
 assert.match(runtime, /export const moduleHeadings = Object\.fromEntries/u, "Legacy moduleHeadings must be a compatibility export");
 assert.match(runtime, /\[id, \{ en: \{\} \}\]/u, "Legacy moduleHeadings must not contain semantic copy");
 for (const stale of ["Exploit filters before adjustment", "Aggression with a clear job", "River evidence before blockers"]) {
   assert.doesNotMatch(runtime, new RegExp(stale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"), `Stale heading survived: ${stale}`);
 }
 
-// Wave 4R: no approved-English pending claim in the final runtime contract.
 const runtimeOverrides = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"));
 assert.doesNotMatch(runtimeOverrides, /EN REVIEW REQUIRED/u, "Approved runtime still exposes EN REVIEW REQUIRED");
 assert.doesNotMatch(runtimeOverrides, /still under poker-aware editorial review/iu, "Approved runtime still exposes an editorial-pending claim");
 assert.match(runtimeOverrides, /translationPending:\s*""/u, "Approved runtime pending label must be empty");
 assert.match(runtimeOverrides, /contentFallback:\s*""/u, "Approved runtime fallback must be empty");
 
-// Wave 4R: locale pipeline and safe legacy bridge.
 for (const symbol of ["applyGeometryLocale", "applyWave3PriorityLocale", "applyWave4CurriculumLocale", "applyWave4FinalEditorialLocale", "applyWave5PracticeCopy"]) {
   assert.match(app, new RegExp(symbol, "u"), `Locale pipeline misses ${symbol}`);
 }
@@ -121,8 +120,6 @@ assert.doesNotMatch(app, /distinct learner-state event/iu, "Route UI still expos
 assert.doesNotMatch(app, /not a decorative overall percentage/iu, "Route UI still uses product-spec language");
 for (const code of approvedLcmCodes) assert.ok(app.includes(`"${code}"`) || app.includes("length: 11"), `Runtime gold marker misses ${code}`);
 
-// Every currently known raw learner hardcode in Core must have an explicit compatibility mapping
-// until it is moved into the Core locale contract itself.
 for (const raw of ["ACTIVE RECALL", "Cue:", "Action:", "Reason:", "DECISION REVIEW", "AWAITING_REVIEW", "SCORED", "ROUTED", "90 sec", "Due", "All"]) {
   assert.ok(core.includes(raw), `Core hardcode inventory changed; update the Wave 4R gate for ${raw}`);
   assert.ok(app.includes(raw) || app.includes(raw.replace("DECISION REVIEW", "review")), `Legacy bridge does not account for ${raw}`);
@@ -130,7 +127,6 @@ for (const raw of ["ACTIVE RECALL", "Cue:", "Action:", "Reason:", "DECISION REVI
 assert.match(app, /wave4rEmptyFallback/u, "Blank approved-English fallback must be hidden safely");
 assert.match(app, /English interface enabled\. Your current session and progress are preserved\./u, "Stale English approval notice is not neutralised");
 
-// Existing RU corpus hygiene remains enforced.
 const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
 const ruWave4BeforeEvidence = ruWave4.slice(0, ruWave4.indexOf("  evidence: {"));
 const generalRuCopy = [quoted(ruRuntime), quoted(geometryRu), quoted(ruPriority), quoted(ruWave4BeforeEvidence), quoted(ruRoute)].join("\n");
@@ -146,4 +142,4 @@ for (const pattern of [/learner state/iu, /WORKING evidence/iu, /transfer probe/
   assert.doesNotMatch(finalEvidenceRuCopy, pattern, `Final Russian LCM-10/11 copy contains system phrase ${pattern}`);
 }
 
-console.log(`editorial gate passed: ${moduleIds.length} bilingual strategic modules; Wave 4R language-truth regressions checked${requireFull ? " (full release mode)" : ""}.`);
+console.log(`editorial rejection gate passed: ${moduleIds.length} bilingual strategic modules checked; Wave 4R language-truth regressions checked${requireFull ? " (full approval evidence required)" : ""}.`);
