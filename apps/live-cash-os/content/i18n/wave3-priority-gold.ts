@@ -684,7 +684,7 @@ function applyModuleCopy(moduleId: PriorityModuleId, source: ModuleCopy) {
   }
 }
 
-export const wave3PriorityModuleIds: readonly ModuleId[] = ["preflop", "blinds", "aggression"];
+export const wave3PriorityModuleIds = ["preflop", "blinds", "aggression"] as const satisfies readonly ModuleId[];
 
 export function applyWave3PriorityLocale(locale: LocaleCode) {
   const source = locale === "ru" ? RU_PRIORITY : EN_PRIORITY;
