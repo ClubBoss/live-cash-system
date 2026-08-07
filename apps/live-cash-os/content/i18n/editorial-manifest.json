@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "status": "GOLD_SLICE_ACCEPTED",
+  "status": "FULLY_ACCEPTED",
   "reviewer": "GPT-5.6 Thinking",
   "review_policy": "Learner-facing copy is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks can reject stale or invalid copy but can never create an approval.",
   "source_blobs": {
@@ -8,27 +8,35 @@
     "content/POKER_GLOSSARY_RU_EN.md": "ad43c90de79ad764fb1838d86fa237bedeb71c70",
     "content/claims/lcm-02.claims.json": "886197f4285b64810c1d21266b0e01cb4d47a7c0",
     "content/claims/lcm-03.claims.json": "7946c32b771017777fd0e1c9a036be21bf72fb83",
+    "content/claims/lcm-04.claims.json": "c34de6433c0c36d97d326342c366b5895d83bb9a",
+    "content/claims/lcm-05.claims.json": "9b2bfaab87d02aeb2d3cf576481305a38aed6734",
     "content/claims/lcm-06.claims.json": "165e0f96f829c7f34395fc673087be60729b1620",
+    "content/claims/lcm-07.claims.json": "37dc9f2ac3e41cc73f19d7886c3373981d7559b2",
+    "content/claims/lcm-08.claims.json": "c519ac691f975b61de3bd813cebf28523d1046f2",
+    "content/claims/lcm-09.claims.json": "b32f103ddfc5280b2ce56812687d553fd7771ca4",
+    "content/claims/lcm-10.claims.json": "a68387189194af69af64c75f692b40d578570691",
+    "content/claims/lcm-11.claims.json": "c92e8d0dd63ab0fdd7d16664860054e9530ee423",
     "content/i18n/runtime-core.ts": "867be28b3cce8c009a8757c036ddf4605f8c27e0",
     "content/i18n/runtime.ts": "0ed9e64aa74dc484e55e3c70dcef2f53f54783f2",
     "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
     "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
     "content/i18n/geometry-locale.ts": "9ff8657186622db1849aa6e22b5d47a7885762d4",
     "content/i18n/wave3-priority-gold.ts": "2d6d996339d82f601a563628874e4d7e5885a48b",
+    "content/i18n/wave4-curriculum-gold.ts": "7f8798ebeb9d38c7f177a4ac561ceb0448889d37",
     "content/i18n/learning-route.ts": "ab787de99f366c32d8c68346e0637fbb734eaddf",
-    "components/LiveCashApp.tsx": "099dd56493764c2209a44f4582119642a9fe0d9c"
+    "components/LiveCashApp.tsx": "265027aa4f21e6c5fca77630c0b32206eb300065"
   },
   "modules": {
-    "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated bilingual gold module with stable drill and card IDs." },
-    "preflop": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-02 was rebuilt around source-backed call/3-bet/fold branch construction; exact chart cells and frequencies remain intentionally out of scope." },
-    "blinds": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-03 was rebuilt around BB price/closing action, SB squeeze exposure and source-range identity without fixed chart boundaries." },
-    "filtering": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
-    "shape": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
-    "aggression": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-06 was rebuilt around 3-bet-pot range compensation, board ownership, turn filtering and the OOP top-end raising gate; exact solver frequencies remain out of scope." },
-    "ancestry": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
-    "multiway": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
-    "river": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
-    "evidence": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." },
-    "transfer": { "ru": "PENDING", "en": "PENDING", "note": "Original mixed-language body remains available only as the current source fallback; separate poker-aware RU and EN review is required." }
+    "geometry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-01 is the manually curated bilingual gold module for effective-stack and pot-geometry reasoning; exact strategic depth thresholds remain excluded." },
+    "preflop": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-02 is gold for source-backed call/3-bet/fold branch construction; exact chart cells, mixed frequencies and squeeze size tables remain excluded." },
+    "blinds": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-03 is gold for BB price/closing action, SB squeeze exposure, equity realisation and blind-source identity without fixed chart boundaries." },
+    "filtering": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-04 is gold for source-range reconstruction after each action, protected checks and branch-specific exploit reset; exact combo maps remain node-specific." },
+    "shape": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-05 is gold for value-driven sizing, range-wide versus selective response shape and protected calls; exact sizes, frequencies and mix thresholds remain excluded." },
+    "aggression": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-06 is gold for 3-bet-pot range compensation, board ownership, turn filtering and the OOP top-end raising gate; exact solver frequencies remain excluded." },
+    "ancestry": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-07 is gold for branch ancestry, preflop-to-postflop bluff supply, blocker ordering and action-specific opponent models; exact combo frequencies remain excluded." },
+    "multiway": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-08 is gold for sandwich pressure, closing action, shared defence and source-range ownership; no exact multiway MDF or solver-frequency claim is admitted." },
+    "river": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-09 is gold for origin/filter/value/bluff/size/blocker river auditing; exact solver EV and population underbluff magnitude remain field- or node-gated." },
+    "evidence": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-10 is gold for branch-specific evidence discipline and calibrated reads; source population priors do not become proven Batumi magnitudes without field evidence." },
+    "transfer": { "ru": "APPROVED", "en": "APPROVED", "note": "LCM-11 is gold for the current Live Cash OS evidence contract separating exposure, variant transfer, delayed retention and reviewed field evidence; current numeric thresholds are product rules, not universal scientific claims." }
   }
 }

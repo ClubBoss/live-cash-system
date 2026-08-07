@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { applyGeometryLocale } from "../content/i18n/geometry-locale";
 import { getLearningRoute } from "../content/i18n/learning-route";
 import { applyWave3PriorityLocale } from "../content/i18n/wave3-priority-gold";
+import { applyWave4CurriculumLocale } from "../content/i18n/wave4-curriculum-gold";
 import type { LocaleCode } from "../lib/model";
 import LiveCashAppCore from "./LiveCashAppCore";
 
@@ -49,7 +50,7 @@ const MODULE_LCM: Record<string, string> = {
   transfer: "LCM-11",
 };
 
-const GOLD_LCMS = new Set(["LCM-01", "LCM-02", "LCM-03", "LCM-06"]);
+const GOLD_LCMS = new Set(Array.from({ length: 11 }, (_, index) => `LCM-${String(index + 1).padStart(2, "0")}`));
 
 function setExactText(selector: string, source: string, target: string) {
   document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
@@ -219,6 +220,7 @@ export default function LiveCashApp() {
         const next = currentRuntimeView();
         applyGeometryLocale(next.locale);
         applyWave3PriorityLocale(next.locale);
+        applyWave4CurriculumLocale(next.locale);
         localizeHardcodedLabels(next.locale);
         markEditorialGoldSurfaces();
         setView((previous) => previous.locale === next.locale && previous.showRoute === next.showRoute ? previous : next);
