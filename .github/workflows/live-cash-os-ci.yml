@@ -35,7 +35,9 @@ jobs:
 
       - name: Apply bounded Wave 7 runtime wiring
         if: github.ref_name == 'wave/w7-diagnostic-field-progress'
-        run: node scripts/wave7-branch-apply.mjs
+        run: |
+          node scripts/wave7-type-narrow.mjs
+          node scripts/wave7-branch-apply.mjs
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -51,8 +53,8 @@ jobs:
         run: |
           git fetch origin main --depth=1
           git checkout FETCH_HEAD -- .github/workflows/live-cash-os-ci.yml
-          git rm apps/live-cash-os/scripts/wave7-branch-apply.mjs
-          git add apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/app/globals.css .github/workflows/live-cash-os-ci.yml
+          git rm apps/live-cash-os/scripts/wave7-branch-apply.mjs apps/live-cash-os/scripts/wave7-type-narrow.mjs
+          git add apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/app/globals.css apps/live-cash-os/lib/wave7.ts .github/workflows/live-cash-os-ci.yml
           if git diff --cached --quiet; then
             exit 0
           fi
