@@ -135,8 +135,9 @@ test("module gold remains an explicit reviewed admission decision for the full c
   assert.match(checklist, /No script may fill `Decision: MODULE_GOLD`/);
   assert.match(lcm01Conformance, /Decision: `MODULE_GOLD_REVALIDATED`/);
   assert.match(lcm01Conformance, /Exact depth\/SPR\/straddle strategic thresholds remain open/);
-  assert.match(wave4Conformance, /STRATEGY_REVIEWED \/ RU_APPROVED \/ EN_APPROVED/);
-  assert.match(wave4Conformance, /TECHNICAL_GATE_PENDING/);
+  assert.match(wave4Conformance, /MODULE_GOLD \/ TECHNICAL_GATE_GREEN \/ WAVE_4_ACCEPTED/);
+  assert.match(wave4Conformance, /5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86/);
+  assert.match(wave4Conformance, /31164756544/);
 
   assert.equal(manifest.status, "FULLY_ACCEPTED");
   assert.equal(typeof manifest.reviewer, "string");

@@ -4,38 +4,48 @@ Review date: `2026-08-07`
 Reviewer: `GPT-5.6 Thinking`  
 Scope: `LCM-04 / filtering`, `LCM-05 / shape`, `LCM-07 / ancestry`, `LCM-08 / multiway`, `LCM-09 / river`, `LCM-10 / evidence`, `LCM-11 / transfer`
 
-## Current decision
+## Final decision
 
-`STRATEGY_REVIEWED / RU_APPROVED / EN_APPROVED / DRILLS_REBUILT / CLAIMS_ADMITTED / TECHNICAL_GATE_PENDING`
+`MODULE_GOLD / TECHNICAL_GATE_GREEN / WAVE_4_ACCEPTED`
 
-This document does **not** declare these seven modules `MODULE_GOLD` until the candidate head passes the full current-head `npm run test:release` gate.
+Accepted implementation SHA: `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`  
+Full release run: `31164756544`  
+Validation job: `92822910319`
 
-The review is scoped to mechanism-level instruction. Exact solver grids, proprietary chart cells, exact mixed frequencies, visual-only board details, exact EV outputs and unvalidated Batumi population magnitudes remain excluded.
+The exact accepted implementation passed the canonical `npm run test:release` gate from a clean GitHub Actions checkout:
+
+- TypeScript: PASS;
+- ESLint: PASS;
+- editorial integrity/source locks: PASS — `11 bilingual gold modules approved; 0 pending`;
+- production build: PASS;
+- unit/integration: `55/55 PASS`;
+- Playwright: `21 passed / 1 intentionally skipped` across desktop and mobile projects;
+- browser evidence upload: skipped because the browser suite did not fail.
+
+No production publish, D1 mutation, learner-state reset, URL change, or schema migration was performed as part of Wave 4.
+
+The admission is deliberately mechanism-scoped. Exact solver grids, proprietary chart cells, exact mixed frequencies, visual-only board details, exact EV outputs, exact multiway MDF, and unvalidated Batumi population magnitudes remain excluded.
 
 ---
 
 ## LCM-04 — Rebuild the range after every action
 
-Primary source support:
+Primary support:
 
 - `FTGU_E07_selective_vs_unselective_cbetting.md`;
 - `CP_G3_L04_raising_and_beyond.md`;
 - `CP_G3_L07_triple_barreling.md`;
 - `CINJ_E10_exploitative_folding_in_filtered_underbluffed_nodes.md`.
 
-Four admitted mechanism claims are stored in `content/claims/lcm-04.claims.json`.
+Four admitted claims: `content/claims/lcm-04.claims.json`.
 
-Strategic review: **PASS for admitted scope.**
+Decision: `MODULE_GOLD` for source range → action → survivors, protected checks, call filtering, and branch-specific exploit reset. The module rejects automatic `check = capped`, blocker-first analysis, and carrying a prior-street exploit unchanged through a continuing action.
 
-The module teaches source range → voluntary action → survivors, including protected checks, call filtering and the requirement to rebuild an exploit after the opponent chooses a continuing branch. It explicitly rejects automatic `check = capped`, blocker-first analysis and carrying a flop overfold exploit unchanged through a call.
-
-Drills `fil-01` through `fil-05` and cards `fil-card-*` preserve their stable identities.
-
----
+Stable drills `fil-01`–`fil-05` and cards `fil-card-*` are preserved.
 
 ## LCM-05 — Bet size and response shape
 
-Primary source support:
+Primary support:
 
 - `FTGU_E07_selective_vs_unselective_cbetting.md`;
 - `FTGU_E08_call_only_strategies_vs_cbets.md`;
@@ -46,21 +56,15 @@ Primary source support:
 - `CP_G3_L01_mixing_facing_bets.md`;
 - `CP_G3_L02_mixing_continued_bet_check.md`.
 
-Four admitted mechanism claims are stored in `content/claims/lcm-05.claims.json`.
+Four admitted claims: `content/claims/lcm-05.claims.json`.
 
-Strategic review: **PASS for admitted scope.**
+Decision: `MODULE_GOLD` for value-driven sizing, frequency/size separation, range-wide versus selective response shape, thin value/equity-denial gates, and protected calling ranges. Exact size menus, solver mixes and combo thresholds remain excluded.
 
-The module separates bet frequency from sizing, builds size from value needs, distinguishes range-wide/merged from selective/polar betting, and keeps strong robust hands in calls when the passive branch needs protection. Thin or protection raises require worse continues and/or meaningful equity denial; ease of play is not treated as sufficient theory.
-
-Exact size menus, solver mixes and combo thresholds remain excluded.
-
-Drills `sha-01` through `sha-05` and cards `sha-card-*` preserve their stable identities.
-
----
+Stable drills `sha-01`–`sha-05` and cards `sha-card-*` are preserved.
 
 ## LCM-07 — Range ancestry
 
-Primary source support:
+Primary support:
 
 - `SLC_M03_L24_preflop_adjustments_vs_locked_3bet_ranges_part_1.md`;
 - `SLC_M03_L25_preflop_adjustments_vs_locked_3bet_ranges_part_2.md`;
@@ -70,42 +74,30 @@ Primary source support:
 - `CP_G3_L08_protected_checking_ranges.md`;
 - `CP_G3_L09_defending_3bet_pots_oop.md`.
 
-Four admitted mechanism claims are stored in `content/claims/lcm-07.claims.json`.
+Four admitted claims: `content/claims/lcm-07.claims.json`.
 
-Strategic review: **PASS for admitted scope.**
+Decision: `MODULE_GOLD` for preflop-to-postflop range ancestry, inherited bluff supply, blocker ordering, and action-specific opponent models. No fixed A5s/98s prescription or visual-dependent 4-bet boundary is admitted.
 
-The module makes preflop range composition persist through the tree. Missing preflop bluffs cannot magically reappear on later streets; over-wide ranges require postflop compensation; blockers follow ancestry; opponent reads are stored by action branch rather than as global player labels.
-
-No fixed A5s/98s prescription or visual-dependent 4-bet boundary is admitted.
-
-Drills `anc-01` through `anc-05` and cards `anc-card-*` preserve their stable identities.
-
----
+Stable drills `anc-01`–`anc-05` and cards `anc-card-*` are preserved.
 
 ## LCM-08 — Multiway action order and shared defence
 
-Primary source support:
+Primary support:
 
 - `SLC_M04_L36_multiway_sandwich_and_triton_hand_analysis.md`;
 - `SLC_M04_L39_low_connected_flops_multiway.md`;
 - `SLC_M04_L40_multiway_flop_mechanics_kt9ss_part_1.md`;
 - `SLC_M04_L41_multiway_flop_mechanics_kt9ss_part_2.md`.
 
-Four admitted mechanism claims are stored in `content/claims/lcm-08.claims.json`.
+Four admitted claims: `content/claims/lcm-08.claims.json`.
 
-Strategic review: **PASS for admitted scope.**
+Decision: `MODULE_GOLD` for sandwich pressure, closing-action value, shared defence, and source-range ownership. It explicitly rejects both `play multiway like heads-up` and `multiway = always passive`. Exact multiway MDF and fixed solver frequencies remain excluded.
 
-The module teaches shared defence, sandwich pressure, closing-action value and source-range ownership. It explicitly rejects both `play multiway like heads-up` and the opposite overcorrection `multiway = always passive`. Action order can create aggressive closing-player branches, while low connected boards can transfer top-end ownership away from the preflop raiser.
-
-No exact multiway MDF, solver frequency or fixed c-bet size is admitted.
-
-Drills `mul-01` through `mul-05` and cards `mul-card-*` preserve their stable identities.
-
----
+Stable drills `mul-01`–`mul-05` and cards `mul-card-*` are preserved.
 
 ## LCM-09 — River value, bluffs and blockers
 
-Primary source support:
+Primary support:
 
 - `CP_G2_L04_river_play_and_scattered_aggression.md`;
 - `CP_G2_L08_bluff_catching_system.md`;
@@ -115,11 +107,9 @@ Primary source support:
 - `CINJ_E05_origin_range_width_and_bluff_density.md`;
 - `CINJ_E10_exploitative_folding_in_filtered_underbluffed_nodes.md`.
 
-Four admitted mechanism claims are stored in `content/claims/lcm-09.claims.json`.
+Four admitted claims: `content/claims/lcm-09.claims.json`.
 
-Strategic review: **PASS for admitted scope.**
-
-The learner-facing order is:
+Decision: `MODULE_GOLD` for the river audit:
 
 ```text
 ORIGIN RANGE
@@ -131,11 +121,9 @@ ORIGIN RANGE
 → BRANCH EVIDENCE
 ```
 
-The module distinguishes value beaters, bluff catchers and frail hands, and explains why a nut-looking blocker can make a call worse when it removes the bluff region. Source-supported underbluff mechanisms can justify exploitative folds, but exact Batumi population magnitude remains field-gated.
+The module distinguishes value beaters, bluff catchers and frail hands, and teaches that a blocker can worsen a call by removing the natural bluff region. Exact population underbluff magnitude remains field-gated.
 
-Drills `riv-01` through `riv-05` and cards `riv-card-*` preserve their stable identities.
-
----
+Stable drills `riv-01`–`riv-05` and cards `riv-card-*` are preserved.
 
 ## LCM-10 — Reads and evidence discipline
 
@@ -147,15 +135,13 @@ Primary authorities:
 - `CINJ_E10_exploitative_folding_in_filtered_underbluffed_nodes.md`;
 - `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md`.
 
-Four admitted mechanism claims are stored in `content/claims/lcm-10.claims.json`.
+Four admitted claims: `content/claims/lcm-10.claims.json`.
 
-Strategic/epistemic review: **PASS for admitted scope.**
+Decision: `MODULE_GOLD` for branch-specific evidence discipline. One showdown establishes possibility, not stable frequency; reads remain tied to position/action/size/branch; external population priors do not become proven Batumi magnitudes without local evidence.
 
-The module does not invent a statistical sample-size theorem. It uses a conservative evidence rule: one showdown establishes that a hand/line can exist, not its stable frequency; reads stay attached to position/action/size/branch; source population ideas are priors whose magnitude remains unvalidated for Batumi; field evidence may change exploit weighting without silently rewriting source truth.
+The final Russian editorial layer removes raw internal status vocabulary from learner-facing copy while preserving the approved English meaning.
 
-Drills `evi-01` through `evi-05` and cards `evi-card-*` preserve their stable identities.
-
----
+Stable drills `evi-01`–`evi-05` and cards `evi-card-*` are preserved.
 
 ## LCM-11 — From correct now to table transfer
 
@@ -164,75 +150,65 @@ Primary authorities:
 - `apps/live-cash-os/lib/model-core.ts`;
 - `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md`.
 
-Four admitted product-contract claims are stored in `content/claims/lcm-11.claims.json`.
+Four admitted product-contract claims: `content/claims/lcm-11.claims.json`.
 
-Learning-governance review: **PASS for admitted scope.**
+Decision: `MODULE_GOLD` for explaining the current Live Cash OS evidence contract:
 
-This module explains the current evidence semantics implemented by the product rather than pretending they are universal scientific mastery thresholds:
+- content completion is exposure, not mastery;
+- variant transfer requires an explicit materially changed assessment;
+- retention requires a due delayed review;
+- raw real-hand notes do not create field validation;
+- several reviewed field supports plus transfer and retention are required by the current product model.
 
-- content completion records exposure, not mastery;
-- variant transfer requires an explicit changed-node probe with material changed variables;
-- retention is recorded only on a due delayed review;
-- raw real-hand notes do not create field evidence;
-- current `FIELD_VALIDATED` requires reviewed field successes together with retention and variant-transfer evidence.
+These are product integrity rules, not claims that the present numeric thresholds are universal learning-science truths. Wave 10 may recalibrate thresholds without collapsing the distinct evidence dimensions.
 
-The exact numeric thresholds may be recalibrated after Wave 10 sustained-use evidence without collapsing these dimensions.
-
-Drills `tra-01` through `tra-05` and cards `tra-card-*` preserve their stable identities.
+Stable drills `tra-01`–`tra-05` and cards `tra-card-*` are preserved.
 
 ---
 
-# RU / EN editorial review
+## RU / EN editorial decision
 
-**RU: PASS for all seven modules.**
+- RU: `APPROVED` for all seven Wave 4 modules.
+- EN: `APPROVED` for all seven Wave 4 modules.
+- English Wave 4 gold contains no Cyrillic fallback.
+- Russian final LCM-10/11 output rejects raw system vocabulary such as `learner state`, `transfer probe`, `PENDING_REVIEW`, `FIELD_VALIDATED`, and related implementation labels.
+- Stable semantic identities are shared across locales.
 
-The new Russian copy was rewritten as natural learner-facing poker Russian rather than preserving the old mixed architecture language. Primary explanations now avoid phrases such as `Players-behind gate`, `node signature`, `jobless bluff`, `arrival range`, `credible bluff supply` and similar internal construction jargon.
+## Drill, card and lab boundary
 
-**EN: PASS for all seven modules.**
+Accepted for Wave 4 module-gold scope:
 
-English is independently natural, preserves the same assumptions and exclusions, and contains no Cyrillic fallback in the Wave 4 gold layer.
+- 35 Wave 4 drills with stable IDs and stated assumptions;
+- 21 Wave 4 flashcards with stable IDs;
+- seven compare labs retained;
+- action/reason option IDs and misconception IDs preserved;
+- proprietary source examples and visual solver grids are not copied into learner-facing content.
 
-# Drill, card and lab review
+Not claimed complete here, because it belongs to Wave 5:
 
-**PASS for the current module-gold slice.**
+- larger variant matrices;
+- mixed-practice topic concealment;
+- prediction-before-reveal lab behavior;
+- full ambiguity/hidden-assumption audit;
+- expanded honest-uncertainty and boundary coverage;
+- corpus-wide flashcard/practice quality closure.
 
-- 35 stable Wave 4 drills are rewritten with stated assumptions;
-- 21 stable Wave 4 flashcards are rewritten;
-- each module retains a meaningful compare lab;
-- old correct-action, reason-option and misconception IDs remain unchanged;
-- exact source boards and proprietary examples are not copied into learner-facing text.
+## Learner-state integrity
 
-Broader Wave 5 requirements for larger variant matrices, option-order anti-memorisation, expanded boundary volume and prediction-before-reveal lab behavior remain a separate wave and are not claimed complete here.
+Wave 4 preserves:
 
-# Identity and learner-state integrity
-
-The Wave 4 implementation changes learner-facing copy only. It preserves:
-
-- all seven module IDs;
-- 35 drill IDs;
-- all action and reason option IDs;
+- all module IDs;
+- all drill IDs;
+- all action/reason option IDs;
 - misconception IDs;
-- 21 flashcard IDs;
+- all flashcard IDs;
 - prerequisite structure;
 - learner-state schema and model-core semantics.
 
 No migration or global learner-state reset is required.
 
-`tests/wave4-full-curriculum-gold.test.mjs` is designed to verify RU → EN → RU identity stability, locale purity, the seven module mechanisms and all 28 Wave 4 claim records.
+## Final verdict
 
-# Technical gate pending
+`WAVE_4_FULL_CURRICULUM_GOLD_ACCEPTED`
 
-Before final Wave 4 admission, the exact candidate head must pass:
-
-- TypeScript;
-- ESLint;
-- editorial integrity and source locks;
-- production build;
-- unit/integration tests;
-- desktop/mobile Playwright through `npm run test:release`.
-
-## Current verdict
-
-`WAVE_4_REVIEW_COMPLETE / TECHNICAL_GATE_PENDING`
-
-No `MODULE_GOLD` decision for LCM-04/05/07/08/09/10/11 is recorded until that gate is green.
+This verdict applies to repository curriculum truth at implementation SHA `5a6af4ed4f8d8e5e985950c71cbc6c6ba40efe86`. It does not claim that this Wave 4 source has been deployed to production, and it does not close Wave 5 practice-quality or Wave 10 empirical-learning gates.
