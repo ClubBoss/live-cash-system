@@ -87,12 +87,17 @@ function payloadState(payload: StateApiPayload): LearnerState | null {
   return migrateLearnerState(payload.state);
 }
 
+function mutationResponseNeedsRuntime(response: Response): boolean {
+  return response.status !== 401 && response.status < 500;
+}
+
 export function useReliableLearnerState() {
   const [state, setState] = useState<LearnerState>(emptyLearnerState);
   const [ready, setReady] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [cloudMode, setCloudMode] = useState<CloudMode>("cloud");
   const [recoveryCode, setRecoveryCode] = useState<RecoveryCode>(null);
+  const [recoveryBlocked, setRecoveryBlocked] = useState(false);
   const [lastErrorCode, setLastErrorCode] = useState<string | null>(null);
   const [lastLocalSaveAt, setLastLocalSaveAt] = useState<string | null>(null);
   const [lastCloudSaveAt, setLastCloudSaveAt] = useState<string | null>(null);
@@ -108,6 +113,14 @@ export function useReliableLearnerState() {
   const updateRequired = useRef(false);
   const conflictRef = useRef<ConflictSnapshot | null>(null);
   const mounted = useRef(true);
+
+  const requireUpdate = useCallback(() => {
+    updateRequired.current = true;
+    setRecoveryBlocked(true);
+    setRecoveryCode("UPDATE_REQUIRED");
+    setLastErrorCode("UPDATE_REQUIRED");
+    setSyncStatus("error");
+  }, []);
 
   const rememberConflict = useCallback((local: LearnerState, remote: LearnerState | null) => {
     const snapshot: ConflictSnapshot = { at: new Date().toISOString(), local, remote };
@@ -153,11 +166,9 @@ export function useReliableLearnerState() {
     let payload: StateApiPayload = {};
     try { payload = await response.json() as StateApiPayload; } catch { /* status is still useful */ }
 
-    if (payload.runtime && !runtimeCompatible(payload.runtime)) {
-      updateRequired.current = true;
-      setRecoveryCode("UPDATE_REQUIRED");
-      setLastErrorCode("UPDATE_REQUIRED");
-      setSyncStatus("error");
+    if (payload.code === "UPDATE_REQUIRED"
+      || (mutationResponseNeedsRuntime(response) && (!payload.runtime || !runtimeCompatible(payload.runtime)))) {
+      requireUpdate();
       return { ok: false, response, payload };
     }
 
@@ -199,7 +210,7 @@ export function useReliableLearnerState() {
     }
     setSyncStatus("error");
     return { ok: false, response, payload };
-  }, [acceptCloudAck, rememberConflict]);
+  }, [acceptCloudAck, rememberConflict, requireUpdate]);
 
   useEffect(() => {
     mounted.current = true;
@@ -219,15 +230,24 @@ export function useReliableLearnerState() {
           setRecoveryRaw(localRead.raw);
         }
         updateRequired.current = true;
+        setRecoveryBlocked(true);
         setRecoveryCode("FUTURE_STATE_UNSUPPORTED");
         setLastErrorCode("FUTURE_STATE_UNSUPPORTED");
-      } else if (localRead.kind === "corrupt" || localRead.kind === "recovered") {
+      } else if (localRead.kind === "corrupt") {
         if (localRead.raw) {
           safeSet(RECOVERY_BACKUP_KEY, localRead.raw);
           setRecoveryRaw(localRead.raw);
         }
-        setRecoveryCode(localRead.kind === "corrupt" ? "LOCAL_STATE_CORRUPT" : "LOCAL_STATE_RECOVERED");
-        setLastErrorCode(localRead.kind === "corrupt" ? "LOCAL_STATE_CORRUPT" : "LOCAL_STATE_RECOVERED");
+        setRecoveryBlocked(true);
+        setRecoveryCode("LOCAL_STATE_CORRUPT");
+        setLastErrorCode("LOCAL_STATE_CORRUPT");
+      } else if (localRead.kind === "recovered") {
+        if (localRead.raw) {
+          safeSet(RECOVERY_BACKUP_KEY, localRead.raw);
+          setRecoveryRaw(localRead.raw);
+        }
+        setRecoveryCode("LOCAL_STATE_RECOVERED");
+        setLastErrorCode("LOCAL_STATE_RECOVERED");
       }
 
       let remote: LearnerState | null = null;
@@ -237,11 +257,8 @@ export function useReliableLearnerState() {
         try {
           const response = await fetch("/api/state", { cache: "no-store" });
           try { remotePayload = await response.json() as StateApiPayload; } catch { remotePayload = {}; }
-          if (remotePayload.runtime && !runtimeCompatible(remotePayload.runtime)) {
-            updateRequired.current = true;
-            setRecoveryCode("UPDATE_REQUIRED");
-            setLastErrorCode("UPDATE_REQUIRED");
-            setSyncStatus("error");
+          if (response.ok && (!remotePayload.runtime || !runtimeCompatible(remotePayload.runtime))) {
+            requireUpdate();
           } else if (response.ok) {
             remoteAvailable = true;
             if (typeof remotePayload.cloudToken === "string") serverCloudToken.current = remotePayload.cloudToken;
@@ -251,7 +268,8 @@ export function useReliableLearnerState() {
               setCloudMode("local");
               setSyncStatus("local");
               writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
-            } else if (remotePayload.state && !validateLearnerState(remotePayload.state)) {
+            } else if (remotePayload.code === "CLOUD_STATE_UNREADABLE"
+              || (remotePayload.state && !validateLearnerState(remotePayload.state))) {
               setRecoveryCode("CLOUD_STATE_UNREADABLE");
               setLastErrorCode("CLOUD_STATE_UNREADABLE");
               setSyncStatus("error");
@@ -285,6 +303,9 @@ export function useReliableLearnerState() {
 
       if (remoteAvailable && remote && decision.kind !== "conflict") {
         serverRevision.current = remote.revision;
+        if (localRead.kind === "corrupt" && (decision.kind === "remote" || decision.kind === "equivalent")) {
+          setRecoveryBlocked(false);
+        }
       }
 
       if (localRead.kind === "future") setSyncStatus("error");
@@ -292,10 +313,10 @@ export function useReliableLearnerState() {
     }
     void restore();
     return () => { mounted.current = false; };
-  }, [rememberConflict]);
+  }, [rememberConflict, requireUpdate]);
 
   useEffect(() => {
-    if (!ready || recoveryCode === "FUTURE_STATE_UNSUPPORTED") return;
+    if (!ready || recoveryBlocked) return;
     const serialized = JSON.stringify(state);
     if (!safeSet(LEARNER_STORAGE_KEY, serialized)) {
       setRecoveryCode("LOCAL_WRITE_FAILED");
@@ -318,30 +339,34 @@ export function useReliableLearnerState() {
       }
     }, 800);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [postState, ready, recoveryCode, retryNonce, state]);
+  }, [postState, ready, recoveryBlocked, retryNonce, state]);
 
   useEffect(() => {
     const retry = () => {
-      if (ready && !cloudDisabled.current && !updateRequired.current && !conflictRef.current) {
+      if (ready && !recoveryBlocked && !cloudDisabled.current && !updateRequired.current && !conflictRef.current) {
         authUnavailable.current = false;
         setRetryNonce((value) => value + 1);
       }
     };
     window.addEventListener("online", retry);
     return () => window.removeEventListener("online", retry);
-  }, [ready]);
+  }, [ready, recoveryBlocked]);
 
   const retrySync = useCallback(() => {
-    if (cloudDisabled.current || updateRequired.current || conflictRef.current) return;
+    if (recoveryBlocked || cloudDisabled.current || updateRequired.current || conflictRef.current) return;
     authUnavailable.current = false;
     setRetryNonce((value) => value + 1);
-  }, []);
+  }, [recoveryBlocked]);
 
   const deleteCloud = useCallback(async () => {
     try {
       const response = await fetch("/api/state", { method: "DELETE" });
       let payload: StateApiPayload = {};
       try { payload = await response.json() as StateApiPayload; } catch { /* no-op */ }
+      if (response.ok && (!payload.runtime || !runtimeCompatible(payload.runtime))) {
+        requireUpdate();
+        return false;
+      }
       if (!response.ok) {
         setLastErrorCode(payload.code ?? `HTTP_${response.status}`);
         setSyncStatus(response.status === 401 ? "local" : "error");
@@ -360,9 +385,10 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_DELETE_FAILED");
       return false;
     }
-  }, []);
+  }, [requireUpdate]);
 
   const enableCloud = useCallback(async () => {
+    if (recoveryBlocked) return false;
     try {
       setSyncStatus("syncing");
       const result = await postState(state, { baseRevision: null, baseCloudToken: null, resumeCloudSync: true });
@@ -377,7 +403,7 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_SAVE_FAILED");
       return false;
     }
-  }, [postState, state]);
+  }, [postState, recoveryBlocked, state]);
 
   const resolveConflictWithCloud = useCallback(() => {
     const current = conflictRef.current;
@@ -432,42 +458,71 @@ export function useReliableLearnerState() {
       setLastErrorCode("IMPORT_BACKUP_FAILED");
       return false;
     }
+    updateRequired.current = false;
+    setRecoveryBlocked(false);
+    setRecoveryCode(null);
     setState(candidate);
     return true;
   }, [state]);
 
   const resetLocal = useCallback(async () => {
-    safeRemove(LEARNER_STORAGE_KEY);
-    safeRemove(RECOVERY_BACKUP_KEY);
-    setRecoveryRaw(null);
-    setRecoveryCode(null);
-
     if (cloudDisabled.current || authUnavailable.current) {
+      safeRemove(LEARNER_STORAGE_KEY);
+      safeRemove(RECOVERY_BACKUP_KEY);
+      updateRequired.current = false;
+      setRecoveryRaw(null);
+      setRecoveryBlocked(false);
+      setRecoveryCode(null);
       setState(emptyLearnerState());
       return true;
     }
 
     try {
       const response = await fetch("/api/state", { cache: "no-store" });
-      const payload = await response.json() as StateApiPayload;
-      if (response.ok && payload.runtime && runtimeCompatible(payload.runtime) && !payload.cloudDeleted) {
-        const remote = payloadState(payload);
-        if (remote) {
-          serverRevision.current = remote.revision;
-          serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : null;
-          setState(remote);
-          setSyncStatus("synced");
-          return true;
-        }
+      let payload: StateApiPayload = {};
+      try { payload = await response.json() as StateApiPayload; } catch { /* no-op */ }
+      if (!response.ok) {
+        setSyncStatus(response.status === 401 ? "local" : "error");
+        setLastErrorCode(payload.code ?? `HTTP_${response.status}`);
+        return false;
       }
-      setState(emptyLearnerState());
+      if (!payload.runtime || !runtimeCompatible(payload.runtime)) {
+        requireUpdate();
+        return false;
+      }
+      if (payload.code === "CLOUD_STATE_UNREADABLE") {
+        setRecoveryCode("CLOUD_STATE_UNREADABLE");
+        setLastErrorCode("CLOUD_STATE_UNREADABLE");
+        setSyncStatus("error");
+        return false;
+      }
+
+      const remote = payload.cloudDeleted ? null : payloadState(payload);
+      safeRemove(LEARNER_STORAGE_KEY);
+      safeRemove(RECOVERY_BACKUP_KEY);
+      updateRequired.current = false;
+      setRecoveryRaw(null);
+      setRecoveryBlocked(false);
+      setRecoveryCode(null);
+      if (payload.cloudDeleted) {
+        cloudDisabled.current = true;
+        writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
+        setCloudMode("local");
+        setState(emptyLearnerState());
+        setSyncStatus("local");
+        return true;
+      }
+      serverRevision.current = remote?.revision ?? null;
+      serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : null;
+      setState(remote ?? emptyLearnerState());
+      setSyncStatus("synced");
       return true;
     } catch {
-      setState(emptyLearnerState());
       setSyncStatus("offline");
-      return true;
+      setLastErrorCode("NETWORK_RESET_FAILED");
+      return false;
     }
-  }, []);
+  }, [requireUpdate]);
 
   return {
     state,
@@ -476,6 +531,7 @@ export function useReliableLearnerState() {
     syncStatus,
     cloudMode,
     recoveryCode,
+    recoveryBlocked,
     lastErrorCode,
     lastLocalSaveAt,
     lastCloudSaveAt,
