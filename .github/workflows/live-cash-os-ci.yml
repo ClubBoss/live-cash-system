@@ -46,6 +46,9 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Wave 7 targeted browser flows
+        run: npx playwright test e2e/wave7.spec.mjs
+
       - name: Release gate
         run: npm run test:release
 
