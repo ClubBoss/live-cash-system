@@ -4,11 +4,16 @@ Review date: `2026-08-07`
 Reviewer: `GPT-5.6 Thinking`  
 Scope: `LCM-02 / preflop`, `LCM-03 / blinds`, `LCM-06 / aggression`
 
-## Current decision
+## Final decision
 
-`STRATEGY_REVIEWED / RU_APPROVED / EN_APPROVED / DRILLS_REBUILT / TECHNICAL_GATE_PENDING`
+`LCM-02_MODULE_GOLD / LCM-03_MODULE_GOLD / LCM-06_MODULE_GOLD`
 
-This report does not declare the three modules `MODULE_GOLD` until the current-head release gate passes.
+Accepted source SHA: `a364406196ebac485e2565eb84fb513e6567332e`  
+GitHub Actions run: `31154078759`  
+Job: `92789681545`  
+Technical gate: `PASS`
+
+The gold decision is scoped to the mechanism claims and exclusions documented below. It does not promote exact chart cells, mixed frequencies, solver boards or unverified population frequencies.
 
 ## Why these three modules were prioritised
 
@@ -40,7 +45,7 @@ Four admitted mechanism claims are stored in `content/claims/lcm-02.claims.json`
 
 PASS for the admitted scope.
 
-The module now teaches:
+The module teaches:
 
 1. baseline chart shape before deviation;
 2. call quality as an independent branch;
@@ -81,6 +86,10 @@ PASS.
 
 English is independently natural and preserves the same assumptions, exclusions and uncertainty.
 
+## Decision
+
+`MODULE_GOLD` for branch-construction scope.
+
 ---
 
 # LCM-03 — Blind source and range identity
@@ -99,7 +108,7 @@ Four admitted mechanism claims are stored in `content/claims/lcm-03.claims.json`
 
 PASS for the admitted scope.
 
-The module now distinguishes:
+The module distinguishes:
 
 - BB price from the already posted blind;
 - BB closing-action value;
@@ -130,6 +139,10 @@ PASS.
 
 No Cyrillic fallback is part of the reviewed module copy.
 
+## Decision
+
+`MODULE_GOLD` for blind-source and realisation scope.
+
 ---
 
 # LCM-06 — Aggression and defence in 3-bet pots
@@ -150,7 +163,7 @@ Four admitted mechanism claims are stored in `content/claims/lcm-06.claims.json`
 
 PASS for the admitted scope.
 
-The module is now explicitly about the connection:
+The module is explicitly about the connection:
 
 ```text
 PREFLOP 3-BET RANGE SHAPE
@@ -187,7 +200,7 @@ PASS.
 
 Five stable drills remain under IDs `agg-01` through `agg-05`.
 
-The previous broad `aggression with a job` framing was narrowed to the 3-bet-pot mechanisms most relevant to the learner's current live-cash problems.
+The previous broad `aggression with a job` framing was narrowed to the 3-bet-pot mechanisms most relevant to current live-cash transfer.
 
 ## RU editorial review
 
@@ -201,9 +214,15 @@ PASS.
 
 The English copy preserves the compensation, filtering and OOP top-end-value boundaries without claiming exact solver outputs.
 
+## Decision
+
+`MODULE_GOLD` for 3-bet-pot aggression/defence mechanism scope.
+
 ---
 
 # Identity and state integrity
+
+PASS.
 
 The reconstruction preserves:
 
@@ -217,19 +236,19 @@ The reconstruction preserves:
 
 No migration or global learner-state reset is required.
 
-## New regression coverage
+## Regression coverage
 
 `tests/wave3-priority-gold.test.mjs` verifies:
 
 - RU → EN → RU locale switching preserves all stable IDs;
-- English gold contains no Cyrillic learner copy;
+- English learner-facing gold contains no Cyrillic copy;
 - Russian gold rejects the old hybrid terminology;
 - LCM-02 does not reintroduce unsupported fixed chart-cell claims;
 - LCM-03 preserves BB closing-action versus SB squeeze-exposure logic;
 - LCM-06 connects preflop range width to postflop aggression and OOP raise construction;
 - all three claim ledgers satisfy the claim-schema boundary.
 
-The editorial gate also requires:
+The editorial gate requires:
 
 - 15 Wave 3 drill IDs;
 - 9 Wave 3 card IDs;
@@ -238,17 +257,68 @@ The editorial gate also requires:
 
 ## Runtime editorial-status boundary
 
-Approved English modules must not display the old generic `EN REVIEW REQUIRED` banner. The wrapper now marks LCM-01/02/03/06 sessions as editorial gold and hides only the banner immediately following the session header. Pending modules retain the fallback notice.
+PASS after runtime repair.
 
-## Pending technical gate
+An initial Wave 3 implementation observed the full React subtree and called direct text-localisation mutations during React reconciliation. Browser evidence from failed run `31153052675` showed:
 
-Before final `MODULE_GOLD` admission:
+```text
+NotFoundError: Failed to execute 'removeChild' on 'Node'
+```
 
-- TypeScript must pass;
-- ESLint must pass;
-- editorial integrity must pass;
-- production build must pass;
-- unit/integration tests must pass;
-- desktop/mobile Playwright must pass.
+This was not accepted or hidden. The final implementation separates responsibilities:
 
-Final acceptance will be recorded only after the current head is green.
+- `attributeObserver` reacts only to `lang` / `aria-current` changes and may apply locale copy;
+- `structureObserver` reacts to structural/text replacement only by applying safe `data-editorial-gold` markers;
+- it never performs learner-text mutation;
+- approved LCM-01/02/03/06 surfaces hide the generic pending-English banner;
+- pending modules retain the fallback notice.
+
+The original LCM-01 feedback/reload E2E paths pass again in the accepted run.
+
+## Technical verification
+
+Current-head release gate: PASS.
+
+- Source SHA: `a364406196ebac485e2565eb84fb513e6567332e`
+- GitHub Actions run: `31154078759`
+- Job: `92789681545`
+- TypeScript: PASS
+- ESLint: PASS
+- Editorial integrity: PASS
+- Production build: PASS
+- Unit/integration: PASS
+- Desktop/mobile Playwright: PASS
+- Failure evidence upload: skipped because E2E passed
+
+## Final admission
+
+```text
+LCM-02 source mapped: PASS
+LCM-02 strategy reviewed: PASS
+LCM-02 RU approved: PASS
+LCM-02 EN approved: PASS
+LCM-02 drills approved: PASS
+LCM-02 identity/state integrity: PASS
+LCM-02 technical gate: PASS
+LCM-02 decision: MODULE_GOLD
+
+LCM-03 source mapped: PASS
+LCM-03 strategy reviewed: PASS
+LCM-03 RU approved: PASS
+LCM-03 EN approved: PASS
+LCM-03 drills approved: PASS
+LCM-03 identity/state integrity: PASS
+LCM-03 technical gate: PASS
+LCM-03 decision: MODULE_GOLD
+
+LCM-06 source mapped: PASS
+LCM-06 strategy reviewed: PASS
+LCM-06 RU approved: PASS
+LCM-06 EN approved: PASS
+LCM-06 drills approved: PASS
+LCM-06 identity/state integrity: PASS
+LCM-06 technical gate: PASS
+LCM-06 decision: MODULE_GOLD
+```
+
+Any subsequent strategic or learner-facing content change invalidates the affected approval until the relevant source lock and review are renewed.

@@ -1,6 +1,6 @@
 # Live Cash OS — Content Authority
 
-Status: `WAVE_3_PRIORITY_ADMISSION_IN_PROGRESS`
+Status: `WAVE_3_PRIORITY_ACCEPTED`
 
 This is the application-level admission contract for learner-facing poker content. It complements, rather than replaces, the repository-wide framework in `governance/CROSS_SOURCE_VALIDATION_AND_ADMISSION_FRAMEWORK_v0_1.md` and the immutable source-family registries under `sources/`.
 
@@ -118,11 +118,12 @@ Deterministic scripts may never create poker, RU, EN, accessibility, or empirica
 
 ## 8. Current admission boundary
 
-- LCM-01: bilingual gold slice, revalidated in `content/LCM-01_CONFORMANCE.md`.
-- LCM-02: strategic and bilingual review complete for the call/3-bet/fold architecture; exact chart cells remain out of scope; current-head technical gate still required for final `MODULE_GOLD` admission.
-- LCM-03: strategic and bilingual review complete for BB price/closing action, SB squeeze exposure and blind-source identity; exact blind charts remain out of scope; current-head technical gate still required.
-- LCM-06: strategic and bilingual review complete for 3-bet-pot range compensation, board ownership, turn filtering and OOP raising gates; exact solver frequencies remain out of scope; current-head technical gate still required.
+- LCM-01: `MODULE_GOLD_REVALIDATED` for effective-stack and pot-geometry scope; exact depth/SPR/straddle thresholds remain excluded.
+- LCM-02: `MODULE_GOLD` for source-backed call/3-bet/fold branch construction; exact chart cells, mixed frequencies and squeeze size tables remain excluded.
+- LCM-03: `MODULE_GOLD` for BB price/closing action, SB squeeze exposure, equity realisation and blind-source identity; exact blind charts remain excluded.
+- LCM-06: `MODULE_GOLD` for 3-bet-pot range compensation, board ownership, turn filtering and the OOP top-end raising gate; exact solver boards, sizes, frequencies and EVs remain excluded.
 - LCM-04, LCM-05 and LCM-07–LCM-11: structured candidates only; strategic and bilingual admission remains pending.
+- Wave 3 technical acceptance is tied to source SHA `a364406196ebac485e2565eb84fb513e6567332e`, GitHub Actions run `31154078759`, job `92789681545`.
 - Source-family completion does not close open strategic gaps. Current examples include exact depth/SPR/straddle overlays, squeeze combo boundaries, multiway shared defence and target-live population calibration.
 
 ## 9. Change rule
