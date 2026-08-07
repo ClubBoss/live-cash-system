@@ -21,7 +21,7 @@
     "status": "REVIEW_PENDING",
     "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
     "approved_digest": null,
-    "note": "W1-W5 integrated learner-facing composition plus the bounded W6 Today/scheduler/resume surface is materialized. Strategy, drill and exact integrated RU/EN human review remain pending; this candidate does not claim approval."
+    "note": "W1-W9 implementation is materialized on the current main lineage. Strategy, drill and exact final RU/EN human review remain pending; W6-W9 learner-facing surfaces are included in the pre-learning review scope. This candidate does not claim human approval."
   },
   "repair_source_paths": {
     "strategy": [

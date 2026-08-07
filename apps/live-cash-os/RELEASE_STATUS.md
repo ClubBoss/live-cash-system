@@ -1,87 +1,102 @@
 # Live Cash OS — Release Status
 
-Status: `W1_W5_INTEGRATION_CANDIDATE / REVIEW_PENDING / PRODUCTION_UPDATE_NOT_PERFORMED`
+Status: `W1_W9_IMPLEMENTATION_CLOSED / PRE_LEARNING_CLOSURE_IN_PROGRESS / HUMAN_REVIEW_PENDING / PRODUCTION_IDENTITY_PENDING`
 
-## Repository candidate
+## Repository implementation baseline
 
-- baseline main: `26b1dec72822a706f82cf485042c18e166397bdd`
-- reconciliation branch: `integration/w1-w5-reconciliation`
-- reconciliation base: exact repaired W3 head `a73dd43a2b6cf460023c67429522c9cadddabab8`
-- repaired W2 governance is already in W3 ancestry
-- FINAL W4R input: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`
-- W1 input: `fcb2e7b73c7459b8d7b15d7ab80866baa5f69b16`
-- W5 evidence input: `d13a350e960cb887847d16cc0418e0d38003c53e`
+- product implementation baseline: `ad29871fe923357049231ec6621d4784de8bfd1c`
+- baseline message: `Final W1–W9 learner-facing recovery polish`
+- exact-baseline CI run: `31220140534`
+- exact-baseline CI result: `SUCCESS`
 - canonical release command: `npm run test:release`
-- `main` has not been merged or modified by this work
-- Wave 6 has not started
+- automated baseline evidence: `136/136` unit/integration PASS; `85` browser E2E PASS; `3` intentional target skips
 
-## Current candidate truth
+The canonical main lineage now contains Waves 6 through 9. Earlier repository statements that main had not been merged/modified, Wave 6 had not started, or only a W1–W5 candidate existed are superseded.
 
-The candidate has materialized the W1-W5 implementation composition without restoring invalidated approval claims.
+This pre-learning closure stage is not a new broad feature wave. Its purpose is to reconcile truth, complete genuine human content/language review, collect cheap final browser/production evidence, and stop synthetic development unless a real blocker is found.
 
-Current manifest truth:
-
-`TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
-
-Final-composition current digest:
-
-`7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`
-
-No active strategy, drill or RU/EN human approval evidence is carried forward from stale compositions.
-
-## Integration boundaries
+## Current implementation truth
 
 ### W1
 
 `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
 
-FINAL W4R closes the former implementation-language blocker relevant to W1. Strict W1 acceptance still requires genuine fresh-context walkthrough evidence and current human language/release evidence.
+First-use implementation is in place. Formal fresh-context comprehension evidence remains deferred to genuine use.
 
 ### W2/W3
 
-W2/W3 remain authoritative for governance lifecycle and repaired priority strategy. Repaired strategy/drills remain human-review pending; neither `CURRICULUM_STRATEGY_GOLD` nor `DRILLS_APPROVED` is restored automatically.
+Governance lifecycle and repaired priority strategy remain authoritative. Strategy and drill approval are still human-review pending. No automated gate may create approval.
 
-### FINAL W4R
+### W4/W4R
 
-FINAL W4R remains authoritative for `LiveCashApp*`, `LearningRoute`, canonical locale runtime/pipeline, learner-facing language implementation, direct React localisation, W4R rejection checks and the current Wave5 practice composition.
-
-Active semantic reconciliation:
-
-- EN aggression worked example: unsupported exact `200bb` removed, with no replacement exact depth.
-
-Composition-path reconciliation:
-
-- `wave4r-poker-native.ts` remains present only as compatibility source;
-- canonical `locale-pipeline.ts` does not import/call it;
-- `applyWave5PracticeCopy()` no longer imports/calls it transitively;
-- therefore it cannot overwrite repaired W3 RU `agg-01`, `agg-02` or `agg-04` semantics.
+Canonical RU/EN runtime composition is implemented. Final exact-composition human RU/EN review remains pending and must include learner-facing copy added in W6–W9.
 
 ### W5
 
-Current disposition:
-
 `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
 
-W5 branch contributions are audit/handoff reports only. FINAL W4R `Wave5PracticeLayer` is retained; superseded temporary implementation is not restored.
+Compatibility/shim debt remains accepted and non-blocking unless it causes a demonstrated learner-facing or integrity defect.
 
-## Gate boundary
+### W6
 
-A materialized candidate is not yet a technically green candidate until the exact integrated source executes its required gates.
+`W6_IMPLEMENTATION_CLOSED`
 
-Candidate governance is designed to pass while the manifest is `REVIEW_PENDING` and source locks are current. Full approval is designed to remain red until human strategy/drill/RU/EN evidence and a current approved composition digest exist.
+Bounded daily scheduling, warm-up/post-session planning, due/repair priority, resume, long-absence protection and diagnostic-routing boundaries are implemented.
 
-Historical CI/test counts are not current integration evidence and must not be copied forward.
+### W7
+
+`W7_IMPLEMENTATION_CLOSED / HUMAN_USABILITY_EVIDENCE_PENDING`
+
+Explain-back, structured real-hand capture/review, progress evidence and false-field-validation protections are implemented.
+
+### W8
+
+`W8_CRITICAL_UX_ACCESSIBILITY_IMPLEMENTATION_CLOSED / STRICT_MANUAL_EVIDENCE_PENDING`
+
+Critical mobile/interaction/accessibility regressions are covered. A separate cross-browser Playwright config includes Chromium, Firefox and WebKit families, while the canonical main CI still executes the standard Chromium desktop/mobile release suite. Formal real-device/browser and broader accessibility evidence remains pending.
+
+### W9
+
+`W9_RELIABILITY_IMPLEMENTATION_CLOSED / PERFORMANCE_AND_PRODUCTION_EVIDENCE_PENDING`
+
+Offline/local continuity, schema/import safety, explicit sync conflict handling, conditional cloud writes, deletion tombstones, recovery copies, privacy/recovery UI and service-worker safety are implemented. Broad performance instrumentation remains a strict-DoD evidence item, not a reason to add new infrastructure before real use.
+
+## Current governance truth
+
+Current manifest state remains intentionally review-pending:
+
+`TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
+
+- strategy approval: `null`
+- drill approval: `null`
+- human locale approvals: none
+- exact final-composition approval: pending genuine human review
+
+A GREEN candidate gate is not equivalent to human approval.
+
+## Pre-learning closure gates
+
+Before declaring `W1_W9_PRE_LEARNING_READY`, close only the following narrow gates:
+
+1. human poker revalidation of repaired W3 priority claims/drills;
+2. final exact-composition RU/EN human review, including W6–W9 learner-facing surfaces;
+3. exact final candidate CI after closure changes;
+4. production identity/fresh-state smoke for the final candidate;
+5. cheap cross-browser/manual accessibility checks where practical, with code changes only if they expose a real P0/P1 defect.
+
+W1/W7 empirical usability thresholds are not to be fabricated before real use. They may be collected together with W10 evidence.
 
 ## Production boundary
 
-- stable production URL remains outside this integration operation;
-- no publish is performed;
-- no production D1 or learner-state migration/reset is performed;
-- no exact deployed-SHA claim is made for this candidate;
-- production smoke belongs to the later owner-authorised release stage.
+- stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
+- repository GREEN does not by itself prove exact deployed SHA;
+- no learner-state reset, D1 reset or URL change is part of pre-learning closure;
+- production smoke must preserve learner content/progress and must not silently mutate or erase state.
 
-## Current verdict boundary
+## Stop condition
 
-Until current candidate gate execution is recorded, the truthful repository state is:
+If the closure pass finds no new P0/P1 defect and the genuine content/language gates are satisfied, the product should be declared:
 
-`W1_W5_INTEGRATION_CANDIDATE_MATERIALIZED / TECHNICAL_GATE_EXECUTION_PENDING / HUMAN_REVIEW_PENDING / PRODUCTION_NOT_CHANGED`
+`W1_W9_PRE_LEARNING_READY`
+
+At that point synthetic feature development stops. Real training begins, W10 collects actual retention/reasoning/field evidence, and W11 remains the later formal acceptance/release-identity stage.

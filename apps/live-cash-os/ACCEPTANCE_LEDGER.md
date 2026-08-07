@@ -1,48 +1,26 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `W1_W5_INTEGRATION_CANDIDATE_MATERIALIZED / TECHNICAL_RELEASE_GATE_PENDING / HUMAN_REVIEW_PENDING / PRODUCTION_NOT_CHANGED`
+Status: `W1_W9_IMPLEMENTATION_CLOSED / EXACT_MAIN_RELEASE_GATE_GREEN / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / PRE_LEARNING_CLOSURE_IN_PROGRESS`
 
-This ledger records the exact W1-W5 reconciliation candidate. It separates implementation closure, automated rejection gates, human approval, first-use comprehension evidence and production truth. A materialized candidate is not an accepted release until the exact source passes its required gates.
+This ledger records current W1–W9 repository truth. It separates implementation closure, automated rejection gates, human poker/language approval, empirical usability evidence, production identity, and the later W10/W11 acceptance process.
 
-## Integration identity
+## Current implementation identity
 
-- integration branch: `integration/w1-w5-reconciliation`
-- integration base: W3 repaired head `a73dd43a2b6cf460023c67429522c9cadddabab8`
-- W3 already contains repaired W2 governance ancestry
-- FINAL W4R input: `9b5b5a997663bd381857f1e06a2edeadd7b20c1a`
-- W1 input: `fcb2e7b73c7459b8d7b15d7ab80866baa5f69b16`
-- W5 audit/evidence input: `d13a350e960cb887847d16cc0418e0d38003c53e`
-- baseline main: `26b1dec72822a706f82cf485042c18e166397bdd`
-- `main` is not merged or modified by this reconciliation
-- Wave 6 is not started
+- product implementation baseline: `ad29871fe923357049231ec6621d4784de8bfd1c`
+- baseline message: `Final W1–W9 learner-facing recovery polish`
+- exact-baseline CI run: `31220140534`
+- exact-baseline release result: `SUCCESS`
+- release command: `npm run test:release`
+- exact-baseline automated evidence: `136/136` unit/integration PASS; `85` browser E2E PASS; `3` intentional target skips
+- this pre-learning closure branch is truth/evidence reconciliation only unless a separately reviewed defect requires code change
 
-## Wave 1 truth
+Waves 6, 7, 8 and 9 are implemented in the canonical main lineage. Older statements that main was unmodified, Wave 6 had not started, or the repository was only a W1–W5 integration candidate are superseded.
 
-Current verdict:
+## Governing acceptance boundary
 
-`WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
+Automated checks are rejection tools, not approval writers. A GREEN candidate gate does not create human poker, drill, RU/EN, usability, production-deployment, or empirical-learning approval.
 
-The combined candidate retains the focused first-use E2E, walkthrough protocol, evidence template, production smoke and acceptance-truth regression from W1. FINAL W4R closes the former implementation-language blocker relevant to Wave 1, but this does not create fresh human RU/EN approval.
-
-Strict `WAVE_1_ACCEPTED` remains blocked until genuine fresh-context evidence exists:
-
-- at least 3 eligible walkthroughs;
-- at least 90% diagnostic purpose/optionality comprehension;
-- at least 90% Learn/Review/Real Hands navigation comprehension;
-- the remaining Master Plan first-use thresholds.
-
-## Wave 2 governance truth
-
-Wave 2 governance lifecycle is authoritative in the combined candidate:
-
-- deterministic checks are rejection-only;
-- candidate and release approval are separate states/gates;
-- strategy and drill repairs may advance to `REVIEW_PENDING` without becoming approved;
-- old approval evidence is invalidated after material mutation;
-- human evidence is required to restore strategy gold, drill approval or locale approval;
-- locale approval binds to the exact final-composition digest.
-
-Current governance state:
+Current governance remains intentionally review-pending:
 
 - manifest: `TRANSITIONAL_REVIEW_REQUIRED`
 - strategy: `CURRICULUM_STRATEGY_REVIEW_PENDING`
@@ -51,102 +29,113 @@ Current governance state:
 - drill approval: `null`
 - human locale approvals: none
 - final composition: `REVIEW_PENDING`
-- current composition digest: `7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`
-- approved digest: `null`
 
-## Wave 3 strategy and final-composition truth
+`REVIEW_PENDING` is a legal implementation-candidate state and never an approval state.
 
-The repaired W3 source/strategy implementation remains authoritative for LCM-02, LCM-03 and LCM-06. It is not overwritten by stale W4R strategy-gold governance claims.
+## Wave 1
 
-Pending human poker review remains required for:
+Current verdict:
 
-- repaired LCM-02 claims;
-- repaired LCM-03 claims;
-- repaired LCM-06 claims;
-- all 15 final-composition W3 drills;
-- affected runtime distractor semantics.
+`WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
 
-The final canonical RU/EN composition is materialized through the locale pipeline. The candidate regression locks:
+The first-use flow, optional diagnostic explanation, direct lesson route and bilingual navigation are implemented and covered by browser regression tests. Formal fresh-context comprehension evidence remains deferred to genuine use rather than fabricated pre-release evidence.
 
-- no unsupported approximately-60bb boundary in `pre-05`;
-- no unsupported exact stack depth in `agg-01`;
-- canonical W3 RU identity for `agg-01`, `agg-02`, `agg-04`;
-- canonical turn-filter identity for EN `agg-04`;
-- OOP large-raise/value gate for `agg-05`;
-- exactly 15 stable W3 drill IDs across locales;
-- ID-based one-best-answer integrity.
+Strict Wave 1 human evidence remains open:
 
-These are candidate facts, not human poker approval.
+- at least 3 eligible fresh-context walkthroughs;
+- the Master Plan comprehension thresholds for diagnostic purpose/optionality and main navigation;
+- observed first-lesson entry behavior.
 
-## FINAL W4R language/runtime truth
+## Waves 2–4R — content, strategy and language governance
 
-FINAL W4R is authoritative for the learner-facing runtime, locale pipeline, direct React localisation, language implementation, W4R runtime/editorial rejection rules and current `Wave5PracticeLayer` composition.
+The repaired content/governance pipeline remains authoritative. Stable learner IDs and the canonical source-backed curriculum must not be changed merely to simplify architecture.
 
-The active reconciliation item is only:
+Pending human poker review remains required for the repaired W3 priority material, including the repaired claims in LCM-02, LCM-03 and LCM-06 and the final-composition W3 drills. Automated claim, source-lock and one-best-answer checks do not substitute for poker-expert review.
 
-- `W4R-SEM-01`: the EN aggression worked example no longer asserts unsupported exact `200bb`; no replacement exact depth was introduced.
+Fresh human RU and EN review of the exact final learner-facing composition also remains required. This review must include learner-facing surfaces added during W6–W9, not only the earlier W1–W5 curriculum copy.
 
-During exact integration inspection, `wave4r-poker-native.ts` was found to be transitively reactivated by FINAL W4R `applyWave5PracticeCopy()`, despite not being directly imported by `locale-pipeline.ts`. The combined candidate removes that compatibility call from `wave5-practice-copy.ts`. The compatibility file may remain present, but it is inert in the canonical locale path and therefore cannot overwrite repaired W3 RU semantics.
+No stale strategy/drill/locale approval may be restored automatically after semantic or composition changes.
 
-No W3 `W4R_SEM-02/03/04` copy repair was restored.
+## Wave 5
 
-Fresh human RU and EN review of the exact integrated composition remains required. Automated language/runtime checks cannot create approval.
-
-## Wave 5 disposition
-
-Current integrated disposition:
+Current disposition:
 
 `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
 
-The W5 branch contributes audit/handoff evidence only. It does not reintroduce its superseded temporary runtime architecture. FINAL W4R owns the current `Wave5PracticeLayer`.
+Preserved mechanics include one-best-answer integrity, ID-safe shuffle, three-topic mixed practice, topic concealment, prediction-first labs, changed-node/boundary practice, flashcards and stable learner history.
 
-Preserved mechanics include:
+Accepted P2 compatibility debt remains non-blocking for pre-learning use, including DOM compatibility ownership and split mixed-practice unlock ownership. This debt must not trigger a purity refactor unless it creates a demonstrated learner-facing or integrity defect.
 
-- one-best-answer / assumption / legal-sequence / numeric integrity coverage;
-- ID-safe option shuffle;
-- three-module mixed-practice unlock;
-- pre-decision topic concealment;
-- prediction-first labs;
-- valid-input and material-change gates;
-- changed-node continuation;
-- flashcards and mixed practice;
-- stable learner history/IDs.
+## Wave 6
 
-Accepted P2 compatibility debt may remain until a later justified refactor:
+Current disposition:
 
-- localStorage read;
-- event listeners/polling;
-- querySelector contract;
-- dataset/ARIA/button mutation;
-- CSS lab overlay;
-- programmatic Core click;
-- split mixed-unlock ownership.
+`W6_IMPLEMENTATION_CLOSED`
 
-The integration must not restore MutationObserver state inference, textContent localisation, duplicate composition or superseded compatibility behavior.
+Implemented behavior includes bounded 5/15/30-minute planning, warm-up/post-session modes, deterministic scheduling, due/repair priority, unfinished-session resume, bounded return after absence, one-new-mechanism protection and routing from reviewed diagnostic priorities without fabricating learning evidence.
 
-## Technical gate boundary
+Immediate successful repair remains distinct from delayed retention evidence.
 
-The current candidate has not yet earned a current full-release result merely because its source is materialized. Historical test counts remain historical only.
+## Wave 7
 
-Required current execution:
+Current disposition:
 
-- targeted governance lifecycle tests;
-- W3 strategy/final-composition tests;
-- W4R language/runtime tests;
-- W5 practice tests;
-- W1 first-use/acceptance tests;
-- canonical `npm run test:release` from the exact checkout;
-- candidate governance gate, expected GREEN in `REVIEW_PENDING`;
-- `npm run check:approval`, expected RED while human approvals/final release approval are pending.
+`W7_IMPLEMENTATION_CLOSED / HUMAN_USABILITY_EVIDENCE_PENDING`
 
-An expected approval-gate RED is correct governance behavior and must not be bypassed.
+Implemented behavior includes explain-back persistence, reviewed explain-back repair routing, structured real-hand capture, result separation, field-review lifecycle, progress/evidence surfaces and protection against false field validation.
+
+A raw hand or one reviewed hand cannot create `FIELD_VALIDATED`; the evidence contract requires multiple independent supports plus retention/variant evidence.
+
+Formal timing/comprehension evidence for diagnostic, explain-back, hand capture and progress-map usability remains appropriate for real-use/W10 collection.
+
+## Wave 8
+
+Current disposition:
+
+`W8_CRITICAL_UX_ACCESSIBILITY_IMPLEMENTATION_CLOSED / STRICT_MANUAL_EVIDENCE_PENDING`
+
+Automated coverage includes mobile viewport sanity, no document-level horizontal overflow on key surfaces, 44px primary targets, explain-back naming, focus transfer, progressbar semantics, visible keyboard focus and reduced-motion behavior.
+
+A separate cross-browser Playwright configuration exists for Chromium, Firefox, WebKit desktop, iPhone/WebKit, Android/Chromium and iPad/WebKit. The canonical main release workflow currently runs the standard Chromium desktop/mobile suite only, so strict cross-browser/manual accessibility acceptance remains evidence-pending rather than falsely claimed.
+
+Open strict-evidence items may include real-device/browser confirmation, 200% zoom, end-to-end keyboard walkthroughs, contrast/automated accessibility audit and screen-reader semantics where not otherwise demonstrated.
+
+## Wave 9
+
+Current disposition:
+
+`W9_RELIABILITY_IMPLEMENTATION_CLOSED / PERFORMANCE_AND_PRODUCTION_EVIDENCE_PENDING`
+
+Implemented reliability coverage includes local/offline continuity, safe schema handling and import, explicit sync conflicts, conditional cloud writes, durable deletion tombstones, fresh-device restore, version skew handling, D1/API failure behavior, recovery copies, safe diagnostics, privacy explanation and service-worker cache/version safeguards.
+
+No silent learner-state loss is an acceptance invariant.
+
+Strict W9 performance measurement and final production/release evidence remain separate from the reliability implementation. Do not add enterprise observability or broad performance infrastructure without demonstrated need.
+
+## Current pre-learning blockers
+
+The remaining blockers before declaring `W1_W9_PRE_LEARNING_READY` are intentionally narrow:
+
+1. human poker revalidation of the repaired priority strategy/drills;
+2. final exact-composition RU/EN human review, including W6–W9 learner-facing copy;
+3. current production-candidate smoke/identity check after the final closure SHA is materialized.
+
+Cross-browser/manual accessibility evidence may be collected during this closure pass when cheap, but absence of formal certification alone must not expand into a new product-development wave unless it reveals a real P0/P1 defect.
+
+## Empirical evidence boundary
+
+W1/W7 human usability evidence and learning-effect evidence must come from real use. They are not to be fabricated to make the ledger look complete.
+
+W10 starts on the final pre-learning candidate and collects genuine repeated-session, delayed-recall, misconception, return-after-break and real-hand evidence. W11 remains the later formal acceptance/release identity stage.
 
 ## Production boundary
 
-No integration commit is claimed deployed. No production publish, D1 reset, learner-state reset, URL change or Wave 6 work is performed here.
+The stable production URL remains `https://live-cash-os.elmarsal.chatgpt.site/`.
 
-Authenticated production smoke, exact deployed SHA and later release truth remain external to this W1-W5 candidate until an owner-authorised release stage.
+A successful repository CI run does not prove that this exact source is deployed. Exact deployed identity and a fresh-state production smoke remain required before the final pre-learning-ready claim.
 
 ## Governing rule
 
-`REVIEW_PENDING` is a legal candidate state and never an approval state. Automated checks may reject invalid work but cannot create poker-content, drill, RU/EN, first-use comprehension, production-authenticated or empirical-learning approval.
+`CONTENT PRESERVATION > architecture cleanliness`.
+
+No closure work may delete or semantically compress admitted poker content, churn stable learner IDs, change correct-answer identity, lose provenance, remove RU/EN coverage, make canonical material unreachable, or turn compatibility copy into a new semantic authority without explicit reviewed justification.
