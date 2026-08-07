@@ -2,7 +2,7 @@ name: Live Cash OS CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, repair/w4r-language-truth]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
