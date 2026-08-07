@@ -279,6 +279,7 @@ export default function Wave5PracticeLayer() {
       html[lang="ru"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "СМЕШАННАЯ ЗАДАЧА"; font-size: .75rem; }
       html[lang="en"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "MIXED DECISION"; font-size: .75rem; }
       html[data-wave5-lab-gate="active"] main .session > :not(.session-head) { display: none !important; }
+      .wave5-lab-gate > .assumption-strip { display: block !important; }
     `}</style>
     {snapshot.labActive && snapshot.moduleId && <Wave5LabGate key={snapshot.moduleId} locale={snapshot.locale} moduleId={snapshot.moduleId} />}
   </>;
