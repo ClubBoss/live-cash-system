@@ -47,6 +47,8 @@ export type ImportPreparation = {
 export type SyncMeta = {
   cloudDisabled: boolean;
   lastCloudRevision: number | null;
+  // Historical key name retained for schema-v2 local compatibility. The value
+  // is now an opaque server CAS token, not learner-state updatedAt.
   lastCloudUpdatedAt: string | null;
   lastCloudSaveAt: string | null;
 };
@@ -105,8 +107,7 @@ export function readLocalLearnerState(raw: string | null): LocalStateRead {
   }
 
   // A malformed schema-v2 local snapshot is recoverable only as a quarantined
-  // best-effort copy. The original raw value must be preserved before the
-  // recovered candidate is allowed to replace it.
+  // best-effort copy. The caller preserves the original raw value first.
   const recovered = migrateLearnerState(parsed);
   if (validateLearnerState(recovered)) {
     return { kind: "recovered", state: recovered, raw, reason: "Schema-v2 state required recovery" };
@@ -202,9 +203,12 @@ function fieldRowsPreserved(candidateState: LearnerState, baseState: LearnerStat
     for (const key of ["moduleId", "cue", "action", "reason", "at"]) {
       if (next[key] !== row[key]) return false;
     }
-    const baseRank = FIELD_STATUS_RANK[String(row.status)] ?? 0;
-    const nextRank = FIELD_STATUS_RANK[String(next.status)] ?? 0;
+    const baseStatus = String(row.status);
+    const nextStatus = String(next.status);
+    const baseRank = FIELD_STATUS_RANK[baseStatus] ?? 0;
+    const nextRank = FIELD_STATUS_RANK[nextStatus] ?? 0;
     if (nextRank < baseRank) return false;
+    if (baseStatus !== "PENDING_REVIEW" && nextStatus !== baseStatus) return false;
     if (typeof row.evaluatorNote === "string" && row.evaluatorNote && next.evaluatorNote !== row.evaluatorNote) return false;
     if (typeof row.reviewedAt === "string" && row.reviewedAt && next.reviewedAt !== row.reviewedAt) return false;
   }
@@ -264,12 +268,30 @@ function cardsDoNotRegress(candidate: LearnerState, base: LearnerState): boolean
   return true;
 }
 
+function activeSessionPreserved(candidate: LearnerState, base: LearnerState): boolean {
+  const previous = base.activeSession;
+  if (!previous) return true;
+  if (JSON.stringify(candidate.activeSession) === JSON.stringify(previous)) return true;
+
+  // A partial choice/explain-back draft is user data. If no durable evidence or
+  // completion advanced after the base snapshot, a different active session is
+  // ambiguous and must become a conflict rather than an automatic winner.
+  const baseInteractionIds = new Set(base.interactions.map((row) => row.id));
+  const hasNewInteraction = candidate.interactions.some((row) => !baseInteractionIds.has(row.id));
+  const baseProgress = base.modules[previous.moduleId];
+  const nextProgress = candidate.modules[previous.moduleId];
+  const completedForward = (!baseProgress.contentCompleted && nextProgress.contentCompleted)
+    || nextProgress.completedBlocks > baseProgress.completedBlocks;
+  return hasNewInteraction || completedForward;
+}
+
 /**
  * Conservative whole-snapshot ancestry check.
  *
- * This is not a merge. It is only used to prove that accepting a newer whole
- * snapshot cannot discard already-recorded learner evidence. If that proof is
- * unavailable, callers must surface a conflict instead of guessing a winner.
+ * This is not a merge. It only proves that accepting a newer whole snapshot
+ * cannot discard already-recorded learner evidence or an unfinished answer.
+ * If that proof is unavailable, callers surface a conflict instead of guessing
+ * a winner.
  */
 export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): boolean {
   if (sameLearnerState(candidate, base)) return true;
@@ -280,6 +302,7 @@ export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): bo
   if (!diagnosticPreserved(candidate, base)) return false;
   if (!modulesDoNotRegress(candidate, base)) return false;
   if (!cardsDoNotRegress(candidate, base)) return false;
+  if (!activeSessionPreserved(candidate, base)) return false;
   return true;
 }
 
