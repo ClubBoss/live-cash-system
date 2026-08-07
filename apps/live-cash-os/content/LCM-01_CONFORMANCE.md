@@ -120,13 +120,27 @@ Status: `CARDS_APPROVED`.
 
 ## Identity and state integrity
 
-PASS based on existing unit/integration and Playwright coverage:
+PASS based on unit/integration and Playwright coverage:
 
 - stable IDs across locales;
 - selected answer survives locale switch and reload;
 - submitted feedback does not duplicate evidence;
 - active session persists;
 - a single correct answer does not create mastery.
+
+## Technical verification
+
+PASS.
+
+- Accepted source SHA: `96f5d62c9c2cd94965dfa41e93db224a6d0fc593`
+- GitHub Actions run: `31137050150`
+- Job: `92738621986`
+- TypeScript: PASS
+- ESLint: PASS
+- Editorial integrity: PASS
+- Production build: PASS
+- Unit/integration: 35/35 PASS
+- Desktop/mobile Playwright: PASS
 
 ## Known limitations
 
@@ -146,7 +160,7 @@ Drills approved: PASS — current gold slice
 Lab approved: PASS — current scope
 Cards approved: PASS
 Identity/state integrity: PASS
-Technical gate: requires current-head release run after governance commit
+Technical gate: PASS — run 31137050150
 Decision: MODULE_GOLD_REVALIDATED
 ```
 
