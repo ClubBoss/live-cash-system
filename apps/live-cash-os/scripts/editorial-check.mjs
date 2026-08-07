@@ -16,6 +16,9 @@ function quoted(source) {
 
 assert.equal(manifest.schema_version, 3, "Unsupported editorial manifest schema");
 assert.equal(manifest.status, "FULLY_ACCEPTED", "Current accepted curriculum requires FULLY_ACCEPTED manifest status");
+assert.equal(manifest.status_scope, "CURRICULUM_BILINGUAL_MODULE_APPROVAL", "FULLY_ACCEPTED must be explicitly scoped to curriculum approval");
+assert.equal(manifest.curriculum_truth, "CURRICULUM_STRATEGY_GOLD", "Curriculum strategy truth changed unexpectedly");
+assert.match(manifest.language_truth, /^WAVE_4R_(?:REPAIR_CANDIDATE|ACCEPTED)$/u, "Wave 4R language truth is missing");
 assert.deepEqual(Object.keys(manifest.modules), moduleIds, "Editorial manifest module order or coverage changed");
 assert.match(manifest.review_policy, /can never create an approval/u, "Review policy must forbid automatic approval");
 
@@ -60,11 +63,30 @@ for (const prefix of ["fil", "sha", "anc", "mul", "riv", "evi", "tra"]) {
 
 const wave4Final = await readFile(new URL("../content/i18n/wave4-final-editorial.ts", import.meta.url), "utf8");
 const wave4rNative = await readFile(new URL("../content/i18n/wave4r-poker-native.ts", import.meta.url), "utf8");
+const wave4rFinalLanguage = await readFile(new URL("../content/i18n/wave4r-final-language.ts", import.meta.url), "utf8");
 assert.match(wave4Final, /applyEvidenceRussianFinal/u, "Final LCM-10 Russian editorial layer is missing");
 assert.match(wave4Final, /applyTransferRussianFinal/u, "Final LCM-11 Russian editorial layer is missing");
 assert.match(wave4Final, /if \(locale !== "ru"\) return/u, "Final Wave 4 editorial layer must not mutate English gold");
 assert.match(wave4rNative, /applyEnglishTransferNative/u, "Final LCM-11 English poker-native layer is missing");
 assert.match(wave4rNative, /applyEnglishPokerNative/u, "Final English poker-native layer is missing");
+assert.match(wave4rFinalLanguage, /applyEnglishFinalLanguage/u, "Final Wave 4R English language pass is missing");
+assert.equal(/[А-Яа-яЁё]/u.test(quoted(wave4rFinalLanguage)), false, "Final English language pass contains Cyrillic learner copy");
+for (const required of [
+  "How bet size changes your response",
+  "Trace the range through the hand",
+  "Count the bluffs first",
+  "Understand the price and your real options",
+]) assert.ok(wave4rFinalLanguage.includes(required), `Final learner-language repair is missing: ${required}`);
+for (const pattern of [
+  /Range ancestry/iu,
+  /response shape/iu,
+  /range compensation/iu,
+  /OOP raise gate/iu,
+  /source branch/iu,
+  /arrival range/iu,
+  /node-specific/iu,
+  /claim-driven/iu,
+]) assert.doesNotMatch(quoted(wave4rFinalLanguage), pattern, `Final English module repair contains research phrase ${pattern}`);
 
 const runtime = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
 const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
@@ -74,6 +96,7 @@ const core = await readFile(new URL("../components/LiveCashAppCore.tsx", import.
 const localePipeline = await readFile(new URL("../content/i18n/locale-pipeline.ts", import.meta.url), "utf8");
 const learnerUi = await readFile(new URL("../content/i18n/learner-ui.ts", import.meta.url), "utf8");
 const routeComponent = await readFile(new URL("../components/LearningRoute.tsx", import.meta.url), "utf8");
+const e2e = await readFile(new URL("../e2e/live-cash.spec.mjs", import.meta.url), "utf8");
 
 // Wave 4R: T1 language truth in both locales. Stable LD-* IDs remain untouched.
 const diagnosticRuCopy = quoted(diagnostic);
@@ -105,7 +128,7 @@ for (const pattern of [/evidence/iu, /probe/iu, /repair/iu, /retention/iu, /fiel
 assert.match(routeComponent, /This is not one overall mastery score/u, "English route boundary is not learner-facing");
 assert.doesNotMatch(routeComponent, /distinct learner-state event/iu, "Route UI still exposes learner-state jargon");
 
-// Wave 4R: one semantic source for approved module headings.
+// Wave 4R: one final semantic heading path. Legacy moduleHeadings cannot override gold/final copy.
 assert.match(runtime, /export const moduleHeadings = Object\.fromEntries/u, "Legacy moduleHeadings must be a compatibility export");
 assert.match(runtime, /\[id, \{ en: \{\} \}\]/u, "Legacy moduleHeadings must not contain semantic copy");
 for (const stale of ["Exploit filters before adjustment", "Aggression with a clear job", "River evidence before blockers"]) {
@@ -123,9 +146,10 @@ for (const stale of [/module bodies remain source-locked/iu, /editorial approval
 }
 
 // Wave 4R: direct React locale rendering only. No post-render localisation bridge.
-for (const symbol of ["applyGeometryLocale", "applyWave3PriorityLocale", "applyWave4CurriculumLocale", "applyWave4FinalEditorialLocale", "applyWave5PracticeCopy"]) {
+for (const symbol of ["applyGeometryLocale", "applyWave3PriorityLocale", "applyWave4CurriculumLocale", "applyWave4FinalEditorialLocale", "applyWave5PracticeCopy", "applyWave4RFinalLanguage"]) {
   assert.match(localePipeline, new RegExp(symbol, "u"), `Locale pipeline misses ${symbol}`);
 }
+assert.ok(localePipeline.lastIndexOf("applyWave4RFinalLanguage(locale)") > localePipeline.lastIndexOf("applyWave5PracticeCopy(locale)"), "Final Wave 4R language pass must be the last locale copy authority");
 assert.match(core, /applyLocaleData\(nextLocale\)/u, "Restore path must apply locale data before render");
 assert.match(core, /applyLocaleData\(next\)/u, "Locale switch must apply locale data before render");
 assert.match(core, /<LearningRoute locale=\{locale\} \/>/u, "Learning route must render from React state");
@@ -178,5 +202,13 @@ const finalEvidenceRuCopy = quoted(wave4Final);
 for (const pattern of [/learner state/iu, /WORKING evidence/iu, /transfer probe/iu, /PENDING_REVIEW/iu, /REVIEWED_VALID/iu, /REVIEWED_REPAIR/iu, /RETAINED/iu, /FIELD_VALIDATED/iu, /CONTENT_COMPLETED/iu, /product contract/iu, /field evidence/iu, /retention evidence/iu]) {
   assert.doesNotMatch(finalEvidenceRuCopy, pattern, `Final Russian LCM-10/11 copy contains system phrase ${pattern}`);
 }
+
+// Browser coverage is part of the editorial truth gate, not an optional follow-up.
+for (const required of [
+  "RU to EN to RU preserves the active decision and learner identity",
+  "the starting check has natural T1 copy in both locales",
+  "approved EN module cards use final poker-native headings",
+  "direct learner labels do not expose raw internal statuses",
+]) assert.ok(e2e.includes(required), `Missing Wave 4R rendered-output browser coverage: ${required}`);
 
 console.log(`editorial gate passed: ${moduleIds.length} bilingual strategic modules; Wave 4R final learner-facing language truth checked${requireFull ? " (full release mode)" : ""}.`);
