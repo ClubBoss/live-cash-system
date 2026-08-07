@@ -50,5 +50,5 @@ export default function Wave5PracticeCopySync() {
     });
     return () => observer.disconnect();
   }, []);
-  return null;
+  return <style>{`.wave5-lab-gate > .assumption-strip { display: block !important; }`}</style>;
 }
