@@ -8,6 +8,16 @@ This is the application-level admission contract for learner-facing poker conten
 
 Strategic source authority remains the admitted course/source corpus plus explicitly labelled project inference. Product evidence semantics remain owned by the learner-state model. Learner-facing language implementation is materialized through the canonical locale pipeline. No runtime layer may silently override reviewed strategic identity.
 
+Canonical governance/source references are:
+
+- `sources/source-registry.md` — repository-wide source registry;
+- `sources/carrot-poker/source-registry.md` — admitted Carrot Poker source family;
+- `sources/carrot-poker/source-gap-ledger.md` — Carrot Poker continuity/gap truth;
+- `sources/ftgu/source-registry.md` — admitted FTGU source family;
+- `content/claims/claim.schema.json` — strategic claim contract;
+- `content/claims/source-gap-dependencies.json` — machine-readable dependency/gap registry;
+- `content/MODULE_GOLD_CHECKLIST.md` — human module-admission checklist.
+
 The exact W1-W5 candidate is built from:
 
 - repaired W2 governance as inherited by W3;
