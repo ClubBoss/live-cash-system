@@ -33,12 +33,14 @@ async function fixture() {
   const wave3Path = await compileInto(root, "content/i18n/wave3-priority-gold.ts", "content/i18n/wave3-priority-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const wave4Path = await compileInto(root, "content/i18n/wave4-curriculum-gold.ts", "content/i18n/wave4-curriculum-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const finalPath = await compileInto(root, "content/i18n/wave4-final-editorial.ts", "content/i18n/wave4-final-editorial.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  const wave5CopyPath = await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   return {
     modules: await import(pathToFileURL(modulesPath).href),
     geometry: await import(pathToFileURL(geometryPath).href),
     wave3: await import(pathToFileURL(wave3Path).href),
     wave4: await import(pathToFileURL(wave4Path).href),
     finalEditorial: await import(pathToFileURL(finalPath).href),
+    wave5Copy: await import(pathToFileURL(wave5CopyPath).href),
   };
 }
 
@@ -47,6 +49,7 @@ function applyLocale(value, locale) {
   value.wave3.applyWave3PriorityLocale(locale);
   value.wave4.applyWave4CurriculumLocale(locale);
   value.finalEditorial.applyWave4FinalEditorialLocale(locale);
+  value.wave5Copy.applyWave5PracticeCopy(locale);
 }
 
 function normalized(value) {
@@ -128,6 +131,21 @@ test("Wave 5 audits the final learner-facing RU and EN corpus rather than stale 
     auditDrills(value.modules.modules, locale);
     auditCards(value.modules.modules, locale);
   }
+});
+
+test("Wave 5 practice copy keeps blocker cards distinct without changing stable card IDs", async () => {
+  const value = await fixture();
+  const before = value.modules.modules.flatMap((module) => module.flashcards.map((card) => card.id));
+  applyLocale(value, "en");
+  assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front,
+    "What should be rebuilt before judging a blocker on a new street?");
+  assert.equal(value.modules.moduleById.ancestry.flashcards.find((card) => card.id === "anc-card-before").front,
+    "What comes before a blocker?");
+  applyLocale(value, "ru");
+  assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front,
+    "Что восстановить перед оценкой блокера на новой улице?");
+  const after = value.modules.modules.flatMap((module) => module.flashcards.map((card) => card.id));
+  assert.deepEqual(after, before);
 });
 
 test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and prediction-first labs", async () => {
