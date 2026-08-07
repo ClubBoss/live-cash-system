@@ -109,19 +109,6 @@ export function useReliableLearnerState() {
   const conflictRef = useRef<ConflictSnapshot | null>(null);
   const mounted = useRef(true);
 
-  const persistMeta = useCallback((patch: Partial<SyncMeta> = {}) => {
-    const current = parseSyncMeta(safeGet(SYNC_META_KEY));
-    const next: SyncMeta = {
-      ...current,
-      cloudDisabled: cloudDisabled.current,
-      lastCloudRevision: serverRevision.current,
-      lastCloudUpdatedAt: serverUpdatedAt.current,
-      lastCloudSaveAt,
-      ...patch,
-    };
-    writeSyncMeta(next);
-  }, [lastCloudSaveAt]);
-
   const rememberConflict = useCallback((local: LearnerState, remote: LearnerState | null) => {
     const snapshot: ConflictSnapshot = { at: new Date().toISOString(), local, remote };
     conflictRef.current = snapshot;
@@ -308,7 +295,7 @@ export function useReliableLearnerState() {
   }, [rememberConflict]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || recoveryCode === "FUTURE_STATE_UNSUPPORTED") return;
     const serialized = JSON.stringify(state);
     if (!safeSet(LEARNER_STORAGE_KEY, serialized)) {
       setRecoveryCode("LOCAL_WRITE_FAILED");
@@ -331,7 +318,7 @@ export function useReliableLearnerState() {
       }
     }, 800);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [postState, ready, retryNonce, state]);
+  }, [postState, ready, recoveryCode, retryNonce, state]);
 
   useEffect(() => {
     const retry = () => {
@@ -506,3 +493,5 @@ export function useReliableLearnerState() {
     stateSchemaVersion: STATE_SCHEMA_VERSION,
   };
 }
+
+export type ReliableLearnerStateController = ReturnType<typeof useReliableLearnerState>;
