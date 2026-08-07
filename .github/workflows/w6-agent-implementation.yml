@@ -51,7 +51,22 @@ jobs:
           new = '  function openReview(limit = 3) {\n    const drills = selectReview(state, limit);'
           if old not in text:
               raise SystemExit('openReview wiring target not found')
-          core.write_text(text.replace(old, new, 1).replace('  MODULE_IDS,\n', '', 1), encoding='utf-8')
+          text = text.replace(old, new, 1).replace('  MODULE_IDS,\n', '', 1)
+          empty_old = '  if (!card) return <section className="surface"><div className="empty-state"><h2>{t.allCardsDone}</h2></div></section>;'
+          empty_new = '  if (!card) return <section className="surface"><p className="eyebrow">{recallLabel(locale)}</p><div className="empty-state"><h2>{locale === "ru" ? "Пока нечего повторять." : "Nothing to review yet."}</h2><p>{locale === "ru" ? "После первого урока здесь появятся короткие карточки по уже изученным темам." : "After your first lesson, short cards from topics you have already seen will appear here."}</p></div></section>;'
+          if empty_old not in text:
+              raise SystemExit('cards empty-state target not found')
+          text = text.replace(empty_old, empty_new, 1)
+          core.write_text(text, encoding='utf-8')
+
+          e2e_path = Path('apps/live-cash-os/e2e/live-cash.spec.mjs')
+          e2e = e2e_path.read_text(encoding='utf-8')
+          selector_old = 'name: /Сохранить и выйти/u'
+          selector_new = 'name: /Выйти и сохранить/u'
+          if selector_old not in e2e:
+              raise SystemExit('resume selector target not found')
+          e2e_path.write_text(e2e.replace(selector_old, selector_new, 1), encoding='utf-8')
+
           manifest_path = Path('apps/live-cash-os/content/i18n/editorial-manifest.json')
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           language_paths = manifest.setdefault('repair_source_paths', {}).setdefault('language', [])
@@ -74,6 +89,9 @@ jobs:
           npm run typecheck
           npm run check:governance
           npm run check:editorial
+      - name: Targeted W6 E2E checks
+        working-directory: apps/live-cash-os
+        run: npx playwright test e2e/live-cash.spec.mjs --grep "direct learner labels|Save and exit|W6 Today"
       - name: Full release validation
         working-directory: apps/live-cash-os
         run: npm run test:release
