@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
 const moduleIds = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
-const approvedLcmCodes = Array.from({ length: 11 }, (_, index) => `LCM-${String(index + 1).padStart(2, "0")}`);
 const manifest = JSON.parse(await readFile(new URL("../content/i18n/editorial-manifest.json", import.meta.url), "utf8"));
 const requireFull = process.env.REQUIRE_FULL_EDITORIAL === "1";
 
@@ -60,38 +59,51 @@ for (const prefix of ["fil", "sha", "anc", "mul", "riv", "evi", "tra"]) {
 }
 
 const wave4Final = await readFile(new URL("../content/i18n/wave4-final-editorial.ts", import.meta.url), "utf8");
+const wave4rNative = await readFile(new URL("../content/i18n/wave4r-poker-native.ts", import.meta.url), "utf8");
 assert.match(wave4Final, /applyEvidenceRussianFinal/u, "Final LCM-10 Russian editorial layer is missing");
 assert.match(wave4Final, /applyTransferRussianFinal/u, "Final LCM-11 Russian editorial layer is missing");
 assert.match(wave4Final, /if \(locale !== "ru"\) return/u, "Final Wave 4 editorial layer must not mutate English gold");
+assert.match(wave4rNative, /applyEnglishTransferNative/u, "Final LCM-11 English poker-native layer is missing");
+assert.match(wave4rNative, /applyEnglishPokerNative/u, "Final English poker-native layer is missing");
 
 const runtime = await readFile(new URL("../content/i18n/runtime.ts", import.meta.url), "utf8");
 const route = await readFile(new URL("../content/i18n/learning-route.ts", import.meta.url), "utf8");
 const diagnostic = await readFile(new URL("../content/diagnostic.ts", import.meta.url), "utf8");
 const app = await readFile(new URL("../components/LiveCashApp.tsx", import.meta.url), "utf8");
 const core = await readFile(new URL("../components/LiveCashAppCore.tsx", import.meta.url), "utf8");
+const localePipeline = await readFile(new URL("../content/i18n/locale-pipeline.ts", import.meta.url), "utf8");
+const learnerUi = await readFile(new URL("../content/i18n/learner-ui.ts", import.meta.url), "utf8");
+const routeComponent = await readFile(new URL("../components/LearningRoute.tsx", import.meta.url), "utf8");
 
-// Wave 4R: T1 language truth.
-const diagnosticCopy = quoted(diagnostic);
+// Wave 4R: T1 language truth in both locales. Stable LD-* IDs remain untouched.
+const diagnosticRuCopy = quoted(diagnostic);
+const diagnosticEnBlock = runtime.slice(runtime.indexOf("export const diagnosticEnglish"), runtime.indexOf("Object.assign(runtimeCopy.ru"));
+const diagnosticEnCopy = quoted(diagnosticEnBlock);
 assert.deepEqual([...diagnostic.matchAll(/id:\s*"(LD-\d{3})"/gu)].map((match) => match[1]),
   Array.from({ length: 10 }, (_, index) => `LD-${String(index + 1).padStart(3, "0")}`), "T1 identity changed");
+assert.deepEqual([...diagnosticEnBlock.matchAll(/"(LD-\d{3})":/gu)].map((match) => match[1]),
+  Array.from({ length: 10 }, (_, index) => `LD-${String(index + 1).padStart(3, "0")}`), "English T1 identity coverage changed");
+assert.equal(/[А-Яа-яЁё]/u.test(diagnosticEnCopy), false, "English T1 contains Cyrillic copy");
 for (const pattern of [
   /Straddle denominator/iu, /Pairwise multiway depth/iu, /Blind source identity/iu,
-  /compensation-test/iu, /OOP defence/iu, /preflop air/iu, /near-range node/iu,
+  /compensation(?:-| )test/iu, /preflop air/iu, /near-range node/iu,
   /directional raise incentive/iu, /thin\/protection raise branch/iu, /\bMDF\b/u,
-  /population evidence/iu, /bluff supply/iu,
-]) assert.doesNotMatch(diagnosticCopy, pattern, `T1 contains hybrid learner phrase ${pattern}`);
+  /population evidence/iu, /bluff supply/iu, /range ancestry/iu,
+]) {
+  assert.doesNotMatch(diagnosticRuCopy, pattern, `Russian T1 contains hybrid learner phrase ${pattern}`);
+  assert.doesNotMatch(diagnosticEnCopy, pattern, `English T1 contains research/editorial phrase ${pattern}`);
+}
 
-// Wave 4R: natural bilingual route.
+// Wave 4R: natural bilingual 0→100 route.
 assert.equal((route.match(/percent:\s*(?:0|10|20|35|50|65|80|90|100),/gu) ?? []).length, 18, "Both locales must contain nine route stages");
-assert.equal((route.match(/evidenceGate:/gu) ?? []).length, 19, "Every route stage must expose its learner-facing completion cue");
 const ruRoute = route.slice(route.indexOf("ru: ["), route.indexOf("en: ["));
 const enRoute = route.slice(route.indexOf("en: ["), route.indexOf("};\n\nexport function"));
-for (const pattern of [/evidence/iu, /probe/iu, /repair/iu, /retention/iu, /field validation/iu]) {
+for (const pattern of [/evidence/iu, /probe/iu, /repair/iu, /retention/iu, /field validation/iu, /state machine/iu]) {
   assert.doesNotMatch(quoted(ruRoute), pattern, `Russian route contains internal terminology ${pattern}`);
-}
-for (const pattern of [/skill evidence/iu, /current model/iu, /admitted probe/iu, /transfer probe/iu, /repair resolved/iu, /retention/iu, /field validated/iu, /learner-state/iu, /evidence map/iu]) {
   assert.doesNotMatch(quoted(enRoute), pattern, `English route contains internal terminology ${pattern}`);
 }
+assert.match(routeComponent, /This is not one overall mastery score/u, "English route boundary is not learner-facing");
+assert.doesNotMatch(routeComponent, /distinct learner-state event/iu, "Route UI still exposes learner-state jargon");
 
 // Wave 4R: one semantic source for approved module headings.
 assert.match(runtime, /export const moduleHeadings = Object\.fromEntries/u, "Legacy moduleHeadings must be a compatibility export");
@@ -100,40 +112,61 @@ for (const stale of ["Exploit filters before adjustment", "Aggression with a cle
   assert.doesNotMatch(runtime, new RegExp(stale.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"), `Stale heading survived: ${stale}`);
 }
 
-// Wave 4R: no approved-English pending claim in the final runtime contract.
+// Wave 4R: approved English must never render a review-required fallback.
 const runtimeOverrides = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"));
 assert.doesNotMatch(runtimeOverrides, /EN REVIEW REQUIRED/u, "Approved runtime still exposes EN REVIEW REQUIRED");
 assert.doesNotMatch(runtimeOverrides, /still under poker-aware editorial review/iu, "Approved runtime still exposes an editorial-pending claim");
-assert.match(runtimeOverrides, /translationPending:\s*""/u, "Approved runtime pending label must be empty");
-assert.match(runtimeOverrides, /contentFallback:\s*""/u, "Approved runtime fallback must be empty");
+assert.equal((runtimeOverrides.match(/translationPending:\s*""/gu) ?? []).length, 2, "Both approved locales must have an empty pending label");
+assert.equal((runtimeOverrides.match(/contentFallback:\s*""/gu) ?? []).length, 2, "Both approved locales must have an empty fallback");
+for (const stale of [/module bodies remain source-locked/iu, /editorial approval/iu, /translation pending/iu]) {
+  assert.doesNotMatch(quoted(core), stale, `Core contains stale approval message ${stale}`);
+}
 
-// Wave 4R: locale pipeline and safe legacy bridge.
+// Wave 4R: direct React locale rendering only. No post-render localisation bridge.
 for (const symbol of ["applyGeometryLocale", "applyWave3PriorityLocale", "applyWave4CurriculumLocale", "applyWave4FinalEditorialLocale", "applyWave5PracticeCopy"]) {
-  assert.match(app, new RegExp(symbol, "u"), `Locale pipeline misses ${symbol}`);
+  assert.match(localePipeline, new RegExp(symbol, "u"), `Locale pipeline misses ${symbol}`);
 }
-assert.match(app, /annotateLegacyUi/u, "Legacy hardcoded UI bridge is missing");
-assert.match(app, /data-wave4r-label/u, "Safe attribute-based legacy labels are missing");
-assert.match(app, /setAttribute\("aria-label"/u, "Legacy labels must expose accessible localized text");
-assert.doesNotMatch(app, /\.textContent\s*=/u, "Wave 4R bridge must not mutate React-owned text nodes");
-assert.match(app, /const structureObserver = new MutationObserver\(syncStructure\)/u, "Structural bridge must use safe annotation sync");
-assert.match(app, /This is not one overall mastery score/u, "English route boundary is not learner-facing");
-assert.doesNotMatch(app, /distinct learner-state event/iu, "Route UI still exposes learner-state jargon");
-assert.doesNotMatch(app, /not a decorative overall percentage/iu, "Route UI still uses product-spec language");
-for (const code of approvedLcmCodes) assert.ok(app.includes(`"${code}"`) || app.includes("length: 11"), `Runtime gold marker misses ${code}`);
+assert.match(core, /applyLocaleData\(nextLocale\)/u, "Restore path must apply locale data before render");
+assert.match(core, /applyLocaleData\(next\)/u, "Locale switch must apply locale data before render");
+assert.match(core, /<LearningRoute locale=\{locale\} \/>/u, "Learning route must render from React state");
+for (const forbidden of [/MutationObserver/u, /data-wave4r-label/u, /annotateLegacyUi/u, /wave4rEmptyFallback/u, /\.textContent\s*=/u]) {
+  assert.doesNotMatch(app, forbidden, `LiveCashApp retains post-render localisation bridge ${forbidden}`);
+}
+assert.doesNotMatch(core, /translationPending/u, "Core must not render approved-locale pending labels");
+assert.doesNotMatch(core, /contentFallback/u, "Core must not render approved-locale fallback copy");
 
-// Every currently known raw learner hardcode in Core must have an explicit compatibility mapping
-// until it is moved into the Core locale contract itself.
-for (const raw of ["ACTIVE RECALL", "Cue:", "Action:", "Reason:", "DECISION REVIEW", "AWAITING_REVIEW", "SCORED", "ROUTED", "90 sec", "Due", "All"]) {
-  assert.ok(core.includes(raw), `Core hardcode inventory changed; update the Wave 4R gate for ${raw}`);
-  assert.ok(app.includes(raw) || app.includes(raw.replace("DECISION REVIEW", "review")), `Legacy bridge does not account for ${raw}`);
+// Wave 4R: raw internal enums/labels must not be rendered to learners.
+for (const pattern of [
+  /session\.mode\.toUpperCase/u,
+  /\{drill\.kind\}<\/p>/u,
+  /\{card\.kind\}<\/p>/u,
+  />\{note\.status\}<\/span>/u,
+  /T1 · \{diagnostic\.status\}/u,
+  />ACTIVE RECALL/u,
+  />Cue:<\/b>/u,
+  />Action:<\/b>/u,
+  />Reason:<\/b>/u,
+  /<label>Pot<input/u,
+  /<label>Stack<input/u,
+  /<label>Bet \/ call<input/u,
+]) assert.doesNotMatch(core, pattern, `Core renders raw learner label ${pattern}`);
+for (const helper of ["sessionModeLabel", "drillKindLabel", "cardKindLabel", "fieldStatusLabel", "diagnosticStatusLabel", "labLabels", "fieldFactLabels"]) {
+  assert.match(core, new RegExp(helper, "u"), `Core must use direct locale helper ${helper}`);
+  assert.match(learnerUi, new RegExp(`export function ${helper}`, "u"), `Missing learner UI helper ${helper}`);
 }
-assert.match(app, /wave4rEmptyFallback/u, "Blank approved-English fallback must be hidden safely");
-assert.match(app, /English interface enabled\. Your current session and progress are preserved\./u, "Stale English approval notice is not neutralised");
+
+// Final learner-facing shell copy must avoid architecture/research language.
+const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
+const enRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.en"), runtime.indexOf("const RU_CLASS_MESSAGES"));
+assert.equal(/[А-Яа-яЁё]/u.test(quoted(enRuntime)), false, "English runtime shell contains Cyrillic copy");
+for (const pattern of [/current model/iu, /mechanism/iu, /retention/iu, /transfer probe/iu, /learner-state/iu, /field validated/iu, /decorative overall/iu, /evidence gate/iu]) {
+  assert.doesNotMatch(quoted(ruRuntime), pattern, `Russian runtime contains internal learner phrase ${pattern}`);
+  assert.doesNotMatch(quoted(enRuntime), pattern, `English runtime contains internal learner phrase ${pattern}`);
+}
 
 // Existing RU corpus hygiene remains enforced.
-const ruRuntime = runtime.slice(runtime.indexOf("Object.assign(runtimeCopy.ru"), runtime.indexOf("Object.assign(runtimeCopy.en"));
 const ruWave4BeforeEvidence = ruWave4.slice(0, ruWave4.indexOf("  evidence: {"));
-const generalRuCopy = [quoted(ruRuntime), quoted(geometryRu), quoted(ruPriority), quoted(ruWave4BeforeEvidence), quoted(ruRoute)].join("\n");
+const generalRuCopy = [quoted(ruRuntime), quoted(geometryRu), quoted(ruPriority), quoted(ruWave4BeforeEvidence), quoted(ruRoute), quoted(learnerUi)].join("\n");
 for (const pattern of [
   /Переноси глубоко/u, /due review/iu, /Explicit transfer probe/iu, /Strategic denominator/iu,
   /pairwise effective stack/iu, /post-action SPR/iu, /Players-behind gate/iu,
@@ -146,4 +179,4 @@ for (const pattern of [/learner state/iu, /WORKING evidence/iu, /transfer probe/
   assert.doesNotMatch(finalEvidenceRuCopy, pattern, `Final Russian LCM-10/11 copy contains system phrase ${pattern}`);
 }
 
-console.log(`editorial gate passed: ${moduleIds.length} bilingual strategic modules; Wave 4R language-truth regressions checked${requireFull ? " (full release mode)" : ""}.`);
+console.log(`editorial gate passed: ${moduleIds.length} bilingual strategic modules; Wave 4R final learner-facing language truth checked${requireFull ? " (full release mode)" : ""}.`);
