@@ -1,102 +1,89 @@
 # Live Cash OS — Release Status
 
-Status: `W1_W9_IMPLEMENTATION_CLOSED / PRE_LEARNING_CLOSURE_IN_PROGRESS / HUMAN_REVIEW_PENDING / PRODUCTION_IDENTITY_PENDING`
+Status: `W1_W9_IMPLEMENTATION_CLOSED / AUTOMATED_PRE_LEARNING_EVIDENCE_GREEN / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING`
 
-## Repository implementation baseline
+## Current repository truth
 
-- product implementation baseline: `ad29871fe923357049231ec6621d4784de8bfd1c`
-- baseline message: `Final W1–W9 learner-facing recovery polish`
-- exact-baseline CI run: `31220140534`
-- exact-baseline CI result: `SUCCESS`
+- learner-runtime semantic baseline: `ad29871fe923357049231ec6621d4784de8bfd1c`
+- current main before this final truth-only reconciliation: `33206e8ec328fe9710ef0a0014481b68260695c2`
+- exact-main CI: run `31223580163` — `SUCCESS`
 - canonical release command: `npm run test:release`
-- automated baseline evidence: `136/136` unit/integration PASS; `85` browser E2E PASS; `3` intentional target skips
+- current release assertions: `136/136` unit/integration PASS; `85` browser E2E PASS; `3` intentional target skips
+- human-review corpus fingerprint: `c623a7669ed85e47e411b8b268dee682b2254b934a165330f74647b29dfa9b81`
+- human-review packet: `reports/PRE_LEARNING_HUMAN_REVIEW_PACKET_2026-08-08.md`
 
-The canonical main lineage now contains Waves 6 through 9. Earlier repository statements that main had not been merged/modified, Wave 6 had not started, or only a W1–W5 candidate existed are superseded.
+Waves 1–9 are implemented in the canonical main lineage. The remaining pre-learning work is acceptance/evidence closure, not another broad feature wave.
 
-This pre-learning closure stage is not a new broad feature wave. Its purpose is to reconcile truth, complete genuine human content/language review, collect cheap final browser/production evidence, and stop synthetic development unless a real blocker is found.
+## Wave status
 
-## Current implementation truth
+- W1: implementation accepted; real comprehension evidence deferred to genuine use/W10.
+- W2/W3: governance and repaired priority content implemented; human poker approval pending.
+- W4/W4R: bilingual learner composition implemented; final exact RU/EN human review pending.
+- W5: implementation closed with accepted non-blocking compatibility P2 debt.
+- W6: implementation closed; bounded adaptive daily training and resume/repair/delayed-review behavior are green.
+- W7: implementation closed; explain-back, real-hand review and field-evidence lifecycle are green; human usability timing/comprehension evidence deferred to W10.
+- W8: critical UX/accessibility implementation closed; one-time cross-browser engine matrix GREEN.
+- W9: reliability implementation closed; live production learner smoke GREEN; strict performance instrumentation deferred.
 
-### W1
+## Browser evidence
 
-`WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
+One-time closure run `31222664701` executed the critical W8 suite on the existing cross-browser config.
 
-First-use implementation is in place. Formal fresh-context comprehension evidence remains deferred to genuine use.
+Result: **42/42 PASS** across Chromium desktop, Firefox desktop, WebKit desktop, iPhone/WebKit emulation, Android/Chromium emulation and iPad/WebKit emulation.
 
-### W2/W3
+This materially closes the browser-engine acceptance gap. It does not pretend to be physical-device Safari, screen-reader, complete 200% zoom or formal accessibility certification. Those broader evidence items are non-blocking unless real use exposes a serious defect.
 
-Governance lifecycle and repaired priority strategy remain authoritative. Strategy and drill approval are still human-review pending. No automated gate may create approval.
+## Production evidence
 
-### W4/W4R
+Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
 
-Canonical RU/EN runtime composition is implemented. Final exact-composition human RU/EN review remains pending and must include learner-facing copy added in W6–W9.
+The first closure smoke RED was a test false negative: the live learner UI rendered the expected module controls, while the smoke script required an exact accessible name that omitted the UI arrow suffix.
 
-### W5
+A one-line matcher repair was validated on run `31223251425`:
 
-`WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
+- full release gate: SUCCESS;
+- live production smoke: `LIVE_SMOKE_GREEN` on attempt 1.
 
-Compatibility/shim debt remains accepted and non-blocking unless it causes a demonstrated learner-facing or integrity defect.
+The live surface displays app version `1.1.0`, matching source `APP_VERSION = "1.1.0"`. The hosting platform does not expose a trustworthy exact deployed Git SHA through the current release surface, so exact deployed-SHA equality remains later W11/formal release-identity evidence and is not claimed here.
 
-### W6
+No learner-state reset, D1 reset or URL change was performed.
 
-`W6_IMPLEMENTATION_CLOSED`
+## Governance truth
 
-Bounded daily scheduling, warm-up/post-session planning, due/repair priority, resume, long-absence protection and diagnostic-routing boundaries are implemented.
-
-### W7
-
-`W7_IMPLEMENTATION_CLOSED / HUMAN_USABILITY_EVIDENCE_PENDING`
-
-Explain-back, structured real-hand capture/review, progress evidence and false-field-validation protections are implemented.
-
-### W8
-
-`W8_CRITICAL_UX_ACCESSIBILITY_IMPLEMENTATION_CLOSED / STRICT_MANUAL_EVIDENCE_PENDING`
-
-Critical mobile/interaction/accessibility regressions are covered. A separate cross-browser Playwright config includes Chromium, Firefox and WebKit families, while the canonical main CI still executes the standard Chromium desktop/mobile release suite. Formal real-device/browser and broader accessibility evidence remains pending.
-
-### W9
-
-`W9_RELIABILITY_IMPLEMENTATION_CLOSED / PERFORMANCE_AND_PRODUCTION_EVIDENCE_PENDING`
-
-Offline/local continuity, schema/import safety, explicit sync conflict handling, conditional cloud writes, deletion tombstones, recovery copies, privacy/recovery UI and service-worker safety are implemented. Broad performance instrumentation remains a strict-DoD evidence item, not a reason to add new infrastructure before real use.
-
-## Current governance truth
-
-Current manifest state remains intentionally review-pending:
+The manifest remains intentionally:
 
 `TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
 
 - strategy approval: `null`
 - drill approval: `null`
 - human locale approvals: none
-- exact final-composition approval: pending genuine human review
 
-A GREEN candidate gate is not equivalent to human approval.
+Model/source-assisted pre-review found no new P0/P1 strategy defect in the locked repaired W3 scope, but this is explicitly **not** human approval.
 
-## Pre-learning closure gates
+## Remaining pre-learning gate
 
-Before declaring `W1_W9_PRE_LEARNING_READY`, close only the following narrow gates:
+Before declaring `W1_W9_PRE_LEARNING_READY`, one gate class remains:
 
-1. human poker revalidation of repaired W3 priority claims/drills;
-2. final exact-composition RU/EN human review, including W6–W9 learner-facing surfaces;
-3. exact final candidate CI after closure changes;
-4. production identity/fresh-state smoke for the final candidate;
-5. cheap cross-browser/manual accessibility checks where practical, with code changes only if they expose a real P0/P1 defect.
+1. genuine human poker review of the repaired W3 priority claims/drills and final human RU/EN review of the locked W1–W9 learner-facing corpus.
 
-W1/W7 empirical usability thresholds are not to be fabricated before real use. They may be collected together with W10 evidence.
+If genuine review finds a defect, make the smallest source-backed repair and rerun exact-head release/smoke evidence. If genuine review passes, record the evidence, advance only the supported governance states, run final exact-main CI and stop synthetic development.
 
-## Production boundary
+W1/W7 empirical usability and learning-effect evidence belong to W10 real use and must not be fabricated before training.
 
-- stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
-- repository GREEN does not by itself prove exact deployed SHA;
-- no learner-state reset, D1 reset or URL change is part of pre-learning closure;
-- production smoke must preserve learner content/progress and must not silently mutate or erase state.
+## Deferred non-blocking debt
+
+The following do not justify another broad pre-learning build by themselves:
+
+- Wave 5 compatibility/shim cleanup;
+- the existing React hook lint warning unless it becomes a reproducible navigation bug;
+- enterprise observability or elaborate performance infrastructure;
+- exhaustive formal accessibility certification beyond the critical evidence already green;
+- exact deployed Git SHA identity before the later formal W11 release stage.
 
 ## Stop condition
 
-If the closure pass finds no new P0/P1 defect and the genuine content/language gates are satisfied, the product should be declared:
+After genuine human content/language PASS and the resulting exact-main gate is GREEN, set:
 
 `W1_W9_PRE_LEARNING_READY`
 
-At that point synthetic feature development stops. Real training begins, W10 collects actual retention/reasoning/field evidence, and W11 remains the later formal acceptance/release-identity stage.
+Then stop feature development, start real training, collect W10 retention/reasoning/field evidence, and reserve W11 for final formal release acceptance and exact identity reconciliation.
