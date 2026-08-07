@@ -1,5 +1,5 @@
 import { moduleById } from "../modules";
-import type { Drill, ModuleContent } from "../types";
+import type { Drill } from "../types";
 import type { LocaleCode, ModuleId } from "../../lib/model";
 
 type PriorityModuleId = "preflop" | "blinds" | "aggression";
