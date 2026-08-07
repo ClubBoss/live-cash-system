@@ -5,6 +5,7 @@
   "review_policy": "Learner-facing copy is reviewed in module context for poker meaning, natural language, distractor plausibility, numerical integrity and locale parity. Deterministic checks can reject stale or invalid copy but can never create an approval.",
   "source_blobs": {
     "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
+    "content/diagnostic.ts": "b629a8e7fc40fd3451dc32c58e0929802e035c8f",
     "content/POKER_GLOSSARY_RU_EN.md": "ad43c90de79ad764fb1838d86fa237bedeb71c70",
     "content/claims/lcm-02.claims.json": "886197f4285b64810c1d21266b0e01cb4d47a7c0",
     "content/claims/lcm-03.claims.json": "7946c32b771017777fd0e1c9a036be21bf72fb83",
@@ -17,14 +18,14 @@
     "content/claims/lcm-10.claims.json": "a68387189194af69af64c75f692b40d578570691",
     "content/claims/lcm-11.claims.json": "c92e8d0dd63ab0fdd7d16664860054e9530ee423",
     "content/i18n/runtime-core.ts": "867be28b3cce8c009a8757c036ddf4605f8c27e0",
-    "content/i18n/runtime.ts": "0ed9e64aa74dc484e55e3c70dcef2f53f54783f2",
+    "content/i18n/runtime.ts": "cb7bf8f0f06336d45ad5d282d7402eebeb23d308",
     "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
     "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
     "content/i18n/geometry-locale.ts": "9ff8657186622db1849aa6e22b5d47a7885762d4",
     "content/i18n/wave3-priority-gold.ts": "2d6d996339d82f601a563628874e4d7e5885a48b",
     "content/i18n/wave4-curriculum-gold.ts": "7f8798ebeb9d38c7f177a4ac561ceb0448889d37",
     "content/i18n/wave4-final-editorial.ts": "9fc4da2e53ef1c013cfb3d6523f52c68b058e1d9",
-    "content/i18n/learning-route.ts": "ab787de99f366c32d8c68346e0637fbb734eaddf",
+    "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "b1836254f49c6a78718bd920b8990cea567a22c6"
   },
   "modules": {

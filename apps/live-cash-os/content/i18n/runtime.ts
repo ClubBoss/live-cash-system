@@ -1,7 +1,15 @@
 export * from "./runtime-core";
 
 import { classMessage as coreClassMessage, runtimeCopy } from "./runtime-core";
-import type { LocaleCode, ResponseClass } from "../../lib/model";
+import type { LocaleCode, ModuleId, ResponseClass } from "../../lib/model";
+
+// Compatibility export for the legacy Core import. Approved module headings now live
+// in the gold module locale pipeline; this object is deliberately empty so it can
+// never overwrite newer title/goal/cue copy.
+export const moduleHeadings = Object.fromEntries(
+  (["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"] as ModuleId[])
+    .map((id) => [id, { en: {} }]),
+) as Record<ModuleId, { en: Record<string, never> }>;
 
 Object.assign(runtimeCopy.ru, {
   nav: { today: "Сегодня", learn: "Учиться", review: "Повтор", cards: "Карточки", map: "Карта", field: "Руки", diagnostic: "Проверка" },
@@ -109,8 +117,8 @@ Object.assign(runtimeCopy.ru, {
   coldInstructions: "Отвечай без чартов и подсказок. Здесь важен твой текущий ход решения, а не идеальная формулировка.",
   postInstructions: "Отвечай так, как рассуждаешь сейчас. Результат поможет выбрать следующие темы.",
   mixedInstructions: "Проверка началась до обучения и продолжилась после него, поэтому это уже не чистая стартовая оценка.",
-  contentFallback: "Английский текст этого модуля ещё проходит покерную редактуру. Пока показываем проверенную русскую версию.",
-  translationPending: "АНГЛИЙСКИЙ ТЕКСТ ЕЩЁ ПРОВЕРЯЕТСЯ",
+  contentFallback: "",
+  translationPending: "",
   sync: {
     loading: "загрузка",
     local: "только на устройстве",
@@ -151,6 +159,8 @@ Object.assign(runtimeCopy.en, {
   coldInstructions: "Answer without charts or prompts. The goal is to capture your current decision process, not polished wording.",
   postInstructions: "Answer from your current process. The result can guide the next topics.",
   mixedInstructions: "This check started before learning and continued after exposure, so it is no longer a clean starting baseline.",
+  contentFallback: "",
+  translationPending: "",
 });
 
 const RU_CLASS_MESSAGES: Record<ResponseClass, string> = {

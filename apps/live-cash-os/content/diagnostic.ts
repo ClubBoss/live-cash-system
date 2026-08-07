@@ -6,14 +6,64 @@ export type DiagnosticItem = {
 };
 
 export const diagnosticT1: DiagnosticItem[] = [
-  { id: "LD-001", title: "Straddle denominator", targetSeconds: 30, prompt: "Игра $2/$5/$10 с обязательным live straddle. Hero и единственный релевантный соперник имеют по $1,400. Какую эффективную глубину ты используешь первой для стратегии и почему? Укажи также обычные BB." },
-  { id: "LD-002", title: "Pairwise multiway depth", targetSeconds: 25, prompt: "Игра $1/$3. Hero $900, Villain A $270, Villain B $1,200. Какая эффективная глубина у Hero против каждого соперника? Можно ли описать весь банк одной цифрой?" },
-  { id: "LD-003", title: "Blind source identity", targetSeconds: 35, prompt: "CO открывает 3bb. Один раз флоп A-7-2 rainbow достигнут против BB defend, второй — против SB cold-call. Какой caller обычно более condensed и можно ли автоматически использовать одинаковый c-bet plan?" },
-  { id: "LD-004", title: "Value-heavy 3-bet defence", targetSeconds: 40, prompt: "150bb. HJ открывает 3bb, BTN делает 12bb. Надёжная выборка показывает почти только premiums/strong broadways и мало suited bluffs. Какая семья первой теряет ценность при защите: dominated offsuit big cards или лучшие suited connectors? Объясни без требования назвать точный chart cell." },
-  { id: "LD-005", title: "Over-wide 3-bet compensation", targetSeconds: 45, prompt: "CO call против BTN 3-bet. BTN 3-бетит заметно шире нормы, но на Q-7-4 rainbow продолжает ставить 25% почти всей range. Какой compensation-test нужен и куда направленно сдвигается OOP defence, если BTN не компенсирует лишний preflop air дополнительными checks?" },
-  { id: "LD-006", title: "Small-wide vulnerable pair", targetSeconds: 50, prompt: "BTN vs BB, 200bb. Flop T-5-5 rainbow. BTN ставит 25% почти всей range. Сравни T6s и KTs у BB: какая top-pair family имеет больше directional raise incentive и почему? Частота не требуется." },
-  { id: "LD-007", title: "Large-selective changed node", targetSeconds: 35, prompt: "Тот же BTN vs BB, 200bb и T-5-5 rainbow, но BTN ставит 80% selective/polar range. Что происходит с thin/protection raise branch T6s по сравнению с предыдущим 25% near-range node?" },
-  { id: "LD-008", title: "Deep OOP protected call", targetSeconds: 50, prompt: "BTN vs BB, 200bb. Flop 8-7-6 two-tone. BTN ставит 75% pot. У BB TT. Должна ли рука автоматически check-raise, чтобы не играть трудные turns, или значимая часть функции — защищать check-call? Почему?" },
-  { id: "LD-009", title: "Sandwich shared defence", targetSeconds: 45, prompt: "HJ open, BTN call, BB call. Flop K-9-7 two-tone. HJ ставит, Hero на BTN с KQ, за ним остаётся BB с uncapped continuing range. Должен ли Hero защищаться как в heads-up и нести весь MDF? Назови главный gate перед call/raise." },
-  { id: "LD-010", title: "River blocker ancestry", targetSeconds: 55, prompt: "River. Hero держит nut-flush blocker и получает jam после bet-call flop и overbet-call turn. По этой branch нет надёжной population evidence. Какие проверки идут до blocker и какой ответ допустим, если bluff supply не удаётся обосновать?" },
+  {
+    id: "LD-001",
+    title: "Глубина со страддлом",
+    targetSeconds: 30,
+    prompt: "Игра $2/$5/$10 с обязательным страддлом. У Hero и единственного релевантного соперника по $1,400. В каких единицах ты сначала оценишь глубину для префлоп-решения и почему? Укажи также глубину в обычных BB.",
+  },
+  {
+    id: "LD-002",
+    title: "Эффективный стек в мультивее",
+    targetSeconds: 25,
+    prompt: "Игра $1/$3. У Hero $900, у соперника A $270, у соперника B $1,200. Какой эффективный стек у Hero против каждого из них? Можно ли описать весь мультивей-банк одной цифрой?",
+  },
+  {
+    id: "LD-003",
+    title: "BB и SB — разные диапазоны",
+    targetSeconds: 35,
+    prompt: "CO открывает 3bb. В одной раздаче флоп A-7-2 радугой Hero играет против колла BB, в другой — против холодного колла SB. Какой из этих диапазонов обычно сильнее смещён к рукам средней силы? Можно ли автоматически использовать один и тот же план c-bet?",
+  },
+  {
+    id: "LD-004",
+    title: "Защита против сильного 3-бета",
+    targetSeconds: 40,
+    prompt: "150bb. HJ открывает 3bb, BTN делает 3-бет до 12bb. Надёжные наблюдения показывают в его 3-бете в основном премиальные руки и сильные бродвеи, а мастевых блефов мало. Что первым теряет ценность при защите: доминируемые разномастные бродвеи или лучшие мастевые коннекторы? Объясни принцип без точной клетки чарта.",
+  },
+  {
+    id: "LD-005",
+    title: "Слишком широкий 3-бет",
+    targetSeconds: 45,
+    prompt: "CO коллирует 3-бет BTN. BTN 3-бетит заметно шире обычного, но на Q-7-4 радугой ставит 25% банка почти со всем диапазоном. Что нужно проверить в его постфлоп-стратегии? Как должна меняться защита CO вне позиции, если лишние слабые руки префлоп не компенсируются дополнительными чеками?",
+  },
+  {
+    id: "LD-006",
+    title: "Маленькая ставка и уязвимая топ-пара",
+    targetSeconds: 50,
+    prompt: "BTN против BB, 200bb. Флоп T-5-5 радугой. BTN ставит 25% банка почти со всем диапазоном. Сравни T6s и KTs у BB: какая из этих топ-пар чаще получает причину для рейза на вэлью/защиту и почему? Точная частота не нужна.",
+  },
+  {
+    id: "LD-007",
+    title: "Большая выборочная ставка",
+    targetSeconds: 35,
+    prompt: "Та же ситуация BTN против BB, 200bb, флоп T-5-5 радугой. Теперь BTN ставит 80% банка не всем диапазоном, а более сильной и полярной частью. Что происходит с идеей тонкого защитного рейза T6s по сравнению с маленькой ставкой 25%? Почему?",
+  },
+  {
+    id: "LD-008",
+    title: "Глубокий колл вне позиции",
+    targetSeconds: 50,
+    prompt: "BTN против BB, 200bb. Флоп 8-7-6 с флеш-дро. BTN ставит 75% банка, у BB TT. Нужно ли автоматически чек-рейзить только потому, что будущие улицы будут трудными? Какую важную функцию может выполнять колл?",
+  },
+  {
+    id: "LD-009",
+    title: "Мультивей и игрок за спиной",
+    targetSeconds: 45,
+    prompt: "HJ открывает, BTN и BB коллируют. Флоп K-9-7 с флеш-дро. HJ ставит, Hero на BTN с KQ, а BB ещё не действовал и может продолжать сильным диапазоном. Нужно ли Hero защищаться так, будто раздача heads-up? Что нужно проверить первым перед коллом или рейзом?",
+  },
+  {
+    id: "LD-010",
+    title: "Ривер: сначала диапазон, потом блокер",
+    targetSeconds: 55,
+    prompt: "На ривере Hero держит блокер на натсовый флеш и получает олл-ин после линии bet-call на флопе и overbet-call на тёрне. Надёжных наблюдений о блефах в этой конкретной линии нет. Какие проверки нужно сделать до оценки блокера? Какой ответ допустим, если естественные блефы соперника обосновать не получается?",
+  },
 ];
