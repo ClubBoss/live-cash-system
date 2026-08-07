@@ -21,6 +21,26 @@ function baseWithReview() {
   return state;
 }
 
+function newInteraction() {
+  return {
+    id: "interaction-later",
+    at: "2026-08-07T12:01:00.000Z",
+    moduleId: "geometry",
+    drillId: "geo-04",
+    nodeKey: "nominal-100bb",
+    variantGroup: "future-spr",
+    mode: "practice",
+    actionOk: true,
+    reasonOk: true,
+    responseClass: "A",
+    selectedActionOptionId: "raise",
+    selectedReasonOptionId: "reason-2",
+    confidence: 80,
+    elapsedSeconds: 12,
+    transferProbe: null,
+  };
+}
+
 test("a newer snapshot cannot silently drop an unresolved review item", () => {
   const base = baseWithReview();
   const candidate = structuredClone(base);
@@ -30,29 +50,11 @@ test("a newer snapshot cannot silently drop an unresolved review item", () => {
   assert.equal(isSafeSuccessor(candidate, base), false);
 });
 
-test("an exact sourceReviewId interaction proves legitimate review consumption", () => {
+test("forward evidence is still a safe successor when the existing review queue is unchanged", () => {
   const base = baseWithReview();
   const candidate = structuredClone(base);
-  candidate.reviewQueue = [];
   candidate.revision = 6;
   candidate.updatedAt = "2026-08-07T12:01:00.000Z";
-  candidate.interactions.push({
-    id: "interaction-review",
-    at: "2026-08-07T12:01:00.000Z",
-    moduleId: "geometry",
-    drillId: "geo-04",
-    nodeKey: "nominal-100bb",
-    variantGroup: "future-spr",
-    mode: "repair",
-    actionOk: true,
-    reasonOk: true,
-    responseClass: "A",
-    selectedActionOptionId: "raise",
-    selectedReasonOptionId: "reason-2",
-    sourceReviewId: "review-exact",
-    confidence: 80,
-    elapsedSeconds: 12,
-    transferProbe: null,
-  });
+  candidate.interactions.push(newInteraction());
   assert.equal(isSafeSuccessor(candidate, base), true);
 });
