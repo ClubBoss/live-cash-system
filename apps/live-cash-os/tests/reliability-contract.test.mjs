@@ -34,6 +34,25 @@ function meaningfulState(core) {
   return state;
 }
 
+function interaction(id, overrides = {}) {
+  return {
+    id,
+    at: "2026-08-07T12:05:00.000Z",
+    moduleId: "geometry",
+    drillId: "geo-01",
+    nodeKey: "n1",
+    variantGroup: "vg",
+    mode: "practice",
+    actionOk: true,
+    reasonOk: true,
+    responseClass: "A",
+    confidence: 80,
+    elapsedSeconds: 10,
+    transferProbe: null,
+    ...overrides,
+  };
+}
+
 test("fresh local storage never beats meaningful cloud state", async () => {
   const [core, reliability] = await Promise.all([loadCore(), loadReliability()]);
   const remote = meaningfulState(core);
@@ -60,16 +79,8 @@ test("divergent meaningful histories become a conflict instead of silent LWW", a
   const [core, reliability] = await Promise.all([loadCore(), loadReliability()]);
   const local = meaningfulState(core);
   const remote = meaningfulState(core);
-  local.interactions.push({
-    id: "local-only", at: "2026-08-07T12:01:00.000Z", moduleId: "geometry", drillId: "geo-01", nodeKey: "n1",
-    variantGroup: "vg", mode: "practice", actionOk: true, reasonOk: true, responseClass: "A", confidence: 80,
-    elapsedSeconds: 10, transferProbe: null,
-  });
-  remote.interactions.push({
-    id: "remote-only", at: "2026-08-07T12:01:01.000Z", moduleId: "geometry", drillId: "geo-02", nodeKey: "n2",
-    variantGroup: "vg2", mode: "practice", actionOk: true, reasonOk: false, responseClass: "C", confidence: 70,
-    elapsedSeconds: 12, transferProbe: null,
-  });
+  local.interactions.push(interaction("local-only"));
+  remote.interactions.push(interaction("remote-only", { drillId: "geo-02", nodeKey: "n2", variantGroup: "vg2", actionOk: true, reasonOk: false, responseClass: "C" }));
   local.revision = 6;
   remote.revision = 6;
   local.updatedAt = "2030-01-01T00:00:00.000Z";
@@ -142,39 +153,31 @@ test("cloud contract makes identical retry idempotent", async () => {
 
 test("cloud contract accepts exact opaque-token CAS advance and rejects stale divergent device", async () => {
   const [core, cloud] = await Promise.all([loadCore(), loadCloudContract()]);
-  const existing = meaningfulState(core);
-  const next = structuredClone(existing);
-  next.revision += 1;
-  next.updatedAt = "2026-08-07T12:04:00.000Z";
-  next.modules.geometry.completedBlocks += 1;
-  assert.equal(cloud.assessCloudWrite(existing, next, existing.revision, "cloud-1", "cloud-1").kind, "accept");
+  const base = meaningfulState(core);
+  const exactAdvance = structuredClone(base);
+  exactAdvance.revision += 1;
+  exactAdvance.updatedAt = "2026-08-07T12:04:00.000Z";
+  exactAdvance.modules.geometry.completedBlocks += 1;
+  assert.equal(cloud.assessCloudWrite(base, exactAdvance, base.revision, "cloud-1", "cloud-1").kind, "accept");
 
-  const divergent = structuredClone(next);
-  divergent.interactions.push({
-    id: "stale-only", at: "2026-08-07T12:05:00.000Z", moduleId: "geometry", drillId: "geo-03", nodeKey: "n3",
-    variantGroup: "vg3", mode: "practice", actionOk: false, reasonOk: false, responseClass: "D", confidence: 90,
-    elapsedSeconds: 15, transferProbe: null,
-  });
-  assert.equal(cloud.assessCloudWrite(existing, divergent, existing.revision - 1, "old-token", "cloud-1").kind, "conflict");
+  const cloudAfterOtherDevice = structuredClone(base);
+  cloudAfterOtherDevice.revision = 5;
+  cloudAfterOtherDevice.interactions.push(interaction("other-device"));
+  const staleDevice = structuredClone(base);
+  staleDevice.revision = 5;
+  staleDevice.interactions.push(interaction("stale-device", { drillId: "geo-03", nodeKey: "n3", variantGroup: "vg3", actionOk: false, reasonOk: false, responseClass: "D", confidence: 90 }));
+  assert.equal(cloud.assessCloudWrite(cloudAfterOtherDevice, staleDevice, base.revision, "cloud-1", "cloud-2").kind, "conflict");
 });
 
 test("same learner timestamp does not bypass an opaque cloud token", async () => {
   const [core, cloud] = await Promise.all([loadCore(), loadCloudContract()]);
   const firstWriter = meaningfulState(core);
   firstWriter.revision = 5;
-  firstWriter.interactions.push({
-    id: "first", at: "2026-08-07T12:05:00.000Z", moduleId: "geometry", drillId: "geo-01", nodeKey: "n1",
-    variantGroup: "vg", mode: "practice", actionOk: true, reasonOk: true, responseClass: "A", confidence: 80,
-    elapsedSeconds: 10, transferProbe: null,
-  });
+  firstWriter.interactions.push(interaction("first"));
   const staleSecondWriter = meaningfulState(core);
   staleSecondWriter.revision = 5;
   staleSecondWriter.updatedAt = firstWriter.updatedAt;
-  staleSecondWriter.interactions.push({
-    id: "second", at: "2026-08-07T12:05:00.000Z", moduleId: "geometry", drillId: "geo-02", nodeKey: "n2",
-    variantGroup: "vg2", mode: "practice", actionOk: false, reasonOk: true, responseClass: "B", confidence: 75,
-    elapsedSeconds: 11, transferProbe: null,
-  });
+  staleSecondWriter.interactions.push(interaction("second", { drillId: "geo-02", nodeKey: "n2", variantGroup: "vg2", actionOk: false, reasonOk: true, responseClass: "B", confidence: 75 }));
   assert.equal(cloud.assessCloudWrite(firstWriter, staleSecondWriter, 4, "cloud-before-first", "cloud-after-first").kind, "conflict");
 });
 
