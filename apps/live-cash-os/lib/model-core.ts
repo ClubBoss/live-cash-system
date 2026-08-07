@@ -35,6 +35,9 @@ export type InteractionRecord = {
   moduleId: ModuleId;
   drillId: string;
   nodeKey: string;
+  variantGroup?: string;
+  selectedActionOptionId?: string;
+  selectedReasonOptionId?: string;
   mode: LearningMode;
   actionOk: boolean;
   reasonOk: boolean;
@@ -52,6 +55,8 @@ export type ReviewItem = {
   dueAt: string;
   attempts: number;
   sourceInteractionId: string;
+  sourceActionOptionId?: string;
+  sourceReasonOptionId?: string;
 };
 export type CardState = { dueAt: string; intervalDays: number; repetitions: number; lapses: number; lastGrade: 0 | 1 | 2 | 3 | null };
 export type FieldNote = {
@@ -97,6 +102,7 @@ export type ActiveSession = {
   startedAt: string;
   itemStartedAt: string;
   explainBack: string;
+  sourceReviewId?: string;
 };
 export type LearnerState = {
   schemaVersion: 2;
@@ -124,6 +130,9 @@ export type DrillEvidenceInput = {
   elapsedSeconds: number;
   targetSeconds: number;
   isBoundary: boolean;
+  selectedActionOptionId?: string;
+  selectedReasonOptionId?: string;
+  sourceReviewId?: string;
   transferProbe?: TransferProbe | null;
 };
 export type TodayAction = { kind: "resume" | "review" | "repair" | "lesson" | "diagnostic" | "field"; moduleId?: ModuleId; title: string; reason: string };
@@ -265,6 +274,30 @@ export function deriveModuleState(progress: ModuleProgress): ModuleState {
   if (progress.recentClasses.some((value) => value !== "A")) return "FRAGILE";
   return "INTRODUCED";
 }
+
+export function sanitizeDiagnosticRoutingSideEffects(state: LearnerState): LearnerState {
+  const next = clone(state);
+  for (const moduleId of next.diagnostic.priorityModules) {
+    const progress = next.modules[moduleId];
+    const observedError = next.interactions.some((item) => item.moduleId === moduleId && (!item.actionOk || !item.reasonOk))
+      || next.reviewQueue.some((item) => item.moduleId === moduleId && item.kind === "repair")
+      || progress.recentClasses.some((value) => value === "B" || value === "C" || value === "D");
+    if (!observedError) {
+      progress.highConfidenceError = false;
+      progress.state = deriveModuleState(progress);
+    }
+  }
+  return next;
+}
+
+export function routeDiagnosticPriorities(state: LearnerState, priorityModules: ModuleId[]): LearnerState {
+  const next = sanitizeDiagnosticRoutingSideEffects(state);
+  next.diagnostic.status = "ROUTED";
+  next.diagnostic.priorityModules = [...new Set(priorityModules.filter(isModuleId))].slice(0, 2);
+  next.diagnostic.importedAt = nowIso();
+  return touch(next);
+}
+
 function queueReview(state: LearnerState, input: DrillEvidenceInput, interactionId: string, passed: boolean) {
   const kind: ReviewItem["kind"] = passed ? "retention" : "repair";
   const dueAt = new Date(Date.now() + (passed ? 24 * 60 * 60 * 1000 : 0)).toISOString();
@@ -272,9 +305,23 @@ function queueReview(state: LearnerState, input: DrillEvidenceInput, interaction
   if (existing) {
     existing.dueAt = new Date(Math.min(Date.parse(existing.dueAt), Date.parse(dueAt))).toISOString();
     existing.sourceInteractionId = interactionId;
+    existing.sourceDrillId = input.drillId;
+    existing.sourceActionOptionId = input.selectedActionOptionId;
+    existing.sourceReasonOptionId = input.selectedReasonOptionId;
     return;
   }
-  state.reviewQueue.push({ id: id("review"), moduleId: input.moduleId, sourceDrillId: input.drillId, variantGroup: input.variantGroup, kind, dueAt, attempts: 0, sourceInteractionId: interactionId });
+  state.reviewQueue.push({
+    id: id("review"),
+    moduleId: input.moduleId,
+    sourceDrillId: input.drillId,
+    variantGroup: input.variantGroup,
+    kind,
+    dueAt,
+    attempts: 0,
+    sourceInteractionId: interactionId,
+    sourceActionOptionId: input.selectedActionOptionId,
+    sourceReasonOptionId: input.selectedReasonOptionId,
+  });
 }
 function normalizeTransferProbe(value: TransferProbe | null | undefined): TransferProbe | null {
   if (!value || value.isTransferProbe !== true || !isVariantDistance(value.variantDistance)) return null;
@@ -317,6 +364,9 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
     moduleId: input.moduleId,
     drillId: input.drillId,
     nodeKey: input.nodeKey,
+    variantGroup: input.variantGroup,
+    selectedActionOptionId: input.selectedActionOptionId,
+    selectedReasonOptionId: input.selectedReasonOptionId,
     mode: input.mode,
     actionOk: input.actionOk,
     reasonOk: input.reasonOk,
@@ -334,7 +384,9 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
       else dueRetention.dueAt = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
     }
   } else if (input.mode === "repair") {
-    const due = next.reviewQueue.find((item) => item.moduleId === input.moduleId && item.variantGroup === input.variantGroup && item.kind === "repair" && Date.parse(item.dueAt) <= Date.now());
+    const due = next.reviewQueue.find((item) => item.kind === "repair"
+      && Date.parse(item.dueAt) <= Date.now()
+      && (input.sourceReviewId ? item.id === input.sourceReviewId : item.moduleId === input.moduleId && item.variantGroup === input.variantGroup));
     if (due) {
       due.attempts += 1;
       if (both) next.reviewQueue = next.reviewQueue.filter((item) => item.id !== due.id);
@@ -469,6 +521,9 @@ function validInteraction(value: unknown): value is InteractionRecord {
     && isModuleId(value.moduleId)
     && typeof value.drillId === "string"
     && typeof value.nodeKey === "string"
+    && (value.variantGroup === undefined || typeof value.variantGroup === "string")
+    && (value.selectedActionOptionId === undefined || typeof value.selectedActionOptionId === "string")
+    && (value.selectedReasonOptionId === undefined || typeof value.selectedReasonOptionId === "string")
     && isLearningMode(value.mode)
     && typeof value.actionOk === "boolean"
     && typeof value.reasonOk === "boolean"
@@ -566,6 +621,9 @@ function normalizeInteraction(entry: Record<string, unknown>): InteractionRecord
     moduleId: entry.moduleId,
     drillId: String(entry.drillId ?? "legacy"),
     nodeKey: String(entry.nodeKey ?? "legacy"),
+    variantGroup: typeof entry.variantGroup === "string" ? entry.variantGroup : undefined,
+    selectedActionOptionId: typeof entry.selectedActionOptionId === "string" ? entry.selectedActionOptionId : undefined,
+    selectedReasonOptionId: typeof entry.selectedReasonOptionId === "string" ? entry.selectedReasonOptionId : undefined,
     mode: entry.mode,
     actionOk,
     reasonOk,
@@ -576,7 +634,7 @@ function normalizeInteraction(entry: Record<string, unknown>): InteractionRecord
   };
 }
 export function migrateLearnerState(raw: unknown): LearnerState {
-  if (validateLearnerState(raw)) return { ...raw, appVersion: APP_VERSION, contentVersion: CONTENT_VERSION };
+  if (validateLearnerState(raw)) return sanitizeDiagnosticRoutingSideEffects({ ...clone(raw), appVersion: APP_VERSION, contentVersion: CONTENT_VERSION });
   const base = emptyLearnerState();
   if (!isRecord(raw)) return base;
 
@@ -598,6 +656,8 @@ export function migrateLearnerState(raw: unknown): LearnerState {
         dueAt: typeof entry.dueAt === "string" ? entry.dueAt : nowIso(),
         attempts: Math.max(0, Number(entry.attempts ?? 0)),
         sourceInteractionId: String(entry.sourceInteractionId ?? "legacy"),
+        sourceActionOptionId: typeof entry.sourceActionOptionId === "string" ? entry.sourceActionOptionId : undefined,
+        sourceReasonOptionId: typeof entry.sourceReasonOptionId === "string" ? entry.sourceReasonOptionId : undefined,
       }))
       : [];
     base.cards = isRecord(raw.cards) ? clone(raw.cards as Record<string, CardState>) : {};
@@ -620,7 +680,7 @@ export function migrateLearnerState(raw: unknown): LearnerState {
     base.activeSession = raw.activeSession === null || isRecord(raw.activeSession) ? raw.activeSession as ActiveSession | null : null;
     base.revision = Math.max(0, Number(raw.revision ?? 0));
     base.updatedAt = typeof raw.updatedAt === "string" ? raw.updatedAt : nowIso();
-    return base;
+    return sanitizeDiagnosticRoutingSideEffects(base);
   }
 
   const legacyDimension = isRecord(raw.dimension) ? raw.dimension : {};

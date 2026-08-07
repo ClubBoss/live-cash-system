@@ -21,14 +21,14 @@ import {
 import { allCards, drillById, moduleById, modules } from "../content/modules";
 import type { Drill, ModuleContent, Option } from "../content/types";
 import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/diagnostic-import";
+import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
+import { planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
 import {
   APP_VERSION,
   CONTENT_VERSION,
   DIMENSION_KEYS,
-  MODULE_IDS,
   STATE_SCHEMA_VERSION,
   addFieldNote,
-  chooseTodayAction,
   classifyResponse,
   completeBlock,
   completeLesson,
@@ -42,6 +42,7 @@ import {
   recordDecision,
   recordDiagnosticResponse,
   reviewFieldNote,
+  routeDiagnosticPriorities,
   saveActiveSession,
   startDiagnosticRun,
   validateLearnerState,
@@ -51,7 +52,6 @@ import {
   type LocaleCode,
   type ModuleId,
   type ResponseClass,
-  type TodayAction,
   type TransferProbe,
 } from "../lib/model";
 import LearningRoute from "./LearningRoute";
@@ -60,6 +60,21 @@ const STORAGE_KEY = "live-cash-os:learner-state";
 const LOCALE_KEY = "live-cash-os:locale";
 const T1_IDS = diagnosticT1.map((item) => item.id);
 const PRIMARY_TABS = ["today", "learn", "review", "cards", "map", "field", "diagnostic"] as const;
+const SCHEDULER_CATALOG = {
+  modules: modules.map((module) => ({
+    id: module.id,
+    prerequisites: module.prerequisites,
+    drills: module.drills.map((drill) => ({
+      id: drill.id,
+      moduleId: drill.moduleId,
+      nodeKey: drill.nodeKey,
+      variantGroup: drill.variantGroup,
+      kind: drill.kind,
+      targetSeconds: drill.targetSeconds,
+    })),
+  })),
+  cards: allCards.map((card) => ({ id: card.id, moduleId: card.moduleId })),
+};
 
 type Tab = (typeof PRIMARY_TABS)[number] | "debug";
 type SyncStatus = "loading" | "local" | "syncing" | "synced" | "offline" | "conflict" | "error";
@@ -80,7 +95,7 @@ function patchSession(state: LearnerState, patch: Partial<ActiveSession>): Learn
   return mutate(state, (next) => { next.activeSession = { ...current, ...patch }; });
 }
 
-function startSession(state: LearnerState, mode: LearningMode, moduleId: ModuleId, drillIds: string[], step = 0): LearnerState {
+function startSession(state: LearnerState, mode: LearningMode, moduleId: ModuleId, drillIds: string[], step = 0, sourceReviewId?: string): LearnerState {
   const now = new Date().toISOString();
   return saveActiveSession(state, {
     mode,
@@ -94,6 +109,7 @@ function startSession(state: LearnerState, mode: LearningMode, moduleId: ModuleI
     startedAt: now,
     itemStartedAt: now,
     explainBack: "",
+    sourceReviewId,
   });
 }
 
@@ -174,26 +190,46 @@ function dimensionLabel(locale: LocaleCode, value: string): string {
   return labels[locale][value] ?? value;
 }
 
-function todayActionCopy(locale: LocaleCode, action: TodayAction): { title: string; reason: string } {
-  const copy: Record<LocaleCode, Record<TodayAction["kind"], { title: string; reason: string }>> = {
+function dailyPlanItemCopy(locale: LocaleCode, item: PlanItem): { title: string; reason: string } {
+  const copy: Record<LocaleCode, Record<PlanItem["reasonCode"], { title: string; reason: string }>> = {
     ru: {
-      resume: { title: "Продолжить текущую сессию", reason: "Точное место остановки сохранено." },
-      review: { title: "Проверить навык после паузы", reason: "Пришло время снова решить похожую задачу без свежей подсказки." },
-      repair: { title: "Разобрать свежую ошибку", reason: "Сначала потренируем причину ошибки, которая сейчас важнее всего." },
-      lesson: { title: "Изучить следующую тему", reason: "Одна новая идея, затем самостоятельное решение." },
-      diagnostic: { title: "Уточнить маршрут через T1", reason: "Необязательно, но полезно, если хочешь точнее выбрать первые темы." },
-      field: { title: "Разобрать реальную руку", reason: "Следующий шаг — проверить эту идею на решении за столом." },
+      resume: { title: "Продолжить сохранённую сессию", reason: "Вернёмся ровно к месту остановки." },
+      overdue_retention: { title: "Проверить навык после паузы", reason: "Пришло время вспомнить решение без свежей подсказки." },
+      repair: { title: "Исправить конкретную ошибку", reason: "Сначала разберём промах из последнего решения, затем вернём его позже." },
+      diagnostic_priority: { title: "Подтянуть приоритетную тему", reason: "Проверка T1 подняла эту тему в очереди, но не засчитала навык за тебя." },
+      weak: { title: "Закрепить слабое место", reason: "В последних решениях здесь чаще возникали ошибки." },
+      stale: { title: "Освежить давно не проверенный навык", reason: "Эту тему давно не приходилось вспоминать самостоятельно." },
+      changed: { title: "Решить изменённую ситуацию", reason: "Проверим тот же механизм при других важных условиях." },
+      boundary: { title: "Проверить границу правила", reason: "Короткий контраст помогает не превращать правило в автопилот." },
+      mixed: { title: "Смешанная практика", reason: "Темы перемешаны, чтобы решение начиналось с распознавания ситуации." },
+      new: { title: "Изучить один новый механизм", reason: "Сегодня добавляем не больше одной новой идеи." },
+      warmup: { title: "Быстрая разминка перед игрой", reason: "До трёх знакомых подсказок, без новых тем." },
+      done: { title: "На сейчас достаточно", reason: "Срочных повторений нет; можно вернуться позже или выбрать практику вручную." },
     },
     en: {
-      resume: { title: "Resume the current session", reason: "Your exact stopping point is saved." },
-      review: { title: "Test the skill after a delay", reason: "Enough time has passed to solve a similar spot again without the fresh explanation." },
-      repair: { title: "Work on the latest mistake", reason: "Start with the reasoning error that is most likely to repeat." },
-      lesson: { title: "Learn the next topic", reason: "One new idea, followed by an independent decision." },
-      diagnostic: { title: "Refine the route with T1", reason: "Optional, but useful if you want a sharper starting priority." },
-      field: { title: "Review a real hand", reason: "The next step is to check the idea in a real table decision." },
+      resume: { title: "Resume the saved session", reason: "Continue from the exact point where you stopped." },
+      overdue_retention: { title: "Test the skill after a delay", reason: "It is time to recall the decision without the fresh explanation." },
+      repair: { title: "Fix the exact mistake", reason: "Start with the miss from your last decision, then bring it back later." },
+      diagnostic_priority: { title: "Work on a priority topic", reason: "The reviewed T1 check moved this topic up the queue; it did not award learning credit." },
+      weak: { title: "Reinforce a weak spot", reason: "Recent decisions show more misses here." },
+      stale: { title: "Refresh a stale skill", reason: "You have not recalled this topic independently for a while." },
+      changed: { title: "Solve a changed spot", reason: "Use the same mechanism after an important condition changes." },
+      boundary: { title: "Test the edge of the rule", reason: "A short contrast helps prevent autopilot." },
+      mixed: { title: "Mixed practice", reason: "Topics are mixed so the first job is recognising the spot." },
+      new: { title: "Learn one new mechanism", reason: "Add no more than one new idea today." },
+      warmup: { title: "Quick pre-session warm-up", reason: "Up to three familiar prompts, with no new topics." },
+      done: { title: "Enough for now", reason: "Nothing urgent is due; return later or choose practice manually." },
     },
   };
-  return copy[locale][action.kind];
+  return copy[locale][item.reasonCode];
+}
+
+function dailyBudgetLabel(locale: LocaleCode, budget: DailyBudget): string {
+  const labels: Record<LocaleCode, Record<DailyBudget, string>> = {
+    ru: { "5": "5 мин", "15": "15 мин", "30": "30 мин", warmup: "Перед игрой", post: "После игры" },
+    en: { "5": "5 min", "15": "15 min", "30": "30 min", warmup: "Before play", post: "After play" },
+  };
+  return labels[locale][budget];
 }
 
 function downloadJson(filename: string, value: unknown) {
@@ -216,20 +252,32 @@ function transferProbeFor(drill: Drill): TransferProbe | null {
   return null;
 }
 
-function selectRepair(state: LearnerState, moduleId: ModuleId): Drill[] {
+function selectRepair(state: LearnerState, moduleId: ModuleId): { drills: Drill[]; sourceReviewId?: string } {
   const module = moduleById[moduleId];
   const target = dueReviewItems(state).find((item) => item.moduleId === moduleId && item.kind === "repair");
-  const family = target ? module.drills.filter((drill) => drill.variantGroup === target.variantGroup && drill.id !== target.sourceDrillId) : [];
-  const boundary = module.drills.filter((drill) => drill.kind === "boundary");
-  return [...family, ...boundary, ...module.drills]
+  const candidateRules = target
+    ? [target.sourceActionOptionId, target.sourceReasonOptionId]
+      .filter((optionId): optionId is string => Boolean(optionId))
+      .map((optionId) => getRuntimeRepairRule(target.sourceDrillId, optionId))
+      .filter((rule): rule is NonNullable<typeof rule> => Boolean(rule))
+    : [];
+  const eligible = module.drills.filter((drill) => drill.id !== target?.sourceDrillId);
+  const preferredNode = candidateRules.flatMap((rule) => rule.preferredNodeKey ? eligible.filter((drill) => drill.nodeKey === rule.preferredNodeKey) : []);
+  const preferredFamily = candidateRules.flatMap((rule) => rule.preferredVariantGroup ? eligible.filter((drill) => drill.variantGroup === rule.preferredVariantGroup) : []);
+  const preferredKind = candidateRules.flatMap((rule) => rule.preferredKind ? eligible.filter((drill) => drill.kind === rule.preferredKind) : []);
+  const family = target ? eligible.filter((drill) => drill.variantGroup === target.variantGroup) : [];
+  const boundary = eligible.filter((drill) => drill.kind === "boundary");
+  const changed = eligible.filter((drill) => drill.kind === "changed");
+  const drills = [...preferredNode, ...preferredFamily, ...preferredKind, ...family, ...boundary, ...changed, ...eligible]
     .filter((drill, index, list) => list.findIndex((candidate) => candidate.id === drill.id) === index)
-    .slice(0, 3);
+    .slice(0, 1);
+  return { drills: drills.length ? drills : module.drills.slice(0, 1), sourceReviewId: target?.id };
 }
 
-function selectReview(state: LearnerState): Drill[] {
+function selectReview(state: LearnerState, limit = 3): Drill[] {
   return dueReviewItems(state)
     .filter((item) => item.kind === "retention")
-    .slice(0, 3)
+    .slice(0, limit)
     .map((item) => moduleById[item.moduleId].drills.find((drill) => drill.variantGroup === item.variantGroup && drill.id !== item.sourceDrillId)
       ?? moduleById[item.moduleId].drills.find((drill) => drill.kind === "changed")
       ?? moduleById[item.moduleId].drills[0]);
@@ -248,6 +296,7 @@ export default function LiveCashAppV11() {
   const [ready, setReady] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [notice, setNotice] = useState("");
+  const [dailyBudget, setDailyBudget] = useState<DailyBudget>("15");
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncStatusRef = useRef(syncStatus);
   const t = runtimeCopy[locale];
@@ -307,7 +356,10 @@ export default function LiveCashAppV11() {
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
   }, [ready, state]);
 
-  const action = useMemo(() => chooseTodayAction(state, [...MODULE_IDS]), [state]);
+  const planningNow = Date.now();
+  const plan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: dailyBudget, now: planningNow, seed: `${state.revision}:${dailyBudget}` });
+  const warmupPlan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: "warmup", now: planningNow, seed: `${state.revision}:warmup` });
+  const warmupCardIds = warmupPlan.items[0]?.cardIds ?? [];
   const session = state.activeSession;
 
   function changeLocale(next: LocaleCode) {
@@ -335,12 +387,14 @@ export default function LiveCashAppV11() {
   }
 
   function openRepair(moduleId: ModuleId) {
-    setState(startSession(state, "repair", moduleId, selectRepair(state, moduleId).map((drill) => drill.id)));
+    const selection = selectRepair(state, moduleId);
+    if (!selection.drills.length) return;
+    setState(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId));
     setTab("learn");
   }
 
-  function openReview() {
-    const drills = selectReview(state);
+  function openReview(limit = 3) {
+    const drills = selectReview(state, limit);
     if (!drills.length) { setTab("review"); return; }
     setState(startSession(state, "review", drills[0].moduleId, drills.map((drill) => drill.id)));
     setTab("learn");
@@ -353,15 +407,21 @@ export default function LiveCashAppV11() {
   }
 
   function runToday() {
-    if (action.kind === "resume") { setTab("learn"); return; }
-    if (action.kind === "review") { openReview(); return; }
-    if (action.kind === "repair" && action.moduleId) { openRepair(action.moduleId); return; }
-    if (action.kind === "lesson" && action.moduleId) { openLesson(action.moduleId); return; }
-    setTab(action.kind === "diagnostic" ? "diagnostic" : "field");
+    const item = plan.items[0];
+    if (!item || item.kind === "done") return;
+    if (item.kind === "resume") { setTab("learn"); return; }
+    if (item.kind === "review") { openReview(1); return; }
+    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId); return; }
+    if (item.kind === "lesson" && item.moduleId) { openLesson(item.moduleId); return; }
+    if (item.kind === "cards") { setTab("cards"); return; }
+    if ((item.kind === "practice" || item.kind === "mixed") && item.moduleId && item.drillIds?.length) {
+      setState(startSession(state, item.kind === "mixed" ? "mixed" : "practice", item.moduleId, item.drillIds));
+      setTab("learn");
+    }
   }
 
   function exitSession() {
-    setState(saveActiveSession(state, null));
+    setNotice(locale === "ru" ? "Сессия сохранена. Можно продолжить с этого места." : "Session saved. You can resume from this exact point.");
     setTab("today");
   }
 
@@ -387,11 +447,11 @@ export default function LiveCashAppV11() {
     <div className="sr-live" aria-live="polite">{notice}</div>
     {notice && <div className="notice"><span>{notice}</span><button onClick={() => setNotice("")}>{t.close}</button></div>}
 
-    {tab === "today" && <Today locale={locale} state={state} action={action} onRun={runToday} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} />}
+    {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} />}
     {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} />}
     {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} />}
     {tab === "review" && <Review locale={locale} state={state} onReview={openReview} onRepair={openRepair} />}
-    {tab === "cards" && <Cards locale={locale} state={state} setState={setState} />}
+    {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} />}
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
     {tab === "field" && <Field locale={locale} state={state} setState={setState} />}
     {tab === "diagnostic" && <Diagnostic locale={locale} state={state} setState={setState} onExit={() => setTab("today")} />}
@@ -399,17 +459,26 @@ export default function LiveCashAppV11() {
   </main>;
 }
 
-function Today({ locale, state, action, onRun, onCards, onDiagnostic }: { locale: LocaleCode; state: LearnerState; action: TodayAction; onRun: () => void; onCards: () => void; onDiagnostic: () => void }) {
+function Today({ locale, state, plan, budget, onBudget, onRun, onCards, onDiagnostic }: { locale: LocaleCode; state: LearnerState; plan: DailyPlan; budget: DailyBudget; onBudget: (value: DailyBudget) => void; onRun: () => void; onCards: () => void; onDiagnostic: () => void }) {
   const t = runtimeCopy[locale];
-  const next = todayActionCopy(locale, action);
+  const primary = plan.items[0];
+  const next = primary ? dailyPlanItemCopy(locale, primary) : dailyPlanItemCopy(locale, { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
   const completed = modules.filter((module) => state.modules[module.id].contentCompleted).length;
   const working = modules.filter((module) => ["WORKING", "RETAINED", "FIELD_TEST_PENDING", "FIELD_VALIDATED"].includes(state.modules[module.id].state)).length;
+  const budgets: DailyBudget[] = ["5", "15", "30", "warmup", "post"];
+  const returnCopy = locale === "ru"
+    ? "После паузы берём ограниченный набор самых полезных повторений — весь накопившийся хвост сразу не показываем."
+    : "After a break, start with a bounded set of the highest-value reviews instead of dumping the whole backlog at once.";
+  const deferredCopy = locale === "ru"
+    ? `Ещё ${plan.deferredDueCount} повторений останутся в очереди после этой сессии.`
+    : `${plan.deferredDueCount} more review items stay queued after this session.`;
   return <>
     <section className="hero compact-hero">
       <p className="eyebrow">{t.todayEyebrow}</p>
       <h1>{t.todayTitle}<br/><em>{t.todayEmphasis}</em></h1>
       <p className="lede">{t.todayDescription}</p>
-      <div className="today-card"><p className="eyebrow">{t.now}</p><h2>{next.title}</h2><p>{next.reason}</p><button className="primary" aria-label={t.start} onClick={onRun}>{t.start} <span>→</span></button></div>
+      <div className="mode-switch" aria-label={locale === "ru" ? "Длительность занятия" : "Session length"}>{budgets.map((value) => <button key={value} aria-pressed={budget === value} onClick={() => onBudget(value)}>{dailyBudgetLabel(locale, value)}</button>)}</div>
+      <div className="today-card"><p className="eyebrow">{t.now} · ≈{plan.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p><h2>{next.title}</h2><p>{next.reason}</p>{plan.returnAfterBreak && <p className="support">{returnCopy}</p>}{plan.deferredDueCount > 0 && <p className="support">{deferredCopy}</p>}<button className="primary" aria-label={t.start} disabled={!primary || primary.kind === "done"} onClick={onRun}>{t.start} <span>→</span></button></div>
     </section>
     <section className="metrics">
       <div><b>{completed}/11</b><span>{t.completedLessons}</span></div>
@@ -417,6 +486,7 @@ function Today({ locale, state, action, onRun, onCards, onDiagnostic }: { locale
       <div><b>{dueReviewItems(state).length}</b><span>{t.dueItems}</span></div>
     </section>
     <section className="quick-grid">
+      <article><p className="eyebrow">{locale === "ru" ? "ПЛАН" : "PLAN"}</p><h3>{locale === "ru" ? "Что входит дальше" : "What comes next"}</h3>{plan.items.slice(0, 3).map((item, index) => { const copy = dailyPlanItemCopy(locale, item); return <p key={`${item.kind}-${item.moduleId ?? index}`}>{index + 1}. {copy.title} · ≈{item.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p>; })}</article>
       <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{t.openT1}</button></article>
       <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{t.warmupDescription}</p><button className="textbutton" onClick={onCards}>{t.quickWarmup}</button></article>
     </section>
@@ -545,6 +615,9 @@ function Decision({ locale, state, setState, drill, onContinue }: { locale: Loca
       mode: session.mode,
       actionOk,
       reasonOk,
+      selectedActionOptionId: session.selectedActionId,
+      selectedReasonOptionId: session.selectedReasonId,
+      sourceReviewId: session.sourceReviewId,
       confidence: session.confidence,
       elapsedSeconds: Math.max(1, Math.round((Date.now() - Date.parse(session.itemStartedAt)) / 1000)),
       targetSeconds: drill.targetSeconds,
@@ -571,16 +644,17 @@ function Review({ locale, state, onReview, onRepair }: { locale: LocaleCode; sta
   return <section className="surface"><div className="section-head"><p className="eyebrow">{t.reviewEyebrow}</p><h1>{t.reviewTitle}<br/><em>{t.reviewEmphasis}</em></h1></div>{due.length ? <div className="queue">{due.map((item) => <article key={item.id}><span className={`kind kind-${item.kind}`}>{reviewKindLabel(locale, item.kind)}</span><h3>{localizedModule(moduleById[item.moduleId], locale).title}</h3><button className="primary" onClick={() => item.kind === "repair" ? onRepair(item.moduleId) : onReview()}>{t.start} <span>→</span></button></article>)}</div> : <div className="empty-state"><h2>{t.nothingDue}</h2><p>{t.reviewEmptyBody}</p></div>}</section>;
 }
 
-function Cards({ locale, state, setState }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void }) {
+function Cards({ locale, state, setState, warmupIds }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; warmupIds: string[] }) {
   const t = runtimeCopy[locale];
   const [mode, setMode] = useState<"warmup" | "due" | "all">("warmup");
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const due = allCards.filter((card) => !state.cards[card.id] || Date.parse(state.cards[card.id].dueAt) <= Date.now());
-  const cards = mode === "due" ? due : mode === "warmup" ? (due.length ? due : allCards).slice(0, 3) : allCards;
+  const warmup = allCards.filter((card) => warmupIds.includes(card.id));
+  const cards = mode === "due" ? due : mode === "warmup" ? warmup : allCards;
   const card = cards[index];
   useEffect(() => { setIndex(0); setRevealed(false); }, [mode]);
-  if (!card) return <section className="surface"><div className="empty-state"><h2>{t.allCardsDone}</h2></div></section>;
+  if (!card) return <section className="surface"><p className="eyebrow">{recallLabel(locale)}</p><div className="empty-state"><h2>{locale === "ru" ? "Пока нечего повторять." : "Nothing to review yet."}</h2><p>{locale === "ru" ? "После первого урока здесь появятся короткие карточки по уже изученным темам." : "After your first lesson, short cards from topics you have already seen will appear here."}</p></div></section>;
   const apply = (grade: 0 | 1 | 2 | 3) => { setState(gradeCard(state, card.id, grade)); setIndex(index + 1 >= cards.length ? 0 : index + 1); setRevealed(false); };
   return <section className="session"><div className="mode-switch"><button aria-pressed={mode === "warmup"} onClick={() => setMode("warmup")}>{cardModeLabel(locale, "warmup")}</button><button aria-pressed={mode === "due"} onClick={() => setMode("due")}>{cardModeLabel(locale, "due")}</button><button aria-pressed={mode === "all"} onClick={() => setMode("all")}>{cardModeLabel(locale, "all")}</button></div><p className="eyebrow">{recallLabel(locale)} · {index + 1}/{cards.length}</p><h2>{card.front}</h2><p className="module-code">{moduleById[card.moduleId].lcm} · {cardKindLabel(locale, card.kind)}</p>{revealed ? <><div className="card-answer">{card.back}</div><div className="grade-row"><button onClick={() => apply(0)}>{t.forgot}</button><button onClick={() => apply(1)}>{t.hard}</button><button onClick={() => apply(2)}>{t.good}</button><button className="primary" onClick={() => apply(3)}>{t.easy}</button></div></> : <button className="primary" onClick={() => setRevealed(true)}>{t.showAnswer} <span>→</span></button>}<p className="support">{t.cardsBoundary}</p></section>;
 }
@@ -643,15 +717,7 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
       if (score.measurement_context !== diagnostic.measurementContext) throw new Error("context");
       if (score.locale_at_start !== diagnostic.localeAtStart) throw new Error("locale");
       const priority = deriveDiagnosticPriorityModules(score);
-      setState(mutate(state, (next) => {
-        next.diagnostic.status = "ROUTED";
-        next.diagnostic.priorityModules = priority;
-        next.diagnostic.importedAt = new Date().toISOString();
-        for (const moduleId of priority) {
-          next.modules[moduleId].state = "REPAIR_REQUIRED";
-          next.modules[moduleId].highConfidenceError = true;
-        }
-      }));
+      setState(routeDiagnosticPriorities(state, priority));
     } catch {
       alert(locale === "ru" ? "Не удалось загрузить результат разбора для этой проверки T1." : "Could not import the reviewed result for this T1 check.");
     }
