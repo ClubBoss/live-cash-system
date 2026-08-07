@@ -12,7 +12,7 @@ test("Wave 4R keeps T1 IDs stable while removing hybrid research language from R
   const source = await read("content/diagnostic.ts");
   const ids = [...source.matchAll(/id:\s*"(LD-\d{3})"/gu)].map((match) => match[1]);
   assert.deepEqual(ids, Array.from({ length: 10 }, (_, index) => `LD-${String(index + 1).padStart(3, "0")}`));
-  assert.equal((source.match(/targetSeconds:/gu) ?? []).length, 10);
+  assert.equal((source.match(/targetSeconds:\s*\d+/gu) ?? []).length, 10);
 
   const learnerCopy = quoted(source);
   for (const pattern of [
