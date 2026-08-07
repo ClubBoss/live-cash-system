@@ -1,9 +1,9 @@
 {
   "schema_version": 5,
   "status": "TRANSITIONAL_REVIEW_REQUIRED",
-  "strategy_status": "CURRICULUM_STRATEGY_REPAIR_REQUIRED",
+  "strategy_status": "CURRICULUM_STRATEGY_REVIEW_PENDING",
   "strategy_repair_scope": ["preflop", "blinds", "aggression"],
-  "drill_content_status": "DRILLS_REPAIR_REQUIRED",
+  "drill_content_status": "DRILLS_REVIEW_PENDING",
   "drill_repair_scope": ["preflop", "aggression"],
   "language_repair_owner": "W4R",
   "review_policy": "Learner-facing and strategic approval requires explicit independent human review. Deterministic checks may reject stale, invalid, or out-of-scope mutations but can never create an approval.",
@@ -14,7 +14,7 @@
     "status": "STALE_REVIEW_REQUIRED",
     "current_digest": null,
     "approved_digest": null,
-    "note": "W3 revalidation found strategy/drill P1 defects. Final learner-facing composition must be re-materialized and reviewed after W3 repair and later W4R integration; no final digest is asserted here."
+    "note": "W3 source repair is implemented on repair/w3-strategy-closure. Final learner-facing composition remains stale until FINAL W4R semantic reconciliation and human poker/drill re-review; no final digest is asserted here."
   },
   "repair_source_paths": {
     "strategy": [
@@ -60,11 +60,11 @@
   },
   "modules": {
     "geometry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. Prior bilingual approval is invalidated until explicit human RU/EN evidence is recorded against the current reviewed final composition." },
-    "preflop": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 revalidation reopened strategy for LCM-02. Language review also remains open; no prior approval is current." },
-    "blinds": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 revalidation reopened strategy for LCM-03 claim scope. Language review also remains open; no prior approval is current." },
+    "preflop": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair is implemented for LCM-02; strategy and drill re-review are pending. Language review also remains open; no prior approval is current." },
+    "blinds": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair is implemented for LCM-03; strategy re-review is pending. Language review also remains open; no prior approval is current." },
     "filtering": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
     "shape": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
-    "aggression": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 revalidation reopened strategy and drill semantics for LCM-06. Language review also remains open; no prior approval is current." },
+    "aggression": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source precision repair is implemented for LCM-06; strategy and drill re-review are pending. Final W4R materialized semantics still require reconciliation before composition approval." },
     "ancestry": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
     "multiway": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
     "river": { "ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Strategic scope remains gold. W4R owns learner-facing language repair and independent human RU/EN re-review." },
