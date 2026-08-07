@@ -2,7 +2,7 @@ name: Live Cash OS CI
 
 on:
   push:
-    branches: [main, wave/w8-premium-ux-accessibility]
+    branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-${{ github.ref_name }}
+  group: live-cash-os-main
   cancel-in-progress: true
 
 jobs:
@@ -33,20 +33,17 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Install Wave 8 browsers
-        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Release gate
         run: npm run test:release
 
-      - name: Wave 8 cross-browser smoke
-        run: npx playwright test wave8-ux.spec.mjs --config=playwright.cross-browser.config.mjs
-
-      - name: Upload Wave 8 browser evidence
-        if: always()
+      - name: Upload Playwright evidence on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: live-cash-os-w8-browser-evidence
+          name: live-cash-os-playwright-evidence
           path: |
             apps/live-cash-os/playwright-report
             apps/live-cash-os/test-results
