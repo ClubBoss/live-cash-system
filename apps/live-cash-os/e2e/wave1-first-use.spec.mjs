@@ -64,18 +64,18 @@ test("fresh RU skill map renders learner labels rather than raw state enums", as
   await expect(main).not.toContainText(/UNEXPOSED|INTRODUCED|FRAGILE|WORKING|RETAINED|FIELD_TEST_PENDING|FIELD_VALIDATED|REPAIR_REQUIRED/u);
 });
 
-test("starting diagnostic exposes purpose, optionality, duration, output, skip path and review boundary", async ({ page }) => {
+test("starting diagnostic exposes purpose, optionality, duration, output, skip path and separate-review boundary", async ({ page }) => {
   await openFresh(page);
 
   await expect(page.getByRole("heading", { name: "Стартовая проверка мышления" })).toBeVisible();
   await expect(page.getByText(/10 решений без подсказок, около 15 минут/i)).toBeVisible();
+  await expect(page.getByText(/После отдельного разбора/i)).toBeVisible();
   await expect(page.getByText(/Можно пропустить и сразу начать первый урок/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Проверка", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
   await expect(page.getByText(/Ответы сохранятся для отдельного разбора/i)).toBeVisible();
-  await expect(page.getByText(/без автоматической стратегической оценки/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Начать проверку", exact: true })).toBeVisible();
 });
 
