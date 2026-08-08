@@ -582,8 +582,8 @@ function Learn({ locale, state, onLesson, onPractice, onMixed }: { locale: Local
         </div>
       </article>;
     })}</div>
-    {completedCount < 2 && <p className="support">{locale === "ru" ? `Смешанная практика откроется после двух пройденных тем. Сейчас: ${completedCount}/2.` : `Mixed practice opens after two completed topics. Current: ${completedCount}/2.`}</p>}
-    <button className="secondary wide" disabled={completedCount < 2} onClick={onMixed}>{t.mixedBlock}</button>
+    {completedCount < 3 && <p className="support">{locale === "ru" ? `Смешанная практика откроется после трёх пройденных тем. Сейчас: ${completedCount}/3.` : `Mixed practice opens after three completed topics. Current: ${completedCount}/3.`}</p>}
+    <button className="secondary wide" disabled={completedCount < 3} onClick={onMixed}>{t.mixedBlock}</button>
   </section>;
 }
 
@@ -701,7 +701,7 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
   const t = runtimeCopy[locale];
   const [value, setValue] = useState(state.activeSession?.explainBack ?? "");
   const savedDraft = state.activeSession?.explainBack ?? "";
-  const missingCharacters = Math.max(0, 30 - value.trim().length);
+  const explanationReady = value.trim().length >= 30;
 
   function persistDraft() {
     if (value !== savedDraft) setState(patchSession(state, { explainBack: value }));
@@ -725,8 +725,8 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
     <h2>{module.explainBackPrompt}</h2>
     <Wave7ExplainBackHistory locale={locale} state={state} moduleId={module.id} />
     <textarea className="large-input" value={value} onChange={(event) => setValue(event.target.value)} onBlur={persistDraft} placeholder={t.explainPlaceholder}/>
-    {missingCharacters > 0 && <p className="support">{locale === "ru" ? `Добавь ещё ${missingCharacters} символов, чтобы объяснение было достаточно содержательным для сохранения.` : `Add ${missingCharacters} more characters so the explanation is substantial enough to save.`}</p>}
-    <button className="primary" disabled={missingCharacters > 0} onClick={saveAndContinue}>{t.saveExplanation} <span>→</span></button>
+    {!explanationReady && <p className="support">{locale === "ru" ? "Чтобы сохранить, объясни своими словами само решение и почему оно работает в этой ситуации." : "To save, explain the decision in your own words and why it works in this spot."}</p>}
+    <button className="primary" disabled={!explanationReady} onClick={saveAndContinue}>{t.saveExplanation} <span>→</span></button>
   </>;
 }
 
@@ -961,7 +961,7 @@ function Diagnostic({ locale, state, setState, onExit }: { locale: LocaleCode; s
 
   if (["AWAITING_REVIEW", "SCORED", "ROUTED"].includes(diagnostic.status)) {
     const exportReady = Boolean(diagnostic.runId && diagnostic.measurementContext && diagnostic.localeAtStart && diagnostic.submittedAt && diagnostic.responses.length === 10);
-    return <section className="surface"><div className="section-head"><p className="eyebrow">{diagnosticLabel(locale)} · {diagnosticStatusLabel(locale, diagnostic.status)}</p><h1>{diagnostic.responses.length}/10 {t.answersSaved}.</h1><p>{role}</p><p>{t.rawBoundary}</p><p className="support">{locale === "ru" ? "Семантический разбор делает человек или человек с инструментом. Импорт может поднять тему в очереди, но сам по себе не подтверждает навык, запоминание после паузы или игру за столом." : "Semantic review is done by a human or human-assisted reviewer. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."}</p>{!exportReady && <p className="support">{locale === "ru" ? "Скачать ответы можно после сохранения всех 10 ответов и служебного контекста этой попытки." : "Download becomes available after all 10 answers and this run's context are saved."}</p>}<div className="button-row"><button className="primary" disabled={!exportReady} onClick={() => downloadJson("live-cash-diagnostic-raw-v0.2.json", {
+    return <section className="surface"><div className="section-head"><p className="eyebrow">{diagnosticLabel(locale)} · {diagnosticStatusLabel(locale, diagnostic.status)}</p><h1>{diagnostic.responses.length}/10 {t.answersSaved}.</h1><p>{role}</p><p>{t.rawBoundary}</p><p className="support">{locale === "ru" ? "Семантический разбор делает человек или человек с инструментом. Импорт может поднять тему в очереди, но сам по себе не подтверждает навык, запоминание после паузы или игру за столом." : "Semantic review is done by a human or human-assisted reviewer. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."}</p>{!exportReady && <p className="support">{locale === "ru" ? "Скачать ответы можно после сохранения всех 10 ответов и служебного контекста этой попытки." : "Download becomes available after all 10 answers and this run's context are saved."}</p>}<div className="button-row"><button className="primary" disabled={!exportReady} onClick={() => downloadJson("live-cash-t1-raw-v0.2.json", {
       schema_version: "raw-0.2",
       learner_id: "current_learner",
       tranche_id: "T1",
