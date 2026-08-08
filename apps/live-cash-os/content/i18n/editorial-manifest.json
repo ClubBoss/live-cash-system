@@ -34,7 +34,9 @@
       "content/i18n/wave3-priority-gold.ts"
     ],
     "language": [
-      "components/LiveCashAppCore.tsx"
+      "components/LiveCashAppCore.tsx",
+      "components/Wave5PracticeLayer.tsx",
+      "components/Wave7Experience.tsx"
     ]
   },
   "source_blobs": {

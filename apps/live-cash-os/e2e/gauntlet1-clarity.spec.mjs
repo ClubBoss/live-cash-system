@@ -1,0 +1,116 @@
+import { expect, test } from "@playwright/test";
+
+async function openFresh(page) {
+  await page.route("**/api/state", async (route) => {
+    await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
+}
+
+test("Today separates Time and Mode, shows actual plan volume, and fresh short modes have an actionable fallback", async ({ page }) => {
+  await openFresh(page);
+
+  await expect(page.getByText(/Время · сколько минут есть на обычную сессию/i)).toBeVisible();
+  await expect(page.getByText(/Режим · особая цель вместо обычной сессии/i)).toBeVisible();
+  await expect(page.getByText(/≈8 из 15 доступных минут/i)).toBeVisible();
+
+  await page.getByRole("button", { name: "5 мин", exact: true }).click();
+  await expect(page.getByText(/первый урок рассчитан примерно на 8 минут/i)).toBeVisible();
+  const shortFallback = page.getByRole("button", { name: "Выбрать 15 минут", exact: true });
+  await expect(shortFallback).toBeEnabled();
+  await shortFallback.click();
+  await expect(page.getByRole("button", { name: "Начать", exact: true })).toBeEnabled();
+
+  await page.getByRole("button", { name: "Перед игрой", exact: true }).click();
+  await expect(page.getByText(/использует только уже изученные карточки/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Выбрать 15 минут", exact: true })).toBeEnabled();
+});
+
+test("locked modules name the concrete prerequisite, explain why, and route to it", async ({ page }) => {
+  await openFresh(page);
+  await page.getByRole("button", { name: "Учиться", exact: true }).click();
+
+  const preflop = page.locator(".module-list article").filter({ hasText: "LCM-02" }).first();
+  await expect(preflop.locator("p.support").filter({ hasText: /Сначала LCM-01/i })).toBeVisible();
+  await expect(preflop.getByText(/опирается на решения и термины/i)).toBeVisible();
+  await preflop.getByRole("button", { name: /^Сначала LCM-01/ }).click();
+  await expect(page.getByText("1 · РЕШИ БЕЗ ПОДСКАЗКИ")).toBeVisible();
+});
+
+test("disabled learning CTAs state what is missing", async ({ page }) => {
+  await openFresh(page);
+  await page.getByRole("button", { name: "Учиться", exact: true }).click();
+
+  await expect(page.getByText(/Практика откроется после завершения этого урока/i).first()).toBeVisible();
+  await expect(page.getByText(/Смешанная практика откроется после трёх пройденных тем. Сейчас: 0\/3/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Смешанная практика", exact: true })).toBeDisabled();
+});
+
+test("Cards has one role, an empty warm-up exit, and explains grading impact", async ({ page }) => {
+  await openFresh(page);
+  await page.getByRole("button", { name: "Карточки", exact: true }).click();
+
+  await expect(page.getByText(/Оценка меняет только срок следующего показа карточки, а не статус навыка/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Открыть обучение/ })).toBeEnabled();
+  await page.getByRole("button", { name: "Все", exact: true }).click();
+  await page.getByRole("button", { name: /^Показать ответ/ }).click();
+  await expect(page.getByText(/Не вспомнил → снова примерно через 10 минут/i)).toBeVisible();
+  await expect(page.getByText(/Это не меняет статус навыка/i)).toBeVisible();
+});
+
+test("Review, Progress, Hands and Diagnostic each state one clear role", async ({ page }) => {
+  await openFresh(page);
+
+  await page.getByRole("button", { name: "Повтор", exact: true }).click();
+  await expect(page.getByText(/только то, что пора вспомнить после паузы или исправить/i)).toBeVisible();
+
+  await page.getByRole("button", { name: "Карта", exact: true }).click();
+  await expect(page.getByText(/Прогресс показывает, какие доказательства уже есть/i)).toBeVisible();
+
+  await page.getByRole("button", { name: "Руки", exact: true }).click();
+  await expect(page.getByText(/фиксируй реальную раздачу до того, как результат повлияет/i)).toBeVisible();
+
+  await page.getByRole("button", { name: "Диагностика", exact: true }).click();
+  await expect(page.getByText(/Диагностика — необязательная проверка текущего хода решения/i)).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/\bT1\b/);
+});
+
+test("Diagnostic confidence and disabled submit explain their contract", async ({ page }) => {
+  await openFresh(page);
+  await page.getByRole("button", { name: "Диагностика", exact: true }).click();
+  await page.getByRole("button", { name: "Начать проверку", exact: true }).click();
+
+  await expect(page.getByText(/грубая самооценка, а не точная вероятность/i)).toBeVisible();
+  await expect(page.getByText(/Чтобы сохранить ответ, укажи действие и причину/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Ответить/ })).toBeDisabled();
+
+  await page.getByLabel("Как бы ты сыграл?").fill("Call");
+  await expect(page.getByText(/Чтобы сохранить ответ, укажи причину/i)).toBeVisible();
+});
+
+test("Real Hands shows completion count and exact missing required fields", async ({ page }) => {
+  await openFresh(page);
+  await page.getByRole("button", { name: "Руки", exact: true }).click();
+
+  await expect(page.getByText(/0\/11 обязательных полей заполнено/i)).toBeVisible();
+  await expect(page.getByText(/Не хватает: Лимиты, Позиция Hero/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Зафиксировать решение/ })).toBeDisabled();
+
+  await page.getByLabel("Лимиты").fill("2/5");
+  await page.getByLabel("Позиция Hero").fill("BB");
+  await expect(page.getByText(/2\/11 обязательных полей заполнено/i)).toBeVisible();
+  await expect(page.getByText(/Не хватает:/i)).toBeVisible();
+});
+
+test("mobile keeps the zero-guessing Today and Hands states usable without overflow", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "mobile fixture only");
+  await openFresh(page);
+
+  await page.getByRole("button", { name: "5 мин", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Выбрать 15 минут", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Руки", exact: true }).click();
+  await expect(page.getByText(/0\/11 обязательных полей заполнено/i)).toBeVisible();
+  const dimensions = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
+  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client + 1);
+});

@@ -35,10 +35,24 @@ const emptyHand = (): FieldHandInput => ({
   populationReadConfidence: 50,
 });
 
+const REQUIRED_HAND_FIELDS = [
+  "stakes",
+  "heroPosition",
+  "villainPositions",
+  "effectiveStacks",
+  "straddle",
+  "actionSequence",
+  "board",
+  "sizings",
+  "cue",
+  "action",
+  "reason",
+] as const satisfies readonly (keyof FieldHandInput)[];
+
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
     captureTitle: "Запиши решение до результата",
-    captureBody: "Сначала зафиксируй ситуацию, что заметил, действие и причину. Результат добавляется только после сохранения этого снимка. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
+    captureBody: "Здесь фиксируй реальную раздачу до того, как результат повлияет на оценку решения. Сначала ситуация, наблюдение, действие и причина; результат добавляется после сохранения. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
     stakes: "Лимиты",
     heroPosition: "Позиция Hero",
     villainPositions: "Позиции релевантных соперников",
@@ -51,17 +65,24 @@ function copy(locale: LocaleCode) {
     action: "Как сыграл",
     reason: "Почему — до результата",
     confidence: "Уверенность",
+    confidenceHelp: "Это грубая самооценка, а не точная вероятность. Отметь примерно, насколько был уверен до результата.",
     populationRead: "Рид на поле / игрока (если релевантно)",
     populationConfidence: "Уверенность в риде",
     module: "Связанная тема",
     lock: "Зафиксировать решение",
     locked: "Решение зафиксировано до результата",
+    requiredProgress: "обязательных полей заполнено",
+    missingFields: "Не хватает",
+    allRequired: "Все обязательные поля заполнены. Можно фиксировать решение.",
     resultTitle: "Результат — отдельным шагом",
     result: "Результат",
     showdown: "Шоудаун (если был)",
     addResult: "Добавить результат",
+    resultRequired: "Укажи результат; шоудаун можно оставить пустым, если его не было.",
     review: "Разбор",
     reviewPlaceholder: "Коротко: что подтверждено или что нужно исправить…",
+    reviewRequired: "Добавь короткий комментарий разбора — без него эти действия недоступны.",
+    legacyTransferBlocked: "Эту старую запись нельзя засчитать как поддержку переноса: в ней нет зафиксированного решения до результата.",
     insufficient: "Недостаточно данных",
     reviewedOk: "Разобрано, дополнительная практика не нужна",
     repair: "Нужна практика",
@@ -83,7 +104,7 @@ function copy(locale: LocaleCode) {
     pendingRepair: "заданий на работу над ошибкой",
   } : {
     captureTitle: "Record the decision before the result",
-    captureBody: "Lock the spot, what you noticed, your action and your reason first. Add the result only after that snapshot is saved. One hand is an observation, not proof of a frequency or a global player type.",
+    captureBody: "Use this section to capture a real hand before the result can bias the decision review. Lock the spot, what you noticed, your action and your reason first; add the result afterward. One hand is an observation, not proof of a frequency or a global player type.",
     stakes: "Stakes",
     heroPosition: "Hero position",
     villainPositions: "Relevant villain positions",
@@ -96,17 +117,24 @@ function copy(locale: LocaleCode) {
     action: "What you did",
     reason: "Why — before the result",
     confidence: "Confidence",
+    confidenceHelp: "This is a rough self-rating, not an exact probability. Mark approximately how sure you were before seeing the result.",
     populationRead: "Population / player read (if relevant)",
     populationConfidence: "Confidence in the read",
     module: "Linked topic",
     lock: "Lock the decision",
     locked: "Decision locked before the result",
+    requiredProgress: "required fields complete",
+    missingFields: "Missing",
+    allRequired: "All required fields are complete. You can lock the decision.",
     resultTitle: "Result — added separately",
     result: "Result",
     showdown: "Showdown (if any)",
     addResult: "Add result",
+    resultRequired: "Enter the result; showdown can stay empty if there was none.",
     review: "Review",
     reviewPlaceholder: "Briefly: what was supported or what needs repair…",
+    reviewRequired: "Add a short review note before choosing a review outcome.",
+    legacyTransferBlocked: "This legacy note cannot support transfer because it has no decision locked before the result.",
     insufficient: "Not enough information",
     reviewedOk: "Reviewed, no extra practice",
     repair: "Needs practice",
@@ -181,6 +209,21 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
   const [explainNotes, setExplainNotes] = useState<Record<string, string>>({});
   const explainPending = explainBackRecords(state).filter((row) => row.status === "PENDING_REVIEW");
   const errors = validateFieldHandInput(hand);
+  const requiredLabels: Record<(typeof REQUIRED_HAND_FIELDS)[number], string> = {
+    stakes: c.stakes,
+    heroPosition: c.heroPosition,
+    villainPositions: c.villainPositions,
+    effectiveStacks: c.effectiveStacks,
+    straddle: c.straddle,
+    actionSequence: c.actionSequence,
+    board: c.board,
+    sizings: c.sizings,
+    cue: facts.cue,
+    action: facts.action,
+    reason: facts.reason,
+  };
+  const missingRequired = REQUIRED_HAND_FIELDS.filter((key) => errors.includes(key));
+  const completedRequired = REQUIRED_HAND_FIELDS.length - missingRequired.length;
 
   function patch<K extends keyof FieldHandInput>(key: K, value: FieldHandInput[K]) {
     setHand((current) => ({ ...current, [key]: value }));
@@ -211,6 +254,7 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
           <h3>{moduleById[record.moduleId].shortTitle}</h3>
           <p>{record.text}</p>
           <textarea aria-label={`${c.review} ${record.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setExplainNotes((current) => ({ ...current, [record.id]: event.target.value }))} />
+          {!reviewText.trim() && <p className="support">{c.reviewRequired}</p>}
           <div className="review-actions">
             <button disabled={!reviewText.trim()} onClick={() => setState(reviewExplainBack(state, record.id, "INSUFFICIENT", reviewText))}>{c.insufficient}</button>
             <button disabled={!reviewText.trim()} onClick={() => setState(reviewExplainBack(state, record.id, "REVIEWED_REPAIR", reviewText))}>{c.repair}</button>
@@ -234,9 +278,11 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
         <label>{facts.cue}<textarea value={hand.cue} onChange={(event) => patch("cue", event.target.value)} /></label>
         <label>{facts.action}<textarea value={hand.action} onChange={(event) => patch("action", event.target.value)} /></label>
         <label>{facts.reason} — {locale === "ru" ? "до результата" : "before the result"}<textarea value={hand.reason} onChange={(event) => patch("reason", event.target.value)} /></label>
-        <label className="confidence">{c.confidence} <b>{hand.confidence}%</b><input type="range" min="0" max="100" value={hand.confidence} onChange={(event) => patch("confidence", Number(event.target.value))} /></label>
+        <label className="confidence">{c.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.confidence}%</b><input type="range" min="0" max="100" step="5" value={hand.confidence} onChange={(event) => patch("confidence", Number(event.target.value))} /></label>
+        <p className="support">{c.confidenceHelp}</p>
         <label>{c.populationRead}<textarea value={hand.populationRead ?? ""} onChange={(event) => patch("populationRead", event.target.value)} /></label>
-        {(hand.populationRead ?? "").trim() && <label className="confidence">{c.populationConfidence} <b>{hand.populationReadConfidence ?? 50}%</b><input type="range" min="0" max="100" value={hand.populationReadConfidence ?? 50} onChange={(event) => patch("populationReadConfidence", Number(event.target.value))} /></label>}
+        {(hand.populationRead ?? "").trim() && <><label className="confidence">{c.populationConfidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.populationReadConfidence ?? 50}%</b><input type="range" min="0" max="100" step="5" value={hand.populationReadConfidence ?? 50} onChange={(event) => patch("populationReadConfidence", Number(event.target.value))} /></label><p className="support">{c.confidenceHelp}</p></>}
+        <p className="support"><b>{completedRequired}/{REQUIRED_HAND_FIELDS.length} {c.requiredProgress}.</b> {missingRequired.length ? `${c.missingFields}: ${missingRequired.map((key) => requiredLabels[key]).join(", ")}.` : c.allRequired}</p>
         <button className="primary" disabled={errors.length > 0} onClick={save}>{c.lock} <span>→</span></button>
       </div>
 
@@ -259,20 +305,23 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
           <p><b>{facts.cue}:</b> {note.cue}</p>
           <p><b>{facts.action}:</b> {note.action}</p>
           <p><b>{facts.reason}:</b> {note.reason}</p>
-          {typeof note.confidence === "number" && <p><b>{c.confidence}:</b> {note.confidence}%</p>}
-          {note.populationRead && <p><b>{c.populationRead}:</b> {note.populationRead} ({note.populationReadConfidence ?? "—"}%)</p>}
+          {typeof note.confidence === "number" && <p><b>{c.confidence}:</b> {locale === "ru" ? "примерно" : "roughly"} {note.confidence}%</p>}
+          {note.populationRead && <p><b>{c.populationRead}:</b> {note.populationRead} ({locale === "ru" ? "примерно" : "roughly"} {note.populationReadConfidence ?? "—"}%)</p>}
 
           <div className="w7-result">
             <p className="eyebrow">{c.resultTitle}</p>
             {note.result ? <><p><b>{c.result}:</b> {note.result}</p>{note.showdown && <p><b>{c.showdown}:</b> {note.showdown}</p>}</> : note.decisionLockedAt ? <>
               <label>{c.result}<textarea value={resultText} onChange={(event) => setResultDrafts((current) => ({ ...current, [note.id]: event.target.value }))} /></label>
               <label>{c.showdown}<textarea value={showdownText} onChange={(event) => setShowdownDrafts((current) => ({ ...current, [note.id]: event.target.value }))} /></label>
+              {!resultText.trim() && <p className="support">{c.resultRequired}</p>}
               <button className="secondary" disabled={!resultText.trim()} onClick={() => setState(addFieldResult(state, note.id, resultText, showdownText))}>{c.addResult}</button>
             </> : <p className="support">{locale === "ru" ? "Старая запись: pre-result lock ещё не существовал." : "Legacy note: the pre-result lock did not exist yet."}</p>}
           </div>
 
           {note.status === "PENDING_REVIEW" ? <>
             <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setReviewNotes((current) => ({ ...current, [note.id]: event.target.value }))} />
+            {!reviewText.trim() && <p className="support">{c.reviewRequired}</p>}
+            {!note.decisionLockedAt && <p className="support">{c.legacyTransferBlocked}</p>}
             <div className="review-actions">
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "INSUFFICIENT")}>{c.insufficient}</button>
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
