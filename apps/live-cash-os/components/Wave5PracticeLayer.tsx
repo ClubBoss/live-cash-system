@@ -146,22 +146,26 @@ function PredictionStep({ locale, prompt, prediction, setPrediction, onContinue 
     eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
     title: "Сначала спрогнозируй результат.",
     help: "Запиши, что должно измениться и почему. После этого откроется взаимодействие — не наоборот.",
+    missing: "Чтобы продолжить, сформулируй и ожидаемое изменение, и причину своими словами.",
     placeholder: "Мой прогноз и причина…",
     button: "Зафиксировать прогноз",
   } : {
     eyebrow: "BEFORE THE LAB",
     title: "Predict the result first.",
     help: "State what should change and why. The interaction opens only after the prediction.",
+    missing: "To continue, state both the expected change and your reason in your own words.",
     placeholder: "My prediction and reason…",
     button: "Lock prediction",
   };
+  const predictionReady = prediction.trim().length >= 20;
   return <>
     <p className="eyebrow">{copy.eyebrow}</p>
     <h2>{copy.title}</h2>
     <p className="support">{prompt}</p>
     <p className="support">{copy.help}</p>
     <textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />
-    <button className="primary" disabled={prediction.trim().length < 20} onClick={onContinue}>{copy.button} <span>→</span></button>
+    {!predictionReady && <p className="support">{copy.missing}</p>}
+    <button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button>
   </>;
 }
 
