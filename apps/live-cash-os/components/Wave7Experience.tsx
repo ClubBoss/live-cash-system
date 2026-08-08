@@ -84,21 +84,21 @@ function copy(locale: LocaleCode) {
     review: "Разбор",
     reviewPlaceholder: "Коротко: что в решении было рабочим или что нужно исправить…",
     reviewRequired: "Добавь короткую заметку разбора — без неё эти действия недоступны.",
-    selfReviewTitle: "SELF не подтверждает перенос",
-    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. SUPPORTS_TRANSFER доступен только после отдельного human / human-assisted review.",
-    reviewerSource: "Источник разбора",
-    reviewerSourceHelp: "SELF — твоя самопроверка. HUMAN / HUMAN_ASSISTED выбирай только после реального отдельного разбора человеком. Приложение не проверяет личность reviewer.",
-    reviewerSelf: "SELF · самопроверка",
-    reviewerHuman: "HUMAN · отдельный человек",
-    reviewerAssisted: "HUMAN_ASSISTED · человек с инструментом",
-    supportTransfer: "Поддерживает перенос",
-    supportTransferHelp: "Нужны отдельный HUMAN / HUMAN_ASSISTED review, непустая заметка и решение, зафиксированное до результата.",
+    selfReviewTitle: "Самопроверка не подтверждает перенос в реальную игру",
+    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. Подтвердить перенос в реальную игру можно только после отдельного разбора с человеком — с инструментом или без.",
+    reviewerSource: "Как выполнен разбор",
+    reviewerSourceHelp: "Самопроверка — твой собственный разбор. Другие варианты выбирай только после реального отдельного разбора с человеком. Приложение не проверяет, кто проводил разбор.",
+    reviewerSelf: "Самопроверка",
+    reviewerHuman: "Разбор с человеком",
+    reviewerAssisted: "Разбор с человеком и инструментом",
+    supportTransfer: "Подтверждает перенос в реальную игру",
+    supportTransferHelp: "Нужен отдельный разбор с человеком, непустая заметка и решение, зафиксированное до результата.",
     legacyTransferBlocked: "Эту старую запись нельзя засчитать как поддержку переноса: в ней нет зафиксированного решения до результата.",
     insufficient: "Недостаточно данных",
     reviewedOk: "Разбор закончен",
     repair: "Назначить практику",
     explainInbox: "Объяснения для самопроверки",
-    noInbox: "Новых explain-back для самопроверки нет.",
+    noInbox: "Новых объяснений для самопроверки нет.",
     earlier: "Раннее объяснение",
     later: "Последнее объяснение",
     evidence: "Доказательства",
@@ -108,13 +108,13 @@ function copy(locale: LocaleCode) {
     over: "ошибок с высокой уверенностью",
     under: "верных ответов с низкой уверенностью",
     notEnoughCalibration: "Пока мало решений для полезной картины уверенности.",
-    fieldSupports: "human-reviewed рук в поддержку",
+    fieldSupports: "разобранных с человеком рук в поддержку",
     delayed: "успешных повторов после паузы",
     variants: "успешных изменённых ситуаций",
     pendingRepair: "заданий на работу над ошибкой",
     reviewedBySelf: "самопроверка",
-    reviewedByHuman: "human review",
-    reviewedByAssisted: "human-assisted review",
+    reviewedByHuman: "разбор с человеком",
+    reviewedByAssisted: "разбор с человеком и инструментом",
   } : {
     captureTitle: "After play: save 1–3 hands first",
     captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward. One hand is an observation, not proof of a frequency or a global player type.",
@@ -148,21 +148,21 @@ function copy(locale: LocaleCode) {
     review: "Review",
     reviewPlaceholder: "Briefly: what worked in the decision or what needs repair…",
     reviewRequired: "Add a short review note before choosing an outcome.",
-    selfReviewTitle: "SELF does not confirm transfer",
-    selfReviewBody: "Self-review can mark missing information, finish the review, or assign mistake practice. SUPPORTS_TRANSFER is available only after separate human / human-assisted review.",
-    reviewerSource: "Review source",
-    reviewerSourceHelp: "SELF is your own review. Choose HUMAN / HUMAN_ASSISTED only after a real separate human review occurred. The app does not verify reviewer identity.",
-    reviewerSelf: "SELF · self-review",
-    reviewerHuman: "HUMAN · separate person",
-    reviewerAssisted: "HUMAN_ASSISTED · human with a tool",
-    supportTransfer: "Supports transfer",
-    supportTransferHelp: "Requires separate HUMAN / HUMAN_ASSISTED review, a non-empty note, and a decision locked before the result.",
+    selfReviewTitle: "Self-review does not confirm real-table transfer",
+    selfReviewBody: "Self-review can mark missing information, finish the review, or assign mistake practice. Real-table transfer can be supported only after a separate human review, with or without a tool.",
+    reviewerSource: "How this was reviewed",
+    reviewerSourceHelp: "Self-review is your own review. Choose the other options only after a real separate human review. The app does not verify who performed it.",
+    reviewerSelf: "Self-review",
+    reviewerHuman: "Human review",
+    reviewerAssisted: "Human review with a tool",
+    supportTransfer: "Supports real-table transfer",
+    supportTransferHelp: "Requires a separate human review, a non-empty note, and a decision locked before the result.",
     legacyTransferBlocked: "This legacy note cannot support transfer because it has no decision locked before the result.",
     insufficient: "Not enough information",
     reviewedOk: "Finish review",
     repair: "Assign practice",
     explainInbox: "Explanations for self-review",
-    noInbox: "No new explain-back is waiting for self-review.",
+    noInbox: "No new explanation is waiting for self-review.",
     earlier: "Earlier explanation",
     later: "Latest explanation",
     evidence: "Evidence",
@@ -178,20 +178,20 @@ function copy(locale: LocaleCode) {
     pendingRepair: "mistake-practice tasks queued",
     reviewedBySelf: "self-review",
     reviewedByHuman: "human review",
-    reviewedByAssisted: "human-assisted review",
+    reviewedByAssisted: "human review with a tool",
   };
 }
 
 function fieldStatus(locale: LocaleCode, note: StructuredFieldNote, baseStatusLabel: (locale: LocaleCode, status: string) => string): string {
   const outcome = note.reviewOutcome;
   if (locale === "ru") {
-    if (outcome === "SUPPORTS_TRANSFER") return "разобрано: поддерживает перенос";
+    if (outcome === "SUPPORTS_TRANSFER") return "разобрано: подтверждает перенос в реальную игру";
     if (outcome === "REPAIR_REQUIRED") return "разобрано: нужна практика";
     if (outcome === "REVIEWED_OK") return "разобрано: дополнительная практика не нужна";
     if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "недостаточно данных";
     return baseStatusLabel(locale, note.status);
   }
-  if (outcome === "SUPPORTS_TRANSFER") return "reviewed: supports transfer";
+  if (outcome === "SUPPORTS_TRANSFER") return "reviewed: supports real-table transfer";
   if (outcome === "REPAIR_REQUIRED") return "reviewed: needs practice";
   if (outcome === "REVIEWED_OK") return "reviewed: no extra practice";
   if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "not enough information";
@@ -351,7 +351,7 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
               <label>{c.showdown}<textarea value={showdownText} onChange={(event) => setShowdownDrafts((current) => ({ ...current, [note.id]: event.target.value }))} /></label>
               {!resultText.trim() && <p className="support">{c.resultRequired}</p>}
               <button className="secondary" disabled={!resultText.trim()} onClick={() => setState(addFieldResult(state, note.id, resultText, showdownText))}>{c.addResult}</button>
-            </> : <p className="support">{locale === "ru" ? "Старая запись: pre-result lock ещё не существовал." : "Legacy note: the pre-result lock did not exist yet."}</p>}
+            </> : <p className="support">{locale === "ru" ? "Старая запись: фиксации до результата ещё не было." : "Legacy note: the pre-result lock did not exist yet."}</p>}
           </div>
 
           {note.status === "PENDING_REVIEW" ? <>
