@@ -273,7 +273,22 @@ function Wave5LabPortal({ locale, moduleId }: { locale: LocaleCode; moduleId: Mo
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    setHost(document.querySelector<HTMLElement>("main .session"));
+    let frame = 0;
+    let cancelled = false;
+    const findHost = () => {
+      if (cancelled) return;
+      const next = document.querySelector<HTMLElement>("main .session");
+      if (next) {
+        setHost(next);
+        return;
+      }
+      frame = requestAnimationFrame(findHost);
+    };
+    findHost();
+    return () => {
+      cancelled = true;
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [moduleId]);
 
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
