@@ -41,7 +41,8 @@ jobs:
           git add apps/live-cash-os/lib/scheduler.ts \
                   apps/live-cash-os/lib/model.ts \
                   apps/live-cash-os/components/LiveCashAppCore.tsx \
-                  apps/live-cash-os/components/Wave7Experience.tsx
+                  apps/live-cash-os/components/Wave7Experience.tsx \
+                  apps/live-cash-os/content/i18n/editorial-manifest.json
           if git diff --cached --quiet; then
             echo "No generated route diff to persist."
             exit 0
