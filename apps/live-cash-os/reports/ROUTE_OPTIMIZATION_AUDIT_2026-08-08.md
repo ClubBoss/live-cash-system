@@ -1,8 +1,9 @@
 # Route Optimization Audit — 2026-08-08
 
-Status: `ROUTE_OPTIMIZATION_PRE_W10 / ENGINEERING_ONLY / HUMAN_DELTA_REVIEW_PENDING`
+Status: `RO-11_ENGINEERING_FREEZE / EXACT_MAIN_PRODUCT_GATE_GREEN / HUMAN_DELTA_REVIEW_PENDING / W10_NOT_STARTED`
 
 Base candidate: `875294068dc9f9c5317d227514042b96259c3e74`
+Frozen runtime candidate: `830b01f794b2dd6c19609d22c07733eb041f0bb9`
 
 ## Why this change exists
 
@@ -78,6 +79,21 @@ The W6/W7 runtime already does the right thing from the first lesson: miss → n
 - Default new-lesson tie-breaking follows the canonical 01→11 recommended spine.
 - Diagnostic/personal priority may move a later module earlier only after its audited hard prerequisites are complete.
 - No complex recommender, no hidden score model, no new learner-state schema.
+
+## Engineering evidence and RO-11 freeze
+
+- Active Learning baseline merged on `main`: `875294068dc9f9c5317d227514042b96259c3e74`.
+- Read-only route evidence candidate: `fa4276f7240259d4a1aea5b25d17ad5e9ae110ea`.
+- Route evidence run `31262237723`: full `npm run test:release` PASS and cross-browser route/session integrity PASS.
+- Clean integration PR: `#24`, seven intended files only; temporary materialization workflow/builder excluded.
+- Frozen runtime candidate merged to `main`: `830b01f794b2dd6c19609d22c07733eb041f0bb9`.
+- Exact-main product gate run `31262640319`: PASS on that exact runtime candidate.
+- Canonical poker module corpus remains byte-identical at Git blob `077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09`.
+- Canonical learner-facing curriculum digest remains `7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`.
+- Learner state schema remains 2; no migration or reset was introduced.
+- Route policy changes eligibility/tie-breaking only; mastery, retention, repair, field-validation thresholds and owner-priority weights were not tuned.
+
+This is an engineering freeze, not final product acceptance. Production deployment has not been re-verified against this candidate, W10 empirical learning validation has not started, and human poker/RU/EN delta review remains pending.
 
 ## Human delta review scope
 
