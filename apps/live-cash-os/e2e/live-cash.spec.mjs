@@ -43,7 +43,7 @@ test("completes the cold check and reaches the plain explanation", async ({ page
   await openGeometryColdCheck(page);
   await answerGeometryColdCheck(page);
   await page.getByRole("button", { name: /Продолжить/ }).click();
-  await expect(page.getByText("2 · КРАТКОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
+  await expect(page.getByText("2 · ГЛАВНАЯ ИДЕЯ")).toBeVisible();
   await expect(page.getByRole("heading", { name: /Быстро определять эффективный стек/ })).toBeVisible();
 });
 
