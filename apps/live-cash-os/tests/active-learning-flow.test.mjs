@@ -95,3 +95,24 @@ test("lesson summary reports evidence without turning completion into mastery", 
   assert.match(completion, /deriveModuleState/);
   assert.doesNotMatch(completion, /RETAINED|FIELD_VALIDATED/);
 });
+
+test("bounded clarity keeps mixed practice, explain-back and Diagnostic export contracts truthful", () => {
+  const learnStart = indexOfOrFail(core, "function Learn");
+  const sessionStart = indexOfOrFail(core, "function Session");
+  const learn = core.slice(learnStart, sessionStart);
+  assert.match(learn, /completedCount < 3/);
+  assert.match(learn, /после трёх пройденных тем/);
+  assert.match(learn, /\$\{completedCount\}\/3/);
+  assert.doesNotMatch(learn, /completedCount < 2|после двух пройденных тем|\$\{completedCount\}\/2/);
+
+  const explainStart = indexOfOrFail(core, "function ExplainBack");
+  const tableStart = indexOfOrFail(core, "function TableCard");
+  const explain = core.slice(explainStart, tableStart);
+  assert.match(explain, /value\.trim\(\)\.length >= 30/);
+  assert.match(explain, /value\.trim\(\)\.length < 30/);
+  assert.match(explain, /объясни своими словами само решение и почему оно работает/);
+  assert.doesNotMatch(explain, /missingCharacters|Добавь ещё .*символ|more characters/);
+
+  assert.match(core, /live-cash-t1-raw-v0\.2\.json/);
+  assert.doesNotMatch(core, /live-cash-diagnostic-raw-v0\.2\.json/);
+});
