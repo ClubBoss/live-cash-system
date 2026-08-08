@@ -43,29 +43,29 @@ test("new lesson rhythm moves from one compact explanation directly into applica
   await seedLesson(page, 1);
 
   await expect(page.getByText("ЗАПОМНИ", { exact: true })).toBeVisible();
-  await expect(page.getByText("Единица → эффективный стек → банк после действия.", { exact: true })).toBeVisible();
-  const extraTheory = page.getByText("В multiway-банке нет одной общей эффективной глубины: против каждого релевантного стека она своя.", { exact: true });
+  await expect(page.getByText("Рабочая ставка → эффективный стек → банк и стек после действия.", { exact: true })).toBeVisible();
+  const extraTheory = page.getByText("В мультивей-банке эффективный стек считается отдельно против каждого соперника.", { exact: true });
   await expect(extraTheory).not.toBeVisible();
   await page.getByText("Дополнительное объяснение", { exact: true }).click();
   await expect(extraTheory).toBeVisible();
 
   await page.getByRole("button", { name: /^Сразу применить/ }).click();
   await expect(page.getByText("ПРИМЕНИ СРАЗУ", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Как описать эффективную глубину?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Как правильно описать эффективный стек?" })).toBeVisible();
 
   await chooseOption(page, "$270 против A и $900 против B");
-  await chooseOption(page, "Effective stack считается отдельно для каждой релевантной пары");
+  await chooseOption(page, "Эффективный стек считается отдельно против каждого соперника");
   await page.getByRole("button", { name: "Ответить", exact: true }).click();
-  await expect(page.getByText("Effective stack считается отдельно для каждой релевантной пары", { exact: true })).toBeVisible();
+  await expect(page.getByText("Эффективный стек считается отдельно против каждого соперника", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Продолжить/ }).click();
 
   await expect(page.getByText("КАРТА РЕШЕНИЯ", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Сначала решить пример/ }).click();
 
-  await expect(page.getByRole("heading", { name: "$2/$5/$10 mandatory straddle. Hero и Villain имеют по $1,400." })).toBeVisible();
-  await expect(page.getByText("Сначала 140 straddle-BB, затем pairwise depth и post-action SPR.", { exact: true })).not.toBeVisible();
+  await expect(page.getByRole("heading", { name: "$2/$5/$10 с обязательным страддлом. У Hero и соперника по $1,400." })).toBeVisible();
+  await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: /^Я решил — показать разбор/ }).click();
-  await expect(page.getByText("Сначала 140 straddle-BB, затем pairwise depth и post-action SPR.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).toBeVisible();
 });
 
 test("lesson summary says what was checked and keeps delayed retention explicitly pending", async ({ page }) => {
