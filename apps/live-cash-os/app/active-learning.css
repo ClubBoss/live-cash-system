@@ -1,0 +1,75 @@
+/* Active Learning Closure: make primary cues obvious and secondary detail optional. */
+
+.session details {
+  margin: 20px 0 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--panel) 58%, var(--surface));
+  overflow: hidden;
+}
+
+.session details > summary {
+  min-height: 48px;
+  padding: 13px 16px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+  cursor: pointer;
+  user-select: none;
+}
+
+.session details > summary::marker {
+  color: var(--muted);
+}
+
+.session details[open] > summary {
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.session details > .theory-stack,
+.session details > .glossary {
+  margin: 0;
+  padding: 16px;
+}
+
+.session .answer-panel > b:first-child,
+.session .counterexample > b:first-child {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.session .summary .answer-panel,
+.session .summary .counterexample {
+  margin-block: 18px;
+}
+
+.session .summary .assumption-strip {
+  margin-block: 18px 24px;
+}
+
+@media (max-width: 520px) {
+  .session details {
+    margin-block: 16px 20px;
+  }
+
+  .session details > summary {
+    padding: 13px 14px;
+  }
+
+  .session details > .theory-stack,
+  .session details > .glossary {
+    padding: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session details,
+  .session details > summary {
+    scroll-behavior: auto;
+  }
+}
