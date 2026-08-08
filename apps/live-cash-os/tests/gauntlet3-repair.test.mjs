@@ -43,17 +43,18 @@ function hand(overrides = {}) {
 }
 
 function extractFunction(source, name) {
-  const marker = `export function ${name}`;
-  const start = source.indexOf(marker);
-  assert.notEqual(start, -1, `${name} must remain exported for contract testing`);
-  const open = source.indexOf("{", start);
-  let depth = 0;
-  for (let index = open; index < source.length; index += 1) {
-    if (source[index] === "{") depth += 1;
-    if (source[index] === "}") depth -= 1;
-    if (depth === 0) return source.slice(start, index + 1);
-  }
-  throw new Error(`Could not extract ${name}`);
+  const sourceFile = ts.createSourceFile(
+    "LiveCashAppCore.tsx",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const declaration = sourceFile.statements.find(
+    (statement) => ts.isFunctionDeclaration(statement) && statement.name?.text === name,
+  );
+  assert.ok(declaration, `${name} must remain exported for contract testing`);
+  return source.slice(declaration.getStart(sourceFile), declaration.end);
 }
 
 async function loadReviewSelectors() {
