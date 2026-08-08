@@ -21,8 +21,8 @@
     "status": "REVIEW_PENDING",
     "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
     "approved_digest": null,
-    "review_corpus_fingerprint": "483f8bcad50e4bfb4128981583bec47742932926fd0a440040ed6ddf0f9989ea",
-    "note": "W1-W9 implementation is materialized on the current main lineage. The current_digest remains the canonical curriculum RU/EN composition digest; the review_corpus_fingerprint additionally locks current W6-W9 learner-facing surfaces, the public cross-device profile copy, and the W5 lab render closure. Strategy, drill and exact final RU/EN human review remain pending. This candidate does not claim human approval."
+    "review_corpus_fingerprint": "a07896187e3dc15b73b051c3af6643472939c5437652d0f9cb599681bce63383",
+    "note": "W1-W9 implementation plus the active-learning lesson presentation are materialized on the current candidate lineage. The current_digest remains the canonical curriculum RU/EN composition digest; the review_corpus_fingerprint locks the current learner-facing language corpus including the compact remember/why/boundary hierarchy, early changed-node application, prediction-before-reveal worked example, honest lesson evidence summary, public cross-device profile copy, and W5 lab render closure. Strategy, drill and exact final RU/EN human review remain pending. This candidate does not claim human approval."
   },
   "repair_source_paths": {
     "strategy": [
@@ -68,7 +68,7 @@
     "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "20a92d512c5c6decb892d9c1bd8ca100fb9346ea",
-    "components/LiveCashAppCore.tsx": "cf7e46f50fad27df946071ccb5ac0c496a19bbe4",
+    "components/LiveCashAppCore.tsx": "91f7c895a92091be882bb11834f25d725e8ead3a",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/Wave5PracticeLayer.tsx": "efc1ef0a8c701738fa209c6fec417c53225a3a17",
     "components/Wave7Experience.tsx": "49c098d0d1ce16f896a107225f8fb524fa1222e1",

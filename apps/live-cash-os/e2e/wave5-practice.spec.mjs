@@ -22,9 +22,15 @@ async function openGeometryLab(page) {
   await page.getByRole("button", { name: "Именно страддл $10 задаёт цену всех префлоп-действий" }).click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
   await page.getByRole("button", { name: /^Продолжить/ }).click();
+
+  await page.getByRole("button", { name: /^Сразу применить/ }).click();
+  await page.getByRole("button", { name: "$270 против A и $900 против B" }).click();
+  await page.getByRole("button", { name: "Эффективный стек считается отдельно против каждого соперника" }).click();
+  await page.getByRole("button", { name: /^Ответить/ }).click();
   await page.getByRole("button", { name: /^Продолжить/ }).click();
-  await page.getByRole("button", { name: /^Продолжить/ }).click();
-  await page.getByRole("button", { name: /^Продолжить/ }).click();
+
+  await page.getByRole("button", { name: /^Сначала решить пример/ }).click();
+  await page.getByRole("button", { name: /^Я решил — показать разбор/ }).click();
   await page.getByRole("button", { name: /^Открыть тренажёр/ }).click();
 }
 
