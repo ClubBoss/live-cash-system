@@ -34,7 +34,7 @@ test("locked modules name the concrete prerequisite, explain why, and route to i
   const preflop = page.locator(".module-list article").filter({ hasText: "LCM-02" }).first();
   await expect(preflop.locator("p.support").filter({ hasText: /Сначала LCM-01/i })).toBeVisible();
   await expect(preflop.getByText(/опирается на решения и термины/i)).toBeVisible();
-  await preflop.getByRole("button", { name: "Сначала LCM-01", exact: true }).click();
+  await preflop.getByRole("button", { name: /^Сначала LCM-01/ }).click();
   await expect(page.getByText("1 · РЕШИ БЕЗ ПОДСКАЗКИ")).toBeVisible();
 });
 
@@ -54,7 +54,7 @@ test("Cards has one role, an empty warm-up exit, and explains grading impact", a
   await expect(page.getByText(/Оценка меняет только срок следующего показа карточки, а не статус навыка/i)).toBeVisible();
   await expect(page.getByRole("button", { name: /^Открыть обучение/ })).toBeEnabled();
   await page.getByRole("button", { name: "Все", exact: true }).click();
-  await page.getByRole("button", { name: "Показать ответ", exact: true }).click();
+  await page.getByRole("button", { name: /^Показать ответ/ }).click();
   await expect(page.getByText(/Не вспомнил → снова примерно через 10 минут/i)).toBeVisible();
   await expect(page.getByText(/Это не меняет статус навыка/i)).toBeVisible();
 });
