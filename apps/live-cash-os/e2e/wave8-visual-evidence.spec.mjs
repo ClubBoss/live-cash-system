@@ -66,7 +66,7 @@ test("captures the Wave 8 visual QA evidence set", async ({ page }, testInfo) =>
   await card.getByLabel("Результат").fill("Villain showed AQ and won");
   await card.getByLabel("Шоудаун (если был)").fill("AQ");
   await card.getByRole("button", { name: "Добавить результат" }).click();
-  await card.getByLabel(new RegExp(`Самопроверка ${noteId}`)).fill("Line reviewed after the result; pre-result reasoning remains locked separately.");
+  await card.getByLabel(new RegExp(`Разбор ${noteId}`)).fill("Line reviewed after the result; pre-result reasoning remains locked separately.");
   await shot(page, testInfo, "07-real-hand-post-result-self-review");
 
   const seeded = await state(page);
