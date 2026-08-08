@@ -1,0 +1,82 @@
+name: One-time RC copy patch
+
+on:
+  push:
+    branches:
+      - repair/final-red-team-closure
+
+permissions:
+  contents: write
+
+jobs:
+  patch-copy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/final-red-team-closure
+      - name: Apply bounded learner-copy replacements
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              Path("apps/live-cash-os/components/LiveCashAppCore.tsx"): [
+                  (
+                      '"Разобранный результат импортирован. Today перестроен по приоритетам; импорт не добавил mastery, retention или field evidence."',
+                      '"Разобранный результат импортирован. Today перестроен по приоритетам; импорт сам по себе не подтверждает освоение навыка, запоминание после паузы или применение за столом."',
+                  ),
+                  (
+                      '"The reviewed result was imported. Today is reprioritised; the import did not add mastery, retention, or field evidence."',
+                      '"The reviewed result was imported. Today is reprioritised; the import by itself does not prove the skill, later recall, or real-table use."',
+                  ),
+                  (
+                      '"Прогресс показывает состояние темы, реальные попытки и следующий шаг. Отдельные доли — это история наблюдений, а не общий процент мастерства."',
+                      '"Прогресс показывает состояние темы, реальные попытки и следующий шаг. Отдельные доли — это история наблюдений, а не общий процент освоения навыка."',
+                  ),
+                  (
+                      '"Progress shows the topic state, actual attempts, and the next step. Per-dimension ratios are observation history, not an overall mastery percentage."',
+                      '"Progress shows the topic state, actual attempts, and the next step. Per-dimension ratios are observation history, not an overall skill-status percentage."',
+                  ),
+                  (
+                      '"Дальше: 1) скачать ответы → 2) human / human-assisted review → 3) импортировать разобранный файл → 4) Today перестроит приоритеты. Ни один из этих шагов сам по себе не создаёт mastery."',
+                      '"Дальше: 1) скачать ответы → 2) отдельно разобрать их с человеком — с инструментом или без → 3) импортировать разобранный файл → 4) Today перестроит приоритеты. Ни один из этих шагов сам по себе не подтверждает освоение навыка."',
+                  ),
+                  (
+                      '"Next: 1) download responses → 2) human / human-assisted review → 3) import the reviewed file → 4) Today reprioritises. None of these steps creates mastery by itself."',
+                      '"Next: 1) download responses → 2) review them separately with a person, with or without a tool → 3) import the reviewed file → 4) Today reprioritises. None of these steps proves the skill by itself."',
+                  ),
+                  (
+                      '"Semantic review is done by a human or human-assisted reviewer. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."',
+                      '"Semantic review is done by a person, with or without a tool. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."',
+                  ),
+              ],
+              Path("apps/live-cash-os/components/Wave7Experience.tsx"): [
+                  (
+                      '"Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. Подтвердить перенос в реальную игру можно только после отдельного разбора с человеком — с инструментом или без."',
+                      '"Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. Подтвердить перенос в реальную игру можно только после отдельного разбора с человеком — с инструментом или без. Одна разобранная раздача не подтверждает освоение навыка."',
+                  ),
+                  (
+                      '"Self-review can mark missing information, finish the review, or assign mistake practice. Real-table transfer can be supported only after a separate human review, with or without a tool."',
+                      '"Self-review can mark missing information, finish the review, or assign mistake practice. Real-table transfer can be supported only after a separate human review, with or without a tool. One reviewed hand does not prove the skill."',
+                  ),
+              ],
+          }
+
+          for path, pairs in replacements.items():
+              text = path.read_text()
+              for old, new in pairs:
+                  count = text.count(old)
+                  if count != 1:
+                      raise SystemExit(f"expected one match in {path}: {old!r}; got {count}")
+                  text = text.replace(old, new)
+              path.write_text(text)
+      - name: Commit bounded copy repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/live-cash-os/components/LiveCashAppCore.tsx apps/live-cash-os/components/Wave7Experience.tsx
+          git diff --cached --check
+          git commit -m "fix(copy): remove remaining learner-facing state jargon"
+          git push origin HEAD:repair/final-red-team-closure
