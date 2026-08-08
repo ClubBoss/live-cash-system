@@ -46,6 +46,7 @@ test("mixed practice requires three completed topics and conceals the topic befo
   await seedCompletedModules(page, ["geometry", "preflop"]);
   await page.getByRole("button", { name: "Учиться" }).click();
   const mixed = page.getByRole("button", { name: "Смешанная практика" });
+  await expect(page.getByText(/Смешанная практика откроется после трёх пройденных тем. Сейчас: 2\/3/i)).toBeVisible();
   await expect(mixed).toBeDisabled();
 
   await seedCompletedModules(page, ["geometry", "preflop", "blinds"]);
@@ -70,8 +71,16 @@ test("lesson lab requires a prediction, validates inputs and tests a material ch
   await expect(page.locator("main .spr-lab")).toBeHidden();
 
   const prediction = gate.getByRole("textbox", { name: "Сначала спрогнозируй результат." });
+  const lockPrediction = gate.getByRole("button", { name: /Зафиксировать прогноз/ });
+  await expect(lockPrediction).toBeDisabled();
+  await expect(gate.getByText(/сформулируй и ожидаемое изменение, и причину своими словами/i)).toBeVisible();
+  await expect(gate).not.toContainText(/символ/i);
+  await prediction.fill("SPR снизится");
+  await expect(lockPrediction).toBeDisabled();
+  await expect(gate.getByText(/сформулируй и ожидаемое изменение, и причину своими словами/i)).toBeVisible();
+
   await prediction.fill("Если банк растёт быстрее остатка стека, будущий SPR должен уменьшиться.");
-  await gate.getByRole("button", { name: /Зафиксировать прогноз/ }).click();
+  await lockPrediction.click();
 
   await expect(gate.getByRole("heading", { name: "Измени хотя бы одну важную переменную." })).toBeVisible();
   await gate.getByLabel("Оставшийся стек").fill("20");
