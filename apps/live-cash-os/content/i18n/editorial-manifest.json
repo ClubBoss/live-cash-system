@@ -21,7 +21,7 @@
     "status": "REVIEW_PENDING",
     "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
     "approved_digest": null,
-    "review_corpus_fingerprint": "a3977eb3ab7c3c64e0a436fa0190b448fb2da0f774f11f5f530c4281489aeeca",
+    "review_corpus_fingerprint": "483f8bcad50e4bfb4128981583bec47742932926fd0a440040ed6ddf0f9989ea",
     "note": "W1-W9 implementation is materialized on the current main lineage. The current_digest remains the canonical curriculum RU/EN composition digest; the review_corpus_fingerprint additionally locks current W6-W9 learner-facing surfaces, the public cross-device profile copy, and the W5 lab render closure. Strategy, drill and exact final RU/EN human review remain pending. This candidate does not claim human approval."
   },
   "repair_source_paths": {
@@ -70,7 +70,7 @@
     "components/LiveCashApp.tsx": "20a92d512c5c6decb892d9c1bd8ca100fb9346ea",
     "components/LiveCashAppCore.tsx": "cf7e46f50fad27df946071ccb5ac0c496a19bbe4",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/Wave5PracticeLayer.tsx": "2b9883aa64d80643309045f56f6fc56e3746bf02",
+    "components/Wave5PracticeLayer.tsx": "efc1ef0a8c701738fa209c6fec417c53225a3a17",
     "components/Wave7Experience.tsx": "49c098d0d1ce16f896a107225f8fb524fa1222e1",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
     "components/DataSafetyPanel.tsx": "bb3cf291bde1cce6a8c89d2ed6eaf27e46e9d998"
