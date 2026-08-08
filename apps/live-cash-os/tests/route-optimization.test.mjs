@@ -164,7 +164,8 @@ test("route closure does not introduce a learner-state migration or new mastery 
   assert.match(modelSource, /field\.successes >= 2/u);
   assert.match(core, /HARD_PREREQUISITES/u);
   assert.match(core, /moduleAvailable\(state, moduleId, \[\.\.\.HARD_PREREQUISITES\[moduleId\]\]\)/u);
-  assert.match(core, /moduleAvailable\(state, module\.id, \[\.\.\.HARD_PREREQUISITES\[module\.id\]\]\)/u);
+  assert.match(core, /const prerequisiteId = nextRequiredModule\(state, module\.id\)/u);
+  assert.match(core, /onLesson\(prerequisiteId \?\? module\.id\)/u);
   assert.doesNotMatch(scheduler, /\b(?:AI|LLM|recommender)\b/iu);
 });
 
