@@ -38,7 +38,7 @@ const emptyHand = (): FieldHandInput => ({
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
     captureTitle: "Запиши решение до результата",
-    captureBody: "Сначала зафиксируй ситуацию, что заметил, действие и причину. Результат добавляется только после сохранения этого снимка.",
+    captureBody: "Сначала зафиксируй ситуацию, что заметил, действие и причину. Результат добавляется только после сохранения этого снимка. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
     stakes: "Лимиты",
     heroPosition: "Позиция Hero",
     villainPositions: "Позиции релевантных соперников",
@@ -83,7 +83,7 @@ function copy(locale: LocaleCode) {
     pendingRepair: "заданий на работу над ошибкой",
   } : {
     captureTitle: "Record the decision before the result",
-    captureBody: "Lock the spot, what you noticed, your action and your reason first. Add the result only after that snapshot is saved.",
+    captureBody: "Lock the spot, what you noticed, your action and your reason first. Add the result only after that snapshot is saved. One hand is an observation, not proof of a frequency or a global player type.",
     stakes: "Stakes",
     heroPosition: "Hero position",
     villainPositions: "Relevant villain positions",

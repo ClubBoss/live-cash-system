@@ -22,7 +22,7 @@ import { allCards, drillById, moduleById, modules } from "../content/modules";
 import type { Drill, ModuleContent, Option } from "../content/types";
 import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/diagnostic-import";
 import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
-import { planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
+import { HARD_PREREQUISITES, planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
 import {
   APP_VERSION,
   DIMENSION_KEYS,
@@ -374,8 +374,8 @@ export default function LiveCashAppV11() {
 
   function openLesson(moduleId: ModuleId) {
     const module = moduleById[moduleId];
-    if (!moduleAvailable(state, moduleId, module.prerequisites)) {
-      setNotice(locale === "ru" ? "Сначала закончи объяснение предыдущего модуля." : "Complete the previous module explanation first.");
+    if (!moduleAvailable(state, moduleId, [...HARD_PREREQUISITES[moduleId]])) {
+      setNotice(locale === "ru" ? "Сначала закончи обязательную базовую тему для этого модуля." : "Complete the required foundation for this module first.");
       return;
     }
     const changed = module.drills.filter((drill) => drill.kind === "changed" || drill.kind === "boundary").slice(0, 2);
@@ -506,7 +506,7 @@ function Learn({ locale, state, onLesson, onPractice, onMixed }: { locale: Local
     <div className="module-list">{modules.map((source) => {
       const module = localizedModule(source, locale);
       const progress = state.modules[module.id];
-      const available = moduleAvailable(state, module.id, module.prerequisites);
+      const available = moduleAvailable(state, module.id, [...HARD_PREREQUISITES[module.id]]);
       return <article key={module.id} className={!available ? "locked" : progress.state === "REPAIR_REQUIRED" ? "repair" : ""}>
         <div><span className="module-code">{module.lcm}</span><span className={`state-pill state-${progress.state.toLowerCase()}`}>{moduleStateLabel(locale, progress.state)}</span></div>
         <h2>{module.title}</h2><p>{module.plainGoal}</p><p className="table-cue">{module.tableCue}</p>
