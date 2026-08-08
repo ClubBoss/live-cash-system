@@ -158,7 +158,10 @@ test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and
   assert.match(source, /aria-label/u);
   assert.match(source, /Predict the result first/u);
   assert.match(source, /Сначала спрогнозируй результат/u);
-  assert.match(source, /prediction\.trim\(\)\.length < 20/u);
+  assert.match(source, /prediction\.trim\(\)\.length >= 20/u);
+  assert.match(source, /disabled=\{!predictionReady\}/u);
+  assert.match(source, /state both the expected change and your reason in your own words/u);
+  assert.match(source, /сформулируй и ожидаемое изменение, и причину своими словами/u);
   assert.match(source, /betValue > stackValue/u);
   assert.match(source, /Change at least one material variable/u);
   assert.match(source, /seen\.length === 2/u);
