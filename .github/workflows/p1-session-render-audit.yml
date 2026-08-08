@@ -1,0 +1,44 @@
+name: P1 session render audit
+
+on:
+  push:
+    branches: [evidence/p1-session-render-audit]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p1-session-render-audit
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Full release gate
+        run: npm run test:release
+      - name: Cross-browser session-render integrity
+        run: npx playwright test e2e/session-render-integrity.spec.mjs --config=playwright.cross-browser.config.mjs
+      - name: Upload browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1-session-render-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7
