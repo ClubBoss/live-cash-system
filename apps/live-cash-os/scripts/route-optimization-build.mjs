@@ -1,14 +1,9 @@
-import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 
 const root = new URL("../", import.meta.url);
 
 async function read(relativePath) {
   return readFile(new URL(relativePath, root), "utf8");
-}
-
-async function readBytes(relativePath) {
-  return readFile(new URL(relativePath, root));
 }
 
 async function write(relativePath, value) {
@@ -22,18 +17,6 @@ function replaceOnce(source, from, to, label) {
   return source.replace(from, to);
 }
 
-function gitBlobSha(bytes) {
-  return createHash("sha1").update(`blob ${bytes.byteLength}\0`).update(bytes).digest("hex");
-}
-
-function corpusFingerprint(sourceBlobs) {
-  const canonical = Object.entries(sourceBlobs)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([path, sha]) => `${path}=${sha}`)
-    .join("\n");
-  return createHash("sha256").update(canonical).digest("hex");
-}
-
 async function patchScheduler() {
   let source = await read("lib/scheduler.ts");
   source = replaceOnce(
@@ -41,8 +24,8 @@ async function patchScheduler() {
     'export const DEFAULT_OWNER_PRIORITY_MODULES: readonly ModuleId[] = ["preflop", "blinds", "aggression"];',
     `export const DEFAULT_OWNER_PRIORITY_MODULES: readonly ModuleId[] = ["preflop", "blinds", "aggression"];
 
-// ROUTE_POLICY_VERSION intentionally changes only eligibility, not poker content,
-// state schema, mastery thresholds, review order or priority weights.
+// Route policy changes eligibility only. Poker content, state schema, mastery,
+// review order, retention intervals and owner-priority weights stay unchanged.
 export const ROUTE_POLICY_VERSION = "2026.08-hard-prereq-v1";
 export const RECOMMENDED_MODULE_ORDER: readonly ModuleId[] = [
   "geometry",
@@ -113,38 +96,7 @@ function recommendedRank(moduleId: ModuleId, catalog: SchedulerCatalog): number 
   await write("lib/scheduler.ts", source);
 }
 
-async function patchModelFacade() {
-  let source = await read("lib/model.ts");
-  source = replaceOnce(
-    source,
-    'import * as core from "./model-core";',
-    'import * as core from "./model-core";\nimport { HARD_PREREQUISITES } from "./scheduler";',
-    "model route policy import",
-  );
-  source = replaceOnce(
-    source,
-    `  LearnerState,
-  LocaleCode,`,
-    `  LearnerState,
-  LocaleCode,
-  ModuleId,`,
-    "model ModuleId type",
-  );
-  source = replaceOnce(
-    source,
-    `const EXPLICIT_TRANSFER_PROBES: Readonly<Record<string, TransferProbe>> = {`,
-    `export function moduleAvailable(state: LearnerState, moduleId: ModuleId, legacyPrerequisites: readonly ModuleId[]): boolean {
-  void legacyPrerequisites;
-  return HARD_PREREQUISITES[moduleId].every((required) => state.modules[required].contentCompleted);
-}
-
-const EXPLICIT_TRANSFER_PROBES: Readonly<Record<string, TransferProbe>> = {`,
-    "model hard prerequisite facade",
-  );
-  await write("lib/model.ts", source);
-}
-
-async function patchLearnerCopy() {
+async function patchLearnerSurfaces() {
   let field = await read("components/Wave7Experience.tsx");
   field = replaceOnce(
     field,
@@ -160,29 +112,34 @@ async function patchLearnerCopy() {
   );
   await write("components/Wave7Experience.tsx", field);
 
-  let coreSource = await read("components/LiveCashAppCore.tsx");
-  coreSource = replaceOnce(
-    coreSource,
+  let core = await read("components/LiveCashAppCore.tsx");
+  core = replaceOnce(
+    core,
+    'import { planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";',
+    'import { HARD_PREREQUISITES, planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";',
+    "Core route policy import",
+  );
+  core = replaceOnce(
+    core,
+    "moduleAvailable(state, moduleId, module.prerequisites)",
+    "moduleAvailable(state, moduleId, [...HARD_PREREQUISITES[moduleId]])",
+    "Core lesson hard prerequisite gate",
+  );
+  core = replaceOnce(
+    core,
+    "moduleAvailable(state, module.id, module.prerequisites)",
+    "moduleAvailable(state, module.id, [...HARD_PREREQUISITES[module.id]])",
+    "Core module-list hard prerequisite gate",
+  );
+  core = replaceOnce(
+    core,
     'setNotice(locale === "ru" ? "Сначала закончи объяснение предыдущего модуля." : "Complete the previous module explanation first.");',
     'setNotice(locale === "ru" ? "Сначала закончи обязательную базовую тему для этого модуля." : "Complete the required foundation for this module first.");',
     "hard prerequisite learner notice",
   );
-  await write("components/LiveCashAppCore.tsx", coreSource);
-}
-
-async function relockReviewCorpus() {
-  const manifest = JSON.parse(await read("content/i18n/editorial-manifest.json"));
-  for (const relativePath of ["components/LiveCashAppCore.tsx", "components/Wave7Experience.tsx"]) {
-    if (!manifest.source_blobs[relativePath]) throw new Error(`manifest missing source lock ${relativePath}`);
-    manifest.source_blobs[relativePath] = gitBlobSha(await readBytes(relativePath));
-  }
-  manifest.final_composition.review_corpus_fingerprint = corpusFingerprint(manifest.source_blobs);
-  manifest.final_composition.note = "W1-W9 implementation plus Active Learning Closure and the pre-W10 route optimization are materialized on the current candidate lineage. The canonical curriculum digest and poker corpus are unchanged; the review-corpus fingerprint locks the current learner-facing presentation, evidence-hygiene copy, route gating copy, public cross-device profile copy, and W5 lab render closure. Strategy, drill, route-delta and exact final RU/EN human review remain pending. This candidate does not claim human approval.";
-  await write("content/i18n/editorial-manifest.json", `${JSON.stringify(manifest, null, 2)}\n`);
+  await write("components/LiveCashAppCore.tsx", core);
 }
 
 await patchScheduler();
-await patchModelFacade();
-await patchLearnerCopy();
-await relockReviewCorpus();
-console.log("ROUTE_OPTIMIZATION_BUILD_OK");
+await patchLearnerSurfaces();
+console.log("ROUTE_OPTIMIZATION_SOURCE_PATCH_OK");
