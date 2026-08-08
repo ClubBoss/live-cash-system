@@ -43,7 +43,7 @@ test("disabled learning CTAs state what is missing", async ({ page }) => {
   await page.getByRole("button", { name: "Учиться", exact: true }).click();
 
   await expect(page.getByText(/Практика откроется после завершения этого урока/i).first()).toBeVisible();
-  await expect(page.getByText(/Смешанная практика откроется после двух пройденных тем. Сейчас: 0\/2/i)).toBeVisible();
+  await expect(page.getByText(/Смешанная практика откроется после трёх пройденных тем. Сейчас: 0\/3/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Смешанная практика", exact: true })).toBeDisabled();
 });
 
