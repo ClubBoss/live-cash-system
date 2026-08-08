@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { APP_VERSION, CONTENT_VERSION, STATE_SCHEMA_VERSION, saveActiveSession, type LocaleCode } from "../lib/model";
 import { buildSafeDebugSummary } from "../lib/reliability";
 import type { RecoveryCode, ReliableLearnerStateController, SyncStatus } from "../lib/use-learner-state-sync";
@@ -43,6 +44,12 @@ function syncStatusLabel(locale: LocaleCode, status: SyncStatus) {
     error: ["Синхронизация требует внимания", "Sync needs attention"],
   };
   return labels[status][ru ? 0 : 1];
+}
+
+function createPortableProfileCode() {
+  const bytes = crypto.getRandomValues(new Uint8Array(18));
+  const encoded = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return `LCO-${encoded.toUpperCase()}`;
 }
 
 function recoveryMessage(locale: LocaleCode, code: Exclude<RecoveryCode, null>) {
@@ -113,7 +120,12 @@ export default function DataSafetyPanel({
     prepareImport,
     applyImport,
     resetLocal,
+    portableProfileActive,
+    activatePortableProfile,
+    disconnectPortableProfile,
   } = controller;
+  const [profileCode, setProfileCode] = useState("");
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
 
   async function importState(file: File) {
     const prepared = prepareImport(await file.text());
@@ -168,6 +180,22 @@ export default function DataSafetyPanel({
     if (confirmed) setState(saveActiveSession(state, null));
   }
 
+  async function copyProfileCode() {
+    if (!generatedCode) return;
+    try { await navigator.clipboard.writeText(generatedCode); } catch { /* code remains visible for manual copy */ }
+  }
+
+  function activateGeneratedProfile() {
+    if (!generatedCode) return;
+    activatePortableProfile(generatedCode);
+  }
+
+  function activateEnteredProfile() {
+    if (!activatePortableProfile(profileCode)) {
+      alert(ru ? "Проверь код профиля: он начинается с LCO-." : "Check the profile code: it starts with LCO-.");
+    }
+  }
+
   const debugSummary = () => buildSafeDebugSummary({
     state,
     locale,
@@ -185,8 +213,34 @@ export default function DataSafetyPanel({
       <p className="eyebrow">{ru ? "ДАННЫЕ И ВОССТАНОВЛЕНИЕ" : "DATA & RECOVERY"}</p>
       <h1>{ru ? "Прогресс остаётся под твоим контролем." : "Your progress stays under your control."}</h1>
       <p>{ru
-        ? "Прогресс хранится локально. При доступной авторизации копия может синхронизироваться в облако. В неё входят ответы T1, сохранённые объяснения и записанные реальные руки. Эти тексты не отправляются автоматически на AI-разбор."
-        : "Progress is stored locally. When authentication is available, a copy may sync to the cloud. It includes T1 answers, saved explanations, and recorded real hands. Those texts are not automatically sent for AI evaluation."}</p>
+        ? "Прогресс хранится локально. Подключи личный профиль, чтобы продолжать на другом устройстве без ChatGPT-аккаунта. В него входят ответы T1, сохранённые объяснения и записанные реальные руки. Эти тексты не отправляются автоматически на AI-разбор."
+        : "Progress is stored locally. Connect a personal profile to continue on another device without a ChatGPT account. It includes T1 answers, saved explanations, and recorded real hands. Those texts are not automatically sent for AI evaluation."}</p>
+    </div>
+
+    <div className="counterexample">
+      <b>{portableProfileActive
+        ? (ru ? "Профиль обучения подключён" : "Learning profile connected")
+        : (ru ? "Продолжай на другом устройстве" : "Continue on another device")}</b>
+      {portableProfileActive ? <>
+        <p>{ru ? "Этот браузер привязан к личному профилю. Не удаляй его код, пока не подключишь другое устройство." : "This browser is connected to a personal profile. Keep its code until another device is connected."}</p>
+        <button className="secondary" onClick={disconnectPortableProfile}>{ru ? "Отключить этот профиль на устройстве" : "Disconnect this profile on this device"}</button>
+      </> : <>
+        <p>{ru ? "Создай личный код на этом устройстве, сохрани его в менеджер паролей и введи на телефоне. Код — это ключ к прогрессу; никому его не отправляй." : "Create a personal code here, save it in a password manager, then enter it on your phone. The code is the key to your progress; never share it."}</p>
+        {!generatedCode ? <button className="secondary" onClick={() => setGeneratedCode(createPortableProfileCode())}>{ru ? "Создать личный код" : "Create personal code"}</button> : <div className="profile-code">
+          <code>{generatedCode}</code>
+          <div className="button-row">
+            <button className="secondary" onClick={() => void copyProfileCode()}>{ru ? "Скопировать код" : "Copy code"}</button>
+            <button className="secondary" onClick={activateGeneratedProfile}>{ru ? "Я сохранил код — включить синхронизацию" : "I saved it — enable sync"}</button>
+          </div>
+        </div>}
+        <div className="profile-join">
+          <label htmlFor="profile-code">{ru ? "Уже есть код? Введи его на новом устройстве" : "Already have a code? Enter it on the new device"}</label>
+          <div className="button-row">
+            <input id="profile-code" value={profileCode} onChange={(event) => setProfileCode(event.target.value)} placeholder="LCO-…" autoCapitalize="characters" autoCorrect="off" />
+            <button className="secondary" onClick={activateEnteredProfile}>{ru ? "Продолжить с этим профилем" : "Continue with this profile"}</button>
+          </div>
+        </div>
+      </>}
     </div>
 
     <div className="debug-grid">

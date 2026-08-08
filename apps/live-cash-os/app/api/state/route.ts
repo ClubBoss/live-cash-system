@@ -31,6 +31,24 @@ function cloudToken(): string {
   return `${Date.now()}-${crypto.randomUUID()}`;
 }
 
+const PORTABLE_PROFILE_HEADER = "x-live-cash-profile-code";
+const PORTABLE_PROFILE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
+
+async function portableProfileId(request: Request): Promise<string | null> {
+  const raw = request.headers.get(PORTABLE_PROFILE_HEADER)?.trim().toUpperCase() ?? "";
+  if (!PORTABLE_PROFILE_PATTERN.test(raw)) return null;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+  const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `portable:${hash}`;
+}
+
+async function currentIdentity(request: Request): Promise<string | null> {
+  const portable = await portableProfileId(request);
+  if (portable) return portable;
+  const user = await getChatGPTUser();
+  return user?.userId ?? null;
+}
+
 function json(body: Record<string, unknown>, status = 200) {
   return Response.json({ ...body, runtime: CURRENT_RUNTIME }, {
     status,
@@ -97,12 +115,12 @@ async function conflictFromLatest(userId: string) {
   }, 409);
 }
 
-export async function GET() {
-  const user = await getChatGPTUser();
-  if (!user) return json({ error: "Sign in required", code: "AUTH_REQUIRED" }, 401);
+export async function GET(request: Request) {
+  const userId = await currentIdentity(request);
+  if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   try {
-    const record = await currentRecord(user.userId);
+    const record = await currentRecord(userId);
     if (!record) return json({ state: null, cloudDeleted: false, cloudToken: null });
     const parsed = safeParse(record.stateJson);
     const tombstone = parseTombstone(parsed);
@@ -131,8 +149,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user = await getChatGPTUser();
-  if (!user) return json({ error: "Sign in required", code: "AUTH_REQUIRED" }, 401);
+  const userId = await currentIdentity(request);
+  if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
   if (declaredLength > MAX_STATE_BYTES) return json({ error: "State payload is too large", code: "STATE_TOO_LARGE" }, 413);
@@ -162,7 +180,7 @@ export async function POST(request: Request) {
   const resumeCloudSync = payload.resumeCloudSync === true;
 
   try {
-    const record = await currentRecord(user.userId);
+    const record = await currentRecord(userId);
     const db = getDb();
 
     if (!record) {
@@ -173,10 +191,10 @@ export async function POST(request: Request) {
       const nextCloudToken = cloudToken();
       const inserted = await db
         .insert(learnerStates)
-        .values({ userId: user.userId, stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
+        .values({ userId, stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
         .onConflictDoNothing({ target: learnerStates.userId })
         .run();
-      if ((inserted.meta?.changes ?? 0) !== 1) return conflictFromLatest(user.userId);
+      if ((inserted.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
       return json({ ok: true, revision: incoming.revision, cloudToken: nextCloudToken });
     }
 
@@ -196,9 +214,9 @@ export async function POST(request: Request) {
       const resumed = await db
         .update(learnerStates)
         .set({ stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
-        .where(and(eq(learnerStates.userId, user.userId), eq(learnerStates.updatedAt, record.cloudToken)))
+      .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
         .run();
-      if ((resumed.meta?.changes ?? 0) !== 1) return conflictFromLatest(user.userId);
+      if ((resumed.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
       return json({ ok: true, resumed: true, revision: incoming.revision, cloudToken: nextCloudToken });
     }
 
@@ -229,9 +247,9 @@ export async function POST(request: Request) {
     const updated = await db
       .update(learnerStates)
       .set({ stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
-      .where(and(eq(learnerStates.userId, user.userId), eq(learnerStates.updatedAt, record.cloudToken)))
+        .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
       .run();
-    if ((updated.meta?.changes ?? 0) !== 1) return conflictFromLatest(user.userId);
+    if ((updated.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
 
     return json({ ok: true, revision: incoming.revision, cloudToken: nextCloudToken });
   } catch {
@@ -239,9 +257,9 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
-  const user = await getChatGPTUser();
-  if (!user) return json({ error: "Sign in required", code: "AUTH_REQUIRED" }, 401);
+export async function DELETE(request: Request) {
+  const userId = await currentIdentity(request);
+  if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   try {
     const deletedAt = new Date().toISOString();
@@ -250,7 +268,7 @@ export async function DELETE() {
     const db = getDb();
     await db
       .insert(learnerStates)
-      .values({ userId: user.userId, stateJson: JSON.stringify(tombstone), updatedAt: nextCloudToken })
+      .values({ userId, stateJson: JSON.stringify(tombstone), updatedAt: nextCloudToken })
       .onConflictDoUpdate({
         target: learnerStates.userId,
         set: { stateJson: JSON.stringify(tombstone), updatedAt: nextCloudToken },

@@ -24,6 +24,9 @@ export const SYNC_META_KEY = "live-cash-os:sync-meta";
 export const RECOVERY_BACKUP_KEY = "live-cash-os:recovery-backup";
 export const IMPORT_BACKUP_KEY = "live-cash-os:pre-import-backup";
 export const CONFLICT_BACKUP_KEY = "live-cash-os:sync-conflict";
+export const PORTABLE_PROFILE_KEY = "live-cash-os:portable-profile-code";
+const PORTABLE_PROFILE_HEADER = "x-live-cash-profile-code";
+const PORTABLE_PROFILE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
 
 export type SyncStatus = "loading" | "local" | "syncing" | "synced" | "offline" | "conflict" | "error";
 export type CloudMode = "cloud" | "local";
@@ -104,6 +107,7 @@ export function useReliableLearnerState() {
   const [conflict, setConflict] = useState<ConflictSnapshot | null>(null);
   const [recoveryRaw, setRecoveryRaw] = useState<string | null>(null);
   const [retryNonce, setRetryNonce] = useState(0);
+  const [portableProfileActive, setPortableProfileActive] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const serverRevision = useRef<number | null>(null);
@@ -113,6 +117,12 @@ export function useReliableLearnerState() {
   const updateRequired = useRef(false);
   const conflictRef = useRef<ConflictSnapshot | null>(null);
   const mounted = useRef(true);
+  const portableProfileCode = useRef<string | null>(null);
+
+  const profileHeaders = useCallback((): HeadersInit => {
+    const code = portableProfileCode.current;
+    return code ? { [PORTABLE_PROFILE_HEADER]: code } : {};
+  }, []);
 
   const requireUpdate = useCallback(() => {
     updateRequired.current = true;
@@ -155,7 +165,7 @@ export function useReliableLearnerState() {
   ) => {
     const response = await fetch("/api/state", {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...profileHeaders() },
       body: JSON.stringify({
         state: candidate,
         baseRevision: options.baseRevision ?? serverRevision.current,
@@ -210,12 +220,14 @@ export function useReliableLearnerState() {
     }
     setSyncStatus("error");
     return { ok: false, response, payload };
-  }, [acceptCloudAck, rememberConflict, requireUpdate]);
+  }, [acceptCloudAck, profileHeaders, rememberConflict, requireUpdate]);
 
   useEffect(() => {
     mounted.current = true;
     async function restore() {
       const meta = parseSyncMeta(safeGet(SYNC_META_KEY));
+      portableProfileCode.current = safeGet(PORTABLE_PROFILE_KEY);
+      setPortableProfileActive(Boolean(portableProfileCode.current));
       cloudDisabled.current = meta.cloudDisabled;
       serverRevision.current = meta.lastCloudRevision;
       serverCloudToken.current = meta.lastCloudUpdatedAt;
@@ -255,7 +267,7 @@ export function useReliableLearnerState() {
       let remoteAvailable = false;
       if (!cloudDisabled.current) {
         try {
-          const response = await fetch("/api/state", { cache: "no-store" });
+          const response = await fetch("/api/state", { cache: "no-store", headers: profileHeaders() });
           try { remotePayload = await response.json() as StateApiPayload; } catch { remotePayload = {}; }
           if (response.ok && (!remotePayload.runtime || !runtimeCompatible(remotePayload.runtime))) {
             requireUpdate();
@@ -313,7 +325,7 @@ export function useReliableLearnerState() {
     }
     void restore();
     return () => { mounted.current = false; };
-  }, [rememberConflict, requireUpdate]);
+  }, [profileHeaders, rememberConflict, requireUpdate]);
 
   useEffect(() => {
     if (!ready || recoveryBlocked) return;
@@ -360,7 +372,7 @@ export function useReliableLearnerState() {
 
   const deleteCloud = useCallback(async () => {
     try {
-      const response = await fetch("/api/state", { method: "DELETE" });
+      const response = await fetch("/api/state", { method: "DELETE", headers: profileHeaders() });
       let payload: StateApiPayload = {};
       try { payload = await response.json() as StateApiPayload; } catch { /* no-op */ }
       if (response.ok && (!payload.runtime || !runtimeCompatible(payload.runtime))) {
@@ -385,7 +397,7 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_DELETE_FAILED");
       return false;
     }
-  }, [requireUpdate]);
+  }, [profileHeaders, requireUpdate]);
 
   const enableCloud = useCallback(async () => {
     if (recoveryBlocked) return false;
@@ -478,7 +490,7 @@ export function useReliableLearnerState() {
     }
 
     try {
-      const response = await fetch("/api/state", { cache: "no-store" });
+      const response = await fetch("/api/state", { cache: "no-store", headers: profileHeaders() });
       let payload: StateApiPayload = {};
       try { payload = await response.json() as StateApiPayload; } catch { /* no-op */ }
       if (!response.ok) {
@@ -522,7 +534,24 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_RESET_FAILED");
       return false;
     }
-  }, [requireUpdate]);
+  }, [profileHeaders, requireUpdate]);
+
+  const activatePortableProfile = useCallback((rawCode: string) => {
+    const code = rawCode.trim().toUpperCase();
+    if (!PORTABLE_PROFILE_PATTERN.test(code)) return false;
+    if (!safeSet(PORTABLE_PROFILE_KEY, code)) return false;
+    portableProfileCode.current = code;
+    setPortableProfileActive(true);
+    window.location.reload();
+    return true;
+  }, []);
+
+  const disconnectPortableProfile = useCallback(() => {
+    safeRemove(PORTABLE_PROFILE_KEY);
+    portableProfileCode.current = null;
+    setPortableProfileActive(false);
+    window.location.reload();
+  }, []);
 
   return {
     state,
@@ -545,6 +574,9 @@ export function useReliableLearnerState() {
     prepareImport,
     applyImport,
     resetLocal,
+    portableProfileActive,
+    activatePortableProfile,
+    disconnectPortableProfile,
     stateSchemaVersion: STATE_SCHEMA_VERSION,
   };
 }
