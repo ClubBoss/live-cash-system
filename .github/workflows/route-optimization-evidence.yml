@@ -1,4 +1,4 @@
-name: Route Optimization Materialize
+name: Route Optimization Evidence
 
 on:
   push:
@@ -6,36 +6,32 @@ on:
       - wave/route-optimization
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: route-optimization-materialize
+  group: route-optimization-evidence
   cancel-in-progress: true
 
 jobs:
-  materialize:
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Apply bounded route source patch
-        run: node apps/live-cash-os/scripts/route-optimization-build.mjs
-      - name: Persist product source only
-        shell: bash
-        run: |
-          git add apps/live-cash-os/lib/scheduler.ts \
-                  apps/live-cash-os/components/LiveCashAppCore.tsx \
-                  apps/live-cash-os/components/Wave7Experience.tsx
-          if git diff --cached --quiet; then
-            echo "Route source already materialized."
-            exit 0
-          fi
-          git config user.name "ClubBoss"
-          git config user.email "esalimzade@hotmail.com"
-          git commit -m "RO-2/RO-5: materialize audited route policy"
-          git push origin HEAD:wave/route-optimization
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        working-directory: apps/live-cash-os
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: apps/live-cash-os
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Full release gate
+        working-directory: apps/live-cash-os
+        run: npm run test:release
+      - name: Cross-browser route and session integrity
+        working-directory: apps/live-cash-os
+        run: npx playwright test e2e/route-optimization.spec.mjs e2e/session-render-integrity.spec.mjs --config=playwright.cross-browser.config.mjs
