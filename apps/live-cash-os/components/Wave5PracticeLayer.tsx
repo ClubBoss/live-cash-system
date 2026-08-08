@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { moduleById } from "../content/modules";
 import type { Lab } from "../content/types";
 import type { LocaleCode, ModuleId } from "../lib/model";
@@ -177,7 +178,7 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
   if (!finite) error = locale === "ru" ? "Введи конечные неотрицательные числа." : "Enter finite non-negative numbers.";
   else if (betValue > stackValue) error = locale === "ru" ? "Ставка/колл не может быть больше оставшегося стека." : "Bet/call cannot exceed the remaining stack.";
   else if (potValue + 2 * betValue <= 0) error = locale === "ru" ? "После действия размер банка должен быть больше нуля." : "The post-action pot must be greater than zero.";
-  const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
+  const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + betValue * 2)) : 0;
   const copy = locale === "ru" ? {
     eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
     title: "Измени хотя бы одну важную переменную.",
@@ -259,13 +260,30 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
     return () => { delete document.documentElement.dataset.wave5LabGate; };
   }, [moduleId]);
 
-  return <section className="session wave5-lab-gate" data-wave5-lab-module={moduleId}>
+  return <section className="wave5-lab-gate" data-wave5-lab-module={moduleId}>
     {phase === "prediction"
       ? <PredictionStep locale={locale} prompt={module.lab.description} prediction={prediction} setPrediction={setPrediction} onContinue={() => setPhase("interact")} />
       : module.lab.type === "spr"
         ? <SprInteraction locale={locale} moduleId={moduleId} lab={module.lab} onComplete={nextCoreLabStep} />
         : <CompareInteraction locale={locale} moduleId={moduleId} lab={module.lab} onComplete={nextCoreLabStep} />}
   </section>;
+}
+
+function Wave5LabPortal({ locale, moduleId }: { locale: LocaleCode; moduleId: ModuleId }) {
+  const [host, setHost] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const syncHost = () => {
+      const next = document.querySelector<HTMLElement>("main .session");
+      setHost((previous) => previous === next ? previous : next);
+    };
+    syncHost();
+    const observer = new MutationObserver(syncHost);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [moduleId]);
+
+  return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
 }
 
 export default function Wave5PracticeLayer() {
@@ -275,9 +293,10 @@ export default function Wave5PracticeLayer() {
       .decision-card[data-wave5-mixed="true"] > .eyebrow { font-size: 0 !important; }
       html[lang="ru"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "СМЕШАННАЯ ЗАДАЧА"; font-size: .75rem; }
       html[lang="en"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "MIXED DECISION"; font-size: .75rem; }
-      html[data-wave5-lab-gate="active"] main .session > :not(.session-head) { display: none !important; }
+      html[data-wave5-lab-gate="active"] main .session > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
+      .wave5-lab-gate { display: block; }
       .wave5-lab-gate > .assumption-strip { display: block !important; }
     `}</style>
-    {snapshot.labActive && snapshot.moduleId && <Wave5LabGate key={snapshot.moduleId} locale={snapshot.locale} moduleId={snapshot.moduleId} />}
+    {snapshot.labActive && snapshot.moduleId && <Wave5LabPortal locale={snapshot.locale} moduleId={snapshot.moduleId} />}
   </>;
 }
