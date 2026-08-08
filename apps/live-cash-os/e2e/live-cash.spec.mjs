@@ -57,7 +57,7 @@ test("the starting check explains its purpose and remains optional", async ({ pa
   await expect(page.getByRole("button", { name: /^Изучить/ }).first()).toBeEnabled();
 });
 
-test("the starting Diagnostic has natural copy in both locales", async ({ page }) => {
+test("the starting check has natural T1 copy in both locales", async ({ page }) => {
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
