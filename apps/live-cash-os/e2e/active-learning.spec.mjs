@@ -72,7 +72,7 @@ test("lesson summary says what was checked and keeps delayed retention explicitl
   await seedLesson(page, 9);
 
   await expect(page.getByText("Что уже проверено", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Проверка после паузы ещё не проводилась/)).toBeVisible();
+  await expect(page.getByText(/Этот урок не проверял удержание после паузы/)).toBeVisible();
   await expect(page.getByRole("heading", { name: /Теперь её нужно закрепить/i })).toBeVisible();
 });
 
