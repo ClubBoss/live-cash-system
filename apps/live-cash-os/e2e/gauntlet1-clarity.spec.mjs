@@ -23,7 +23,7 @@ test("Today separates Time and Mode, shows actual plan volume, and fresh short m
   await expect(page.getByRole("button", { name: "Начать", exact: true })).toBeEnabled();
 
   await page.getByRole("button", { name: "Перед игрой", exact: true }).click();
-  await expect(page.getByText(/использует только уже изученные карточки/i)).toBeVisible();
+  await expect(page.getByText(/использует только уже изученный материал/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Выбрать 15 минут", exact: true })).toBeEnabled();
 });
 
@@ -43,7 +43,7 @@ test("disabled learning CTAs state what is missing", async ({ page }) => {
   await page.getByRole("button", { name: "Учиться", exact: true }).click();
 
   await expect(page.getByText(/Практика откроется после завершения этого урока/i).first()).toBeVisible();
-  await expect(page.getByText(/Смешанная практика откроется после трёх пройденных тем. Сейчас: 0\/3/i)).toBeVisible();
+  await expect(page.getByText(/Смешанная практика и Table Burst откроются после трёх пройденных тем. Сейчас: 0\/3/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Смешанная практика", exact: true })).toBeDisabled();
 });
 

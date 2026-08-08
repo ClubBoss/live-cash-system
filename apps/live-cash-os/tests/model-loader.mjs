@@ -2,21 +2,33 @@ import { readFile } from "node:fs/promises";
 import ts from "typescript";
 
 const CORE_URL = new URL("../lib/model-core.ts", import.meta.url).href;
+const MODEL_URL = new URL("../lib/model.ts", import.meta.url).href;
 const RELIABILITY_URL = new URL("../lib/reliability.ts", import.meta.url).href;
 const CLOUD_SYNC_CONTRACT_URL = new URL("../lib/cloud-sync-contract.ts", import.meta.url).href;
-const TRANSPILED_URLS = new Set([CORE_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL]);
+const AUTOMATICITY_URL = new URL("../lib/automaticity.ts", import.meta.url).href;
+const SCHEDULER_URL = new URL("../lib/scheduler.ts", import.meta.url).href;
+const TRANSPILED_URLS = new Set([CORE_URL, MODEL_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL, AUTOMATICITY_URL, SCHEDULER_URL]);
+
+function isTemporaryHarness(parentURL) {
+  return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-test-");
+}
 
 export async function resolve(specifier, context, nextResolve) {
-  if (context.parentURL?.includes("live-cash-os-test-")) {
+  if (isTemporaryHarness(context.parentURL)) {
     if (specifier === "./model-core") return { url: CORE_URL, shortCircuit: true };
     if (specifier === "./reliability") return { url: RELIABILITY_URL, shortCircuit: true };
     if (specifier === "./cloud-sync-contract") return { url: CLOUD_SYNC_CONTRACT_URL, shortCircuit: true };
+    if (specifier === "./automaticity") return { url: AUTOMATICITY_URL, shortCircuit: true };
+    if (specifier === "./scheduler") return { url: SCHEDULER_URL, shortCircuit: true };
   }
   if (context.parentURL === CLOUD_SYNC_CONTRACT_URL && specifier === "./reliability") {
     return { url: RELIABILITY_URL, shortCircuit: true };
   }
-  if ((context.parentURL === RELIABILITY_URL || context.parentURL === CLOUD_SYNC_CONTRACT_URL) && specifier === "./model-core") {
+  if ((context.parentURL === MODEL_URL || context.parentURL === RELIABILITY_URL || context.parentURL === CLOUD_SYNC_CONTRACT_URL || context.parentURL === AUTOMATICITY_URL || context.parentURL === SCHEDULER_URL) && specifier === "./model-core") {
     return { url: CORE_URL, shortCircuit: true };
+  }
+  if (context.parentURL === AUTOMATICITY_URL && specifier === "./scheduler") {
+    return { url: SCHEDULER_URL, shortCircuit: true };
   }
   return nextResolve(specifier, context);
 }

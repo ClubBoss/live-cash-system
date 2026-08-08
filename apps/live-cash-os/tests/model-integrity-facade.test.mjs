@@ -73,7 +73,7 @@ test("rejects UI fallback probes but admits declared and registered probes", asy
   ]);
 });
 
-test("binds a review decision to the active due queue item", async () => {
+test("binds a review decision to the active due queue item and advances its staged retrieval", async () => {
   const model = await loadModel();
   const state = model.emptyLearnerState();
   state.reviewQueue.push({
@@ -107,7 +107,13 @@ test("binds a review decision to the active due queue item", async () => {
     mode: "review",
   }));
   assert.equal(next.modules.geometry.evidence.retention.exposures, 1);
-  assert.equal(next.reviewQueue.some((item) => item.id === "review-due"), false);
+  const staged = next.reviewQueue.find((item) => item.id === "review-due");
+  assert.ok(staged);
+  assert.equal(staged.kind, "retention");
+  assert.equal(staged.variantGroup, "denominator");
+  assert.equal(staged.sourceDrillId, "geo-02");
+  assert.equal(staged.attempts, 1);
+  assert.ok(Date.parse(staged.dueAt) > Date.now());
 });
 
 test("resolves a synthetic field repair through a module repair block", async () => {
