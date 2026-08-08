@@ -62,7 +62,7 @@ test("explain-back saves durably and is visible after reload", async ({ page }) 
   expect(state.explainBackRecords[0].status).toBe("PENDING_REVIEW");
 });
 
-test("real hand locks pre-result reasoning, adds result separately, and field repair reaches W6", async ({ page }) => {
+test("real hand locks pre-result reasoning, self-review cannot award transfer, and field repair reaches W6", async ({ page }) => {
   await openLocal(page);
   await fillHand(page);
   const reason = "Keep weaker hands in and avoid turning the hand into a raise without enough reason.";
@@ -84,11 +84,16 @@ test("real hand locks pre-result reasoning, adds result separately, and field re
   expect(state.fieldNotes[0].reason).toBe(lockedReason);
   expect(state.fieldNotes[0].result).toBe("Villain showed AQ and won");
 
+  await expect(card.getByText(/SELF не подтверждает перенос/i)).toBeVisible();
+  await expect(card.getByLabel(`Источник разбора ${noteId}`)).toHaveValue("SELF");
+  await expect(card.getByRole("button", { name: "Поддерживает перенос", exact: true })).toBeDisabled();
   await card.getByLabel(new RegExp(`Разбор ${noteId}`)).fill("Причина игнорирует важную часть диапазона и требует отдельной changed-node практики.");
-  await card.getByRole("button", { name: "Нужна практика" }).click();
+  await expect(card.getByRole("button", { name: "Поддерживает перенос", exact: true })).toBeDisabled();
+  await card.getByRole("button", { name: "Назначить практику" }).click();
   state = await localState(page);
   const repair = state.reviewQueue.find((item) => item.sourceDrillId === `field:${noteId}` && item.kind === "repair");
   expect(repair).toBeTruthy();
+  expect(state.fieldNotes[0].reviewerKind).toBe("SELF");
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
 
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();

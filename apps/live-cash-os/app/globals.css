@@ -118,7 +118,7 @@ p { line-height: 1.55; }
 .counterexample b { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
 .spr-lab { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 28px 0; }
 .spr-lab label { font-size: 12px; font-weight: 700; }
-.spr-lab input, .field-form input, .field-form textarea, .field-form select, .diagnostic-input textarea, .large-input, .field-list textarea { width: 100%; margin-top: 7px; border: 1px solid var(--line); background: transparent; padding: 12px; color: var(--ink); }
+.spr-lab input, .field-form input, .field-form textarea, .field-form select, .diagnostic-input textarea, .large-input, .field-list textarea, .field-list select { width: 100%; margin-top: 7px; border: 1px solid var(--line); background: transparent; padding: 12px; color: var(--ink); }
 .spr-result { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; padding: 22px; background: var(--lime); }
 .spr-result b { font-size: 48px; letter-spacing: -.06em; }
 .spr-result small { grid-column: 1 / -1; }

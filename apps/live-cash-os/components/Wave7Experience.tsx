@@ -13,6 +13,7 @@ import {
   reviewFieldHand,
   validateFieldHandInput,
   type FieldHandInput,
+  type FieldReviewerKind,
   type FieldReviewOutcome,
   type StructuredFieldNote,
 } from "../lib/wave7";
@@ -51,8 +52,9 @@ const REQUIRED_HAND_FIELDS = [
 
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
-    captureTitle: "Запиши решение до результата",
-    captureBody: "Здесь фиксируй реальную раздачу до того, как результат повлияет на оценку решения. Сначала ситуация, наблюдение, действие и причина; результат добавляется после сохранения. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
+    captureTitle: "После игры: сначала сохрани 1–3 руки",
+    captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если разбор выявил конкретную ошибку, добавляй работу над ошибкой; обычный Review после этого остаётся отдельным и необязательным. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
+    workflow: "Порядок: 1) сохранить 1–3 руки → 2) разобрать одну → 3) при необходимости назначить практику или позже открыть обычный Review.",
     stakes: "Лимиты",
     heroPosition: "Позиция Hero",
     villainPositions: "Позиции релевантных соперников",
@@ -80,15 +82,23 @@ function copy(locale: LocaleCode) {
     addResult: "Добавить результат",
     resultRequired: "Укажи результат; шоудаун можно оставить пустым, если его не было.",
     review: "Разбор",
-    reviewPlaceholder: "Коротко: что подтверждено или что нужно исправить…",
-    reviewRequired: "Добавь короткий комментарий разбора — без него эти действия недоступны.",
+    reviewPlaceholder: "Коротко: что в решении было рабочим или что нужно исправить…",
+    reviewRequired: "Добавь короткую заметку разбора — без неё эти действия недоступны.",
+    selfReviewTitle: "SELF не подтверждает перенос",
+    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. SUPPORTS_TRANSFER доступен только после отдельного human / human-assisted review.",
+    reviewerSource: "Источник разбора",
+    reviewerSourceHelp: "SELF — твоя самопроверка. HUMAN / HUMAN_ASSISTED выбирай только после реального отдельного разбора человеком. Приложение не проверяет личность reviewer.",
+    reviewerSelf: "SELF · самопроверка",
+    reviewerHuman: "HUMAN · отдельный человек",
+    reviewerAssisted: "HUMAN_ASSISTED · человек с инструментом",
+    supportTransfer: "Поддерживает перенос",
+    supportTransferHelp: "Нужны отдельный HUMAN / HUMAN_ASSISTED review, непустая заметка и решение, зафиксированное до результата.",
     legacyTransferBlocked: "Эту старую запись нельзя засчитать как поддержку переноса: в ней нет зафиксированного решения до результата.",
     insufficient: "Недостаточно данных",
-    reviewedOk: "Разобрано, дополнительная практика не нужна",
-    repair: "Нужна практика",
-    supports: "Поддерживает перенос",
-    explainInbox: "Объяснение своими словами ждёт разбора",
-    noInbox: "Новых explain-back для разбора нет.",
+    reviewedOk: "Разбор закончен",
+    repair: "Назначить практику",
+    explainInbox: "Объяснения для самопроверки",
+    noInbox: "Новых explain-back для самопроверки нет.",
     earlier: "Раннее объяснение",
     later: "Последнее объяснение",
     evidence: "Доказательства",
@@ -98,13 +108,17 @@ function copy(locale: LocaleCode) {
     over: "ошибок с высокой уверенностью",
     under: "верных ответов с низкой уверенностью",
     notEnoughCalibration: "Пока мало решений для полезной картины уверенности.",
-    fieldSupports: "разобранных рук в поддержку",
+    fieldSupports: "human-reviewed рук в поддержку",
     delayed: "успешных повторов после паузы",
     variants: "успешных изменённых ситуаций",
     pendingRepair: "заданий на работу над ошибкой",
+    reviewedBySelf: "самопроверка",
+    reviewedByHuman: "human review",
+    reviewedByAssisted: "human-assisted review",
   } : {
-    captureTitle: "Record the decision before the result",
-    captureBody: "Use this section to capture a real hand before the result can bias the decision review. Lock the spot, what you noticed, your action and your reason first; add the result afterward. One hand is an observation, not proof of a frequency or a global player type.",
+    captureTitle: "After play: save 1–3 hands first",
+    captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward. One hand is an observation, not proof of a frequency or a global player type.",
+    workflow: "Order: 1) save 1–3 hands → 2) review one → 3) only if needed, assign mistake practice or open normal Review later.",
     stakes: "Stakes",
     heroPosition: "Hero position",
     villainPositions: "Relevant villain positions",
@@ -132,15 +146,23 @@ function copy(locale: LocaleCode) {
     addResult: "Add result",
     resultRequired: "Enter the result; showdown can stay empty if there was none.",
     review: "Review",
-    reviewPlaceholder: "Briefly: what was supported or what needs repair…",
-    reviewRequired: "Add a short review note before choosing a review outcome.",
+    reviewPlaceholder: "Briefly: what worked in the decision or what needs repair…",
+    reviewRequired: "Add a short review note before choosing an outcome.",
+    selfReviewTitle: "SELF does not confirm transfer",
+    selfReviewBody: "Self-review can mark missing information, finish the review, or assign mistake practice. SUPPORTS_TRANSFER is available only after separate human / human-assisted review.",
+    reviewerSource: "Review source",
+    reviewerSourceHelp: "SELF is your own review. Choose HUMAN / HUMAN_ASSISTED only after a real separate human review occurred. The app does not verify reviewer identity.",
+    reviewerSelf: "SELF · self-review",
+    reviewerHuman: "HUMAN · separate person",
+    reviewerAssisted: "HUMAN_ASSISTED · human with a tool",
+    supportTransfer: "Supports transfer",
+    supportTransferHelp: "Requires separate HUMAN / HUMAN_ASSISTED review, a non-empty note, and a decision locked before the result.",
     legacyTransferBlocked: "This legacy note cannot support transfer because it has no decision locked before the result.",
     insufficient: "Not enough information",
-    reviewedOk: "Reviewed, no extra practice",
-    repair: "Needs practice",
-    supports: "Supports transfer",
-    explainInbox: "Your explanation is awaiting review",
-    noInbox: "No new explain-back is waiting for review.",
+    reviewedOk: "Finish review",
+    repair: "Assign practice",
+    explainInbox: "Explanations for self-review",
+    noInbox: "No new explain-back is waiting for self-review.",
     earlier: "Earlier explanation",
     later: "Latest explanation",
     evidence: "Evidence",
@@ -150,10 +172,13 @@ function copy(locale: LocaleCode) {
     over: "high-confidence misses",
     under: "correct low-confidence answers",
     notEnoughCalibration: "There are not enough decisions yet for a useful confidence pattern.",
-    fieldSupports: "reviewed supporting hands",
+    fieldSupports: "human-reviewed supporting hands",
     delayed: "successful reviews after a delay",
     variants: "successful changed spots",
     pendingRepair: "mistake-practice tasks queued",
+    reviewedBySelf: "self-review",
+    reviewedByHuman: "human review",
+    reviewedByAssisted: "human-assisted review",
   };
 }
 
@@ -204,6 +229,7 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
   const facts = fieldFactLabels(locale);
   const [hand, setHand] = useState<FieldHandInput>(emptyHand);
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+  const [reviewerKinds, setReviewerKinds] = useState<Record<string, FieldReviewerKind>>({});
   const [resultDrafts, setResultDrafts] = useState<Record<string, string>>({});
   const [showdownDrafts, setShowdownDrafts] = useState<Record<string, string>>({});
   const [explainNotes, setExplainNotes] = useState<Record<string, string>>({});
@@ -237,20 +263,28 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
   function reviewHand(noteId: string, outcome: FieldReviewOutcome) {
     const text = reviewNotes[noteId] ?? "";
+    const reviewerKind = reviewerKinds[noteId] ?? "SELF";
     if (!text.trim()) return;
-    setState(reviewFieldHand(state, noteId, outcome, text));
+    setState(reviewFieldHand(state, noteId, outcome, text, reviewerKind));
+  }
+
+  function reviewerLabel(note: StructuredFieldNote): string {
+    if (note.reviewerKind === "HUMAN") return c.reviewedByHuman;
+    if (note.reviewerKind === "HUMAN_ASSISTED") return c.reviewedByAssisted;
+    return c.reviewedBySelf;
   }
 
   return <section className="surface">
-    <div className="section-head"><p className="eyebrow">{locale === "ru" ? "РЕАЛЬНЫЕ РАЗДАЧИ" : "REAL HANDS"}</p><h1>{c.captureTitle}</h1><p>{c.captureBody}</p></div>
+    <div className="section-head"><p className="eyebrow">{locale === "ru" ? "РЕАЛЬНЫЕ РАЗДАЧИ" : "REAL HANDS"}</p><h1>{c.captureTitle}</h1><p>{c.captureBody}</p><p className="assumption-strip">{c.workflow}</p></div>
 
     <section className="w7-review-inbox">
       <h2>{c.explainInbox}</h2>
+      <p className="support">{c.selfReviewBody}</p>
       {!explainPending.length && <p className="support">{c.noInbox}</p>}
       <div className="field-list">{explainPending.map((record) => {
         const reviewText = explainNotes[record.id] ?? "";
         return <article key={record.id}>
-          <span className="kind">{locale === "ru" ? "ждёт разбора" : "awaiting review"}</span>
+          <span className="kind">{locale === "ru" ? "ждёт самопроверки" : "awaiting self-review"}</span>
           <h3>{moduleById[record.moduleId].shortTitle}</h3>
           <p>{record.text}</p>
           <textarea aria-label={`${c.review} ${record.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setExplainNotes((current) => ({ ...current, [record.id]: event.target.value }))} />
@@ -288,8 +322,10 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
       <div className="field-list">{[...(state.fieldNotes as StructuredFieldNote[])].reverse().map((note) => {
         const reviewText = reviewNotes[note.id] ?? "";
+        const reviewerKind = reviewerKinds[note.id] ?? "SELF";
         const resultText = resultDrafts[note.id] ?? "";
         const showdownText = showdownDrafts[note.id] ?? "";
+        const canSupportTransfer = reviewerKind !== "SELF" && Boolean(note.decisionLockedAt) && Boolean(reviewText.trim());
         return <article key={note.id}>
           <span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatus(locale, note, fieldStatusLabel)}</span>
           <h3>{moduleById[note.moduleId].shortTitle}</h3>
@@ -319,16 +355,20 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
           </div>
 
           {note.status === "PENDING_REVIEW" ? <>
+            <div className="answer-panel"><b>{c.selfReviewTitle}</b><p>{c.selfReviewBody}</p></div>
+            <label>{c.reviewerSource}<select aria-label={`${c.reviewerSource} ${note.id}`} value={reviewerKind} onChange={(event) => setReviewerKinds((current) => ({ ...current, [note.id]: event.target.value as FieldReviewerKind }))}><option value="SELF">{c.reviewerSelf}</option><option value="HUMAN">{c.reviewerHuman}</option><option value="HUMAN_ASSISTED">{c.reviewerAssisted}</option></select></label>
+            <p className="support">{c.reviewerSourceHelp}</p>
             <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setReviewNotes((current) => ({ ...current, [note.id]: event.target.value }))} />
             {!reviewText.trim() && <p className="support">{c.reviewRequired}</p>}
             {!note.decisionLockedAt && <p className="support">{c.legacyTransferBlocked}</p>}
+            {!canSupportTransfer && <p className="support">{c.supportTransferHelp}</p>}
             <div className="review-actions">
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "INSUFFICIENT")}>{c.insufficient}</button>
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
-              <button className="primary" disabled={!reviewText.trim() || !note.decisionLockedAt} onClick={() => reviewHand(note.id, "SUPPORTS_TRANSFER")}>{c.supports}</button>
+              <button className="primary" disabled={!canSupportTransfer} onClick={() => reviewHand(note.id, "SUPPORTS_TRANSFER")}>{c.supportTransfer}</button>
             </div>
-          </> : <p className="support"><b>{c.review}:</b> {note.evaluatorNote || "—"}</p>}
+          </> : <p className="support"><b>{c.review} ({reviewerLabel(note)}):</b> {note.evaluatorNote || "—"}</p>}
         </article>;
       })}</div>
     </div>

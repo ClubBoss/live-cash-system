@@ -13,7 +13,7 @@ test("Today separates Time and Mode, shows actual plan volume, and fresh short m
 
   await expect(page.getByText(/Время · сколько минут есть на обычную сессию/i)).toBeVisible();
   await expect(page.getByText(/Режим · особая цель вместо обычной сессии/i)).toBeVisible();
-  await expect(page.getByText(/≈8 из 15 доступных минут/i)).toBeVisible();
+  await expect(page.getByText(/План на выбранное время: ≈8 из 15 минут\. Каждый пункт запускается отдельно/i)).toBeVisible();
 
   await page.getByRole("button", { name: "5 мин", exact: true }).click();
   await expect(page.getByText(/первый урок рассчитан примерно на 8 минут/i)).toBeVisible();
@@ -63,13 +63,16 @@ test("Review, Progress, Hands and Diagnostic each state one clear role", async (
   await openFresh(page);
 
   await page.getByRole("button", { name: "Повтор", exact: true }).click();
-  await expect(page.getByText(/только то, что пора вспомнить после паузы или исправить/i)).toBeVisible();
+  await expect(page.getByText(/Одна сессия Review — ограниченная очередь, а не весь долг сразу/i)).toBeVisible();
+  await expect(page.getByText(/Размер зависит от 5\/15\/30 минут/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Карта", exact: true }).click();
-  await expect(page.getByText(/Прогресс показывает, какие доказательства уже есть/i)).toBeVisible();
+  await expect(page.getByText(/Прогресс показывает состояние темы, реальные попытки и следующий шаг/i)).toBeVisible();
+  await expect(page.getByText(/не общий процент мастерства/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Руки", exact: true }).click();
-  await expect(page.getByText(/фиксируй реальную раздачу до того, как результат повлияет/i)).toBeVisible();
+  await expect(page.getByText(/Сначала быстро зафиксируй 1–3 решения до результата/i)).toBeVisible();
+  await expect(page.getByText(/затем выбери одну руку и сделай самопроверку/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await expect(page.getByText(/Диагностика — необязательная проверка текущего хода решения/i)).toBeVisible();
