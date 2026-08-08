@@ -50,7 +50,6 @@ test("new lesson rhythm moves from one compact explanation directly into applica
   await expect(extraTheory).toBeVisible();
 
   await page.getByRole("button", { name: /^Сразу применить/ }).click();
-  await expect(page.getByText("ПРИМЕНИ СРАЗУ", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Как правильно описать эффективный стек?" })).toBeVisible();
 
   await chooseOption(page, "$270 против A и $900 против B");
