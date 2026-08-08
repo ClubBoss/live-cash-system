@@ -249,7 +249,9 @@ export function reviewFieldHand(
   const reviewText = reviewerNote.trim();
   if (!note || note.status !== "PENDING_REVIEW" || !reviewText) return state;
 
-  const canSupportTransfer = reviewerKind === "HUMAN" || reviewerKind === "HUMAN_ASSISTED";
+  const hasIndependentReviewer = reviewerKind === "HUMAN" || reviewerKind === "HUMAN_ASSISTED";
+  const hasLockedPreResultDecision = Boolean(note.decisionLockedAt && note.cueBeforeAction);
+  const canSupportTransfer = hasIndependentReviewer && hasLockedPreResultDecision;
   const effectiveOutcome = outcome === "SUPPORTS_TRANSFER" && !canSupportTransfer ? "REVIEWED_OK" : outcome;
   note.reviewOutcome = effectiveOutcome;
   note.reviewerKind = reviewerKind;
@@ -264,7 +266,7 @@ export function reviewFieldHand(
   }
   if (effectiveOutcome === "SUPPORTS_TRANSFER") {
     note.status = "REVIEWED_VALID";
-    if (note.cueBeforeAction && note.decisionLockedAt) addFieldEvidence(next, note);
+    addFieldEvidence(next, note);
   }
   return touch(next);
 }
