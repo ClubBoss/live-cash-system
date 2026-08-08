@@ -484,8 +484,8 @@ export default function LiveCashAppV11() {
   function finishDiagnosticImport() {
     setDailyBudget("15");
     setNotice(locale === "ru"
-      ? "Разобранный результат импортирован. Today перестроен по приоритетам; импорт не добавил mastery, retention или field evidence."
-      : "The reviewed result was imported. Today is reprioritised; the import did not add mastery, retention, or field evidence.");
+      ? "Разобранный результат импортирован. Today перестроен по приоритетам; импорт сам по себе не подтверждает освоение навыка, запоминание после паузы или применение за столом."
+      : "The reviewed result was imported. Today is reprioritised; the import by itself does not prove the skill, later recall, or real-table use.");
     setTab("today");
   }
 
@@ -965,8 +965,8 @@ function Cards({ locale, state, setState, warmupIds, onLearn }: { locale: Locale
 function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode; state: LearnerState; onLesson: (id: ModuleId) => void; onPractice: (id: ModuleId) => void }) {
   const t = runtimeCopy[locale];
   const role = locale === "ru"
-    ? "Прогресс показывает состояние темы, реальные попытки и следующий шаг. Отдельные доли — это история наблюдений, а не общий процент мастерства."
-    : "Progress shows the topic state, actual attempts, and the next step. Per-dimension ratios are observation history, not an overall mastery percentage.";
+    ? "Прогресс показывает состояние темы, реальные попытки и следующий шаг. Отдельные доли — это история наблюдений, а не общий процент освоения навыка."
+    : "Progress shows the topic state, actual attempts, and the next step. Per-dimension ratios are observation history, not an overall skill-status percentage.";
   return <section className="surface">
     <div className="section-head"><p className="eyebrow">{t.skillMap}</p><h1>{t.mapTitle}<br/><em>{t.mapEmphasis}</em></h1><p>{role}</p></div>
     <div className="map-grid">{modules.map((source) => {
@@ -1053,7 +1053,7 @@ function Diagnostic({ locale, state, setState, onExit, onImported }: { locale: L
 
   if (["AWAITING_REVIEW", "SCORED", "ROUTED"].includes(diagnostic.status)) {
     const exportReady = Boolean(diagnostic.runId && diagnostic.measurementContext && diagnostic.localeAtStart && diagnostic.submittedAt && diagnostic.responses.length === 10);
-    return <section className="surface"><div className="section-head"><p className="eyebrow">{diagnosticLabel(locale)} · {diagnosticStatusLabel(locale, diagnostic.status)}</p><h1>{diagnostic.responses.length}/10 {t.answersSaved}.</h1><p>{role}</p><p>{t.rawBoundary}</p><p className="assumption-strip">{locale === "ru" ? "Дальше: 1) скачать ответы → 2) human / human-assisted review → 3) импортировать разобранный файл → 4) Today перестроит приоритеты. Ни один из этих шагов сам по себе не создаёт mastery." : "Next: 1) download responses → 2) human / human-assisted review → 3) import the reviewed file → 4) Today reprioritises. None of these steps creates mastery by itself."}</p><p className="support">{locale === "ru" ? "Семантический разбор делает человек или человек с инструментом. Импорт может поднять тему в очереди, но сам по себе не подтверждает навык, запоминание после паузы или игру за столом." : "Semantic review is done by a human or human-assisted reviewer. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."}</p>{!exportReady && <p className="support">{locale === "ru" ? "Скачать ответы можно после сохранения всех 10 ответов и служебного контекста этой попытки." : "Download becomes available after all 10 answers and this run's context are saved."}</p>}<div className="button-row"><button className="primary" disabled={!exportReady} onClick={() => downloadJson("live-cash-t1-raw-v0.2.json", {
+    return <section className="surface"><div className="section-head"><p className="eyebrow">{diagnosticLabel(locale)} · {diagnosticStatusLabel(locale, diagnostic.status)}</p><h1>{diagnostic.responses.length}/10 {t.answersSaved}.</h1><p>{role}</p><p>{t.rawBoundary}</p><p className="assumption-strip">{locale === "ru" ? "Дальше: 1) скачать ответы → 2) отдельно разобрать их с человеком — с инструментом или без → 3) импортировать разобранный файл → 4) Today перестроит приоритеты. Ни один из этих шагов сам по себе не подтверждает освоение навыка." : "Next: 1) download responses → 2) review them separately with a person, with or without a tool → 3) import the reviewed file → 4) Today reprioritises. None of these steps proves the skill by itself."}</p><p className="support">{locale === "ru" ? "Семантический разбор делает человек или человек с инструментом. Импорт может поднять тему в очереди, но сам по себе не подтверждает навык, запоминание после паузы или игру за столом." : "Semantic review is done by a person, with or without a tool. Import may move a topic up the queue, but by itself it does not prove the skill, later recall, or real-table use."}</p>{!exportReady && <p className="support">{locale === "ru" ? "Скачать ответы можно после сохранения всех 10 ответов и служебного контекста этой попытки." : "Download becomes available after all 10 answers and this run's context are saved."}</p>}<div className="button-row"><button className="primary" disabled={!exportReady} onClick={() => downloadJson("live-cash-t1-raw-v0.2.json", {
       schema_version: "raw-0.2",
       learner_id: "current_learner",
       tranche_id: "T1",
