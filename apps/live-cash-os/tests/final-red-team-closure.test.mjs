@@ -242,9 +242,9 @@ test("malformed nested schema-v2 import remains fail-closed", async () => {
 
 test("cloud POST keeps the shared deep validator ahead of persistence", async () => {
   const route = await readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8");
-  assert.match(route, /const parsed = JSON\.parse\(body\.stateJson\)/);
-  assert.match(route, /if \(!validateLearnerState\(parsed\)\) return json\(\{ ok: false, error: "INVALID_STATE" \}, 400\)/);
-  assert.ok(route.indexOf("validateLearnerState(parsed)") < route.indexOf("assessCloudWrite("));
+  assert.match(route, /const rawState = "state" in payload \? payload\.state : null/);
+  assert.match(route, /if \(!validateLearnerState\(rawState\)\) \{[\s\S]*code: "INVALID_STATE"[\s\S]*\}/);
+  assert.ok(route.indexOf("validateLearnerState(rawState)") < route.indexOf("assessCloudWrite("));
 });
 
 test("learner-facing Wave7 copy does not expose reviewer or transfer enum labels", async () => {
