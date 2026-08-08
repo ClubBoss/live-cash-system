@@ -52,7 +52,7 @@ const REQUIRED_HAND_FIELDS = [
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
     captureTitle: "После игры: сначала сохрани 1–3 руки",
-    captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если разбор выявил конкретную ошибку, добавляй работу над ошибкой; обычный Review после этого остаётся отдельным и необязательным.",
+    captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если разбор выявил конкретную ошибку, добавляй работу над ошибкой; обычный Review после этого остаётся отдельным и необязательным. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
     workflow: "Порядок: 1) сохранить 1–3 руки → 2) разобрать одну → 3) при необходимости назначить практику или позже открыть обычный Review.",
     stakes: "Лимиты",
     heroPosition: "Позиция Hero",
@@ -109,7 +109,7 @@ function copy(locale: LocaleCode) {
     reviewedByAssisted: "human-assisted review",
   } : {
     captureTitle: "After play: save 1–3 hands first",
-    captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward.",
+    captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward. One hand is an observation, not proof of a frequency or a global player type.",
     workflow: "Order: 1) save 1–3 hands → 2) review one → 3) only if needed, assign mistake practice or open normal Review later.",
     stakes: "Stakes",
     heroPosition: "Hero position",
