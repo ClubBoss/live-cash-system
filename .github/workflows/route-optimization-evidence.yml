@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: route-optimization-evidence
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
