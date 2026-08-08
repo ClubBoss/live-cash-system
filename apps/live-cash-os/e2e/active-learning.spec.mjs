@@ -55,7 +55,7 @@ test("new lesson rhythm moves from one compact explanation directly into applica
 
   await chooseOption(page, "$270 против A и $900 против B");
   await chooseOption(page, "Effective stack считается отдельно для каждой релевантной пары");
-  await page.getByRole("button", { name: /^Зафиксировать решение/ }).click();
+  await page.getByRole("button", { name: "Ответить", exact: true }).click();
   await expect(page.getByText("Effective stack считается отдельно для каждой релевантной пары", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Продолжить/ }).click();
 
@@ -73,7 +73,7 @@ test("lesson summary says what was checked and keeps delayed retention explicitl
 
   await expect(page.getByText("Что уже проверено", { exact: true })).toBeVisible();
   await expect(page.getByText(/Проверка после паузы ещё не проводилась/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: /ещё не мастерство/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Теперь её нужно закрепить/i })).toBeVisible();
 });
 
 test("active-learning hierarchy remains bilingual without exposing hidden Russian detail in English", async ({ page }) => {
