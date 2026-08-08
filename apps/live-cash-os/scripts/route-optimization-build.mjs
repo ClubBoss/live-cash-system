@@ -133,7 +133,8 @@ async function patchModelFacade() {
   source = replaceOnce(
     source,
     `const EXPLICIT_TRANSFER_PROBES: Readonly<Record<string, TransferProbe>> = {`,
-    `export function moduleAvailable(state: LearnerState, moduleId: ModuleId, _legacyPrerequisites: readonly ModuleId[]): boolean {
+    `export function moduleAvailable(state: LearnerState, moduleId: ModuleId, legacyPrerequisites: readonly ModuleId[]): boolean {
+  void legacyPrerequisites;
   return HARD_PREREQUISITES[moduleId].every((required) => state.modules[required].contentCompleted);
 }
 
