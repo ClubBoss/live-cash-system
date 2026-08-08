@@ -138,6 +138,7 @@ test("real-hand required fields are deterministic and insufficient review is rep
   const reviewed = wave7.reviewFieldHand(captured, note.id, "INSUFFICIENT", "Villain position and action timing are not reliable enough to review the decision.");
   assert.equal(reviewed.fieldNotes[0].status, "INSUFFICIENT");
   assert.equal(reviewed.fieldNotes[0].reviewOutcome, "INSUFFICIENT");
+  assert.equal(reviewed.fieldNotes[0].reviewerKind, "SELF");
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
 });
 
@@ -162,25 +163,38 @@ test("result addition cannot rewrite the pre-result decision snapshot", async ()
   assert.equal(next.fieldNotes[0].showdown, "AQ");
 });
 
-test("raw captured hand and one reviewed supporting hand cannot create FIELD_VALIDATED", async () => {
+test("self-review cannot create field-transfer evidence", async () => {
+  const wave7 = await wave7Promise;
+  const captured = await capturedHand();
+  const note = captured.fieldNotes[0];
+  const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "My own review thinks this matches the mechanism.", "SELF");
+  assert.equal(reviewed.fieldNotes[0].reviewerKind, "SELF");
+  assert.equal(reviewed.fieldNotes[0].reviewOutcome, "REVIEWED_OK");
+  assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
+  assert.equal(reviewed.modules.geometry.evidence.field_transfer.successes, 0);
+  assert.notEqual(reviewed.modules.geometry.state, "FIELD_VALIDATED");
+});
+
+test("raw captured hand and one human-reviewed supporting hand cannot create FIELD_VALIDATED", async () => {
   const wave7 = await wave7Promise;
   const captured = await capturedHand();
   assert.equal(captured.modules.geometry.evidence.field_transfer.exposures, 0);
   const note = captured.fieldNotes[0];
-  const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "The cue and reason match the reviewed mechanism.");
+  const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "The cue and reason match the reviewed mechanism.", "HUMAN");
+  assert.equal(reviewed.fieldNotes[0].reviewerKind, "HUMAN");
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.successes, 1);
   assert.notEqual(reviewed.modules.geometry.state, "FIELD_VALIDATED");
 });
 
-test("two supporting hands alone cannot bypass retention and variant requirements", async () => {
+test("two human-reviewed supporting hands alone cannot bypass retention and variant requirements", async () => {
   const wave7 = await wave7Promise;
   const model = await modelPromise;
   let state = model.emptyLearnerState();
   state.modules.geometry.contentCompleted = true;
   state = wave7.captureFieldHand(state, hand({ cue: "cue one" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First independent reviewed hand.");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First independent reviewed hand.", "HUMAN");
   state = wave7.captureFieldHand(state, hand({ cue: "cue two", actionSequence: "BTN opens, BB calls; different hand" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second independent reviewed hand.");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second independent reviewed hand.", "HUMAN_ASSISTED");
   assert.equal(state.modules.geometry.evidence.field_transfer.successes, 2);
   assert.notEqual(state.modules.geometry.state, "FIELD_VALIDATED");
   assert.equal(state.modules.geometry.evidence.retention.successes, 0);
@@ -195,9 +209,9 @@ test("full field evidence combination can produce FIELD_VALIDATED", async () => 
   state.modules.geometry.evidence.retention = { exposures: 1, successes: 1, distinctNodes: ["retained-node"], lastAt: "2026-08-07T09:00:00.000Z" };
   state.modules.geometry.evidence.variant_transfer = { exposures: 1, successes: 1, distinctNodes: ["changed-node:MEDIUM"], lastAt: "2026-08-07T09:00:00.000Z" };
   state = wave7.captureFieldHand(state, hand({ cue: "first support" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First reviewed transfer hand.");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First reviewed transfer hand.", "HUMAN");
   state = wave7.captureFieldHand(state, hand({ cue: "second support", board: "8s 7s 6d" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second reviewed transfer hand.");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second reviewed transfer hand.", "HUMAN_ASSISTED");
   assert.equal(state.modules.geometry.state, "FIELD_VALIDATED");
 });
 
