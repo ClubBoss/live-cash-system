@@ -7,13 +7,19 @@ on:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
       - ".github/workflows/live-cash-os-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/live-cash-os/**"
+      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - ".github/workflows/live-cash-os-ci.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-main
+  group: live-cash-os-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
