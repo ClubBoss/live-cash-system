@@ -89,9 +89,9 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   const reviewItem = input.mode === "review" ? activeReviewItem(state, sourceReviewId) : undefined;
   const repairItem = input.mode === "repair" ? activeRepairItem(state, input.moduleId, sourceReviewId) : undefined;
 
-  // An explicit queue identity is authoritative. If it is stale or no longer due,
-  // the submission is a no-op rather than being rebound to a neighbouring task.
-  if (input.mode === "review" && sourceReviewId !== undefined && !reviewItem) return state;
+  // An explicit queue identity is authoritative. If it is stale, belongs to a
+  // different module, or is no longer due, the submission is a complete no-op.
+  if (input.mode === "review" && sourceReviewId !== undefined && (!reviewItem || reviewItem.moduleId !== input.moduleId)) return state;
   if (input.mode === "repair" && sourceReviewId !== undefined && !repairItem) return state;
 
   const normalized: DrillEvidenceInput = {
