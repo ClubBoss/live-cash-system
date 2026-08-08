@@ -84,7 +84,8 @@ test("lesson summary reports evidence without turning completion into mastery", 
   assert.match(summary, /actionPassed/);
   assert.match(summary, /reasonPassed/);
   assert.match(summary, /delayedChecked/);
-  assert.match(summary, /ещё не проводилась/);
+  assert.match(summary, /Этот урок не проверял удержание после паузы/);
+  assert.match(summary, /Тема вернётся позже без свежей подсказки/);
   assert.match(summary, /not proof of delayed retention/);
 
   const completeLessonStart = indexOfOrFail(model, "export function completeLesson");
