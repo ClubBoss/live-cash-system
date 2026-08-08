@@ -20,6 +20,12 @@ import {
 } from "../content/i18n/learner-ui";
 import { allCards, drillById, moduleById, modules } from "../content/modules";
 import type { Drill, ModuleContent, Option } from "../content/types";
+import {
+  isTableBurst,
+  selectRetentionDrillId,
+  selectTableBurstDrillIds,
+  shouldFadeDecisionContext,
+} from "../lib/automaticity";
 import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/diagnostic-import";
 import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
 import { HARD_PREREQUISITES, planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
@@ -195,7 +201,7 @@ function dailyPlanItemCopy(locale: LocaleCode, item: PlanItem): { title: string;
       boundary: { title: "Проверить границу правила", reason: "Короткий контраст помогает не превращать правило в автопилот." },
       mixed: { title: "Смешанная практика", reason: "Темы перемешаны, чтобы решение начиналось с распознавания ситуации." },
       new: { title: "Изучить один новый механизм", reason: "Сегодня добавляем не больше одной новой идеи." },
-      warmup: { title: "Быстрая разминка перед игрой", reason: "До трёх знакомых подсказок, без новых тем." },
+      warmup: { title: "Быстрая разминка перед игрой", reason: "Одно знакомое решение из недавней ошибки и до двух изученных карточек. Новых тем нет." },
       done: { title: "На сейчас достаточно", reason: "Срочных повторений нет; можно вернуться позже или выбрать практику вручную." },
     },
     en: {
@@ -209,7 +215,7 @@ function dailyPlanItemCopy(locale: LocaleCode, item: PlanItem): { title: string;
       boundary: { title: "Test the edge of the rule", reason: "A short contrast helps prevent autopilot." },
       mixed: { title: "Mixed practice", reason: "Topics are mixed so the first job is recognising the spot." },
       new: { title: "Learn one new mechanism", reason: "Add no more than one new idea today." },
-      warmup: { title: "Quick pre-session warm-up", reason: "Up to three familiar prompts, with no new topics." },
+      warmup: { title: "Quick pre-session warm-up", reason: "One familiar decision from a recent miss plus up to two studied cards. No new topics." },
       done: { title: "Enough for now", reason: "Nothing urgent is due; return later or choose practice manually." },
     },
   };
@@ -298,9 +304,10 @@ function transferProbeFor(drill: Drill): TransferProbe | null {
   return null;
 }
 
-function selectRepair(state: LearnerState, moduleId: ModuleId): { drills: Drill[]; sourceReviewId?: string } {
+function selectRepair(state: LearnerState, moduleId: ModuleId, sourceReviewId?: string): { drills: Drill[]; sourceReviewId?: string } {
   const module = moduleById[moduleId];
-  const target = dueReviewItems(state).find((item) => item.moduleId === moduleId && item.kind === "repair");
+  const dueRepairs = dueReviewItems(state).filter((item) => item.moduleId === moduleId && item.kind === "repair");
+  const target = dueRepairs.find((item) => item.id === sourceReviewId) ?? dueRepairs[0];
   const candidateRules = target
     ? [target.sourceActionOptionId, target.sourceReasonOptionId]
       .filter((optionId): optionId is string => Boolean(optionId))
@@ -320,13 +327,12 @@ function selectRepair(state: LearnerState, moduleId: ModuleId): { drills: Drill[
   return { drills: drills.length ? drills : module.drills.slice(0, 1), sourceReviewId: target?.id };
 }
 
-function selectReview(state: LearnerState, limit = 3): Drill[] {
-  return dueReviewItems(state)
-    .filter((item) => item.kind === "retention")
-    .slice(0, limit)
-    .map((item) => moduleById[item.moduleId].drills.find((drill) => drill.variantGroup === item.variantGroup && drill.id !== item.sourceDrillId)
-      ?? moduleById[item.moduleId].drills.find((drill) => drill.kind === "changed")
-      ?? moduleById[item.moduleId].drills[0]);
+function selectReview(state: LearnerState): { drills: Drill[]; sourceReviewId?: string } {
+  const target = dueReviewItems(state).find((item) => item.kind === "retention");
+  if (!target) return { drills: [] };
+  const drillId = selectRetentionDrillId(target, SCHEDULER_CATALOG, `${state.revision}:${target.id}`);
+  const drill = drillId ? drillById[drillId] : undefined;
+  return { drills: drill ? [drill] : [], sourceReviewId: target.id };
 }
 
 function selectMixed(state: LearnerState): Drill[] {
@@ -386,7 +392,7 @@ export default function LiveCashAppV11() {
   const planningNow = Date.now();
   const plan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: dailyBudget, now: planningNow, seed: `${state.revision}:${dailyBudget}` });
   const warmupPlan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: "warmup", now: planningNow, seed: `${state.revision}:warmup` });
-  const warmupCardIds = warmupPlan.items[0]?.cardIds ?? [];
+  const warmupCardIds = warmupPlan.items.flatMap((item) => item.cardIds ?? []);
   const session = state.activeSession;
 
   function changeLocale(next: LocaleCode) {
@@ -416,17 +422,17 @@ export default function LiveCashAppV11() {
     setTab("learn");
   }
 
-  function openRepair(moduleId: ModuleId) {
-    const selection = selectRepair(state, moduleId);
+  function openRepair(moduleId: ModuleId, warmup = false, sourceReviewId?: string) {
+    const selection = selectRepair(state, moduleId, sourceReviewId);
     if (!selection.drills.length) return;
-    setState(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId));
+    setState(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), warmup ? -1 : 0, selection.sourceReviewId));
     setTab("learn");
   }
 
-  function openReview(limit = 3) {
-    const drills = selectReview(state, limit);
-    if (!drills.length) { setTab("review"); return; }
-    setState(startSession(state, "review", drills[0].moduleId, drills.map((drill) => drill.id)));
+  function openReview() {
+    const selection = selectReview(state);
+    if (!selection.drills.length) { setTab("review"); return; }
+    setState(startSession(state, "review", selection.drills[0].moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId));
     setTab("learn");
   }
 
@@ -436,18 +442,35 @@ export default function LiveCashAppV11() {
     setTab("learn");
   }
 
-  function runToday() {
-    const item = plan.items[0];
+  function openBurst() {
+    const drillIds = selectTableBurstDrillIds(state, SCHEDULER_CATALOG, `${state.revision}:table-burst`);
+    const first = drillIds.length ? drillById[drillIds[0]] : undefined;
+    if (!first) return;
+    setState(startSession(state, "mixed", first.moduleId, drillIds));
+    setTab("learn");
+  }
+
+  function runPlan(selectedPlan: DailyPlan, warmup = false) {
+    const item = selectedPlan.items[0];
     if (!item || item.kind === "done") return;
     if (item.kind === "resume") { setTab("learn"); return; }
-    if (item.kind === "review") { openReview(1); return; }
-    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId); return; }
+    if (item.kind === "review") { openReview(); return; }
+    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId, warmup, item.sourceReviewId); return; }
     if (item.kind === "lesson" && item.moduleId) { openLesson(item.moduleId); return; }
     if (item.kind === "cards") { setTab("cards"); return; }
     if ((item.kind === "practice" || item.kind === "mixed") && item.moduleId && item.drillIds?.length) {
       setState(startSession(state, item.kind === "mixed" ? "mixed" : "practice", item.moduleId, item.drillIds));
       setTab("learn");
     }
+  }
+
+  function runToday() {
+    runPlan(plan, dailyBudget === "warmup");
+  }
+
+  function runWarmup() {
+    setDailyBudget("warmup");
+    runPlan(warmupPlan, true);
   }
 
   function exitSession() {
@@ -477,10 +500,10 @@ export default function LiveCashAppV11() {
     <div className="sr-live" aria-live="polite">{notice}</div>
     {notice && <div className="notice"><span>{notice}</span><button onClick={() => setNotice("")}>{t.close}</button></div>}
 
-    {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onLearn={() => setTab("learn")} onCards={() => setTab("cards")} onDiagnostic={() => setTab("diagnostic")} onField={() => setTab("field")} />}
-    {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} />}
-    {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} />}
-    {tab === "review" && <Review locale={locale} state={state} onReview={openReview} onRepair={openRepair} />}
+    {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onWarmup={runWarmup} onLearn={() => setTab("learn")} onDiagnostic={() => setTab("diagnostic")} onField={() => setTab("field")} />}
+    {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} onBurst={openBurst} />}
+    {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} onWarmupCards={() => setTab("cards")} />}
+    {tab === "review" && <Review locale={locale} state={state} onReview={openReview} onRepair={(moduleId) => openRepair(moduleId)} />}
     {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} onLearn={() => setTab("learn")} />}
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
     {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
@@ -489,7 +512,7 @@ export default function LiveCashAppV11() {
   </main>;
 }
 
-function Today({ locale, state, plan, budget, onBudget, onRun, onLearn, onCards, onDiagnostic, onField }: { locale: LocaleCode; state: LearnerState; plan: DailyPlan; budget: DailyBudget; onBudget: (value: DailyBudget) => void; onRun: () => void; onLearn: () => void; onCards: () => void; onDiagnostic: () => void; onField: () => void }) {
+function Today({ locale, state, plan, budget, onBudget, onRun, onWarmup, onLearn, onDiagnostic, onField }: { locale: LocaleCode; state: LearnerState; plan: DailyPlan; budget: DailyBudget; onBudget: (value: DailyBudget) => void; onRun: () => void; onWarmup: () => void; onLearn: () => void; onDiagnostic: () => void; onField: () => void }) {
   const t = runtimeCopy[locale];
   const primary = plan.items[0];
   const hasPlanAction = Boolean(primary && primary.kind !== "done");
@@ -512,8 +535,8 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onLearn, onCards,
         ? "Новая тема не режется на случайные 5 минут: первый урок рассчитан примерно на 8 минут. Выбери 15 минут, чтобы пройти его целиком."
         : "A new topic is not cut into an arbitrary 5-minute fragment: the first lesson is about 8 minutes. Choose 15 minutes to complete it cleanly."
       : locale === "ru"
-        ? "Режим «Перед игрой» использует только уже изученные карточки. Сначала пройди первый урок — после этого здесь появится разминка."
-        : "Before play uses only cards from topics you have already studied. Complete the first lesson first; then a warm-up will appear here."
+        ? "Режим «Перед игрой» использует только уже изученный материал. Сначала пройди первый урок — после этого здесь появится разминка."
+        : "Before play uses only material you have already studied. Complete the first lesson first; then a warm-up will appear here."
     : locale === "ru"
       ? "По выбранному времени или режиму срочных задач нет. Можно открыть обучение вручную."
       : "There is nothing urgent for the selected time or mode. You can open Learn manually.";
@@ -554,14 +577,14 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onLearn, onCards,
       <article><p className="eyebrow">{locale === "ru" ? "ПЛАН" : "PLAN"}</p><h3>{locale === "ru" ? "Что входит дальше" : "What comes next"}</h3>{plan.items.slice(0, 3).map((item, index) => { const copy = dailyPlanItemCopy(locale, item); return <p key={`${item.kind}-${item.moduleId ?? index}`}>{index + 1}. {copy.title} · ≈{item.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p>; })}</article>
       <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{locale === "ru" ? "Открыть диагностику →" : "Open Diagnostic →"}</button></article>
       <article><p className="eyebrow">{locale === "ru" ? "РАЗБОР" : "REVIEW"}</p><h3>{locale === "ru" ? "Реальные руки и объяснения" : "Real hands and explanations"}</h3><p>{pendingHuman > 0 ? (locale === "ru" ? pendingHuman + " записей ждут явного разбора." : pendingHuman + " records are waiting for explicit review.") : (locale === "ru" ? "Запиши решение до результата или открой историю объяснений." : "Record a decision before the result or review your explanation history.")}</p><button className="textbutton" onClick={onField}>{locale === "ru" ? "Открыть разбор" : "Open review"}</button></article>
-      <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{t.warmupDescription}</p><button className="textbutton" onClick={onCards}>{t.quickWarmup}</button></article>
+      <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{locale === "ru" ? "Одно знакомое решение из ошибки, затем до двух карточек. Если ошибки нет — только карточки." : "One familiar decision from a miss, then up to two cards. If no repair is due, use cards only."}</p><button className="textbutton" onClick={onWarmup}>{t.quickWarmup}</button></article>
     </section>
     <section className="integrity"><h2>{t.integrityTitle}</h2><p>{t.integrityBody}</p></section>
     <LearningRoute locale={locale} />
   </>;
 }
 
-function Learn({ locale, state, onLesson, onPractice, onMixed }: { locale: LocaleCode; state: LearnerState; onLesson: (id: ModuleId) => void; onPractice: (id: ModuleId) => void; onMixed: () => void }) {
+function Learn({ locale, state, onLesson, onPractice, onMixed, onBurst }: { locale: LocaleCode; state: LearnerState; onLesson: (id: ModuleId) => void; onPractice: (id: ModuleId) => void; onMixed: () => void; onBurst: () => void }) {
   const t = runtimeCopy[locale];
   const completedCount = modules.filter((module) => state.modules[module.id].contentCompleted).length;
   return <section className="surface">
@@ -582,17 +605,18 @@ function Learn({ locale, state, onLesson, onPractice, onMixed }: { locale: Local
         </div>
       </article>;
     })}</div>
-    {completedCount < 3 && <p className="support">{locale === "ru" ? `Смешанная практика откроется после трёх пройденных тем. Сейчас: ${completedCount}/3.` : `Mixed practice opens after three completed topics. Current: ${completedCount}/3.`}</p>}
+    {completedCount < 3 && <p className="support">{locale === "ru" ? `Смешанная практика и Table Burst откроются после трёх пройденных тем. Сейчас: ${completedCount}/3.` : `Mixed practice and Table Burst open after three completed topics. Current: ${completedCount}/3.`}</p>}
     <button className="secondary wide" disabled={completedCount < 3} onClick={onMixed}>{t.mixedBlock}</button>
+    <button className="secondary wide" disabled={completedCount < 3} onClick={onBurst}>{locale === "ru" ? "Table Burst · 8 быстрых решений" : "Table Burst · 8 fast decisions"}</button>
   </section>;
 }
 
-function Session({ locale, state, setState, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void }) {
+function Session({ locale, state, setState, onExit, onWarmupCards }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void }) {
   const session = state.activeSession;
   if (!session) return null;
   return session.mode === "lesson"
     ? <LessonSession locale={locale} state={state} setState={setState} source={moduleById[session.moduleId]} onExit={onExit} />
-    : <PracticeSession locale={locale} state={state} setState={setState} onExit={onExit} />;
+    : <PracticeSession locale={locale} state={state} setState={setState} onExit={onExit} onWarmupCards={onWarmupCards} />;
 }
 
 function SessionHeader({ locale, label, progress, onExit }: { locale: LocaleCode; label: string; progress: number; onExit?: () => void }) {
@@ -780,17 +804,42 @@ function LessonSummary({ locale, state, module, onFinish }: { locale: LocaleCode
   </section>;
 }
 
-function PracticeSession({ locale, state, setState, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void }) {
+function PracticeSession({ locale, state, setState, onExit, onWarmupCards }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void }) {
   const session = state.activeSession!;
+  const burst = isTableBurst(session.mode, session.drillIds.length);
+  const interactions = state.interactions.filter((item) => Date.parse(item.at) >= Date.parse(session.startedAt) && item.mode === session.mode);
+
+  if (burst && session.step === 2) {
+    const issueCounts = new Map<ModuleId, number>();
+    for (const interaction of interactions) {
+      const targetSeconds = drillById[interaction.drillId]?.targetSeconds ?? Number.POSITIVE_INFINITY;
+      if (interaction.actionOk && interaction.reasonOk && interaction.elapsedSeconds <= targetSeconds) continue;
+      issueCounts.set(interaction.moduleId, (issueCounts.get(interaction.moduleId) ?? 0) + 1);
+    }
+    const recurring = [...issueCounts.entries()].sort((left, right) => right[1] - left[1]).find(([, count]) => count >= 2);
+    const recurringCopy = recurring
+      ? locale === "ru"
+        ? `Только в этой серии: в ${localizedModule(moduleById[recurring[0]], locale).shortTitle} заминка или ошибка повторилась ${recurring[1]} раза. Это повод вернуться к механизму, а не глобальный вывод о твоей игре.`
+        : `This burst only: hesitation or an error repeated ${recurring[1]} times in ${localizedModule(moduleById[recurring[0]], locale).shortTitle}. That is a reason to revisit the mechanism, not a global claim about your play.`
+      : locale === "ru"
+        ? "В этой серии повторяющегося сигнала ошибки или медленного решения не видно. Это относится только к этим восьми спотам."
+        : "No recurring error or slow-decision signal appeared in this burst. This statement applies only to these eight spots.";
+    return <section className="session"><SessionHeader locale={locale} label="Table Burst · 8/8" progress={100} onExit={onExit} /><p className="eyebrow">{locale === "ru" ? "ИТОГ СЕРИИ" : "BURST SUMMARY"}</p><h2>{locale === "ru" ? "Восемь решений без названий тем." : "Eight decisions without topic labels."}</h2><p className="support">{recurringCopy}</p><button className="primary" onClick={() => setState(completeBlock(state))}>{locale === "ru" ? "Завершить" : "Finish"} <span>→</span></button></section>;
+  }
+
   const drill = drillById[session.drillIds[session.currentIndex]];
   const advance = () => {
     if (session.currentIndex + 1 < session.drillIds.length) {
       setState(patchSession(state, { currentIndex: session.currentIndex + 1, selectedActionId: null, selectedReasonId: null, confidence: 65, itemStartedAt: new Date().toISOString() }));
+    } else if (burst) {
+      setState(patchSession(state, { step: 2, selectedActionId: null, selectedReasonId: null }));
     } else {
       setState(completeBlock(state, session.mode === "practice" || session.mode === "repair" ? session.moduleId : undefined));
+      if (session.mode === "repair" && session.step === -1) onWarmupCards();
     }
   };
-  return <section className="session"><SessionHeader locale={locale} label={`${sessionModeLabel(locale, session.mode)} · ${session.currentIndex + 1}/${session.drillIds.length}`} progress={Math.round(((session.currentIndex + 1) / session.drillIds.length) * 100)} onExit={onExit} /><Decision locale={locale} state={state} setState={setState} drill={drill} onContinue={advance} /><div className="mini-results">{(["A", "B", "C", "D"] as ResponseClass[]).map((kind) => <span key={kind}>{responseClassShortLabel(locale, kind)}: {state.interactions.filter((item) => Date.parse(item.at) >= Date.parse(session.startedAt) && item.responseClass === kind).length}</span>)}</div></section>;
+  const header = burst ? `Table Burst · ${session.currentIndex + 1}/${session.drillIds.length}` : `${sessionModeLabel(locale, session.mode)} · ${session.currentIndex + 1}/${session.drillIds.length}`;
+  return <section className="session"><SessionHeader locale={locale} label={header} progress={Math.round(((session.currentIndex + 1) / session.drillIds.length) * 100)} onExit={onExit} /><Decision locale={locale} state={state} setState={setState} drill={drill} onContinue={advance} /><div className="mini-results">{(["A", "B", "C", "D"] as ResponseClass[]).map((kind) => <span key={kind}>{responseClassShortLabel(locale, kind)}: {interactions.filter((item) => item.responseClass === kind).length}</span>)}</div></section>;
 }
 
 function Decision({ locale, state, setState, drill, onContinue }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; drill: Drill; onContinue: () => void }) {
@@ -829,10 +878,18 @@ function Decision({ locale, state, setState, drill, onContinue }: { locale: Loca
 
   if (interaction) {
     const responseClass = classifyResponse(interaction.actionOk, interaction.reasonOk);
-    return <div className="feedback-view" aria-live="polite"><p className="eyebrow">{decisionReviewLabel(locale)}</p><h2>{classMessage(locale, responseClass)}</h2><div className="answer-panel"><b>{t.workingAction}</b><p>{drill.actionOptions.find((item) => item.id === drill.correctActionId)?.text}</p><b>{t.why}</b><p>{drill.reasonOptions.find((item) => item.id === drill.correctReasonId)?.text}</p></div><p className="support">{drill.explanation}</p><p className="assumption-strip">{t.assumptions}: {drill.assumptions.join(" · ")}</p><button className="primary" onClick={onContinue}>{t.continue} <span>→</span></button></div>;
+    const selectedAction = drill.actionOptions.find((item) => item.id === interaction.selectedActionOptionId)?.text ?? "—";
+    const selectedReason = drill.reasonOptions.find((item) => item.id === interaction.selectedReasonOptionId)?.text ?? "—";
+    const workingAction = drill.actionOptions.find((item) => item.id === drill.correctActionId)?.text;
+    const workingReason = drill.reasonOptions.find((item) => item.id === drill.correctReasonId)?.text;
+    const burst = isTableBurst(session.mode, session.drillIds.length);
+    const needsExplanation = !burst || !interaction.actionOk || !interaction.reasonOk || interaction.confidence < 50;
+    const copy = locale === "ru" ? { yours: "Твой выбор", working: "Рабочий выбор", action: "Действие", reason: "Причина" } : { yours: "Your choice", working: "Working choice", action: "Action", reason: "Reason" };
+    return <div className="feedback-view" aria-live="polite"><p className="eyebrow">{decisionReviewLabel(locale)}</p><h2>{classMessage(locale, responseClass)}</h2><div className="answer-panel"><b>{copy.yours}</b><p>{copy.action}: {selectedAction}</p><p>{copy.reason}: {selectedReason}</p><b>{copy.working}</b><p>{copy.action}: {workingAction}</p><p>{copy.reason}: {workingReason}</p></div>{needsExplanation && <><p className="support">{drill.explanation}</p><p className="assumption-strip">{t.assumptions}: {drill.assumptions.join(" · ")}</p></>}<button className="primary" onClick={onContinue}>{t.continue} <span>→</span></button></div>;
   }
 
-  return <div className="decision-card"><p className="eyebrow">{moduleById[drill.moduleId].lcm} · {drillKindLabel(locale, drill.kind)}</p><p className="cue">{drill.cue}</p><h2>{drill.question}</h2><p className="assumption-strip">{t.conditions}: {drill.assumptions.join(" · ")}</p><OptionGroup legend={t.chooseAction} options={actionOptions} selected={session.selectedActionId} onSelect={(selectedActionId) => setState(patchSession(state, { selectedActionId }))} /><OptionGroup legend={t.chooseReason} options={reasonOptions} selected={session.selectedReasonId} onSelect={(selectedReasonId) => setState(patchSession(state, { selectedReasonId }))} /><label className="confidence">{t.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {session.confidence}%</b><input type="range" min="0" max="100" step="5" value={session.confidence} onChange={(event) => setState(patchSession(state, { confidence: Number(event.target.value) }))} /></label><p className="support">{confidenceHelp(locale)}</p>{missingDecisionParts.length > 0 && <p className="support">{locale === "ru" ? `Чтобы ответить, выбери ${missingDecisionParts.join(" и ")}.` : `To submit, choose ${missingDecisionParts.join(" and ")}.`}</p>}<button className="primary" disabled={missingDecisionParts.length > 0} onClick={lock}>{t.lockDecision} <span>→</span></button></div>;
+  const fadedContext = shouldFadeDecisionContext(session.mode, false);
+  return <div className="decision-card"><p className="eyebrow">{fadedContext ? (locale === "ru" ? "РАСПОЗНАЙ СПОТ" : "READ THE SPOT") : `${moduleById[drill.moduleId].lcm} · ${drillKindLabel(locale, drill.kind)}`}</p><p className="cue">{drill.cue}</p><h2>{drill.question}</h2><p className="assumption-strip">{t.conditions}: {drill.assumptions.join(" · ")}</p><OptionGroup legend={t.chooseAction} options={actionOptions} selected={session.selectedActionId} onSelect={(selectedActionId) => setState(patchSession(state, { selectedActionId }))} /><OptionGroup legend={t.chooseReason} options={reasonOptions} selected={session.selectedReasonId} onSelect={(selectedReasonId) => setState(patchSession(state, { selectedReasonId }))} /><label className="confidence">{t.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {session.confidence}%</b><input type="range" min="0" max="100" step="5" value={session.confidence} onChange={(event) => setState(patchSession(state, { confidence: Number(event.target.value) }))} /></label><p className="support">{confidenceHelp(locale)}</p>{missingDecisionParts.length > 0 && <p className="support">{locale === "ru" ? `Чтобы ответить, выбери ${missingDecisionParts.join(" и ")}.` : `To submit, choose ${missingDecisionParts.join(" and ")}.`}</p>}<button className="primary" disabled={missingDecisionParts.length > 0} onClick={lock}>{t.lockDecision} <span>→</span></button></div>;
 }
 
 function OptionGroup({ legend, options, selected, onSelect }: { legend: string; options: Option[]; selected: string | null; onSelect: (id: string) => void }) {
@@ -845,7 +902,7 @@ function Review({ locale, state, onReview, onRepair }: { locale: LocaleCode; sta
   const role = locale === "ru"
     ? "Здесь только то, что пора вспомнить после паузы или исправить после сохранённой ошибки. Новые темы здесь не начинаются."
     : "This section is only for delayed recall and saved mistakes that need repair. New topics do not start here.";
-  return <section className="surface"><div className="section-head"><p className="eyebrow">{t.reviewEyebrow}</p><h1>{t.reviewTitle}<br/><em>{t.reviewEmphasis}</em></h1><p>{role}</p></div>{due.length ? <div className="queue">{due.map((item) => <article key={item.id}><span className={`kind kind-${item.kind}`}>{reviewKindLabel(locale, item.kind)}</span><h3>{localizedModule(moduleById[item.moduleId], locale).title}</h3><button className="primary" onClick={() => item.kind === "repair" ? onRepair(item.moduleId) : onReview()}>{t.start} <span>→</span></button></article>)}</div> : <div className="empty-state"><h2>{t.nothingDue}</h2><p>{t.reviewEmptyBody}</p></div>}</section>;
+  return <section className="surface"><div className="section-head"><p className="eyebrow">{t.reviewEyebrow}</p><h1>{t.reviewTitle}<br/><em>{t.reviewEmphasis}</em></h1><p>{role}</p></div>{due.length ? <div className="queue">{due.map((item) => <article key={item.id}><span className={`kind kind-${item.kind}`}>{reviewKindLabel(locale, item.kind)}</span><h3>{item.kind === "retention" ? (locale === "ru" ? "Решение после паузы" : "Delayed decision") : localizedModule(moduleById[item.moduleId], locale).title}</h3><button className="primary" onClick={() => item.kind === "repair" ? onRepair(item.moduleId) : onReview()}>{t.start} <span>→</span></button></article>)}</div> : <div className="empty-state"><h2>{t.nothingDue}</h2><p>{t.reviewEmptyBody}</p></div>}</section>;
 }
 
 function Cards({ locale, state, setState, warmupIds, onLearn }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; warmupIds: string[]; onLearn: () => void }) {

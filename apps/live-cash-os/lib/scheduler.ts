@@ -95,6 +95,7 @@ export const HARD_PREREQUISITES: Readonly<Record<ModuleId, readonly ModuleId[]>>
 const DAY = 86_400_000;
 const TARGET_MINUTES: Record<DailyBudget, number> = { "5": 5, "15": 15, "30": 30, warmup: 2, post: 10 };
 const DUE_LIMIT: Record<DailyBudget, number> = { "5": 2, "15": 4, "30": 6, warmup: 0, post: 4 };
+const HIGH_CONFIDENCE_WRONG_THRESHOLD = 75;
 
 function hash(value: string): number {
   let result = 2166136261;
@@ -133,10 +134,19 @@ function recommendedRank(moduleId: ModuleId, catalog: SchedulerCatalog): number 
   const fallback = catalog.modules.findIndex((module) => module.id === moduleId);
   return fallback >= 0 ? RECOMMENDED_MODULE_ORDER.length + fallback : Number.MAX_SAFE_INTEGER;
 }
+function highConfidenceWrongRepair(state: LearnerState, item: ReviewItem): boolean {
+  if (item.kind !== "repair") return false;
+  const source = state.interactions.find((interaction) => interaction.id === item.sourceInteractionId);
+  return Boolean(source
+    && (!source.actionOk || !source.reasonOk)
+    && source.confidence >= HIGH_CONFIDENCE_WRONG_THRESHOLD);
+}
 function reviewScore(state: LearnerState, item: ReviewItem, now: number, ownerPriorityModules: readonly ModuleId[]): number {
   const overdueDays = daysBetween(now, parseTime(item.dueAt));
   const tier = overdueDays >= 30 ? 3 : overdueDays >= 14 ? 2 : overdueDays >= 7 ? 1 : 0;
-  const kind = item.kind === "retention" ? 500 : 400;
+  // Product heuristic: a confident wrong decision is repaired before a neutral
+  // due retrieval. This is deterministic routing, not an empirical threshold.
+  const kind = highConfidenceWrongRepair(state, item) ? 700 : item.kind === "retention" ? 500 : 400;
   return kind + tier * 100 + Math.min(30, overdueDays) + priorityBoost(state, item.moduleId, ownerPriorityModules);
 }
 function sortReviews(state: LearnerState, items: ReviewItem[], now: number, seed: string, ownerPriorityModules: readonly ModuleId[]): ReviewItem[] {
@@ -218,7 +228,7 @@ export function selectWarmupCardIds(
       return { card, score };
     })
     .sort((left, right) => right.score - left.score || deterministicTie(seed, left.card.id) - deterministicTie(seed, right.card.id))
-    .slice(0, 3)
+    .slice(0, 2)
     .map(({ card }) => card.id);
 }
 
@@ -238,20 +248,33 @@ export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog
     returnAfterBreak: absenceDays >= 7,
   };
 
-  if (options.budget === "warmup") {
-    const cardIds = selectWarmupCardIds(state, catalog, options.now, options.seed, ownerPriorityModules);
-    plan.items.push(cardIds.length
-      ? { kind: "cards", cardIds, estimatedMinutes: 2, reasonCode: "warmup" }
-      : { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
-    plan.estimatedMinutes = cardIds.length ? 2 : 0;
-    return plan;
-  }
-
   if (state.activeSession) {
     const remaining = Math.max(1, state.activeSession.drillIds.length - state.activeSession.currentIndex);
     const estimate = Math.min(targetMinutes, Math.max(2, remaining * 2));
     plan.items.push({ kind: "resume", moduleId: state.activeSession.moduleId, estimatedMinutes: estimate, reasonCode: "resume" });
     plan.estimatedMinutes = estimate;
+    return plan;
+  }
+
+  if (options.budget === "warmup") {
+    const dueRepairs = sortReviews(
+      state,
+      state.reviewQueue.filter((item) => item.kind === "repair" && parseTime(item.dueAt) <= options.now),
+      options.now,
+      `${options.seed}:warmup-repair`,
+      ownerPriorityModules,
+    );
+    const repair = dueRepairs[0];
+    const cardIds = selectWarmupCardIds(state, catalog, options.now, options.seed, ownerPriorityModules);
+    if (repair) {
+      plan.items.push({ kind: "repair", moduleId: repair.moduleId, sourceReviewId: repair.id, estimatedMinutes: 1, reasonCode: "warmup" });
+      if (cardIds.length) plan.items.push({ kind: "cards", cardIds, estimatedMinutes: 1, reasonCode: "warmup" });
+    } else if (cardIds.length) {
+      plan.items.push({ kind: "cards", cardIds, estimatedMinutes: 1, reasonCode: "warmup" });
+    } else {
+      plan.items.push({ kind: "done", estimatedMinutes: 0, reasonCode: "done" });
+    }
+    plan.estimatedMinutes = plan.items.reduce((sum, item) => sum + item.estimatedMinutes, 0);
     return plan;
   }
 

@@ -46,7 +46,7 @@ test("mixed practice requires three completed topics and conceals the topic befo
   await seedCompletedModules(page, ["geometry", "preflop"]);
   await page.getByRole("button", { name: "Учиться" }).click();
   const mixed = page.getByRole("button", { name: "Смешанная практика" });
-  await expect(page.getByText(/Смешанная практика откроется после трёх пройденных тем. Сейчас: 2\/3/i)).toBeVisible();
+  await expect(page.getByText(/Смешанная практика и Table Burst откроются после трёх пройденных тем. Сейчас: 2\/3/i)).toBeVisible();
   await expect(mixed).toBeDisabled();
 
   await seedCompletedModules(page, ["geometry", "preflop", "blinds"]);

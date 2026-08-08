@@ -55,7 +55,9 @@ test("new lesson rhythm moves from one compact explanation directly into applica
   await chooseOption(page, "$270 против A и $900 против B");
   await chooseOption(page, "Эффективный стек считается отдельно против каждого соперника");
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  await expect(page.getByText("Эффективный стек считается отдельно против каждого соперника", { exact: true })).toBeVisible();
+  const feedback = page.locator(".feedback-view");
+  await expect(feedback).toContainText("Твой выбор");
+  await expect(feedback).toContainText("Эффективный стек считается отдельно против каждого соперника");
   await page.getByRole("button", { name: /^Продолжить/ }).click();
 
   const solveExample = page.getByRole("button", { name: /^Сначала решить пример/ });
