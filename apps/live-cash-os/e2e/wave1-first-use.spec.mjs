@@ -20,7 +20,7 @@ test("fresh RU first use exposes purpose, one next action, seven destinations an
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await expect(page.getByText(/Открой одно задание на сегодня/i)).toBeVisible();
   await expect(page.getByText(/Это не общий процент мастерства/i)).toBeVisible();
-  await expectPrimaryTabs(page, ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Проверка"]);
+  await expectPrimaryTabs(page, ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"]);
 
   const start = page.getByRole("button", { name: "Начать", exact: true });
   await expect(start).toBeVisible();
@@ -35,7 +35,7 @@ test("fresh EN first use preserves the same information architecture and direct 
   await expect(page.getByRole("heading", { name: /Learn in small blocks/i })).toBeVisible();
   await expect(page.getByText(/Open one useful task for today/i)).toBeVisible();
   await expect(page.getByText(/not one overall mastery score/i)).toBeVisible();
-  await expectPrimaryTabs(page, ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Check"]);
+  await expectPrimaryTabs(page, ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Diagnostic"]);
 
   const start = page.getByRole("button", { name: "Start", exact: true });
   await expect(start).toBeVisible();
@@ -72,7 +72,7 @@ test("starting diagnostic exposes purpose, optionality, duration, output, skip p
   await expect(page.getByText(/После отдельного разбора/i)).toBeVisible();
   await expect(page.getByText(/Можно пропустить и сразу начать первый урок/i)).toBeVisible();
 
-  await page.getByRole("button", { name: "Проверка", exact: true }).click();
+  await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
   await expect(page.getByText(/Ответы сохранятся для отдельного разбора/i)).toBeVisible();
@@ -84,7 +84,7 @@ test("mobile fresh first use keeps the primary action and all seven destinations
   await openFresh(page);
 
   await expect(page.getByRole("button", { name: "Начать", exact: true })).toBeVisible();
-  await expectPrimaryTabs(page, ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Проверка"]);
+  await expectPrimaryTabs(page, ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"]);
   const width = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, client: document.documentElement.clientWidth }));
   expect(width.scroll).toBeLessThanOrEqual(width.client + 1);
 });
