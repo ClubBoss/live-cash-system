@@ -13,6 +13,7 @@ import {
   reviewFieldHand,
   validateFieldHandInput,
   type FieldHandInput,
+  type FieldReviewerKind,
   type FieldReviewOutcome,
   type StructuredFieldNote,
 } from "../lib/wave7";
@@ -80,14 +81,21 @@ function copy(locale: LocaleCode) {
     showdown: "Шоудаун (если был)",
     addResult: "Добавить результат",
     resultRequired: "Укажи результат; шоудаун можно оставить пустым, если его не было.",
-    review: "Самопроверка",
+    review: "Разбор",
     reviewPlaceholder: "Коротко: что в решении было рабочим или что нужно исправить…",
-    reviewRequired: "Добавь короткую заметку самопроверки — без неё эти действия недоступны.",
-    selfReviewTitle: "Самопроверка не подтверждает перенос",
-    selfReviewBody: "Здесь ты можешь отметить нехватку данных, закончить самопроверку или назначить практику. Field evidence усиливается только после отдельного human / human-assisted review; самопроверка никогда не даёт SUPPORTS_TRANSFER.",
+    reviewRequired: "Добавь короткую заметку разбора — без неё эти действия недоступны.",
+    selfReviewTitle: "SELF не подтверждает перенос",
+    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. SUPPORTS_TRANSFER доступен только после отдельного human / human-assisted review.",
+    reviewerSource: "Источник разбора",
+    reviewerSourceHelp: "SELF — твоя самопроверка. HUMAN / HUMAN_ASSISTED выбирай только после реального отдельного разбора человеком. Приложение не проверяет личность reviewer.",
+    reviewerSelf: "SELF · самопроверка",
+    reviewerHuman: "HUMAN · отдельный человек",
+    reviewerAssisted: "HUMAN_ASSISTED · человек с инструментом",
+    supportTransfer: "Поддерживает перенос",
+    supportTransferHelp: "Нужны отдельный HUMAN / HUMAN_ASSISTED review, непустая заметка и решение, зафиксированное до результата.",
     legacyTransferBlocked: "Эту старую запись нельзя засчитать как поддержку переноса: в ней нет зафиксированного решения до результата.",
     insufficient: "Недостаточно данных",
-    reviewedOk: "Самопроверка закончена",
+    reviewedOk: "Разбор закончен",
     repair: "Назначить практику",
     explainInbox: "Объяснения для самопроверки",
     noInbox: "Новых explain-back для самопроверки нет.",
@@ -137,14 +145,21 @@ function copy(locale: LocaleCode) {
     showdown: "Showdown (if any)",
     addResult: "Add result",
     resultRequired: "Enter the result; showdown can stay empty if there was none.",
-    review: "Self-review",
+    review: "Review",
     reviewPlaceholder: "Briefly: what worked in the decision or what needs repair…",
-    reviewRequired: "Add a short self-review note before choosing an outcome.",
-    selfReviewTitle: "Self-review does not confirm transfer",
-    selfReviewBody: "Here you can mark missing information, finish your self-review, or assign mistake practice. Field evidence increases only after separate human / human-assisted review; self-review never awards SUPPORTS_TRANSFER.",
+    reviewRequired: "Add a short review note before choosing an outcome.",
+    selfReviewTitle: "SELF does not confirm transfer",
+    selfReviewBody: "Self-review can mark missing information, finish the review, or assign mistake practice. SUPPORTS_TRANSFER is available only after separate human / human-assisted review.",
+    reviewerSource: "Review source",
+    reviewerSourceHelp: "SELF is your own review. Choose HUMAN / HUMAN_ASSISTED only after a real separate human review occurred. The app does not verify reviewer identity.",
+    reviewerSelf: "SELF · self-review",
+    reviewerHuman: "HUMAN · separate person",
+    reviewerAssisted: "HUMAN_ASSISTED · human with a tool",
+    supportTransfer: "Supports transfer",
+    supportTransferHelp: "Requires separate HUMAN / HUMAN_ASSISTED review, a non-empty note, and a decision locked before the result.",
     legacyTransferBlocked: "This legacy note cannot support transfer because it has no decision locked before the result.",
     insufficient: "Not enough information",
-    reviewedOk: "Finish self-review",
+    reviewedOk: "Finish review",
     repair: "Assign practice",
     explainInbox: "Explanations for self-review",
     noInbox: "No new explain-back is waiting for self-review.",
@@ -214,6 +229,7 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
   const facts = fieldFactLabels(locale);
   const [hand, setHand] = useState<FieldHandInput>(emptyHand);
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+  const [reviewerKinds, setReviewerKinds] = useState<Record<string, FieldReviewerKind>>({});
   const [resultDrafts, setResultDrafts] = useState<Record<string, string>>({});
   const [showdownDrafts, setShowdownDrafts] = useState<Record<string, string>>({});
   const [explainNotes, setExplainNotes] = useState<Record<string, string>>({});
@@ -247,8 +263,9 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
   function reviewHand(noteId: string, outcome: FieldReviewOutcome) {
     const text = reviewNotes[noteId] ?? "";
+    const reviewerKind = reviewerKinds[noteId] ?? "SELF";
     if (!text.trim()) return;
-    setState(reviewFieldHand(state, noteId, outcome, text, "SELF"));
+    setState(reviewFieldHand(state, noteId, outcome, text, reviewerKind));
   }
 
   function reviewerLabel(note: StructuredFieldNote): string {
@@ -305,8 +322,10 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
       <div className="field-list">{[...(state.fieldNotes as StructuredFieldNote[])].reverse().map((note) => {
         const reviewText = reviewNotes[note.id] ?? "";
+        const reviewerKind = reviewerKinds[note.id] ?? "SELF";
         const resultText = resultDrafts[note.id] ?? "";
         const showdownText = showdownDrafts[note.id] ?? "";
+        const canSupportTransfer = reviewerKind !== "SELF" && Boolean(note.decisionLockedAt) && Boolean(reviewText.trim());
         return <article key={note.id}>
           <span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatus(locale, note, fieldStatusLabel)}</span>
           <h3>{moduleById[note.moduleId].shortTitle}</h3>
@@ -337,13 +356,17 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
           {note.status === "PENDING_REVIEW" ? <>
             <div className="answer-panel"><b>{c.selfReviewTitle}</b><p>{c.selfReviewBody}</p></div>
+            <label>{c.reviewerSource}<select aria-label={`${c.reviewerSource} ${note.id}`} value={reviewerKind} onChange={(event) => setReviewerKinds((current) => ({ ...current, [note.id]: event.target.value as FieldReviewerKind }))}><option value="SELF">{c.reviewerSelf}</option><option value="HUMAN">{c.reviewerHuman}</option><option value="HUMAN_ASSISTED">{c.reviewerAssisted}</option></select></label>
+            <p className="support">{c.reviewerSourceHelp}</p>
             <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setReviewNotes((current) => ({ ...current, [note.id]: event.target.value }))} />
             {!reviewText.trim() && <p className="support">{c.reviewRequired}</p>}
             {!note.decisionLockedAt && <p className="support">{c.legacyTransferBlocked}</p>}
+            {!canSupportTransfer && <p className="support">{c.supportTransferHelp}</p>}
             <div className="review-actions">
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "INSUFFICIENT")}>{c.insufficient}</button>
               <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
-              <button className="primary" disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
+              <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
+              <button className="primary" disabled={!canSupportTransfer} onClick={() => reviewHand(note.id, "SUPPORTS_TRANSFER")}>{c.supportTransfer}</button>
             </div>
           </> : <p className="support"><b>{c.review} ({reviewerLabel(note)}):</b> {note.evaluatorNote || "—"}</p>}
         </article>;
