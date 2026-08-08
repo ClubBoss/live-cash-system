@@ -1,9 +1,14 @@
+import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 
 const root = new URL("../", import.meta.url);
 
 async function read(relativePath) {
   return readFile(new URL(relativePath, root), "utf8");
+}
+
+async function readBytes(relativePath) {
+  return readFile(new URL(relativePath, root));
 }
 
 async function write(relativePath, value) {
@@ -15,6 +20,18 @@ function replaceOnce(source, from, to, label) {
   const count = source.split(from).length - 1;
   if (count !== 1) throw new Error(`${label}: expected exactly one source match, found ${count}`);
   return source.replace(from, to);
+}
+
+function gitBlobSha(bytes) {
+  return createHash("sha1").update(`blob ${bytes.byteLength}\0`).update(bytes).digest("hex");
+}
+
+function corpusFingerprint(sourceBlobs) {
+  const canonical = Object.entries(sourceBlobs)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([path, sha]) => `${path}=${sha}`)
+    .join("\n");
+  return createHash("sha256").update(canonical).digest("hex");
 }
 
 async function patchScheduler() {
@@ -152,7 +169,19 @@ async function patchLearnerCopy() {
   await write("components/LiveCashAppCore.tsx", coreSource);
 }
 
+async function relockReviewCorpus() {
+  const manifest = JSON.parse(await read("content/i18n/editorial-manifest.json"));
+  for (const relativePath of ["components/LiveCashAppCore.tsx", "components/Wave7Experience.tsx"]) {
+    if (!manifest.source_blobs[relativePath]) throw new Error(`manifest missing source lock ${relativePath}`);
+    manifest.source_blobs[relativePath] = gitBlobSha(await readBytes(relativePath));
+  }
+  manifest.final_composition.review_corpus_fingerprint = corpusFingerprint(manifest.source_blobs);
+  manifest.final_composition.note = "W1-W9 implementation plus Active Learning Closure and the pre-W10 route optimization are materialized on the current candidate lineage. The canonical curriculum digest and poker corpus are unchanged; the review-corpus fingerprint locks the current learner-facing presentation, evidence-hygiene copy, route gating copy, public cross-device profile copy, and W5 lab render closure. Strategy, drill, route-delta and exact final RU/EN human review remain pending. This candidate does not claim human approval.";
+  await write("content/i18n/editorial-manifest.json", `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
 await patchScheduler();
 await patchModelFacade();
 await patchLearnerCopy();
+await relockReviewCorpus();
 console.log("ROUTE_OPTIMIZATION_BUILD_OK");
