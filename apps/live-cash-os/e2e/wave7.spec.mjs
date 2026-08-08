@@ -84,11 +84,11 @@ test("real hand locks pre-result reasoning, self-review cannot award transfer, a
   expect(state.fieldNotes[0].reason).toBe(lockedReason);
   expect(state.fieldNotes[0].result).toBe("Villain showed AQ and won");
 
-  await expect(card.getByText(/SELF не подтверждает перенос/i)).toBeVisible();
-  await expect(card.getByLabel(`Источник разбора ${noteId}`)).toHaveValue("SELF");
-  await expect(card.getByRole("button", { name: "Поддерживает перенос", exact: true })).toBeDisabled();
+  await expect(card.getByText(/Самопроверка не подтверждает перенос в реальную игру/i)).toBeVisible();
+  await expect(card.getByLabel(`Как выполнен разбор ${noteId}`)).toHaveValue("SELF");
+  await expect(card.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true })).toBeDisabled();
   await card.getByLabel(new RegExp(`Разбор ${noteId}`)).fill("Причина игнорирует важную часть диапазона и требует отдельной changed-node практики.");
-  await expect(card.getByRole("button", { name: "Поддерживает перенос", exact: true })).toBeDisabled();
+  await expect(card.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true })).toBeDisabled();
   await card.getByRole("button", { name: "Назначить практику" }).click();
   state = await localState(page);
   const repair = state.reviewQueue.find((item) => item.sourceDrillId === `field:${noteId}` && item.kind === "repair");
