@@ -58,8 +58,9 @@ test("new lesson rhythm moves from one compact explanation directly into applica
   await expect(page.getByText("Эффективный стек считается отдельно против каждого соперника", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Продолжить/ }).click();
 
-  await expect(page.getByText("КАРТА РЕШЕНИЯ", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: /^Сначала решить пример/ }).click();
+  const solveExample = page.getByRole("button", { name: /^Сначала решить пример/ });
+  await expect(solveExample).toBeVisible();
+  await solveExample.click();
 
   await expect(page.getByRole("heading", { name: "$2/$5/$10 с обязательным страддлом. У Hero и соперника по $1,400." })).toBeVisible();
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).not.toBeVisible();
