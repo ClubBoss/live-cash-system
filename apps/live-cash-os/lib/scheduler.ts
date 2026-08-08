@@ -62,6 +62,36 @@ export type PlanDailyTrainingOptions = {
 
 export const DEFAULT_OWNER_PRIORITY_MODULES: readonly ModuleId[] = ["preflop", "blinds", "aggression"];
 
+// Route policy changes eligibility only. Poker content, state schema, mastery,
+// review order, retention intervals and owner-priority weights stay unchanged.
+export const ROUTE_POLICY_VERSION = "2026.08-hard-prereq-v1";
+export const RECOMMENDED_MODULE_ORDER: readonly ModuleId[] = [
+  "geometry",
+  "preflop",
+  "blinds",
+  "filtering",
+  "shape",
+  "aggression",
+  "ancestry",
+  "multiway",
+  "river",
+  "evidence",
+  "transfer",
+];
+export const HARD_PREREQUISITES: Readonly<Record<ModuleId, readonly ModuleId[]>> = {
+  geometry: [],
+  preflop: ["geometry"],
+  blinds: ["preflop"],
+  filtering: ["preflop"],
+  shape: ["filtering"],
+  aggression: ["shape"],
+  ancestry: ["filtering"],
+  multiway: ["filtering"],
+  river: ["ancestry"],
+  evidence: ["preflop"],
+  transfer: ["geometry"],
+};
+
 const DAY = 86_400_000;
 const TARGET_MINUTES: Record<DailyBudget, number> = { "5": 5, "15": 15, "30": 30, warmup: 2, post: 10 };
 const DUE_LIMIT: Record<DailyBudget, number> = { "5": 2, "15": 4, "30": 6, warmup: 0, post: 4 };
@@ -97,6 +127,12 @@ function priorityBoost(state: LearnerState, moduleId: ModuleId, ownerPriorityMod
 function deterministicTie(seed: string, key: string): number {
   return hash(`${seed}:${key}`);
 }
+function recommendedRank(moduleId: ModuleId, catalog: SchedulerCatalog): number {
+  const canonical = RECOMMENDED_MODULE_ORDER.indexOf(moduleId);
+  if (canonical >= 0) return canonical;
+  const fallback = catalog.modules.findIndex((module) => module.id === moduleId);
+  return fallback >= 0 ? RECOMMENDED_MODULE_ORDER.length + fallback : Number.MAX_SAFE_INTEGER;
+}
 function reviewScore(state: LearnerState, item: ReviewItem, now: number, ownerPriorityModules: readonly ModuleId[]): number {
   const overdueDays = daysBetween(now, parseTime(item.dueAt));
   const tier = overdueDays >= 30 ? 3 : overdueDays >= 14 ? 2 : overdueDays >= 7 ? 1 : 0;
@@ -129,7 +165,7 @@ function diverseTake(items: ReviewItem[], limit: number): ReviewItem[] {
   return selected;
 }
 function availableModule(state: LearnerState, module: SchedulerModule): boolean {
-  return module.prerequisites.every((required) => state.modules[required].contentCompleted);
+  return HARD_PREREQUISITES[module.id].every((required) => state.modules[required].contentCompleted);
 }
 function pickDrills(module: SchedulerModule, kind: SchedulerDrillKind, count: number, seed: string): string[] {
   return module.drills
@@ -302,7 +338,7 @@ export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog
     const availableNew = catalog.modules.filter((module) => !state.modules[module.id].contentCompleted && availableModule(state, module));
     const nextNew = [...availableNew].sort((left, right) =>
       priorityBoost(state, right.id, ownerPriorityModules) - priorityBoost(state, left.id, ownerPriorityModules)
-        || catalog.modules.indexOf(left) - catalog.modules.indexOf(right))[0];
+        || recommendedRank(left.id, catalog) - recommendedRank(right.id, catalog))[0];
     if (nextNew) add({ kind: "lesson", moduleId: nextNew.id, estimatedMinutes: 8, reasonCode: "new" });
   }
 
