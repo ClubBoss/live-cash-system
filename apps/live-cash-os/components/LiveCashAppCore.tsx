@@ -534,35 +534,86 @@ function LessonSession({ locale, state, setState, source, onExit }: { locale: Lo
   const t = runtimeCopy[locale];
   const module = localizedModule(source, locale);
   const session = state.activeSession!;
+  const firstApplication = drillById[session.drillIds[1]] ?? source.drills.find((drill) => drill.kind === "changed" || drill.kind === "boundary") ?? source.drills[0];
+  const secondApplication = drillById[session.drillIds[2]] ?? source.drills.find((drill) => drill.id !== firstApplication.id && (drill.kind === "changed" || drill.kind === "boundary")) ?? firstApplication;
   const setStep = (step: number, currentIndex = session.currentIndex) => setState(patchSession(state, { step, currentIndex, selectedActionId: null, selectedReasonId: null, itemStartedAt: new Date().toISOString() }));
   return <section className="session"><SessionHeader locale={locale} label={`${module.lcm} · ${t.lesson}`} progress={Math.round(((session.step + 1) / 10) * 100)} onExit={onExit} />
     {session.step === 0 && <><p className="eyebrow">1 · {locale === "ru" ? "РЕШИ БЕЗ ПОДСКАЗКИ" : "COLD CHECK"}</p><h2>{t.currentModel}</h2><p className="support">{t.coldCheckHelp}</p><Decision locale={locale} state={state} setState={setState} drill={source.drills[0]} onContinue={() => setStep(1)} /></>}
-    {session.step === 1 && <ContentStep locale={locale} eyebrow={`2 · ${t.simpleTheory}`} title={module.plainGoal} paragraphs={source.theory} footer={source.scope} onNext={() => setStep(2)} />}
-    {session.step === 2 && <ListStep locale={locale} eyebrow={`3 · ${t.heuristics}`} title={module.tableCue} items={source.heuristics} onNext={() => setStep(3)} />}
-    {session.step === 3 && <ListStep locale={locale} eyebrow={`4 · ${t.decisionTree}`} title={t.decisionTree} items={source.decisionTree} numbered onNext={() => setStep(4)} />}
-    {session.step === 4 && <Worked locale={locale} module={source} onNext={() => setStep(5)} />}
-    {session.step === 5 && <Lab locale={locale} module={source} onNext={() => setStep(6, 1)} />}
-    {session.step === 6 && <><p className="eyebrow">7 · {t.changedSituation}</p><h2>{t.changedSituationTitle}</h2><p className="support">{t.changedSituationHelp}</p><Decision locale={locale} state={state} setState={setState} drill={drillById[session.drillIds[session.currentIndex]]} onContinue={() => session.currentIndex + 1 < session.drillIds.length ? setStep(6, session.currentIndex + 1) : setStep(7)} /></>}
+    {session.step === 1 && <ConceptStep locale={locale} module={source} onNext={() => setStep(2, 1)} />}
+    {session.step === 2 && <><p className="eyebrow">3 · {locale === "ru" ? "ПРИМЕНИ СРАЗУ" : "APPLY IT NOW"}</p><h2>{locale === "ru" ? "Та же идея, но условия уже немного другие." : "Same idea, slightly different conditions."}</h2><p className="support">{locale === "ru" ? "Не перечитывай теорию. Сначала выбери действие и причину." : "Do not reread the theory. Choose the action and reason first."}</p><Decision locale={locale} state={state} setState={setState} drill={firstApplication} onContinue={() => setStep(3, 1)} /></>}
+    {session.step === 3 && <FrameworkStep locale={locale} module={source} onNext={() => setStep(4, 1)} />}
+    {session.step === 4 && <Worked locale={locale} module={source} onNext={() => setStep(5, 1)} />}
+    {session.step === 5 && <Lab locale={locale} module={source} onNext={() => setStep(6, 2)} />}
+    {session.step === 6 && <><p className="eyebrow">7 · {t.changedSituation}</p><h2>{t.changedSituationTitle}</h2><p className="support">{t.changedSituationHelp}</p><Decision locale={locale} state={state} setState={setState} drill={secondApplication} onContinue={() => setStep(7, 2)} /></>}
     {session.step === 7 && <ExplainBack locale={locale} state={state} setState={setState} module={source} />}
     {session.step === 8 && <TableCard locale={locale} module={source} onNext={() => setStep(9)} />}
-    {session.step === 9 && <section className="summary"><p className="eyebrow">10 · {t.lessonFinished}</p><h1>{t.lessonIntroduced}<br/><em>{t.lessonNotMastered}</em></h1><p className="lede">{t.lessonNext}</p><button className="primary" onClick={() => setState(completeLesson(state, source.id))}>{t.saveReturn} <span>→</span></button></section>}
+    {session.step === 9 && <LessonSummary locale={locale} state={state} module={source} onFinish={() => setState(completeLesson(state, source.id))} />}
   </section>;
 }
 
-function ContentStep({ locale, eyebrow, title, paragraphs, footer, onNext }: { locale: LocaleCode; eyebrow: string; title: string; paragraphs: string[]; footer: string; onNext: () => void }) {
-  const t = runtimeCopy[locale];
-  return <><p className="eyebrow">{eyebrow}</p><h2>{title}</h2><div className="theory-stack">{paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div><p className="assumption-strip">{t.ruleBoundary}: {footer}</p><button className="primary" onClick={onNext}>{t.continue} <span>→</span></button></>;
+function ConceptStep({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
+  const localized = localizedModule(module, locale);
+  const [lead, ...details] = module.theory;
+  const copy = locale === "ru" ? {
+    eyebrow: "ГЛАВНАЯ ИДЕЯ",
+    remember: "ЗАПОМНИ",
+    why: "Почему",
+    more: "Дополнительное объяснение",
+    boundary: "Граница",
+    apply: "Сразу применить",
+  } : {
+    eyebrow: "CORE IDEA",
+    remember: "REMEMBER",
+    why: "Why",
+    more: "More explanation",
+    boundary: "Boundary",
+    apply: "Apply it now",
+  };
+  return <>
+    <p className="eyebrow">2 · {copy.eyebrow}</p>
+    <h2>{localized.plainGoal}</h2>
+    <div className="answer-panel"><b>{copy.remember}</b><p>{localized.tableCue}</p></div>
+    {lead && <div className="theory-stack"><b>{copy.why}</b><p>{lead}</p></div>}
+    {details.length > 0 && <details><summary>{copy.more}</summary><div className="theory-stack">{details.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></details>}
+    <p className="assumption-strip"><b>{copy.boundary}:</b> {module.scope}</p>
+    <button className="primary" onClick={onNext}>{copy.apply} <span>→</span></button>
+  </>;
 }
 
-function ListStep({ locale, eyebrow, title, items, numbered = false, onNext }: { locale: LocaleCode; eyebrow: string; title: string; items: string[]; numbered?: boolean; onNext: () => void }) {
-  const t = runtimeCopy[locale];
-  const Tag = numbered ? "ol" : "ul";
-  return <><p className="eyebrow">{eyebrow}</p><h2>{title}</h2><Tag className="learning-list">{items.map((item) => <li key={item}>{item}</li>)}</Tag><button className="primary" onClick={onNext}>{t.continue} <span>→</span></button></>;
+function FrameworkStep({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
+  const localized = localizedModule(module, locale);
+  const copy = locale === "ru" ? {
+    eyebrow: "КАРТА РЕШЕНИЯ",
+    cues: "Три сигнала перед действием",
+    order: "Теперь собери их в один порядок:",
+    next: "Сначала решить пример",
+  } : {
+    eyebrow: "DECISION MAP",
+    cues: "Three cues before acting",
+    order: "Now combine them into one order:",
+    next: "Solve the example first",
+  };
+  return <>
+    <p className="eyebrow">4 · {copy.eyebrow}</p>
+    <h2>{localized.tableCue}</h2>
+    <div className="answer-panel"><b>{copy.cues}</b><ul className="learning-list">{module.heuristics.map((item) => <li key={item}>{item}</li>)}</ul></div>
+    <p className="support">{copy.order}</p>
+    <ol className="learning-list">{module.decisionTree.map((item) => <li key={item}>{item}</li>)}</ol>
+    <button className="primary" onClick={onNext}>{copy.next} <span>→</span></button>
+  </>;
 }
 
 function Worked({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
   const t = runtimeCopy[locale];
-  return <><p className="eyebrow">5 · {t.workedExample}</p><h2>{module.workedExample.situation}</h2><ol className="learning-list">{module.workedExample.steps.map((step) => <li key={step}>{step}</li>)}</ol><div className="answer-panel"><b>{t.conclusion}</b><p>{module.workedExample.answer}</p></div><div className="counterexample"><b>{t.ruleBoundary}</b><p>{module.counterexample}</p></div><button className="primary" onClick={onNext}>{t.openLab} <span>→</span></button></>;
+  const [revealed, setRevealed] = useState(false);
+  const copy = locale === "ru" ? {
+    prompt: "Сначала выбери линию в голове и назови одну причину. Разбор открой только после этого.",
+    reveal: "Я решил — показать разбор",
+  } : {
+    prompt: "Choose a line first and name one reason to yourself. Reveal the breakdown only after that.",
+    reveal: "I decided — show the breakdown",
+  };
+  return <><p className="eyebrow">5 · {t.workedExample}</p><h2>{module.workedExample.situation}</h2>{!revealed ? <><p className="support">{copy.prompt}</p><button className="primary" onClick={() => setRevealed(true)}>{copy.reveal} <span>→</span></button></> : <><ol className="learning-list">{module.workedExample.steps.map((step) => <li key={step}>{step}</li>)}</ol><div className="answer-panel"><b>{t.conclusion}</b><p>{module.workedExample.answer}</p></div><div className="counterexample"><b>{t.ruleBoundary}</b><p>{module.counterexample}</p></div><button className="primary" onClick={onNext}>{t.openLab} <span>→</span></button></>}</>;
 }
 
 function Lab({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
@@ -609,7 +660,52 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
 
 function TableCard({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
   const t = runtimeCopy[locale];
-  return <><p className="eyebrow">9 · {t.tableCard}</p><h2>{localizedModule(module, locale).tableCue}</h2><div className="table-card">{module.tableCard.map((item, index) => <div key={item}><span>{String(index + 1).padStart(2, "0")}</span><b>{item}</b></div>)}</div><div className="glossary">{module.glossary.map((item) => <p key={item.term}><b>{item.term}</b>{item.meaning}</p>)}</div><button className="primary" onClick={onNext}>{t.finishLesson} <span>→</span></button></>;
+  const copy = locale === "ru" ? { details: "Термины и подробности" } : { details: "Terms and details" };
+  return <><p className="eyebrow">9 · {t.tableCard}</p><h2>{localizedModule(module, locale).tableCue}</h2><div className="table-card">{module.tableCard.map((item, index) => <div key={item}><span>{String(index + 1).padStart(2, "0")}</span><b>{item}</b></div>)}</div><details><summary>{copy.details}</summary><div className="glossary">{module.glossary.map((item) => <p key={item.term}><b>{item.term}</b>{item.meaning}</p>)}</div></details><button className="primary" onClick={onNext}>{t.finishLesson} <span>→</span></button></>;
+}
+
+function LessonSummary({ locale, state, module, onFinish }: { locale: LocaleCode; state: LearnerState; module: ModuleContent; onFinish: () => void }) {
+  const t = runtimeCopy[locale];
+  const session = state.activeSession!;
+  const interactions = state.interactions.filter((item) => item.mode === "lesson" && item.moduleId === module.id && Date.parse(item.at) >= Date.parse(session.startedAt));
+  const actionPassed = interactions.filter((item) => item.actionOk).length;
+  const reasonPassed = interactions.filter((item) => item.reasonOk).length;
+  const fullyPassed = interactions.filter((item) => item.actionOk && item.reasonOk).length;
+  const followUps = interactions.filter((item) => item.drillId !== module.drills[0].id).length;
+  const hasMiss = interactions.some((item) => !item.actionOk || !item.reasonOk);
+  const delayedChecked = state.modules[module.id].evidence.retention.exposures > 0;
+  const copy = locale === "ru" ? {
+    checked: "Что уже проверено",
+    action: "Действие",
+    reason: "Обоснование",
+    spots: "Дополнительные споты",
+    missTitle: "Есть материал для разбора ошибки",
+    missBody: "Урок можно закончить: ошибка уже сохранена и вернётся отдельным новым спотом. Это лучше, чем повторять тот же вопрос сразу.",
+    cleanTitle: "Текущие проверки пройдены",
+    cleanBody: "Это хороший старт, но ещё не доказательство удержания после паузы или применения за столом.",
+    delayedDone: "Проверка после паузы уже была в истории этой темы.",
+    delayedPending: "Проверка после паузы ещё не проводилась — тема вернётся позже без свежей подсказки.",
+  } : {
+    checked: "What has been checked",
+    action: "Action",
+    reason: "Reasoning",
+    spots: "Additional spots",
+    missTitle: "There is a mistake to repair",
+    missBody: "You can finish the lesson: the miss is already saved and will return as a new spot instead of repeating the same question immediately.",
+    cleanTitle: "The current checks passed",
+    cleanBody: "That is a good start, not proof of delayed retention or real-table use yet.",
+    delayedDone: "This topic already has a delayed-recall check in its history.",
+    delayedPending: "Delayed recall has not been checked yet — the topic will return later without the fresh explanation.",
+  };
+  return <section className="summary">
+    <p className="eyebrow">10 · {t.lessonFinished}</p>
+    <h1>{t.lessonIntroduced}<br/><em>{t.lessonNotMastered}</em></h1>
+    <p className="lede">{t.lessonNext}</p>
+    <div className="answer-panel"><b>{copy.checked}</b><p>{copy.action}: {actionPassed}/{interactions.length || 0} · {copy.reason}: {reasonPassed}/{interactions.length || 0} · {copy.spots}: {followUps}</p><p>{locale === "ru" ? "Полностью верных решений" : "Fully correct decisions"}: {fullyPassed}/{interactions.length || 0}</p></div>
+    <div className={hasMiss ? "counterexample" : "answer-panel"}><b>{hasMiss ? copy.missTitle : copy.cleanTitle}</b><p>{hasMiss ? copy.missBody : copy.cleanBody}</p></div>
+    <p className="assumption-strip">{delayedChecked ? copy.delayedDone : copy.delayedPending}</p>
+    <button className="primary" onClick={onFinish}>{t.saveReturn} <span>→</span></button>
+  </section>;
 }
 
 function PracticeSession({ locale, state, setState, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void }) {
