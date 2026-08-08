@@ -157,14 +157,15 @@ test("canonical poker module corpus is byte-for-byte unchanged from the pre-rout
 
 test("route closure does not introduce a learner-state migration or new mastery semantics", async () => {
   const modelSource = await readFile(new URL("../lib/model-core.ts", import.meta.url), "utf8");
-  const facade = await readFile(new URL("../lib/model.ts", import.meta.url), "utf8");
   const scheduler = await readFile(new URL("../lib/scheduler.ts", import.meta.url), "utf8");
+  const core = await readFile(new URL("../components/LiveCashAppCore.tsx", import.meta.url), "utf8");
   assert.match(modelSource, /STATE_SCHEMA_VERSION = 2/u);
   assert.match(modelSource, /const kind: ReviewItem\["kind"\] = passed \? "retention" : "repair"/u);
   assert.match(modelSource, /field\.successes >= 2/u);
-  assert.match(facade, /HARD_PREREQUISITES/u);
-  assert.match(facade, /export function moduleAvailable/u);
-  assert.doesNotMatch(scheduler, /AI|LLM|recommender/iu);
+  assert.match(core, /HARD_PREREQUISITES/u);
+  assert.match(core, /moduleAvailable\(state, moduleId, \[\.\.\.HARD_PREREQUISITES\[moduleId\]\]\)/u);
+  assert.match(core, /moduleAvailable\(state, module\.id, \[\.\.\.HARD_PREREQUISITES\[module\.id\]\]\)/u);
+  assert.doesNotMatch(scheduler, /\b(?:AI|LLM|recommender)\b/iu);
 });
 
 test("evidence hygiene is learner-facing in both locales without claiming one hand proves a population", async () => {
