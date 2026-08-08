@@ -19,6 +19,11 @@
   user-select: none;
 }
 
+.session details > summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
 .session details > summary::marker {
   color: var(--muted);
 }
