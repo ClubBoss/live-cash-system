@@ -51,14 +51,14 @@ test("the starting check explains its purpose and remains optional", async ({ pa
   await expect(page.getByRole("heading", { name: "Стартовая проверка мышления" })).toBeVisible();
   await expect(page.getByText(/10 решений без подсказок, около 15 минут/i)).toBeVisible();
   await expect(page.getByText(/Можно пропустить и сразу начать первый урок/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Проверка", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Диагностика", exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Учиться" }).click();
   await expect(page.getByRole("button", { name: /^Изучить/ }).first()).toBeEnabled();
 });
 
-test("the starting check has natural T1 copy in both locales", async ({ page }) => {
-  await page.getByRole("button", { name: "Проверка", exact: true }).click();
+test("the starting Diagnostic has natural copy in both locales", async ({ page }) => {
+  await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Начать проверку" })).toBeVisible();
@@ -140,7 +140,7 @@ test("submitted feedback survives reload without duplicate evidence", async ({ p
 });
 
 test("the starting check freezes the start locale, item locale and real first-item timer", async ({ page }) => {
-  await page.getByRole("button", { name: "Проверка", exact: true }).click();
+  await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await page.waitForTimeout(5_000);
   await page.getByRole("button", { name: "Начать проверку" }).click();
   await page.getByLabel("Как бы ты сыграл?").fill("140 страддлов");
@@ -160,7 +160,7 @@ test("the starting check freezes the start locale, item locale and real first-it
 });
 
 test("learning during a cold starting check invalidates baseline interpretation", async ({ page }) => {
-  await page.getByRole("button", { name: "Проверка", exact: true }).click();
+  await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await page.getByRole("button", { name: "Начать проверку" }).click();
   await page.getByRole("button", { name: "Учиться" }).click();
   await page.getByRole("button", { name: /^Изучить/ }).first().click();
@@ -206,7 +206,7 @@ test("W6 Today exposes bounded session budgets in both locales", async ({ page }
     await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
   }
   await page.getByRole("button", { name: "5 мин", exact: true }).click();
-  await expect(page.getByText(/≈\d+ мин/u).first()).toBeVisible();
+  await expect(page.getByText(/≈\d+ из 5 доступных минут/u).first()).toBeVisible();
   await page.getByRole("button", { name: "EN", exact: true }).click();
   for (const label of ["5 min", "15 min", "30 min", "Before play", "After play"]) {
     await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
