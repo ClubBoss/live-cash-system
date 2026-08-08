@@ -303,10 +303,11 @@ function transferProbeFor(drill: Drill): TransferProbe | null {
   return null;
 }
 
-function selectRepair(state: LearnerState, moduleId: ModuleId, sourceReviewId?: string): { drills: Drill[]; sourceReviewId?: string } {
+export function selectRepair(state: LearnerState, moduleId: ModuleId, sourceReviewId?: string): { drills: Drill[]; sourceReviewId?: string } {
   const module = moduleById[moduleId];
   const dueRepairs = dueReviewItems(state).filter((item) => item.moduleId === moduleId && item.kind === "repair");
-  const target = dueRepairs.find((item) => item.id === sourceReviewId) ?? dueRepairs[0];
+  const target = sourceReviewId ? dueRepairs.find((item) => item.id === sourceReviewId) : dueRepairs[0];
+  if (sourceReviewId && !target) return { drills: [] };
   const candidateRules = target
     ? [target.sourceActionOptionId, target.sourceReasonOptionId]
       .filter((optionId): optionId is string => Boolean(optionId))
@@ -326,9 +327,9 @@ function selectRepair(state: LearnerState, moduleId: ModuleId, sourceReviewId?: 
   return { drills: drills.length ? drills : module.drills.slice(0, 1), sourceReviewId: target?.id };
 }
 
-function selectReview(state: LearnerState, sourceReviewId?: string): { drills: Drill[]; sourceReviewId?: string } {
+export function selectReview(state: LearnerState, sourceReviewId?: string): { drills: Drill[]; sourceReviewId?: string } {
   const dueRetention = dueReviewItems(state).filter((item) => item.kind === "retention");
-  const target = dueRetention.find((item) => item.id === sourceReviewId) ?? dueRetention[0];
+  const target = sourceReviewId ? dueRetention.find((item) => item.id === sourceReviewId) : dueRetention[0];
   if (!target) return { drills: [] };
   const drillId = selectRetentionDrillId(target, SCHEDULER_CATALOG, `${state.revision}:${target.id}`);
   const drill = drillId ? drillById[drillId] : undefined;
