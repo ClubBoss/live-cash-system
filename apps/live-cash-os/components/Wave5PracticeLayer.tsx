@@ -273,14 +273,7 @@ function Wave5LabPortal({ locale, moduleId }: { locale: LocaleCode; moduleId: Mo
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    const syncHost = () => {
-      const next = document.querySelector<HTMLElement>("main .session");
-      setHost((previous) => previous === next ? previous : next);
-    };
-    syncHost();
-    const observer = new MutationObserver(syncHost);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    setHost(document.querySelector<HTMLElement>("main .session"));
   }, [moduleId]);
 
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
