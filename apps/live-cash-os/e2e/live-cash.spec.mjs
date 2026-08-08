@@ -206,7 +206,7 @@ test("W6 Today exposes bounded session budgets in both locales", async ({ page }
     await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
   }
   await page.getByRole("button", { name: "5 мин", exact: true }).click();
-  await expect(page.getByText(/≈\d+ из 5 доступных минут/u).first()).toBeVisible();
+  await expect(page.getByText(/План на выбранное время: ≈\d+ из 5 минут\. Каждый пункт запускается отдельно/u).first()).toBeVisible();
   await page.getByRole("button", { name: "EN", exact: true }).click();
   for (const label of ["5 min", "15 min", "30 min", "Before play", "After play"]) {
     await expect(page.getByRole("button", { name: label, exact: true })).toBeVisible();
