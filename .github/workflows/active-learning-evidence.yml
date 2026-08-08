@@ -1,0 +1,39 @@
+name: Active Learning Evidence
+
+on:
+  push:
+    branches: [wave/active-learning-closure]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full release gate
+        run: npm run test:release
+      - name: Upload browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-learning-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7
