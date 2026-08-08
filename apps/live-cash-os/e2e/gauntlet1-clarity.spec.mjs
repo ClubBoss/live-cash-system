@@ -32,7 +32,7 @@ test("locked modules name the concrete prerequisite, explain why, and route to i
   await page.getByRole("button", { name: "Учиться", exact: true }).click();
 
   const preflop = page.locator(".module-list article").filter({ hasText: "LCM-02" }).first();
-  await expect(preflop.getByText(/Сначала LCM-01/i)).toBeVisible();
+  await expect(preflop.locator("p.support").filter({ hasText: /Сначала LCM-01/i })).toBeVisible();
   await expect(preflop.getByText(/опирается на решения и термины/i)).toBeVisible();
   await preflop.getByRole("button", { name: "Сначала LCM-01", exact: true }).click();
   await expect(page.getByText("1 · РЕШИ БЕЗ ПОДСКАЗКИ")).toBeVisible();
@@ -52,7 +52,7 @@ test("Cards has one role, an empty warm-up exit, and explains grading impact", a
   await page.getByRole("button", { name: "Карточки", exact: true }).click();
 
   await expect(page.getByText(/Оценка меняет только срок следующего показа карточки, а не статус навыка/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Открыть обучение", exact: true })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /^Открыть обучение/ })).toBeEnabled();
   await page.getByRole("button", { name: "Все", exact: true }).click();
   await page.getByRole("button", { name: "Показать ответ", exact: true }).click();
   await expect(page.getByText(/Не вспомнил → снова примерно через 10 минут/i)).toBeVisible();
@@ -83,7 +83,7 @@ test("Diagnostic confidence and disabled submit explain their contract", async (
 
   await expect(page.getByText(/грубая самооценка, а не точная вероятность/i)).toBeVisible();
   await expect(page.getByText(/Чтобы сохранить ответ, укажи действие и причину/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Ответить", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /^Ответить/ })).toBeDisabled();
 
   await page.getByLabel("Как бы ты сыграл?").fill("Call");
   await expect(page.getByText(/Чтобы сохранить ответ, укажи причину/i)).toBeVisible();
@@ -95,7 +95,7 @@ test("Real Hands shows completion count and exact missing required fields", asyn
 
   await expect(page.getByText(/0\/11 обязательных полей заполнено/i)).toBeVisible();
   await expect(page.getByText(/Не хватает: Лимиты, Позиция Hero/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Зафиксировать решение", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /^Зафиксировать решение/ })).toBeDisabled();
 
   await page.getByLabel("Лимиты").fill("2/5");
   await page.getByLabel("Позиция Hero").fill("BB");
