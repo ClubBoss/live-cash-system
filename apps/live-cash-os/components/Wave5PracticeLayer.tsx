@@ -178,7 +178,7 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
   if (!finite) error = locale === "ru" ? "Введи конечные неотрицательные числа." : "Enter finite non-negative numbers.";
   else if (betValue > stackValue) error = locale === "ru" ? "Ставка/колл не может быть больше оставшегося стека." : "Bet/call cannot exceed the remaining stack.";
   else if (potValue + 2 * betValue <= 0) error = locale === "ru" ? "После действия размер банка должен быть больше нуля." : "The post-action pot must be greater than zero.";
-  const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + betValue * 2)) : 0;
+  const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
   const copy = locale === "ru" ? {
     eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
     title: "Измени хотя бы одну важную переменную.",
