@@ -1,10 +1,9 @@
 # Test invite foundation
 
-Status: `PREPARED / NOT_YET_INTEGRATED`
+Status: `IMPLEMENTED / AWAITING TEST D1 PROVISIONING AND DEPLOYMENT`
 
 This folder prepares five invite-only test profiles without changing the
-production site, production D1 database, learner-state schema, curriculum, or
-current test-mirror deployment behavior.
+production site, production D1 database, learner-state schema, or curriculum.
 
 ## Existing safety mechanisms retained
 
@@ -17,7 +16,7 @@ current test-mirror deployment behavior.
 
 ## Integration contract
 
-When parallel `main` work is settled, the follow-up implementation must:
+Before deployment, operations must:
 
 1. Create a new Cloudflare D1 database exclusively for
    `live-cash-os-mobile-test`; never use the production D1 database or the
@@ -32,21 +31,27 @@ When parallel `main` work is settled, the follow-up implementation must:
    The generated SQL contains hashes only. The plaintext codes are handed to
    the owner privately and are never committed, added as workflow secrets, or
    printed by CI.
-4. Add test-mirror-only configuration which binds the new database under a new
-   name (for example `TEST_AUTH_DB`). Do not alter the production Sites config
+   The initial five code hashes are committed in a test-only seed migration;
+   the codes themselves are not.
+4. Set `LIVE_CASH_TEST_D1_DATABASE_ID` to the new database ID as a repository
+   secret. The test mirror binds it only as `TEST_DB`. Do not alter the production Sites config
    or its `DB` binding.
+   The existing deploy job then applies the two idempotent migrations to the
+   test database by its fixed test-only name, after config verification and
+   before deployment. No second permanent workflow is created.
 5. In test-invite mode, require an active `test_invites.code_hash` match before
    serving `/api/state`; update `first_used_at` and `last_used_at` without
    recording plaintext codes.
 6. Keep deploys backward-compatible with stored learner state. A deploy may
    change client code, but must never reset `learner_states`, drop tables, or
    overwrite a state whose conditional token has changed.
-7. Extend test smoke with a fresh invite and a same-code second-browser restore
-   check. Verify that a stale second writer receives the existing conflict flow.
+7. Verify a fresh invite and a same-code second-browser restore check. Verify
+   that a stale second writer receives the existing conflict flow.
 
 ## Non-goals for this foundation
 
-- No D1 database has been created or bound yet.
+- No production D1 database or production binding is created, changed, removed,
+  or renamed by this flow.
 - No account, plaintext code, learner progress, or production resource exists
   as a result of this preparation.
 - This is not passwordless email authentication; codes are bearer secrets for

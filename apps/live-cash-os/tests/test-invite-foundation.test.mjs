@@ -7,12 +7,21 @@ import test from "node:test";
 const execFileAsync = promisify(execFile);
 const appRoot = new URL("../", import.meta.url);
 
-test("test invite migration stores only a hash and has no production target", async () => {
-  const migration = await readFile(new URL("../test-invites/migrations/0001_test_invites.sql", import.meta.url), "utf8");
+test("test invite migrations are test-only and store only a hash", async () => {
+  const [migration, learnerStates, seed] = await Promise.all([
+    readFile(new URL("../test-invites/migrations/0001_test_invites.sql", import.meta.url), "utf8"),
+    readFile(new URL("../test-invites/migrations/0000_test_learner_states.sql", import.meta.url), "utf8"),
+    readFile(new URL("../test-invites/migrations/0002_test_invite_seed.sql", import.meta.url), "utf8"),
+  ]);
   assert.match(migration, /CREATE TABLE IF NOT EXISTS test_invites/);
   assert.match(migration, /code_hash TEXT NOT NULL UNIQUE/);
   assert.match(migration, /Never apply this migration to the production D1 database/);
   assert.doesNotMatch(migration, /INSERT INTO/);
+  assert.match(learnerStates, /CREATE TABLE IF NOT EXISTS learner_states/);
+  assert.match(learnerStates, /Never apply this migration to the production D1 database/);
+  assert.match(seed, /INSERT OR IGNORE INTO test_invites/);
+  assert.match(seed, /Never apply this migration to the production D1 database/);
+  assert.doesNotMatch(seed, /LCO-TEST-/);
 });
 
 test("invite generator emits the requested labels, opaque codes, and hash-only SQL", async () => {
@@ -28,4 +37,19 @@ test("invite generator emits the requested labels, opaque codes, and hash-only S
   }
   assert.match(generated.sql, /INSERT INTO test_invites/);
   assert.match(generated.sql, /code_hash/);
+});
+
+test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", async () => {
+  const [viteConfig, stateRoute, db] = await Promise.all([
+    readFile(new URL("../vite.config.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../db/index.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(viteConfig, /binding:\s*"TEST_DB"/);
+  assert.match(viteConfig, /TEST_INVITE_MODE:\s*"true"/);
+  assert.doesNotMatch(viteConfig, /testMirrorWorkerConfig[\s\S]*binding:\s*d1/);
+  assert.match(stateRoute, /eq\(testInvites\.codeHash, profile\.codeHash\)/);
+  assert.match(stateRoute, /isTestInviteMode\(\)[\s\S]*activeTestInvite/);
+  assert.match(db, /TEST_DB\?: D1Database/);
+  assert.match(db, /bindings\.TEST_DB \?\? bindings\.DB/);
 });

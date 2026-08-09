@@ -1,7 +1,8 @@
 import { and, eq } from "drizzle-orm";
+import { env } from "cloudflare:workers";
 import { getChatGPTUser } from "../../chatgpt-auth";
 import { getDb } from "../../../db";
-import { learnerStates } from "../../../db/schema";
+import { learnerStates, testInvites } from "../../../db/schema";
 import { assessCloudWrite } from "../../../lib/cloud-sync-contract";
 import {
   STATE_SCHEMA_VERSION,
@@ -34,17 +35,51 @@ function cloudToken(): string {
 const PORTABLE_PROFILE_HEADER = "x-live-cash-profile-code";
 const PORTABLE_PROFILE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
 
-async function portableProfileId(request: Request): Promise<string | null> {
+type PortableProfile = {
+  codeHash: string;
+  userId: string;
+};
+
+type RuntimeBindings = {
+  TEST_INVITE_MODE?: string;
+};
+
+async function portableProfile(request: Request): Promise<PortableProfile | null> {
   const raw = request.headers.get(PORTABLE_PROFILE_HEADER)?.trim().toUpperCase() ?? "";
   if (!PORTABLE_PROFILE_PATTERN.test(raw)) return null;
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
   const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `portable:${hash}`;
+  return { codeHash: hash, userId: `portable:${hash}` };
+}
+
+function isTestInviteMode(): boolean {
+  const bindings = env as unknown as RuntimeBindings;
+  return bindings.TEST_INVITE_MODE === "true";
+}
+
+async function activeTestInvite(profile: PortableProfile): Promise<boolean> {
+  const db = getDb();
+  const [invite] = await db
+    .select({ id: testInvites.id, firstUsedAt: testInvites.firstUsedAt })
+    .from(testInvites)
+    .where(and(eq(testInvites.codeHash, profile.codeHash), eq(testInvites.active, 1)))
+    .limit(1);
+  if (!invite) return false;
+
+  const now = new Date().toISOString();
+  await db
+    .update(testInvites)
+    .set({ firstUsedAt: invite.firstUsedAt ?? now, lastUsedAt: now })
+    .where(eq(testInvites.id, invite.id));
+  return true;
 }
 
 async function currentIdentity(request: Request): Promise<string | null> {
-  const portable = await portableProfileId(request);
-  if (portable) return portable;
+  const portable = await portableProfile(request);
+  if (isTestInviteMode()) {
+    return portable && await activeTestInvite(portable) ? portable.userId : null;
+  }
+  if (portable) return portable.userId;
   const user = await getChatGPTUser();
   return user?.userId ?? null;
 }
