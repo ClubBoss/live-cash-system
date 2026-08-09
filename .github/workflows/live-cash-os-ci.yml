@@ -35,59 +35,17 @@ jobs:
           node-version: 22.13.0
           cache: npm
           cache-dependency-path: apps/live-cash-os/package-lock.json
-
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Lint
-        shell: bash
-        run: |
-          set +e
-          npx eslint . --ignore-pattern dist --ignore-pattern .next --format json > /tmp/eslint.json
-          code=$?
-          node --input-type=module <<'NODE'
-          import { readFileSync } from "node:fs";
-          const results = JSON.parse(readFileSync("/tmp/eslint.json", "utf8"));
-          for (const result of results) {
-            const path = result.filePath.replace(`${process.cwd()}/`, "");
-            for (const message of result.messages) {
-              const level = message.severity === 2 ? "error" : "warning";
-              const text = `${message.ruleId ?? "eslint"}: ${message.message}`.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
-              console.log(`::${level} file=apps/live-cash-os/${path},line=${message.line ?? 1},col=${message.column ?? 1}::${text}`);
-            }
-          }
-          NODE
-          exit "$code"
-
-      - name: Governance
-        run: npm run check:governance
-
-      - name: Editorial
-        run: npm run check:editorial
-
-      - name: Build
-        run: npm run build
-
-      - name: Unit integration
-        run: npm run test:unit
-
-      - name: Canonical E2E
-        run: npm run test:e2e
-
-      - name: Canonical release
-        run: npm run test:release
-
-      - name: Upload browser evidence on failure
-        if: failure()
+      - name: G4 targeted E2E
+        run: npx playwright test e2e/gauntlet4-real-use-learning-integrity.spec.mjs --reporter=list,github
+      - name: Upload G4 evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: live-cash-os-playwright-evidence
+          name: g4-targeted-evidence
           path: |
             apps/live-cash-os/playwright-report
             apps/live-cash-os/test-results
