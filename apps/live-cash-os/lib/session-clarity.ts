@@ -1,3 +1,5 @@
+import { runtimeCopy } from "../content/i18n/runtime";
+
 export type SessionLocale = "ru" | "en";
 
 export type SessionSyncStatus =
@@ -18,6 +20,11 @@ export type LessonSkillState =
   | "FIELD_TEST_PENDING"
   | "FIELD_VALIDATED"
   | "REPAIR_REQUIRED";
+
+// Today already counts dueReviewItems. Keep that scheduler truth intact and only
+// give the existing counter a learner-facing label that says what it measures.
+runtimeCopy.ru.dueItems = "повторений на сегодня";
+runtimeCopy.en.dueItems = "reviews due";
 
 const skillLabels: Record<SessionLocale, Record<LessonSkillState, string>> = {
   ru: {
