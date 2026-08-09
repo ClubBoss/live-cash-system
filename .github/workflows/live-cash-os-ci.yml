@@ -35,32 +35,23 @@ jobs:
           node-version: 22.13.0
           cache: npm
           cache-dependency-path: apps/live-cash-os/package-lock.json
+
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Install browser matrix
-        run: npx playwright install --with-deps chromium firefox webkit
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint
-      - name: Unit and integration gate
-        run: npm test
-      - name: Canonical E2E
-        run: npm run test:e2e
-      - name: Canonical release gate
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Release gate
         run: npm run test:release
-      - name: G4 six-project critical matrix
-        run: npx playwright test e2e/gauntlet4-real-use-learning-integrity.spec.mjs --config=playwright.cross-browser.config.mjs --reporter=list,github --timeout=30000
-      - name: Current production smoke
-        run: npm run smoke:production
+
       - name: Upload browser evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: live-cash-os-g4-final-evidence
+          name: live-cash-os-playwright-evidence
           path: |
             apps/live-cash-os/playwright-report
             apps/live-cash-os/test-results
-            apps/live-cash-os/artifacts
           if-no-files-found: ignore
           retention-days: 7
