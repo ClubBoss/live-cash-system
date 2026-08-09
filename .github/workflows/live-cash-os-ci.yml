@@ -129,11 +129,18 @@ jobs:
           LIVE_URL: ${{ steps.deploy.outputs.url }}
           DEPLOYED_SHA: ${{ steps.deploy.outputs.sha }}
           DEPLOYED_AT: ${{ steps.deploy.outputs.timestamp }}
+          LIVE_CASH_TEST_SMOKE_CODE: ${{ secrets.LIVE_CASH_TEST_SMOKE_CODE }}
         run: |
           set -o pipefail
           echo "test-mirror url=$LIVE_URL sha=$DEPLOYED_SHA deployed_at=$DEPLOYED_AT"
+          test -n "$LIVE_CASH_TEST_SMOKE_CODE" || { echo "Missing LIVE_CASH_TEST_SMOKE_CODE secret" >&2; exit 1; }
           curl --fail --show-error --silent --retry 5 --retry-all-errors "$LIVE_URL/" > /dev/null
-          api_status="$(curl --show-error --silent --retry 5 --retry-all-errors -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
+          api_status=""
+          for attempt in 1 2 3 4 5 6; do
+            api_status="$(curl --show-error --silent -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
+            [ "$api_status" = "503" ] || break
+            sleep 5
+          done
           test "$api_status" = "401" || { echo "TEST_DB bootstrap/invite lookup expected 401, got $api_status" >&2; cat test-db-bootstrap.json >&2; exit 1; }
           node --input-type=module -e '
             import { readFileSync } from "node:fs";
@@ -141,6 +148,8 @@ jobs:
             if (body.code !== "AUTH_REQUIRED") throw new Error(`Unexpected TEST_DB bootstrap response: ${JSON.stringify(body)}`);
             console.log("Verified TEST_DB runtime bootstrap and invite lookup without D1 management API access");
           '
+          test_api_status="$(curl --show-error --silent -o test-invite-authorized.json -w '%{http_code}' -H "x-live-cash-profile-code: $LIVE_CASH_TEST_SMOKE_CODE" "$LIVE_URL/api/state")"
+          test "$test_api_status" = "200" || { echo "Issued test invite expected 200, got $test_api_status" >&2; cat test-invite-authorized.json >&2; exit 1; }
           npm run smoke:production
       - name: Upload test-mirror smoke evidence
         if: always()
@@ -150,5 +159,6 @@ jobs:
           path: |
             apps/live-cash-os/smoke-evidence
             apps/live-cash-os/test-db-bootstrap.json
+            apps/live-cash-os/test-invite-authorized.json
           if-no-files-found: ignore
           retention-days: 7

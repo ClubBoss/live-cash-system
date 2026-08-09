@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os.elmarsal.chatgpt.site/";
 const deployedSha = process.env.DEPLOYED_SHA?.trim() || null;
+const testInviteCode = process.env.LIVE_CASH_TEST_SMOKE_CODE?.trim().toUpperCase() || null;
 const attempts = Number(process.env.SMOKE_ATTEMPTS ?? 4);
 const waitMs = Number(process.env.SMOKE_WAIT_MS ?? 15_000);
 const forbiddenMarkers = [
@@ -37,6 +38,25 @@ async function verifyBuildIdentity(page) {
   await badge.waitFor({ timeout: 10_000 });
   const actual = await badge.getAttribute("data-build-sha");
   if (actual !== deployedSha) throw new Error(`Build identity mismatch: expected ${deployedSha}, got ${actual ?? "missing"}`);
+}
+
+async function applyTestInvite(page) {
+  if (!testInviteCode) return;
+  await page.addInitScript((code) => {
+    localStorage.setItem("live-cash-os:portable-profile-code", code);
+  }, testInviteCode);
+}
+
+async function verifyTestInviteGate(browser) {
+  if (!testInviteCode) return;
+  const lockedContext = await browser.newContext();
+  const locked = await lockedContext.newPage();
+  await locked.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  await locked.getByRole("heading", { name: "Вход для тестирования" }).waitFor({ timeout: 20_000 });
+  if (await locked.getByRole("navigation", { name: /Основная навигация|Primary navigation/ }).count()) {
+    throw new Error("Test invite gate exposed primary navigation before a code was accepted");
+  }
+  await lockedContext.close();
 }
 
 async function verifyHomeLocale(page, locale) {
@@ -74,8 +94,10 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
   const browser = await chromium.launch({ headless: true });
   let desktop;
   try {
+    await verifyTestInviteGate(browser);
     const desktopContext = await browser.newContext();
     desktop = await desktopContext.newPage();
+    await applyTestInvite(desktop);
     const response = await desktop.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     if (response?.status() !== 200) throw new Error(`Unexpected HTTP status: ${response?.status() ?? "none"}`);
     if ((await desktop.title()) !== "Live Cash OS") throw new Error("Unexpected document title");
@@ -115,6 +137,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
 
     const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const mobile = await mobileContext.newPage();
+    await applyTestInvite(mobile);
     await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await verifyHomeLocale(mobile, "ru");
     await verifyBuildIdentity(mobile);
@@ -142,6 +165,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       locale_and_active_session_persist_reload: true,
       english_lcm01_no_cyrillic_fallback_verified: true,
       mobile_viewport: "390x844",
+      test_invite_gate_verified: Boolean(testInviteCode),
       timestamp: new Date().toISOString(),
     };
     await writeFile("smoke-evidence/report.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
