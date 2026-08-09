@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { moduleById } from "../content/modules";
 import type { Drill } from "../content/types";
@@ -156,9 +156,8 @@ function useLiveHost(selector: string, enabled: boolean): HTMLElement | null {
       setHost((previous) => previous === next ? previous : next);
     };
     sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    const timer = window.setInterval(sync, 100);
+    return () => window.clearInterval(timer);
   }, [selector, enabled]);
   return host;
 }
