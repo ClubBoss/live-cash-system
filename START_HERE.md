@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `FINAL_RED_TEAM_CANDIDATE / INDEPENDENT_EVALUATION_PENDING / NO_MERGE_NO_DEPLOY`
+Status: `GAUNTLET_4_INTEGRATED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
 
 ## Bootstrap
 
@@ -18,20 +18,16 @@ Read in this order:
 ## Current repository truth
 
 - repository: `ClubBoss/live-cash-system`;
-- current `main` / Final Red-Team base: `787313276f3d7290a6144f965eeb54dce050509e`;
-- bounded candidate branch: `repair/final-red-team-closure`;
-- draft evaluator PR: `#28`;
-- Final Red-Team implementation code-freeze: `07cea8f9b3109e93e8c2a8b81ac77820a772d4f1`;
-- code-freeze canonical CI: run `31285270612` — `SUCCESS`;
-- code-freeze automated counts: `178/178` unit/integration PASS; canonical Chromium/mobile E2E `128` PASS / `4` intentional skips;
-- learner-facing review fingerprint after RC-8 refresh: `dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e`;
+- Final Red-Team closure is historical and integrated into `main`.
+- Gauntlet 4 is integrated in `main` as `221f32e479bb0f1e921033a43a1c032be49380ca`.
+- The exact current `main` identity and its CI run are sourced from immutable Git history and GitHub Actions, not this file.
 - editorial state remains `TRANSITIONAL_REVIEW_REQUIRED`.
 
-The exact final candidate SHA and its final run IDs are intentionally not hard-coded into an authority file that participates in that same commit. Doing so would create self-referential SHA churn. The PR head/Git ref plus the final evaluator handoff are the authority for the exact frozen SHA and evidence runs.
+The exact current `main` SHA and run IDs are not hard-coded here because they change with accepted repository work. Git and GitHub Actions are the authority for those identities.
 
 ## Integrated scope
 
-Gauntlet 1, Gauntlet 2 and Gauntlet 3 are integrated in `main` before this candidate. Final Red-Team Closure is a bounded post-Gauntlet repair only.
+Gauntlets 1–4 and the Final Red-Team closure are integrated in `main`.
 
 The closure preserves:
 
@@ -62,26 +58,19 @@ Current governance remains:
 
 No strategy, drill, RU or EN approval is inferred from model review or CI.
 
-## Production boundary
+## Deployment boundary
 
 Stable URL remains:
 
 `https://live-cash-os.elmarsal.chatgpt.site/`
 
-Historical production smoke evidence exists for earlier accepted source states. It is not evidence that this Final Red-Team candidate is deployed.
+Historical production smoke evidence is not proof that the current `main` is deployed there.
 
-This closure must not publish, merge or claim exact deployed-SHA equality. Production acceptance requires a later explicitly authorized flow after evaluator `KEEP`.
+Production deployment remains separately authorized and must not be inferred from CI. An owner-authorized Cloudflare Workers test mirror may deploy accepted `main` only after `npm run test:release` is green; it must use neither the production URL nor the production D1 database.
 
 ## Active milestone
 
-`FINAL_RED_TEAM_CLOSURE -> EXACT_FINAL_RELEASE_GATE -> ONE_TIME_CROSS_BROWSER_MATRIX -> INDEPENDENT_EVALUATOR`
-
-After the exact final SHA is frozen:
-
-1. run unchanged `npm run test:release` on that exact SHA;
-2. run the six-project cross-browser matrix on the same exact SHA;
-3. make no further code/docs/manifest changes;
-4. hand the frozen candidate to the independent evaluator for `KEEP / REPAIR / REVERT`.
+`GAUNTLET_4_INTEGRATED -> HUMAN_CONTENT_LANGUAGE_REVIEW -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
 
 ## Frozen constraints
 
@@ -94,16 +83,14 @@ Do not:
 - grant retention from immediate repetition;
 - reset learner progress globally;
 - change the stable URL;
-- merge or deploy before evaluator approval.
+- deploy the production site without separate authorization.
 
 ## Verdict
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`FINAL_RED_TEAM_CANDIDATE_NOT_YET_MERGED`
-
 `HUMAN_REVIEW_PENDING`
 
 `W10_NOT_COMPLETED / W11_NOT_COMPLETED`
 
-`NO_PRODUCTION_CLAIM_FOR_THIS_CANDIDATE`
+`NO_PRODUCTION_DEPLOYMENT_CLAIM`

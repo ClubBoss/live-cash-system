@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: final_red_team_candidate_independent_evaluation
-  updated_at: '2026-08-09T04:13:00+04:00'
+  phase: gauntlet_4_integrated_human_review_pending
+  updated_at: '2026-08-09T08:00:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash trainer for live 1/3 and 2/5 while preserving evidence truth.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -24,18 +24,13 @@ learner_application:
   stable_url_must_not_change: true
   runtime_admission_is_not_final_rule_admission: true
 repository_identity:
-  final_red_team_base_main_sha: 787313276f3d7290a6144f965eeb54dce050509e
-  candidate_branch: repair/final-red-team-closure
-  evaluator_pr: 28
-  implementation_code_freeze_sha: 07cea8f9b3109e93e8c2a8b81ac77820a772d4f1
-  implementation_code_freeze_ci_run: 31285270612
-  implementation_code_freeze_ci_result: SUCCESS
-  exact_final_identity_rule: branch_head_after_authority_reconciliation_and_temporary_harness_removal
-  exact_final_evidence_authority: github_actions_and_final_evaluator_handoff
-  exact_final_sha_embedded_here: false
-  exact_final_sha_note: Embedding the SHA of the commit containing this file would be self-referential; Git PR head is authoritative after the final repository mutation.
+  final_red_team_status: HISTORICAL_INTEGRATED
+  gauntlet_4_status: INTEGRATED
+  current_main_identity_authority: git_and_github_actions
+  exact_current_main_sha_embedded_here: false
+  exact_current_main_sha_note: Git and GitHub Actions are authoritative because this file must not self-reference a changing main SHA.
 final_red_team_closure:
-  status: CANDIDATE_NOT_MERGED
+  status: HISTORICAL_INTEGRATED
   rc1_explicit_review_id: IMPLEMENTED_FAIL_CLOSED
   rc2_schema_v2_validation: IMPLEMENTED_DEEP_STRUCTURAL_VALIDATION
   rc3_learner_copy: IMPLEMENTED_INTERNAL_ENUMS_PRESERVED
@@ -50,7 +45,7 @@ final_red_team_closure:
   field_validated_contract_changed: false
   retention_1_3_7_changed: false
   table_burst_policy_changed: false
-implementation_code_freeze_evidence:
+historical_code_freeze_evidence:
   canonical_command: npm run test:release
   run_id: 31285270612
   result: SUCCESS
@@ -66,23 +61,10 @@ implementation_code_freeze_evidence:
   canonical_e2e_pass: 128
   canonical_e2e_skip: 4
   canonical_e2e_fail: 0
-final_freeze_contract:
-  release_gate: unchanged_npm_run_test_release_must_be_green_on_exact_final_sha
-  cross_browser_matrix: existing_six_project_matrix_must_be_green_on_same_exact_final_sha
-  cross_browser_projects:
-  - chromium_desktop
-  - firefox_desktop
-  - webkit_desktop
-  - iphone_webkit
-  - android_chromium
-  - ipad_webkit
-  mutation_after_final_evidence: FORBIDDEN
-  exact_counts_and_run_ids_location: github_actions_and_final_evaluator_handoff
 acceptance_truth:
   gauntlet_1_integrated: true
   gauntlet_2_integrated: true
   gauntlet_3_integrated: true
-  final_red_team_evaluator_verdict: PENDING
   strategy_status: CURRICULUM_STRATEGY_REVIEW_PENDING
   drill_status: DRILLS_REVIEW_PENDING
   final_composition_status: REVIEW_PENDING
@@ -95,11 +77,9 @@ acceptance_truth:
 production_truth:
   stable_url_unchanged: true
   historical_live_smoke_exists: true
-  historical_smoke_applies_to_final_red_team_candidate: false
-  final_red_team_candidate_deployed: false
-  exact_deployed_git_sha_verified: false
-  deploy_authorized_in_this_task: false
-  merge_authorized_in_this_task: false
+  current_main_deployed_to_chatgpt_sites: UNPROVEN
+  production_deploy_authorized_in_this_task: false
+  mobile_test_mirror_authorized_in_this_task: true
 learner_runtime_truth:
   content_completion_is_mastery: false
   diagnostic_routing_is_learning_evidence: false
@@ -108,19 +88,14 @@ learner_runtime_truth:
   immediate_correct_is_retention: false
   global_progress_reset: false
 active_milestone:
-  name: final_red_team_closure
-  evaluation_rule: exact_final_release_and_cross_browser_evidence_must_be_green_before_independent_evaluator_decision
-  evaluator_decision: KEEP_REPAIR_REVERT
+  name: gauntlet_4_integrated_human_review_pending
 truth_boundaries:
 - source green is not production green
 - automated gates cannot create human strategy, drill, RU, or EN approval
 - W10 requires genuine empirical learner evidence and is not complete
 - W11 is not complete
-- historical deployment evidence cannot prove this candidate is deployed
-- exact final SHA is authoritative from Git after the final repository mutation, not from a self-referential field inside that commit
-- exact final run IDs are evidence records and do not require a post-freeze repository mutation
+- historical deployment evidence cannot prove current main is deployed
+- exact current main SHA and CI runs are authoritative from Git and GitHub Actions
 terminal_boundary:
-  merge: FORBIDDEN_PENDING_EVALUATOR
-  deploy: FORBIDDEN_PENDING_EVALUATOR_AND_SEPARATE_AUTHORIZATION
-  post_evidence_repository_mutation: FORBIDDEN
-  handoff_authority: github_actions_plus_final_evaluator_handoff
+  production_deploy: FORBIDDEN_WITHOUT_SEPARATE_AUTHORIZATION
+  mobile_test_mirror: AUTHORIZED_AFTER_RELEASE_GATE

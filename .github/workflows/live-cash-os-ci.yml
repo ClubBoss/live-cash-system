@@ -37,7 +37,7 @@ jobs:
           cache-dependency-path: apps/live-cash-os/package-lock.json
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -55,3 +55,48 @@ jobs:
             apps/live-cash-os/test-results
           if-no-files-found: ignore
           retention-days: 7
+
+  deploy-test-mirror:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Deploy exact accepted SHA to Cloudflare Workers
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "Missing CLOUDFLARE_API_TOKEN secret" >&2; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "Missing CLOUDFLARE_ACCOUNT_ID secret" >&2; exit 1; }
+          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy 2>&1 | tee deploy-output.txt
+          deploy_url="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' deploy-output.txt | tail -n 1)"
+          test -n "$deploy_url" || { echo "Cloudflare did not report a workers.dev URL" >&2; exit 1; }
+          echo "url=$deploy_url" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+      - name: Smoke the deployed test mirror
+        env:
+          LIVE_URL: ${{ steps.deploy.outputs.url }}
+          DEPLOYED_SHA: ${{ steps.deploy.outputs.sha }}
+          DEPLOYED_AT: ${{ steps.deploy.outputs.timestamp }}
+        run: |
+          echo "test-mirror url=$LIVE_URL sha=$DEPLOYED_SHA deployed_at=$DEPLOYED_AT"
+          curl --fail --show-error --silent --retry 5 --retry-all-errors "$LIVE_URL/" > /dev/null
+          npm run smoke:production
