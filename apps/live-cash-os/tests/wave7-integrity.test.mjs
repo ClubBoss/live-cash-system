@@ -127,7 +127,7 @@ test("reviewed explain-back repair enters the existing W6 repair queue", async (
   assert.equal(reviewed.modules.blinds.evidence.retention.exposures, 0);
 });
 
-test("real-hand required fields are deterministic and insufficient review is representable", async () => {
+test("real-hand required fields are deterministic; SELF insufficient stays open and HUMAN insufficient can close", async () => {
   const wave7 = await wave7Promise;
   const model = await modelPromise;
   assert.deepEqual(wave7.validateFieldHandInput(hand()), []);
@@ -135,11 +135,17 @@ test("real-hand required fields are deterministic and insufficient review is rep
   assert.ok(wave7.validateFieldHandInput(hand({ stakes: "", confidence: 101 })).includes("confidence"));
   const captured = wave7.captureFieldHand(model.emptyLearnerState(), hand());
   const note = captured.fieldNotes[0];
-  const reviewed = wave7.reviewFieldHand(captured, note.id, "INSUFFICIENT", "Villain position and action timing are not reliable enough to review the decision.");
-  assert.equal(reviewed.fieldNotes[0].status, "INSUFFICIENT");
-  assert.equal(reviewed.fieldNotes[0].reviewOutcome, "INSUFFICIENT");
-  assert.equal(reviewed.fieldNotes[0].reviewerKind, "SELF");
-  assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
+  const selfReviewed = wave7.reviewFieldHand(captured, note.id, "INSUFFICIENT", "My own review cannot establish the missing action timing.", "SELF");
+  assert.equal(selfReviewed.fieldNotes[0].status, "PENDING_REVIEW");
+  assert.equal(selfReviewed.fieldNotes[0].reviewOutcome, "INSUFFICIENT");
+  assert.equal(selfReviewed.fieldNotes[0].reviewerKind, "SELF");
+  assert.equal(selfReviewed.modules.geometry.evidence.field_transfer.exposures, 0);
+
+  const humanReviewed = wave7.reviewFieldHand(selfReviewed, note.id, "INSUFFICIENT", "Villain position and action timing are not reliable enough to review the decision.", "HUMAN");
+  assert.equal(humanReviewed.fieldNotes[0].status, "INSUFFICIENT");
+  assert.equal(humanReviewed.fieldNotes[0].reviewOutcome, "INSUFFICIENT");
+  assert.equal(humanReviewed.fieldNotes[0].reviewerKind, "HUMAN");
+  assert.equal(humanReviewed.modules.geometry.evidence.field_transfer.exposures, 0);
 });
 
 test("result addition cannot rewrite the pre-result decision snapshot", async () => {
@@ -168,6 +174,7 @@ test("self-review cannot create field-transfer evidence", async () => {
   const captured = await capturedHand();
   const note = captured.fieldNotes[0];
   const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "My own review thinks this matches the mechanism.", "SELF");
+  assert.equal(reviewed.fieldNotes[0].status, "PENDING_REVIEW");
   assert.equal(reviewed.fieldNotes[0].reviewerKind, "SELF");
   assert.equal(reviewed.fieldNotes[0].reviewOutcome, "REVIEWED_OK");
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
