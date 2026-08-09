@@ -22,6 +22,22 @@ async function saveState(page, state) {
   await page.reload();
 }
 
+async function clickStableContinue(page) {
+  const semantic = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
+  const core = page.locator(".feedback-view > button.primary");
+  let lastError;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    if (await semantic.isVisible().catch(() => false)) {
+      try { await semantic.click({ timeout: 500 }); return; } catch (error) { lastError = error; }
+    }
+    if (await core.isVisible().catch(() => false)) {
+      try { await core.click({ timeout: 500 }); return; } catch (error) { lastError = error; }
+    }
+    await page.waitForTimeout(100);
+  }
+  throw lastError ?? new Error("No learner-visible Continue control appeared after the answer");
+}
+
 async function fillRequiredHandFields(page) {
   await page.getByLabel("Лимиты").fill("2/5");
   await page.getByLabel("Позиция Hero").fill("BB");
@@ -133,30 +149,34 @@ test("Review runs one bounded item and returns to the updated Review queue", asy
   await expect(page.getByText(/Каждый пункт запускается отдельно; после завершения приложение возвращает сюда/i)).toBeVisible();
   await page.getByRole("button", { name: "Начать", exact: true }).click();
 
-  const groups = page.locator(".decision-card .answer-set");
-  await groups.nth(0).locator("button").first().click();
-  await groups.nth(1).locator("button").first().click();
-  await page.locator(".decision-card > button.primary").click();
-  await expect(page.locator(".g4-feedback-card")).toBeVisible();
-  await page.locator(".g4-feedback-card button.primary").click();
+  const card = page.locator(".decision-card");
+  await card.locator(".answer-set").nth(0).getByRole("button").first().click();
+  await card.locator(".answer-set").nth(1).getByRole("button").first().click();
+  await card.getByRole("button", { name: /^Ответить/ }).click();
+  await clickStableContinue(page);
 
   await expect(page.getByRole("button", { name: "Повтор", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.getByText(/Пункт завершён. Очередь Review обновлена/i)).toBeVisible();
-  expect((await localState(page)).activeSession).toBeNull();
+  await expect.poll(async () => (await localState(page)).activeSession).toBeNull();
 });
 
 test("Real Hands requires an explicit linked topic before a complete hand can be locked", async ({ page }) => {
   await page.getByRole("button", { name: "Руки", exact: true }).click();
-  await expect(page.getByText(/Связанная тема не выбрана/i)).toBeVisible();
-  await fillRequiredHandFields(page);
-
-  const lock = page.getByRole("button", { name: "Зафиксировать решение", exact: true });
-  await expect(page.getByText(/Все 11 обязательных полей заполнены. Осталось выбрать связанную тему/i)).toBeVisible();
+  const form = page.locator(".field-form");
+  const linkedTopic = form.getByLabel("Связанная тема");
+  const lock = form.getByRole("button", { name: "Зафиксировать решение", exact: true });
+  await expect(linkedTopic).toHaveValue("");
+  await expect(form.getByText(/Связанная тема не выбрана/i)).toBeVisible();
   await expect(lock).toBeDisabled();
 
-  await page.getByLabel("Связанная тема").selectOption("geometry");
+  await fillRequiredHandFields(page);
+  await expect(form.getByText(/11\/11 обязательных полей заполнено/i)).toBeVisible();
+  await expect(linkedTopic).toHaveValue("");
+  await expect(lock).toBeDisabled();
+
+  await linkedTopic.selectOption("geometry");
+  await expect(linkedTopic).toHaveValue("geometry");
   await expect(lock).toBeEnabled();
   await lock.click();
-  const state = await localState(page);
-  expect(state.fieldNotes.at(-1).moduleId).toBe("geometry");
+  await expect.poll(async () => (await localState(page)).fieldNotes.at(-1)?.moduleId).toBe("geometry");
 });
