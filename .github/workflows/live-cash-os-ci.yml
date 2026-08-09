@@ -42,7 +42,28 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Release gate
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Governance
+        run: npm run check:governance
+
+      - name: Editorial
+        run: npm run check:editorial
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit integration
+        run: npm run test:unit
+
+      - name: Canonical E2E
+        run: npm run test:e2e
+
+      - name: Canonical release
         run: npm run test:release
 
       - name: Upload browser evidence on failure
