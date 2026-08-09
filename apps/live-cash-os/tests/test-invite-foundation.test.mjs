@@ -52,7 +52,8 @@ test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", a
   assert.match(viteConfig, /__LIVE_CASH_TEST_INVITE_MODE__/);
   assert.doesNotMatch(viteConfig, /testMirrorWorkerConfig[\s\S]*binding:\s*d1/);
   assert.match(stateRoute, /eq\(testInvites\.codeHash, profile\.codeHash\)/);
-  assert.match(stateRoute, /isTestInviteMode\(\)[\s\S]*ensureTestMirrorSchema\(\)[\s\S]*activeTestInvite/);
+  assert.match(stateRoute, /isTestInviteMode\(\)[\s\S]*activeTestInvite/);
+  assert.doesNotMatch(stateRoute, /ensureTestMirrorSchema/);
   assert.match(db, /TEST_DB\?: D1Database/);
   assert.match(db, /bindings\.TEST_DB \?\? bindings\.DB/);
   assert.match(gate, /if \(!enabled\) return <>\{children\}<\/>/);

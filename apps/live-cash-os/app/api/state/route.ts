@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getChatGPTUser } from "../../chatgpt-auth";
-import { ensureTestMirrorSchema, getDb } from "../../../db";
+import { getDb } from "../../../db";
 import { learnerStates, testInvites } from "../../../db/schema";
 import { assessCloudWrite } from "../../../lib/cloud-sync-contract";
 import {
@@ -77,10 +77,9 @@ async function activeTestInvite(profile: PortableProfile): Promise<boolean> {
 async function currentIdentity(request: Request): Promise<string | null> {
   const portable = await portableProfile(request);
   if (isTestInviteMode()) {
-    // TEST_DB is isolated from production. Bootstrap its idempotent schema
-    // through the Worker binding before invite lookup, avoiding a broader D1
-    // management permission on the deploy token.
-    await ensureTestMirrorSchema();
+    // TEST_DB is isolated from production. Its schema is applied by the
+    // deploy workflow before the Worker is published; runtime requests only
+    // perform the invite lookup and learner-state operations.
     return portable && await activeTestInvite(portable) ? portable.userId : null;
   }
   if (portable) return portable.userId;
