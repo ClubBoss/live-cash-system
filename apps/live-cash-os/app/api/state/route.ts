@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getChatGPTUser } from "../../chatgpt-auth";
-import { getDb } from "../../../db";
+import { ensureTestMirrorSchema, getDb } from "../../../db";
 import { learnerStates, testInvites } from "../../../db/schema";
 import { assessCloudWrite } from "../../../lib/cloud-sync-contract";
 import {
@@ -77,6 +77,10 @@ async function activeTestInvite(profile: PortableProfile): Promise<boolean> {
 async function currentIdentity(request: Request): Promise<string | null> {
   const portable = await portableProfile(request);
   if (isTestInviteMode()) {
+    // TEST_DB is isolated from production. Bootstrap its idempotent schema
+    // through the Worker binding before invite lookup, avoiding a broader D1
+    // management permission on the deploy token.
+    await ensureTestMirrorSchema();
     return portable && await activeTestInvite(portable) ? portable.userId : null;
   }
   if (portable) return portable.userId;
@@ -151,7 +155,8 @@ async function conflictFromLatest(userId: string) {
 }
 
 export async function GET(request: Request) {
-  const userId = await currentIdentity(request);
+  let userId: string | null;
+  try { userId = await currentIdentity(request); } catch { return serverError(); }
   if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   try {
@@ -184,7 +189,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const userId = await currentIdentity(request);
+  let userId: string | null;
+  try { userId = await currentIdentity(request); } catch { return serverError(); }
   if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
@@ -249,7 +255,7 @@ export async function POST(request: Request) {
       const resumed = await db
         .update(learnerStates)
         .set({ stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
-      .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
+        .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
         .run();
       if ((resumed.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
       return json({ ok: true, resumed: true, revision: incoming.revision, cloudToken: nextCloudToken });
@@ -282,7 +288,7 @@ export async function POST(request: Request) {
     const updated = await db
       .update(learnerStates)
       .set({ stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
-        .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
+      .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
       .run();
     if ((updated.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
 
@@ -293,7 +299,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const userId = await currentIdentity(request);
+  let userId: string | null;
+  try { userId = await currentIdentity(request); } catch { return serverError(); }
   if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   try {

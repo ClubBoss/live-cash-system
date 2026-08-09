@@ -1,6 +1,6 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `GAUNTLET_4_INTEGRATED / RELEASE_INTEGRITY_HARDENING / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `POST_INTEGRATION_INTEGRITY_HARDENED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 This ledger records the current acceptance boundary. Automated implementation evidence may reject a bad change; it cannot create human strategy, drill, Russian or English approval.
 
@@ -15,46 +15,42 @@ Earlier bounded dispositions remain historical implementation dispositions only:
 
 ## Integrated Gauntlet 4 boundary
 
-Gauntlet 4 repaired demonstrated LCM-01 real-use integrity defects:
+Gauntlet 4 repaired demonstrated LCM-01 real-use integrity defects: semantic correct/partial/wrong feedback, duplicate-feedback removal, bounded learner copy repair, accessible ordering, Wave5 Lab transition integrity, and transition-driven browser regression evidence. The ordering interaction remains an in-lesson active-learning check only; it does not create mastery, retention or field evidence.
 
-- semantic correct / partial / wrong feedback hierarchy;
-- duplicate full-correct feedback removal;
-- bounded learner-facing LCM-01 copy repair;
-- accessible active ordering for the authoritative LCM-01 sequence;
-- Wave5 Lab transition integrity and header-only-shell prevention;
-- transition-driven browser regression evidence.
+## Post-integration integrity hardening
 
-The ordering interaction is an in-lesson active-learning check only. It does not create mastery, retention or field evidence.
+The final bounded repair covers verified gaps found after the Gauntlets:
 
-## Release-integrity hardening
+- Cards are limited to completed-topic material and use fixed bounded snapshots;
+- Review returns to the updated queue after each completed item;
+- Before Play remains separate from a saved learning session;
+- Real Hands require an explicit linked topic;
+- SELF hand review remains non-evidentiary and can be followed by a later genuine human/human-assisted review of the same hand;
+- local/cloud conflict recovery shows version facts before the learner chooses;
+- RU fast-series naming is learner-facing rather than exposing an internal product label;
+- smoke follows the current shell and verifies immutable build identity;
+- full Chromium/mobile regression remains canonical, with a focused Firefox/WebKit learner-flow matrix added;
+- root truth files trigger CI and release-gate logs are retained;
+- the test mirror uses only its isolated `TEST_DB` binding and initializes its idempotent test schema through that binding before invite lookup.
 
-The final bounded polish is limited to verified post-Gauntlet residue:
-
-- production/test-mirror smoke follows the current learner shell rather than stale navigation copy;
-- test-mirror builds expose an immutable Git SHA marker and smoke verifies the deployed identity;
-- the main-branch mirror deploy/smoke path can be rerun by workflow dispatch as well as normal push;
-- smoke evidence is retained as a workflow artifact;
-- stale 90-second warm-up wording is aligned to the actual bounded `up to 2 minutes` contract;
-- learner-facing Diagnostic terminology is consistent in RU/EN.
-
-These changes do not authorize a new curriculum, scheduler, mastery or evidence model.
+These changes do not authorize a new curriculum, mastery model, evidence threshold or stable-production release.
 
 ## Preservation proof boundary
 
-The final polish does not intentionally change:
+The closure does not intentionally change:
 
 - poker curriculum or correct-answer identities;
 - drill/card IDs;
 - source provenance;
 - hard prerequisites;
-- scheduler routing policy;
-- mastery semantics;
-- `FIELD_VALIDATED` contract;
-- `1/3/7` retention policy;
-- Table Burst policy;
 - learner-state schema version;
+- mastery semantics;
+- `FIELD_VALIDATED` threshold;
+- `1/3/7` retention policy;
 - diagnostic scoring semantics;
 - stable production URL.
+
+The Before Play scheduler branch changes only to honor the already-declared separate warm-up contract. Internal fast-series evidence semantics are unchanged.
 
 ## Governance and editorial truth
 
@@ -69,7 +65,7 @@ The manifest remains deliberately review-pending:
 - human RU approvals: none;
 - human EN approvals: none.
 
-A deterministic source-lock/fingerprint refresh records the exact changed learner-facing corpus. It is not human approval.
+A deterministic source-lock/fingerprint refresh records changed learner-facing corpus. It is not human approval.
 
 ## Technical acceptance contract
 
@@ -77,13 +73,13 @@ Canonical source gate:
 
 `npm run test:release`
 
-A release-integrity change is acceptable only when:
+A post-integration change is acceptable only when:
 
 1. canonical source/release validation is GREEN;
-2. existing Gauntlet regressions remain GREEN;
-3. the branch-vs-main diff is bounded with no known P0/P1 product regression;
+2. Gauntlet and new post-integration regressions are GREEN;
+3. the branch-vs-current-main diff is bounded with no known P0/P1 product regression;
 4. after integration, GitHub Actions is GREEN on the exact final `main` commit;
-5. the main-branch test mirror deploys that exact accepted SHA and its smoke verifies the same build identity.
+5. the main-branch test mirror deploys that exact accepted SHA and smoke verifies build identity plus isolated test-storage availability.
 
 Exact SHA/run identities belong to immutable Git/GitHub history and the closure report rather than this self-referential ledger.
 

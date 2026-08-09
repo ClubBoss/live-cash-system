@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "46b5465262552a0a0abc154b76232289cf7a4b4bce79f462d2e0eed8256577cb",
+    "current_digest": "db0d10dd83c419610752f4dfb72598a59c0f0466b4a49f61a2bdfd224bc1d745",
     "approved_digest": null,
-    "review_corpus_fingerprint": "46b5465262552a0a0abc154b76232289cf7a4b4bce79f462d2e0eed8256577cb",
-    "note": "Gauntlet 4 learner-facing repairs plus the bounded final shell terminology/warm-up cleanup are materialized in the review corpus. The strategic claim corpus and answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "db0d10dd83c419610752f4dfb72598a59c0f0466b4a49f61a2bdfd224bc1d745",
+    "note": "Gauntlet 4, final shell cleanup, and the bounded post-integration workflow-integrity repairs are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -59,12 +59,12 @@
     "content/i18n/learner-ui.ts": "c5169565b27781aa4bf225d1ac96160d82ce07e6",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "5a42336d09d11d479f39d077d9cfceebcbbaed92",
-    "components/LiveCashAppCore.tsx": "7b08417227d8b58cbc673715c029307bd4a9568a",
+    "components/LiveCashAppCore.tsx": "4ea31525160d913fce43cf46735e7a3298757f47",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/Wave5PracticeLayer.tsx": "06006fbd6de4ed19ab5df0a712a1cddea1f5af6f",
-    "components/Wave7Experience.tsx": "efb0f2f79e837aa0e390ac64e5aed26285a27eaf",
+    "components/Wave7Experience.tsx": "fedd4d463120286738a1b1d46eee83d92a315165",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
-    "components/DataSafetyPanel.tsx": "bb3cf291bde1cce6a8c89d2ed6eaf27e46e9d998",
+    "components/DataSafetyPanel.tsx": "e858ca06549b5526bc951ca02cf73e18b515ffc2",
     "components/Gauntlet4LearningIntegrityLayer.tsx": "dcc1d3e25059bca5cf8fe1328fdbeb8e990e94fc"
   },
   "modules": {

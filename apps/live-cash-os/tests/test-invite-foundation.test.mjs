@@ -49,7 +49,32 @@ test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", a
   assert.match(viteConfig, /TEST_INVITE_MODE:\s*"true"/);
   assert.doesNotMatch(viteConfig, /testMirrorWorkerConfig[\s\S]*binding:\s*d1/);
   assert.match(stateRoute, /eq\(testInvites\.codeHash, profile\.codeHash\)/);
-  assert.match(stateRoute, /isTestInviteMode\(\)[\s\S]*activeTestInvite/);
+  assert.match(stateRoute, /isTestInviteMode\(\)[\s\S]*ensureTestMirrorSchema\(\)[\s\S]*activeTestInvite/);
   assert.match(db, /TEST_DB\?: D1Database/);
   assert.match(db, /bindings\.TEST_DB \?\? bindings\.DB/);
+});
+
+test("isolated TEST_DB bootstrap is idempotent, hash-only and production-safe", async () => {
+  const [db, seed, workflow] = await Promise.all([
+    readFile(new URL("../db/index.ts", import.meta.url), "utf8"),
+    readFile(new URL("../test-invites/migrations/0002_test_invite_seed.sql", import.meta.url), "utf8"),
+    readFile(new URL("../../../.github/workflows/live-cash-os-ci.yml", import.meta.url), "utf8"),
+  ]);
+  assert.match(db, /export async function ensureTestMirrorSchema/);
+  assert.match(db, /const database = runtimeBindings\(\)\.TEST_DB/);
+  assert.match(db, /if \(!database\) return/);
+  assert.match(db, /CREATE TABLE IF NOT EXISTS learner_states/);
+  assert.match(db, /CREATE TABLE IF NOT EXISTS test_invites/);
+  assert.match(db, /INSERT OR IGNORE INTO test_invites/);
+  assert.doesNotMatch(db, /LCO-TEST-/);
+
+  const seedHashes = [...seed.matchAll(/'([a-f0-9]{64})'/g)].map((match) => match[1]);
+  for (const hash of seedHashes) assert.match(db, new RegExp(hash));
+  assert.equal(seedHashes.length, 5);
+
+  assert.doesNotMatch(workflow, /wrangler d1 execute/);
+  assert.match(workflow, /TEST_DB bootstrap\/invite lookup expected 401/);
+  assert.match(workflow, /x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA/);
+  assert.match(workflow, /d1\[0\]\?\.binding !== "TEST_DB"/);
+  assert.match(workflow, /binding === "DB"/);
 });

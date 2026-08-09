@@ -176,7 +176,14 @@ test("divergent local and cloud histories preserve both and require explicit rec
   expect(backup.remote.fieldNotes.some((row) => row.id === "remote-hand")).toBe(true);
 
   await page.getByRole("button", { name: "Данные", exact: true }).click();
-  await expect(page.getByText(/Ни одна версия не была автоматически отброшена/i)).toBeVisible();
+  await expect(page.getByText(/Сначала сравни ключевые факты/i)).toBeVisible();
+  const comparison = page.getByLabel("Сравнение версий прогресса");
+  await expect(comparison).toBeVisible();
+  await expect(comparison.getByText("Эта копия", { exact: true })).toBeVisible();
+  await expect(comparison.getByText("Облачная копия", { exact: true })).toBeVisible();
+  await expect(comparison.getByText(/Revision: 12/)).toHaveCount(2);
+  await expect(comparison.getByText(/Реальные руки: 1/)).toHaveCount(2);
+  await expect(comparison.getByText(/Сохранённая сессия:/)).toHaveCount(2);
   await page.waitForTimeout(1_000);
   expect(server.postBodies).toHaveLength(0);
 });

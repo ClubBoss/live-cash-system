@@ -6,12 +6,16 @@ on:
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "state/CURRENT_PROJECT_STATE.yaml"
+      - "START_HERE.md"
       - ".github/workflows/live-cash-os-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "state/CURRENT_PROJECT_STATE.yaml"
+      - "START_HERE.md"
       - ".github/workflows/live-cash-os-ci.yml"
   workflow_dispatch:
 
@@ -29,8 +33,8 @@ jobs:
       run:
         working-directory: apps/live-cash-os
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22.13.0
           cache: npm
@@ -39,15 +43,26 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install canonical browsers
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Release gate
-        run: npm run test:release
+        run: |
+          set -o pipefail
+          npm run test:release 2>&1 | tee release-gate.log
+
+      - name: Upload release gate log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-release-gate-log
+          path: apps/live-cash-os/release-gate.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload browser evidence on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-cash-os-playwright-evidence
           path: |
@@ -64,10 +79,10 @@ jobs:
       run:
         working-directory: apps/live-cash-os
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22.13.0
           cache: npm
@@ -103,9 +118,6 @@ jobs:
             console.log("Verified generated test-mirror config: dedicated TEST_DB only; production DB absent");
           '
           npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy --dry-run 2>&1 | tee deploy-dry-run.txt
-          npx --yes wrangler d1 execute live-cash-os-mobile-test-state --remote --file test-invites/migrations/0000_test_learner_states.sql
-          npx --yes wrangler d1 execute live-cash-os-mobile-test-state --remote --file test-invites/migrations/0001_test_invites.sql
-          npx --yes wrangler d1 execute live-cash-os-mobile-test-state --remote --file test-invites/migrations/0002_test_invite_seed.sql
           npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy 2>&1 | tee deploy-output.txt
           deploy_url="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' deploy-output.txt | tail -n 1)"
           test -n "$deploy_url" || { echo "Cloudflare did not report a workers.dev URL" >&2; exit 1; }
@@ -118,14 +130,25 @@ jobs:
           DEPLOYED_SHA: ${{ steps.deploy.outputs.sha }}
           DEPLOYED_AT: ${{ steps.deploy.outputs.timestamp }}
         run: |
+          set -o pipefail
           echo "test-mirror url=$LIVE_URL sha=$DEPLOYED_SHA deployed_at=$DEPLOYED_AT"
           curl --fail --show-error --silent --retry 5 --retry-all-errors "$LIVE_URL/" > /dev/null
+          api_status="$(curl --show-error --silent --retry 5 --retry-all-errors -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
+          test "$api_status" = "401" || { echo "TEST_DB bootstrap/invite lookup expected 401, got $api_status" >&2; cat test-db-bootstrap.json >&2; exit 1; }
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const body = JSON.parse(readFileSync("test-db-bootstrap.json", "utf8"));
+            if (body.code !== "AUTH_REQUIRED") throw new Error(`Unexpected TEST_DB bootstrap response: ${JSON.stringify(body)}`);
+            console.log("Verified TEST_DB runtime bootstrap and invite lookup without D1 management API access");
+          '
           npm run smoke:production
       - name: Upload test-mirror smoke evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-cash-os-test-mirror-smoke
-          path: apps/live-cash-os/smoke-evidence
+          path: |
+            apps/live-cash-os/smoke-evidence
+            apps/live-cash-os/test-db-bootstrap.json
           if-no-files-found: ignore
           retention-days: 7

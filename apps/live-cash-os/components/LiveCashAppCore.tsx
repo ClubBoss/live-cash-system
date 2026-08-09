@@ -347,6 +347,7 @@ export default function LiveCashAppV11() {
   const [tab, setTab] = useState<Tab>("today");
   const [notice, setNotice] = useState("");
   const [dailyBudget, setDailyBudget] = useState<DailyBudget>("15");
+  const [sessionReturnTab, setSessionReturnTab] = useState<Tab | null>(null);
   const dataSafety = useReliableLearnerState();
   const { state, setState, ready, syncStatus, recoveryCode } = dataSafety;
   const t = runtimeCopy[locale];
@@ -386,9 +387,10 @@ export default function LiveCashAppV11() {
     if (message) setNotice(message);
   }, [locale, ready, recoveryCode, syncStatus]);
 
+  const hasActiveSession = Boolean(state.activeSession);
   useEffect(() => {
-    if (ready && state.activeSession) setTab("learn");
-  }, [ready]);
+    if (ready && hasActiveSession) setTab("learn");
+  }, [ready, hasActiveSession]);
 
   const planningNow = Date.now();
   const plan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: dailyBudget, now: planningNow, seed: `${state.revision}:${dailyBudget}` });
@@ -407,6 +409,7 @@ export default function LiveCashAppV11() {
   }
 
   function openLesson(moduleId: ModuleId) {
+    setSessionReturnTab(null);
     const module = moduleById[moduleId];
     if (!moduleAvailable(state, moduleId, [...HARD_PREREQUISITES[moduleId]])) {
       const prerequisiteId = nextRequiredModule(state, moduleId);
@@ -421,31 +424,36 @@ export default function LiveCashAppV11() {
   }
 
   function openPractice(moduleId: ModuleId) {
+    setSessionReturnTab(null);
     setState(startSession(state, "practice", moduleId, moduleById[moduleId].drills.map((drill) => drill.id)));
     setTab("learn");
   }
 
-  function openRepair(moduleId: ModuleId, warmup = false, sourceReviewId?: string) {
+  function openRepair(moduleId: ModuleId, warmup = false, sourceReviewId?: string, returnToReview = false) {
     const selection = selectRepair(state, moduleId, sourceReviewId);
     if (!selection.drills.length) return;
+    setSessionReturnTab(returnToReview ? "review" : null);
     setState(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), warmup ? -1 : 0, selection.sourceReviewId));
     setTab("learn");
   }
 
-  function openReview(sourceReviewId?: string) {
+  function openReview(sourceReviewId?: string, returnToReview = false) {
     const selection = selectReview(state, sourceReviewId);
     if (!selection.drills.length) { setTab("review"); return; }
+    setSessionReturnTab(returnToReview ? "review" : null);
     setState(startSession(state, "review", selection.drills[0].moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId));
     setTab("learn");
   }
 
   function openMixed() {
+    setSessionReturnTab(null);
     const drills = selectMixed(state);
     setState(startSession(state, "mixed", drills[0].moduleId, drills.map((drill) => drill.id)));
     setTab("learn");
   }
 
   function openBurst() {
+    setSessionReturnTab(null);
     const drillIds = selectTableBurstDrillIds(state, SCHEDULER_CATALOG, `${state.revision}:table-burst`);
     const first = drillIds.length ? drillById[drillIds[0]] : undefined;
     if (!first) return;
@@ -457,11 +465,12 @@ export default function LiveCashAppV11() {
     const item = selectedPlan.items[0];
     if (!item || item.kind === "done") return;
     if (item.kind === "resume") { setTab("learn"); return; }
-    if (item.kind === "review") { openReview(item.sourceReviewId); return; }
-    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId, warmup, item.sourceReviewId); return; }
+    if (item.kind === "review") { openReview(item.sourceReviewId, false); return; }
+    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId, warmup, item.sourceReviewId, false); return; }
     if (item.kind === "lesson" && item.moduleId) { openLesson(item.moduleId); return; }
-    if (item.kind === "cards") { setTab("cards"); return; }
+    if (item.kind === "cards") { setSessionReturnTab(null); setTab("cards"); return; }
     if ((item.kind === "practice" || item.kind === "mixed") && item.moduleId && item.drillIds?.length) {
+      setSessionReturnTab(null);
       setState(startSession(state, item.kind === "mixed" ? "mixed" : "practice", item.moduleId, item.drillIds));
       setTab("learn");
     }
@@ -473,12 +482,33 @@ export default function LiveCashAppV11() {
 
   function runWarmup() {
     setDailyBudget("warmup");
+    const item = warmupPlan.items[0];
+    if (!item || item.kind === "done") {
+      setNotice(locale === "ru"
+        ? state.activeSession
+          ? "Сохранённая сессия остаётся на месте. Для отдельной разминки пока нет карточек из завершённых тем."
+          : "Для разминки пока нет изученного материала. Сначала закончи первый урок."
+        : state.activeSession
+          ? "Your saved session stays untouched. There are no cards from completed topics for a separate warm-up yet."
+          : "There is no studied material for a warm-up yet. Complete the first lesson first.");
+      return;
+    }
     runPlan(warmupPlan, true);
   }
 
   function exitSession() {
     setNotice(locale === "ru" ? "Сессия сохранена. Можно продолжить с этого места." : "Session saved. You can resume from this exact point.");
     setTab("today");
+  }
+
+  function finishPracticeBlock() {
+    if (!sessionReturnTab) return;
+    const target = sessionReturnTab;
+    setSessionReturnTab(null);
+    setNotice(locale === "ru"
+      ? "Пункт завершён. Очередь Review обновлена — выбери следующий оставшийся пункт."
+      : "Item complete. The Review queue is updated — choose the next remaining item.");
+    setTab(target);
   }
 
   function finishDiagnosticImport() {
@@ -513,8 +543,8 @@ export default function LiveCashAppV11() {
 
     {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onWarmup={runWarmup} onLearn={() => setTab("learn")} onDiagnostic={() => setTab("diagnostic")} onField={() => setTab("field")} />}
     {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} onBurst={openBurst} />}
-    {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} onWarmupCards={() => setTab("cards")} />}
-    {tab === "review" && <Review locale={locale} state={state} plan={reviewPlan} budget={reviewBudget} onBudget={setDailyBudget} onReview={openReview} onRepair={(moduleId, sourceReviewId) => openRepair(moduleId, false, sourceReviewId)} />}
+    {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} onWarmupCards={() => setTab("cards")} onFinished={finishPracticeBlock} />}
+    {tab === "review" && <Review locale={locale} state={state} plan={reviewPlan} budget={reviewBudget} onBudget={setDailyBudget} onReview={(sourceReviewId) => openReview(sourceReviewId, true)} onRepair={(moduleId, sourceReviewId) => openRepair(moduleId, false, sourceReviewId, true)} />}
     {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} onLearn={() => setTab("learn")} />}
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
     {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
@@ -528,17 +558,22 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onWarmup, onLearn
   const postMode = budget === "post";
   const primary = plan.items[0];
   const hasPlanAction = Boolean(!postMode && primary && primary.kind !== "done");
+  const savedSessionWarmup = budget === "warmup" && Boolean(state.activeSession);
   const next = postMode
     ? locale === "ru"
       ? { title: "Сохрани 1–3 реальные руки", reason: "Сначала зафиксируй решения, затем разбери одну руку. Review и работа над ошибкой — только после этого и только если нужны." }
       : { title: "Save 1–3 real hands", reason: "Capture the decisions first, then review one hand. Normal Review and mistake practice come only afterward, if needed." }
-    : primary ? dailyPlanItemCopy(locale, primary) : dailyPlanItemCopy(locale, { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
+    : savedSessionWarmup && primary?.kind === "cards"
+      ? locale === "ru"
+        ? { title: "Быстрая разминка перед игрой", reason: "Сохранённая сессия останется ровно на месте. Разминка использует только до двух карточек из уже завершённых тем." }
+        : { title: "Quick pre-session warm-up", reason: "Your saved session stays exactly where it is. The warm-up uses only up to two cards from completed topics." }
+      : primary ? dailyPlanItemCopy(locale, primary) : dailyPlanItemCopy(locale, { kind: "done", estimatedMinutes: 0, reasonCode: "done" });
   const completed = modules.filter((module) => state.modules[module.id].contentCompleted).length;
   const working = modules.filter((module) => ["WORKING", "RETAINED", "FIELD_TEST_PENDING", "FIELD_VALIDATED"].includes(state.modules[module.id].state)).length;
   const pendingHuman = pendingHumanReviewCount(state);
   const timeBudgets: DailyBudget[] = ["5", "15", "30"];
   const modes: DailyBudget[] = ["warmup", "post"];
-  const freshShortFallback = completed === 0 && !hasPlanAction && !postMode && (budget === "5" || budget === "warmup");
+  const freshShortFallback = completed === 0 && !state.activeSession && !hasPlanAction && !postMode && (budget === "5" || budget === "warmup");
   const returnCopy = locale === "ru"
     ? "После паузы берём ограниченный набор самых полезных повторений — весь накопившийся хвост сразу не показываем."
     : "After a break, start with a bounded set of the highest-value reviews instead of dumping the whole backlog at once.";
@@ -553,9 +588,13 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onWarmup, onLearn
       : locale === "ru"
         ? "Режим «Перед игрой» использует только уже изученный материал. Сначала пройди первый урок — после этого здесь появится разминка."
         : "Before play uses only material you have already studied. Complete the first lesson first; then a warm-up will appear here."
-    : locale === "ru"
-      ? "По выбранному времени или режиму срочных задач нет. Можно открыть обучение вручную."
-      : "There is nothing urgent for the selected time or mode. You can open Learn manually.";
+    : budget === "warmup" && state.activeSession
+      ? locale === "ru"
+        ? "Сохранённая сессия останется на месте. Отдельной разминки пока нет: карточки появляются только из завершённых тем."
+        : "Your saved session stays untouched. There is no separate warm-up yet: cards come only from completed topics."
+      : locale === "ru"
+        ? "По выбранному времени или режиму срочных задач нет. Можно открыть обучение вручную."
+        : "There is nothing urgent for the selected time or mode. You can open Learn manually.";
   const ctaLabel = postMode
     ? locale === "ru" ? "Сохранить руки" : "Save hands"
     : hasPlanAction
@@ -601,7 +640,7 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onWarmup, onLearn
       <article><p className="eyebrow">{locale === "ru" ? "ПЛАН" : "PLAN"}</p><h3>{postMode ? (locale === "ru" ? "Порядок после игры" : "After-play order") : (locale === "ru" ? "Что входит дальше" : "What comes next")}</h3>{postMode ? <><p>1. {locale === "ru" ? "Сохранить 1–3 руки" : "Save 1–3 hands"}</p><p>2. {locale === "ru" ? "Разобрать одну" : "Review one"}</p><p>3. {locale === "ru" ? "Только при необходимости — работа над ошибкой / Review" : "Only if needed — mistake practice / Review"}</p></> : <><p className="support">{locale === "ru" ? `План на выбранное время: ≈${plan.estimatedMinutes} из ${plan.targetMinutes} минут. Каждый пункт запускается отдельно.` : `Plan for the selected time: ≈${plan.estimatedMinutes} of ${plan.targetMinutes} minutes. Each item starts separately.`}</p>{plan.items.slice(0, 3).map((item, index) => { const copy = dailyPlanItemCopy(locale, item); return <p key={`${item.kind}-${item.moduleId ?? index}`}>{index + 1}. {copy.title} · ≈{item.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p>; })}</>}</article>
       <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{locale === "ru" ? "Открыть диагностику →" : "Open Diagnostic →"}</button></article>
       <article><p className="eyebrow">{locale === "ru" ? "РАЗБОР" : "REVIEW"}</p><h3>{locale === "ru" ? "Реальные руки и объяснения" : "Real hands and explanations"}</h3><p>{pendingHuman > 0 ? (locale === "ru" ? pendingHuman + " записей ждут явного разбора." : pendingHuman + " records are waiting for explicit review.") : (locale === "ru" ? "Запиши решение до результата или открой историю объяснений." : "Record a decision before the result or review your explanation history.")}</p><button className="textbutton" onClick={onField}>{locale === "ru" ? "Открыть разбор" : "Open review"}</button></article>
-      <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{locale === "ru" ? "Одно знакомое решение из ошибки, затем до двух карточек. Если ошибки нет — только карточки." : "One familiar decision from a miss, then up to two cards. If no repair is due, use cards only."}</p><button className="textbutton" onClick={onWarmup}>{t.quickWarmup}</button></article>
+      <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{state.activeSession ? (locale === "ru" ? "Сохранённая сессия не меняется: отдельная разминка использует только до двух карточек из завершённых тем." : "Your saved session stays untouched: the separate warm-up uses only up to two cards from completed topics.") : (locale === "ru" ? "Одно знакомое решение из ошибки, затем до двух карточек. Если ошибки нет — только карточки." : "One familiar decision from a miss, then up to two cards. If no repair is due, use cards only.")}</p><button className="textbutton" onClick={onWarmup}>{t.quickWarmup}</button></article>
     </section>
     <section className="integrity"><h2>{t.integrityTitle}</h2><p>{t.integrityBody}</p></section>
     <LearningRoute locale={locale} />
@@ -629,18 +668,18 @@ function Learn({ locale, state, onLesson, onPractice, onMixed, onBurst }: { loca
         </div>
       </article>;
     })}</div>
-    {completedCount < 3 && <p className="support">{locale === "ru" ? `Смешанная практика и Table Burst откроются после трёх пройденных тем. Сейчас: ${completedCount}/3.` : `Mixed practice and Table Burst open after three completed topics. Current: ${completedCount}/3.`}</p>}
+    {completedCount < 3 && <p className="support">{locale === "ru" ? `Смешанная практика и серия быстрых решений откроются после трёх пройденных тем. Сейчас: ${completedCount}/3.` : `Mixed practice and Table Burst open after three completed topics. Current: ${completedCount}/3.`}</p>}
     <button className="secondary wide" disabled={completedCount < 3} onClick={onMixed}>{t.mixedBlock}</button>
-    <button className="secondary wide" disabled={completedCount < 3} onClick={onBurst}>{locale === "ru" ? "Table Burst · 8 быстрых решений" : "Table Burst · 8 fast decisions"}</button>
+    <button className="secondary wide" disabled={completedCount < 3} onClick={onBurst}>{locale === "ru" ? "Серия · 8 быстрых решений" : "Table Burst · 8 fast decisions"}</button>
   </section>;
 }
 
-function Session({ locale, state, setState, onExit, onWarmupCards }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void }) {
+function Session({ locale, state, setState, onExit, onWarmupCards, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void; onFinished: () => void }) {
   const session = state.activeSession;
   if (!session) return null;
   return session.mode === "lesson"
     ? <LessonSession locale={locale} state={state} setState={setState} source={moduleById[session.moduleId]} onExit={onExit} />
-    : <PracticeSession locale={locale} state={state} setState={setState} onExit={onExit} onWarmupCards={onWarmupCards} />;
+    : <PracticeSession locale={locale} state={state} setState={setState} onExit={onExit} onWarmupCards={onWarmupCards} onFinished={onFinished} />;
 }
 
 function SessionHeader({ locale, label, progress, onExit }: { locale: LocaleCode; label: string; progress: number; onExit?: () => void }) {
@@ -828,7 +867,7 @@ function LessonSummary({ locale, state, module, onFinish }: { locale: LocaleCode
   </section>;
 }
 
-function PracticeSession({ locale, state, setState, onExit, onWarmupCards }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void }) {
+function PracticeSession({ locale, state, setState, onExit, onWarmupCards, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void; onFinished: () => void }) {
   const session = state.activeSession!;
   const burst = isTableBurst(session.mode, session.drillIds.length);
   const interactions = state.interactions.filter((item) => Date.parse(item.at) >= Date.parse(session.startedAt) && item.mode === session.mode);
@@ -848,7 +887,8 @@ function PracticeSession({ locale, state, setState, onExit, onWarmupCards }: { l
       : locale === "ru"
         ? "В этой серии повторяющегося сигнала ошибки или медленного решения не видно. Это относится только к этим восьми спотам."
         : "No recurring error or slow-decision signal appeared in this burst. This statement applies only to these eight spots.";
-    return <section className="session"><SessionHeader locale={locale} label="Table Burst · 8/8" progress={100} onExit={onExit} /><p className="eyebrow">{locale === "ru" ? "ИТОГ СЕРИИ" : "BURST SUMMARY"}</p><h2>{locale === "ru" ? "Восемь решений без названий тем." : "Eight decisions without topic labels."}</h2><p className="support">{recurringCopy}</p><button className="primary" onClick={() => setState(completeBlock(state))}>{locale === "ru" ? "Завершить" : "Finish"} <span>→</span></button></section>;
+    const finishBurst = () => { setState(completeBlock(state)); onFinished(); };
+    return <section className="session"><SessionHeader locale={locale} label={locale === "ru" ? "Серия · 8/8" : "Table Burst · 8/8"} progress={100} onExit={onExit} /><p className="eyebrow">{locale === "ru" ? "ИТОГ СЕРИИ" : "BURST SUMMARY"}</p><h2>{locale === "ru" ? "Восемь решений без названий тем." : "Eight decisions without topic labels."}</h2><p className="support">{recurringCopy}</p><button className="primary" onClick={finishBurst}>{locale === "ru" ? "Завершить" : "Finish"} <span>→</span></button></section>;
   }
 
   const drill = drillById[session.drillIds[session.currentIndex]];
@@ -860,9 +900,10 @@ function PracticeSession({ locale, state, setState, onExit, onWarmupCards }: { l
     } else {
       setState(completeBlock(state, session.mode === "practice" || session.mode === "repair" ? session.moduleId : undefined));
       if (session.mode === "repair" && session.step === -1) onWarmupCards();
+      else onFinished();
     }
   };
-  const header = burst ? `Table Burst · ${session.currentIndex + 1}/${session.drillIds.length}` : `${sessionModeLabel(locale, session.mode)} · ${session.currentIndex + 1}/${session.drillIds.length}`;
+  const header = burst ? `${locale === "ru" ? "Серия" : "Table Burst"} · ${session.currentIndex + 1}/${session.drillIds.length}` : `${sessionModeLabel(locale, session.mode)} · ${session.currentIndex + 1}/${session.drillIds.length}`;
   return <section className="session"><SessionHeader locale={locale} label={header} progress={Math.round(((session.currentIndex + 1) / session.drillIds.length) * 100)} onExit={onExit} /><Decision locale={locale} state={state} setState={setState} drill={drill} onContinue={advance} /><div className="mini-results">{(["A", "B", "C", "D"] as ResponseClass[]).map((kind) => <span key={kind}>{responseClassShortLabel(locale, kind)}: {interactions.filter((item) => item.responseClass === kind).length}</span>)}</div></section>;
 }
 
@@ -931,10 +972,10 @@ function Review({ locale, state, plan, budget, onBudget, onReview, onRepair }: {
   });
   const deferred = Math.max(0, due.length - batch.length);
   const role = locale === "ru"
-    ? "Одна сессия Review — ограниченная очередь, а не весь долг сразу. Размер зависит от 5/15/30 минут; темы перемешиваются, когда это возможно."
-    : "One Review session is a bounded queue, not the entire backlog. Its size follows 5/15/30 minutes and interleaves topics when possible.";
+    ? "Review показывает ограниченную очередь под выбранные 5/15/30 минут, а не весь долг сразу. Каждый пункт запускается отдельно; после завершения приложение возвращает сюда к обновлённой очереди."
+    : "Review shows a bounded queue for the selected 5/15/30 minutes, not the entire backlog. Each item runs separately; after completion the app returns here to the updated queue.";
   const budgets: DailyBudget[] = ["5", "15", "30"];
-  return <section className="surface"><div className="section-head"><p className="eyebrow">{t.reviewEyebrow}</p><h1>{t.reviewTitle}<br/><em>{t.reviewEmphasis}</em></h1><p>{role}</p><div className="mode-switch" aria-label={locale === "ru" ? "Время Review" : "Review time"}>{budgets.map((value) => <button key={value} aria-pressed={budget === value} onClick={() => onBudget(value)}>{dailyBudgetLabel(locale, value)}</button>)}</div>{due.length > 0 && <p className="support">{locale === "ru" ? `В этой сессии: ${batch.length} из ${due.length} задач. ${deferred > 0 ? `Ещё ${deferred} останутся в очереди.` : "Остатка после этой сессии нет."}` : `This session: ${batch.length} of ${due.length} items. ${deferred > 0 ? `${deferred} stay queued.` : "Nothing remains after this batch."}`}</p>}</div>{batch.length ? <div className="queue">{batch.map(({ item, planned }) => {
+  return <section className="surface"><div className="section-head"><p className="eyebrow">{t.reviewEyebrow}</p><h1>{t.reviewTitle}<br/><em>{t.reviewEmphasis}</em></h1><p>{role}</p><div className="mode-switch" aria-label={locale === "ru" ? "Время Review" : "Review time"}>{budgets.map((value) => <button key={value} aria-pressed={budget === value} onClick={() => onBudget(value)}>{dailyBudgetLabel(locale, value)}</button>)}</div>{due.length > 0 && <p className="support">{locale === "ru" ? `Сейчас показано: ${batch.length} из ${due.length} задач. ${deferred > 0 ? `Ещё ${deferred} останутся в общей очереди.` : "За пределами этого набора задач нет."}` : `Shown now: ${batch.length} of ${due.length} items. ${deferred > 0 ? `${deferred} remain in the overall queue.` : "Nothing sits outside this set."}`}</p>}</div>{batch.length ? <div className="queue">{batch.map(({ item, planned }) => {
     const why = dailyPlanItemCopy(locale, planned);
     return <article key={item.id}><span className={`kind kind-${item.kind}`}>{reviewKindLabel(locale, item.kind)}</span><h3>{item.kind === "retention" ? (locale === "ru" ? "Решение после паузы" : "Delayed decision") : localizedModule(moduleById[item.moduleId], locale).title}</h3><p className="support"><b>{locale === "ru" ? "Почему сейчас?" : "Why now?"}</b> {why.reason}</p><button className="primary" onClick={() => item.kind === "repair" ? onRepair(item.moduleId, item.id) : onReview(item.id)}>{t.start} <span>→</span></button></article>;
   })}</div> : <div className="empty-state"><h2>{t.nothingDue}</h2><p>{t.reviewEmptyBody}</p></div>}</section>;
@@ -942,20 +983,40 @@ function Review({ locale, state, plan, budget, onBudget, onReview, onRepair }: {
 
 function Cards({ locale, state, setState, warmupIds, onLearn }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; warmupIds: string[]; onLearn: () => void }) {
   const t = runtimeCopy[locale];
+  const studiedCards = allCards.filter((card) => state.modules[card.moduleId].contentCompleted);
+  const buildSnapshot = (nextMode: "warmup" | "due" | "all") => {
+    const now = Date.now();
+    if (nextMode === "warmup") {
+      const allowed = new Set(warmupIds);
+      return studiedCards.filter((card) => allowed.has(card.id)).map((card) => card.id);
+    }
+    if (nextMode === "due") {
+      return studiedCards
+        .filter((card) => !state.cards[card.id] || Date.parse(state.cards[card.id].dueAt) <= now)
+        .map((card) => card.id);
+    }
+    return studiedCards.map((card) => card.id);
+  };
   const [mode, setMode] = useState<"warmup" | "due" | "all">("warmup");
+  const [sessionIds, setSessionIds] = useState<string[]>(() => buildSnapshot("warmup"));
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const due = allCards.filter((card) => !state.cards[card.id] || Date.parse(state.cards[card.id].dueAt) <= Date.now());
-  const warmup = allCards.filter((card) => warmupIds.includes(card.id));
-  const cards = mode === "due" ? due : mode === "warmup" ? warmup : allCards;
+  const cards = sessionIds.map((id) => allCards.find((card) => card.id === id)).filter((card): card is (typeof allCards)[number] => Boolean(card));
   const card = cards[index];
+  const finished = cards.length > 0 && index >= cards.length;
   const role = locale === "ru"
-    ? "Карточки нужны для быстрого вспоминания одной подсказки. Оценка меняет только срок следующего показа карточки, а не статус навыка."
-    : "Cards are for quickly recalling one cue. Your grade changes only when the card appears again, not the skill status.";
-  const modeSwitch = <div className="mode-switch" aria-label={locale === "ru" ? "Режим карточек" : "Card mode"}><button aria-pressed={mode === "warmup"} onClick={() => setMode("warmup")}>{cardModeLabel(locale, "warmup")}</button><button aria-pressed={mode === "due"} onClick={() => setMode("due")}>{cardModeLabel(locale, "due")}</button><button aria-pressed={mode === "all"} onClick={() => setMode("all")}>{cardModeLabel(locale, "all")}</button></div>;
-  useEffect(() => { setIndex(0); setRevealed(false); }, [mode]);
-  if (!card) return <section className="surface"><div className="section-head"><p className="eyebrow">{recallLabel(locale)}</p><h1>{locale === "ru" ? "Быстро вспомни знакомую подсказку." : "Quickly recall a familiar cue."}</h1><p>{role}</p></div>{modeSwitch}<div className="empty-state"><h2>{locale === "ru" ? "В этом режиме карточек пока нет." : "There are no cards in this mode yet."}</h2><p>{mode === "warmup" ? (locale === "ru" ? "Разминка использует только уже изученные темы. Сначала пройди первый урок." : "Warm-up uses only topics you have already studied. Complete the first lesson first.") : (locale === "ru" ? "Выбери другой режим карточек или вернись к обучению." : "Choose another card mode or return to Learn.")}</p>{mode === "warmup" && <button className="primary" onClick={onLearn}>{locale === "ru" ? "Открыть обучение" : "Open Learn"} <span>→</span></button>}</div></section>;
-  const apply = (grade: 0 | 1 | 2 | 3) => { setState(gradeCard(state, card.id, grade)); setIndex(index + 1 >= cards.length ? 0 : index + 1); setRevealed(false); };
+    ? "Карточки нужны для быстрого вспоминания одной подсказки. Здесь показывается только материал из завершённых тем. Оценка меняет только срок следующего показа карточки, а не статус навыка."
+    : "Cards are for quickly recalling one cue. Only material from completed topics appears here. Your grade changes only when the card appears again, not the skill status.";
+  const switchMode = (nextMode: "warmup" | "due" | "all") => {
+    setMode(nextMode);
+    setSessionIds(buildSnapshot(nextMode));
+    setIndex(0);
+    setRevealed(false);
+  };
+  const modeSwitch = <div className="mode-switch" aria-label={locale === "ru" ? "Режим карточек" : "Card mode"}><button aria-pressed={mode === "warmup"} onClick={() => switchMode("warmup")}>{cardModeLabel(locale, "warmup")}</button><button aria-pressed={mode === "due"} onClick={() => switchMode("due")}>{cardModeLabel(locale, "due")}</button><button aria-pressed={mode === "all"} onClick={() => switchMode("all")}>{cardModeLabel(locale, "all")}</button></div>;
+  if (finished) return <section className="surface"><div className="section-head"><p className="eyebrow">{recallLabel(locale)}</p><h1>{locale === "ru" ? "Этот набор карточек закончен." : "This card set is complete."}</h1><p>{role}</p></div>{modeSwitch}<div className="empty-state"><h2>{locale === "ru" ? `${cards.length}/${cards.length} карточек пройдено.` : `${cards.length}/${cards.length} cards completed.`}</h2><p>{locale === "ru" ? "Набор был зафиксирован при запуске, поэтому оценка карточки не пропускает следующую и не добавляет новые карточки по ходу." : "The set was fixed when it started, so grading a card neither skips the next one nor adds new cards mid-session."}</p></div></section>;
+  if (!card) return <section className="surface"><div className="section-head"><p className="eyebrow">{recallLabel(locale)}</p><h1>{locale === "ru" ? "Быстро вспомни знакомую подсказку." : "Quickly recall a familiar cue."}</h1><p>{role}</p></div>{modeSwitch}<div className="empty-state"><h2>{locale === "ru" ? "В этом режиме карточек пока нет." : "There are no cards in this mode yet."}</h2><p>{studiedCards.length === 0 ? (locale === "ru" ? "Карточки открываются только из завершённых тем. Сначала закончи первый урок." : "Cards unlock only from completed topics. Finish the first lesson first.") : mode === "warmup" ? (locale === "ru" ? "Для текущей разминки подходящих карточек нет. Сохранённая учебная сессия, если она есть, остаётся без изменений." : "There are no cards for this warm-up. Any saved learning session remains untouched.") : (locale === "ru" ? "Выбери другой режим карточек или вернись к обучению." : "Choose another card mode or return to Learn.")}</p>{studiedCards.length === 0 && <button className="primary" onClick={onLearn}>{locale === "ru" ? "Открыть обучение" : "Open Learn"} <span>→</span></button>}</div></section>;
+  const apply = (grade: 0 | 1 | 2 | 3) => { setState(gradeCard(state, card.id, grade)); setIndex((current) => current + 1); setRevealed(false); };
   const gradeHelp = locale === "ru"
     ? "Не вспомнил → снова примерно через 10 минут; Трудно → минимум завтра; Нормально → интервал заметно длиннее; Легко → самый длинный интервал. Это не меняет статус навыка."
     : "Forgot → again in about 10 minutes; Hard → at least tomorrow; Good → a meaningfully longer interval; Easy → the longest interval. This does not change the skill status.";

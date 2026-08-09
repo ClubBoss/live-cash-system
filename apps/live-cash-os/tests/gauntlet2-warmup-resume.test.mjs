@@ -32,8 +32,7 @@ function reviewInput(sourceReviewId) {
   };
 }
 
-test("pre-session warm-up preserves an unfinished active session", () => {
-  const state = emptyLearnerState();
+function seedActiveLesson(state) {
   state.activeSession = {
     mode: "lesson",
     moduleId: "geometry",
@@ -47,17 +46,42 @@ test("pre-session warm-up preserves an unfinished active session", () => {
     itemStartedAt: "2026-08-08T12:00:00.000Z",
     explainBack: "",
   };
+}
+
+test("pre-session warm-up does not turn an unfinished lesson into Resume", () => {
+  const state = emptyLearnerState();
+  seedActiveLesson(state);
+  const savedSession = structuredClone(state.activeSession);
 
   const plan = planAutomaticTraining(state, catalog, {
     budget: "warmup",
     now: Date.parse("2026-08-08T13:00:00.000Z"),
-    seed: "resume-first",
+    seed: "separate-warmup",
   });
 
   assert.equal(plan.items.length, 1);
-  assert.equal(plan.items[0].kind, "resume");
-  assert.equal(plan.items[0].moduleId, "geometry");
-  assert.equal(plan.items.some((item) => item.kind === "cards" || item.kind === "repair"), false);
+  assert.equal(plan.items[0].kind, "done");
+  assert.equal(plan.items.some((item) => item.kind === "resume" || item.kind === "repair" || item.kind === "cards"), false);
+  assert.deepEqual(state.activeSession, savedSession);
+});
+
+test("pre-session warm-up can show completed-topic cards without overwriting a saved session", () => {
+  const state = emptyLearnerState();
+  state.modules.geometry.contentCompleted = true;
+  seedActiveLesson(state);
+  const savedSession = structuredClone(state.activeSession);
+
+  const plan = planAutomaticTraining(state, catalog, {
+    budget: "warmup",
+    now: Date.parse("2026-08-08T13:00:00.000Z"),
+    seed: "completed-card-warmup",
+  });
+
+  assert.equal(plan.items.length, 1);
+  assert.equal(plan.items[0].kind, "cards");
+  assert.deepEqual(plan.items[0].cardIds, ["geo-card"]);
+  assert.equal(plan.items.some((item) => item.kind === "resume" || item.kind === "repair"), false);
+  assert.deepEqual(state.activeSession, savedSession);
 });
 
 test("legacy failed-review attempts cannot skip the first successful retrieval stage", () => {

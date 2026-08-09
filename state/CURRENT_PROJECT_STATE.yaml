@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: gauntlet_4_integrated_human_review_pending
-  updated_at: '2026-08-09T08:00:00+04:00'
+  phase: post_integration_integrity_hardened_human_review_pending
+  updated_at: '2026-08-09T18:50:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash trainer for live 1/3 and 2/5 while preserving evidence truth.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -26,6 +26,7 @@ learner_application:
 repository_identity:
   final_red_team_status: HISTORICAL_INTEGRATED
   gauntlet_4_status: INTEGRATED
+  post_integration_integrity_status: INTEGRATED
   current_main_identity_authority: git_and_github_actions
   exact_current_main_sha_embedded_here: false
   exact_current_main_sha_note: Git and GitHub Actions are authoritative because this file must not self-reference a changing main SHA.
@@ -45,6 +46,19 @@ final_red_team_closure:
   field_validated_contract_changed: false
   retention_1_3_7_changed: false
   table_burst_policy_changed: false
+post_integration_integrity:
+  cards_completed_topic_only: true
+  cards_bounded_snapshot: true
+  review_returns_to_updated_queue: true
+  before_play_preserves_saved_session: true
+  real_hands_explicit_linked_topic: true
+  self_review_non_evidentiary_and_non_terminal: true
+  conflict_version_comparison: true
+  cross_browser_critical_gate: chromium_firefox_webkit_plus_mobile
+  test_mirror_storage: ISOLATED_TEST_DB
+  test_mirror_production_db_binding_allowed: false
+  test_mirror_schema_bootstrap: IDEMPOTENT_WORKER_BINDING
+  exact_release_identity: git_build_sha
 historical_code_freeze_evidence:
   canonical_command: npm run test:release
   run_id: 31285270612
@@ -65,6 +79,7 @@ acceptance_truth:
   gauntlet_1_integrated: true
   gauntlet_2_integrated: true
   gauntlet_3_integrated: true
+  gauntlet_4_integrated: true
   strategy_status: CURRICULUM_STRATEGY_REVIEW_PENDING
   drill_status: DRILLS_REVIEW_PENDING
   final_composition_status: REVIEW_PENDING
@@ -80,6 +95,7 @@ production_truth:
   current_main_deployed_to_chatgpt_sites: UNPROVEN
   production_deploy_authorized_in_this_task: false
   mobile_test_mirror_authorized_in_this_task: true
+  mobile_test_mirror_uses_production_d1: false
 learner_runtime_truth:
   content_completion_is_mastery: false
   diagnostic_routing_is_learning_evidence: false
@@ -88,9 +104,10 @@ learner_runtime_truth:
   immediate_correct_is_retention: false
   global_progress_reset: false
 active_milestone:
-  name: gauntlet_4_integrated_human_review_pending
+  name: post_integration_integrity_hardened_human_review_pending
 truth_boundaries:
 - source green is not production green
+- test-mirror green is not stable-production green
 - automated gates cannot create human strategy, drill, RU, or EN approval
 - W10 requires genuine empirical learner evidence and is not complete
 - W11 is not complete

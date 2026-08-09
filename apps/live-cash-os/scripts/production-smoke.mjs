@@ -103,7 +103,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await desktop.getByRole("heading", { name: /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
     if ((await desktop.locator("html").getAttribute("lang")) !== "en") throw new Error("Document lang is not en inside LCM-01");
     const englishSession = await desktop.locator(".session").innerText();
-    if (/[А-Яа-яЁё]/u.test(englishSession)) throw new Error("Approved English LCM-01 contains Cyrillic fallback copy");
+    if (/[А-Яа-яЁё]/u.test(englishSession)) throw new Error("English LCM-01 contains Cyrillic fallback copy");
     await desktop.screenshot({ path: "smoke-evidence/desktop-lcm01-en.png", fullPage: true });
 
     await desktop.waitForTimeout(900);
@@ -137,10 +137,10 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       wave1_first_use_shell_contract: true,
       diagnostic_optionality_visible: true,
       superseded_wave1_shell_markers_rejected: true,
-      bilingual_lcm01_approved: true,
+      bilingual_lcm01_smoke_passed: true,
       stable_ids_and_state_across_locale_switch: true,
       locale_and_active_session_persist_reload: true,
-      approved_english_lcm01_has_no_cyrillic_fallback: true,
+      english_lcm01_no_cyrillic_fallback_verified: true,
       mobile_viewport: "390x844",
       timestamp: new Date().toISOString(),
     };

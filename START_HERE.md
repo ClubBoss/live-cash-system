@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `GAUNTLET_4_INTEGRATED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
+Status: `POST_INTEGRATION_INTEGRITY_HARDENED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
 
 ## Bootstrap
 
@@ -18,29 +18,44 @@ Read in this order:
 ## Current repository truth
 
 - repository: `ClubBoss/live-cash-system`;
-- Final Red-Team closure is historical and integrated into `main`.
-- Gauntlet 4 is integrated in `main` as `221f32e479bb0f1e921033a43a1c032be49380ca`.
-- The exact current `main` identity and its CI run are sourced from immutable Git history and GitHub Actions, not this file.
+- Final Red-Team and Gauntlets 1–4 are historical integrated implementation work;
+- post-integration integrity hardening covers verified Cards, Review, Before Play, Real Hands, recovery, browser-gate and release-path gaps;
+- the exact current `main` identity and its CI run are sourced from immutable Git history and GitHub Actions, not this file;
 - editorial state remains `TRANSITIONAL_REVIEW_REQUIRED`.
 
 The exact current `main` SHA and run IDs are not hard-coded here because they change with accepted repository work. Git and GitHub Actions are the authority for those identities.
 
-## Integrated scope
+## Preserved product truth
 
-Gauntlets 1–4 and the Final Red-Team closure are integrated in `main`.
-
-The closure preserves:
+The current closure preserves:
 
 - poker curriculum and correct-answer identities;
 - drill/card IDs and source provenance;
-- hard prerequisites and scheduler policy except the demonstrated review-ID integrity repair;
+- hard prerequisites;
 - learner-state schema version `2`;
-- mastery semantics and `FIELD_VALIDATED` contract;
+- mastery semantics and `FIELD_VALIDATED` threshold;
 - `1/3/7` retention policy;
-- Table Burst policy;
+- diagnostic scoring semantics;
 - stable production URL.
 
-RC-1 fails closed on stale explicit review/repair IDs. RC-2 adds deep structural validation for runtime-used schema-v2 persisted structures without a schema bump. RC-3 removes learner-facing internal state-machine vocabulary while preserving internal enums and evidence semantics.
+Before Play changes only to honor its already-declared separate warm-up contract. The fast-series mechanism/evidence semantics are unchanged; RU learner-facing naming is simplified.
+
+## Post-integration integrity truth
+
+The closure additionally enforces:
+
+- Cards use completed-topic material and bounded snapshots;
+- Review returns to its updated queue after each item;
+- a saved learning session is not overwritten by Before Play;
+- Real Hands require an explicit linked topic;
+- SELF hand review remains non-evidentiary and open to a later genuine human/human-assisted review;
+- conflict recovery shows local/cloud version facts before selection;
+- canonical browser evidence keeps full Chromium/mobile coverage and adds focused Firefox/WebKit learner-flow checks;
+- release smoke verifies immutable Git build identity.
+
+## Test-mirror boundary
+
+The authorized Workers test mirror is isolated from production storage. It binds a dedicated D1 database only as `TEST_DB`; production `DB` must not appear in mirror configuration. Test schema initialization is idempotent through that isolated binding and deployed smoke verifies the test storage path. Test-mirror evidence is not stable-production evidence.
 
 ## Acceptance and human-review truth
 
@@ -66,11 +81,11 @@ Stable URL remains:
 
 Historical production smoke evidence is not proof that the current `main` is deployed there.
 
-Production deployment remains separately authorized and must not be inferred from CI. An owner-authorized Cloudflare Workers test mirror may deploy accepted `main` only after `npm run test:release` is green; it must use neither the production URL nor the production D1 database.
+Production deployment remains separately authorized and must not be inferred from CI. The owner-authorized test mirror may deploy accepted `main` after the release gate; it must use neither the production URL nor the production D1 database.
 
 ## Active milestone
 
-`GAUNTLET_4_INTEGRATED -> HUMAN_CONTENT_LANGUAGE_REVIEW -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
+`POST_INTEGRATION_INTEGRITY_HARDENING -> HUMAN_CONTENT_LANGUAGE_REVIEW -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
 
 ## Frozen constraints
 

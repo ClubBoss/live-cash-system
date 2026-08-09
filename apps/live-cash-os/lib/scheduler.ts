@@ -213,8 +213,10 @@ export function selectWarmupCardIds(
   seed: string,
   ownerPriorityModules: readonly ModuleId[] = DEFAULT_OWNER_PRIORITY_MODULES,
 ): string[] {
+  // A warm-up may only recall material from completed topics. An unfinished
+  // active lesson is preserved, but it does not make its cards eligible yet.
   const eligibleModules = new Set<ModuleId>(catalog.modules
-    .filter((module) => state.modules[module.id].contentCompleted || state.activeSession?.moduleId === module.id)
+    .filter((module) => state.modules[module.id].contentCompleted)
     .map((module) => module.id));
   if (!eligibleModules.size) return [];
   return catalog.cards
@@ -248,15 +250,18 @@ export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog
     returnAfterBreak: absenceDays >= 7,
   };
 
-  if (state.activeSession) {
-    const remaining = Math.max(1, state.activeSession.drillIds.length - state.activeSession.currentIndex);
-    const estimate = Math.min(targetMinutes, Math.max(2, remaining * 2));
-    plan.items.push({ kind: "resume", moduleId: state.activeSession.moduleId, estimatedMinutes: estimate, reasonCode: "resume" });
-    plan.estimatedMinutes = estimate;
-    return plan;
-  }
-
+  // "Before play" is an explicit alternate mode, not an alias for Resume.
+  // When another session is saved we leave it untouched and offer only cards
+  // from already completed topics; starting a repair would overwrite that session.
   if (options.budget === "warmup") {
+    const cardIds = selectWarmupCardIds(state, catalog, options.now, options.seed, ownerPriorityModules);
+    if (state.activeSession) {
+      if (cardIds.length) plan.items.push({ kind: "cards", cardIds, estimatedMinutes: 1, reasonCode: "warmup" });
+      else plan.items.push({ kind: "done", estimatedMinutes: 0, reasonCode: "done" });
+      plan.estimatedMinutes = plan.items.reduce((sum, item) => sum + item.estimatedMinutes, 0);
+      return plan;
+    }
+
     const dueRepairs = sortReviews(
       state,
       state.reviewQueue.filter((item) => item.kind === "repair" && parseTime(item.dueAt) <= options.now),
@@ -265,7 +270,6 @@ export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog
       ownerPriorityModules,
     );
     const repair = dueRepairs[0];
-    const cardIds = selectWarmupCardIds(state, catalog, options.now, options.seed, ownerPriorityModules);
     if (repair) {
       plan.items.push({ kind: "repair", moduleId: repair.moduleId, sourceReviewId: repair.id, estimatedMinutes: 1, reasonCode: "warmup" });
       if (cardIds.length) plan.items.push({ kind: "cards", cardIds, estimatedMinutes: 1, reasonCode: "warmup" });
@@ -275,6 +279,14 @@ export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog
       plan.items.push({ kind: "done", estimatedMinutes: 0, reasonCode: "done" });
     }
     plan.estimatedMinutes = plan.items.reduce((sum, item) => sum + item.estimatedMinutes, 0);
+    return plan;
+  }
+
+  if (state.activeSession) {
+    const remaining = Math.max(1, state.activeSession.drillIds.length - state.activeSession.currentIndex);
+    const estimate = Math.min(targetMinutes, Math.max(2, remaining * 2));
+    plan.items.push({ kind: "resume", moduleId: state.activeSession.moduleId, estimatedMinutes: estimate, reasonCode: "resume" });
+    plan.estimatedMinutes = estimate;
     return plan;
   }
 
