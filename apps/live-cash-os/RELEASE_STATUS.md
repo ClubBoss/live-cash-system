@@ -1,6 +1,6 @@
 # Live Cash OS — Release Status
 
-Status: `FINAL_RED_TEAM_CANDIDATE / EXACT_FINAL_EVIDENCE_PENDING / HUMAN_REVIEW_PENDING / NO_DEPLOY`
+Status: `FINAL_RED_TEAM_CANDIDATE / HUMAN_REVIEW_PENDING / INDEPENDENT_EVALUATOR_REQUIRED / NO_DEPLOY`
 
 ## Current candidate truth
 
@@ -14,7 +14,7 @@ Status: `FINAL_RED_TEAM_CANDIDATE / EXACT_FINAL_EVIDENCE_PENDING / HUMAN_REVIEW_
 - lint: `0` errors and the pre-existing React hook warning remains;
 - final learner-facing review fingerprint: `dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e`.
 
-The exact final SHA is determined only after authority reconciliation and removal of the one-time write-enabled lock-refresh harness. It is therefore not embedded in this file: embedding the SHA of the commit containing this file would change that SHA. Git/PR head and the final evaluator handoff are the exact identity authority.
+The exact final SHA is the Git/PR head after authority reconciliation and removal of the one-time write-enabled lock-refresh harness. It is not embedded in this file because doing so would mutate the SHA being recorded. Exact final run IDs/counts are immutable GitHub Actions plus evaluator-handoff evidence and do not require a post-freeze docs commit.
 
 ## Final Red-Team Closure implementation
 
@@ -22,15 +22,15 @@ RC-1, RC-2 and RC-3 are implemented and must not be reopened without a new demon
 
 ### RC-1 — explicit review identity
 
-Explicit stale `sourceReviewId` now fails closed instead of falling through to a neighbouring due item. Explicit live IDs affect only the named due item. The documented no-explicit-ID fallback remains available. The same fail-closed boundary is covered for repair identity/race cases.
+Explicit stale `sourceReviewId` fails closed instead of falling through to a neighbouring due item. Explicit live IDs affect only the named due item. The documented no-explicit-ID fallback remains available. Repair identity follows the same fail-closed category boundary.
 
 ### RC-2 — persisted schema-v2 validation
 
-The existing schema-v2 validator now structurally validates runtime-used persisted state, including active sessions, review items, cards, field notes and known Wave7 extensions. Malformed current-schema import/cloud input is rejected before runtime use. Local corruption recovery behavior remains conservative. `STATE_SCHEMA_VERSION` remains unchanged.
+The existing schema-v2 validator structurally validates runtime-used persisted state, including active sessions, review items, cards, field notes and known Wave7 extensions. Malformed current-schema import/cloud input is rejected before runtime use. Local corruption recovery remains conservative. `STATE_SCHEMA_VERSION` is unchanged.
 
 ### RC-3 — learner-facing copy
 
-Learner-facing raw reviewer/transfer/mastery state-machine vocabulary introduced by Gauntlet 3 was replaced with compact RU/EN learner language. Internal enum values and evidence contracts are unchanged.
+Learner-facing raw reviewer/transfer/mastery state-machine vocabulary introduced by Gauntlet 3 is replaced with compact RU/EN learner language. Internal enum values and evidence contracts are unchanged.
 
 ## Preservation boundary
 
@@ -58,24 +58,26 @@ Editorial manifest remains intentionally:
 - drill approval: `null`;
 - human locale approvals: none;
 - final composition status: `REVIEW_PENDING`;
-- current curriculum composition digest remains `7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`;
+- current curriculum composition digest: `7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`;
 - post-closure source-lock fingerprint: `dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e`.
 
 CI/editorial tooling is rejection-only and cannot synthesize strategy, drill, Russian or English approval.
 
-## Exact-final evidence required before evaluator
+## Exact-final automated evidence contract
 
-After all authority docs are reconciled and the temporary harness is removed, freeze one exact branch-head SHA and run without further mutation:
+The frozen Git/PR head is evaluation-ready only if both evidence classes are green on that same SHA:
 
 1. unchanged `npm run test:release`;
-2. existing `playwright.cross-browser.config.mjs` critical matrix on that same SHA:
+2. existing `playwright.cross-browser.config.mjs` critical matrix:
    Chromium desktop, Firefox desktop, WebKit desktop, iPhone/WebKit, Android/Chromium and iPad/WebKit.
 
-The green implementation run on `07cea8f…` is valid evidence for RC-1/2/3 but is not the exact-final gate because RC-7/RC-8 repository metadata changed afterward.
+The green implementation run on `07cea8f…` remains valid RC-1/2/3 evidence but is not a substitute for exact-final evidence after RC-7/RC-8 metadata reconciliation.
+
+After exact-final evidence is collected, repository code/docs/manifest must not change before evaluator review. The final handoff records the exact frozen SHA, run IDs and counts.
 
 ## Human and empirical gates
 
-Still pending unless genuine evidence is added later:
+Still pending unless genuine evidence is added in a later authorized step:
 
 - human poker/strategy review;
 - human drill review;
@@ -90,7 +92,7 @@ No model/source pre-review or automated test can close those human/empirical gat
 
 Stable URL remains `https://live-cash-os.elmarsal.chatgpt.site/`.
 
-Historical production smoke and deployment evidence applies to earlier accepted source states only. This Final Red-Team candidate has not been deployed in this task, and exact production SHA equality is not claimed.
+Historical production smoke/deployment evidence applies to earlier accepted source states only. This Final Red-Team candidate has not been deployed in this task, and exact production SHA equality is not claimed.
 
 Required later production sequence, only after evaluator `KEEP` and separate authorization:
 
@@ -98,6 +100,6 @@ Required later production sequence, only after evaluator `KEEP` and separate aut
 
 ## Stop condition
 
-After exact-final release and six-project browser evidence are green, make no further candidate mutations and hand PR `#28` to the independent evaluator for `KEEP / REPAIR / REVERT`.
+Once the same exact frozen SHA has green release and six-project browser evidence, make no further candidate mutations and hand PR `#28` to the independent evaluator for `KEEP / REPAIR / REVERT`.
 
 `NO MERGE / NO DEPLOY IN FINAL RED-TEAM CLOSURE`
