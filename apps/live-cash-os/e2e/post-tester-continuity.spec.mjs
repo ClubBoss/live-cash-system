@@ -225,10 +225,10 @@ test("successful Real Hand lock saves exactly once and clears the local draft", 
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBeNull();
   await expect(draftField(page, "stakes")).toHaveValue("");
 
-  const saved = await page.evaluate(({ key, count }) => {
+  const saved = await page.evaluate((key) => {
     const state = JSON.parse(localStorage.getItem(key));
     return { count: state.fieldNotes.length, note: state.fieldNotes.at(-1) };
-  }, { key: LEARNER_KEY, count: beforeCount });
+  }, LEARNER_KEY);
   expect(saved.count).toBe(beforeCount + 1);
   expect(saved.note.stakes).toBe("2/5");
   expect(saved.note.heroPosition).toBe("BTN");
