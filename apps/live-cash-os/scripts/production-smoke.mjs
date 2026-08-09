@@ -2,6 +2,7 @@ import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 
 const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os.elmarsal.chatgpt.site/";
+const deployedSha = process.env.DEPLOYED_SHA?.trim() || null;
 const attempts = Number(process.env.SMOKE_ATTEMPTS ?? 4);
 const waitMs = Number(process.env.SMOKE_WAIT_MS ?? 15_000);
 const forbiddenMarkers = [
@@ -30,10 +31,18 @@ async function assertNoOverflow(page, label) {
   if (overflow > 1) throw new Error(`${label} horizontal overflow: ${overflow}px`);
 }
 
+async function verifyBuildIdentity(page) {
+  if (!deployedSha) return;
+  const badge = page.locator("[data-build-sha]");
+  await badge.waitFor({ timeout: 10_000 });
+  const actual = await badge.getAttribute("data-build-sha");
+  if (actual !== deployedSha) throw new Error(`Build identity mismatch: expected ${deployedSha}, got ${actual ?? "missing"}`);
+}
+
 async function verifyHomeLocale(page, locale) {
   const russian = locale === "ru";
   await page.getByRole("heading", { name: russian ? /Учись понемногу/i : /Learn in small blocks/i }).waitFor({ timeout: 20_000 });
-  await page.getByRole("heading", { name: russian ? /Стартовая проверка мышления/i : /Starting decision check/i }).waitFor({ timeout: 10_000 });
+  await page.getByRole("heading", { name: russian ? /Стартовая диагностика/i : /Starting Diagnostic/i }).waitFor({ timeout: 10_000 });
   await page.getByText(russian ? /Можно пропустить и сразу начать первый урок/i : /You can skip it and start lesson one/i).waitFor({ timeout: 10_000 });
   await page.getByRole("heading", { name: russian ? /Что означает путь 0.*100%/i : /What the 0.*100% route means/i }).waitFor({ timeout: 10_000 });
   if (await page.locator(".route-grid article").count() !== 9) throw new Error(`${locale}: route does not contain nine stages`);
@@ -42,8 +51,8 @@ async function verifyHomeLocale(page, locale) {
   if (russian && /evidence|probe|repair|retention|field validated/iu.test(routeText)) throw new Error("Russian route exposes internal terminology");
 
   const expectedNav = russian
-    ? ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Проверка"]
-    : ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Check"];
+    ? ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"]
+    : ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Diagnostic"];
   const nav = mainNav(page);
   if (await nav.getByRole("button").count() !== expectedNav.length) throw new Error(`${locale}: primary navigation does not contain seven destinations`);
   for (const name of expectedNav) await nav.getByRole("button", { name, exact: true }).waitFor({ timeout: 10_000 });
@@ -72,6 +81,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     if ((await desktop.title()) !== "Live Cash OS") throw new Error("Unexpected document title");
 
     await verifyHomeLocale(desktop, "ru");
+    await verifyBuildIdentity(desktop);
     const body = await desktop.locator("body").innerText();
     if (!body.includes("LIVE CASH OS")) throw new Error("Brand marker is missing");
     for (const marker of forbiddenMarkers) if (body.includes(marker)) throw new Error(`Forbidden old marker is present: ${marker}`);
@@ -107,6 +117,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const mobile = await mobileContext.newPage();
     await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await verifyHomeLocale(mobile, "ru");
+    await verifyBuildIdentity(mobile);
     await assertNoOverflow(mobile, "Russian mobile home");
     await mobile.screenshot({ path: "smoke-evidence/mobile-home-ru.png", fullPage: true });
     await mobile.getByRole("button", { name: "EN", exact: true }).click();
@@ -119,6 +130,8 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       result: "LIVE_SMOKE_GREEN",
       url: liveUrl,
       http_status: response?.status(),
+      deployed_sha: deployedSha,
+      build_identity_verified: Boolean(deployedSha),
       locales: ["ru", "en"],
       verified_routes: ["home", "primary navigation", "0-to-100 skill route", "LCM-01 cold decision"],
       wave1_first_use_shell_contract: true,
