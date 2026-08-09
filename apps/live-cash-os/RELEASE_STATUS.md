@@ -1,31 +1,33 @@
 # Live Cash OS — Release Status
 
-Status: `GAUNTLET_4_TECHNICAL_INTEGRATION_TRACK / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `GAUNTLET_4_INTEGRATED / RELEASE_INTEGRITY_HARDENING / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 ## Current truth
 
-The previously documented Final Red-Team candidate is historical: its repairs were integrated into `main` before Gauntlet 4 began. Gauntlet 4 is an owner-authorized bounded integration task, not an evaluator-only candidate and not a production-deployment task.
+Final Red-Team and Gauntlets 1–4 are integrated implementation history. The current bounded work is release-integrity hardening and final learner-shell cleanup; it does not create human approval or W10 evidence.
 
-Canonical technical gate remains:
+Canonical source gate:
 
 `npm run test:release`
 
-Gauntlet 4 acceptance additionally requires the existing six-project critical browser matrix and a GREEN GitHub Actions run on the exact final `main` commit. Exact commit and run identities live in immutable GitHub history rather than this self-referential status file.
+Exact commit and run identities live in immutable Git/GitHub Actions history rather than this self-referential status file.
 
-## Gauntlet 4 scope
+## Release-integrity contract
 
-The bounded repair covers only demonstrated real-use defects in LCM-01:
+The bounded closure addresses verified residue only:
 
-- correct / partial / wrong feedback semantics and non-color-only distinction;
-- removal of duplicate full-correct feedback;
-- learner-facing LCM-01 language/boundary repair without changing strategic answer identity;
-- one accessible ordering exercise where the LCM-01 decision tree is genuinely sequential;
-- the Wave5 Lab transition defect that could leave a header-only lesson shell;
-- transition-driven regression coverage through the lesson rather than seeded-step rendering only.
+- current Diagnostic navigation/copy must be the same contract exercised by deployed smoke;
+- a test-mirror build must expose the exact Git SHA used to build it;
+- smoke must verify that build identity rather than infer it from a version label;
+- normal `main` push and an explicit main workflow dispatch must exercise the same test-mirror deploy/smoke path;
+- smoke evidence must be retained for failure analysis;
+- warm-up timing copy must match the actual bounded scheduler contract.
+
+The mirror is intentionally storage-free and must not inherit production D1 bindings.
 
 ## Preservation boundary
 
-Gauntlet 4 does not authorize or intentionally change:
+This closure does not intentionally change:
 
 - poker curriculum or correct-answer identities;
 - drill/card IDs;
@@ -52,7 +54,7 @@ The editorial manifest intentionally remains review-pending:
 - human EN approvals: none;
 - final composition approval: pending.
 
-A source-lock fingerprint refresh records the changed learner-facing corpus; it is not human approval.
+A source-lock fingerprint refresh records changed learner-facing shell copy. It is deterministic bookkeeping, not human approval.
 
 ## Human and empirical gates
 
@@ -65,10 +67,12 @@ Still open unless genuine later evidence exists:
 - W10 empirical validation from real learner sessions;
 - W11 final integration/release acceptance.
 
-W10 is not completed by Gauntlet 4.
+W10 is not completed by this closure.
 
-## Production truth
+## Deployment truth
 
-Stable URL remains `https://live-cash-os.elmarsal.chatgpt.site/`.
+Stable URL remains:
 
-Gauntlet 4 does not itself deploy production. Historical production smoke proves only the source state against which it was recorded. Repository integration must not be described as a production deployment unless a publish workflow actually performs one and the live version is independently verified.
+`https://live-cash-os.elmarsal.chatgpt.site/`
+
+The Cloudflare Workers test mirror is separate release evidence and is not stable production. Historical stable-production smoke proves only the source state against which it was recorded. A current mirror smoke may prove exact-main deployability, but it must not be presented as stable-production deployment.

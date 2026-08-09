@@ -42,7 +42,7 @@ export function cardKindLabel(locale: LocaleCode, kind: string): string {
 
 export function cardModeLabel(locale: LocaleCode, mode: "warmup" | "due" | "all"): string {
   const labels = {
-    warmup: ["90 сек", "90 sec"],
+    warmup: ["До 2 мин", "Up to 2 min"],
     due: ["К повторению", "Due"],
     all: ["Все", "All"],
   } as const;
@@ -87,7 +87,7 @@ export function diagnosticStatusLabel(locale: LocaleCode, status: string): strin
     ROUTED: ["ПРИОРИТЕТЫ ВЫБРАНЫ", "PRIORITIES SET"],
   };
   const label = labels[status];
-  return label ? label[locale === "ru" ? 0 : 1] : choose(locale, "ПРОВЕРКА", "CHECK");
+  return label ? label[locale === "ru" ? 0 : 1] : choose(locale, "ДИАГНОСТИКА", "DIAGNOSTIC");
 }
 
 export function fieldFactLabels(locale: LocaleCode): { cue: string; action: string; reason: string } {

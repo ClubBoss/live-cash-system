@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "b32b2f29b3bcadf68698a412f054a437ed7d2699caff9e6e5ac00b0f4273f343",
+    "current_digest": "46b5465262552a0a0abc154b76232289cf7a4b4bce79f462d2e0eed8256577cb",
     "approved_digest": null,
-    "review_corpus_fingerprint": "b32b2f29b3bcadf68698a412f054a437ed7d2699caff9e6e5ac00b0f4273f343",
-    "note": "Gauntlet 4 learner-facing copy, feedback presentation, ordering interaction and Wave5 transition repair are materialized in the review corpus. The strategic claim corpus and answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "46b5465262552a0a0abc154b76232289cf7a4b4bce79f462d2e0eed8256577cb",
+    "note": "Gauntlet 4 learner-facing repairs plus the bounded final shell terminology/warm-up cleanup are materialized in the review corpus. The strategic claim corpus and answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -56,9 +56,9 @@
     "content/i18n/wave5-practice-copy.ts": "d5a79ff83a7bee91dfa88c653e97558b89d466c8",
     "content/i18n/wave4r-final-language.ts": "64dcbd684031ac910d4369c91b88f504c5e6d16b",
     "content/i18n/locale-pipeline.ts": "30f695b934b073408359a1d1b2a4724bddd60eae",
-    "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
+    "content/i18n/learner-ui.ts": "c5169565b27781aa4bf225d1ac96160d82ce07e6",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
-    "components/LiveCashApp.tsx": "20a92d512c5c6decb892d9c1bd8ca100fb9346ea",
+    "components/LiveCashApp.tsx": "5a42336d09d11d479f39d077d9cfceebcbbaed92",
     "components/LiveCashAppCore.tsx": "7b08417227d8b58cbc673715c029307bd4a9568a",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/Wave5PracticeLayer.tsx": "06006fbd6de4ed19ab5df0a712a1cddea1f5af6f",

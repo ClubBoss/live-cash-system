@@ -67,7 +67,7 @@ test("fresh RU skill map renders learner labels rather than raw state enums", as
 test("starting diagnostic exposes purpose, optionality, duration, output, skip path and separate-review boundary", async ({ page }) => {
   await openFresh(page);
 
-  await expect(page.getByRole("heading", { name: "Стартовая проверка мышления" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Стартовая диагностика" })).toBeVisible();
   await expect(page.getByText(/10 решений без подсказок, около 15 минут/i)).toBeVisible();
   await expect(page.getByText(/После отдельного разбора/i)).toBeVisible();
   await expect(page.getByText(/Можно пропустить и сразу начать первый урок/i)).toBeVisible();
@@ -76,7 +76,7 @@ test("starting diagnostic exposes purpose, optionality, duration, output, skip p
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
   await expect(page.getByText(/Ответы сохранятся для отдельного разбора/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Начать проверку", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Начать диагностику", exact: true })).toBeVisible();
 });
 
 test("mobile fresh first use keeps the primary action and all seven destinations reachable without horizontal overflow", async ({ page }, testInfo) => {

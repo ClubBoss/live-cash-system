@@ -1,33 +1,47 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `GAUNTLET_4_TECHNICAL_INTEGRATION_TRACK / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `GAUNTLET_4_INTEGRATED / RELEASE_INTEGRITY_HARDENING / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 This ledger records the current acceptance boundary. Automated implementation evidence may reject a bad change; it cannot create human strategy, drill, Russian or English approval.
 
 ## Carried-forward truth
 
-The former Final Red-Team candidate/no-merge boundary is historical. Its accepted implementation was integrated into `main` before Gauntlet 4. Gauntlet 4 has explicit owner authorization to integrate only after its technical, browser, preservation and exact-main gates are GREEN.
+Final Red-Team and Gauntlets 1–4 are integrated implementation history. Their technical acceptance does not upgrade human content/language approval or W10 empirical evidence.
 
-Earlier wave dispositions remain historical implementation dispositions only and are not upgraded into new human or empirical approval:
+Earlier bounded dispositions remain historical implementation dispositions only:
 
 - W1 historical implementation disposition: `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`.
 - W5 historical implementation disposition: `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`.
 
-## Gauntlet 4 acceptance boundary
+## Integrated Gauntlet 4 boundary
 
-Gauntlet 4 is limited to demonstrated LCM-01 real-use integrity defects:
+Gauntlet 4 repaired demonstrated LCM-01 real-use integrity defects:
 
-- semantic feedback hierarchy and duplicate-feedback removal;
-- bounded LCM-01 learner copy repair;
+- semantic correct / partial / wrong feedback hierarchy;
+- duplicate full-correct feedback removal;
+- bounded learner-facing LCM-01 copy repair;
 - accessible active ordering for the authoritative LCM-01 sequence;
 - Wave5 Lab transition integrity and header-only-shell prevention;
 - transition-driven browser regression evidence.
 
-Ordering is an in-lesson active-learning check only. It must not create mastery, retention or field evidence.
+The ordering interaction is an in-lesson active-learning check only. It does not create mastery, retention or field evidence.
+
+## Release-integrity hardening
+
+The final bounded polish is limited to verified post-Gauntlet residue:
+
+- production/test-mirror smoke follows the current learner shell rather than stale navigation copy;
+- test-mirror builds expose an immutable Git SHA marker and smoke verifies the deployed identity;
+- the main-branch mirror deploy/smoke path can be rerun by workflow dispatch as well as normal push;
+- smoke evidence is retained as a workflow artifact;
+- stale 90-second warm-up wording is aligned to the actual bounded `up to 2 minutes` contract;
+- learner-facing Diagnostic terminology is consistent in RU/EN.
+
+These changes do not authorize a new curriculum, scheduler, mastery or evidence model.
 
 ## Preservation proof boundary
 
-Gauntlet 4 does not authorize or intentionally change:
+The final polish does not intentionally change:
 
 - poker curriculum or correct-answer identities;
 - drill/card IDs;
@@ -55,19 +69,23 @@ The manifest remains deliberately review-pending:
 - human RU approvals: none;
 - human EN approvals: none.
 
-No CI run, model-assisted review, source-lock refresh or deterministic test is approval evidence.
+A deterministic source-lock/fingerprint refresh records the exact changed learner-facing corpus. It is not human approval.
 
 ## Technical acceptance contract
 
-Gauntlet 4 can be integrated only after the same final bounded branch content has:
+Canonical source gate:
 
-1. targeted G4 regressions GREEN;
-2. unchanged `npm run test:release` GREEN;
-3. the existing six-project critical matrix GREEN:
-   Chromium desktop, Firefox desktop, WebKit desktop, iPhone/WebKit, Android/Chromium and iPad/WebKit;
-4. a bounded branch-vs-main audit with no known P0/P1 regression.
+`npm run test:release`
 
-After integration, closure additionally requires GitHub Actions GREEN on the exact final `main` commit. Exact SHA/run identities are recorded in immutable GitHub history and the final Gauntlet report rather than hard-coded here.
+A release-integrity change is acceptable only when:
+
+1. canonical source/release validation is GREEN;
+2. existing Gauntlet regressions remain GREEN;
+3. the branch-vs-main diff is bounded with no known P0/P1 product regression;
+4. after integration, GitHub Actions is GREEN on the exact final `main` commit;
+5. the main-branch test mirror deploys that exact accepted SHA and its smoke verifies the same build identity.
+
+Exact SHA/run identities belong to immutable Git/GitHub history and the closure report rather than this self-referential ledger.
 
 ## Human and empirical gates still open
 
@@ -78,10 +96,12 @@ After integration, closure additionally requires GitHub Actions GREEN on the exa
 - W10 empirical validation from real learner use;
 - W11 final integration/release acceptance.
 
-W10 has not been completed. W11 has not been completed. Those states cannot be inferred from Gauntlet 4 automation.
+W10 has not been completed. W11 has not been completed. Those states cannot be inferred from automation.
 
-## Production boundary
+## Deployment boundary
 
-Stable production URL: `https://live-cash-os.elmarsal.chatgpt.site/`.
+Stable production URL:
 
-Gauntlet 4 does not require or claim a production deployment. Repository integration and production publication remain distinct facts.
+`https://live-cash-os.elmarsal.chatgpt.site/`
+
+A Cloudflare Workers test mirror is release evidence only; it is not the stable production site. Repository integration or mirror deployment must not be described as stable-production publication unless that publication actually occurs and the live build is independently verified.

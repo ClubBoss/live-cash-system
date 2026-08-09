@@ -48,7 +48,7 @@ test("completes the cold check and reaches the plain explanation", async ({ page
 });
 
 test("the starting check explains its purpose and remains optional", async ({ page }) => {
-  await expect(page.getByRole("heading", { name: "Стартовая проверка мышления" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Стартовая диагностика" })).toBeVisible();
   await expect(page.getByText(/10 решений без подсказок, около 15 минут/i)).toBeVisible();
   await expect(page.getByText(/Можно пропустить и сразу начать первый урок/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Диагностика", exact: true })).toBeVisible();
@@ -61,15 +61,15 @@ test("the starting check has natural T1 copy in both locales", async ({ page }) 
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Проверь, как принимаешь решения сейчас/i })).toBeVisible();
   await expect(page.getByText(/10 ситуаций · около 15 минут · можно пропустить/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Начать проверку" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Начать диагностику" })).toBeVisible();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Check how you make decisions now/i })).toBeVisible();
   await expect(page.getByText(/10 spots · about 15 minutes · optional/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Start the check" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start Diagnostic" })).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/EN REVIEW REQUIRED|editorial review required/i);
 
-  await page.getByRole("button", { name: "Start the check" }).click();
+  await page.getByRole("button", { name: "Start Diagnostic" }).click();
   await expect(page.getByText(/LD-001 · Depth with a straddle/i)).toBeVisible();
   await expect(page.locator(".session")).not.toContainText(/Straddle denominator|Pairwise multiway depth|compensation test|directional raise incentive|MDF burden|credible bluff supply/i);
   await expect(page.locator(".session")).not.toContainText(/[А-Яа-яЁё]/u);
@@ -142,7 +142,7 @@ test("submitted feedback survives reload without duplicate evidence", async ({ p
 test("the starting check freezes the start locale, item locale and real first-item timer", async ({ page }) => {
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await page.waitForTimeout(5_000);
-  await page.getByRole("button", { name: "Начать проверку" }).click();
+  await page.getByRole("button", { name: "Начать диагностику" }).click();
   await page.getByLabel("Как бы ты сыграл?").fill("140 страддлов");
   await page.getByLabel("Почему?").fill("Страддл задаёт рабочую ставку.");
   await page.getByRole("button", { name: /^Ответить/ }).click();
@@ -161,7 +161,7 @@ test("the starting check freezes the start locale, item locale and real first-it
 
 test("learning during a cold starting check invalidates baseline interpretation", async ({ page }) => {
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
-  await page.getByRole("button", { name: "Начать проверку" }).click();
+  await page.getByRole("button", { name: "Начать диагностику" }).click();
   await page.getByRole("button", { name: "Учиться" }).click();
   await page.getByRole("button", { name: /^Изучить/ }).first().click();
   await answerGeometryColdCheck(page);

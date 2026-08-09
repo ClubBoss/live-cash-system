@@ -25,6 +25,7 @@ test("Today separates Time and Mode, shows actual plan volume, and fresh short m
   await page.getByRole("button", { name: "Перед игрой", exact: true }).click();
   await expect(page.getByText(/использует только уже изученный материал/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Выбрать 15 минут", exact: true })).toBeEnabled();
+  await expect(page.getByRole("heading", { name: /Быстрая разминка · до 2 минут/i })).toBeVisible();
 });
 
 test("locked modules name the concrete prerequisite, explain why, and route to it", async ({ page }) => {
@@ -51,6 +52,7 @@ test("Cards has one role, an empty warm-up exit, and explains grading impact", a
   await openFresh(page);
   await page.getByRole("button", { name: "Карточки", exact: true }).click();
 
+  await expect(page.getByRole("button", { name: "До 2 мин", exact: true })).toBeVisible();
   await expect(page.getByText(/Оценка меняет только срок следующего показа карточки, а не статус навыка/i)).toBeVisible();
   await expect(page.getByRole("button", { name: /^Открыть обучение/ })).toBeEnabled();
   await page.getByRole("button", { name: "Все", exact: true }).click();
@@ -82,7 +84,7 @@ test("Review, Progress, Hands and Diagnostic each state one clear role", async (
 test("Diagnostic confidence and disabled submit explain their contract", async ({ page }) => {
   await openFresh(page);
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
-  await page.getByRole("button", { name: "Начать проверку", exact: true }).click();
+  await page.getByRole("button", { name: "Начать диагностику", exact: true }).click();
 
   await expect(page.getByText(/грубая самооценка, а не точная вероятность/i)).toBeVisible();
   await expect(page.getByText(/Чтобы сохранить ответ, укажи действие и причину/i)).toBeVisible();
