@@ -128,10 +128,10 @@ function usePracticeSnapshot(): PracticeSnapshot {
 }
 
 function nextCoreLabStep() {
-  delete document.documentElement.dataset.wave5LabGate;
+  const host = document.querySelector<HTMLElement>("main .session");
+  if (host) delete host.dataset.wave5LabHost;
   requestAnimationFrame(() => {
-    const button = document.querySelector<HTMLButtonElement>("main .session > button.primary");
-    button?.click();
+    host?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click();
   });
 }
 
@@ -259,11 +259,6 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
   const [prediction, setPrediction] = useState("");
   const [phase, setPhase] = useState<"prediction" | "interact">("prediction");
 
-  useEffect(() => {
-    document.documentElement.dataset.wave5LabGate = "active";
-    return () => { delete document.documentElement.dataset.wave5LabGate; };
-  }, [moduleId]);
-
   return <section className="wave5-lab-gate" data-wave5-lab-module={moduleId}>
     {phase === "prediction"
       ? <PredictionStep locale={locale} prompt={module.lab.description} prediction={prediction} setPrediction={setPrediction} onContinue={() => setPhase("interact")} />
@@ -277,23 +272,21 @@ function Wave5LabPortal({ locale, moduleId }: { locale: LocaleCode; moduleId: Mo
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    let frame = 0;
-    let cancelled = false;
-    const findHost = () => {
-      if (cancelled) return;
+    const sync = () => {
       const next = document.querySelector<HTMLElement>("main .session");
-      if (next) {
-        setHost(next);
-        return;
-      }
-      frame = requestAnimationFrame(findHost);
+      setHost((previous) => previous === next ? previous : next);
     };
-    findHost();
-    return () => {
-      cancelled = true;
-      if (frame) cancelAnimationFrame(frame);
-    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, [moduleId]);
+
+  useEffect(() => {
+    if (!host) return;
+    host.dataset.wave5LabHost = "active";
+    return () => { delete host.dataset.wave5LabHost; };
+  }, [host]);
 
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
 }
@@ -305,7 +298,7 @@ export default function Wave5PracticeLayer() {
       .decision-card[data-wave5-mixed="true"] > .eyebrow { font-size: 0 !important; }
       html[lang="ru"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "СМЕШАННАЯ ЗАДАЧА"; font-size: .75rem; }
       html[lang="en"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "MIXED DECISION"; font-size: .75rem; }
-      html[data-wave5-lab-gate="active"] main .session > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
+      main .session[data-wave5-lab-host="active"] > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
       .wave5-lab-gate { display: block; }
       .wave5-lab-gate > .assumption-strip { display: block !important; }
     `}</style>
