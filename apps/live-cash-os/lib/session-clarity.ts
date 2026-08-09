@@ -1,7 +1,3 @@
-import { runtimeCopy } from "../content/i18n/runtime";
-
-export type SessionLocale = "ru" | "en";
-
 export type SessionSyncStatus =
   | "loading"
   | "local"
@@ -21,100 +17,53 @@ export type LessonSkillState =
   | "FIELD_VALIDATED"
   | "REPAIR_REQUIRED";
 
-// Today already counts dueReviewItems. Keep that scheduler truth intact and only
-// give the existing counter a learner-facing label that says what it measures.
-runtimeCopy.ru.dueItems = "повторений на сегодня";
-runtimeCopy.en.dueItems = "reviews due";
+export type SessionSaveState =
+  | "saving"
+  | "saved"
+  | "saved_local"
+  | "saved_syncing"
+  | "offline_saved_local"
+  | "sync_needed"
+  | "attention"
+  | "failed";
 
-const skillLabels: Record<SessionLocale, Record<LessonSkillState, string>> = {
-  ru: {
-    UNEXPOSED: "не начато",
-    INTRODUCED: "только знакомство",
-    FRAGILE: "нужно закрепить",
-    WORKING: "получается",
-    RETAINED: "вспоминается после паузы",
-    FIELD_TEST_PENDING: "нужны разобранные реальные руки",
-    FIELD_VALIDATED: "подтверждено в разобранных руках",
-    REPAIR_REQUIRED: "нуждается в работе",
-  },
-  en: {
-    UNEXPOSED: "not started",
-    INTRODUCED: "introduced",
-    FRAGILE: "needs reinforcement",
-    WORKING: "working in practice",
-    RETAINED: "recalled after a delay",
-    FIELD_TEST_PENDING: "needs reviewed real hands",
-    FIELD_VALIDATED: "supported by reviewed real hands",
-    REPAIR_REQUIRED: "needs repair",
-  },
-};
-
-export function skillStateLabel(locale: SessionLocale, state: LessonSkillState): string {
-  return skillLabels[locale][state];
+export function deriveLessonSkillTruth(contentCompleted: boolean, state: LessonSkillState) {
+  return {
+    contentCompleted,
+    skillState: state,
+    explainRepair: contentCompleted && state === "REPAIR_REQUIRED",
+  } as const;
 }
 
-export function lessonSkillTruth(
-  locale: SessionLocale,
-  contentCompleted: boolean,
-  state: LessonSkillState,
-): { lesson: string; skill: string; explanation: string | null } {
-  const lesson = locale === "ru"
-    ? `Урок: ${contentCompleted ? "пройден" : "не пройден"}`
-    : `Lesson: ${contentCompleted ? "completed" : "not completed"}`;
-  const skill = locale === "ru"
-    ? `Навык: ${skillStateLabel(locale, state)}`
-    : `Skill: ${skillStateLabel(locale, state)}`;
-  const explanation = contentCompleted && state === "REPAIR_REQUIRED"
-    ? locale === "ru"
-      ? "Урок завершён. В самостоятельной проверке была ошибка, поэтому отдельное задание добавлено в Повтор."
-      : "Lesson completed. A self-check found a mistake, so a separate repair task was added to Review."
-    : null;
-  return { lesson, skill, explanation };
+export function deriveLessonStep(zeroBasedStep: number) {
+  return { step: zeroBasedStep + 1, total: 10 } as const;
 }
 
-export function lessonStepLabel(locale: SessionLocale, lcm: string, zeroBasedStep: number): string {
-  const step = zeroBasedStep + 1;
-  return locale === "ru"
-    ? `${lcm} · Урок · шаг ${step} из 10`
-    : `${lcm} · Lesson · step ${step} of 10`;
+export function localSaveAcknowledged(stateUpdatedAt: string, lastLocalSaveAt: string | null): boolean {
+  if (!lastLocalSaveAt) return false;
+  const stateTime = Date.parse(stateUpdatedAt);
+  const saveTime = Date.parse(lastLocalSaveAt);
+  return Number.isFinite(stateTime) && Number.isFinite(saveTime) && saveTime >= stateTime;
 }
 
-export function sessionSaveLabel(
-  locale: SessionLocale,
+export function deriveSessionSaveState(
   status: SessionSyncStatus,
   recoveryCode: string | null,
-): string {
-  const ru = locale === "ru";
-  if (recoveryCode === "LOCAL_WRITE_FAILED") return ru ? "Сохранение не удалось" : "Save failed";
-  if (status === "syncing") return ru ? "Сохраняем…" : "Saving…";
-  if (status === "synced") return ru ? "Сохранено" : "Saved";
-  if (status === "local") return ru ? "Сохранено на устройстве" : "Saved on device";
-  if (status === "offline") return ru ? "Нет сети · сохранено локально" : "Offline · saved locally";
-  if (status === "conflict") return ru ? "Нужна синхронизация" : "Sync needed";
-  if (status === "error") {
-    return recoveryCode
-      ? ru ? "Сохранение требует внимания" : "Save needs attention"
-      : ru ? "Нужна синхронизация" : "Sync needed";
-  }
-  return ru ? "Проверяем сохранение…" : "Checking save…";
+  stateUpdatedAt: string,
+  lastLocalSaveAt: string | null,
+): SessionSaveState {
+  if (recoveryCode === "LOCAL_WRITE_FAILED") return "failed";
+  if (!localSaveAcknowledged(stateUpdatedAt, lastLocalSaveAt)) return "saving";
+  if (status === "offline") return "offline_saved_local";
+  if (status === "local" || status === "loading") return "saved_local";
+  if (status === "syncing") return "saved_syncing";
+  if (status === "synced") return "saved";
+  if (status === "conflict") return "sync_needed";
+  if (status === "error") return recoveryCode ? "attention" : "sync_needed";
+  return "saved_local";
 }
 
-export function diagnosticContinuation(
-  locale: SessionLocale,
-  status: string,
-  savedResponses: number,
-): { title: string; body: string; action: string } | null {
+export function deriveDiagnosticContinuation(status: string, savedResponses: number) {
   if (status !== "IN_PROGRESS" || savedResponses >= 10) return null;
-  const next = savedResponses + 1;
-  return locale === "ru"
-    ? {
-        title: `Диагностика · ${savedResponses}/10 сохранено`,
-        body: `Сохранённые ответы не потеряны. Продолжишь с ${next}-го вопроса.`,
-        action: "Продолжить",
-      }
-    : {
-        title: `Diagnostic · ${savedResponses}/10 saved`,
-        body: `Your saved answers are still here. Continue with question ${next}.`,
-        action: "Continue",
-      };
+  return { savedResponses, nextQuestion: savedResponses + 1 } as const;
 }
