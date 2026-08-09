@@ -68,7 +68,7 @@ test("Review, Progress, Hands and Diagnostic each state one clear role", async (
 
   await page.getByRole("button", { name: "Карта", exact: true }).click();
   await expect(page.getByText(/Прогресс показывает состояние темы, реальные попытки и следующий шаг/i)).toBeVisible();
-  await expect(page.getByText(/не общий процент мастерства/i)).toBeVisible();
+  await expect(page.getByText(/не общий процент освоения навыка/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Руки", exact: true }).click();
   await expect(page.getByText(/Сначала быстро зафиксируй 1–3 решения до результата/i)).toBeVisible();

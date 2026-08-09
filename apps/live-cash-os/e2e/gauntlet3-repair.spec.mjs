@@ -39,10 +39,10 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   const selfCue = "SELF authority check: small wide flop bet";
   const selfId = await captureHand(page, selfCue, "BTN opens 3bb, BB calls; flop BTN bets 25%");
   const selfCard = page.locator(".field-list article").filter({ hasText: selfCue }).first();
-  const selfSource = selfCard.getByLabel(`Источник разбора ${selfId}`);
+  const selfSource = selfCard.getByLabel(`Как выполнен разбор ${selfId}`);
   await expect(selfSource).toHaveValue("SELF");
-  await selfCard.getByLabel(`Разбор ${selfId}`).fill("My own review says the decision was coherent, but this remains self-review only.");
-  await expect(selfCard.getByRole("button", { name: "Поддерживает перенос", exact: true })).toBeDisabled();
+  await selfCard.getByRole("textbox", { name: `Разбор ${selfId}`, exact: true }).fill("My own review says the decision was coherent, but this remains self-review only.");
+  await expect(selfCard.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true })).toBeDisabled();
   await selfCard.getByRole("button", { name: "Разбор закончен", exact: true }).click();
 
   let state = await localState(page);
@@ -55,12 +55,12 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   const assistedCue = "HUMAN_ASSISTED authority check: same mechanism after separate review";
   const assistedId = await captureHand(page, assistedCue, "BTN opens 3bb, BB calls; flop BTN bets 25%; separate review follows");
   const assistedCard = page.locator(".field-list article").filter({ hasText: assistedCue }).first();
-  const assistedSource = assistedCard.getByLabel(`Источник разбора ${assistedId}`);
+  const assistedSource = assistedCard.getByLabel(`Как выполнен разбор ${assistedId}`);
   await assistedSource.selectOption("HUMAN_ASSISTED");
-  await expect(assistedCard.getByText(/только после реального отдельного разбора человеком/i)).toBeVisible();
-  await expect(assistedCard.getByText(/приложение не проверяет личность reviewer/i)).toBeVisible();
-  await assistedCard.getByLabel(`Разбор ${assistedId}`).fill("A real separate human-assisted review confirmed the locked cue, action, and reason support transfer.");
-  const support = assistedCard.getByRole("button", { name: "Поддерживает перенос", exact: true });
+  await expect(assistedCard.getByText(/только после реального отдельного разбора с человеком/i)).toBeVisible();
+  await expect(assistedCard.getByText(/приложение не проверяет, кто проводил разбор/i)).toBeVisible();
+  await assistedCard.getByRole("textbox", { name: `Разбор ${assistedId}`, exact: true }).fill("A real separate human-assisted review confirmed the locked cue, action, and reason support transfer.");
+  const support = assistedCard.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true });
   await expect(support).toBeEnabled();
   await support.click();
 

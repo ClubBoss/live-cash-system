@@ -46,11 +46,25 @@ function admittedTransferProbe(input: DrillEvidenceInput): TransferProbe | null 
   return input.transferProbe;
 }
 
+function explicitReviewId(state: LearnerState, mode: "review" | "repair", sourceReviewId?: string): string | undefined {
+  if (sourceReviewId !== undefined) return sourceReviewId;
+  return state.activeSession?.mode === mode ? state.activeSession.sourceReviewId : undefined;
+}
+
 function activeReviewItem(state: LearnerState, sourceReviewId?: string): ReviewItem | undefined {
-  if (state.activeSession?.mode !== "review" && !sourceReviewId) return undefined;
+  if (state.activeSession?.mode !== "review" && sourceReviewId === undefined) return undefined;
   const due = core.dueReviewItems(state).filter((item) => item.kind === "retention");
-  const exactId = sourceReviewId ?? state.activeSession?.sourceReviewId;
-  return due.find((item) => item.id === exactId) ?? due[0];
+  const exactId = explicitReviewId(state, "review", sourceReviewId);
+  if (exactId !== undefined) return due.find((item) => item.id === exactId);
+  return due[0];
+}
+
+function activeRepairItem(state: LearnerState, moduleId: DrillEvidenceInput["moduleId"], sourceReviewId?: string): ReviewItem | undefined {
+  if (state.activeSession?.mode !== "repair" && sourceReviewId === undefined) return undefined;
+  const due = core.dueReviewItems(state).filter((item) => item.kind === "repair" && item.moduleId === moduleId);
+  const exactId = explicitReviewId(state, "repair", sourceReviewId);
+  if (exactId !== undefined) return due.find((item) => item.id === exactId);
+  return due[0];
 }
 
 function completedRetentionStages(state: LearnerState, item: ReviewItem): number {
@@ -63,24 +77,34 @@ function completedRetentionStages(state: LearnerState, item: ReviewItem): number
   return Math.max(0, item.attempts);
 }
 
-function activeFieldRepairItem(state: LearnerState, moduleId: DrillEvidenceInput["moduleId"]): ReviewItem | undefined {
-  if (state.activeSession?.mode !== "repair") return undefined;
-  const firstDueRepair = core.dueReviewItems(state).find((item) => item.kind === "repair" && item.moduleId === moduleId);
-  return firstDueRepair?.sourceDrillId.startsWith("field:") ? firstDueRepair : undefined;
+function activeFieldRepairItem(state: LearnerState, moduleId: DrillEvidenceInput["moduleId"], sourceReviewId?: string): ReviewItem | undefined {
+  const repair = activeRepairItem(state, moduleId, sourceReviewId);
+  return repair?.sourceDrillId.startsWith("field:") ? repair : undefined;
 }
 
 export function recordDecision(state: LearnerState, input: DrillEvidenceInput): LearnerState {
+  const sourceReviewId = input.mode === "review" || input.mode === "repair"
+    ? explicitReviewId(state, input.mode, input.sourceReviewId)
+    : input.sourceReviewId;
+  const reviewItem = input.mode === "review" ? activeReviewItem(state, sourceReviewId) : undefined;
+  const repairItem = input.mode === "repair" ? activeRepairItem(state, input.moduleId, sourceReviewId) : undefined;
+
+  // An explicit queue identity is authoritative. If it is stale, belongs to a
+  // different module, or is no longer due, the submission is a complete no-op.
+  if (input.mode === "review" && sourceReviewId !== undefined && (!reviewItem || reviewItem.moduleId !== input.moduleId)) return state;
+  if (input.mode === "repair" && sourceReviewId !== undefined && !repairItem) return state;
+
   const normalized: DrillEvidenceInput = {
     ...input,
+    sourceReviewId,
     transferProbe: admittedTransferProbe(input),
   };
-  const reviewItem = input.mode === "review" ? activeReviewItem(state, input.sourceReviewId) : undefined;
   const priorSuccessfulStages = reviewItem ? completedRetentionStages(state, reviewItem) : 0;
 
   if (reviewItem) normalized.variantGroup = reviewItem.variantGroup;
 
   if (input.mode === "repair") {
-    const fieldRepair = activeFieldRepairItem(state, input.moduleId);
+    const fieldRepair = activeFieldRepairItem(state, input.moduleId, sourceReviewId);
     if (fieldRepair) normalized.variantGroup = fieldRepair.variantGroup;
   }
 

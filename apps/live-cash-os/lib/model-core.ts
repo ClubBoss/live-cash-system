@@ -330,6 +330,14 @@ function normalizeTransferProbe(value: TransferProbe | null | undefined): Transf
   return { isTransferProbe: true, variantDistance: value.variantDistance, changedVariables };
 }
 export function recordDecision(state: LearnerState, input: DrillEvidenceInput): LearnerState {
+  const explicitDue = input.sourceReviewId !== undefined && (input.mode === "review" || input.mode === "repair")
+    ? state.reviewQueue.find((item) => item.id === input.sourceReviewId
+      && item.moduleId === input.moduleId
+      && item.kind === (input.mode === "review" ? "retention" : "repair")
+      && Date.parse(item.dueAt) <= Date.now())
+    : undefined;
+  if (input.sourceReviewId !== undefined && (input.mode === "review" || input.mode === "repair") && !explicitDue) return state;
+
   const next = clone(state);
   invalidateColdDiagnosticIfNeeded(next);
   const at = nowIso();
@@ -339,10 +347,11 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   const both = input.actionOk && input.reasonOk;
   const transferProbe = normalizeTransferProbe(input.transferProbe);
   const dueRetention = input.mode === "review"
-    ? next.reviewQueue.find((item) => item.moduleId === input.moduleId
-      && item.variantGroup === input.variantGroup
-      && item.kind === "retention"
-      && Date.parse(item.dueAt) <= Date.now())
+    ? next.reviewQueue.find((item) => item.kind === "retention"
+      && Date.parse(item.dueAt) <= Date.now()
+      && (input.sourceReviewId !== undefined
+        ? item.id === input.sourceReviewId && item.moduleId === input.moduleId
+        : item.moduleId === input.moduleId && item.variantGroup === input.variantGroup))
     : undefined;
 
   addEvidence(progress.evidence.node_recognition, input.actionOk || input.reasonOk, input.nodeKey, at);
@@ -386,7 +395,9 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   } else if (input.mode === "repair") {
     const due = next.reviewQueue.find((item) => item.kind === "repair"
       && Date.parse(item.dueAt) <= Date.now()
-      && (input.sourceReviewId ? item.id === input.sourceReviewId : item.moduleId === input.moduleId && item.variantGroup === input.variantGroup));
+      && (input.sourceReviewId !== undefined
+        ? item.id === input.sourceReviewId && item.moduleId === input.moduleId
+        : item.moduleId === input.moduleId && item.variantGroup === input.variantGroup));
     if (due) {
       due.attempts += 1;
       if (both) next.reviewQueue = next.reviewQueue.filter((item) => item.id !== due.id);
@@ -546,6 +557,15 @@ function validDiagnosticResponse(value: unknown): value is DiagnosticRawResponse
     && value.time_seconds >= 0
     && isLocale(value.locale);
 }
+function validDiagnosticReview(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  if (value.reviewerKind !== "HUMAN" && value.reviewerKind !== "HUMAN_ASSISTED") return false;
+  if (typeof value.reviewedAt !== "string" || !Array.isArray(value.itemReviews)) return false;
+  return value.itemReviews.every((item) => isRecord(item)
+    && typeof item.itemId === "string"
+    && ["A", "B", "C", "D", "U"].includes(String(item.responseClass))
+    && (item.reviewerNote === undefined || typeof item.reviewerNote === "string"));
+}
 function validDiagnostic(value: unknown): value is DiagnosticState {
   if (!isRecord(value)) return false;
   if (!["NOT_STARTED", "IN_PROGRESS", "AWAITING_REVIEW", "SCORED", "ROUTED"].includes(String(value.status))) return false;
@@ -558,16 +578,93 @@ function validDiagnostic(value: unknown): value is DiagnosticState {
   if (!(value.measurementContext === null || isMeasurementContext(value.measurementContext))) return false;
   if (!(value.learningExposureAtStart === null || typeof value.learningExposureAtStart === "boolean")) return false;
   if (!(value.localeAtStart === null || isLocale(value.localeAtStart))) return false;
+  if (value.review !== undefined && !validDiagnosticReview(value.review)) return false;
   return true;
+}
+function validDateString(value: unknown): value is string {
+  return typeof value === "string" && Number.isFinite(Date.parse(value));
+}
+function validReviewItem(value: unknown): value is ReviewItem {
+  if (!isRecord(value)) return false;
+  return typeof value.id === "string"
+    && isModuleId(value.moduleId)
+    && typeof value.sourceDrillId === "string"
+    && typeof value.variantGroup === "string"
+    && (value.kind === "repair" || value.kind === "retention")
+    && validDateString(value.dueAt)
+    && isFiniteNumber(value.attempts)
+    && value.attempts >= 0
+    && typeof value.sourceInteractionId === "string"
+    && (value.sourceActionOptionId === undefined || typeof value.sourceActionOptionId === "string")
+    && (value.sourceReasonOptionId === undefined || typeof value.sourceReasonOptionId === "string");
+}
+function validCardState(value: unknown): value is CardState {
+  if (!isRecord(value)) return false;
+  return validDateString(value.dueAt)
+    && isFiniteNumber(value.intervalDays)
+    && value.intervalDays >= 0
+    && isFiniteNumber(value.repetitions)
+    && value.repetitions >= 0
+    && isFiniteNumber(value.lapses)
+    && value.lapses >= 0
+    && (value.lastGrade === null || value.lastGrade === 0 || value.lastGrade === 1 || value.lastGrade === 2 || value.lastGrade === 3);
+}
+function validActiveSession(value: unknown): value is ActiveSession {
+  if (!isRecord(value)) return false;
+  return isLearningMode(value.mode)
+    && isModuleId(value.moduleId)
+    && Number.isInteger(value.step)
+    && Array.isArray(value.drillIds)
+    && value.drillIds.every((drillId) => typeof drillId === "string")
+    && Number.isInteger(value.currentIndex)
+    && (value.selectedActionId === null || typeof value.selectedActionId === "string")
+    && (value.selectedReasonId === null || typeof value.selectedReasonId === "string")
+    && isFiniteNumber(value.confidence)
+    && typeof value.startedAt === "string"
+    && typeof value.itemStartedAt === "string"
+    && typeof value.explainBack === "string"
+    && (value.sourceReviewId === undefined || typeof value.sourceReviewId === "string");
+}
+function validFieldNote(value: unknown): value is FieldNote {
+  if (!isRecord(value)) return false;
+  if (typeof value.id !== "string" || typeof value.at !== "string" || !isModuleId(value.moduleId)) return false;
+  if (typeof value.cue !== "string" || typeof value.action !== "string" || typeof value.reason !== "string") return false;
+  if (typeof value.cueBeforeAction !== "boolean" || typeof value.evaluatorNote !== "string") return false;
+  if (!["PENDING_REVIEW", "REVIEWED_VALID", "REVIEWED_REPAIR", "INSUFFICIENT"].includes(String(value.status))) return false;
+  const optionalStrings = [
+    "stakes", "heroPosition", "villainPositions", "effectiveStacks", "straddle", "actionSequence",
+    "board", "sizings", "populationRead", "decisionLockedAt", "result", "showdown", "resultAddedAt", "reviewedAt",
+  ];
+  if (optionalStrings.some((key) => value[key] !== undefined && typeof value[key] !== "string")) return false;
+  if (value.confidence !== undefined && !isFiniteNumber(value.confidence)) return false;
+  if (value.populationReadConfidence !== undefined && !isFiniteNumber(value.populationReadConfidence)) return false;
+  if (value.reviewOutcome !== undefined && !["REVIEWED_OK", "INSUFFICIENT", "REPAIR_REQUIRED", "SUPPORTS_TRANSFER"].includes(String(value.reviewOutcome))) return false;
+  if (value.reviewerKind !== undefined && !["SELF", "HUMAN", "HUMAN_ASSISTED"].includes(String(value.reviewerKind))) return false;
+  return true;
+}
+function validExplainBackRecord(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return typeof value.id === "string"
+    && typeof value.at === "string"
+    && isModuleId(value.moduleId)
+    && typeof value.promptKey === "string"
+    && typeof value.text === "string"
+    && ["PENDING_REVIEW", "REVIEWED_OK", "REVIEWED_REPAIR", "INSUFFICIENT"].includes(String(value.status))
+    && typeof value.reviewerNote === "string"
+    && (value.reviewedAt === undefined || typeof value.reviewedAt === "string");
 }
 export function validateLearnerState(value: unknown): value is LearnerState {
   if (!isRecord(value) || value.schemaVersion !== STATE_SCHEMA_VERSION || !isFiniteNumber(value.revision) || typeof value.updatedAt !== "string") return false;
   if (typeof value.appVersion !== "string" || typeof value.contentVersion !== "string") return false;
   if (!isRecord(value.modules) || !Array.isArray(value.interactions) || !Array.isArray(value.reviewQueue) || !isRecord(value.cards) || !Array.isArray(value.fieldNotes) || !validDiagnostic(value.diagnostic)) return false;
-  if (!(value.activeSession === null || isRecord(value.activeSession))) return false;
+  if (!(value.activeSession === null || validActiveSession(value.activeSession))) return false;
   const moduleRecord = value.modules as Record<string, unknown>;
   if (!MODULE_IDS.every((moduleId) => validModuleProgress(moduleRecord[moduleId]))) return false;
   if (!value.interactions.every(validInteraction)) return false;
+  if (!value.reviewQueue.every(validReviewItem)) return false;
+  if (!Object.values(value.cards).every(validCardState)) return false;
+  if (!value.fieldNotes.every(validFieldNote)) return false;
+  if (value.explainBackRecords !== undefined && (!Array.isArray(value.explainBackRecords) || !value.explainBackRecords.every(validExplainBackRecord))) return false;
   return true;
 }
 function normalizeDiagnostic(raw: unknown): DiagnosticState {
