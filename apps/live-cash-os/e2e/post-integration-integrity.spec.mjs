@@ -153,7 +153,7 @@ test("Review runs one bounded item and returns to the updated Review queue", asy
   await clickStableContinue(page);
 
   await expect(page.getByRole("button", { name: "Повтор", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByText(/Пункт завершён. Очередь Review обновлена/i)).toBeVisible();
+  await expect(page.locator("span").filter({ hasText: /Пункт завершён. Очередь Review обновлена/i })).toBeVisible();
   await expect.poll(async () => (await localState(page)).activeSession).toBeNull();
 });
 
