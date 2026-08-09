@@ -6,12 +6,16 @@ on:
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "state/CURRENT_PROJECT_STATE.yaml"
+      - "START_HERE.md"
       - ".github/workflows/live-cash-os-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "apps/live-cash-os/**"
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "state/CURRENT_PROJECT_STATE.yaml"
+      - "START_HERE.md"
       - ".github/workflows/live-cash-os-ci.yml"
   workflow_dispatch:
 
@@ -39,8 +43,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install canonical browsers
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Release gate
         run: npm run test:release
