@@ -59,16 +59,23 @@ async function verifyTestInviteGate(browser) {
   await lockedContext.close();
 }
 
-async function isolateTestMirrorWrites(page) {
+async function isolateTestMirrorState(page) {
   if (!testInviteCode) return;
-  // The workflow already proves the deployed TEST_DB path with a fake-code 401
-  // and an issued-code 200 before this browser smoke starts. From here on,
-  // keep each browser scenario local so the desktop lesson cannot become the
-  // mobile context's cross-device resume state and invalidate a fresh-home UX
-  // assertion. GET remains real so reload still revalidates the invite gate.
+  // The workflow proves TEST_DB with a fake-code 401 and an issued-code 200
+  // before browser smoke. Browser GETs still hit the real deployed endpoint so
+  // the invite is revalidated on initial load and reload, but the returned
+  // learner snapshot is masked to keep this UX scenario independent from state
+  // persisted by earlier CI runs. Mutations stay local-only for the same reason.
   await page.route("**/api/state", async (route) => {
     if (route.request().method() === "GET") {
-      await route.continue();
+      const response = await route.fetch();
+      if (!response.ok()) {
+        await route.fulfill({ response });
+        return;
+      }
+      let payload = {};
+      try { payload = await response.json(); } catch { /* invite validation still used the real response */ }
+      await route.fulfill({ response, json: { ...payload, state: null } });
       return;
     }
     await route.fulfill({
@@ -118,13 +125,13 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const desktopContext = await browser.newContext();
     desktop = await desktopContext.newPage();
     await applyTestInvite(desktop);
+    await isolateTestMirrorState(desktop);
     const response = await desktop.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     if (response?.status() !== 200) throw new Error(`Unexpected HTTP status: ${response?.status() ?? "none"}`);
     if ((await desktop.title()) !== "Live Cash OS") throw new Error("Unexpected document title");
 
     await verifyHomeLocale(desktop, "ru");
     await verifyBuildIdentity(desktop);
-    await isolateTestMirrorWrites(desktop);
     const body = await desktop.locator("body").innerText();
     if (!body.includes("LIVE CASH OS")) throw new Error("Brand marker is missing");
     for (const marker of forbiddenMarkers) if (body.includes(marker)) throw new Error(`Forbidden old marker is present: ${marker}`);
@@ -159,10 +166,10 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const mobile = await mobileContext.newPage();
     await applyTestInvite(mobile);
+    await isolateTestMirrorState(mobile);
     await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await verifyHomeLocale(mobile, "ru");
     await verifyBuildIdentity(mobile);
-    await isolateTestMirrorWrites(mobile);
     await assertNoOverflow(mobile, "Russian mobile home");
     await mobile.screenshot({ path: "smoke-evidence/mobile-home-ru.png", fullPage: true });
     await mobile.getByRole("button", { name: "EN", exact: true }).click();
