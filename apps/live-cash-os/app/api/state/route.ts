@@ -1,7 +1,8 @@
 import { and, eq } from "drizzle-orm";
+import { env } from "cloudflare:workers";
 import { getChatGPTUser } from "../../chatgpt-auth";
-import { getDb } from "../../../db";
-import { learnerStates } from "../../../db/schema";
+import { ensureTestMirrorSchema, getDb } from "../../../db";
+import { learnerStates, testInvites } from "../../../db/schema";
 import { assessCloudWrite } from "../../../lib/cloud-sync-contract";
 import {
   STATE_SCHEMA_VERSION,
@@ -34,17 +35,55 @@ function cloudToken(): string {
 const PORTABLE_PROFILE_HEADER = "x-live-cash-profile-code";
 const PORTABLE_PROFILE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
 
-async function portableProfileId(request: Request): Promise<string | null> {
+type PortableProfile = {
+  codeHash: string;
+  userId: string;
+};
+
+type RuntimeBindings = {
+  TEST_INVITE_MODE?: string;
+};
+
+async function portableProfile(request: Request): Promise<PortableProfile | null> {
   const raw = request.headers.get(PORTABLE_PROFILE_HEADER)?.trim().toUpperCase() ?? "";
   if (!PORTABLE_PROFILE_PATTERN.test(raw)) return null;
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
   const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `portable:${hash}`;
+  return { codeHash: hash, userId: `portable:${hash}` };
+}
+
+function isTestInviteMode(): boolean {
+  const bindings = env as unknown as RuntimeBindings;
+  return bindings.TEST_INVITE_MODE === "true";
+}
+
+async function activeTestInvite(profile: PortableProfile): Promise<boolean> {
+  const db = getDb();
+  const [invite] = await db
+    .select({ id: testInvites.id, firstUsedAt: testInvites.firstUsedAt })
+    .from(testInvites)
+    .where(and(eq(testInvites.codeHash, profile.codeHash), eq(testInvites.active, 1)))
+    .limit(1);
+  if (!invite) return false;
+
+  const now = new Date().toISOString();
+  await db
+    .update(testInvites)
+    .set({ firstUsedAt: invite.firstUsedAt ?? now, lastUsedAt: now })
+    .where(eq(testInvites.id, invite.id));
+  return true;
 }
 
 async function currentIdentity(request: Request): Promise<string | null> {
-  const portable = await portableProfileId(request);
-  if (portable) return portable;
+  const portable = await portableProfile(request);
+  if (isTestInviteMode()) {
+    // TEST_DB is isolated from production. Bootstrap its idempotent schema
+    // through the Worker binding before invite lookup, avoiding a broader D1
+    // management permission on the deploy token.
+    await ensureTestMirrorSchema();
+    return portable && await activeTestInvite(portable) ? portable.userId : null;
+  }
+  if (portable) return portable.userId;
   const user = await getChatGPTUser();
   return user?.userId ?? null;
 }
@@ -116,7 +155,8 @@ async function conflictFromLatest(userId: string) {
 }
 
 export async function GET(request: Request) {
-  const userId = await currentIdentity(request);
+  let userId: string | null;
+  try { userId = await currentIdentity(request); } catch { return serverError(); }
   if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   try {
@@ -149,7 +189,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const userId = await currentIdentity(request);
+  let userId: string | null;
+  try { userId = await currentIdentity(request); } catch { return serverError(); }
   if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   const declaredLength = Number(request.headers.get("content-length") ?? 0);
@@ -214,7 +255,7 @@ export async function POST(request: Request) {
       const resumed = await db
         .update(learnerStates)
         .set({ stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
-      .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
+        .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
         .run();
       if ((resumed.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
       return json({ ok: true, resumed: true, revision: incoming.revision, cloudToken: nextCloudToken });
@@ -247,7 +288,7 @@ export async function POST(request: Request) {
     const updated = await db
       .update(learnerStates)
       .set({ stateJson: JSON.stringify(incoming), updatedAt: nextCloudToken })
-        .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
+      .where(and(eq(learnerStates.userId, userId), eq(learnerStates.updatedAt, record.cloudToken)))
       .run();
     if ((updated.meta?.changes ?? 0) !== 1) return conflictFromLatest(userId);
 
@@ -258,7 +299,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const userId = await currentIdentity(request);
+  let userId: string | null;
+  try { userId = await currentIdentity(request); } catch { return serverError(); }
   if (!userId) return json({ error: "Sign in or connect a learning profile", code: "AUTH_REQUIRED" }, 401);
 
   try {
