@@ -22,6 +22,7 @@ async function state(page) {
 
 async function fillHand(page) {
   await page.getByRole("button", { name: "Руки", exact: true }).click();
+  await page.getByLabel("Связанная тема").selectOption("geometry");
   await page.getByLabel("Лимиты").fill("2/5");
   await page.getByLabel("Позиция Hero").fill("BB");
   await page.getByLabel("Позиции релевантных соперников").fill("BTN");
