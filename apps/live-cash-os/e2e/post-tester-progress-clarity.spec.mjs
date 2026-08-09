@@ -3,27 +3,15 @@ import { expect, test } from "@playwright/test";
 
 const STORAGE_KEY = "live-cash-os:learner-state";
 const EVIDENCE_DIR = "test-results/post-tester-wave-a";
-const DIAGNOSTIC_IDS = ["LD-001", "LD-002", "LD-003"];
-
-async function seedState(page, mutate) {
-  await page.evaluate(({ key, mutation }) => {
-    const state = JSON.parse(localStorage.getItem(key));
-    const next = Function("state", `return (${mutation})(state)`)(state);
-    const now = new Date().toISOString();
-    next.revision += 1;
-    next.updatedAt = now;
-    localStorage.setItem(key, JSON.stringify(next));
-  }, { key: STORAGE_KEY, mutation: mutate.toString() });
-  await page.reload();
-}
 
 async function seedLesson(page, step) {
-  await seedState(page, (state) => {
+  await page.evaluate(({ key, lessonStep }) => {
+    const state = JSON.parse(localStorage.getItem(key));
     const now = new Date().toISOString();
     state.activeSession = {
       mode: "lesson",
       moduleId: "geometry",
-      step,
+      step: lessonStep,
       drillIds: ["geo-04", "geo-04", "geo-04"],
       currentIndex: 0,
       selectedActionId: null,
@@ -33,8 +21,11 @@ async function seedLesson(page, step) {
       itemStartedAt: now,
       explainBack: "",
     };
-    return state;
-  });
+    state.revision += 1;
+    state.updatedAt = now;
+    localStorage.setItem(key, JSON.stringify(state));
+  }, { key: STORAGE_KEY, lessonStep: step });
+  await page.reload();
   await expect(page.locator("main .session")).toBeVisible();
 }
 
@@ -53,7 +44,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("completed lesson and repair-required skill are both explicit in RU and EN", async ({ page }) => {
-  await seedState(page, (state) => {
+  await page.evaluate((key) => {
+    const state = JSON.parse(localStorage.getItem(key));
     const now = new Date().toISOString();
     state.activeSession = null;
     state.modules.geometry.contentCompleted = true;
@@ -69,8 +61,11 @@ test("completed lesson and repair-required skill are both explicit in RU and EN"
       attempts: 0,
       sourceInteractionId: "interaction-wave-a",
     });
-    return state;
-  });
+    state.revision += 1;
+    state.updatedAt = now;
+    localStorage.setItem(key, JSON.stringify(state));
+  }, STORAGE_KEY);
+  await page.reload();
 
   await page.locator(".tabs button").nth(1).click();
   const firstModule = page.locator(".module-list article").first();
@@ -114,7 +109,8 @@ test("fresh Today labels zero as reviews due rather than all tasks", async ({ pa
 });
 
 test("in-progress Diagnostic survives exit and resumes from the fourth question", async ({ page }) => {
-  await seedState(page, (state) => {
+  await page.evaluate((key) => {
+    const state = JSON.parse(localStorage.getItem(key));
     const now = new Date().toISOString();
     state.activeSession = null;
     state.diagnostic = {
@@ -136,8 +132,11 @@ test("in-progress Diagnostic survives exit and resumes from the fourth question"
       learningExposureAtStart: false,
       localeAtStart: "ru",
     };
-    return state;
-  });
+    state.revision += 1;
+    state.updatedAt = now;
+    localStorage.setItem(key, JSON.stringify(state));
+  }, STORAGE_KEY);
+  await page.reload();
 
   await expect(page.getByRole("heading", { name: "Диагностика · 3/10 сохранено" })).toBeVisible();
   await expect(page.getByText("Сохранённые ответы не потеряны. Продолжишь с 4-го вопроса.")).toBeVisible();
