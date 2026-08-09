@@ -1,151 +1,109 @@
 # Live Cash System — Start Here
 
-Status: `ACTIVE / LIVE_CASH_OS_REPO_ACCEPTED / CHATGPT_SITE_DEPLOY_PENDING`
+Status: `FINAL_RED_TEAM_CANDIDATE / INDEPENDENT_EVALUATION_PENDING / NO_MERGE_NO_DEPLOY`
 
 ## Bootstrap
 
-Use live `main` of `ClubBoss/live-cash-system`.
+Repository truth overrides chat memory.
 
-Read:
+Read in this order:
 
 1. `START_HERE.md`;
 2. `AGENTS.md`;
 3. `state/CURRENT_PROJECT_STATE.yaml`;
-4. `PROJECT_ATLAS.md`;
-5. `apps/live-cash-os/README.md`;
-6. `apps/live-cash-os/RELEASE_STATUS.md`;
-7. only authorities required for the active milestone.
+4. `apps/live-cash-os/RELEASE_STATUS.md`;
+5. `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
+6. only the authorities required for the active task.
 
-Repository state overrides chat memory. Do not restart source ingestion or diagnosis.
+## Current repository truth
 
-## Mission
+- repository: `ClubBoss/live-cash-system`;
+- current `main` / Final Red-Team base: `787313276f3d7290a6144f965eeb54dce050509e`;
+- bounded candidate branch: `repair/final-red-team-closure`;
+- draft evaluator PR: `#28`;
+- Final Red-Team implementation code-freeze: `07cea8f9b3109e93e8c2a8b81ac77820a772d4f1`;
+- code-freeze canonical CI: run `31285270612` — `SUCCESS`;
+- code-freeze automated counts: `178/178` unit/integration PASS; canonical Chromium/mobile E2E `128` PASS / `4` intentional skips;
+- learner-facing review fingerprint after RC-8 refresh: `dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e`;
+- editorial state remains `TRANSITIONAL_REVIEW_REQUIRED`.
 
-Build a compact adaptive live-cash system for `1/3` and `2/5`, primarily `100–200bb`, with controlled `300–400bb`, straddle and multiway branches.
+The exact final candidate SHA and its final run IDs are intentionally not hard-coded into an authority file that participates in that same commit. Doing so would create self-referential SHA churn. The PR head/Git ref plus the final evaluator handoff are the authority for the exact frozen SHA and evidence runs.
 
-`MINIMUM COMPLEXITY SUBJECT TO NO MATERIAL EV LOSS`
+## Integrated scope
 
-## Source and strategic truth
+Gauntlet 1, Gauntlet 2 and Gauntlet 3 are integrated in `main` before this candidate. Final Red-Team Closure is a bounded post-Gauntlet repair only.
 
-```text
-catalogued source corpora: complete
-heuristic candidates: 34
-DRILL_READY: 29
-VALIDATION_PENDING: 5
-admitted final rules: 0
-direct candidate drills: 34/34
-misconception IDs: 30
-learner-state dimensions: 9
-```
+The closure preserves:
 
-The application’s learner-runtime admission does **not** convert any candidate into an admitted final strategic rule.
+- poker curriculum and correct-answer identities;
+- drill/card IDs and source provenance;
+- hard prerequisites and scheduler policy except the demonstrated review-ID integrity repair;
+- learner-state schema version `2`;
+- mastery semantics and `FIELD_VALIDATED` contract;
+- `1/3/7` retention policy;
+- Table Burst policy;
+- stable production URL.
 
-## Live Cash OS
+RC-1 fails closed on stale explicit review/repair IDs. RC-2 adds deep structural validation for runtime-used schema-v2 persisted structures without a schema bump. RC-3 removes learner-facing internal state-machine vocabulary while preserving internal enums and evidence semantics.
 
-Stable URL:
+## Acceptance and human-review truth
+
+Automated checks may reject invalid candidates but cannot create human approval.
+
+Current governance remains:
+
+- strategy: `CURRICULUM_STRATEGY_REVIEW_PENDING`;
+- drills: `DRILLS_REVIEW_PENDING`;
+- RU human approval: pending;
+- EN human approval: pending;
+- final learner-facing composition: `REVIEW_PENDING`;
+- W10 empirical validation: not completed;
+- W11 final integration/release acceptance: not completed.
+
+No strategy, drill, RU or EN approval is inferred from model review or CI.
+
+## Production boundary
+
+Stable URL remains:
 
 `https://live-cash-os.elmarsal.chatgpt.site/`
 
-Deploy source:
+Historical production smoke evidence exists for earlier accepted source states. It is not evidence that this Final Red-Team candidate is deployed.
 
-`apps/live-cash-os`
-
-Accepted six-wave source SHA:
-
-`ba927405642a7aa7238c06db4348ef5b02921fdf`
-
-PR `#2` is squash-merged. Pre-merge and post-merge CI are green, including typecheck, lint, unit/content tests, production build and desktop/mobile browser gates.
-
-**Deployment truth:** the existing ChatGPT Site project was explicitly republished from the current `main` application tree. Owner-authenticated Chromium smoke confirmed HTTP `200`, Russian runtime markers, reachable CTAs and zero mobile horizontal overflow at the stable URL. Historical smoke run `31116142028` remains evidence that merge alone did not publish the Site.
-
-Runtime authorities:
-
-- `apps/live-cash-os/README.md`;
-- `apps/live-cash-os/RELEASE_STATUS.md`;
-- `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
-- `apps/live-cash-os/lib/model.ts`;
-- `apps/live-cash-os/content/modules.ts`;
-- `apps/live-cash-os/.openai/hosting.json`;
-- `apps/live-cash-os/scripts/production-smoke.mjs`.
-
-Current source runtime contract:
-
-- Russian-first learner language;
-- 11 structured modules;
-- one cold check inside each lesson;
-- theory, heuristics, decision tree, worked example and lab;
-- changed-node practice and explain-back;
-- skill-specific repair and delayed review;
-- 33 scheduled flashcards;
-- nine separate learner dimensions;
-- reviewed field-note lifecycle;
-- local state plus optional D1 sync;
-- stable URL preserved.
-
-Content truth:
-
-- `LCM-01` is the gold accepted teaching module;
-- `LCM-02–LCM-11` are migrated and remain `VALIDATION_PENDING` for the repeat content audit.
-
-## Diagnostic runtime
-
-T1 is optional personalization, not a mandatory wall.
-
-It is a `COLD_BASELINE` only before any learning exposure. After learning begins, export must be labeled `POST_LEARNING_DIAGNOSTIC`.
-
-Active authorities:
-
-- `learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md`;
-- `learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md`;
-- `learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json`;
-- `learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json`;
-- `learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`;
-- `scripts/score_learner_diagnostic.py`.
-
-Current truth:
-
-```text
-T1 items: 10
-responses recorded: 0
-measured error probability: no
-confirmed strategic leaks: 0
-```
+This closure must not publish, merge or claim exact deployed-SHA equality. Production acceptance requires a later explicitly authorized flow after evaluator `KEEP`.
 
 ## Active milestone
 
-`REPUBLISH EXISTING CHATGPT SITE PROJECT FROM CURRENT MAIN`
+`FINAL_RED_TEAM_CLOSURE -> EXACT_FINAL_RELEASE_GATE -> ONE_TIME_CROSS_BROWSER_MATRIX -> INDEPENDENT_EVALUATOR`
 
-Required order:
+After the exact final SHA is frozen:
 
-1. explicitly publish the existing Site project from current `main`;
-2. preserve the same stable URL and learner-state migration;
-3. manually run `Live Cash OS Production Smoke`;
-4. require Russian desktop/mobile live smoke green;
-5. then start the first real LCM-01 session;
-6. collect delayed and field evidence;
-7. run the requested repeat audit.
+1. run unchanged `npm run test:release` on that exact SHA;
+2. run the six-project cross-browser matrix on the same exact SHA;
+3. make no further code/docs/manifest changes;
+4. hand the frozen candidate to the independent evaluator for `KEEP / REPAIR / REVERT`.
 
 ## Frozen constraints
 
 Do not:
 
-- call repo-green live-green;
-- reveal T1 answer keys before completion;
-- infer mastery from untested modules;
-- treat content completion as mastery;
+- call source-green production-green;
+- synthesize human approvals;
+- claim W10 or W11 complete;
+- infer mastery from completion, Diagnostic routing or one reviewed hand;
 - grant retention from immediate repetition;
-- grant field transfer from a raw note;
 - reset learner progress globally;
-- copy proprietary source hands or charts;
-- turn directional bands into solver cutoffs;
-- treat learner-runtime admission as final-rule admission;
-- change the stable live URL.
+- change the stable URL;
+- merge or deploy before evaluator approval.
 
 ## Verdict
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`SIX_WAVE_SOURCE_MERGED_AND_GREEN`
+`FINAL_RED_TEAM_CANDIDATE_NOT_YET_MERGED`
 
-`LIVE_SMOKE_GREEN`
+`HUMAN_REVIEW_PENDING`
 
-`NEXT = BEGIN LCM-01 OR OPTIONAL PRE-EXPOSURE T1`
+`W10_NOT_COMPLETED / W11_NOT_COMPLETED`
+
+`NO_PRODUCTION_CLAIM_FOR_THIS_CANDIDATE`
