@@ -128,10 +128,10 @@ function usePracticeSnapshot(): PracticeSnapshot {
 }
 
 function nextCoreLabStep() {
-  const host = document.querySelector<HTMLElement>("main .session");
-  if (host) delete host.dataset.wave5LabHost;
+  const current = document.querySelector<HTMLElement>("main .session");
+  if (current) delete current.dataset.wave5LabHost;
   requestAnimationFrame(() => {
-    host?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click();
+    document.querySelector<HTMLElement>("main .session")?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click();
   });
 }
 
@@ -268,19 +268,18 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
   </section>;
 }
 
-function Wave5LabPortal({ locale, moduleId }: { locale: LocaleCode; moduleId: ModuleId }) {
+function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; moduleId: ModuleId; revision: number }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    const sync = () => {
+    const syncHost = () => {
       const next = document.querySelector<HTMLElement>("main .session");
       setHost((previous) => previous === next ? previous : next);
     };
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, [moduleId]);
+    syncHost();
+    const fallback = window.setInterval(syncHost, 100);
+    return () => window.clearInterval(fallback);
+  }, [moduleId, revision]);
 
   useEffect(() => {
     if (!host) return;
@@ -302,6 +301,6 @@ export default function Wave5PracticeLayer() {
       .wave5-lab-gate { display: block; }
       .wave5-lab-gate > .assumption-strip { display: block !important; }
     `}</style>
-    {snapshot.labActive && snapshot.moduleId && <Wave5LabPortal locale={snapshot.locale} moduleId={snapshot.moduleId} />}
+    {snapshot.labActive && snapshot.moduleId && <Wave5LabPortal locale={snapshot.locale} moduleId={snapshot.moduleId} revision={snapshot.revision} />}
   </>;
 }
