@@ -46,10 +46,11 @@ function runtimeBindings(): LiveCashBindings {
 }
 
 async function bootstrapTestMirrorSchema(database: D1Database): Promise<void> {
-  // Keep each DDL statement independent. This avoids relying on multi-statement
-  // parsing in D1.exec while preserving idempotent, reviewable schema creation.
+  // D1Database.exec treats raw newline-delimited SQL as an exec script. These
+  // CREATE statements are intentionally multi-line, so run each one through
+  // the prepared-statement API instead of letting exec split their lines.
   for (const statement of TEST_MIRROR_DDL) {
-    await database.exec(statement);
+    await database.prepare(statement).run();
   }
 
   // Seed only hashes through bound parameters. INSERT OR IGNORE preserves an
