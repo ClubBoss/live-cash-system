@@ -8,7 +8,10 @@ This ledger records the current acceptance boundary. Automated implementation ev
 
 The former Final Red-Team candidate/no-merge boundary is historical. Its accepted implementation was integrated into `main` before Gauntlet 4. Gauntlet 4 has explicit owner authorization to integrate only after its technical, browser, preservation and exact-main gates are GREEN.
 
-Earlier wave dispositions remain historical evidence only and are not upgraded into new human or empirical approval.
+Earlier wave dispositions remain historical implementation dispositions only and are not upgraded into new human or empirical approval:
+
+- W1 historical implementation disposition: `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`.
+- W5 historical implementation disposition: `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`.
 
 ## Gauntlet 4 acceptance boundary
 
