@@ -167,7 +167,8 @@ test("feedback matrix distinguishes correct partial and wrong while comparing on
     if (title === "Верно") {
       await expect(card.getByText("Твой выбор", { exact: true })).toHaveCount(0);
       await expect(card.getByText("Рабочий выбор", { exact: true })).toHaveCount(0);
-      await expect(card.getByText(action, { exact: true })).toHaveCount(1);
+      const text = await card.innerText();
+      expect(text.split(action).length - 1).toBe(1);
       await shot(page, testInfo, "desktop-feedback-correct-compact");
     } else if (title === "Действие верное") {
       await expect(card).toContainText("Твоя причина");
