@@ -17,6 +17,13 @@ This ledger records the acceptance boundary for the post-Gauntlet Final Red-Team
 
 The exact final candidate SHA is the Git/PR head after authority reconciliation and removal of all temporary write-enabled harnesses. The exact final release/cross-browser run IDs are recorded in GitHub Actions and the evaluator handoff rather than hard-coded into a commit that would mutate its own identity.
 
+## Historical wave truth carried forward
+
+These earlier implementation dispositions remain part of repository history and are not upgraded into new human approval by this closure:
+
+- W1: `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`; genuine comprehension evidence remains empirical/W10 work.
+- W5: `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`; the previously accepted compatibility/shim debt remains non-blocking absent a demonstrated learner or integrity defect.
+
 ## Final Red-Team closure disposition
 
 ### RC-1 — fail-closed review identity
