@@ -4,15 +4,19 @@ import * as schema from "./schema";
 
 type LiveCashBindings = {
   DB?: D1Database;
+  TEST_DB?: D1Database;
 };
 
 export function getDb() {
   const bindings = env as unknown as LiveCashBindings;
-  if (!bindings.DB) {
+  // Sites continues to use the production `DB` binding. The Workers test
+  // mirror receives only `TEST_DB`, which points at its separate test D1.
+  const database = bindings.TEST_DB ?? bindings.DB;
+  if (!database) {
     throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let the hosting control plane inject the binding before using the database."
+      "Cloudflare D1 binding is unavailable. Set the Sites `DB` binding or the test-mirror `TEST_DB` binding before using cloud storage."
     );
   }
 
-  return drizzle(bindings.DB, { schema });
+  return drizzle(database, { schema });
 }
