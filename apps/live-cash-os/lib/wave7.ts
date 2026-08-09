@@ -258,6 +258,16 @@ export function reviewFieldHand(
   note.evaluatorNote = reviewText;
   note.reviewedAt = nowIso();
 
+  // Self-review is deliberately non-terminal. It can identify a repair and
+  // preserve the learner's note, but the same locked hand remains available
+  // for a later, genuinely separate human/human-assisted review. Only that
+  // independent review may close the field-review lifecycle or add evidence.
+  if (reviewerKind === "SELF") {
+    if (effectiveOutcome === "REPAIR_REQUIRED") queueReviewedRepair(next, note.moduleId, note.id, "field");
+    note.status = "PENDING_REVIEW";
+    return touch(next);
+  }
+
   if (effectiveOutcome === "INSUFFICIENT") note.status = "INSUFFICIENT";
   if (effectiveOutcome === "REVIEWED_OK") note.status = "REVIEWED_VALID";
   if (effectiveOutcome === "REPAIR_REQUIRED") {
