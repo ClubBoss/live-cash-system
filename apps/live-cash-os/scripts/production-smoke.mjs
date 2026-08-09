@@ -42,8 +42,8 @@ async function verifyHomeLocale(page, locale) {
   if (russian && /evidence|probe|repair|retention|field validated/iu.test(routeText)) throw new Error("Russian route exposes internal terminology");
 
   const expectedNav = russian
-    ? ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Проверка"]
-    : ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Check"];
+    ? ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"]
+    : ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Diagnostic"];
   const nav = mainNav(page);
   if (await nav.getByRole("button").count() !== expectedNav.length) throw new Error(`${locale}: primary navigation does not contain seven destinations`);
   for (const name of expectedNav) await nav.getByRole("button", { name, exact: true }).waitFor({ timeout: 10_000 });
