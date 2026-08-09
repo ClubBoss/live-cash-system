@@ -30,6 +30,14 @@ import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/di
 import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
 import { HARD_PREREQUISITES, planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
 import {
+  deriveDiagnosticContinuation,
+  deriveLessonSkillTruth,
+  deriveLessonStep,
+  deriveSessionSaveState,
+  type LessonSkillState,
+  type SessionSaveState,
+} from "../lib/session-clarity";
+import {
   APP_VERSION,
   DIMENSION_KEYS,
   classifyResponse,
@@ -50,7 +58,7 @@ import {
   type ResponseClass,
   type TransferProbe,
 } from "../lib/model";
-import { useReliableLearnerState, type RecoveryCode } from "../lib/use-learner-state-sync";
+import { useReliableLearnerState, type RecoveryCode, type SyncStatus } from "../lib/use-learner-state-sync";
 import { applyReviewedDiagnostic, pendingHumanReviewCount, saveExplainBack } from "../lib/wave7";
 import DataSafetyPanel from "./DataSafetyPanel";
 import LearningRoute from "./LearningRoute";
@@ -133,30 +141,105 @@ function localizedModule(module: ModuleContent, locale: LocaleCode) {
   return { ...module, ...heading };
 }
 
-function moduleStateLabel(locale: LocaleCode, value: string): string {
-  const labels: Record<LocaleCode, Record<string, string>> = {
-    ru: {
-      UNEXPOSED: "не начато",
-      INTRODUCED: "тема пройдена",
-      FRAGILE: "нужно закрепить",
-      WORKING: "получается",
-      RETAINED: "вспоминается после паузы",
-      FIELD_TEST_PENDING: "нужны разобранные реальные руки",
-      FIELD_VALIDATED: "подтверждено в разобранных руках",
-      REPAIR_REQUIRED: "нужно разобрать ошибку",
-    },
-    en: {
-      UNEXPOSED: "not started",
-      INTRODUCED: "lesson completed",
-      FRAGILE: "needs reinforcement",
-      WORKING: "working in practice",
-      RETAINED: "recalled after a delay",
-      FIELD_TEST_PENDING: "needs reviewed real hands",
-      FIELD_VALIDATED: "supported by reviewed real hands",
-      REPAIR_REQUIRED: "mistake needs work",
-    },
+const skillStateCopy: Record<LocaleCode, Record<LessonSkillState, string>> = {
+  ru: {
+    UNEXPOSED: "не начато",
+    INTRODUCED: "только знакомство",
+    FRAGILE: "нужно закрепить",
+    WORKING: "получается",
+    RETAINED: "вспоминается после паузы",
+    FIELD_TEST_PENDING: "нужны разобранные реальные руки",
+    FIELD_VALIDATED: "подтверждено в разобранных руках",
+    REPAIR_REQUIRED: "нуждается в работе",
+  },
+  en: {
+    UNEXPOSED: "not started",
+    INTRODUCED: "introduced",
+    FRAGILE: "needs reinforcement",
+    WORKING: "working in practice",
+    RETAINED: "recalled after a delay",
+    FIELD_TEST_PENDING: "needs reviewed real hands",
+    FIELD_VALIDATED: "supported by reviewed real hands",
+    REPAIR_REQUIRED: "needs repair",
+  },
+};
+
+const sessionSaveCopy: Record<LocaleCode, Record<SessionSaveState, string>> = {
+  ru: {
+    saving: "Сохраняем…",
+    saved: "Сохранено",
+    saved_local: "Сохранено на устройстве",
+    saved_syncing: "Сохранено · синхронизация…",
+    offline_saved_local: "Нет сети · сохранено локально",
+    sync_needed: "Нужна синхронизация",
+    attention: "Сохранение требует внимания",
+    failed: "Сохранение не удалось",
+  },
+  en: {
+    saving: "Saving…",
+    saved: "Saved",
+    saved_local: "Saved on device",
+    saved_syncing: "Saved · syncing…",
+    offline_saved_local: "Offline · saved locally",
+    sync_needed: "Sync needed",
+    attention: "Save needs attention",
+    failed: "Save failed",
+  },
+};
+
+function moduleStateLabel(locale: LocaleCode, value: LessonSkillState): string {
+  return skillStateCopy[locale][value];
+}
+
+function lessonSkillCopy(locale: LocaleCode, contentCompleted: boolean, state: LessonSkillState) {
+  const truth = deriveLessonSkillTruth(contentCompleted, state);
+  return {
+    lesson: locale === "ru"
+      ? `Урок: ${truth.contentCompleted ? "пройден" : "не пройден"}`
+      : `Lesson: ${truth.contentCompleted ? "completed" : "not completed"}`,
+    skill: locale === "ru"
+      ? `Навык: ${skillStateCopy[locale][truth.skillState]}`
+      : `Skill: ${skillStateCopy[locale][truth.skillState]}`,
+    explanation: truth.explainRepair
+      ? locale === "ru"
+        ? "Урок завершён. В самостоятельной проверке была ошибка, поэтому отдельное задание добавлено в Повтор."
+        : "Lesson completed. A self-check found a mistake, so a separate repair task was added to Review."
+      : null,
   };
-  return labels[locale][value] ?? value;
+}
+
+function lessonStepLabel(locale: LocaleCode, lcm: string, zeroBasedStep: number): string {
+  const { step, total } = deriveLessonStep(zeroBasedStep);
+  return locale === "ru"
+    ? `${lcm} · Урок · шаг ${step} из ${total}`
+    : `${lcm} · Lesson · step ${step} of ${total}`;
+}
+
+function sessionSaveLabel(
+  locale: LocaleCode,
+  status: SyncStatus,
+  recoveryCode: RecoveryCode,
+  stateUpdatedAt: string,
+  lastLocalSaveAt: string | null,
+) {
+  const saveState = deriveSessionSaveState(status, recoveryCode, stateUpdatedAt, lastLocalSaveAt);
+  return { saveState, label: sessionSaveCopy[locale][saveState] };
+}
+
+function diagnosticContinuationCopy(locale: LocaleCode, status: string, savedResponses: number) {
+  const continuation = deriveDiagnosticContinuation(status, savedResponses);
+  if (!continuation) return null;
+  return locale === "ru"
+    ? {
+        title: `Диагностика · ${continuation.savedResponses}/10 сохранено`,
+        body: `Сохранённые ответы не потеряны. Продолжишь с ${continuation.nextQuestion}-го вопроса.`,
+        action: "Продолжить",
+      }
+    : {
+        title: `Diagnostic · ${continuation.savedResponses}/10 saved`,
+        body: `Your saved answers are still here. Continue with question ${continuation.nextQuestion}.`,
+        action: "Continue",
+      };
 }
 
 function dimensionLabel(locale: LocaleCode, value: string): string {
@@ -349,7 +432,7 @@ export default function LiveCashAppV11() {
   const [dailyBudget, setDailyBudget] = useState<DailyBudget>("15");
   const [sessionReturnTab, setSessionReturnTab] = useState<Tab | null>(null);
   const dataSafety = useReliableLearnerState();
-  const { state, setState, ready, syncStatus, recoveryCode } = dataSafety;
+  const { state, setState, ready, syncStatus, recoveryCode, lastLocalSaveAt } = dataSafety;
   const t = runtimeCopy[locale];
 
   useEffect(() => {
@@ -543,12 +626,12 @@ export default function LiveCashAppV11() {
 
     {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onWarmup={runWarmup} onLearn={() => setTab("learn")} onDiagnostic={() => setTab("diagnostic")} onField={() => setTab("field")} />}
     {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} onBurst={openBurst} />}
-    {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} onExit={exitSession} onWarmupCards={() => setTab("cards")} onFinished={finishPracticeBlock} />}
+    {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={exitSession} onWarmupCards={() => setTab("cards")} onFinished={finishPracticeBlock} />}
     {tab === "review" && <Review locale={locale} state={state} plan={reviewPlan} budget={reviewBudget} onBudget={setDailyBudget} onReview={(sourceReviewId) => openReview(sourceReviewId, true)} onRepair={(moduleId, sourceReviewId) => openRepair(moduleId, false, sourceReviewId, true)} />}
     {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} onLearn={() => setTab("learn")} />}
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
     {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
-    {tab === "diagnostic" && <Diagnostic locale={locale} state={state} setState={setState} onExit={() => setTab("today")} onImported={finishDiagnosticImport} />}
+    {tab === "diagnostic" && <Diagnostic locale={locale} state={state} setState={setState} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={() => setTab("today")} onImported={finishDiagnosticImport} />}
     {tab === "debug" && <DataSafetyPanel locale={locale} controller={dataSafety} route={tab} />}
   </main>;
 }
@@ -574,6 +657,10 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onWarmup, onLearn
   const timeBudgets: DailyBudget[] = ["5", "15", "30"];
   const modes: DailyBudget[] = ["warmup", "post"];
   const freshShortFallback = completed === 0 && !state.activeSession && !hasPlanAction && !postMode && (budget === "5" || budget === "warmup");
+  const diagnosticProgress = diagnosticContinuationCopy(locale, state.diagnostic.status, state.diagnostic.responses.length);
+  const diagnosticEyebrow = diagnosticProgress
+    ? locale === "ru" ? "ДИАГНОСТИКА · ПРОДОЛЖЕНИЕ" : "DIAGNOSTIC · CONTINUE"
+    : t.personalisation;
   const returnCopy = locale === "ru"
     ? "После паузы берём ограниченный набор самых полезных повторений — весь накопившийся хвост сразу не показываем."
     : "After a break, start with a bounded set of the highest-value reviews instead of dumping the whole backlog at once.";
@@ -634,11 +721,11 @@ function Today({ locale, state, plan, budget, onBudget, onRun, onWarmup, onLearn
     <section className="metrics">
       <div><b>{completed}/11</b><span>{t.completedLessons}</span></div>
       <div><b>{working}</b><span>{t.workingSkills}</span></div>
-      <div><b>{dueReviewItems(state).length}</b><span>{t.dueItems}</span></div>
+      <div><b>{dueReviewItems(state).length}</b><span>{locale === "ru" ? "повторений на сегодня" : "reviews due"}</span></div>
     </section>
     <section className="quick-grid">
       <article><p className="eyebrow">{locale === "ru" ? "ПЛАН" : "PLAN"}</p><h3>{postMode ? (locale === "ru" ? "Порядок после игры" : "After-play order") : (locale === "ru" ? "Что входит дальше" : "What comes next")}</h3>{postMode ? <><p>1. {locale === "ru" ? "Сохранить 1–3 руки" : "Save 1–3 hands"}</p><p>2. {locale === "ru" ? "Разобрать одну" : "Review one"}</p><p>3. {locale === "ru" ? "Только при необходимости — работа над ошибкой / Review" : "Only if needed — mistake practice / Review"}</p></> : <><p className="support">{locale === "ru" ? `План на выбранное время: ≈${plan.estimatedMinutes} из ${plan.targetMinutes} минут. Каждый пункт запускается отдельно.` : `Plan for the selected time: ≈${plan.estimatedMinutes} of ${plan.targetMinutes} minutes. Each item starts separately.`}</p>{plan.items.slice(0, 3).map((item, index) => { const copy = dailyPlanItemCopy(locale, item); return <p key={`${item.kind}-${item.moduleId ?? index}`}>{index + 1}. {copy.title} · ≈{item.estimatedMinutes} {locale === "ru" ? "мин" : "min"}</p>; })}</>}</article>
-      <article><p className="eyebrow">{t.personalisation}</p><h3>{t.diagnosticTitle}</h3><p>{t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{locale === "ru" ? "Открыть диагностику →" : "Open Diagnostic →"}</button></article>
+      <article><p className="eyebrow">{diagnosticEyebrow}</p><h3>{diagnosticProgress?.title ?? t.diagnosticTitle}</h3><p>{diagnosticProgress?.body ?? t.diagnosticDescription}</p><button className="textbutton" onClick={onDiagnostic}>{diagnosticProgress?.action ?? (locale === "ru" ? "Открыть диагностику →" : "Open Diagnostic →")}</button></article>
       <article><p className="eyebrow">{locale === "ru" ? "РАЗБОР" : "REVIEW"}</p><h3>{locale === "ru" ? "Реальные руки и объяснения" : "Real hands and explanations"}</h3><p>{pendingHuman > 0 ? (locale === "ru" ? pendingHuman + " записей ждут явного разбора." : pendingHuman + " records are waiting for explicit review.") : (locale === "ru" ? "Запиши решение до результата или открой историю объяснений." : "Record a decision before the result or review your explanation history.")}</p><button className="textbutton" onClick={onField}>{locale === "ru" ? "Открыть разбор" : "Open review"}</button></article>
       <article><p className="eyebrow">{t.beforePlay}</p><h3>{t.warmupTitle}</h3><p>{state.activeSession ? (locale === "ru" ? "Сохранённая сессия не меняется: отдельная разминка использует только до двух карточек из завершённых тем." : "Your saved session stays untouched: the separate warm-up uses only up to two cards from completed topics.") : (locale === "ru" ? "Одно знакомое решение из ошибки, затем до двух карточек. Если ошибки нет — только карточки." : "One familiar decision from a miss, then up to two cards. If no repair is due, use cards only.")}</p><button className="textbutton" onClick={onWarmup}>{t.quickWarmup}</button></article>
     </section>
@@ -657,9 +744,12 @@ function Learn({ locale, state, onLesson, onPractice, onMixed, onBurst }: { loca
       const progress = state.modules[module.id];
       const prerequisiteId = nextRequiredModule(state, module.id);
       const available = !prerequisiteId;
+      const truth = lessonSkillCopy(locale, progress.contentCompleted, progress.state);
       return <article key={module.id} className={!available ? "locked" : progress.state === "REPAIR_REQUIRED" ? "repair" : ""}>
         <div><span className="module-code">{module.lcm}</span><span className={`state-pill state-${progress.state.toLowerCase()}`}>{moduleStateLabel(locale, progress.state)}</span></div>
         <h2>{module.title}</h2><p>{module.plainGoal}</p><p className="table-cue">{module.tableCue}</p>
+        <p className="support"><b>{truth.lesson}</b> · <b>{truth.skill}</b></p>
+        {truth.explanation && <p className="support">{truth.explanation}</p>}
         {!available && prerequisiteId && <p className="support">{prerequisiteCopy(locale, prerequisiteId)}</p>}
         {!progress.contentCompleted && available && <p className="support">{locale === "ru" ? "Практика откроется после завершения этого урока." : "Practice opens after you complete this lesson."}</p>}
         <div className="module-actions">
@@ -674,27 +764,28 @@ function Learn({ locale, state, onLesson, onPractice, onMixed, onBurst }: { loca
   </section>;
 }
 
-function Session({ locale, state, setState, onExit, onWarmupCards, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void; onFinished: () => void }) {
+function Session({ locale, state, setState, syncStatus, recoveryCode, lastLocalSaveAt, onExit, onWarmupCards, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onWarmupCards: () => void; onFinished: () => void }) {
   const session = state.activeSession;
   if (!session) return null;
   return session.mode === "lesson"
-    ? <LessonSession locale={locale} state={state} setState={setState} source={moduleById[session.moduleId]} onExit={onExit} />
-    : <PracticeSession locale={locale} state={state} setState={setState} onExit={onExit} onWarmupCards={onWarmupCards} onFinished={onFinished} />;
+    ? <LessonSession locale={locale} state={state} setState={setState} source={moduleById[session.moduleId]} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} />
+    : <PracticeSession locale={locale} state={state} setState={setState} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} onWarmupCards={onWarmupCards} onFinished={onFinished} />;
 }
 
-function SessionHeader({ locale, label, progress, onExit }: { locale: LocaleCode; label: string; progress: number; onExit?: () => void }) {
+function SessionHeader({ locale, label, progress, syncStatus, recoveryCode, stateUpdatedAt, lastLocalSaveAt, onExit }: { locale: LocaleCode; label: string; progress: number; syncStatus: SyncStatus; recoveryCode: RecoveryCode; stateUpdatedAt: string; lastLocalSaveAt: string | null; onExit?: () => void }) {
   const t = runtimeCopy[locale];
-  return <div className="session-head"><div><span>{label}</span><div className="progress"><i style={{ width: `${progress}%` }} /></div></div>{onExit && <button className="quiet" onClick={onExit}>{t.saveExit}</button>}</div>;
+  const { saveState, label: saveLabel } = sessionSaveLabel(locale, syncStatus, recoveryCode, stateUpdatedAt, lastLocalSaveAt);
+  return <div className="session-head"><div><span>{label}</span><span data-testid="session-save" data-save-state={saveState} className={`session-save sync sync-${syncStatus}`} role="status" aria-live="polite">{saveLabel}</span><div className="progress"><i style={{ width: `${progress}%` }} /></div></div>{onExit && <button className="quiet" onClick={onExit}>{t.saveExit}</button>}</div>;
 }
 
-function LessonSession({ locale, state, setState, source, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; source: ModuleContent; onExit: () => void }) {
+function LessonSession({ locale, state, setState, source, syncStatus, recoveryCode, lastLocalSaveAt, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; source: ModuleContent; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void }) {
   const t = runtimeCopy[locale];
   const module = localizedModule(source, locale);
   const session = state.activeSession!;
   const firstApplication = drillById[session.drillIds[1]] ?? source.drills.find((drill) => drill.kind === "changed" || drill.kind === "boundary") ?? source.drills[0];
   const secondApplication = drillById[session.drillIds[2]] ?? source.drills.find((drill) => drill.id !== firstApplication.id && (drill.kind === "changed" || drill.kind === "boundary")) ?? firstApplication;
   const setStep = (step: number, currentIndex = session.currentIndex) => setState(patchSession(state, { step, currentIndex, selectedActionId: null, selectedReasonId: null, itemStartedAt: new Date().toISOString() }));
-  return <section className="session"><SessionHeader locale={locale} label={`${module.lcm} · ${t.lesson}`} progress={Math.round(((session.step + 1) / 10) * 100)} onExit={onExit} />
+  return <section className="session"><SessionHeader locale={locale} label={lessonStepLabel(locale, module.lcm, session.step)} progress={Math.round(((session.step + 1) / 10) * 100)} syncStatus={syncStatus} recoveryCode={recoveryCode} stateUpdatedAt={state.updatedAt} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} />
     {session.step === 0 && <><p className="eyebrow">1 · {locale === "ru" ? "РЕШИ БЕЗ ПОДСКАЗКИ" : "COLD CHECK"}</p><h2>{t.currentModel}</h2><p className="support">{t.coldCheckHelp}</p><Decision locale={locale} state={state} setState={setState} drill={source.drills[0]} onContinue={() => setStep(1)} /></>}
     {session.step === 1 && <ConceptStep locale={locale} module={source} onNext={() => setStep(2, 1)} />}
     {session.step === 2 && <><p className="eyebrow">3 · {locale === "ru" ? "ПРИМЕНИ СРАЗУ" : "APPLY IT NOW"}</p><h2>{locale === "ru" ? "Та же идея, но условия уже немного другие." : "Same idea, slightly different conditions."}</h2><p className="support">{locale === "ru" ? "Не перечитывай теорию. Сначала выбери действие и причину." : "Do not reread the theory. Choose the action and reason first."}</p><Decision locale={locale} state={state} setState={setState} drill={firstApplication} onContinue={() => setStep(3, 1)} /></>}
@@ -867,7 +958,7 @@ function LessonSummary({ locale, state, module, onFinish }: { locale: LocaleCode
   </section>;
 }
 
-function PracticeSession({ locale, state, setState, onExit, onWarmupCards, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onWarmupCards: () => void; onFinished: () => void }) {
+function PracticeSession({ locale, state, setState, syncStatus, recoveryCode, lastLocalSaveAt, onExit, onWarmupCards, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onWarmupCards: () => void; onFinished: () => void }) {
   const session = state.activeSession!;
   const burst = isTableBurst(session.mode, session.drillIds.length);
   const interactions = state.interactions.filter((item) => Date.parse(item.at) >= Date.parse(session.startedAt) && item.mode === session.mode);
@@ -888,7 +979,7 @@ function PracticeSession({ locale, state, setState, onExit, onWarmupCards, onFin
         ? "В этой серии повторяющегося сигнала ошибки или медленного решения не видно. Это относится только к этим восьми спотам."
         : "No recurring error or slow-decision signal appeared in this burst. This statement applies only to these eight spots.";
     const finishBurst = () => { setState(completeBlock(state)); onFinished(); };
-    return <section className="session"><SessionHeader locale={locale} label={locale === "ru" ? "Серия · 8/8" : "Table Burst · 8/8"} progress={100} onExit={onExit} /><p className="eyebrow">{locale === "ru" ? "ИТОГ СЕРИИ" : "BURST SUMMARY"}</p><h2>{locale === "ru" ? "Восемь решений без названий тем." : "Eight decisions without topic labels."}</h2><p className="support">{recurringCopy}</p><button className="primary" onClick={finishBurst}>{locale === "ru" ? "Завершить" : "Finish"} <span>→</span></button></section>;
+    return <section className="session"><SessionHeader locale={locale} label={locale === "ru" ? "Серия · 8/8" : "Table Burst · 8/8"} progress={100} syncStatus={syncStatus} recoveryCode={recoveryCode} stateUpdatedAt={state.updatedAt} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} /><p className="eyebrow">{locale === "ru" ? "ИТОГ СЕРИИ" : "BURST SUMMARY"}</p><h2>{locale === "ru" ? "Восемь решений без названий тем." : "Eight decisions without topic labels."}</h2><p className="support">{recurringCopy}</p><button className="primary" onClick={finishBurst}>{locale === "ru" ? "Завершить" : "Finish"} <span>→</span></button></section>;
   }
 
   const drill = drillById[session.drillIds[session.currentIndex]];
@@ -904,7 +995,7 @@ function PracticeSession({ locale, state, setState, onExit, onWarmupCards, onFin
     }
   };
   const header = burst ? `${locale === "ru" ? "Серия" : "Table Burst"} · ${session.currentIndex + 1}/${session.drillIds.length}` : `${sessionModeLabel(locale, session.mode)} · ${session.currentIndex + 1}/${session.drillIds.length}`;
-  return <section className="session"><SessionHeader locale={locale} label={header} progress={Math.round(((session.currentIndex + 1) / session.drillIds.length) * 100)} onExit={onExit} /><Decision locale={locale} state={state} setState={setState} drill={drill} onContinue={advance} /><div className="mini-results">{(["A", "B", "C", "D"] as ResponseClass[]).map((kind) => <span key={kind}>{responseClassShortLabel(locale, kind)}: {interactions.filter((item) => item.responseClass === kind).length}</span>)}</div></section>;
+  return <section className="session"><SessionHeader locale={locale} label={header} progress={Math.round(((session.currentIndex + 1) / session.drillIds.length) * 100)} syncStatus={syncStatus} recoveryCode={recoveryCode} stateUpdatedAt={state.updatedAt} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} /><Decision locale={locale} state={state} setState={setState} drill={drill} onContinue={advance} /><div className="mini-results">{(["A", "B", "C", "D"] as ResponseClass[]).map((kind) => <span key={kind}>{responseClassShortLabel(locale, kind)}: {interactions.filter((item) => item.responseClass === kind).length}</span>)}</div></section>;
 }
 
 function Decision({ locale, state, setState, drill, onContinue }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; drill: Drill; onContinue: () => void }) {
@@ -1049,7 +1140,7 @@ function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode;
   </section>;
 }
 
-function Diagnostic({ locale, state, setState, onExit, onImported }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; onExit: () => void; onImported: () => void }) {
+function Diagnostic({ locale, state, setState, syncStatus, recoveryCode, lastLocalSaveAt, onExit, onImported }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onImported: () => void }) {
   const t = runtimeCopy[locale];
   const diagnostic = state.diagnostic;
   const sourceItem = diagnosticT1[diagnostic.responses.length];
@@ -1131,5 +1222,5 @@ function Diagnostic({ locale, state, setState, onExit, onImported }: { locale: L
     !answer.trim() ? (locale === "ru" ? "действие" : "an action") : "",
     !reasoning.trim() ? (locale === "ru" ? "причину" : "a reason") : "",
   ].filter(Boolean);
-  return <section className="session"><SessionHeader locale={locale} label={`${diagnosticLabel(locale)} · ${diagnostic.responses.length + 1}/10`} progress={Math.round(((diagnostic.responses.length + 1) / 10) * 100)} onExit={onExit} /><p className="eyebrow">{item.id} · {item.title}</p><p className="support">{role}</p><p className="support">{instructions}</p><h2>{item.prompt}</h2><label className="diagnostic-input">{t.actionDirection}<textarea value={answer} onChange={(event) => setAnswer(event.target.value)} /></label><label className="diagnostic-input">{t.oneSentenceReason}<textarea value={reasoning} onChange={(event) => setReasoning(event.target.value)} /></label><label className="confidence">{t.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {confidence}%</b><input type="range" min="0" max="100" step="5" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label><p className="support">{confidenceHelp(locale)}</p>{missingDiagnosticParts.length > 0 && <p className="support">{locale === "ru" ? `Чтобы сохранить ответ, укажи ${missingDiagnosticParts.join(" и ")}.` : `To save this response, enter ${missingDiagnosticParts.join(" and ")}.`}</p>}<button className="primary" disabled={missingDiagnosticParts.length > 0} onClick={submit}>{t.recordResponse} <span>→</span></button></section>;
+  return <section className="session"><SessionHeader locale={locale} label={`${diagnosticLabel(locale)} · ${diagnostic.responses.length + 1}/10`} progress={Math.round(((diagnostic.responses.length + 1) / 10) * 100)} syncStatus={syncStatus} recoveryCode={recoveryCode} stateUpdatedAt={state.updatedAt} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} /><p className="eyebrow">{item.id} · {item.title}</p><p className="support">{role}</p><p className="support">{instructions}</p><h2>{item.prompt}</h2><label className="diagnostic-input">{t.actionDirection}<textarea value={answer} onChange={(event) => setAnswer(event.target.value)} /></label><label className="diagnostic-input">{t.oneSentenceReason}<textarea value={reasoning} onChange={(event) => setReasoning(event.target.value)} /></label><label className="confidence">{t.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {confidence}%</b><input type="range" min="0" max="100" step="5" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label><p className="support">{confidenceHelp(locale)}</p>{missingDiagnosticParts.length > 0 && <p className="support">{locale === "ru" ? `Чтобы сохранить ответ, укажи ${missingDiagnosticParts.join(" и ")}.` : `To save this response, enter ${missingDiagnosticParts.join(" and ")}.`}</p>}<button className="primary" disabled={missingDiagnosticParts.length > 0} onClick={submit}>{t.recordResponse} <span>→</span></button></section>;
 }
