@@ -25,10 +25,15 @@ async function seedGeometryComplete(page) {
 
 async function continueFeedback(page) {
   const semantic = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
-  const core = page.locator(".feedback-view > button.primary");
-  await expect.poll(async () => (await semantic.isVisible().catch(() => false)) || (await core.isVisible().catch(() => false))).toBe(true);
-  if (await semantic.isVisible().catch(() => false)) await semantic.click();
-  else await core.click();
+  try {
+    await semantic.waitFor({ state: "visible", timeout: 8_000 });
+    await semantic.click();
+    return;
+  } catch {
+    const core = page.locator(".feedback-view > button.primary");
+    await expect(core).toBeVisible();
+    await core.click();
+  }
 }
 
 test.beforeEach(async ({ page }) => {
@@ -45,7 +50,7 @@ test("critical lesson shell, semantic feedback and locale switch work", async ({
   await decision.locator(".answer-set").nth(1).getByRole("button").first().click();
   await decision.getByRole("button", { name: /^Ответить/ }).click();
   await continueFeedback(page);
-  await expect(page.getByText("2 · КРАТКОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Сначала определи, против какого стека/i })).toBeVisible();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -72,7 +77,7 @@ test("critical Real Hands contract requires explicit linked topic", async ({ pag
   const select = page.getByLabel("Связанная тема");
   await expect(select).toHaveValue("");
   await expect(page.getByText(/Связанная тема не выбрана/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Зафиксировать решение", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /^Зафиксировать решение/ })).toBeDisabled();
   await select.selectOption("geometry");
   await expect(select).toHaveValue("geometry");
 });
