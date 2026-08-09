@@ -4,7 +4,7 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: final_red_team_candidate_evaluation_pending
+  phase: final_red_team_candidate_independent_evaluation
   updated_at: '2026-08-09T04:13:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash trainer for live 1/3 and 2/5 while preserving evidence truth.
@@ -30,15 +30,16 @@ repository_identity:
   implementation_code_freeze_sha: 07cea8f9b3109e93e8c2a8b81ac77820a772d4f1
   implementation_code_freeze_ci_run: 31285270612
   implementation_code_freeze_ci_result: SUCCESS
-  exact_final_sha_source: git_pr_head_and_final_handoff
+  exact_final_identity_rule: branch_head_after_authority_reconciliation_and_temporary_harness_removal
+  exact_final_evidence_authority: github_actions_and_final_evaluator_handoff
   exact_final_sha_embedded_here: false
-  exact_final_sha_note: Embedding the SHA of the commit containing this file would be self-referential; freeze identity is taken from Git after authority reconciliation and harness removal.
+  exact_final_sha_note: Embedding the SHA of the commit containing this file would be self-referential; Git PR head is authoritative after the final repository mutation.
 final_red_team_closure:
   status: CANDIDATE_NOT_MERGED
   rc1_explicit_review_id: IMPLEMENTED_FAIL_CLOSED
   rc2_schema_v2_validation: IMPLEMENTED_DEEP_STRUCTURAL_VALIDATION
   rc3_learner_copy: IMPLEMENTED_INTERNAL_ENUMS_PRESERVED
-  rc7_truth_reconciliation: IN_PROGRESS_UNTIL_ALL_AUTHORITY_DOCS_COMMITTED
+  rc7_truth_reconciliation: RECONCILED
   rc8_review_lock_refresh: APPLIED
   review_corpus_fingerprint: dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e
   schema_bump: false
@@ -65,9 +66,9 @@ implementation_code_freeze_evidence:
   canonical_e2e_pass: 128
   canonical_e2e_skip: 4
   canonical_e2e_fail: 0
-final_freeze_requirements:
-  exact_final_release_gate: REQUIRED_AFTER_DOCS_AND_HARNESS_REMOVAL
-  exact_final_cross_browser_matrix: REQUIRED_AFTER_RELEASE_GATE_ON_SAME_SHA
+final_freeze_contract:
+  release_gate: unchanged_npm_run_test_release_must_be_green_on_exact_final_sha
+  cross_browser_matrix: existing_six_project_matrix_must_be_green_on_same_exact_final_sha
   cross_browser_projects:
   - chromium_desktop
   - firefox_desktop
@@ -76,6 +77,7 @@ final_freeze_requirements:
   - android_chromium
   - ipad_webkit
   mutation_after_final_evidence: FORBIDDEN
+  exact_counts_and_run_ids_location: github_actions_and_final_evaluator_handoff
 acceptance_truth:
   gauntlet_1_integrated: true
   gauntlet_2_integrated: true
@@ -107,13 +109,8 @@ learner_runtime_truth:
   global_progress_reset: false
 active_milestone:
   name: final_red_team_closure
-  next_steps:
-  - finish authority truth reconciliation
-  - remove one-time write-enabled review-lock harness
-  - freeze exact final SHA
-  - run exact-final unchanged release gate
-  - run six-project cross-browser matrix on same SHA
-  - independent evaluator decides KEEP_REPAIR_REVERT
+  evaluation_rule: exact_final_release_and_cross_browser_evidence_must_be_green_before_independent_evaluator_decision
+  evaluator_decision: KEEP_REPAIR_REVERT
 truth_boundaries:
 - source green is not production green
 - automated gates cannot create human strategy, drill, RU, or EN approval
@@ -121,9 +118,9 @@ truth_boundaries:
 - W11 is not complete
 - historical deployment evidence cannot prove this candidate is deployed
 - exact final SHA is authoritative from Git after the final repository mutation, not from a self-referential field inside that commit
-terminal_state:
-  handover_ready: false
-  final_candidate_frozen: false
-  merged: false
-  deployed: false
-  independent_evaluator_required: true
+- exact final run IDs are evidence records and do not require a post-freeze repository mutation
+terminal_boundary:
+  merge: FORBIDDEN_PENDING_EVALUATOR
+  deploy: FORBIDDEN_PENDING_EVALUATOR_AND_SEPARATE_AUTHORIZATION
+  post_evidence_repository_mutation: FORBIDDEN
+  handoff_authority: github_actions_plus_final_evaluator_handoff
