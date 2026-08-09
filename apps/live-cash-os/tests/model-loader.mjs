@@ -8,9 +8,7 @@ const CLOUD_SYNC_CONTRACT_URL = new URL("../lib/cloud-sync-contract.ts", import.
 const AUTOMATICITY_URL = new URL("../lib/automaticity.ts", import.meta.url).href;
 const SCHEDULER_URL = new URL("../lib/scheduler.ts", import.meta.url).href;
 const SESSION_CLARITY_URL = new URL("../lib/session-clarity.ts", import.meta.url).href;
-const RUNTIME_URL = new URL("../content/i18n/runtime.ts", import.meta.url).href;
-const RUNTIME_CORE_URL = new URL("../content/i18n/runtime-core.ts", import.meta.url).href;
-const TRANSPILED_URLS = new Set([CORE_URL, MODEL_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL, AUTOMATICITY_URL, SCHEDULER_URL, SESSION_CLARITY_URL, RUNTIME_URL, RUNTIME_CORE_URL]);
+const TRANSPILED_URLS = new Set([CORE_URL, MODEL_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL, AUTOMATICITY_URL, SCHEDULER_URL, SESSION_CLARITY_URL]);
 
 function isTemporaryHarness(parentURL) {
   return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-test-");
@@ -23,12 +21,6 @@ export async function resolve(specifier, context, nextResolve) {
     if (specifier === "./cloud-sync-contract") return { url: CLOUD_SYNC_CONTRACT_URL, shortCircuit: true };
     if (specifier === "./automaticity") return { url: AUTOMATICITY_URL, shortCircuit: true };
     if (specifier === "./scheduler") return { url: SCHEDULER_URL, shortCircuit: true };
-  }
-  if (context.parentURL === SESSION_CLARITY_URL && specifier === "../content/i18n/runtime") {
-    return { url: RUNTIME_URL, shortCircuit: true };
-  }
-  if (context.parentURL === RUNTIME_URL && specifier === "./runtime-core") {
-    return { url: RUNTIME_CORE_URL, shortCircuit: true };
   }
   if (context.parentURL === CLOUD_SYNC_CONTRACT_URL && specifier === "./reliability") {
     return { url: RELIABILITY_URL, shortCircuit: true };
