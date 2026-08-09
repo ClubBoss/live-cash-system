@@ -15,21 +15,37 @@ async function seedCompletedModules(page, moduleIds) {
   await page.reload();
 }
 
+async function continueSemanticFeedback(page) {
+  const feedback = page.locator("[data-g4-feedback-state]");
+  await expect(feedback).toBeVisible();
+  await feedback.getByRole("button", { name: /^Продолжить/ }).click();
+}
+
+async function passOrderingByBoundedReveal(page) {
+  const ordering = page.locator(".g4-ordering");
+  await expect(ordering).toBeVisible();
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await ordering.getByRole("button", { name: "Проверить", exact: true }).click();
+  }
+  await expect(ordering).toHaveAttribute("data-g4-ordering-state", "revealed");
+  await ordering.getByRole("button", { name: /^Сначала решить пример/ }).click();
+}
+
 async function openGeometryLab(page) {
   await page.getByRole("button", { name: "Учиться" }).click();
   await page.getByRole("button", { name: /^Изучить/ }).first().click();
   await page.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" }).click();
   await page.getByRole("button", { name: "Именно страддл $10 задаёт цену всех префлоп-действий" }).click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  await page.getByRole("button", { name: /^Продолжить/ }).click();
+  await continueSemanticFeedback(page);
 
   await page.getByRole("button", { name: /^Сразу применить/ }).click();
   await page.getByRole("button", { name: "$270 против A и $900 против B" }).click();
   await page.getByRole("button", { name: "Эффективный стек считается отдельно против каждого соперника" }).click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  await page.getByRole("button", { name: /^Продолжить/ }).click();
+  await continueSemanticFeedback(page);
 
-  await page.getByRole("button", { name: /^Сначала решить пример/ }).click();
+  await passOrderingByBoundedReveal(page);
   await page.getByRole("button", { name: /^Я решил — показать разбор/ }).click();
   await page.getByRole("button", { name: /^Открыть тренажёр/ }).click();
 }

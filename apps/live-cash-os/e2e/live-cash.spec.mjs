@@ -15,7 +15,7 @@ async function answerGeometryColdCheck(page) {
   await page.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" }).click();
   await page.getByRole("button", { name: "Именно страддл $10 задаёт цену всех префлоп-действий" }).click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  await expect(page.getByText(/(?:РАЗБОР РЕШЕНИЯ|DECISION REVIEW)/)).toBeVisible();
+  await expect(page.locator("[data-g4-feedback-state]")).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -42,9 +42,9 @@ test("shows a natural evidence-backed route in both locales", async ({ page }) =
 test("completes the cold check and reaches the plain explanation", async ({ page }) => {
   await openGeometryColdCheck(page);
   await answerGeometryColdCheck(page);
-  await page.getByRole("button", { name: /Продолжить/ }).click();
+  await page.locator("[data-g4-feedback-state]").getByRole("button", { name: /Продолжить/ }).click();
   await expect(page.getByText("2 · ГЛАВНАЯ ИДЕЯ")).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Быстро определять эффективный стек/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Сначала определи, против какого стека/i })).toBeVisible();
 });
 
 test("the starting check explains its purpose and remains optional", async ({ page }) => {
@@ -134,7 +134,7 @@ test("submitted feedback survives reload without duplicate evidence", async ({ p
   expect(before.interactions).toHaveLength(1);
 
   await page.reload();
-  await expect(page.getByText(/(?:РАЗБОР РЕШЕНИЯ|DECISION REVIEW)/)).toBeVisible();
+  await expect(page.locator("[data-g4-feedback-state]")).toBeVisible();
   const after = await localState(page);
   expect(after.interactions).toHaveLength(1);
 });

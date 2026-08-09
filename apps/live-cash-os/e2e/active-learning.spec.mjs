@@ -31,6 +31,13 @@ async function chooseOption(page, text) {
   await page.getByRole("button", { name: text, exact: true }).click();
 }
 
+async function revealOrderingAfterBoundedMisses(page) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await page.getByRole("button", { name: "Проверить", exact: true }).click();
+  }
+  await expect(page.locator("[data-g4-ordering-state='revealed']")).toContainText("Показан рабочий порядок");
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
@@ -39,7 +46,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 });
 
-test("new lesson rhythm moves from one compact explanation directly into application", async ({ page }) => {
+test("new lesson rhythm moves from one compact explanation through active ordering into application", async ({ page }) => {
   await seedLesson(page, 1);
 
   await expect(page.getByText("ЗАПОМНИ", { exact: true })).toBeVisible();
@@ -55,11 +62,13 @@ test("new lesson rhythm moves from one compact explanation directly into applica
   await chooseOption(page, "$270 против A и $900 против B");
   await chooseOption(page, "Эффективный стек считается отдельно против каждого соперника");
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  const feedback = page.locator(".feedback-view");
-  await expect(feedback).toContainText("Твой выбор");
-  await expect(feedback).toContainText("Эффективный стек считается отдельно против каждого соперника");
-  await page.getByRole("button", { name: /^Продолжить/ }).click();
+  const feedback = page.locator("[data-g4-feedback-state='correct']");
+  await expect(feedback).toContainText("Верно");
+  await expect(feedback.getByText("Твой выбор", { exact: true })).toHaveCount(0);
+  await feedback.getByRole("button", { name: /^Продолжить/ }).click();
 
+  await expect(page.getByRole("heading", { name: "Собери шаги в рабочем порядке" })).toBeVisible();
+  await revealOrderingAfterBoundedMisses(page);
   const solveExample = page.getByRole("button", { name: /^Сначала решить пример/ });
   await expect(solveExample).toBeVisible();
   await solveExample.click();
