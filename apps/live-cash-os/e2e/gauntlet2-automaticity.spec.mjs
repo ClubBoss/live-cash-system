@@ -30,20 +30,13 @@ async function answerCurrentSpot(page) {
   await card.locator(".answer-set").nth(1).getByRole("button").first().click();
   await card.getByRole("button", { name: /^Ответить/ }).click();
 
-  // G2 owns the bounded eight-decision progression contract. G4 owns the exact
-  // correct/partial/wrong feedback composition and has dedicated coverage for it.
-  // Under CI load the G4 portal can briefly reacquire the Core feedback host, so
-  // advance through whichever learner-visible Continue control is present.
-  const g4Continue = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
-  const coreContinue = page.locator(".feedback-view > button.primary");
-  await expect.poll(async () => {
-    if (await g4Continue.isVisible().catch(() => false)) return "g4";
-    if (await coreContinue.isVisible().catch(() => false)) return "core";
-    return "";
-  }, { timeout: 15_000 }).not.toBe("");
-
-  if (await g4Continue.isVisible().catch(() => false)) await g4Continue.click();
-  else await coreContinue.click();
+  // The learner-facing post-answer surface is owned by G4. Core feedback may be
+  // visible only for a transient frame while the portal reacquires its host, so
+  // waiting for the stable G4 Continue avoids racing a control that is about to
+  // be hidden. Exact feedback semantics remain covered by the dedicated G4 suite.
+  const continueButton = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
+  await expect(continueButton).toBeVisible({ timeout: 20_000 });
+  await continueButton.click();
 }
 
 test.beforeEach(async ({ page }) => {
