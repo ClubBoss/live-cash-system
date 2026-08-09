@@ -80,21 +80,68 @@ test("completed lesson and repair-required skill are both explicit in RU and EN"
   await expect(firstModule).toContainText("Lesson completed. A self-check found a mistake, so a separate repair task was added to Review.");
 });
 
-test("lesson header exposes actual step 1, middle and 10 plus reliable local save state", async ({ page }) => {
+test("lesson header exposes actual step 1, middle and 10", async ({ page }) => {
   await seedLesson(page, 0);
   await expect(page.locator(".session-head")).toContainText("LCM-01 · Урок · шаг 1 из 10");
-  await expect(page.getByTestId("session-save")).toHaveText("Сохранено на устройстве");
 
   await seedLesson(page, 4);
   await expect(page.locator(".session-head")).toContainText("LCM-01 · Урок · шаг 5 из 10");
-  await expect(page.getByTestId("session-save")).toHaveText("Сохранено на устройстве");
-  await saveEvidence(page, "lesson-step-5-save-local-ru.png");
 
   await seedLesson(page, 9);
   await expect(page.locator(".session-head")).toContainText("LCM-01 · Урок · шаг 10 из 10");
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator(".session-head")).toContainText("LCM-01 · Lesson · step 10 of 10");
-  await expect(page.getByTestId("session-save")).toHaveText("Saved on device");
+});
+
+test("real learner mutation is Saving until localStorage persists it, then shows saved-on-device", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const baseline = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE_KEY);
+
+  await page.evaluate((key) => {
+    const originalSetItem = Storage.prototype.setItem;
+    window.__waveASaveProbe = [];
+    Storage.prototype.setItem = function patchedSetItem(storageKey, value) {
+      if (this === localStorage && storageKey === key) {
+        let parsed = null;
+        try { parsed = JSON.parse(value); } catch { /* not learner state JSON */ }
+        window.__waveASaveProbe.push({
+          revision: parsed?.revision ?? null,
+          updatedAt: parsed?.updatedAt ?? null,
+          indicator: document.querySelector('[data-testid="session-save"]')?.textContent?.trim() ?? null,
+          saveState: document.querySelector('[data-testid="session-save"]')?.getAttribute("data-save-state") ?? null,
+        });
+      }
+      return originalSetItem.call(this, storageKey, value);
+    };
+  }, STORAGE_KEY);
+
+  await page.getByRole("button", { name: "Учиться", exact: true }).click();
+  await page.getByRole("button", { name: /^Изучить/ }).first().click();
+  const save = page.getByTestId("session-save");
+  await expect(page.locator(".session-head > div > span:first-of-type")).toHaveText("LCM-01 · Урок · шаг 1 из 10");
+  await expect(save).toHaveAttribute("data-save-state", "saved_local");
+  await expect(save).toHaveText("Сохранено на устройстве");
+
+  const persisted = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE_KEY);
+  expect(persisted.revision).toBeGreaterThan(baseline.revision);
+  expect(persisted.activeSession?.mode).toBe("lesson");
+  expect(persisted.activeSession?.moduleId).toBe("geometry");
+
+  const probe = await page.evaluate(() => window.__waveASaveProbe);
+  const mutationWrite = probe.find((entry) => entry.revision === persisted.revision && entry.updatedAt === persisted.updatedAt);
+  expect(mutationWrite).toBeTruthy();
+  expect(mutationWrite.indicator).toBe("Сохраняем…");
+  expect(mutationWrite.saveState).toBe("saving");
+
+  await expect(save).toHaveCSS("text-transform", "none");
+  await expect(save).toHaveCSS("white-space", "nowrap");
+  await expect(save).toHaveCSS("border-top-width", "0px");
+  await expect(save).toHaveCSS("font-size", "11px");
+  const saveBox = await save.boundingBox();
+  expect(saveBox?.height ?? 99).toBeLessThanOrEqual(18);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  await saveEvidence(page, "session-header-390x844-saved-local.png");
 });
 
 test("fresh Today labels zero as reviews due rather than all tasks", async ({ page }) => {
@@ -108,7 +155,7 @@ test("fresh Today labels zero as reviews due rather than all tasks", async ({ pa
   await expect(metrics).toContainText("reviews due");
 });
 
-test("in-progress Diagnostic survives exit and resumes from the fourth question", async ({ page }) => {
+test("in-progress Diagnostic has continuation eyebrow, survives exit and resumes from the fourth question", async ({ page }) => {
   await page.evaluate((key) => {
     const state = JSON.parse(localStorage.getItem(key));
     const now = new Date().toISOString();
@@ -138,9 +185,11 @@ test("in-progress Diagnostic survives exit and resumes from the fourth question"
   }, STORAGE_KEY);
   await page.reload();
 
+  await expect(page.getByText("ДИАГНОСТИКА · ПРОДОЛЖЕНИЕ", { exact: true })).toBeVisible();
+  await expect(page.getByText("НЕОБЯЗАТЕЛЬНО ПЕРЕД СТАРТОМ", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Диагностика · 3/10 сохранено" })).toBeVisible();
   await expect(page.getByText("Сохранённые ответы не потеряны. Продолжишь с 4-го вопроса.")).toBeVisible();
-  await saveEvidence(page, "diagnostic-3-of-10-ru.png");
+  await saveEvidence(page, "diagnostic-continuation-eyebrow-ru.png");
 
   await page.getByRole("button", { name: "Продолжить", exact: true }).click();
   await expect(page.locator(".session-head")).toContainText("Диагностика · 4/10");
@@ -148,10 +197,12 @@ test("in-progress Diagnostic survives exit and resumes from the fourth question"
   expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).diagnostic.responses.length, STORAGE_KEY)).toBe(3);
 
   await page.locator(".session-head button.quiet").click();
+  await expect(page.getByText("ДИАГНОСТИКА · ПРОДОЛЖЕНИЕ", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Диагностика · 3/10 сохранено" })).toBeVisible();
   expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).diagnostic.responses.length, STORAGE_KEY)).toBe(3);
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.getByText("DIAGNOSTIC · CONTINUE", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Diagnostic · 3/10 saved" })).toBeVisible();
   await expect(page.getByText("Your saved answers are still here. Continue with question 4.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeVisible();
