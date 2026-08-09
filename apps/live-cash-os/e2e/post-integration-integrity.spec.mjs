@@ -15,15 +15,10 @@ async function localState(page) {
   return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), STORAGE_KEY);
 }
 
-async function replaceState(page, changeSource) {
-  const state = await localState(page);
-  await page.evaluate(({ key, value, source }) => {
-    const change = Function("state", source);
-    change(value);
-    value.revision += 1;
-    value.updatedAt = new Date().toISOString();
-    localStorage.setItem(key, JSON.stringify(value));
-  }, { key: STORAGE_KEY, value: state, source: changeSource });
+async function saveState(page, state) {
+  state.revision += 1;
+  state.updatedAt = new Date().toISOString();
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: STORAGE_KEY, value: state });
   await page.reload();
 }
 
@@ -59,11 +54,12 @@ test("fresh Cards cannot leak material from uncompleted topics", async ({ page }
 });
 
 test("Due Cards use a fixed snapshot, never skip after grading, and end without wrapping", async ({ page }) => {
-  await replaceState(page, `
-    state.modules.geometry.contentCompleted = true;
-    state.modules.geometry.lessonStep = 10;
-    state.cards = {};
-  `);
+  const seeded = await localState(page);
+  seeded.modules.geometry.contentCompleted = true;
+  seeded.modules.geometry.lessonStep = 10;
+  seeded.cards = {};
+  await saveState(page, seeded);
+
   await page.getByRole("button", { name: "Карточки", exact: true }).click();
   await page.getByRole("button", { name: "К повторению", exact: true }).click();
 
@@ -84,23 +80,23 @@ test("Due Cards use a fixed snapshot, never skip after grading, and end without 
 
 test("Before Play keeps a saved learning session untouched and opens only completed-topic cards", async ({ page }) => {
   const startedAt = "2026-08-09T10:00:00.000Z";
-  await replaceState(page, `
-    state.modules.geometry.contentCompleted = true;
-    state.modules.geometry.lessonStep = 10;
-    state.activeSession = {
-      mode: "practice",
-      moduleId: "geometry",
-      step: 0,
-      drillIds: ["geo-04"],
-      currentIndex: 0,
-      selectedActionId: null,
-      selectedReasonId: null,
-      confidence: 65,
-      startedAt: "${startedAt}",
-      itemStartedAt: "${startedAt}",
-      explainBack: ""
-    };
-  `);
+  const seeded = await localState(page);
+  seeded.modules.geometry.contentCompleted = true;
+  seeded.modules.geometry.lessonStep = 10;
+  seeded.activeSession = {
+    mode: "practice",
+    moduleId: "geometry",
+    step: 0,
+    drillIds: ["geo-04"],
+    currentIndex: 0,
+    selectedActionId: null,
+    selectedReasonId: null,
+    confidence: 65,
+    startedAt,
+    itemStartedAt: startedAt,
+    explainBack: "",
+  };
+  await saveState(page, seeded);
 
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();
   await page.getByRole("button", { name: "Перед игрой", exact: true }).click();
@@ -117,21 +113,21 @@ test("Before Play keeps a saved learning session untouched and opens only comple
 });
 
 test("Review runs one bounded item and returns to the updated Review queue", async ({ page }) => {
-  await replaceState(page, `
-    state.modules.geometry.contentCompleted = true;
-    state.modules.geometry.lessonStep = 10;
-    state.reviewQueue = [{
-      id: "audit-review-1",
-      moduleId: "geometry",
-      sourceDrillId: "geo-01",
-      variantGroup: "denominator",
-      kind: "retention",
-      dueAt: "2020-01-01T00:00:00.000Z",
-      attempts: 0,
-      sourceInteractionId: "audit-source-1"
-    }];
-    state.activeSession = null;
-  `);
+  const seeded = await localState(page);
+  seeded.modules.geometry.contentCompleted = true;
+  seeded.modules.geometry.lessonStep = 10;
+  seeded.reviewQueue = [{
+    id: "audit-review-1",
+    moduleId: "geometry",
+    sourceDrillId: "geo-01",
+    variantGroup: "denominator",
+    kind: "retention",
+    dueAt: "2020-01-01T00:00:00.000Z",
+    attempts: 0,
+    sourceInteractionId: "audit-source-1",
+  }];
+  seeded.activeSession = null;
+  await saveState(page, seeded);
 
   await page.getByRole("button", { name: "Повтор", exact: true }).click();
   await expect(page.getByText(/Каждый пункт запускается отдельно; после завершения приложение возвращает сюда/i)).toBeVisible();
