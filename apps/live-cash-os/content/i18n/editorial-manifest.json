@@ -21,8 +21,8 @@
     "status": "REVIEW_PENDING",
     "current_digest": "7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a",
     "approved_digest": null,
-    "review_corpus_fingerprint": "1ac30590c141675df537ecd62b1af17b4bcfe35c1d09cf2938ea9f846c4cba0d",
-    "note": "W1-W9 implementation plus Active Learning Closure and the pre-W10 route optimization are materialized on the current candidate lineage. The canonical curriculum digest and poker corpus are unchanged; this fingerprint locks the current learner-facing presentation, evidence-hygiene copy, audited hard-prerequisite gating copy, public cross-device profile copy, and W5 lab render closure. Strategy, drill, route-delta and exact final RU/EN human review remain pending. This candidate does not claim human approval."
+    "review_corpus_fingerprint": "dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e",
+    "note": "G1-G3 and Final Red-Team Closure learner-facing presentation are materialized on the current candidate lineage. The canonical curriculum digest and poker corpus are unchanged; this fingerprint locks the exact post-closure learner-facing source inventory, including the refreshed Wave5, Wave7 and core presentation surfaces. Strategy, drill and exact final RU/EN human review remain pending. This candidate does not claim human approval."
   },
   "repair_source_paths": {
     "strategy": [
@@ -70,10 +70,10 @@
     "content/i18n/learner-ui.ts": "1008dfd93064a620ae7b39c3322fad3cc3918c4e",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "20a92d512c5c6decb892d9c1bd8ca100fb9346ea",
-    "components/LiveCashAppCore.tsx": "154adadeeacfc545e2c229c6de63b2bb1c0c1566",
+    "components/LiveCashAppCore.tsx": "7b08417227d8b58cbc673715c029307bd4a9568a",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/Wave5PracticeLayer.tsx": "efc1ef0a8c701738fa209c6fec417c53225a3a17",
-    "components/Wave7Experience.tsx": "6f8c0ede33a0dee264229aec184c12a5d3f2cdc7",
+    "components/Wave5PracticeLayer.tsx": "fdd89b8bf9d775ca223f1a10b35fcc90a909afe9",
+    "components/Wave7Experience.tsx": "efb0f2f79e837aa0e390ac64e5aed26285a27eaf",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
     "components/DataSafetyPanel.tsx": "bb3cf291bde1cce6a8c89d2ed6eaf27e46e9d998"
   },
