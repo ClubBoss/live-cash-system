@@ -93,7 +93,7 @@ test("the same locked hand can move from SELF review to a later HUMAN_ASSISTED r
 
   await review.fill("Self-review: the call looks coherent, but this note cannot create field evidence.");
   await card.getByRole("button", { name: "Разбор закончен", exact: true }).click();
-  await expect(card.getByText(/Самопроверка сохранена/i)).toBeVisible();
+  await expect(card.locator(".counterexample").getByText(/Самопроверка сохранена/i)).toBeVisible();
   await expect(source).toHaveValue("SELF");
   await expect(review).toHaveValue("");
 
@@ -109,9 +109,12 @@ test("the same locked hand can move from SELF review to a later HUMAN_ASSISTED r
   await expect(support).toBeEnabled();
   await support.click();
 
+  await expect.poll(async () => {
+    const next = await localState(page);
+    return next.fieldNotes.find((row) => row.id === id)?.status;
+  }).toBe("REVIEWED_VALID");
   state = await localState(page);
   note = state.fieldNotes.find((row) => row.id === id);
-  expect(note.status).toBe("REVIEWED_VALID");
   expect(note.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(note.reviewOutcome).toBe("SUPPORTS_TRANSFER");
   expect(note.evaluatorNote).toMatch(/Separate human-assisted review/);
