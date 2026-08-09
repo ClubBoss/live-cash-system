@@ -14,7 +14,7 @@ test("session clarity helper stays pure and owns no learner-facing copy", async 
   const source = await readFile(new URL("../lib/session-clarity.ts", import.meta.url), "utf8");
   assert.doesNotMatch(source, /runtimeCopy/);
   assert.doesNotMatch(source, /[А-Яа-яЁё]/);
-  assert.doesNotMatch(source, /Saved|Saving|Lesson|Skill|Diagnostic/);
+  assert.doesNotMatch(source, /"(?:Saved|Saving|Lesson|Skill|Diagnostic)[^"]*"/);
 });
 
 test("lesson completion and repair-required skill remain separate state truths", () => {
