@@ -1,89 +1,103 @@
 # Live Cash OS — Release Status
 
-Status: `W1_W9_IMPLEMENTATION_CLOSED / AUTOMATED_PRE_LEARNING_EVIDENCE_GREEN / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING`
+Status: `FINAL_RED_TEAM_CANDIDATE / EXACT_FINAL_EVIDENCE_PENDING / HUMAN_REVIEW_PENDING / NO_DEPLOY`
 
-## Current repository truth
+## Current candidate truth
 
-- learner-runtime semantic baseline: `ad29871fe923357049231ec6621d4784de8bfd1c`
-- current main before this final truth-only reconciliation: `33206e8ec328fe9710ef0a0014481b68260695c2`
-- exact-main CI: run `31223580163` — `SUCCESS`
-- canonical release command: `npm run test:release`
-- current release assertions: `136/136` unit/integration PASS; `85` browser E2E PASS; `3` intentional target skips
-- human-review corpus fingerprint: `c623a7669ed85e47e411b8b268dee682b2254b934a165330f74647b29dfa9b81`
-- human-review packet: `reports/PRE_LEARNING_HUMAN_REVIEW_PACKET_2026-08-08.md`
+- base `main`: `787313276f3d7290a6144f965eeb54dce050509e`;
+- candidate branch: `repair/final-red-team-closure`;
+- evaluator PR: draft `#28`;
+- implementation code-freeze: `07cea8f9b3109e93e8c2a8b81ac77820a772d4f1`;
+- implementation code-freeze CI: run `31285270612` — `SUCCESS`;
+- canonical command: `npm run test:release`;
+- code-freeze automated result: `178/178` unit/integration PASS; `128` canonical browser E2E PASS; `4` intentional target skips; `0` E2E failures;
+- lint: `0` errors and the pre-existing React hook warning remains;
+- final learner-facing review fingerprint: `dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e`.
 
-Waves 1–9 are implemented in the canonical main lineage. The remaining pre-learning work is acceptance/evidence closure, not another broad feature wave.
+The exact final SHA is determined only after authority reconciliation and removal of the one-time write-enabled lock-refresh harness. It is therefore not embedded in this file: embedding the SHA of the commit containing this file would change that SHA. Git/PR head and the final evaluator handoff are the exact identity authority.
 
-## Wave status
+## Final Red-Team Closure implementation
 
-- W1: implementation accepted; real comprehension evidence deferred to genuine use/W10.
-- W2/W3: governance and repaired priority content implemented; human poker approval pending.
-- W4/W4R: bilingual learner composition implemented; final exact RU/EN human review pending.
-- W5: implementation closed with accepted non-blocking compatibility P2 debt.
-- W6: implementation closed; bounded adaptive daily training and resume/repair/delayed-review behavior are green.
-- W7: implementation closed; explain-back, real-hand review and field-evidence lifecycle are green; human usability timing/comprehension evidence deferred to W10.
-- W8: critical UX/accessibility implementation closed; one-time cross-browser engine matrix GREEN.
-- W9: reliability implementation closed; live production learner smoke GREEN; strict performance instrumentation deferred.
+RC-1, RC-2 and RC-3 are implemented and must not be reopened without a new demonstrated defect.
 
-## Browser evidence
+### RC-1 — explicit review identity
 
-One-time closure run `31222664701` executed the critical W8 suite on the existing cross-browser config.
+Explicit stale `sourceReviewId` now fails closed instead of falling through to a neighbouring due item. Explicit live IDs affect only the named due item. The documented no-explicit-ID fallback remains available. The same fail-closed boundary is covered for repair identity/race cases.
 
-Result: **42/42 PASS** across Chromium desktop, Firefox desktop, WebKit desktop, iPhone/WebKit emulation, Android/Chromium emulation and iPad/WebKit emulation.
+### RC-2 — persisted schema-v2 validation
 
-This materially closes the browser-engine acceptance gap. It does not pretend to be physical-device Safari, screen-reader, complete 200% zoom or formal accessibility certification. Those broader evidence items are non-blocking unless real use exposes a serious defect.
+The existing schema-v2 validator now structurally validates runtime-used persisted state, including active sessions, review items, cards, field notes and known Wave7 extensions. Malformed current-schema import/cloud input is rejected before runtime use. Local corruption recovery behavior remains conservative. `STATE_SCHEMA_VERSION` remains unchanged.
 
-## Production evidence
+### RC-3 — learner-facing copy
 
-Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
+Learner-facing raw reviewer/transfer/mastery state-machine vocabulary introduced by Gauntlet 3 was replaced with compact RU/EN learner language. Internal enum values and evidence contracts are unchanged.
 
-The first closure smoke RED was a test false negative: the live learner UI rendered the expected module controls, while the smoke script required an exact accessible name that omitted the UI arrow suffix.
+## Preservation boundary
 
-A one-line matcher repair was validated on run `31223251425`:
+This candidate does not change:
 
-- full release gate: SUCCESS;
-- live production smoke: `LIVE_SMOKE_GREEN` on attempt 1.
+- curriculum or correct-answer identities;
+- drill/card IDs;
+- source provenance;
+- hard prerequisites;
+- scheduler policy beyond the demonstrated identity-integrity bug fix;
+- mastery semantics;
+- `FIELD_VALIDATED` contract;
+- `1/3/7` retention policy;
+- Table Burst policy;
+- learner-state schema version;
+- stable production URL.
 
-The live surface displays app version `1.1.0`, matching source `APP_VERSION = "1.1.0"`. The hosting platform does not expose a trustworthy exact deployed Git SHA through the current release surface, so exact deployed-SHA equality remains later W11/formal release-identity evidence and is not claimed here.
+## RC-8 editorial lock truth
 
-No learner-state reset, D1 reset or URL change was performed.
-
-## Governance truth
-
-The manifest remains intentionally:
+Editorial manifest remains intentionally:
 
 `TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
 
-- strategy approval: `null`
-- drill approval: `null`
-- human locale approvals: none
+- strategy approval: `null`;
+- drill approval: `null`;
+- human locale approvals: none;
+- final composition status: `REVIEW_PENDING`;
+- current curriculum composition digest remains `7b44741c3032d0c3f084f60aab5513a40445e32394c36954496ba83e53127b0a`;
+- post-closure source-lock fingerprint: `dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e`.
 
-Model/source-assisted pre-review found no new P0/P1 strategy defect in the locked repaired W3 scope, but this is explicitly **not** human approval.
+CI/editorial tooling is rejection-only and cannot synthesize strategy, drill, Russian or English approval.
 
-## Remaining pre-learning gate
+## Exact-final evidence required before evaluator
 
-Before declaring `W1_W9_PRE_LEARNING_READY`, one gate class remains:
+After all authority docs are reconciled and the temporary harness is removed, freeze one exact branch-head SHA and run without further mutation:
 
-1. genuine human poker review of the repaired W3 priority claims/drills and final human RU/EN review of the locked W1–W9 learner-facing corpus.
+1. unchanged `npm run test:release`;
+2. existing `playwright.cross-browser.config.mjs` critical matrix on that same SHA:
+   Chromium desktop, Firefox desktop, WebKit desktop, iPhone/WebKit, Android/Chromium and iPad/WebKit.
 
-If genuine review finds a defect, make the smallest source-backed repair and rerun exact-head release/smoke evidence. If genuine review passes, record the evidence, advance only the supported governance states, run final exact-main CI and stop synthetic development.
+The green implementation run on `07cea8f…` is valid evidence for RC-1/2/3 but is not the exact-final gate because RC-7/RC-8 repository metadata changed afterward.
 
-W1/W7 empirical usability and learning-effect evidence belong to W10 real use and must not be fabricated before training.
+## Human and empirical gates
 
-## Deferred non-blocking debt
+Still pending unless genuine evidence is added later:
 
-The following do not justify another broad pre-learning build by themselves:
+- human poker/strategy review;
+- human drill review;
+- final Russian review;
+- final English review;
+- W10 empirical validation from real learner sessions;
+- W11 final integration/release acceptance.
 
-- Wave 5 compatibility/shim cleanup;
-- the existing React hook lint warning unless it becomes a reproducible navigation bug;
-- enterprise observability or elaborate performance infrastructure;
-- exhaustive formal accessibility certification beyond the critical evidence already green;
-- exact deployed Git SHA identity before the later formal W11 release stage.
+No model/source pre-review or automated test can close those human/empirical gates.
+
+## Production truth
+
+Stable URL remains `https://live-cash-os.elmarsal.chatgpt.site/`.
+
+Historical production smoke and deployment evidence applies to earlier accepted source states only. This Final Red-Team candidate has not been deployed in this task, and exact production SHA equality is not claimed.
+
+Required later production sequence, only after evaluator `KEEP` and separate authorization:
+
+`exact accepted main -> publish existing ChatGPT Site -> live desktop/mobile smoke -> production truth update`
 
 ## Stop condition
 
-After genuine human content/language PASS and the resulting exact-main gate is GREEN, set:
+After exact-final release and six-project browser evidence are green, make no further candidate mutations and hand PR `#28` to the independent evaluator for `KEEP / REPAIR / REVERT`.
 
-`W1_W9_PRE_LEARNING_READY`
-
-Then stop feature development, start real training, collect W10 retention/reasoning/field evidence, and reserve W11 for final formal release acceptance and exact identity reconciliation.
+`NO MERGE / NO DEPLOY IN FINAL RED-TEAM CLOSURE`
