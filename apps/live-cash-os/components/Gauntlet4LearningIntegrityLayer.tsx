@@ -190,8 +190,7 @@ function move<T>(items: T[], from: number, to: number): T[] {
   return next;
 }
 
-function clickHiddenCorePrimary(host: HTMLElement, marker: string) {
-  delete host.dataset[marker];
+function clickHiddenCorePrimary(host: HTMLElement) {
   requestAnimationFrame(() => {
     host.querySelector<HTMLButtonElement>(":scope > button.primary")?.click();
   });
@@ -231,11 +230,6 @@ function OrderingExercise({ host, locale, moduleId, startedAt }: {
     next: "Solve the example first",
   };
 
-  useEffect(() => {
-    host.dataset.g4OrderingHost = "active";
-    return () => { delete host.dataset.g4OrderingHost; };
-  }, [host]);
-
   function checkOrder() {
     const correct = order.length === canonical.length && order.every((item, index) => item === canonical[index]);
     if (correct) {
@@ -271,7 +265,7 @@ function OrderingExercise({ host, locale, moduleId, startedAt }: {
     {status === "revealed" && <p className="g4-state-message" role="status">{copy.revealed}</p>}
     {!canContinue
       ? <button className="primary" type="button" onClick={checkOrder}>{copy.check}</button>
-      : <button className="primary" type="button" onClick={() => clickHiddenCorePrimary(host, "g4OrderingHost")}>{copy.next} <span>→</span></button>}
+      : <button className="primary" type="button" onClick={() => clickHiddenCorePrimary(host)}>{copy.next} <span>→</span></button>}
   </section>;
 }
 
@@ -340,11 +334,6 @@ function FeedbackCard({ host, locale, feedback, drill }: {
     next: "Continue",
   };
 
-  useEffect(() => {
-    host.dataset.g4FeedbackHost = "active";
-    return () => { delete host.dataset.g4FeedbackHost; };
-  }, [host]);
-
   const title = fullyCorrect
     ? copy.correctTitle
     : feedback.actionOk
@@ -382,8 +371,8 @@ export default function Gauntlet4LearningIntegrityLayer() {
   const snapshot = useIntegritySnapshot();
   return <>
     <style>{`
-      .session[data-g4-ordering-host="active"] > :not(.session-head):not(.g4-ordering) { display: none !important; }
-      .feedback-view[data-g4-feedback-host="active"] > :not(.g4-feedback-card) { display: none !important; }
+      .session:has(> .g4-ordering) > :not(.session-head):not(.g4-ordering) { display: none !important; }
+      .feedback-view:has(> .g4-feedback-card) > :not(.g4-feedback-card) { display: none !important; }
       .g4-ordering, .g4-feedback-card { display: block; }
       .g4-order-list { display: grid; gap: .65rem; padding-left: 1.4rem; }
       .g4-order-list li { min-height: 52px; display: grid; grid-template-columns: 1fr auto; gap: .75rem; align-items: center; border: 1px solid currentColor; border-radius: 12px; padding: .65rem .75rem; }
