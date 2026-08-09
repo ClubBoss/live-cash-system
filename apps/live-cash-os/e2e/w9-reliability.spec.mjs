@@ -195,7 +195,7 @@ test("network save failure keeps local progress and retry can acknowledge it", a
   await page.evaluate(({ key, syncKey }) => {
     localStorage.removeItem(key);
     localStorage.removeItem(syncKey);
-  }, { localKey: LOCAL_KEY, syncKey: SYNC_KEY });
+  }, { key: LOCAL_KEY, syncKey: SYNC_KEY });
   await page.reload();
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await page.waitForTimeout(1_000);
