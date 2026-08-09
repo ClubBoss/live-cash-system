@@ -59,6 +59,26 @@ async function verifyTestInviteGate(browser) {
   await lockedContext.close();
 }
 
+async function isolateTestMirrorWrites(page) {
+  if (!testInviteCode) return;
+  // The workflow already proves the deployed TEST_DB path with a fake-code 401
+  // and an issued-code 200 before this browser smoke starts. From here on,
+  // keep each browser scenario local so the desktop lesson cannot become the
+  // mobile context's cross-device resume state and invalidate a fresh-home UX
+  // assertion. GET remains real so reload still revalidates the invite gate.
+  await page.route("**/api/state", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "browser smoke uses isolated local state", code: "AUTH_REQUIRED" }),
+    });
+  });
+}
+
 async function verifyHomeLocale(page, locale) {
   const russian = locale === "ru";
   await page.getByRole("heading", { name: russian ? /Учись понемногу/i : /Learn in small blocks/i }).waitFor({ timeout: 20_000 });
@@ -104,6 +124,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
 
     await verifyHomeLocale(desktop, "ru");
     await verifyBuildIdentity(desktop);
+    await isolateTestMirrorWrites(desktop);
     const body = await desktop.locator("body").innerText();
     if (!body.includes("LIVE CASH OS")) throw new Error("Brand marker is missing");
     for (const marker of forbiddenMarkers) if (body.includes(marker)) throw new Error(`Forbidden old marker is present: ${marker}`);
@@ -141,6 +162,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await verifyHomeLocale(mobile, "ru");
     await verifyBuildIdentity(mobile);
+    await isolateTestMirrorWrites(mobile);
     await assertNoOverflow(mobile, "Russian mobile home");
     await mobile.screenshot({ path: "smoke-evidence/mobile-home-ru.png", fullPage: true });
     await mobile.getByRole("button", { name: "EN", exact: true }).click();
@@ -166,6 +188,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       english_lcm01_no_cyrillic_fallback_verified: true,
       mobile_viewport: "390x844",
       test_invite_gate_verified: Boolean(testInviteCode),
+      test_mirror_browser_state_isolated_after_gate: Boolean(testInviteCode),
       timestamp: new Date().toISOString(),
     };
     await writeFile("smoke-evidence/report.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
