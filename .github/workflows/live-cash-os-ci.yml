@@ -46,7 +46,24 @@ jobs:
         run: npm run typecheck
 
       - name: Lint
-        run: npm run lint
+        shell: bash
+        run: |
+          set +e
+          npx eslint . --ignore-pattern dist --ignore-pattern .next --format json > /tmp/eslint.json
+          code=$?
+          node --input-type=module <<'NODE'
+          import { readFileSync } from "node:fs";
+          const results = JSON.parse(readFileSync("/tmp/eslint.json", "utf8"));
+          for (const result of results) {
+            const path = result.filePath.replace(`${process.cwd()}/`, "");
+            for (const message of result.messages) {
+              const level = message.severity === 2 ? "error" : "warning";
+              const text = `${message.ruleId ?? "eslint"}: ${message.message}`.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+              console.log(`::${level} file=apps/live-cash-os/${path},line=${message.line ?? 1},col=${message.column ?? 1}::${text}`);
+            }
+          }
+          NODE
+          exit "$code"
 
       - name: Governance
         run: npm run check:governance
