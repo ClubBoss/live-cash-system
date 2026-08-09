@@ -24,18 +24,15 @@ async function saveState(page, state) {
 
 async function clickStableContinue(page) {
   const semantic = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
-  const core = page.locator(".feedback-view > button.primary");
-  let lastError;
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    if (await semantic.isVisible().catch(() => false)) {
-      try { await semantic.click({ timeout: 500 }); return; } catch (error) { lastError = error; }
-    }
-    if (await core.isVisible().catch(() => false)) {
-      try { await core.click({ timeout: 500 }); return; } catch (error) { lastError = error; }
-    }
-    await page.waitForTimeout(100);
+  try {
+    await semantic.waitFor({ state: "visible", timeout: 8_000 });
+    await semantic.click();
+    return;
+  } catch {
+    const core = page.locator(".feedback-view > button.primary");
+    await expect(core).toBeVisible();
+    await core.click();
   }
-  throw lastError ?? new Error("No learner-visible Continue control appeared after the answer");
 }
 
 async function fillRequiredHandFields(page) {
@@ -147,7 +144,7 @@ test("Review runs one bounded item and returns to the updated Review queue", asy
 
   await page.getByRole("button", { name: "Повтор", exact: true }).click();
   await expect(page.getByText(/Каждый пункт запускается отдельно; после завершения приложение возвращает сюда/i)).toBeVisible();
-  await page.getByRole("button", { name: "Начать", exact: true }).click();
+  await page.getByRole("button", { name: /^Начать/ }).click();
 
   const card = page.locator(".decision-card");
   await card.locator(".answer-set").nth(0).getByRole("button").first().click();
@@ -164,7 +161,7 @@ test("Real Hands requires an explicit linked topic before a complete hand can be
   await page.getByRole("button", { name: "Руки", exact: true }).click();
   const form = page.locator(".field-form");
   const linkedTopic = form.getByLabel("Связанная тема");
-  const lock = form.getByRole("button", { name: "Зафиксировать решение", exact: true });
+  const lock = form.getByRole("button", { name: /^Зафиксировать решение/ });
   await expect(linkedTopic).toHaveValue("");
   await expect(form.getByText(/Связанная тема не выбрана/i)).toBeVisible();
   await expect(lock).toBeDisabled();
