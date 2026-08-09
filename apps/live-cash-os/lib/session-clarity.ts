@@ -28,7 +28,7 @@ runtimeCopy.en.dueItems = "reviews due";
 
 const skillLabels: Record<SessionLocale, Record<LessonSkillState, string>> = {
   ru: {
-    UNEXPOSED: "не начат",
+    UNEXPOSED: "не начато",
     INTRODUCED: "только знакомство",
     FRAGILE: "нужно закрепить",
     WORKING: "получается",
