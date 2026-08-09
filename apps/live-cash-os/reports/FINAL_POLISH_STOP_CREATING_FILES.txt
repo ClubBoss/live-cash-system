@@ -1,1 +1,0 @@
-This file intentionally marks the end of planning-only evidence. Subsequent work is validation/integration, not more documentation.
