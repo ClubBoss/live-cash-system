@@ -1,11 +1,25 @@
 import { expect, test } from "@playwright/test";
 
+const STORAGE_KEY = "live-cash-os:learner-state";
+
 async function openFresh(page) {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
   });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
+}
+
+async function seedGeometryComplete(page) {
+  await page.evaluate((key) => {
+    const state = JSON.parse(localStorage.getItem(key));
+    state.modules.geometry.contentCompleted = true;
+    state.modules.geometry.lessonStep = 10;
+    state.revision += 1;
+    state.updatedAt = new Date().toISOString();
+    localStorage.setItem(key, JSON.stringify(state));
+  }, STORAGE_KEY);
+  await page.reload();
 }
 
 test("Today separates Time and Mode, shows actual plan volume, and fresh short modes have an actionable fallback", async ({ page }) => {
@@ -44,17 +58,24 @@ test("disabled learning CTAs state what is missing", async ({ page }) => {
   await page.getByRole("button", { name: "Учиться", exact: true }).click();
 
   await expect(page.getByText(/Практика откроется после завершения этого урока/i).first()).toBeVisible();
-  await expect(page.getByText(/Смешанная практика и Table Burst откроются после трёх пройденных тем. Сейчас: 0\/3/i)).toBeVisible();
+  await expect(page.getByText(/Смешанная практика и серия быстрых решений откроются после трёх пройденных тем. Сейчас: 0\/3/i)).toBeVisible();
   await expect(page.getByRole("button", { name: "Смешанная практика", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Серия · 8 быстрых решений", exact: true })).toBeDisabled();
 });
 
-test("Cards has one role, an empty warm-up exit, and explains grading impact", async ({ page }) => {
+test("Cards has one role, blocks future material, and explains grading impact after a topic is completed", async ({ page }) => {
   await openFresh(page);
   await page.getByRole("button", { name: "Карточки", exact: true }).click();
 
   await expect(page.getByRole("button", { name: "До 2 мин", exact: true })).toBeVisible();
   await expect(page.getByText(/Оценка меняет только срок следующего показа карточки, а не статус навыка/i)).toBeVisible();
   await expect(page.getByRole("button", { name: /^Открыть обучение/ })).toBeEnabled();
+  await page.getByRole("button", { name: "Все", exact: true }).click();
+  await expect(page.getByText(/Карточки открываются только из завершённых тем/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Показать ответ/ })).toHaveCount(0);
+
+  await seedGeometryComplete(page);
+  await page.getByRole("button", { name: "Карточки", exact: true }).click();
   await page.getByRole("button", { name: "Все", exact: true }).click();
   await page.getByRole("button", { name: /^Показать ответ/ }).click();
   await expect(page.getByText(/Не вспомнил → снова примерно через 10 минут/i)).toBeVisible();
@@ -65,8 +86,8 @@ test("Review, Progress, Hands and Diagnostic each state one clear role", async (
   await openFresh(page);
 
   await page.getByRole("button", { name: "Повтор", exact: true }).click();
-  await expect(page.getByText(/Одна сессия Review — ограниченная очередь, а не весь долг сразу/i)).toBeVisible();
-  await expect(page.getByText(/Размер зависит от 5\/15\/30 минут/i)).toBeVisible();
+  await expect(page.getByText(/Review показывает ограниченную очередь под выбранные 5\/15\/30 минут/i)).toBeVisible();
+  await expect(page.getByText(/Каждый пункт запускается отдельно/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Карта", exact: true }).click();
   await expect(page.getByText(/Прогресс показывает состояние темы, реальные попытки и следующий шаг/i)).toBeVisible();
@@ -100,6 +121,7 @@ test("Real Hands shows completion count and exact missing required fields", asyn
 
   await expect(page.getByText(/0\/11 обязательных полей заполнено/i)).toBeVisible();
   await expect(page.getByText(/Не хватает: Лимиты, Позиция Hero/i)).toBeVisible();
+  await expect(page.getByText(/Связанная тема не выбрана/i)).toBeVisible();
   await expect(page.getByRole("button", { name: /^Зафиксировать решение/ })).toBeDisabled();
 
   await page.getByLabel("Лимиты").fill("2/5");
