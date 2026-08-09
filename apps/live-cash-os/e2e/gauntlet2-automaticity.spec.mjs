@@ -24,19 +24,33 @@ async function openBurst(page) {
   await expect(card.locator(":scope > .eyebrow")).toHaveAttribute("aria-hidden", "true");
 }
 
+async function clickStableContinue(page) {
+  const g4Continue = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
+  const coreContinue = page.locator(".feedback-view > button.primary");
+  let lastError;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    if (await g4Continue.isVisible().catch(() => false)) {
+      try { await g4Continue.click({ timeout: 500 }); return; } catch (error) { lastError = error; }
+    }
+    if (await coreContinue.isVisible().catch(() => false)) {
+      try { await coreContinue.click({ timeout: 500 }); return; } catch (error) { lastError = error; }
+    }
+    await page.waitForTimeout(100);
+  }
+  throw lastError ?? new Error("No learner-visible Continue control appeared after the Burst answer");
+}
+
 async function answerCurrentSpot(page) {
   const card = page.locator(".decision-card");
   await card.locator(".answer-set").nth(0).getByRole("button").first().click();
   await card.locator(".answer-set").nth(1).getByRole("button").first().click();
   await card.getByRole("button", { name: /^Ответить/ }).click();
 
-  // The learner-facing post-answer surface is owned by G4. Core feedback may be
-  // visible only for a transient frame while the portal reacquires its host, so
-  // waiting for the stable G4 Continue avoids racing a control that is about to
-  // be hidden. Exact feedback semantics remain covered by the dedicated G4 suite.
-  const continueButton = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
-  await expect(continueButton).toBeVisible({ timeout: 20_000 });
-  await continueButton.click();
+  // G2 owns the bounded eight-decision progression contract. G4 owns exact
+  // correct/partial/wrong feedback composition. During compatibility-host
+  // handoff the Core and G4 Continue controls can exchange visibility for a
+  // frame, so click the control that is actually learner-visible at action time.
+  await clickStableContinue(page);
 }
 
 test.beforeEach(async ({ page }) => {
