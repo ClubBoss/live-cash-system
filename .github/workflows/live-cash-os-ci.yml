@@ -141,7 +141,35 @@ jobs:
             if (body.code !== "AUTH_REQUIRED") throw new Error(`Unexpected TEST_DB bootstrap response: ${JSON.stringify(body)}`);
             console.log("Verified TEST_DB runtime bootstrap and invite lookup without D1 management API access");
           '
-          npm run smoke:production
+          node --input-type=module <<'NODE'
+          import { chromium } from "@playwright/test";
+          import { mkdir, writeFile } from "node:fs/promises";
+
+          const browser = await chromium.launch({ headless: true });
+          try {
+            const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+            const response = await page.goto(process.env.LIVE_URL, { waitUntil: "domcontentloaded", timeout: 45_000 });
+            if (response?.status() !== 200) throw new Error(`Unexpected mirror HTTP status: ${response?.status() ?? "none"}`);
+            await page.getByRole("heading", { name: "Вход для тестирования" }).waitFor({ timeout: 20_000 });
+            await page.getByLabel("Код доступа").fill("LCO-AAAAAAAAAAAAAAAAAAAA");
+            await page.getByRole("button", { name: "Продолжить" }).click();
+            await page.getByRole("alert").filter({ hasText: "Код не найден или отключён" }).waitFor({ timeout: 20_000 });
+            await mkdir("smoke-evidence", { recursive: true });
+            await page.screenshot({ path: "smoke-evidence/test-mirror-invite-gate.png", fullPage: true });
+            await writeFile("smoke-evidence/report.json", `${JSON.stringify({
+              result: "TEST_MIRROR_SMOKE_GREEN",
+              url: process.env.LIVE_URL,
+              deployed_sha: process.env.DEPLOYED_SHA,
+              invite_gate_visible: true,
+              invalid_invite_rejected: true,
+              test_db_bootstrap_verified: true,
+              timestamp: new Date().toISOString(),
+            }, null, 2)}\n`, "utf8");
+            console.log("TEST_MIRROR_SMOKE_GREEN");
+          } finally {
+            await browser.close();
+          }
+          NODE
       - name: Upload test-mirror smoke evidence
         if: always()
         uses: actions/upload-artifact@v7
