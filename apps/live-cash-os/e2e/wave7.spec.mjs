@@ -15,6 +15,7 @@ async function openLocal(page) {
 
 async function fillHand(page) {
   await page.getByRole("button", { name: "Руки", exact: true }).click();
+  await page.getByLabel("Связанная тема").selectOption("geometry");
   await page.getByLabel("Лимиты").fill("2/5");
   await page.getByLabel("Позиция Hero").fill("BB");
   await page.getByLabel("Позиции релевантных соперников").fill("BTN");
@@ -94,6 +95,7 @@ test("real hand locks pre-result reasoning, self-review cannot award transfer, a
   const repair = state.reviewQueue.find((item) => item.sourceDrillId === `field:${noteId}` && item.kind === "repair");
   expect(repair).toBeTruthy();
   expect(state.fieldNotes[0].reviewerKind).toBe("SELF");
+  expect(state.fieldNotes[0].status).toBe("PENDING_REVIEW");
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
 
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();
