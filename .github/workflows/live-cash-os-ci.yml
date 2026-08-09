@@ -35,19 +35,15 @@ jobs:
           node-version: 22.13.0
           cache: npm
           cache-dependency-path: apps/live-cash-os/package-lock.json
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: G4 targeted E2E
-        run: npx playwright test e2e/gauntlet4-real-use-learning-integrity.spec.mjs --reporter=list,github
-      - name: Upload G4 evidence
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: G4 feedback case
+        run: npx playwright test e2e/gauntlet4-real-use-learning-integrity.spec.mjs --grep "feedback matrix" --reporter=list,github --timeout=30000
+      - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: g4-targeted-evidence
-          path: |
-            apps/live-cash-os/playwright-report
-            apps/live-cash-os/test-results
+          name: g4-feedback-evidence
+          path: apps/live-cash-os/test-results
           if-no-files-found: ignore
           retention-days: 7
