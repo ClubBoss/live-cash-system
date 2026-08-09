@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -8,6 +9,13 @@ import {
   deriveSessionSaveState,
   localSaveAcknowledged,
 } from "../lib/session-clarity.ts";
+
+test("session clarity helper stays pure and owns no learner-facing copy", async () => {
+  const source = await readFile(new URL("../lib/session-clarity.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /runtimeCopy/);
+  assert.doesNotMatch(source, /[А-Яа-яЁё]/);
+  assert.doesNotMatch(source, /Saved|Saving|Lesson|Skill|Diagnostic/);
+});
 
 test("lesson completion and repair-required skill remain separate state truths", () => {
   assert.deepEqual(deriveLessonSkillTruth(true, "REPAIR_REQUIRED"), {
