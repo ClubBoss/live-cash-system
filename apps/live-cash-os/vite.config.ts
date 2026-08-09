@@ -34,6 +34,14 @@ const localBindingConfig = {
     : [],
 };
 
+// The Workers test mirror is intentionally storage-free. Its build must not
+// inherit the Sites packaging or the placeholder D1 binding used by local
+// Sites development.
+const testMirrorWorkerConfig = {
+  main: "./worker/index.ts",
+  compatibility_flags: ["nodejs_compat"],
+};
+
 export default defineConfig(async () => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
@@ -41,16 +49,21 @@ export default defineConfig(async () => {
   process.env.WRANGLER_LOG_PATH ??= ".wrangler/logs";
   process.env.MINIFLARE_REGISTRY_PATH ??= ".wrangler/registry";
 
+  const isTestMirrorDeploy =
+    process.env.LIVE_CASH_DEPLOY_TARGET === "test-mirror";
+
   return {
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,
     plugins: [
       vinext(),
-      sites(),
+      ...(isTestMirrorDeploy ? [] : [sites()]),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
+        config: isTestMirrorDeploy
+          ? testMirrorWorkerConfig
+          : localBindingConfig,
       }),
     ],
   };
