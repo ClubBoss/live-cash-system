@@ -15,6 +15,7 @@ async function localState(page) {
 
 async function captureHand(page, cue, actionSequence) {
   await page.getByRole("button", { name: "Руки", exact: true }).click();
+  await page.getByLabel("Связанная тема").selectOption("geometry");
   await page.getByLabel("Лимиты").fill("2/5");
   await page.getByLabel("Позиция Hero").fill("BB");
   await page.getByLabel("Позиции релевантных соперников").fill("BTN");
@@ -49,6 +50,7 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   const selfNote = state.fieldNotes.find((note) => note.id === selfId);
   expect(selfNote.reviewerKind).toBe("SELF");
   expect(selfNote.reviewOutcome).toBe("REVIEWED_OK");
+  expect(selfNote.status).toBe("PENDING_REVIEW");
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
   expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
 
@@ -80,4 +82,39 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   expect(persisted.reviewOutcome).toBe("SUPPORTS_TRANSFER");
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(1);
   expect(state.modules.geometry.evidence.field_transfer.successes).toBe(1);
+});
+
+test("the same locked hand can move from SELF review to a later HUMAN_ASSISTED review", async ({ page }) => {
+  const cue = "same-hand review lifecycle: wide small flop bet";
+  const id = await captureHand(page, cue, "BTN opens 3bb, BB calls; flop BTN bets 25%");
+  const card = page.locator(".field-list article").filter({ hasText: cue }).first();
+  const source = card.getByLabel(`Как выполнен разбор ${id}`);
+  const review = card.getByRole("textbox", { name: `Разбор ${id}`, exact: true });
+
+  await review.fill("Self-review: the call looks coherent, but this note cannot create field evidence.");
+  await card.getByRole("button", { name: "Разбор закончен", exact: true }).click();
+  await expect(card.getByText(/Самопроверка сохранена/i)).toBeVisible();
+  await expect(source).toHaveValue("SELF");
+  await expect(review).toHaveValue("");
+
+  let state = await localState(page);
+  let note = state.fieldNotes.find((row) => row.id === id);
+  expect(note.status).toBe("PENDING_REVIEW");
+  expect(note.reviewerKind).toBe("SELF");
+  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
+
+  await source.selectOption("HUMAN_ASSISTED");
+  await review.fill("Separate human-assisted review: the locked cue, action and reason support transfer in this hand.");
+  const support = card.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true });
+  await expect(support).toBeEnabled();
+  await support.click();
+
+  state = await localState(page);
+  note = state.fieldNotes.find((row) => row.id === id);
+  expect(note.status).toBe("REVIEWED_VALID");
+  expect(note.reviewerKind).toBe("HUMAN_ASSISTED");
+  expect(note.reviewOutcome).toBe("SUPPORTS_TRANSFER");
+  expect(note.evaluatorNote).toMatch(/Separate human-assisted review/);
+  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(1);
+  expect(state.modules.geometry.evidence.field_transfer.distinctNodes).toContain(`field:${id}`);
 });
