@@ -29,10 +29,11 @@ async function answerCurrentSpot(page) {
   await card.locator(".answer-set").nth(0).getByRole("button").first().click();
   await card.locator(".answer-set").nth(1).getByRole("button").first().click();
   await card.getByRole("button", { name: /^Ответить/ }).click();
-  await expect(page.locator(".feedback-view")).toBeVisible();
-  await expect(page.locator(".feedback-view")).toContainText("Твой выбор");
-  await expect(page.locator(".feedback-view")).toContainText("Рабочий выбор");
-  await page.locator(".feedback-view").getByRole("button", { name: /^Продолжить/ }).click();
+  const feedback = page.locator("[data-g4-feedback-state]");
+  await expect(feedback).toBeVisible();
+  await expect(feedback).toContainText("Твой выбор");
+  await expect(feedback).toContainText("Рабочий выбор");
+  await feedback.getByRole("button", { name: /^Продолжить/ }).click();
 }
 
 test.beforeEach(async ({ page }) => {
