@@ -47,7 +47,18 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Release gate
-        run: npm run test:release
+        run: |
+          set -o pipefail
+          npm run test:release 2>&1 | tee release-gate.log
+
+      - name: Upload release gate log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-cash-os-release-gate-log
+          path: apps/live-cash-os/release-gate.log
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload browser evidence on failure
         if: failure()
