@@ -19,7 +19,8 @@ import {
 } from "../lib/wave7";
 
 const emptyHand = (): FieldHandInput => ({
-  moduleId: "geometry",
+  // Deliberately blank: field evidence must never inherit a silent module.
+  moduleId: "" as ModuleId,
   stakes: "",
   heroPosition: "",
   villainPositions: "",
@@ -54,7 +55,7 @@ function copy(locale: LocaleCode) {
   return locale === "ru" ? {
     captureTitle: "После игры: сначала сохрани 1–3 руки",
     captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если разбор выявил конкретную ошибку, добавляй работу над ошибкой; обычный Review после этого остаётся отдельным и необязательным. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
-    workflow: "Порядок: 1) сохранить 1–3 руки → 2) разобрать одну → 3) при необходимости назначить практику или позже открыть обычный Review.",
+    workflow: "Порядок: 1) выбрать связанную тему и сохранить 1–3 руки → 2) разобрать одну → 3) при необходимости назначить практику; отдельный разбор с человеком можно сделать позже.",
     stakes: "Лимиты",
     heroPosition: "Позиция Hero",
     villainPositions: "Позиции релевантных соперников",
@@ -71,11 +72,14 @@ function copy(locale: LocaleCode) {
     populationRead: "Рид на поле / игрока (если релевантно)",
     populationConfidence: "Уверенность в риде",
     module: "Связанная тема",
+    chooseModule: "Выбери тему, к которой относится это решение…",
+    moduleRequired: "Связанная тема не выбрана. Выбери её явно: именно сюда попадёт будущая история и, после отдельного разбора с человеком, возможная поддержка переноса.",
     lock: "Зафиксировать решение",
     locked: "Решение зафиксировано до результата",
     requiredProgress: "обязательных полей заполнено",
     missingFields: "Не хватает",
-    allRequired: "Все обязательные поля заполнены. Можно фиксировать решение.",
+    allRequired: "Все обязательные поля заполнены и тема выбрана. Можно фиксировать решение.",
+    fieldsReadyModuleMissing: "Все 11 обязательных полей заполнены. Осталось выбрать связанную тему.",
     resultTitle: "Результат — отдельным шагом",
     result: "Результат",
     showdown: "Шоудаун (если был)",
@@ -85,14 +89,15 @@ function copy(locale: LocaleCode) {
     reviewPlaceholder: "Коротко: что в решении было рабочим или что нужно исправить…",
     reviewRequired: "Добавь короткую заметку разбора — без неё эти действия недоступны.",
     selfReviewTitle: "Самопроверка не подтверждает перенос в реальную игру",
-    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить разбор или назначить практику. Подтвердить перенос в реальную игру можно только после отдельного разбора с человеком — с инструментом или без. Одна разобранная раздача не подтверждает освоение навыка.",
+    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить собственный разбор или назначить практику. Она не закрывает запись для будущего отдельного разбора с человеком. Подтвердить перенос в реальную игру можно только после такого отдельного разбора — с инструментом или без.",
+    selfReviewSaved: "Самопроверка сохранена. Эта рука остаётся открытой для отдельного разбора с человеком. Чтобы провести его, выбери соответствующий источник ниже и добавь новую заметку разбора.",
     reviewerSource: "Как выполнен разбор",
     reviewerSourceHelp: "Самопроверка — твой собственный разбор. Другие варианты выбирай только после реального отдельного разбора с человеком. Приложение не проверяет, кто проводил разбор.",
     reviewerSelf: "Самопроверка",
     reviewerHuman: "Разбор с человеком",
     reviewerAssisted: "Разбор с человеком и инструментом",
     supportTransfer: "Подтверждает перенос в реальную игру",
-    supportTransferHelp: "Нужен отдельный разбор с человеком, непустая заметка и решение, зафиксированное до результата.",
+    supportTransferHelp: "Нужен отдельный разбор с человеком, непустая новая заметка и решение, зафиксированное до результата.",
     legacyTransferBlocked: "Эту старую запись нельзя засчитать как поддержку переноса: в ней нет зафиксированного решения до результата.",
     insufficient: "Недостаточно данных",
     reviewedOk: "Разбор закончен",
@@ -118,7 +123,7 @@ function copy(locale: LocaleCode) {
   } : {
     captureTitle: "After play: save 1–3 hands first",
     captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward. One hand is an observation, not proof of a frequency or a global player type.",
-    workflow: "Order: 1) save 1–3 hands → 2) review one → 3) only if needed, assign mistake practice or open normal Review later.",
+    workflow: "Order: 1) choose the linked topic and save 1–3 hands → 2) review one → 3) assign mistake practice if needed; a separate human review can happen later.",
     stakes: "Stakes",
     heroPosition: "Hero position",
     villainPositions: "Relevant villain positions",
@@ -135,11 +140,14 @@ function copy(locale: LocaleCode) {
     populationRead: "Population / player read (if relevant)",
     populationConfidence: "Confidence in the read",
     module: "Linked topic",
+    chooseModule: "Choose the topic this decision belongs to…",
+    moduleRequired: "No linked topic is selected. Choose it explicitly: future history and, after a separate human review, any transfer support will be attributed there.",
     lock: "Lock the decision",
     locked: "Decision locked before the result",
     requiredProgress: "required fields complete",
     missingFields: "Missing",
-    allRequired: "All required fields are complete. You can lock the decision.",
+    allRequired: "All required fields are complete and the topic is selected. You can lock the decision.",
+    fieldsReadyModuleMissing: "All 11 required fields are complete. Choose the linked topic before locking the decision.",
     resultTitle: "Result — added separately",
     result: "Result",
     showdown: "Showdown (if any)",
@@ -149,14 +157,15 @@ function copy(locale: LocaleCode) {
     reviewPlaceholder: "Briefly: what worked in the decision or what needs repair…",
     reviewRequired: "Add a short review note before choosing an outcome.",
     selfReviewTitle: "Self-review does not confirm real-table transfer",
-    selfReviewBody: "Self-review can mark missing information, finish the review, or assign mistake practice. Real-table transfer can be supported only after a separate human review, with or without a tool. One reviewed hand does not prove the skill.",
+    selfReviewBody: "Self-review can mark missing information, finish your own review, or assign mistake practice. It does not close the hand to a later separate human review. Real-table transfer can be supported only after that separate human review, with or without a tool.",
+    selfReviewSaved: "Self-review is saved. This hand remains open for a separate human review. To do that, choose the appropriate review source below and add a new review note.",
     reviewerSource: "How this was reviewed",
     reviewerSourceHelp: "Self-review is your own review. Choose the other options only after a real separate human review. The app does not verify who performed it.",
     reviewerSelf: "Self-review",
     reviewerHuman: "Human review",
     reviewerAssisted: "Human review with a tool",
     supportTransfer: "Supports real-table transfer",
-    supportTransferHelp: "Requires a separate human review, a non-empty note, and a decision locked before the result.",
+    supportTransferHelp: "Requires a separate human review, a new non-empty review note, and a decision locked before the result.",
     legacyTransferBlocked: "This legacy note cannot support transfer because it has no decision locked before the result.",
     insufficient: "Not enough information",
     reviewedOk: "Finish review",
@@ -184,13 +193,16 @@ function copy(locale: LocaleCode) {
 
 function fieldStatus(locale: LocaleCode, note: StructuredFieldNote, baseStatusLabel: (locale: LocaleCode, status: string) => string): string {
   const outcome = note.reviewOutcome;
+  const selfReviewedPending = note.status === "PENDING_REVIEW" && note.reviewerKind === "SELF" && Boolean(note.reviewedAt);
   if (locale === "ru") {
+    if (selfReviewedPending) return "самопроверка сохранена · разбор с человеком ещё возможен";
     if (outcome === "SUPPORTS_TRANSFER") return "разобрано: подтверждает перенос в реальную игру";
     if (outcome === "REPAIR_REQUIRED") return "разобрано: нужна практика";
     if (outcome === "REVIEWED_OK") return "разобрано: дополнительная практика не нужна";
     if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "недостаточно данных";
     return baseStatusLabel(locale, note.status);
   }
+  if (selfReviewedPending) return "self-review saved · human review still available";
   if (outcome === "SUPPORTS_TRANSFER") return "reviewed: supports real-table transfer";
   if (outcome === "REPAIR_REQUIRED") return "reviewed: needs practice";
   if (outcome === "REVIEWED_OK") return "reviewed: no extra practice";
@@ -235,6 +247,7 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
   const [explainNotes, setExplainNotes] = useState<Record<string, string>>({});
   const explainPending = explainBackRecords(state).filter((row) => row.status === "PENDING_REVIEW");
   const errors = validateFieldHandInput(hand);
+  const moduleMissing = errors.includes("moduleId");
   const requiredLabels: Record<(typeof REQUIRED_HAND_FIELDS)[number], string> = {
     stakes: c.stakes,
     heroPosition: c.heroPosition,
@@ -266,6 +279,11 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
     const reviewerKind = reviewerKinds[noteId] ?? "SELF";
     if (!text.trim()) return;
     setState(reviewFieldHand(state, noteId, outcome, text, reviewerKind));
+    if (reviewerKind === "SELF") {
+      // A later independent review must provide its own new note instead of
+      // silently reusing the learner's self-review text.
+      setReviewNotes((current) => ({ ...current, [noteId]: "" }));
+    }
   }
 
   function reviewerLabel(note: StructuredFieldNote): string {
@@ -300,7 +318,8 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
     <div className="field-layout">
       <div className="field-form">
-        <label>{c.module}<select value={hand.moduleId} onChange={(event) => patch("moduleId", event.target.value as ModuleId)}>{modules.map((module) => <option key={module.id} value={module.id}>{module.lcm} · {module.shortTitle}</option>)}</select></label>
+        <label>{c.module}<select value={hand.moduleId} onChange={(event) => patch("moduleId", event.target.value as ModuleId)}><option value="" disabled>{c.chooseModule}</option>{modules.map((module) => <option key={module.id} value={module.id}>{module.lcm} · {module.shortTitle}</option>)}</select></label>
+        {moduleMissing && <p className="support">{c.moduleRequired}</p>}
         <label>{c.stakes}<input value={hand.stakes} onChange={(event) => patch("stakes", event.target.value)} placeholder="1/3, 2/5…" /></label>
         <label>{c.heroPosition}<input value={hand.heroPosition} onChange={(event) => patch("heroPosition", event.target.value)} placeholder="BTN, BB…" /></label>
         <label>{c.villainPositions}<input value={hand.villainPositions} onChange={(event) => patch("villainPositions", event.target.value)} placeholder="CO, SB…" /></label>
@@ -316,16 +335,18 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
         <p className="support">{c.confidenceHelp}</p>
         <label>{c.populationRead}<textarea value={hand.populationRead ?? ""} onChange={(event) => patch("populationRead", event.target.value)} /></label>
         {(hand.populationRead ?? "").trim() && <><label className="confidence">{c.populationConfidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.populationReadConfidence ?? 50}%</b><input type="range" min="0" max="100" step="5" value={hand.populationReadConfidence ?? 50} onChange={(event) => patch("populationReadConfidence", Number(event.target.value))} /></label><p className="support">{c.confidenceHelp}</p></>}
-        <p className="support"><b>{completedRequired}/{REQUIRED_HAND_FIELDS.length} {c.requiredProgress}.</b> {missingRequired.length ? `${c.missingFields}: ${missingRequired.map((key) => requiredLabels[key]).join(", ")}.` : c.allRequired}</p>
+        <p className="support"><b>{completedRequired}/{REQUIRED_HAND_FIELDS.length} {c.requiredProgress}.</b> {missingRequired.length ? `${c.missingFields}: ${missingRequired.map((key) => requiredLabels[key]).join(", ")}.` : moduleMissing ? c.fieldsReadyModuleMissing : c.allRequired}</p>
         <button className="primary" disabled={errors.length > 0} onClick={save}>{c.lock} <span>→</span></button>
       </div>
 
       <div className="field-list">{[...(state.fieldNotes as StructuredFieldNote[])].reverse().map((note) => {
         const reviewText = reviewNotes[note.id] ?? "";
+        const selfReviewed = note.status === "PENDING_REVIEW" && note.reviewerKind === "SELF" && Boolean(note.reviewedAt);
         const reviewerKind = reviewerKinds[note.id] ?? "SELF";
         const resultText = resultDrafts[note.id] ?? "";
         const showdownText = showdownDrafts[note.id] ?? "";
         const canSupportTransfer = reviewerKind !== "SELF" && Boolean(note.decisionLockedAt) && Boolean(reviewText.trim());
+        const selfActionsLocked = selfReviewed && reviewerKind === "SELF";
         return <article key={note.id}>
           <span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatus(locale, note, fieldStatusLabel)}</span>
           <h3>{moduleById[note.moduleId].shortTitle}</h3>
@@ -356,16 +377,17 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
           {note.status === "PENDING_REVIEW" ? <>
             <div className="answer-panel"><b>{c.selfReviewTitle}</b><p>{c.selfReviewBody}</p></div>
+            {selfReviewed && <div className="counterexample"><b>{c.review} ({c.reviewedBySelf})</b><p>{note.evaluatorNote}</p><p>{c.selfReviewSaved}</p></div>}
             <label>{c.reviewerSource}<select aria-label={`${c.reviewerSource} ${note.id}`} value={reviewerKind} onChange={(event) => setReviewerKinds((current) => ({ ...current, [note.id]: event.target.value as FieldReviewerKind }))}><option value="SELF">{c.reviewerSelf}</option><option value="HUMAN">{c.reviewerHuman}</option><option value="HUMAN_ASSISTED">{c.reviewerAssisted}</option></select></label>
             <p className="support">{c.reviewerSourceHelp}</p>
             <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setReviewNotes((current) => ({ ...current, [note.id]: event.target.value }))} />
-            {!reviewText.trim() && <p className="support">{c.reviewRequired}</p>}
+            {!reviewText.trim() && <p className="support">{selfActionsLocked ? c.selfReviewSaved : c.reviewRequired}</p>}
             {!note.decisionLockedAt && <p className="support">{c.legacyTransferBlocked}</p>}
-            {!canSupportTransfer && <p className="support">{c.supportTransferHelp}</p>}
+            {!canSupportTransfer && reviewerKind !== "SELF" && <p className="support">{c.supportTransferHelp}</p>}
             <div className="review-actions">
-              <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "INSUFFICIENT")}>{c.insufficient}</button>
-              <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
-              <button disabled={!reviewText.trim()} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
+              <button disabled={!reviewText.trim() || selfActionsLocked} onClick={() => reviewHand(note.id, "INSUFFICIENT")}>{c.insufficient}</button>
+              <button disabled={!reviewText.trim() || selfActionsLocked} onClick={() => reviewHand(note.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
+              <button disabled={!reviewText.trim() || selfActionsLocked} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
               <button className="primary" disabled={!canSupportTransfer} onClick={() => reviewHand(note.id, "SUPPORTS_TRANSFER")}>{c.supportTransfer}</button>
             </div>
           </> : <p className="support"><b>{c.review} ({reviewerLabel(note)}):</b> {note.evaluatorNote || "—"}</p>}
