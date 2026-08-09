@@ -128,8 +128,6 @@ function usePracticeSnapshot(): PracticeSnapshot {
 }
 
 function nextCoreLabStep() {
-  const current = document.querySelector<HTMLElement>("main .session");
-  if (current) delete current.dataset.wave5LabHost;
   requestAnimationFrame(() => {
     document.querySelector<HTMLElement>("main .session")?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click();
   });
@@ -281,12 +279,6 @@ function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; mo
     return () => window.clearInterval(fallback);
   }, [moduleId, revision]);
 
-  useEffect(() => {
-    if (!host) return;
-    host.dataset.wave5LabHost = "active";
-    return () => { delete host.dataset.wave5LabHost; };
-  }, [host]);
-
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
 }
 
@@ -297,7 +289,7 @@ export default function Wave5PracticeLayer() {
       .decision-card[data-wave5-mixed="true"] > .eyebrow { font-size: 0 !important; }
       html[lang="ru"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "СМЕШАННАЯ ЗАДАЧА"; font-size: .75rem; }
       html[lang="en"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "MIXED DECISION"; font-size: .75rem; }
-      main .session[data-wave5-lab-host="active"] > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
+      main .session:has(> .wave5-lab-gate) > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
       .wave5-lab-gate { display: block; }
       .wave5-lab-gate > .assumption-strip { display: block !important; }
     `}</style>
