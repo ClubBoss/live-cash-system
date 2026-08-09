@@ -64,10 +64,11 @@ test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", a
 });
 
 test("isolated TEST_DB bootstrap is idempotent, hash-only and production-safe", async () => {
-  const [db, seed, workflow] = await Promise.all([
+  const [db, seed, workflow, smoke] = await Promise.all([
     readFile(new URL("../db/index.ts", import.meta.url), "utf8"),
     readFile(new URL("../test-invites/migrations/0002_test_invite_seed.sql", import.meta.url), "utf8"),
     readFile(new URL("../../../.github/workflows/live-cash-os-ci.yml", import.meta.url), "utf8"),
+    readFile(new URL("../scripts/production-smoke.mjs", import.meta.url), "utf8"),
   ]);
   assert.match(db, /export async function ensureTestMirrorSchema/);
   assert.match(db, /const database = runtimeBindings\(\)\.TEST_DB/);
@@ -83,7 +84,12 @@ test("isolated TEST_DB bootstrap is idempotent, hash-only and production-safe", 
 
   assert.doesNotMatch(workflow, /wrangler d1 execute/);
   assert.match(workflow, /TEST_DB bootstrap\/invite lookup expected 401/);
+  assert.match(workflow, /LIVE_CASH_TEST_SMOKE_CODE/);
+  assert.match(workflow, /Issued test invite expected 200/);
   assert.match(workflow, /x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA/);
   assert.match(workflow, /d1\[0\]\?\.binding !== "TEST_DB"/);
   assert.match(workflow, /binding === "DB"/);
+  assert.match(smoke, /Вход для тестирования/);
+  assert.match(smoke, /Test invite gate exposed primary navigation before a code was accepted/);
+  assert.match(smoke, /live-cash-os:portable-profile-code/);
 });
