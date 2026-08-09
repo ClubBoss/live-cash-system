@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const crossBrowserCritical = /cross-browser-critical\.spec\.mjs/;
+
 export default defineConfig({
   testDir: "./e2e",
   timeout: 60_000,
@@ -13,9 +15,15 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
+    // Chromium remains the canonical full desktop regression suite.
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    // Firefox/WebKit exercise the critical learner surface only. Cloudflare API,
+    // offline and recovery semantics remain covered by the canonical Chromium/W9
+    // suite; running those Node/Vinext server routes under WebKit can hit the
+    // `cloudflare:` runtime scheme rather than testing browser compatibility.
+    { name: "firefox", testMatch: crossBrowserCritical, use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", testMatch: crossBrowserCritical, use: { ...devices["Desktop Safari"] } },
+    // Mobile Chromium keeps the existing full mobile/project-specific coverage.
     { name: "mobile", use: { ...devices["Pixel 5"] } },
   ],
   webServer: {
