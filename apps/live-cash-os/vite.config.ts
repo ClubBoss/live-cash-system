@@ -64,6 +64,9 @@ export default defineConfig(async () => {
   }
 
   return {
+    define: {
+      __LIVE_CASH_TEST_INVITE_MODE__: JSON.stringify(isTestMirrorDeploy),
+    },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,

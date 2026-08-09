@@ -40,18 +40,27 @@ test("invite generator emits the requested labels, opaque codes, and hash-only S
 });
 
 test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", async () => {
-  const [viteConfig, stateRoute, db] = await Promise.all([
+  const [viteConfig, stateRoute, db, gate, page] = await Promise.all([
     readFile(new URL("../vite.config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../db/index.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/TestInviteGate.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(viteConfig, /binding:\s*"TEST_DB"/);
   assert.match(viteConfig, /TEST_INVITE_MODE:\s*"true"/);
+  assert.match(viteConfig, /__LIVE_CASH_TEST_INVITE_MODE__/);
   assert.doesNotMatch(viteConfig, /testMirrorWorkerConfig[\s\S]*binding:\s*d1/);
   assert.match(stateRoute, /eq\(testInvites\.codeHash, profile\.codeHash\)/);
   assert.match(stateRoute, /isTestInviteMode\(\)[\s\S]*ensureTestMirrorSchema\(\)[\s\S]*activeTestInvite/);
   assert.match(db, /TEST_DB\?: D1Database/);
   assert.match(db, /bindings\.TEST_DB \?\? bindings\.DB/);
+  assert.match(gate, /if \(!enabled\) return <>\{children\}<\/>/);
+  assert.match(gate, /headers: \{ \[PROFILE_HEADER\]: code \}/);
+  assert.match(gate, /До подтверждения доступ к обучению и локальному прогрессу закрыт/);
+  assert.match(page, /return <TestInviteGate>/);
+  assert.match(page, /<Gauntlet4LearningIntegrityLayer \/>/);
+  assert.match(page, /<\/TestInviteGate>/);
 });
 
 test("isolated TEST_DB bootstrap is idempotent, hash-only and production-safe", async () => {
