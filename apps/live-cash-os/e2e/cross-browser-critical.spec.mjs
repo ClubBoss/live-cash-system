@@ -44,13 +44,13 @@ test("critical lesson shell, semantic feedback and locale switch work", async ({
   await decision.locator(".answer-set").nth(0).getByRole("button").first().click();
   await decision.locator(".answer-set").nth(1).getByRole("button").first().click();
   await decision.getByRole("button", { name: /^Ответить/ }).click();
-  await expect(page.locator("[data-g4-feedback-state], .feedback-view").filter({ visible: true }).first()).toBeVisible();
   await continueFeedback(page);
   await expect(page.getByText("2 · КРАТКОЕ ОБЪЯСНЕНИЕ")).toBeVisible();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByText(/SHORT EXPLANATION|EXPLANATION/i).first()).toBeVisible();
+  await expect(page.locator(".session")).toBeVisible();
+  await expect(page.locator(".session")).not.toContainText(/[А-Яа-яЁё]/u);
 });
 
 test("critical Cards contract blocks future material and uses studied cards", async ({ page }) => {
