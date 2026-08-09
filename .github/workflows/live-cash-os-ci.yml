@@ -60,6 +60,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Upload Wave A screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-wave-a-evidence
+          path: apps/live-cash-os/test-results/post-tester-wave-a
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Upload browser evidence on failure
         if: failure()
         uses: actions/upload-artifact@v7
