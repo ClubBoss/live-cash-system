@@ -33,8 +33,8 @@ jobs:
       run:
         working-directory: apps/live-cash-os
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22.13.0
           cache: npm
@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload release gate log
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-cash-os-release-gate-log
           path: apps/live-cash-os/release-gate.log
@@ -62,7 +62,7 @@ jobs:
 
       - name: Upload browser evidence on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-cash-os-playwright-evidence
           path: |
@@ -79,10 +79,10 @@ jobs:
       run:
         working-directory: apps/live-cash-os
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22.13.0
           cache: npm
@@ -130,7 +130,7 @@ jobs:
           npm run smoke:production
       - name: Upload test-mirror smoke evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-cash-os-test-mirror-smoke
           path: apps/live-cash-os/smoke-evidence
