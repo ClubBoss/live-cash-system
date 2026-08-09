@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { APP_VERSION, CONTENT_VERSION, STATE_SCHEMA_VERSION, saveActiveSession, type LocaleCode } from "../lib/model";
+import { APP_VERSION, CONTENT_VERSION, STATE_SCHEMA_VERSION, saveActiveSession, type LearnerState, type LocaleCode } from "../lib/model";
 import { buildSafeDebugSummary } from "../lib/reliability";
 import type { RecoveryCode, ReliableLearnerStateController, SyncStatus } from "../lib/use-learner-state-sync";
 
@@ -89,6 +89,24 @@ function recoveryMessage(locale: LocaleCode, code: Exclude<RecoveryCode, null>) 
     ],
   };
   return messages[code][ru ? 0 : 1];
+}
+
+function progressSnapshot(value: LearnerState | null, locale: LocaleCode) {
+  if (!value) return null;
+  const now = Date.now();
+  const completedLessons = Object.values(value.modules).filter((module) => module.contentCompleted).length;
+  const dueItems = value.reviewQueue.filter((item) => Date.parse(item.dueAt) <= now).length;
+  const active = value.activeSession
+    ? `${value.activeSession.mode} · ${value.activeSession.moduleId}`
+    : locale === "ru" ? "нет" : "none";
+  return {
+    updated: new Date(value.updatedAt).toLocaleString(locale === "ru" ? "ru-RU" : "en-US"),
+    revision: value.revision,
+    completedLessons,
+    dueItems,
+    hands: value.fieldNotes.length,
+    active,
+  };
 }
 
 export default function DataSafetyPanel({
@@ -207,6 +225,8 @@ export default function DataSafetyPanel({
     online: typeof navigator === "undefined" ? true : navigator.onLine,
     lastErrorCode,
   });
+  const localConflictSummary = conflict ? progressSnapshot(conflict.local, locale) : null;
+  const cloudConflictSummary = conflict ? progressSnapshot(conflict.remote, locale) : null;
 
   return <section className="surface">
     <div className="section-head">
@@ -254,7 +274,29 @@ export default function DataSafetyPanel({
 
     {conflict && <div className="counterexample">
       <b>{ru ? "Обнаружены две разные версии прогресса" : "Two different progress versions were found"}</b>
-      <p>{ru ? "Ни одна версия не была автоматически отброшена. Выбери, какую сделать основной." : "Neither version was discarded automatically. Choose which copy should become authoritative."}</p>
+      <p>{ru ? "Ни одна версия не была автоматически отброшена. Сначала сравни ключевые факты, затем выбери, какую сделать основной." : "Neither version was discarded automatically. Compare the key facts first, then choose which copy should become authoritative."}</p>
+      <div className="compare-lab" aria-label={ru ? "Сравнение версий прогресса" : "Progress version comparison"}>
+        {localConflictSummary && <article>
+          <b>{ru ? "Эта копия" : "This device copy"}</b>
+          <p>{ru ? "Обновлено" : "Updated"}: {localConflictSummary.updated}</p>
+          <p>Revision: {localConflictSummary.revision}</p>
+          <p>{ru ? "Уроки" : "Lessons"}: {localConflictSummary.completedLessons}/11</p>
+          <p>{ru ? "Срочные повторы" : "Due items"}: {localConflictSummary.dueItems}</p>
+          <p>{ru ? "Реальные руки" : "Real hands"}: {localConflictSummary.hands}</p>
+          <p>{ru ? "Сохранённая сессия" : "Saved session"}: {localConflictSummary.active}</p>
+        </article>}
+        <article>
+          <b>{ru ? "Облачная копия" : "Cloud copy"}</b>
+          {cloudConflictSummary ? <>
+            <p>{ru ? "Обновлено" : "Updated"}: {cloudConflictSummary.updated}</p>
+            <p>Revision: {cloudConflictSummary.revision}</p>
+            <p>{ru ? "Уроки" : "Lessons"}: {cloudConflictSummary.completedLessons}/11</p>
+            <p>{ru ? "Срочные повторы" : "Due items"}: {cloudConflictSummary.dueItems}</p>
+            <p>{ru ? "Реальные руки" : "Real hands"}: {cloudConflictSummary.hands}</p>
+            <p>{ru ? "Сохранённая сессия" : "Saved session"}: {cloudConflictSummary.active}</p>
+          </> : <p>{ru ? "Облачная версия недоступна для чтения; не выбирай её как основную." : "The cloud copy is not readable; do not choose it as authoritative."}</p>}
+        </article>
+      </div>
       <div className="button-row">
         <button className="secondary" disabled={!conflict.remote} onClick={useCloudConflict}>{ru ? "Использовать облачную" : "Use cloud copy"}</button>
         <button className="secondary" onClick={() => void keepLocalConflict()}>{ru ? "Оставить эту копию" : "Keep this device copy"}</button>
