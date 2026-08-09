@@ -1,40 +1,86 @@
-name: One-time final review-lock patch
+name: Final Red-Team exact-final evidence
+
 on:
   push:
     branches: [repair/final-red-team-closure]
+
 permissions:
   contents: write
+
 jobs:
-  patch-locks:
+  finalize:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    outputs:
+      final_sha: ${{ steps.freeze.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: repair/final-red-team-closure
-      - name: Refresh final learner-facing locks
-        shell: python
+          fetch-depth: 0
+      - name: Remove temporary harness and freeze branch
+        id: freeze
         run: |
-          from pathlib import Path
-          p = Path('apps/live-cash-os/content/i18n/editorial-manifest.json')
-          s = p.read_text()
-          replacements = {
-            '"review_corpus_fingerprint": "1ac30590c141675df537ecd62b1af17b4bcfe35c1d09cf2938ea9f846c4cba0d"': '"review_corpus_fingerprint": "dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e"',
-            '"components/LiveCashAppCore.tsx": "154adadeeacfc545e2c229c6de63b2bb1c0c1566"': '"components/LiveCashAppCore.tsx": "7b08417227d8b58cbc673715c029307bd4a9568a"',
-            '"components/Wave5PracticeLayer.tsx": "efc1ef0a8c701738fa209c6fec417c53225a3a17"': '"components/Wave5PracticeLayer.tsx": "fdd89b8bf9d775ca223f1a10b35fcc90a909afe9"',
-            '"components/Wave7Experience.tsx": "6f8c0ede33a0dee264229aec184c12a5d3f2cdc7"': '"components/Wave7Experience.tsx": "efb0f2f79e837aa0e390ac64e5aed26285a27eaf"',
-            '"note": "W1-W9 implementation plus Active Learning Closure and the pre-W10 route optimization are materialized on the current candidate lineage. The canonical curriculum digest and poker corpus are unchanged; this fingerprint locks the current learner-facing presentation, evidence-hygiene copy, audited hard-prerequisite gating copy, public cross-device profile copy, and W5 lab render closure. Strategy, drill, route-delta and exact final RU/EN human review remain pending. This candidate does not claim human approval."': '"note": "G1-G3 and Final Red-Team Closure learner-facing presentation are materialized on the current candidate lineage. The canonical curriculum digest and poker corpus are unchanged; this fingerprint locks the exact post-closure learner-facing source inventory, including the refreshed Wave5, Wave7 and core presentation surfaces. Strategy, drill and exact final RU/EN human review remain pending. This candidate does not claim human approval."',
-          }
-          for old, new in replacements.items():
-            if s.count(old) != 1:
-              raise SystemExit(f'expected one match: {old}')
-            s = s.replace(old, new)
-          p.write_text(s)
-      - name: Verify and commit
-        run: |
-          git diff --check
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/live-cash-os/content/i18n/editorial-manifest.json
-          git commit -m "chore(editorial): refresh final red-team review locks"
+          git rm .github/workflows/rc-review-lock-patch.yml
+          git commit -m "chore: remove one-time final closure harness"
           git push origin HEAD:repair/final-red-team-closure
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "sha=${FINAL_SHA}" >> "$GITHUB_OUTPUT"
+          echo "Exact final SHA: ${FINAL_SHA}"
+          test ! -e .github/workflows/rc-review-lock-patch.yml
+          git diff --exit-code
+
+  release:
+    needs: finalize
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.finalize.outputs.final_sha }}
+      - name: Verify exact final SHA
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ needs.finalize.outputs.final_sha }}"
+          echo "Release SHA: $(git rev-parse HEAD)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Exact-final release gate
+        run: npm run test:release
+
+  cross-browser:
+    needs: [finalize, release]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.finalize.outputs.final_sha }}
+      - name: Verify exact final SHA
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ needs.finalize.outputs.final_sha }}"
+          echo "Cross-browser SHA: $(git rev-parse HEAD)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium Firefox and WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Exact-final six-project matrix
+        run: npx playwright test e2e/wave8-ux.spec.mjs --config=playwright.cross-browser.config.mjs
