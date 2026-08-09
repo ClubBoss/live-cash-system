@@ -137,4 +137,12 @@ npm run test:e2e
 - GitHub Actions runs the release gate for changes under this app.
 - An `accepted` label is forbidden until automated gates and the live-site smoke test pass.
 
+## Mobile test mirror
+
+The ChatGPT Sites production URL remains separate from the Cloudflare Workers test mirror. On a push to `main`, the existing GitHub Actions workflow runs `npm run test:release`; only a green `validate` job may deploy the same SHA as Worker `live-cash-os-mobile-test` to its stable `workers.dev` URL.
+
+The mirror intentionally has no D1 binding. Anonymous/mobile testing uses localStorage; it never reads, migrates or writes the production D1 database. The deployment job requires GitHub Secrets named `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then logs the URL, SHA and UTC deployment time and runs the production smoke suite against that URL.
+
+Rollback: run the existing workflow for a previous known-good `main` commit after checking out that SHA in a temporary branch and merging the accepted rollback to `main`. The next green release gate deploys that accepted SHA to the same Worker URL. Do not use this mechanism to deploy an unaccepted commit.
+
 After the six-wave platform DoD, router thresholds and review intervals must not be tuned further without real learner, delayed-recall and field evidence.
