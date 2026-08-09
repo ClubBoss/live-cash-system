@@ -34,13 +34,20 @@ const localBindingConfig = {
     : [],
 };
 
-// The Workers test mirror is intentionally storage-free. Its build must not
-// inherit the Sites packaging or the placeholder D1 binding used by local
-// Sites development.
-const testMirrorWorkerConfig = {
+function testMirrorWorkerConfig(databaseId: string) {
+  return {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
-};
+    // Deliberately a different binding name: the production Sites `DB`
+    // binding is neither read nor emitted in this Workers configuration.
+    d1_databases: [{
+      binding: "TEST_DB",
+      database_name: "live-cash-os-mobile-test-state",
+      database_id: databaseId,
+    }],
+    vars: { TEST_INVITE_MODE: "true" },
+  };
+}
 
 export default defineConfig(async () => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
@@ -51,6 +58,10 @@ export default defineConfig(async () => {
 
   const isTestMirrorDeploy =
     process.env.LIVE_CASH_DEPLOY_TARGET === "test-mirror";
+  const testDatabaseId = process.env.LIVE_CASH_TEST_D1_DATABASE_ID;
+  if (isTestMirrorDeploy && !testDatabaseId) {
+    throw new Error("LIVE_CASH_TEST_D1_DATABASE_ID is required for the test mirror.");
+  }
 
   return {
     server: isCodexSeatbeltSandbox
@@ -62,7 +73,7 @@ export default defineConfig(async () => {
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         config: isTestMirrorDeploy
-          ? testMirrorWorkerConfig
+          ? testMirrorWorkerConfig(testDatabaseId!)
           : localBindingConfig,
       }),
     ],
