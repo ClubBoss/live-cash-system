@@ -34,19 +34,3 @@ export function selectLessonDrillIds(module: RetrievalModule): string[] {
 
   return [core.id, ...applications.map((drill) => drill.id)];
 }
-
-export function applyLessonIntegrityOrdering(modules: RetrievalModule[]): void {
-  for (const module of modules) {
-    const desired = selectLessonDrillIds(module);
-    if (desired.length < 3 || !LESSON_APPLICATION_OVERRIDES[module.id]) continue;
-    const rank = new Map(desired.map((drillId, index) => [drillId, index]));
-    module.drills.sort((left, right) => {
-      const leftRank = rank.get(left.id);
-      const rightRank = rank.get(right.id);
-      if (leftRank !== undefined || rightRank !== undefined) {
-        return (leftRank ?? Number.MAX_SAFE_INTEGER) - (rightRank ?? Number.MAX_SAFE_INTEGER);
-      }
-      return 0;
-    });
-  }
-}

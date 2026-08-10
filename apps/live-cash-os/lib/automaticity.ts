@@ -1,6 +1,4 @@
-import { modules } from "../content/modules";
 import type { LearnerState, LearningMode, ReviewItem } from "./model-core";
-import { applyLessonIntegrityOrdering } from "./retrieval-integrity";
 import {
   planDailyTraining,
   type DailyPlan,
@@ -15,12 +13,6 @@ const DAY_MS = 86_400_000;
 export const HIGH_CONFIDENCE_WRONG_THRESHOLD = 75;
 export const RETENTION_CHAIN_DAYS = [1, 3, 7] as const;
 export const TABLE_BURST_SIZE = 8;
-
-// LiveCashAppCore still derives lesson applications from module drill order. Keep
-// the bounded leak repairs in a pure policy module, then apply that order before
-// the app builds its scheduler catalog or opens a lesson. Drill identity and
-// poker content are unchanged.
-applyLessonIntegrityOrdering(modules);
 
 function hash(value: string): number {
   let result = 2166136261;

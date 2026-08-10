@@ -136,7 +136,24 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   if (latest.actionOk && latest.reasonOk) {
     // Exact-repeat recall may remain useful maintenance practice, but it is not
     // strong delayed-retention evidence and does not advance the 1d/3d/7d chain.
-    if (exactReviewRepeat) return next;
+    // Keep the current stage alive so a later non-identical review can still
+    // provide the missing independent evidence instead of silently dead-ending.
+    if (exactReviewRepeat) {
+      const retryDelayMs = nextRetentionDelayMs(priorSuccessfulStages);
+      if (retryDelayMs !== null) {
+        next.reviewQueue = next.reviewQueue.filter((item) => item.id !== reviewItem.id);
+        next.reviewQueue.push({
+          ...reviewItem,
+          sourceInteractionId: latest.id,
+          sourceDrillId: input.drillId,
+          sourceActionOptionId: input.selectedActionOptionId,
+          sourceReasonOptionId: input.selectedReasonOptionId,
+          dueAt: new Date(Date.now() + retryDelayMs).toISOString(),
+          attempts: priorSuccessfulStages,
+        });
+      }
+      return next;
+    }
 
     const completedSuccessfulStages = priorSuccessfulStages + 1;
     const nextDelayMs = nextRetentionDelayMs(completedSuccessfulStages);

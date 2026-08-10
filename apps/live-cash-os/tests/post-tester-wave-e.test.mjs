@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
+import { diagnosticT1 } from "../content/diagnostic.ts";
+import { applyLocaleData } from "../content/i18n/locale-pipeline.ts";
+import { diagnosticEnglish } from "../content/i18n/runtime.ts";
+import { moduleById } from "../content/modules.ts";
 import { selectRetentionDrillId } from "../lib/automaticity.ts";
 import { emptyLearnerState, recordDecision } from "../lib/model.ts";
+import { selectLessonDrillIds } from "../lib/retrieval-integrity.ts";
 
 const DAY = 86_400_000;
 const T0 = Date.parse("2026-08-10T12:00:00.000Z");
@@ -81,7 +87,7 @@ test("non-identical delayed review can create retention and admitted transfer ev
   assert.equal(state.modules.geometry.evidence.variant_transfer.successes, 1);
 });
 
-test("exact delayed repeat is maintenance, not strong retention or transfer evidence", (t) => {
+test("exact delayed repeat is maintenance, keeps its stage, and does not create strong evidence", (t) => {
   enableClock(t);
   let state = recordDecision(emptyLearnerState(), geoDecision());
   const review = state.reviewQueue.find((item) => item.kind === "retention");
@@ -97,7 +103,38 @@ test("exact delayed repeat is maintenance, not strong retention or transfer evid
   assert.equal(state.modules.geometry.evidence.retention.successes, 0);
   assert.equal(state.modules.geometry.evidence.variant_transfer.exposures, 0);
   assert.equal(state.modules.geometry.evidence.variant_transfer.successes, 0);
-  assert.equal(state.reviewQueue.some((item) => item.id === review.id), false);
+  const retry = state.reviewQueue.find((item) => item.id === review.id && item.kind === "retention");
+  assert.ok(retry);
+  assert.equal(retry.attempts, review.attempts);
+  assert.equal(Date.parse(retry.dueAt), T0 + 2 * DAY);
+});
+
+test("exact maintenance does not dead-end a later non-identical retention proof", (t) => {
+  enableClock(t);
+  let state = recordDecision(emptyLearnerState(), geoDecision());
+  const review = state.reviewQueue.find((item) => item.kind === "retention");
+  assert.ok(review);
+
+  t.mock.timers.setTime(T0 + DAY);
+  state = recordDecision(state, geoDecision({ mode: "review", sourceReviewId: review.id }));
+  const retry = state.reviewQueue.find((item) => item.id === review.id && item.kind === "retention");
+  assert.ok(retry);
+  assert.equal(retry.attempts, 0);
+
+  t.mock.timers.setTime(T0 + 2 * DAY);
+  state = recordDecision(state, geoDecision({
+    drillId: "geo-05",
+    nodeKey: "nominal-400bb-compressed",
+    mode: "review",
+    sourceReviewId: retry.id,
+  }));
+
+  assert.equal(state.modules.geometry.evidence.retention.exposures, 1);
+  assert.equal(state.modules.geometry.evidence.retention.successes, 1);
+  const nextStage = state.reviewQueue.find((item) => item.id === review.id && item.kind === "retention");
+  assert.ok(nextStage);
+  assert.equal(nextStage.attempts, 1);
+  assert.equal(Date.parse(nextStage.dueAt), T0 + 5 * DAY);
 });
 
 test("future transfer policy preserves grandfathered historical aggregate evidence", (t) => {
@@ -168,4 +205,62 @@ test("singleton with only unrelated alternatives repeats for maintenance instead
     sourceInteractionId: "source",
   };
   assert.equal(selectRetentionDrillId(item, catalog, "maintenance"), "pre-01");
+});
+
+test("lesson substitutions are pure and leave canonical drill order untouched", () => {
+  const expected = {
+    geometry: ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"],
+    blinds: ["bli-01", "bli-02", "bli-03", "bli-04", "bli-05"],
+    shape: ["sha-01", "sha-02", "sha-03", "sha-04", "sha-05"],
+  };
+
+  for (const [moduleId, ids] of Object.entries(expected)) {
+    assert.deepEqual(moduleById[moduleId].drills.map((drill) => drill.id), ids);
+  }
+
+  assert.deepEqual(selectLessonDrillIds(moduleById.geometry), ["geo-01", "geo-05", "geo-02"]);
+  assert.deepEqual(selectLessonDrillIds(moduleById.blinds), ["bli-01", "bli-02", "bli-04"]);
+  assert.deepEqual(selectLessonDrillIds(moduleById.shape), ["sha-01", "sha-02", "sha-05"]);
+
+  for (const [moduleId, ids] of Object.entries(expected)) {
+    assert.deepEqual(moduleById[moduleId].drills.map((drill) => drill.id), ids);
+  }
+});
+
+test("lesson selector preserves the default composition outside bounded overrides", () => {
+  const module = {
+    id: "other",
+    drills: [
+      { id: "o-01", kind: "core" },
+      { id: "o-02", kind: "changed" },
+      { id: "o-03", kind: "boundary" },
+      { id: "o-04", kind: "changed" },
+    ],
+  };
+  assert.deepEqual(selectLessonDrillIds(module), ["o-01", "o-02", "o-03"]);
+});
+
+test("openLesson is the only lesson-ordering integration point", () => {
+  const source = readFileSync(new URL("../components/LiveCashAppCore.tsx", import.meta.url), "utf8");
+  assert.match(source, /import \{ selectLessonDrillIds \} from "\.\.\/lib\/retrieval-integrity";/u);
+  assert.match(source, /const lessonDrillIds = selectLessonDrillIds\(module\);/u);
+  assert.match(source, /startBoundSession\(startSession\(state, "lesson", moduleId, lessonDrillIds\), origin\);/u);
+  assert.doesNotMatch(source, /applyLessonIntegrityOrdering/u);
+});
+
+test("diagnostic labels stay neutral in both locales without changing stable IDs", () => {
+  const ids = diagnosticT1.map((item) => item.id);
+
+  applyLocaleData("ru");
+  assert.deepEqual(
+    diagnosticT1.map((item) => item.title),
+    ids.map((_, index) => `Диагностический спот ${index + 1}`),
+  );
+
+  applyLocaleData("en");
+  assert.deepEqual(
+    ids.map((id) => diagnosticEnglish[id].title),
+    ids.map((_, index) => `Diagnostic spot ${index + 1}`),
+  );
+  assert.deepEqual(diagnosticT1.map((item) => item.id), ids);
 });
