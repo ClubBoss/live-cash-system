@@ -1140,7 +1140,7 @@ function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode;
   const t = runtimeCopy[locale];
   const role = locale === "ru"
     ? "Прогресс показывает состояние темы, реальные попытки и следующий шаг. Отдельные доли — это история наблюдений, а не общий процент освоения навыка."
-    : "Progress shows the topic state, actual attempts, and next step. Per-dimension ratios are observation history, not an overall skill-status percentage.";
+    : "Progress shows the topic state, actual attempts, and the next step. Per-dimension ratios are observation history, not an overall skill-status percentage.";
   return <section className="surface">
     <div className="section-head"><p className="eyebrow">{t.skillMap}</p><h1>{t.mapTitle}<br/><em>{t.mapEmphasis}</em></h1><p>{role}</p></div>
     <div className="map-grid">{modules.map((source) => {
