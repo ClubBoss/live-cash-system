@@ -18,6 +18,9 @@ Object.assign(runtimeCopy.ru, {
   postLearning: "ТЕКУЩАЯ ДИАГНОСТИКА · T1",
   warmupTitle: "Быстрая разминка · до 2 минут",
   warmupDescription: "Одно знакомое решение из недавней ошибки и до двух уже изученных карточек.",
+  finishLesson: "Открыть итог урока",
+  lessonFinished: "Итог урока",
+  saveReturn: "Завершить урок и вернуться",
 });
 
 Object.assign(runtimeCopy.en, {
@@ -28,6 +31,9 @@ Object.assign(runtimeCopy.en, {
   postLearning: "CURRENT DIAGNOSTIC · T1",
   warmupTitle: "Quick warm-up · up to 2 minutes",
   warmupDescription: "One familiar decision from a recent miss and up to two cards you have already studied.",
+  finishLesson: "Open lesson summary",
+  lessonFinished: "Lesson summary",
+  saveReturn: "Complete lesson and return",
 });
 
 /**
