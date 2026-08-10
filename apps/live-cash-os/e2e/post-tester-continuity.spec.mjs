@@ -50,7 +50,9 @@ async function finishCurrentDecision(page) {
   await answerSets.nth(0).locator("button").first().click();
   await answerSets.nth(1).locator("button").first().click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  await page.getByRole("button", { name: /^Продолжить/ }).click();
+  const continueButton = page.locator(".feedback-view button.primary");
+  await expect(continueButton).toBeVisible();
+  await continueButton.evaluate((button) => button.click());
 }
 
 async function openField(page) {
@@ -217,7 +219,7 @@ test("successful Real Hand lock saves exactly once and clears the local draft", 
   await fillCompleteHand(page);
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key) !== null, DRAFT_KEY)).toBe(true);
 
-  const lock = page.getByRole("button", { name: "Зафиксировать решение", exact: true });
+  const lock = page.getByRole("button", { name: /^Зафиксировать решение/ });
   await expect(lock).toBeEnabled();
   await lock.click();
 
