@@ -1,10 +1,10 @@
 # Live Cash OS — Release Status
 
-Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / VERSION_1_2_0_CANDIDATE / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 ## Current truth
 
-Final Red-Team, Gauntlets 1–4 and Post-Tester Waves A/B/C are integrated implementation history. The `1.2.0` version in this branch is a release candidate only; it does not create human approval, W10 evidence, a Git tag, test-mirror deployment proof for this candidate, or stable-production publication.
+Final Red-Team, Gauntlets 1–4 and Post-Tester Waves A/B/C are integrated implementation history. App version `1.2.0` labels the A/B/C implementation checkpoint; this label does not create human approval, W10 evidence or stable-production publication. Whether tag `v1.2.0` exists and which commit it identifies is authoritative from Git refs; tag creation is allowed only after exact-main CI, test-mirror deploy and live smoke pass.
 
 Canonical source gate:
 
@@ -12,7 +12,7 @@ Canonical source gate:
 
 Exact commit and run identities live in immutable Git/GitHub Actions history rather than this status file.
 
-## v1.2.0 post-tester candidate
+## v1.2.0 post-tester checkpoint
 
 The candidate groups the accepted tester-driven delta without changing learning semantics:
 
@@ -22,7 +22,7 @@ The candidate groups the accepted tester-driven delta without changing learning 
 
 Feature freeze is active. Further product changes require empirical real-use evidence, except independently verified P0/P1 defects. This is implementation-complete **for real-use validation**, not evidence that retention, mastery or field transfer have been empirically validated.
 
-`v1.2.0` tag: **NOT CREATED** in the candidate branch.
+`v1.2.0` tag identity: **consult Git refs**; policy requires exact-main CI, test-mirror deploy and live smoke before creation.
 
 
 ## Post-integration integrity contract

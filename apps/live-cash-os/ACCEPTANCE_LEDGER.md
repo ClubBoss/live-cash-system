@@ -1,6 +1,6 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / VERSION_1_2_0_CANDIDATE / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 This ledger records the current acceptance boundary. Automated implementation evidence may reject a bad change; it cannot create human strategy, drill, Russian or English approval.
 
@@ -10,7 +10,7 @@ Final Red-Team and Gauntlets 1–4 are integrated implementation history. Their 
 
 Earlier bounded dispositions remain historical implementation dispositions only:
 
-Post-Tester Waves A/B/C are accepted and integrated implementation work. The `1.2.0` version in this branch is only a candidate checkpoint; it does not satisfy human review, W10 or W11. Feature freeze now rejects unsupported synthetic feature work by default: reopening requires empirical real-use evidence or an independently verified P0/P1 defect.
+Post-Tester Waves A/B/C are accepted and integrated implementation work. App version `1.2.0` labels this implementation checkpoint; tag presence and identity remain authoritative from Git refs and do not satisfy human review, W10 or W11. Feature freeze rejects unsupported synthetic feature work by default: reopening requires empirical real-use evidence or an independently verified P0/P1 defect.
 
 - W1 historical implementation disposition: `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`.
 - W5 historical implementation disposition: `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`.

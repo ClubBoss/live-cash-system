@@ -4,7 +4,7 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: post_tester_abc_complete_v1_2_candidate_feature_freeze
+  phase: post_tester_abc_complete_v1_2_feature_freeze_real_use_ready
   updated_at: '2026-08-10T14:15:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash trainer for live 1/3 and 2/5 while preserving evidence truth.
@@ -28,7 +28,7 @@ repository_identity:
   gauntlet_4_status: INTEGRATED
   post_integration_integrity_status: INTEGRATED
   post_tester_abc_status: IMPLEMENTATION_COMPLETE
-  version_1_2_0_status: CANDIDATE_NOT_MERGED_NOT_TAGGED
+  version_1_2_0_status: APP_VERSION_SET_TAG_IDENTITY_FROM_GIT
   feature_freeze: true
   current_main_identity_authority: git_and_github_actions
   exact_current_main_sha_embedded_here: false
@@ -107,10 +107,10 @@ learner_runtime_truth:
   immediate_correct_is_retention: false
   global_progress_reset: false
 active_milestone:
-  name: v1_2_0_candidate_real_use_validation_ready
+  name: real_use_validation_ready
 truth_boundaries:
 - implementation-complete for real-use validation is not empirical validation
-- version 1.2.0 candidate is not tagged or deployed until exact-main post-merge gates pass
+- v1.2.0 tag may identify only an exact-main commit after CI, test-mirror deploy and smoke pass; tag presence is authoritative from Git refs
 - further product changes require empirical real-use evidence or an independently verified P0/P1 defect
 - source green is not production green
 - test-mirror green is not stable-production green
