@@ -6,7 +6,7 @@ async function source(relativePath) {
   return readFile(new URL(`../${relativePath}`, import.meta.url), "utf8");
 }
 
-test("real-use overlays are event-driven and do not hide core content before portals mount", async () => {
+test("real-use overlays avoid interval polling and do not hide core content before portals mount", async () => {
   const [wave5, gauntlet4] = await Promise.all([
     source("components/Wave5PracticeLayer.tsx"),
     source("components/Gauntlet4LearningIntegrityLayer.tsx"),
@@ -14,7 +14,7 @@ test("real-use overlays are event-driven and do not hide core content before por
 
   assert.doesNotMatch(wave5, /setInterval\s*\(/u);
   assert.doesNotMatch(gauntlet4, /setInterval\s*\(/u);
-  assert.match(wave5, /new MutationObserver/u);
+  assert.doesNotMatch(wave5, /MutationObserver/u);
   assert.match(gauntlet4, /new MutationObserver/u);
   assert.doesNotMatch(wave5, /:has\(/u);
   assert.doesNotMatch(gauntlet4, /:has\(/u);
