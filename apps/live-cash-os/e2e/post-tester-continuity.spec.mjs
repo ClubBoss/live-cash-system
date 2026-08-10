@@ -268,7 +268,7 @@ test("successful Real Hand lock saves exactly once, acknowledges local persisten
   expect(saved.note.reason).toBe("Before the result, I wanted to record what I noticed and why I chose the action.");
 
   const events = await page.evaluate(() => window.__waveBStorageEvents);
-  const learnerWriteIndex = events.findIndex((event) => event.kind === "learner-write" && event.revision === saved.note ? false : event.kind === "learner-write");
+  const learnerWriteIndex = events.findIndex((event) => event.kind === "learner-write");
   const draftRemoveIndex = events.findIndex((event) => event.kind === "draft-remove");
   expect(learnerWriteIndex).toBeGreaterThanOrEqual(0);
   expect(draftRemoveIndex).toBeGreaterThan(learnerWriteIndex);
@@ -336,7 +336,7 @@ test("Real Hand draft is isolated from a different portable profile", async ({ p
 
   const storedA = await page.evaluate(({ draftKey, profile }) => {
     const raw = localStorage.getItem(draftKey) ?? "";
-    return { raw, marker: JSON.parse(raw).profileMarker, containsPlaintext: raw.includes(profile) };
+    return { marker: JSON.parse(raw).profileMarker, containsPlaintext: raw.includes(profile) };
   }, { draftKey: DRAFT_KEY, profile: PROFILE_A });
   expect(storedA.containsPlaintext).toBe(false);
   expect(storedA.marker).not.toBe(PROFILE_A);
