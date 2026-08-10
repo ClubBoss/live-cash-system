@@ -22,6 +22,7 @@
     "drills": ["content/i18n/wave3-priority-gold.ts"],
     "language": [
       "content/i18n/geometry-locale.ts",
+      "components/LiveCashApp.tsx",
       "components/LiveCashAppCore.tsx",
       "components/TestInviteGate.tsx",
       "components/Wave5PracticeLayer.tsx",
