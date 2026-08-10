@@ -41,11 +41,28 @@ test("feedback removes correct-answer duplication and exposes one overlay contin
 
 test("valid local learner state renders before cloud reconciliation and writes wait for restore", async () => {
   const sync = await source("lib/use-learner-state-sync.ts");
-  assert.match(sync, /Fast path: a valid local snapshot is durable learner data/u);
-  assert.match(sync, /setReady\(true\)/u);
-  assert.match(sync, /restoreSettled\.current/u);
-  assert.match(sync, /Re-read localStorage after the network wait/u);
-  assert.match(sync, /if \(!restoreSettled\.current/u);
+
+  const localHydrationGate = sync.indexOf("const canHydrateLocally = Boolean(localRead.state) || cloudDisabled.current;");
+  const localHydration = sync.indexOf("setLearnerState(localDecision.state);", localHydrationGate);
+  const localReady = sync.indexOf("setReady(true);", localHydrationGate);
+  const remoteFetch = sync.indexOf('fetch("/api/state"', localHydrationGate);
+  assert.ok(localHydrationGate >= 0 && localHydration > localHydrationGate,
+    "valid local learner state must remain an explicit hydration path");
+  assert.ok(localReady > localHydration && remoteFetch > localReady,
+    "local hydration must make the app ready before remote reconciliation fetches state");
+
+  const durableReread = sync.indexOf("const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));");
+  assert.ok(durableReread > remoteFetch,
+    "late reconciliation must re-read durable local learner state after the network wait");
+  assert.match(sync, /latestState\.current\.revision > durableRevision/u);
+  assert.match(sync, /chooseRestoreState\(currentLocalRead, remote\)/u);
+
+  const persistenceEffect = sync.indexOf("const serialized = JSON.stringify(state);");
+  const restoreGate = sync.indexOf("if (!restoreSettled.current", persistenceEffect);
+  const cloudSaveTimer = sync.indexOf("saveTimer.current = setTimeout", restoreGate);
+  assert.ok(restoreGate > persistenceEffect && cloudSaveTimer > restoreGate,
+    "cloud writes must stay gated until restore reconciliation has settled");
+
   assert.equal((sync.match(/setSyncStatus\("syncing"\)/gu) ?? []).length, 1,
     "only explicit cloud-enable flow may surface a blocking syncing status");
 });
