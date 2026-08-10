@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  selectIndependentDiagnosticDrillIds,
+  applyLessonIntegrityOrdering,
   selectLessonDrillIds,
 } from "./retrieval-integrity";
 
 const module = (
   id: string,
-  drills: Array<{ id: string; kind: string; changedNode?: string }>,
+  drills: Array<{ id: string; kind: string }>,
 ) => ({ id, drills });
 
 describe("retrieval integrity selectors", () => {
@@ -35,7 +35,7 @@ describe("retrieval integrity selectors", () => {
 
     expect(
       selectLessonDrillIds(
-        module("shallow", [
+        module("shape", [
           { id: "sha-01", kind: "core" },
           { id: "sha-02", kind: "changed" },
           { id: "sha-03", kind: "boundary" },
@@ -58,55 +58,44 @@ describe("retrieval integrity selectors", () => {
     ).toEqual(["o-01", "o-02", "o-03"]);
   });
 
-  it("prefers unseen changed-node variants and spreads diagnostic coverage", () => {
+  it("applies the override without changing drill identity or dropping reserves", () => {
     const modules = [
-      module("a", [
-        { id: "a-core", kind: "core" },
-        { id: "a-changed", kind: "changed", changedNode: "N-1" },
-      ]),
-      module("b", [
-        { id: "b-core", kind: "core" },
-        { id: "b-boundary", kind: "boundary" },
-      ]),
-      module("c", [
-        { id: "c-core", kind: "core" },
-        { id: "c-changed", kind: "changed", changedNode: "N-2" },
+      module("geometry", [
+        { id: "geo-01", kind: "core" },
+        { id: "geo-02", kind: "changed" },
+        { id: "geo-03", kind: "core" },
+        { id: "geo-04", kind: "boundary" },
+        { id: "geo-05", kind: "changed" },
       ]),
     ];
 
-    expect(selectIndependentDiagnosticDrillIds(modules, new Set(["a-changed"]), 3)).toEqual([
-      "c-changed",
-      "b-boundary",
-      "a-core",
+    applyLessonIntegrityOrdering(modules);
+
+    expect(modules[0].drills.map((drill) => drill.id)).toEqual([
+      "geo-01",
+      "geo-05",
+      "geo-02",
+      "geo-03",
+      "geo-04",
     ]);
+    expect(modules[0].drills).toHaveLength(5);
   });
 
-  it("does not replay seen material while enough unseen candidates exist", () => {
+  it("is idempotent across repeated app initialization", () => {
     const modules = [
-      module("a", [
-        { id: "a-core", kind: "core" },
-        { id: "a-changed", kind: "changed", changedNode: "N-1" },
-      ]),
-      module("b", [
-        { id: "b-core", kind: "core" },
-        { id: "b-changed", kind: "changed", changedNode: "N-2" },
+      module("shape", [
+        { id: "sha-01", kind: "core" },
+        { id: "sha-02", kind: "changed" },
+        { id: "sha-03", kind: "boundary" },
+        { id: "sha-04", kind: "boundary" },
+        { id: "sha-05", kind: "changed" },
       ]),
     ];
 
-    expect(selectIndependentDiagnosticDrillIds(modules, new Set(["a-changed"]), 2)).toEqual([
-      "b-changed",
-      "a-core",
-    ]);
-  });
+    applyLessonIntegrityOrdering(modules);
+    const once = modules[0].drills.map((drill) => drill.id);
+    applyLessonIntegrityOrdering(modules);
 
-  it("uses a deterministic replay fallback only when the unseen pool is exhausted", () => {
-    const modules = [
-      module("a", [{ id: "a-core", kind: "core" }]),
-      module("b", [{ id: "b-boundary", kind: "boundary" }]),
-    ];
-
-    expect(
-      selectIndependentDiagnosticDrillIds(modules, new Set(["a-core", "b-boundary"]), 2),
-    ).toEqual(["b-boundary", "a-core"]);
+    expect(modules[0].drills.map((drill) => drill.id)).toEqual(once);
   });
 });
