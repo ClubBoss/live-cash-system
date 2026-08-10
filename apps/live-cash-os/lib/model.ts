@@ -82,6 +82,19 @@ function activeFieldRepairItem(state: LearnerState, moduleId: DrillEvidenceInput
   return repair?.sourceDrillId.startsWith("field:") ? repair : undefined;
 }
 
+function independentTransferEligible(input: DrillEvidenceInput, reviewItem: ReviewItem | undefined): boolean {
+  if (input.mode === "mixed") return true;
+  return input.mode === "review" && reviewItem !== undefined && input.drillId !== reviewItem.sourceDrillId;
+}
+
+function snapshotRetentionEvidence(state: LearnerState, input: DrillEvidenceInput) {
+  const evidence = state.modules[input.moduleId].evidence.retention;
+  return {
+    ...evidence,
+    distinctNodes: [...evidence.distinctNodes],
+  };
+}
+
 export function recordDecision(state: LearnerState, input: DrillEvidenceInput): LearnerState {
   const sourceReviewId = input.mode === "review" || input.mode === "repair"
     ? explicitReviewId(state, input.mode, input.sourceReviewId)
@@ -94,10 +107,12 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   if (input.mode === "review" && sourceReviewId !== undefined && (!reviewItem || reviewItem.moduleId !== input.moduleId)) return state;
   if (input.mode === "repair" && sourceReviewId !== undefined && !repairItem) return state;
 
+  const exactReviewRepeat = reviewItem !== undefined && input.drillId === reviewItem.sourceDrillId;
+  const priorRetentionEvidence = exactReviewRepeat ? snapshotRetentionEvidence(state, input) : null;
   const normalized: DrillEvidenceInput = {
     ...input,
     sourceReviewId,
-    transferProbe: admittedTransferProbe(input),
+    transferProbe: independentTransferEligible(input, reviewItem) ? admittedTransferProbe(input) : null,
   };
   const priorSuccessfulStages = reviewItem ? completedRetentionStages(state, reviewItem) : 0;
 
@@ -109,12 +124,20 @@ export function recordDecision(state: LearnerState, input: DrillEvidenceInput): 
   }
 
   const next = core.recordDecision(state, normalized);
+  if (priorRetentionEvidence) {
+    next.modules[input.moduleId].evidence.retention = priorRetentionEvidence;
+    next.modules[input.moduleId].state = core.deriveModuleState(next.modules[input.moduleId]);
+  }
   if (!reviewItem) return next;
 
   const latest = next.interactions.at(-1);
   if (!latest || latest.mode !== "review") return next;
 
   if (latest.actionOk && latest.reasonOk) {
+    // Exact-repeat recall may remain useful maintenance practice, but it is not
+    // strong delayed-retention evidence and does not advance the 1d/3d/7d chain.
+    if (exactReviewRepeat) return next;
+
     const completedSuccessfulStages = priorSuccessfulStages + 1;
     const nextDelayMs = nextRetentionDelayMs(completedSuccessfulStages);
     if (nextDelayMs !== null) {
