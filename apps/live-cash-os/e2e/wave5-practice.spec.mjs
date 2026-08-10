@@ -40,8 +40,8 @@ async function openGeometryLab(page) {
   await continueSemanticFeedback(page);
 
   await page.getByRole("button", { name: /^Сразу применить/ }).click();
-  await page.getByRole("button", { name: "Игрок со стеком $320" }).click();
-  await page.getByRole("button", { name: "Самый короткий effective stack сильнее всего сжимает пространство решений против него." }).click();
+  await page.getByRole("button", { name: "Глубокий старт может превратиться в низкий SPR уже на флопе" }).click();
+  await page.getByRole("button", { name: "Длина дальнейшего розыгрыша зависит от остатка стека относительно уже построенного банка" }).click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
   await continueSemanticFeedback(page);
 
