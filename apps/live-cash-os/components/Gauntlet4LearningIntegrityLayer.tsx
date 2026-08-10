@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { moduleById } from "../content/modules";
 import type { Drill } from "../content/types";
@@ -116,35 +116,46 @@ function readSnapshot(): IntegritySnapshot {
   }
 }
 
+function quietBackgroundSaveCopy(locale: LocaleCode) {
+  const node = document.querySelector<HTMLElement>("[data-testid='session-save'][data-save-state='saved_syncing']");
+  if (!node) return;
+  const short = locale === "ru" ? "Сохранено" : "Saved";
+  const detail = locale === "ru" ? "Сохранено на устройстве; облако обновляется в фоне." : "Saved on this device; cloud sync continues in the background.";
+  if (node.textContent !== short) node.textContent = short;
+  if (node.title !== detail) node.title = detail;
+}
+
 function useIntegritySnapshot(): IntegritySnapshot {
   const [snapshot, setSnapshot] = useState<IntegritySnapshot>(EMPTY_SNAPSHOT);
   useEffect(() => {
     let frame = 0;
     const sync = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
         const next = readSnapshot();
+        quietBackgroundSaveCopy(next.locale);
         setSnapshot((previous) => sameSnapshot(previous, next) ? previous : next);
-      }));
+      });
     };
     sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     const events: Array<keyof DocumentEventMap> = ["click", "input", "change", "keydown"];
     for (const event of events) document.addEventListener(event, sync, true);
     window.addEventListener("storage", sync);
     window.addEventListener("focus", sync);
-    const timer = window.setInterval(sync, 350);
     return () => {
       cancelAnimationFrame(frame);
+      observer.disconnect();
       for (const event of events) document.removeEventListener(event, sync, true);
       window.removeEventListener("storage", sync);
       window.removeEventListener("focus", sync);
-      window.clearInterval(timer);
     };
   }, []);
   return snapshot;
 }
 
-function useLiveHost(selector: string, enabled: boolean): HTMLElement | null {
+function useLiveHost(selector: string, enabled: boolean, identity: string): HTMLElement | null {
   const [host, setHost] = useState<HTMLElement | null>(null);
   useEffect(() => {
     if (!enabled) {
@@ -156,9 +167,10 @@ function useLiveHost(selector: string, enabled: boolean): HTMLElement | null {
       setHost((previous) => previous === next ? previous : next);
     };
     sync();
-    const timer = window.setInterval(sync, 100);
-    return () => window.clearInterval(timer);
-  }, [selector, enabled]);
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [selector, enabled, identity]);
   return host;
 }
 
@@ -216,7 +228,7 @@ function OrderingExercise({ host, locale, moduleId, startedAt }: {
     correct: "Верно. Порядок собран.",
     wrong: "Порядок пока не собран. Переставь шаги и попробуй ещё раз.",
     revealed: "Показан рабочий порядок. Разбери его и продолжай без тупика.",
-    next: "Сначала решить пример",
+    next: "Перейти к примеру",
   } : {
     eyebrow: "4 · DECISION ORDER",
     title: "Put the steps in working order",
@@ -227,7 +239,7 @@ function OrderingExercise({ host, locale, moduleId, startedAt }: {
     correct: "Correct. The order is complete.",
     wrong: "The order is not complete yet. Reorder the steps and try again.",
     revealed: "The working order is now shown. Review it and continue without a dead end.",
-    next: "Solve the example first",
+    next: "Go to the example",
   };
 
   function checkOrder() {
@@ -271,7 +283,12 @@ function OrderingExercise({ host, locale, moduleId, startedAt }: {
 
 function OrderingPortal({ snapshot }: { snapshot: IntegritySnapshot }) {
   const enabled = snapshot.mode === "lesson" && snapshot.moduleId === "geometry" && snapshot.step === 3;
-  const host = useLiveHost("main .session", enabled);
+  const host = useLiveHost("main .session", enabled, `${snapshot.moduleId}:${snapshot.step}:${snapshot.revision}`);
+  useLayoutEffect(() => {
+    if (!enabled || !host) return;
+    host.classList.add("g4-ordering-active");
+    return () => host.classList.remove("g4-ordering-active");
+  }, [enabled, host]);
   if (!enabled || !host || !snapshot.moduleId) return null;
   return createPortal(
     <OrderingExercise key={`${snapshot.locale}:${snapshot.startedAt}`} host={host} locale={snapshot.locale} moduleId={snapshot.moduleId} startedAt={snapshot.startedAt} />,
@@ -299,15 +316,15 @@ function FeedbackCard({ host, locale, feedback, drill }: {
     reasonCorrectTitle: "Причина верная",
     reasonCorrectSub: "Действие нужно исправить",
     wrongTitle: "Нужно исправить решение",
-    correctPair: "Действие и причина совпали с рабочим решением",
+    correctPair: "Действие и причина верны",
     actionMatch: "Действие совпало",
     reasonMatch: "Причина совпала",
     yoursReason: "Твоя причина",
-    workingReason: "Рабочая причина",
+    workingReason: "Лучше сформулировать так",
     yoursAction: "Твоё действие",
-    workingAction: "Рабочее действие",
+    workingAction: "Лучшее действие здесь",
     yours: "Твой выбор",
-    working: "Рабочий выбор",
+    working: "Лучшее решение здесь",
     action: "Действие",
     reason: "Причина",
     lowConfidence: "Ответ верный, но уверенность была низкой — полезно закрепить механизм, а не только результат.",
@@ -319,15 +336,15 @@ function FeedbackCard({ host, locale, feedback, drill }: {
     reasonCorrectTitle: "Reason is correct",
     reasonCorrectSub: "The action needs correction",
     wrongTitle: "This decision needs correction",
-    correctPair: "Action and reason match the working decision",
+    correctPair: "The action and reason are correct",
     actionMatch: "The action matches",
     reasonMatch: "The reason matches",
     yoursReason: "Your reason",
-    workingReason: "Working reason",
+    workingReason: "A better formulation",
     yoursAction: "Your action",
-    workingAction: "Working action",
+    workingAction: "Best action here",
     yours: "Your choice",
-    working: "Working choice",
+    working: "Best decision here",
     action: "Action",
     reason: "Reason",
     lowConfidence: "The answer is correct, but confidence was low. Reinforce the mechanism, not just the result.",
@@ -361,7 +378,13 @@ function FeedbackCard({ host, locale, feedback, drill }: {
 
 function FeedbackPortal({ snapshot }: { snapshot: IntegritySnapshot }) {
   const enabled = Boolean(snapshot.feedback);
-  const host = useLiveHost("main .session .feedback-view", enabled);
+  const identity = `${snapshot.moduleId}:${feedbackKey(snapshot.feedback)}:${snapshot.revision}`;
+  const host = useLiveHost("main .session .feedback-view", enabled, identity);
+  useLayoutEffect(() => {
+    if (!enabled || !host) return;
+    host.classList.add("g4-feedback-active");
+    return () => host.classList.remove("g4-feedback-active");
+  }, [enabled, host]);
   const drill = snapshot.feedback ? moduleById[snapshot.moduleId ?? "geometry"]?.drills.find((item) => item.id === snapshot.feedback?.drillId) : null;
   if (!enabled || !host || !snapshot.feedback || !drill) return null;
   return createPortal(<FeedbackCard key={`${snapshot.feedback.drillId}:${feedbackKey(snapshot.feedback)}:${snapshot.locale}`} host={host} locale={snapshot.locale} feedback={snapshot.feedback} drill={drill} />, host);
@@ -371,8 +394,8 @@ export default function Gauntlet4LearningIntegrityLayer() {
   const snapshot = useIntegritySnapshot();
   return <>
     <style>{`
-      .session:has(> .g4-ordering) > :not(.session-head):not(.g4-ordering) { display: none !important; }
-      .feedback-view:has(> .g4-feedback-card) > :not(.g4-feedback-card) { display: none !important; }
+      .session.g4-ordering-active > :not(.session-head):not(.g4-ordering) { display: none !important; }
+      .feedback-view.g4-feedback-active > :not(.g4-feedback-card) { display: none !important; }
       .g4-ordering, .g4-feedback-card { display: block; }
       .g4-order-list { display: grid; gap: .65rem; padding-left: 1.4rem; }
       .g4-order-list li { min-height: 52px; display: grid; grid-template-columns: 1fr auto; gap: .75rem; align-items: center; border: 1px solid currentColor; border-radius: 12px; padding: .65rem .75rem; }
