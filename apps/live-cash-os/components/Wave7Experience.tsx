@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { moduleById, modules } from "../content/modules";
 import type { LearnerState, LocaleCode, ModuleId } from "../lib/model";
+import {
+  REAL_HAND_DRAFT_KEY,
+  clearUiStorage,
+  readProfileScopedUiValue,
+  writeProfileScopedUiValue,
+} from "../lib/ui-session-storage";
 import {
   addFieldResult,
   captureFieldHand,
@@ -17,6 +23,9 @@ import {
   type FieldReviewOutcome,
   type StructuredFieldNote,
 } from "../lib/wave7";
+
+const REAL_HAND_DRAFT_TTL_MS = 30 * 24 * 60 * 60 * 1_000;
+const MAX_DRAFT_TEXT = 5_000;
 
 const emptyHand = (): FieldHandInput => ({
   // Deliberately blank: field evidence must never inherit a silent module.
@@ -51,11 +60,112 @@ const REQUIRED_HAND_FIELDS = [
   "reason",
 ] as const satisfies readonly (keyof FieldHandInput)[];
 
+const DRAFT_STRING_FIELDS = [
+  "stakes",
+  "heroPosition",
+  "villainPositions",
+  "effectiveStacks",
+  "straddle",
+  "actionSequence",
+  "board",
+  "sizings",
+  "cue",
+  "action",
+  "reason",
+  "populationRead",
+] as const satisfies readonly (keyof FieldHandInput)[];
+
+type PendingFieldSave = {
+  revision: number;
+  updatedAt: string;
+  noteId: string;
+  previousLocalSaveAt: string | null;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function boundedText(value: unknown): string | null {
+  return typeof value === "string" && value.length <= MAX_DRAFT_TEXT ? value : null;
+}
+
+function validPercent(value: unknown): number | null {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 100 ? value : null;
+}
+
+function parseRealHandDraft(value: unknown): FieldHandInput | null {
+  if (!isRecord(value)) return null;
+  const moduleId = boundedText(value.moduleId);
+  if (moduleId === null || (moduleId !== "" && !(moduleId in moduleById))) return null;
+  const strings = Object.fromEntries(DRAFT_STRING_FIELDS.map((key) => [key, boundedText(value[key])])) as Record<(typeof DRAFT_STRING_FIELDS)[number], string | null>;
+  if (DRAFT_STRING_FIELDS.some((key) => strings[key] === null)) return null;
+  const confidence = validPercent(value.confidence);
+  const populationReadConfidence = validPercent(value.populationReadConfidence);
+  if (confidence === null || populationReadConfidence === null) return null;
+  return {
+    moduleId: moduleId as ModuleId,
+    stakes: strings.stakes!,
+    heroPosition: strings.heroPosition!,
+    villainPositions: strings.villainPositions!,
+    effectiveStacks: strings.effectiveStacks!,
+    straddle: strings.straddle!,
+    actionSequence: strings.actionSequence!,
+    board: strings.board!,
+    sizings: strings.sizings!,
+    cue: strings.cue!,
+    action: strings.action!,
+    reason: strings.reason!,
+    confidence,
+    populationRead: strings.populationRead!,
+    populationReadConfidence,
+  };
+}
+
+function hasDraftContent(hand: FieldHandInput): boolean {
+  return hand.moduleId !== ""
+    || DRAFT_STRING_FIELDS.some((key) => String(hand[key] ?? "").trim() !== "")
+    || hand.confidence !== 65
+    || (hand.populationReadConfidence ?? 50) !== 50;
+}
+
+function readRealHandDraft(): FieldHandInput {
+  return readProfileScopedUiValue(REAL_HAND_DRAFT_KEY, REAL_HAND_DRAFT_TTL_MS, parseRealHandDraft) ?? emptyHand();
+}
+
+function persistRealHandDraft(hand: FieldHandInput): boolean {
+  if (!hasDraftContent(hand)) {
+    clearUiStorage(REAL_HAND_DRAFT_KEY);
+    return true;
+  }
+  return writeProfileScopedUiValue(REAL_HAND_DRAFT_KEY, {
+    ...hand,
+    populationRead: hand.populationRead ?? "",
+    populationReadConfidence: hand.populationReadConfidence ?? 50,
+  });
+}
+
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
     captureTitle: "После игры: сначала сохрани 1–3 руки",
     captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если разбор выявил конкретную ошибку, добавляй работу над ошибкой; обычный Review после этого остаётся отдельным и необязательным. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
     workflow: "Порядок: 1) выбрать связанную тему и сохранить 1–3 руки → 2) разобрать одну → 3) при необходимости назначить практику; отдельный разбор с человеком можно сделать позже.",
+    draftLocalOnly: "Черновик хранится только на этом устройстве. Он не считается прогрессом, доказательством навыка или разбором.",
+    clearDraft: "Очистить черновик и поля",
+    exampleSummary: "Показать пример хорошо записанной руки",
+    exampleDisclaimer: "Это пример формата записи, а не оценка правильности линии.",
+    exampleLines: [
+      "Лимиты: 2/5",
+      "Позиции: Hero BTN, Villain BB",
+      "Эффективный стек: 150bb",
+      "Страддл: без страддла",
+      "Последовательность действий: BTN открывает до $15, BB коллирует; флоп — чек-чек.",
+      "Борд / префлоп: preflop → Qh 7d 4c",
+      "Сайзинги: $15 префлоп",
+      "Что заметил до решения: BB коллировал префлоп; до действия отметил эффективный стек.",
+      "Как сыграл: чек позади.",
+      "Почему — до результата: записал, какой сигнал заметил и почему выбрал именно это действие, не используя результат руки.",
+    ],
     stakes: "Лимиты",
     heroPosition: "Позиция Hero",
     villainPositions: "Позиции релевантных соперников",
@@ -124,6 +234,22 @@ function copy(locale: LocaleCode) {
     captureTitle: "After play: save 1–3 hands first",
     captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward. One hand is an observation, not proof of a frequency or a global player type.",
     workflow: "Order: 1) choose the linked topic and save 1–3 hands → 2) review one → 3) assign mistake practice if needed; a separate human review can happen later.",
+    draftLocalOnly: "This draft is stored only on this device. It is not progress, skill evidence, or a review.",
+    clearDraft: "Clear draft and fields",
+    exampleSummary: "Show an example of a well-recorded hand",
+    exampleDisclaimer: "This is an example of recording format, not an assessment of whether the line is correct.",
+    exampleLines: [
+      "Stakes: 2/5",
+      "Positions: Hero BTN, Villain BB",
+      "Effective stack: 150bb",
+      "Straddle: none",
+      "Action sequence: BTN opens to $15, BB calls; flop checks through.",
+      "Board / preflop: preflop → Qh 7d 4c",
+      "Sizings: $15 preflop",
+      "Cue before acting: BB called preflop; I noted the effective stack before acting.",
+      "Action: checked back.",
+      "Reason before result: I recorded what I noticed and why I chose the action without using the hand result.",
+    ],
     stakes: "Stakes",
     heroPosition: "Hero position",
     villainPositions: "Relevant villain positions",
@@ -236,10 +362,11 @@ export function Wave7ProgressDetails({ locale, state, moduleId }: { locale: Loca
   </div>;
 }
 
-export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fieldFactLabels }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; fieldStatusLabel: (locale: LocaleCode, status: string) => string; fieldFactLabels: (locale: LocaleCode) => { cue: string; action: string; reason: string } }) {
+export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fieldStatusLabel, fieldFactLabels }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; lastLocalSaveAt: string | null; fieldStatusLabel: (locale: LocaleCode, status: string) => string; fieldFactLabels: (locale: LocaleCode) => { cue: string; action: string; reason: string } }) {
   const c = copy(locale);
   const facts = fieldFactLabels(locale);
-  const [hand, setHand] = useState<FieldHandInput>(emptyHand);
+  const [hand, setHand] = useState<FieldHandInput>(() => readRealHandDraft());
+  const [pendingSave, setPendingSave] = useState<PendingFieldSave | null>(null);
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [reviewerKinds, setReviewerKinds] = useState<Record<string, FieldReviewerKind>>({});
   const [resultDrafts, setResultDrafts] = useState<Record<string, string>>({});
@@ -264,14 +391,44 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
   const missingRequired = REQUIRED_HAND_FIELDS.filter((key) => errors.includes(key));
   const completedRequired = REQUIRED_HAND_FIELDS.length - missingRequired.length;
 
+  useEffect(() => {
+    if (!pendingSave || !lastLocalSaveAt || lastLocalSaveAt === pendingSave.previousLocalSaveAt) return;
+    const acknowledgement = Date.parse(lastLocalSaveAt);
+    const target = Date.parse(pendingSave.updatedAt);
+    const notePersistedInController = state.revision >= pendingSave.revision
+      && (state.fieldNotes as StructuredFieldNote[]).some((note) => note.id === pendingSave.noteId);
+    if (!Number.isFinite(acknowledgement) || !Number.isFinite(target) || acknowledgement < target || !notePersistedInController) return;
+    clearUiStorage(REAL_HAND_DRAFT_KEY);
+    setHand(emptyHand());
+    setPendingSave(null);
+  }, [lastLocalSaveAt, pendingSave, state.fieldNotes, state.revision]);
+
   function patch<K extends keyof FieldHandInput>(key: K, value: FieldHandInput[K]) {
-    setHand((current) => ({ ...current, [key]: value }));
+    const next = { ...hand, [key]: value };
+    setHand(next);
+    persistRealHandDraft(next);
+  }
+
+  function clearDraft() {
+    if (pendingSave) return;
+    clearUiStorage(REAL_HAND_DRAFT_KEY);
+    setHand(emptyHand());
   }
 
   function save() {
-    if (errors.length) return;
-    setState(captureFieldHand(state, hand));
-    setHand(emptyHand());
+    if (errors.length || pendingSave) return;
+    if (!persistRealHandDraft(hand)) return;
+    const next = captureFieldHand(state, hand);
+    const previousIds = new Set((state.fieldNotes as StructuredFieldNote[]).map((note) => note.id));
+    const created = (next.fieldNotes as StructuredFieldNote[]).find((note) => !previousIds.has(note.id));
+    if (!created) return;
+    setPendingSave({
+      revision: next.revision,
+      updatedAt: next.updatedAt,
+      noteId: created.id,
+      previousLocalSaveAt: lastLocalSaveAt,
+    });
+    setState(next);
   }
 
   function reviewHand(noteId: string, outcome: FieldReviewOutcome) {
@@ -318,25 +475,34 @@ export function Wave7FieldPanel({ locale, state, setState, fieldStatusLabel, fie
 
     <div className="field-layout">
       <div className="field-form">
-        <label>{c.module}<select value={hand.moduleId} onChange={(event) => patch("moduleId", event.target.value as ModuleId)}><option value="" disabled>{c.chooseModule}</option>{modules.map((module) => <option key={module.id} value={module.id}>{module.lcm} · {module.shortTitle}</option>)}</select></label>
+        <div data-testid="real-hand-draft-tools">
+          <p className="support">{c.draftLocalOnly}</p>
+          <button type="button" className="textbutton" disabled={Boolean(pendingSave)} onClick={clearDraft}>{c.clearDraft}</button>
+        </div>
+        <details data-testid="real-hand-example">
+          <summary>{c.exampleSummary}</summary>
+          <p className="support"><b>{c.exampleDisclaimer}</b></p>
+          {c.exampleLines.map((line) => <p key={line}>{line}</p>)}
+        </details>
+        <label>{c.module}<select data-testid="real-hand-moduleId" value={hand.moduleId} onChange={(event) => patch("moduleId", event.target.value as ModuleId)}><option value="" disabled>{c.chooseModule}</option>{modules.map((module) => <option key={module.id} value={module.id}>{module.lcm} · {module.shortTitle}</option>)}</select></label>
         {moduleMissing && <p className="support">{c.moduleRequired}</p>}
-        <label>{c.stakes}<input value={hand.stakes} onChange={(event) => patch("stakes", event.target.value)} placeholder="1/3, 2/5…" /></label>
-        <label>{c.heroPosition}<input value={hand.heroPosition} onChange={(event) => patch("heroPosition", event.target.value)} placeholder="BTN, BB…" /></label>
-        <label>{c.villainPositions}<input value={hand.villainPositions} onChange={(event) => patch("villainPositions", event.target.value)} placeholder="CO, SB…" /></label>
-        <label>{c.effectiveStacks}<input value={hand.effectiveStacks} onChange={(event) => patch("effectiveStacks", event.target.value)} placeholder="150bb vs BTN" /></label>
-        <label>{c.straddle}<input value={hand.straddle} onChange={(event) => patch("straddle", event.target.value)} placeholder={locale === "ru" ? "без страддла / $10 UTG" : "no straddle / $10 UTG"} /></label>
-        <label>{c.actionSequence}<textarea value={hand.actionSequence} onChange={(event) => patch("actionSequence", event.target.value)} /></label>
-        <label>{c.board}<input value={hand.board} onChange={(event) => patch("board", event.target.value)} placeholder="Qh 7d 4c / preflop" /></label>
-        <label>{c.sizings}<input value={hand.sizings} onChange={(event) => patch("sizings", event.target.value)} placeholder="3bb → 12bb; flop 25%" /></label>
-        <label>{facts.cue}<textarea value={hand.cue} onChange={(event) => patch("cue", event.target.value)} /></label>
-        <label>{facts.action}<textarea value={hand.action} onChange={(event) => patch("action", event.target.value)} /></label>
-        <label>{facts.reason} — {locale === "ru" ? "до результата" : "before the result"}<textarea value={hand.reason} onChange={(event) => patch("reason", event.target.value)} /></label>
-        <label className="confidence">{c.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.confidence}%</b><input type="range" min="0" max="100" step="5" value={hand.confidence} onChange={(event) => patch("confidence", Number(event.target.value))} /></label>
+        <label>{c.stakes}<input data-testid="real-hand-stakes" value={hand.stakes} onChange={(event) => patch("stakes", event.target.value)} placeholder="1/3, 2/5…" /></label>
+        <label>{c.heroPosition}<input data-testid="real-hand-heroPosition" value={hand.heroPosition} onChange={(event) => patch("heroPosition", event.target.value)} placeholder="BTN, BB…" /></label>
+        <label>{c.villainPositions}<input data-testid="real-hand-villainPositions" value={hand.villainPositions} onChange={(event) => patch("villainPositions", event.target.value)} placeholder="CO, SB…" /></label>
+        <label>{c.effectiveStacks}<input data-testid="real-hand-effectiveStacks" value={hand.effectiveStacks} onChange={(event) => patch("effectiveStacks", event.target.value)} placeholder="150bb vs BTN" /></label>
+        <label>{c.straddle}<input data-testid="real-hand-straddle" value={hand.straddle} onChange={(event) => patch("straddle", event.target.value)} placeholder={locale === "ru" ? "без страддла / $10 UTG" : "no straddle / $10 UTG"} /></label>
+        <label>{c.actionSequence}<textarea data-testid="real-hand-actionSequence" value={hand.actionSequence} onChange={(event) => patch("actionSequence", event.target.value)} /></label>
+        <label>{c.board}<input data-testid="real-hand-board" value={hand.board} onChange={(event) => patch("board", event.target.value)} placeholder="Qh 7d 4c / preflop" /></label>
+        <label>{c.sizings}<input data-testid="real-hand-sizings" value={hand.sizings} onChange={(event) => patch("sizings", event.target.value)} placeholder="3bb → 12bb; flop 25%" /></label>
+        <label>{facts.cue}<textarea data-testid="real-hand-cue" value={hand.cue} onChange={(event) => patch("cue", event.target.value)} /></label>
+        <label>{facts.action}<textarea data-testid="real-hand-action" value={hand.action} onChange={(event) => patch("action", event.target.value)} /></label>
+        <label>{facts.reason} — {locale === "ru" ? "до результата" : "before the result"}<textarea data-testid="real-hand-reason" value={hand.reason} onChange={(event) => patch("reason", event.target.value)} /></label>
+        <label className="confidence">{c.confidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.confidence}%</b><input data-testid="real-hand-confidence" type="range" min="0" max="100" step="5" value={hand.confidence} onChange={(event) => patch("confidence", Number(event.target.value))} /></label>
         <p className="support">{c.confidenceHelp}</p>
-        <label>{c.populationRead}<textarea value={hand.populationRead ?? ""} onChange={(event) => patch("populationRead", event.target.value)} /></label>
-        {(hand.populationRead ?? "").trim() && <><label className="confidence">{c.populationConfidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.populationReadConfidence ?? 50}%</b><input type="range" min="0" max="100" step="5" value={hand.populationReadConfidence ?? 50} onChange={(event) => patch("populationReadConfidence", Number(event.target.value))} /></label><p className="support">{c.confidenceHelp}</p></>}
+        <label>{c.populationRead}<textarea data-testid="real-hand-populationRead" value={hand.populationRead ?? ""} onChange={(event) => patch("populationRead", event.target.value)} /></label>
+        {(hand.populationRead ?? "").trim() && <><label className="confidence">{c.populationConfidence} <b>{locale === "ru" ? "примерно" : "roughly"} {hand.populationReadConfidence ?? 50}%</b><input data-testid="real-hand-populationReadConfidence" type="range" min="0" max="100" step="5" value={hand.populationReadConfidence ?? 50} onChange={(event) => patch("populationReadConfidence", Number(event.target.value))} /></label><p className="support">{c.confidenceHelp}</p></>}
         <p className="support"><b>{completedRequired}/{REQUIRED_HAND_FIELDS.length} {c.requiredProgress}.</b> {missingRequired.length ? `${c.missingFields}: ${missingRequired.map((key) => requiredLabels[key]).join(", ")}.` : moduleMissing ? c.fieldsReadyModuleMissing : c.allRequired}</p>
-        <button className="primary" disabled={errors.length > 0} onClick={save}>{c.lock} <span>→</span></button>
+        <button className="primary" disabled={errors.length > 0 || Boolean(pendingSave)} onClick={save}>{c.lock} <span>→</span></button>
       </div>
 
       <div className="field-list">{[...(state.fieldNotes as StructuredFieldNote[])].reverse().map((note) => {
