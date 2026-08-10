@@ -27,17 +27,23 @@ const TEST_MIRROR_DDL = [
 ] as const;
 
 const TEST_MIRROR_INVITES = [
-  ["tester-01", "d991e45dbb28427f1f0bbfb44facb3dd641b101030fef6c81436899a4f1832d8", "2026-08-09T14:20:06.757Z"],
-  ["tester-02", "955ffb45882da5f68a7d77e63484828a041fb740205bb404f435b5d2cc705131", "2026-08-09T14:20:06.757Z"],
-  ["tester-03", "c56162ec26ca9bb54bb596486ab3621b428acae6d6acc59b4b1b66f8990ec7bc", "2026-08-09T14:20:06.757Z"],
-  ["tester-04", "2d95a5abda195742d06628927462d938e979cfea19064a8087345f8ca053a1d8", "2026-08-09T14:20:06.757Z"],
-  ["tester-05", "e185d35475cc42443b42d20c15924d518b9f781eff40f16a97caab60740a35ff", "2026-08-09T14:20:06.757Z"],
-  ["tester-06", "da2c59c3848c72fb11e121ab13b1696965a25bb4f86537d25d4dc76226dbf5e5", "2026-08-10T11:42:00.000Z"],
+  ["tester-01", "0a2844ad94684166327709ed86c50d8fbc43c79197f34108fcc29204b95da4c2", "2026-08-10T11:42:00.000Z"],
+  ["tester-02", "0be9f311d0d0fe7f64b24c371ada4a36a35d338691f4b6102072b749079530cd", "2026-08-10T11:42:00.000Z"],
+  ["tester-03", "2c01618041506f785553954a13b025a28eaf50595ea8d2bfb97e1e09508d4f9f", "2026-08-10T11:42:00.000Z"],
+  ["tester-04", "1cc2ba418509a45144731135ac330337a801d07f673de10cc7f50751f215fa78", "2026-08-10T11:42:00.000Z"],
+  ["tester-05", "bf07be0d255623fabd2a61a2820116d9e1738971cdb88bfea1269f0b9ba7e416", "2026-08-10T11:42:00.000Z"],
 ] as const;
 
-const TEST_MIRROR_INVITE_INSERT = `
-  INSERT OR IGNORE INTO test_invites (label, code_hash, active, created_at)
+const TEST_MIRROR_INVITE_UPSERT = `
+  INSERT INTO test_invites (label, code_hash, active, created_at)
   VALUES (?, ?, 1, ?)
+  ON CONFLICT(label) DO UPDATE SET
+    code_hash = excluded.code_hash,
+    active = 1,
+    created_at = excluded.created_at,
+    first_used_at = NULL,
+    last_used_at = NULL
+  WHERE test_invites.code_hash <> excluded.code_hash
 `;
 
 let testMirrorSchemaReady: Promise<void> | null = null;
@@ -47,24 +53,25 @@ function runtimeBindings(): LiveCashBindings {
 }
 
 async function bootstrapTestMirrorSchema(database: D1Database): Promise<void> {
-  // D1Database.exec treats raw newline-delimited SQL as an exec script. These
-  // CREATE statements are intentionally multi-line, so run each one through
-  // the prepared-statement API instead of letting exec split their lines.
   for (const statement of TEST_MIRROR_DDL) {
     await database.prepare(statement).run();
   }
 
-  // Seed only hashes through bound parameters. INSERT OR IGNORE preserves an
-  // operator's later revocation (`active = 0`) instead of reactivating a code.
+  // The private repository access file is the recoverable test-only source of
+  // truth. Source code and TEST_DB still store/compare only SHA-256 hashes.
+  // A label rotates only when the hash changes; an unchanged manually revoked
+  // row therefore remains revoked across later cold starts/deploys.
   for (const [label, codeHash, createdAt] of TEST_MIRROR_INVITES) {
-    await database.prepare(TEST_MIRROR_INVITE_INSERT).bind(label, codeHash, createdAt).run();
+    await database.prepare(TEST_MIRROR_INVITE_UPSERT).bind(label, codeHash, createdAt).run();
   }
+
+  // tester-06 was an unshipped intermediate credential. Remove it explicitly.
+  await database.prepare("DELETE FROM test_invites WHERE label = ?").bind("tester-06").run();
 }
 
 /**
- * Initialise only the isolated test-mirror database through its Worker binding.
- * Production exposes only `DB`, so this is a no-op on the stable site and
- * cannot create test tables or invite rows there.
+ * Initialise/synchronise only the isolated test-mirror database through its
+ * Worker binding. Production exposes only `DB`, so this is a no-op there.
  */
 export async function ensureTestMirrorSchema(): Promise<void> {
   const database = runtimeBindings().TEST_DB;
