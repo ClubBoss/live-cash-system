@@ -243,8 +243,7 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
       setHost(null);
       return;
     }
-    let frame = 0;
-    frame = requestAnimationFrame(() => {
+    let frame = requestAnimationFrame(() => {
       const session = document.querySelector<HTMLElement>("main .session");
       const heading = session?.querySelector<HTMLElement>(":scope > h2");
       if (!session || !heading) return;
@@ -254,9 +253,13 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
         slot.dataset.realUseWorkedGuide = "true";
         heading.insertAdjacentElement("afterend", slot);
       }
+      session.classList.add("real-use-worked-guided");
       setHost(slot);
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.querySelector<HTMLElement>("main .session.real-use-worked-guided")?.classList.remove("real-use-worked-guided");
+    };
   }, [enabled, snapshot.moduleId, snapshot.revision]);
 
   if (!enabled || !host || !snapshot.moduleId) return null;
@@ -270,6 +273,7 @@ export default function RealUseLessonAssist() {
     <style>{`
       .session-head > .real-use-back { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 8px 0; text-transform: none; letter-spacing: normal; }
       .real-use-task-guide { margin: -4px 0 22px; padding: 14px 16px; border-left: 4px solid var(--ink); background: var(--surface-soft); color: var(--ink); }
+      .session.real-use-worked-guided > [data-real-use-worked-guide] + .support { display: none; }
       .real-use-recap-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 18px; background: rgba(20, 21, 19, .48); }
       .real-use-recap { width: min(720px, 100%); max-height: min(82vh, 760px); overflow: auto; padding: 24px; background: var(--surface); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
       .real-use-recap-head { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 22px; }
