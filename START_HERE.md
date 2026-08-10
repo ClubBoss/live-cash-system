@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `POST_INTEGRATION_INTEGRITY_HARDENED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
+Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / VERSION_1_2_0_CANDIDATE / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
 
 ## Bootstrap
 
@@ -20,6 +20,8 @@ Read in this order:
 - repository: `ClubBoss/live-cash-system`;
 - Final Red-Team and Gauntlets 1–4 are historical integrated implementation work;
 - post-integration integrity hardening covers verified Cards, Review, Before Play, Real Hands, recovery, browser-gate and release-path gaps;
+- Post-Tester Waves A/B/C are implementation-complete and integrated; the `1.2.0` version in this branch remains a candidate until evaluator acceptance, merge, exact-main CI, test-mirror deploy and smoke;
+- feature freeze is active: further product changes require empirical real-use evidence or an independently verified P0/P1 defect;
 - the exact current `main` identity and its CI run are sourced from immutable Git history and GitHub Actions, not this file;
 - editorial state remains `TRANSITIONAL_REVIEW_REQUIRED`.
 
@@ -85,7 +87,7 @@ Production deployment remains separately authorized and must not be inferred fro
 
 ## Active milestone
 
-`POST_INTEGRATION_INTEGRITY_HARDENING -> HUMAN_CONTENT_LANGUAGE_REVIEW -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
+`V1_2_0_CANDIDATE -> REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
 
 ## Frozen constraints
 
@@ -98,11 +100,14 @@ Do not:
 - grant retention from immediate repetition;
 - reset learner progress globally;
 - change the stable URL;
+- open a new synthetic product/UX feature wave without empirical real-use evidence or an independently verified P0/P1 defect;
 - deploy the production site without separate authorization.
 
 ## Verdict
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
+
+`IMPLEMENTATION_COMPLETE_FOR_REAL_USE_VALIDATION / FEATURE_FREEZE`
 
 `HUMAN_REVIEW_PENDING`
 

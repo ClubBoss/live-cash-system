@@ -220,7 +220,7 @@ test("migrates accepted schema-2 state without resetting progress", async () => 
   assert.equal(migrated.interactions[0].transferProbe, null);
   assert.equal(migrated.diagnostic.responses[0].locale, "ru");
   assert.equal(migrated.diagnostic.measurementContext, "MIXED_EXPOSURE_INVALID_FOR_BASELINE");
-  assert.equal(migrated.appVersion, "1.1.0");
+  assert.equal(migrated.appVersion, "1.2.0");
 });
 
 test("keeps deterministic LWW sync semantics without pretending event merge", async () => {

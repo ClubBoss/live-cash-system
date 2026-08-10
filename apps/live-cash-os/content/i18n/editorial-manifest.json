@@ -2,9 +2,16 @@
   "schema_version": 5,
   "status": "TRANSITIONAL_REVIEW_REQUIRED",
   "strategy_status": "CURRICULUM_STRATEGY_REVIEW_PENDING",
-  "strategy_repair_scope": ["preflop", "blinds", "aggression"],
+  "strategy_repair_scope": [
+    "preflop",
+    "blinds",
+    "aggression"
+  ],
   "drill_content_status": "DRILLS_REVIEW_PENDING",
-  "drill_repair_scope": ["preflop", "aggression"],
+  "drill_repair_scope": [
+    "preflop",
+    "aggression"
+  ],
   "language_repair_owner": "W4R",
   "review_policy": "Learner-facing and strategic approval requires explicit independent human review. Deterministic checks may reject stale, invalid, or out-of-scope mutations but can never create an approval.",
   "strategy_approval": null,
@@ -12,14 +19,20 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "aa84fe037d1deb8ae720ad1b584174c6275f44f88746d037f9d3bb1af7e883da",
+    "current_digest": "ce64db5470e86bd55e691ed7d73a0fe2344997d731516e1bdbd2c18c9ee770f6",
     "approved_digest": null,
-    "review_corpus_fingerprint": "aa84fe037d1deb8ae720ad1b584174c6275f44f88746d037f9d3bb1af7e883da",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, and the Wave C bilingual test-invite gate are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "ce64db5470e86bd55e691ed7d73a0fe2344997d731516e1bdbd2c18c9ee770f6",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, and the v1.2.0 release identity are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
-    "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
-    "drills": ["content/i18n/wave3-priority-gold.ts"],
+    "strategy": [
+      "content/claims/lcm-02.claims.json",
+      "content/claims/lcm-03.claims.json",
+      "content/claims/lcm-06.claims.json"
+    ],
+    "drills": [
+      "content/i18n/wave3-priority-gold.ts"
+    ],
     "language": [
       "content/i18n/geometry-locale.ts",
       "components/LiveCashAppCore.tsx",
@@ -59,7 +72,7 @@
     "content/i18n/locale-pipeline.ts": "30f695b934b073408359a1d1b2a4724bddd60eae",
     "content/i18n/learner-ui.ts": "c5169565b27781aa4bf225d1ac96160d82ce07e6",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
-    "components/LiveCashApp.tsx": "5a42336d09d11d479f39d077d9cfceebcbbaed92",
+    "components/LiveCashApp.tsx": "8a434cee85e73c296c7235e79e1893e7fd9f1290",
     "components/LiveCashAppCore.tsx": "4ea31525160d913fce43cf46735e7a3298757f47",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/TestInviteGate.tsx": "f21432799e2a8a869a904b4bd71742e667e79980",
@@ -70,16 +83,60 @@
     "components/Gauntlet4LearningIntegrityLayer.tsx": "dcc1d3e25059bca5cf8fe1328fdbeb8e990e94fc"
   },
   "modules": {
-    "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4 learner-facing language and interaction composition changed; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},
-    "preflop": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair is materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending."},
-    "blinds": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair is materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."},
-    "filtering": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."},
-    "shape": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."},
-    "aggression": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair and active W4R-SEM-01 reconciliation are materialized; strategy, drill and exact integrated RU/EN review remain pending."},
-    "ancestry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."},
-    "multiway": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."},
-    "river": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."},
-    "evidence": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."},
-    "transfer": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."}
+    "geometry": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "Gauntlet 4 learner-facing language and interaction composition changed; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."
+    },
+    "preflop": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "W3 source repair is materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending."
+    },
+    "blinds": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "W3 claim-scope repair is materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."
+    },
+    "filtering": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "shape": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "aggression": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "W3 repair and active W4R-SEM-01 reconciliation are materialized; strategy, drill and exact integrated RU/EN review remain pending."
+    },
+    "ancestry": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "multiway": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "river": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "evidence": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    },
+    "transfer": {
+      "ru": "REVIEW_REQUIRED",
+      "en": "REVIEW_REQUIRED",
+      "note": "FINAL W4R learner-facing implementation is materialized; fresh human RU/EN review remains pending."
+    }
   }
 }

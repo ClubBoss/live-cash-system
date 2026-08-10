@@ -4,8 +4,8 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: post_integration_integrity_hardened_human_review_pending
-  updated_at: '2026-08-09T18:50:00+04:00'
+  phase: post_tester_abc_complete_v1_2_candidate_feature_freeze
+  updated_at: '2026-08-10T14:15:00+04:00'
 mission:
   summary: Build a compact adaptive live-cash trainer for live 1/3 and 2/5 while preserving evidence truth.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -14,7 +14,7 @@ learner_application:
   name: Live Cash OS
   stable_url: https://live-cash-os.elmarsal.chatgpt.site/
   source_path: apps/live-cash-os
-  app_version: 1.1.0
+  app_version: 1.2.0
   learner_state_schema: 2
   primary_language: ru
   modules: 11
@@ -27,6 +27,9 @@ repository_identity:
   final_red_team_status: HISTORICAL_INTEGRATED
   gauntlet_4_status: INTEGRATED
   post_integration_integrity_status: INTEGRATED
+  post_tester_abc_status: IMPLEMENTATION_COMPLETE
+  version_1_2_0_status: CANDIDATE_NOT_MERGED_NOT_TAGGED
+  feature_freeze: true
   current_main_identity_authority: git_and_github_actions
   exact_current_main_sha_embedded_here: false
   exact_current_main_sha_note: Git and GitHub Actions are authoritative because this file must not self-reference a changing main SHA.
@@ -104,8 +107,11 @@ learner_runtime_truth:
   immediate_correct_is_retention: false
   global_progress_reset: false
 active_milestone:
-  name: post_integration_integrity_hardened_human_review_pending
+  name: v1_2_0_candidate_real_use_validation_ready
 truth_boundaries:
+- implementation-complete for real-use validation is not empirical validation
+- version 1.2.0 candidate is not tagged or deployed until exact-main post-merge gates pass
+- further product changes require empirical real-use evidence or an independently verified P0/P1 defect
 - source green is not production green
 - test-mirror green is not stable-production green
 - automated gates cannot create human strategy, drill, RU, or EN approval

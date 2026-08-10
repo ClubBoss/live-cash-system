@@ -41,7 +41,7 @@ test("Wave C gate persists the existing locale identity without touching learner
   assert.match(gate, /Нет подключения к интернету\. Подключитесь к сети, чтобы проверить код доступа\./);
   assert.match(gate, /Сервис проверки временно недоступен\. Код может быть корректным — попробуйте ещё раз чуть позже\./);
   assert.doesNotMatch(gate, /live-cash-os:learner-state/);
-  assert.equal(packageJson.version, "1.1.0");
+  assert.equal(packageJson.version, "1.2.0");
 });
 
 test("Wave C mobile answer density is presentation-only and preserves 48px targets", () => {

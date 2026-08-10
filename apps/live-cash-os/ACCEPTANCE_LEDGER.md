@@ -1,6 +1,6 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `POST_INTEGRATION_INTEGRITY_HARDENED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / VERSION_1_2_0_CANDIDATE / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 This ledger records the current acceptance boundary. Automated implementation evidence may reject a bad change; it cannot create human strategy, drill, Russian or English approval.
 
@@ -10,8 +10,18 @@ Final Red-Team and Gauntlets 1–4 are integrated implementation history. Their 
 
 Earlier bounded dispositions remain historical implementation dispositions only:
 
+Post-Tester Waves A/B/C are accepted and integrated implementation work. The `1.2.0` version in this branch is only a candidate checkpoint; it does not satisfy human review, W10 or W11. Feature freeze now rejects unsupported synthetic feature work by default: reopening requires empirical real-use evidence or an independently verified P0/P1 defect.
+
 - W1 historical implementation disposition: `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`.
 - W5 historical implementation disposition: `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`.
+
+## Post-Tester A/B/C implementation closure
+
+- Wave A: progress/session clarity — lesson-vs-skill truth, step N/10, save acknowledgement, due-review clarity and Diagnostic continuation.
+- Wave B: continuity/Real-Hand safety — reload-safe origin, local drafts with zero evidence before lock, acknowledged-save clearing, profile isolation and a display-only record-format example.
+- Wave C: mobile/test-access truth — compact full-text mobile options, 48px target floor, typed invite failure states and persistent RU/EN gate locale.
+
+No curriculum, correct-answer, scheduler, mastery, evidence, learner-schema, reviewer-authority or human-approval semantics are upgraded by this release label.
 
 ## Integrated Gauntlet 4 boundary
 
