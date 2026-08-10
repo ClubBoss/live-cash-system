@@ -118,6 +118,7 @@ export function useReliableLearnerState() {
   const conflictRef = useRef<ConflictSnapshot | null>(null);
   const mounted = useRef(true);
   const portableProfileCode = useRef<string | null>(null);
+  const restoreSettled = useRef(false);
 
   const profileHeaders = useCallback((): HeadersInit => {
     const code = portableProfileCode.current;
@@ -224,6 +225,8 @@ export function useReliableLearnerState() {
 
   useEffect(() => {
     mounted.current = true;
+    restoreSettled.current = false;
+
     async function restore() {
       const meta = parseSyncMeta(safeGet(SYNC_META_KEY));
       portableProfileCode.current = safeGet(PORTABLE_PROFILE_KEY);
@@ -262,6 +265,23 @@ export function useReliableLearnerState() {
         setLastErrorCode("LOCAL_STATE_RECOVERED");
       }
 
+      // Fast path: a valid local snapshot is durable learner data, so render it
+      // immediately. Cloud reconciliation continues in the background and cloud
+      // writes stay gated until reconciliation settles.
+      const localDecision = chooseRestoreState(localRead, null);
+      const canHydrateLocally = Boolean(localRead.state) || cloudDisabled.current;
+      if (canHydrateLocally) {
+        setState(localDecision.state);
+        if (cloudDisabled.current) {
+          setSyncStatus("local");
+        } else if (meta.lastCloudRevision === localDecision.state.revision) {
+          setSyncStatus("synced");
+        } else {
+          setSyncStatus("local");
+        }
+        setReady(true);
+      }
+
       let remote: LearnerState | null = null;
       let remotePayload: StateApiPayload = {};
       let remoteAvailable = false;
@@ -288,7 +308,6 @@ export function useReliableLearnerState() {
             } else {
               remote = payloadState(remotePayload);
               serverRevision.current = remote?.revision ?? null;
-              setSyncStatus("synced");
             }
           } else if (response.status === 401) {
             authUnavailable.current = true;
@@ -306,7 +325,12 @@ export function useReliableLearnerState() {
         setSyncStatus("local");
       }
 
-      const decision = chooseRestoreState(localRead, remote);
+      // Re-read localStorage after the network wait. If the learner interacted
+      // while reconciliation was in flight, those local edits participate in the
+      // same conservative ancestry/conflict decision and can never be overwritten
+      // by the late GET response.
+      const currentLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));
+      const decision = chooseRestoreState(currentLocalRead, remote);
       if (decision.kind === "conflict") {
         rememberConflict(decision.state, decision.remoteState);
       } else {
@@ -318,13 +342,26 @@ export function useReliableLearnerState() {
         if (localRead.kind === "corrupt" && (decision.kind === "remote" || decision.kind === "equivalent")) {
           setRecoveryBlocked(false);
         }
+        setSyncStatus(decision.kind === "local" ? "local" : "synced");
       }
 
       if (localRead.kind === "future") setSyncStatus("error");
+      restoreSettled.current = true;
       setReady(true);
+
+      // A locally newer snapshot intentionally waits until reconciliation is
+      // complete, then gets one debounced background push against the observed
+      // cloud revision. No blocking spinner is needed.
+      if (remoteAvailable && decision.kind === "local" && !cloudDisabled.current && !conflictRef.current) {
+        setRetryNonce((value) => value + 1);
+      }
     }
+
     void restore();
-    return () => { mounted.current = false; };
+    return () => {
+      mounted.current = false;
+      restoreSettled.current = false;
+    };
   }, [profileHeaders, rememberConflict, requireUpdate]);
 
   useEffect(() => {
@@ -339,9 +376,8 @@ export function useReliableLearnerState() {
     setLastLocalSaveAt(new Date().toISOString());
 
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    if (cloudDisabled.current || authUnavailable.current || updateRequired.current || conflictRef.current) return;
+    if (!restoreSettled.current || cloudDisabled.current || authUnavailable.current || updateRequired.current || conflictRef.current) return;
     saveTimer.current = setTimeout(async () => {
-      setSyncStatus("syncing");
       try {
         await postState(state);
       } catch {
@@ -355,7 +391,7 @@ export function useReliableLearnerState() {
 
   useEffect(() => {
     const retry = () => {
-      if (ready && !recoveryBlocked && !cloudDisabled.current && !updateRequired.current && !conflictRef.current) {
+      if (ready && restoreSettled.current && !recoveryBlocked && !cloudDisabled.current && !updateRequired.current && !conflictRef.current) {
         authUnavailable.current = false;
         setRetryNonce((value) => value + 1);
       }
@@ -365,7 +401,7 @@ export function useReliableLearnerState() {
   }, [ready, recoveryBlocked]);
 
   const retrySync = useCallback(() => {
-    if (recoveryBlocked || cloudDisabled.current || updateRequired.current || conflictRef.current) return;
+    if (recoveryBlocked || !restoreSettled.current || cloudDisabled.current || updateRequired.current || conflictRef.current) return;
     authUnavailable.current = false;
     setRetryNonce((value) => value + 1);
   }, [recoveryBlocked]);
