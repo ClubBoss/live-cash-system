@@ -18,6 +18,7 @@ import {
   type RuntimeIdentity,
   type SyncMeta,
 } from "./reliability";
+import { consumeStateBootstrap } from "./state-bootstrap";
 
 export const LEARNER_STORAGE_KEY = "live-cash-os:learner-state";
 export const SYNC_META_KEY = "live-cash-os:sync-meta";
@@ -27,6 +28,7 @@ export const CONFLICT_BACKUP_KEY = "live-cash-os:sync-conflict";
 export const PORTABLE_PROFILE_KEY = "live-cash-os:portable-profile-code";
 const PORTABLE_PROFILE_HEADER = "x-live-cash-profile-code";
 const PORTABLE_PROFILE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
+const CLOUD_SAVE_DEBOUNCE_MS = 500;
 
 export type SyncStatus = "loading" | "local" | "syncing" | "synced" | "offline" | "conflict" | "error";
 export type CloudMode = "cloud" | "local";
@@ -119,6 +121,19 @@ export function useReliableLearnerState() {
   const mounted = useRef(true);
   const portableProfileCode = useRef<string | null>(null);
   const restoreSettled = useRef(false);
+  const latestState = useRef<LearnerState>(state);
+  const lastAckedSerialized = useRef<string | null>(null);
+  const cloudSaveInFlight = useRef(false);
+  const queuedCloudState = useRef<LearnerState | null>(null);
+
+  useEffect(() => {
+    latestState.current = state;
+  }, [state]);
+
+  const setLearnerState = useCallback((next: LearnerState) => {
+    latestState.current = next;
+    setState(next);
+  }, []);
 
   const profileHeaders = useCallback((): HeadersInit => {
     const code = portableProfileCode.current;
@@ -135,22 +150,24 @@ export function useReliableLearnerState() {
 
   const rememberConflict = useCallback((local: LearnerState, remote: LearnerState | null) => {
     const snapshot: ConflictSnapshot = { at: new Date().toISOString(), local, remote };
-    setState(local);
+    setLearnerState(local);
     conflictRef.current = snapshot;
     setConflict(snapshot);
     setSyncStatus("conflict");
     setRecoveryCode("STATE_CONFLICT");
     setLastErrorCode("STATE_CONFLICT");
     safeSet(CONFLICT_BACKUP_KEY, JSON.stringify(snapshot));
-  }, []);
+  }, [setLearnerState]);
 
   const acceptCloudAck = useCallback((payload: StateApiPayload, fallback: LearnerState) => {
+    const acknowledged = JSON.stringify(fallback);
     serverRevision.current = typeof payload.revision === "number" ? payload.revision : fallback.revision;
     serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : serverCloudToken.current;
+    lastAckedSerialized.current = acknowledged;
     const savedAt = new Date().toISOString();
     setLastCloudSaveAt(savedAt);
     setLastErrorCode(null);
-    setSyncStatus("synced");
+    if (JSON.stringify(latestState.current) === acknowledged) setSyncStatus("synced");
     const meta: SyncMeta = {
       cloudDisabled: false,
       lastCloudRevision: serverRevision.current,
@@ -201,7 +218,7 @@ export function useReliableLearnerState() {
       const remote = payloadState(payload);
       if (remote) serverRevision.current = remote.revision;
       if (typeof payload.cloudToken === "string") serverCloudToken.current = payload.cloudToken;
-      rememberConflict(candidate, remote);
+      rememberConflict(latestState.current, remote);
       return { ok: false, response, payload };
     }
     if (response.status === 410 || payload.cloudDeleted) {
@@ -222,6 +239,37 @@ export function useReliableLearnerState() {
     setSyncStatus("error");
     return { ok: false, response, payload };
   }, [acceptCloudAck, profileHeaders, rememberConflict, requireUpdate]);
+
+  const flushCloudState = useCallback(async (candidate: LearnerState) => {
+    const serialized = JSON.stringify(candidate);
+    if (serialized === lastAckedSerialized.current) return;
+    if (cloudSaveInFlight.current) {
+      queuedCloudState.current = candidate;
+      return;
+    }
+
+    cloudSaveInFlight.current = true;
+    try {
+      await postState(candidate);
+    } catch {
+      if (mounted.current) {
+        setSyncStatus("offline");
+        setLastErrorCode("NETWORK_SAVE_FAILED");
+      }
+    } finally {
+      cloudSaveInFlight.current = false;
+      const queued = queuedCloudState.current;
+      queuedCloudState.current = null;
+      if (queued
+        && !cloudDisabled.current
+        && !authUnavailable.current
+        && !updateRequired.current
+        && !conflictRef.current
+        && JSON.stringify(queued) !== lastAckedSerialized.current) {
+        setRetryNonce((value) => value + 1);
+      }
+    }
+  }, [postState]);
 
   useEffect(() => {
     mounted.current = true;
@@ -265,13 +313,10 @@ export function useReliableLearnerState() {
         setLastErrorCode("LOCAL_STATE_RECOVERED");
       }
 
-      // Fast path: a valid local snapshot is durable learner data, so render it
-      // immediately. Cloud reconciliation continues in the background and cloud
-      // writes stay gated until reconciliation settles.
       const localDecision = chooseRestoreState(localRead, null);
       const canHydrateLocally = Boolean(localRead.state) || cloudDisabled.current;
       if (canHydrateLocally) {
-        setState(localDecision.state);
+        setLearnerState(localDecision.state);
         if (cloudDisabled.current) {
           setSyncStatus("local");
         } else if (meta.lastCloudRevision === localDecision.state.revision) {
@@ -285,13 +330,33 @@ export function useReliableLearnerState() {
       let remote: LearnerState | null = null;
       let remotePayload: StateApiPayload = {};
       let remoteAvailable = false;
+      let remoteResponseOk = false;
+      const bootstrap = consumeStateBootstrap(portableProfileCode.current);
+
       if (!cloudDisabled.current) {
         try {
-          const response = await fetch("/api/state", { cache: "no-store", headers: profileHeaders() });
-          try { remotePayload = await response.json() as StateApiPayload; } catch { remotePayload = {}; }
-          if (response.ok && (!remotePayload.runtime || !runtimeCompatible(remotePayload.runtime))) {
+          if (bootstrap) {
+            remotePayload = bootstrap as StateApiPayload;
+            remoteResponseOk = true;
+          } else {
+            const response = await fetch("/api/state", { cache: "no-store", headers: profileHeaders() });
+            remoteResponseOk = response.ok;
+            try { remotePayload = await response.json() as StateApiPayload; } catch { remotePayload = {}; }
+            if (!response.ok) {
+              if (response.status === 401) {
+                authUnavailable.current = true;
+                setSyncStatus("local");
+                setLastErrorCode("AUTH_REQUIRED");
+              } else {
+                setSyncStatus("error");
+                setLastErrorCode(remotePayload.code ?? `HTTP_${response.status}`);
+              }
+            }
+          }
+
+          if (remoteResponseOk && (!remotePayload.runtime || !runtimeCompatible(remotePayload.runtime))) {
             requireUpdate();
-          } else if (response.ok) {
+          } else if (remoteResponseOk) {
             remoteAvailable = true;
             if (typeof remotePayload.cloudToken === "string") serverCloudToken.current = remotePayload.cloudToken;
             else if (remotePayload.cloudToken === null) serverCloudToken.current = null;
@@ -309,13 +374,6 @@ export function useReliableLearnerState() {
               remote = payloadState(remotePayload);
               serverRevision.current = remote?.revision ?? null;
             }
-          } else if (response.status === 401) {
-            authUnavailable.current = true;
-            setSyncStatus("local");
-            setLastErrorCode("AUTH_REQUIRED");
-          } else {
-            setSyncStatus("error");
-            setLastErrorCode(remotePayload.code ?? `HTTP_${response.status}`);
           }
         } catch {
           setSyncStatus("offline");
@@ -325,33 +383,39 @@ export function useReliableLearnerState() {
         setSyncStatus("local");
       }
 
-      // Re-read localStorage after the network wait. If the learner interacted
-      // while reconciliation was in flight, those local edits participate in the
-      // same conservative ancestry/conflict decision and can never be overwritten
-      // by the late GET response.
-      const currentLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));
+      // Preserve the #51 late-GET safety: re-read the durable snapshot after the
+      // network wait, but prefer an even newer in-memory learner mutation if one
+      // has not reached localStorage yet.
+      const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));
+      const durableRevision = durableLocalRead.state?.revision ?? -1;
+      const currentLocalRead = Boolean(localRead.state) && latestState.current.revision > durableRevision
+        ? { kind: "valid" as const, state: latestState.current, raw: JSON.stringify(latestState.current) }
+        : durableLocalRead;
       const decision = chooseRestoreState(currentLocalRead, remote);
       if (decision.kind === "conflict") {
         rememberConflict(decision.state, decision.remoteState);
-      } else {
-        setState(decision.state);
+      } else if (JSON.stringify(latestState.current) !== JSON.stringify(decision.state)) {
+        setLearnerState(decision.state);
       }
 
-      if (remoteAvailable && remote && decision.kind !== "conflict") {
-        serverRevision.current = remote.revision;
+      if (remoteAvailable && decision.kind !== "conflict") {
+        if (remote) serverRevision.current = remote.revision;
+        if (decision.kind === "remote" || decision.kind === "equivalent" || decision.kind === "empty") {
+          lastAckedSerialized.current = JSON.stringify(decision.state);
+          setSyncStatus("synced");
+          setLastErrorCode(null);
+        } else if (decision.kind === "local") {
+          setSyncStatus("local");
+        }
         if (localRead.kind === "corrupt" && (decision.kind === "remote" || decision.kind === "equivalent")) {
           setRecoveryBlocked(false);
         }
-        setSyncStatus(decision.kind === "local" ? "local" : "synced");
       }
 
       if (localRead.kind === "future") setSyncStatus("error");
       restoreSettled.current = true;
       setReady(true);
 
-      // A locally newer snapshot intentionally waits until reconciliation is
-      // complete, then gets one debounced background push against the observed
-      // cloud revision. No blocking spinner is needed.
       if (remoteAvailable && decision.kind === "local" && !cloudDisabled.current && !conflictRef.current) {
         setRetryNonce((value) => value + 1);
       }
@@ -362,10 +426,11 @@ export function useReliableLearnerState() {
       mounted.current = false;
       restoreSettled.current = false;
     };
-  }, [profileHeaders, rememberConflict, requireUpdate]);
+  }, [profileHeaders, rememberConflict, requireUpdate, setLearnerState]);
 
   useEffect(() => {
     if (!ready || recoveryBlocked) return;
+    latestState.current = state;
     const serialized = JSON.stringify(state);
     if (!safeSet(LEARNER_STORAGE_KEY, serialized)) {
       setRecoveryCode("LOCAL_WRITE_FAILED");
@@ -376,18 +441,19 @@ export function useReliableLearnerState() {
     setLastLocalSaveAt(new Date().toISOString());
 
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    if (!restoreSettled.current || cloudDisabled.current || authUnavailable.current || updateRequired.current || conflictRef.current) return;
-    saveTimer.current = setTimeout(async () => {
-      try {
-        await postState(state);
-      } catch {
-        if (!mounted.current) return;
-        setSyncStatus("offline");
-        setLastErrorCode("NETWORK_SAVE_FAILED");
-      }
-    }, 800);
+    if (!restoreSettled.current
+      || serialized === lastAckedSerialized.current
+      || cloudDisabled.current
+      || authUnavailable.current
+      || updateRequired.current
+      || conflictRef.current) return;
+
+    setSyncStatus((current) => current === "synced" ? "local" : current);
+    saveTimer.current = setTimeout(() => {
+      void flushCloudState(latestState.current);
+    }, CLOUD_SAVE_DEBOUNCE_MS);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [postState, ready, recoveryBlocked, retryNonce, state]);
+  }, [flushCloudState, ready, recoveryBlocked, retryNonce, state]);
 
   useEffect(() => {
     const retry = () => {
@@ -423,6 +489,8 @@ export function useReliableLearnerState() {
       cloudDisabled.current = true;
       serverRevision.current = null;
       serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : null;
+      lastAckedSerialized.current = null;
+      queuedCloudState.current = null;
       setCloudMode("local");
       setSyncStatus("local");
       setLastErrorCode(null);
@@ -456,8 +524,9 @@ export function useReliableLearnerState() {
   const resolveConflictWithCloud = useCallback(() => {
     const current = conflictRef.current;
     if (!current?.remote) return false;
-    setState(current.remote);
+    setLearnerState(current.remote);
     serverRevision.current = current.remote.revision;
+    lastAckedSerialized.current = JSON.stringify(current.remote);
     conflictRef.current = null;
     setConflict(null);
     safeRemove(CONFLICT_BACKUP_KEY);
@@ -465,7 +534,7 @@ export function useReliableLearnerState() {
     setLastErrorCode(null);
     setSyncStatus("synced");
     return true;
-  }, []);
+  }, [setLearnerState]);
 
   const resolveConflictWithLocal = useCallback(async () => {
     const current = conflictRef.current;
@@ -476,7 +545,7 @@ export function useReliableLearnerState() {
         baseCloudToken: serverCloudToken.current,
       });
       if (!result.ok) return false;
-      setState(current.local);
+      setLearnerState(current.local);
       conflictRef.current = null;
       setConflict(null);
       safeRemove(CONFLICT_BACKUP_KEY);
@@ -488,7 +557,7 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_SAVE_FAILED");
       return false;
     }
-  }, [postState]);
+  }, [postState, setLearnerState]);
 
   const prepareImport = useCallback((text: string): ImportResult => {
     const prepared = prepareLearnerStateImport(text, state);
@@ -509,9 +578,9 @@ export function useReliableLearnerState() {
     updateRequired.current = false;
     setRecoveryBlocked(false);
     setRecoveryCode(null);
-    setState(candidate);
+    setLearnerState(candidate);
     return true;
-  }, [state]);
+  }, [setLearnerState, state]);
 
   const resetLocal = useCallback(async () => {
     if (cloudDisabled.current || authUnavailable.current) {
@@ -521,7 +590,9 @@ export function useReliableLearnerState() {
       setRecoveryRaw(null);
       setRecoveryBlocked(false);
       setRecoveryCode(null);
-      setState(emptyLearnerState());
+      lastAckedSerialized.current = null;
+      queuedCloudState.current = null;
+      setLearnerState(emptyLearnerState());
       return true;
     }
 
@@ -556,13 +627,18 @@ export function useReliableLearnerState() {
         cloudDisabled.current = true;
         writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
         setCloudMode("local");
-        setState(emptyLearnerState());
+        lastAckedSerialized.current = null;
+        queuedCloudState.current = null;
+        setLearnerState(emptyLearnerState());
         setSyncStatus("local");
         return true;
       }
       serverRevision.current = remote?.revision ?? null;
       serverCloudToken.current = typeof payload.cloudToken === "string" ? payload.cloudToken : null;
-      setState(remote ?? emptyLearnerState());
+      const restored = remote ?? emptyLearnerState();
+      lastAckedSerialized.current = JSON.stringify(restored);
+      queuedCloudState.current = null;
+      setLearnerState(restored);
       setSyncStatus("synced");
       return true;
     } catch {
@@ -570,7 +646,7 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_RESET_FAILED");
       return false;
     }
-  }, [profileHeaders, requireUpdate]);
+  }, [profileHeaders, requireUpdate, setLearnerState]);
 
   const activatePortableProfile = useCallback((rawCode: string) => {
     const code = rawCode.trim().toUpperCase();
@@ -591,7 +667,7 @@ export function useReliableLearnerState() {
 
   return {
     state,
-    setState,
+    setState: setLearnerState,
     ready,
     syncStatus,
     cloudMode,

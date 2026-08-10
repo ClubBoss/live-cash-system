@@ -6,18 +6,22 @@ async function source(relativePath) {
   return readFile(new URL(`../${relativePath}`, import.meta.url), "utf8");
 }
 
-test("real-use overlays avoid interval polling and do not hide core content before portals mount", async () => {
-  const [wave5, gauntlet4] = await Promise.all([
+test("real-use overlays avoid interval polling and use live hosts for late portal mounts", async () => {
+  const [wave5, gauntlet4, assist] = await Promise.all([
     source("components/Wave5PracticeLayer.tsx"),
     source("components/Gauntlet4LearningIntegrityLayer.tsx"),
+    source("components/RealUseLessonAssist.tsx"),
   ]);
 
   assert.doesNotMatch(wave5, /setInterval\s*\(/u);
   assert.doesNotMatch(gauntlet4, /setInterval\s*\(/u);
-  assert.doesNotMatch(wave5, /MutationObserver/u);
+  assert.doesNotMatch(assist, /setInterval\s*\(/u);
+  assert.match(wave5, /new MutationObserver/u);
   assert.match(gauntlet4, /new MutationObserver/u);
+  assert.match(assist, /new MutationObserver/u);
   assert.doesNotMatch(wave5, /:has\(/u);
   assert.doesNotMatch(gauntlet4, /:has\(/u);
+  assert.doesNotMatch(assist, /:has\(/u);
   assert.match(wave5, /wave5-lab-active/u);
   assert.match(gauntlet4, /g4-feedback-active/u);
   assert.match(gauntlet4, /useLayoutEffect/u);
@@ -41,11 +45,29 @@ test("feedback removes correct-answer duplication and exposes one overlay contin
 
 test("valid local learner state renders before cloud reconciliation and writes wait for restore", async () => {
   const sync = await source("lib/use-learner-state-sync.ts");
-  assert.match(sync, /Fast path: a valid local snapshot is durable learner data/u);
-  assert.match(sync, /setReady\(true\)/u);
-  assert.match(sync, /restoreSettled\.current/u);
-  assert.match(sync, /Re-read localStorage after the network wait/u);
-  assert.match(sync, /if \(!restoreSettled\.current/u);
+
+  const localHydrationGate = sync.indexOf("const canHydrateLocally = Boolean(localRead.state) || cloudDisabled.current;");
+  const localHydration = sync.indexOf("setLearnerState(localDecision.state);", localHydrationGate);
+  const localReady = sync.indexOf("setReady(true);", localHydrationGate);
+  const remoteFetch = sync.indexOf('fetch("/api/state"', localHydrationGate);
+  assert.ok(localHydrationGate >= 0 && localHydration > localHydrationGate,
+    "valid local learner state must remain an explicit hydration path");
+  assert.ok(localReady > localHydration && remoteFetch > localReady,
+    "local hydration must make the app ready before remote reconciliation fetches state");
+
+  const durableReread = sync.indexOf("const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));");
+  assert.ok(durableReread > remoteFetch,
+    "late reconciliation must re-read durable local learner state after the network wait");
+  assert.match(sync, /Boolean\(localRead\.state\)\s*&&\s*latestState\.current\.revision > durableRevision/u,
+    "only a genuinely hydrated local snapshot may promote a newer in-memory mutation over the durable re-read");
+  assert.match(sync, /chooseRestoreState\(currentLocalRead, remote\)/u);
+
+  const persistenceEffect = sync.indexOf("const serialized = JSON.stringify(state);");
+  const restoreGate = sync.indexOf("if (!restoreSettled.current", persistenceEffect);
+  const cloudSaveTimer = sync.indexOf("saveTimer.current = setTimeout", restoreGate);
+  assert.ok(restoreGate > persistenceEffect && cloudSaveTimer > restoreGate,
+    "cloud writes must stay gated until restore reconciliation has settled");
+
   assert.equal((sync.match(/setSyncStatus\("syncing"\)/gu) ?? []).length, 1,
     "only explicit cloud-enable flow may surface a blocking syncing status");
 });
