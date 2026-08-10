@@ -156,11 +156,27 @@ assert.doesNotMatch(localePipeline, /wave4r-poker-native/u, "Canonical locale pi
 assert.match(core, /applyLocaleData\(nextLocale\)/u, "Restore path must apply locale data before render");
 assert.match(core, /applyLocaleData\(next\)/u, "Locale switch must apply locale data before render");
 assert.match(core, /<LearningRoute locale=\{locale\} \/>/u, "Learning route must render from React state");
-for (const [name, source] of [["LiveCashApp", app], ["LiveCashAppCore", core], ["Wave5PracticeLayer", practice]]) {
+for (const [name, source] of [["LiveCashApp", app], ["LiveCashAppCore", core]]) {
   for (const forbidden of [/MutationObserver/u, /data-wave4r-label/u, /annotateLegacyUi/u, /wave4rEmptyFallback/u, /\.textContent\s*=/u]) {
     assert.doesNotMatch(source, forbidden, `${name} retains removed post-render localisation bridge ${forbidden}`);
   }
 }
+for (const forbidden of [/data-wave4r-label/u, /annotateLegacyUi/u, /wave4rEmptyFallback/u, /\.textContent\s*=/u]) {
+  assert.doesNotMatch(practice, forbidden, `Wave5PracticeLayer retains removed post-render localisation bridge ${forbidden}`);
+}
+const liveHostStart = practice.indexOf("function useLiveHost(");
+const liveHostEnd = practice.indexOf("\nfunction ", liveHostStart + 1);
+assert.ok(liveHostStart >= 0 && liveHostEnd > liveHostStart, "Wave5PracticeLayer must keep bounded useLiveHost portal discovery");
+const liveHostSource = practice.slice(liveHostStart, liveHostEnd);
+const practiceOutsideLiveHost = practice.slice(0, liveHostStart) + practice.slice(liveHostEnd);
+assert.equal((practice.match(/new MutationObserver\s*\(/gu) ?? []).length, 1, "Wave5PracticeLayer may contain exactly one portal-host MutationObserver");
+assert.equal((liveHostSource.match(/new MutationObserver\s*\(/gu) ?? []).length, 1, "Wave5PracticeLayer MutationObserver must stay inside useLiveHost");
+assert.doesNotMatch(practiceOutsideLiveHost, /MutationObserver/u, "Wave5PracticeLayer must not add MutationObserver outside useLiveHost");
+assert.match(liveHostSource, /document\.querySelector<HTMLElement>\(selector\)/u, "useLiveHost must discover only the requested portal selector");
+assert.match(liveHostSource, /setHost\(/u, "useLiveHost must update React host state rather than learner copy");
+assert.match(liveHostSource, /new MutationObserver\(sync\)/u, "useLiveHost observer must only re-run host discovery");
+assert.match(liveHostSource, /observer\.observe\(document\.body,\s*\{\s*childList:\s*true,\s*subtree:\s*true\s*\}\)/u, "useLiveHost observer must remain bounded to DOM host availability");
+assert.match(liveHostSource, /return \(\) => observer\.disconnect\(\)/u, "useLiveHost observer must disconnect on cleanup");
 assert.doesNotMatch(core, /translationPending/u, "Core must not render obsolete pending labels");
 assert.doesNotMatch(core, /contentFallback/u, "Core must not render obsolete fallback copy");
 
