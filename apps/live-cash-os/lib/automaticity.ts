@@ -35,15 +35,46 @@ export function nextRetentionDelayMs(completedSuccessfulStages: number): number 
   return null;
 }
 
+function retentionOrder(drills: readonly SchedulerDrill[], seed: string): SchedulerDrill[] {
+  return [...drills].sort((left, right) => hash(`${seed}:${left.id}`) - hash(`${seed}:${right.id}`) || left.id.localeCompare(right.id));
+}
+
 export function selectRetentionDrillId(item: ReviewItem, catalog: SchedulerCatalog, seed: string): string | undefined {
   const module = catalog.modules.find((candidate) => candidate.id === item.moduleId);
   if (!module) return undefined;
-  const sameFamily = module.drills
-    .filter((drill) => drill.variantGroup === item.variantGroup && drill.id !== item.sourceDrillId)
-    .sort((left, right) => hash(`${seed}:${left.id}`) - hash(`${seed}:${right.id}`) || left.id.localeCompare(right.id));
+
+  const nonIdentical = module.drills.filter((drill) => drill.id !== item.sourceDrillId);
+  const sameFamily = retentionOrder(
+    nonIdentical.filter((drill) => drill.variantGroup === item.variantGroup),
+    `${seed}:family`,
+  );
   if (sameFamily.length) return sameFamily[0].id;
-  if (module.drills.some((drill) => drill.id === item.sourceDrillId)) return item.sourceDrillId;
-  return module.drills[0]?.id;
+
+  const source = module.drills.find((drill) => drill.id === item.sourceDrillId);
+  if (source) {
+    const sameNode = retentionOrder(
+      nonIdentical.filter((drill) => drill.nodeKey === source.nodeKey),
+      `${seed}:node`,
+    );
+    if (sameNode.length) return sameNode[0].id;
+  }
+
+  // Singleton variant groups are common in the reviewed corpus. Prefer an
+  // existing changed/boundary application from the same module over repeating
+  // the exact wording/answer pair. This is deterministic and adds no poker truth.
+  const application = retentionOrder(
+    nonIdentical.filter((drill) => drill.kind === "changed" || drill.kind === "boundary"),
+    `${seed}:application`,
+  );
+  if (application.length) return application[0].id;
+
+  const alternate = retentionOrder(nonIdentical, `${seed}:alternate`);
+  if (alternate.length) return alternate[0].id;
+
+  // A true one-drill module can still offer exact maintenance practice. The
+  // model layer explicitly prevents that repeat from becoming strong retention.
+  if (source) return source.id;
+  return undefined;
 }
 
 function orderedDrills(drills: readonly SchedulerDrill[], seed: string): SchedulerDrill[] {
