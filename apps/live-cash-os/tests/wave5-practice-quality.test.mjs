@@ -63,12 +63,10 @@ function auditDrills(modules, locale) {
   const drills = modules.flatMap((module) => module.drills);
   assert.equal(modules.length, 11, `${locale}: expected 11 modules`);
   assert.equal(drills.length, 55, `${locale}: expected 55 drills`);
-
   for (const module of modules) {
     assert.equal(module.drills.length, 5, `${locale}/${module.id}: expected five stable decisions`);
     assert.ok(module.drills.some((drill) => drill.kind === "changed"), `${locale}/${module.id}: missing changed-node practice`);
     assert.ok(module.drills.some((drill) => drill.kind === "boundary"), `${locale}/${module.id}: missing boundary practice`);
-
     for (const drill of module.drills) {
       assert.ok(drill.assumptions.length > 0, `${locale}/${drill.id}: missing assumptions`);
       assert.ok(drill.cue.trim().length > 0, `${locale}/${drill.id}: missing cue`);
@@ -77,7 +75,6 @@ function auditDrills(modules, locale) {
       assert.ok(drill.targetSeconds > 0, `${locale}/${drill.id}: invalid target time`);
       assert.equal(drill.actionOptions.length, 3, `${locale}/${drill.id}: expected three action options`);
       assert.equal(drill.reasonOptions.length, 3, `${locale}/${drill.id}: expected three reason options`);
-
       const actionIds = drill.actionOptions.map((option) => option.id);
       const reasonIds = drill.reasonOptions.map((option) => option.id);
       assert.equal(new Set(actionIds).size, actionIds.length, `${locale}/${drill.id}: duplicate action ID`);
@@ -87,7 +84,6 @@ function auditDrills(modules, locale) {
       assert.equal(new Set(drill.actionOptions.map((option) => normalized(option.text))).size, drill.actionOptions.length, `${locale}/${drill.id}: duplicate action wording`);
       assert.equal(new Set(drill.reasonOptions.map((option) => normalized(option.text))).size, drill.reasonOptions.length, `${locale}/${drill.id}: duplicate reason wording`);
     }
-
     const core = module.drills.find((drill) => drill.kind === "core") ?? module.drills[0];
     const coreSignature = normalized(`${core.assumptions.join(" ")} ${core.cue} ${core.question}`);
     const coreAssumptions = new Set(core.assumptions.map(normalized));
@@ -95,17 +91,14 @@ function auditDrills(modules, locale) {
       const signature = normalized(`${drill.assumptions.join(" ")} ${drill.cue} ${drill.question}`);
       assert.notEqual(signature, coreSignature, `${locale}/${drill.id}: variant repeats the core context`);
       const assumptions = new Set(drill.assumptions.map(normalized));
-      const changedAssumption = [...assumptions].some((item) => !coreAssumptions.has(item))
-        || [...coreAssumptions].some((item) => !assumptions.has(item));
+      const changedAssumption = [...assumptions].some((item) => !coreAssumptions.has(item)) || [...coreAssumptions].some((item) => !assumptions.has(item));
       assert.equal(changedAssumption, true, `${locale}/${drill.id}: variant does not change any stated assumption`);
     }
   }
-
   const boundary = drills.filter((drill) => drill.kind === "boundary");
   assert.ok(boundary.length / drills.length >= 0.20, `${locale}: boundary share ${boundary.length}/${drills.length} is below 20%`);
   const learnerText = JSON.stringify(drills).toLocaleLowerCase(locale === "ru" ? "ru-RU" : "en-US");
-  assert.match(learnerText, locale === "ru" ? /(недостаточ|неизвест|неопредел)/u : /(insufficient|unknown|uncertain)/u,
-    `${locale}: corpus needs explicit honest-uncertainty practice`);
+  assert.match(learnerText, locale === "ru" ? /(недостаточ|неизвест|неопредел)/u : /(insufficient|unknown|uncertain)/u, `${locale}: corpus needs explicit honest-uncertainty practice`);
 }
 
 function auditCards(modules, locale) {
@@ -113,7 +106,6 @@ function auditCards(modules, locale) {
   assert.equal(cards.length, 33, `${locale}: expected 33 cards`);
   const ids = new Set();
   const fronts = new Set();
-
   for (const module of modules) assert.equal(module.flashcards.length, 3, `${locale}/${module.id}: expected three cards`);
   for (const card of cards) {
     assert.equal(ids.has(card.id), false, `${locale}: duplicate card ID ${card.id}`);
@@ -140,13 +132,10 @@ test("Wave 5 practice copy keeps blocker cards distinct without changing stable 
   const value = await fixture();
   const before = value.modules.modules.flatMap((module) => module.flashcards.map((card) => card.id));
   applyLocale(value, "en");
-  assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front,
-    "What should be rebuilt before judging a blocker on a new street?");
-  assert.equal(value.modules.moduleById.ancestry.flashcards.find((card) => card.id === "anc-card-before").front,
-    "What comes before blocker analysis?");
+  assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front, "What should be rebuilt before judging a blocker on a new street?");
+  assert.equal(value.modules.moduleById.ancestry.flashcards.find((card) => card.id === "anc-card-before").front, "What comes before blocker analysis?");
   applyLocale(value, "ru");
-  assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front,
-    "Что восстановить перед оценкой блокера на новой улице?");
+  assert.equal(value.modules.moduleById.filtering.flashcards.find((card) => card.id === "fil-card-blocker").front, "Что восстановить перед оценкой блокера на новой улице?");
   const after = value.modules.modules.flatMap((module) => module.flashcards.map((card) => card.id));
   assert.deepEqual(after, before);
 });
@@ -156,14 +145,14 @@ test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and
   assert.match(source, /completedModules < 3/u);
   assert.match(source, /data-wave5-mixed/u);
   assert.match(source, /aria-label/u);
-  assert.match(source, /Predict what will happen first/u);
-  assert.match(source, /Сначала предскажи, что произойдёт с результатом/u);
-  assert.match(source, /prediction\.trim\(\)\.length >= 8/u);
+  assert.match(source, /Predict the result first/u);
+  assert.match(source, /Сначала спрогнозируй результат/u);
+  assert.match(source, /prediction\.trim\(\)\.length >= 24/u);
   assert.match(source, /disabled=\{!predictionReady\}/u);
   assert.match(source, /SPR will go up \/ down \/ stay about the same because/u);
   assert.match(source, /SPR станет выше \/ ниже \/ примерно таким же, потому что/u);
   assert.match(source, /betValue > stackValue/u);
-  assert.match(source, /Change at least one value/u);
+  assert.match(source, /Change at least one material variable/u);
   assert.match(source, /seen\.length === 2/u);
   assert.match(source, /counterexample/u);
 });
