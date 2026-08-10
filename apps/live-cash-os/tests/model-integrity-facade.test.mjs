@@ -40,6 +40,7 @@ function decision(overrides = {}) {
 test("rejects UI fallback probes but admits declared and registered probes", async () => {
   const model = await loadModel();
   const ignored = model.recordDecision(model.emptyLearnerState(), decision({
+    mode: "mixed",
     transferProbe: {
       isTransferProbe: true,
       variantDistance: "NEAR",
@@ -50,6 +51,7 @@ test("rejects UI fallback probes but admits declared and registered probes", asy
   assert.equal(ignored.interactions[0].transferProbe, null);
 
   const declared = model.recordDecision(model.emptyLearnerState(), decision({
+    mode: "mixed",
     transferProbe: {
       isTransferProbe: true,
       variantDistance: "NEAR",
@@ -63,6 +65,7 @@ test("rejects UI fallback probes but admits declared and registered probes", asy
     drillId: "geo-04",
     nodeKey: "nominal-100bb",
     variantGroup: "future-spr",
+    mode: "mixed",
     isBoundary: true,
   }));
   assert.equal(admitted.modules.geometry.evidence.variant_transfer.exposures, 1);

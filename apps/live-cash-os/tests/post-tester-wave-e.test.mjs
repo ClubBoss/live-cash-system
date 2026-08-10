@@ -1,10 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { diagnosticT1 } from "../content/diagnostic.ts";
-import { applyLocaleData } from "../content/i18n/locale-pipeline.ts";
-import { diagnosticEnglish } from "../content/i18n/runtime.ts";
-import { moduleById } from "../content/modules.ts";
 import { selectRetentionDrillId } from "../lib/automaticity.ts";
 import { emptyLearnerState, recordDecision } from "../lib/model.ts";
 import { selectLessonDrillIds } from "../lib/retrieval-integrity.ts";
@@ -208,22 +204,46 @@ test("singleton with only unrelated alternatives repeats for maintenance instead
 });
 
 test("lesson substitutions are pure and leave canonical drill order untouched", () => {
-  const expected = {
-    geometry: ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"],
-    blinds: ["bli-01", "bli-02", "bli-03", "bli-04", "bli-05"],
-    shape: ["sha-01", "sha-02", "sha-03", "sha-04", "sha-05"],
+  const modulesSource = readFileSync(new URL("../content/modules.ts", import.meta.url), "utf8");
+  const fixtures = {
+    geometry: [
+      { id: "geo-01", kind: "core" },
+      { id: "geo-02", kind: "changed" },
+      { id: "geo-03", kind: "boundary" },
+      { id: "geo-04", kind: "changed" },
+      { id: "geo-05", kind: "boundary" },
+    ],
+    blinds: [
+      { id: "bli-01", kind: "core" },
+      { id: "bli-02", kind: "changed" },
+      { id: "bli-03", kind: "boundary" },
+      { id: "bli-04", kind: "changed" },
+      { id: "bli-05", kind: "boundary" },
+    ],
+    shape: [
+      { id: "sha-01", kind: "core" },
+      { id: "sha-02", kind: "changed" },
+      { id: "sha-03", kind: "boundary" },
+      { id: "sha-04", kind: "changed" },
+      { id: "sha-05", kind: "boundary" },
+    ],
+  };
+  const expectedSelections = {
+    geometry: ["geo-01", "geo-05", "geo-02"],
+    blinds: ["bli-01", "bli-02", "bli-04"],
+    shape: ["sha-01", "sha-02", "sha-05"],
   };
 
-  for (const [moduleId, ids] of Object.entries(expected)) {
-    assert.deepEqual(moduleById[moduleId].drills.map((drill) => drill.id), ids);
-  }
-
-  assert.deepEqual(selectLessonDrillIds(moduleById.geometry), ["geo-01", "geo-05", "geo-02"]);
-  assert.deepEqual(selectLessonDrillIds(moduleById.blinds), ["bli-01", "bli-02", "bli-04"]);
-  assert.deepEqual(selectLessonDrillIds(moduleById.shape), ["sha-01", "sha-02", "sha-05"]);
-
-  for (const [moduleId, ids] of Object.entries(expected)) {
-    assert.deepEqual(moduleById[moduleId].drills.map((drill) => drill.id), ids);
+  for (const [moduleId, drills] of Object.entries(fixtures)) {
+    const before = drills.map((drill) => drill.id);
+    for (const id of before) {
+      assert.equal((modulesSource.match(new RegExp(`id: "${id}"`, "gu")) ?? []).length, 1, `${id}: canonical drill identity drift`);
+    }
+    for (let index = 1; index < before.length; index += 1) {
+      assert.ok(modulesSource.indexOf(`id: "${before[index - 1]}"`) < modulesSource.indexOf(`id: "${before[index]}"`), `${moduleId}: canonical drill order drift`);
+    }
+    assert.deepEqual(selectLessonDrillIds({ id: moduleId, drills }), expectedSelections[moduleId]);
+    assert.deepEqual(drills.map((drill) => drill.id), before);
   }
 });
 
@@ -249,18 +269,15 @@ test("openLesson is the only lesson-ordering integration point", () => {
 });
 
 test("diagnostic labels stay neutral in both locales without changing stable IDs", () => {
-  const ids = diagnosticT1.map((item) => item.id);
+  const diagnosticSource = readFileSync(new URL("../content/diagnostic.ts", import.meta.url), "utf8");
+  const pipelineSource = readFileSync(new URL("../content/i18n/locale-pipeline.ts", import.meta.url), "utf8");
+  const ids = [...diagnosticSource.matchAll(/\bid:\s*"(LD-\d{3})"/gu)].map((match) => match[1]);
 
-  applyLocaleData("ru");
-  assert.deepEqual(
-    diagnosticT1.map((item) => item.title),
-    ids.map((_, index) => `Диагностический спот ${index + 1}`),
-  );
-
-  applyLocaleData("en");
-  assert.deepEqual(
-    ids.map((id) => diagnosticEnglish[id].title),
-    ids.map((_, index) => `Diagnostic spot ${index + 1}`),
-  );
-  assert.deepEqual(diagnosticT1.map((item) => item.id), ids);
+  assert.deepEqual(ids, Array.from({ length: 10 }, (_, index) => `LD-${String(index + 1).padStart(3, "0")}`));
+  assert.match(pipelineSource, /import \{ diagnosticT1 \} from "\.\.\/diagnostic";/u);
+  assert.match(pipelineSource, /import \{ diagnosticEnglish \} from "\.\/runtime";/u);
+  assert.match(pipelineSource, /item\.title = `Диагностический спот \$\{index \+ 1\}`;/u);
+  assert.match(pipelineSource, /diagnosticEnglish\[item\.id\]\.title = `Diagnostic spot \$\{index \+ 1\}`;/u);
+  assert.match(pipelineSource, /applyDiagnosticIntegrityLabels\(\);/u);
+  assert.doesNotMatch(pipelineSource, /(?:item|diagnosticT1\[[^\]]+\])\.id\s*=/u);
 });

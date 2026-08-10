@@ -8,7 +8,8 @@ const CLOUD_SYNC_CONTRACT_URL = new URL("../lib/cloud-sync-contract.ts", import.
 const AUTOMATICITY_URL = new URL("../lib/automaticity.ts", import.meta.url).href;
 const SCHEDULER_URL = new URL("../lib/scheduler.ts", import.meta.url).href;
 const SESSION_CLARITY_URL = new URL("../lib/session-clarity.ts", import.meta.url).href;
-const TRANSPILED_URLS = new Set([CORE_URL, MODEL_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL, AUTOMATICITY_URL, SCHEDULER_URL, SESSION_CLARITY_URL]);
+const RETRIEVAL_INTEGRITY_URL = new URL("../lib/retrieval-integrity.ts", import.meta.url).href;
+const TRANSPILED_URLS = new Set([CORE_URL, MODEL_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL, AUTOMATICITY_URL, SCHEDULER_URL, SESSION_CLARITY_URL, RETRIEVAL_INTEGRITY_URL]);
 
 function isTemporaryHarness(parentURL) {
   return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-test-");
