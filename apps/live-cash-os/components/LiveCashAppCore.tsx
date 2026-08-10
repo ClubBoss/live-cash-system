@@ -38,6 +38,12 @@ import {
   type SessionSaveState,
 } from "../lib/session-clarity";
 import {
+  clearSessionOrigin,
+  persistSessionOrigin,
+  restoreSessionOrigin,
+  type SessionOrigin,
+} from "../lib/ui-session-storage";
+import {
   APP_VERSION,
   DIMENSION_KEYS,
   classifyResponse,
@@ -430,7 +436,7 @@ export default function LiveCashAppV11() {
   const [tab, setTab] = useState<Tab>("today");
   const [notice, setNotice] = useState("");
   const [dailyBudget, setDailyBudget] = useState<DailyBudget>("15");
-  const [sessionReturnTab, setSessionReturnTab] = useState<Tab | null>(null);
+  const [sessionReturnTab, setSessionReturnTab] = useState<SessionOrigin | null>(null);
   const dataSafety = useReliableLearnerState();
   const { state, setState, ready, syncStatus, recoveryCode, lastLocalSaveAt } = dataSafety;
   const t = runtimeCopy[locale];
@@ -475,6 +481,11 @@ export default function LiveCashAppV11() {
     if (ready && hasActiveSession) setTab("learn");
   }, [ready, hasActiveSession]);
 
+  useEffect(() => {
+    if (!ready) return;
+    setSessionReturnTab(restoreSessionOrigin(state.activeSession));
+  }, [ready, state.activeSession]);
+
   const planningNow = Date.now();
   const plan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: dailyBudget, now: planningNow, seed: `${state.revision}:${dailyBudget}` });
   const warmupPlan = planDailyTraining(state, SCHEDULER_CATALOG, { budget: "warmup", now: planningNow, seed: `${state.revision}:warmup` });
@@ -491,10 +502,25 @@ export default function LiveCashAppV11() {
       : "Русская версия включена. Текущая сессия и прогресс сохранены.");
   }
 
-  function openLesson(moduleId: ModuleId) {
+  function clearReturnOrigin() {
+    clearSessionOrigin();
     setSessionReturnTab(null);
+  }
+
+  function startBoundSession(next: LearnerState, origin: SessionOrigin | null) {
+    const nextSession = next.activeSession;
+    if (origin && nextSession) persistSessionOrigin(origin, nextSession);
+    else clearSessionOrigin();
+    setSessionReturnTab(origin);
+    setState(next);
+    setTab("learn");
+  }
+
+  function openLesson(moduleId: ModuleId, origin: SessionOrigin | null = null) {
+    if (!origin) clearReturnOrigin();
     const module = moduleById[moduleId];
     if (!moduleAvailable(state, moduleId, [...HARD_PREREQUISITES[moduleId]])) {
+      clearReturnOrigin();
       const prerequisiteId = nextRequiredModule(state, moduleId);
       setNotice(prerequisiteId
         ? prerequisiteCopy(locale, prerequisiteId)
@@ -502,60 +528,54 @@ export default function LiveCashAppV11() {
       return;
     }
     const changed = module.drills.filter((drill) => drill.kind === "changed" || drill.kind === "boundary").slice(0, 2);
-    setState(startSession(state, "lesson", moduleId, [module.drills[0].id, ...changed.map((drill) => drill.id)]));
-    setTab("learn");
+    startBoundSession(startSession(state, "lesson", moduleId, [module.drills[0].id, ...changed.map((drill) => drill.id)]), origin);
   }
 
-  function openPractice(moduleId: ModuleId) {
-    setSessionReturnTab(null);
-    setState(startSession(state, "practice", moduleId, moduleById[moduleId].drills.map((drill) => drill.id)));
-    setTab("learn");
+  function openPractice(moduleId: ModuleId, origin: SessionOrigin | null = null) {
+    if (!origin) clearReturnOrigin();
+    startBoundSession(startSession(state, "practice", moduleId, moduleById[moduleId].drills.map((drill) => drill.id)), origin);
   }
 
-  function openRepair(moduleId: ModuleId, warmup = false, sourceReviewId?: string, returnToReview = false) {
+  function openRepair(moduleId: ModuleId, warmup = false, sourceReviewId?: string, origin: SessionOrigin | null = null) {
     const selection = selectRepair(state, moduleId, sourceReviewId);
     if (!selection.drills.length) return;
-    setSessionReturnTab(returnToReview ? "review" : null);
-    setState(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), warmup ? -1 : 0, selection.sourceReviewId));
-    setTab("learn");
+    const safeOrigin = warmup ? null : origin;
+    if (!safeOrigin) clearReturnOrigin();
+    startBoundSession(startSession(state, "repair", moduleId, selection.drills.map((drill) => drill.id), warmup ? -1 : 0, selection.sourceReviewId), safeOrigin);
   }
 
-  function openReview(sourceReviewId?: string, returnToReview = false) {
+  function openReview(sourceReviewId?: string, origin: SessionOrigin | null = null) {
     const selection = selectReview(state, sourceReviewId);
-    if (!selection.drills.length) { setTab("review"); return; }
-    setSessionReturnTab(returnToReview ? "review" : null);
-    setState(startSession(state, "review", selection.drills[0].moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId));
-    setTab("learn");
+    if (!selection.drills.length) { clearReturnOrigin(); setTab("review"); return; }
+    if (!origin) clearReturnOrigin();
+    startBoundSession(startSession(state, "review", selection.drills[0].moduleId, selection.drills.map((drill) => drill.id), 0, selection.sourceReviewId), origin);
   }
 
-  function openMixed() {
-    setSessionReturnTab(null);
+  function openMixed(origin: SessionOrigin | null = null) {
+    if (!origin) clearReturnOrigin();
     const drills = selectMixed(state);
-    setState(startSession(state, "mixed", drills[0].moduleId, drills.map((drill) => drill.id)));
-    setTab("learn");
+    startBoundSession(startSession(state, "mixed", drills[0].moduleId, drills.map((drill) => drill.id)), origin);
   }
 
   function openBurst() {
-    setSessionReturnTab(null);
+    clearReturnOrigin();
     const drillIds = selectTableBurstDrillIds(state, SCHEDULER_CATALOG, `${state.revision}:table-burst`);
     const first = drillIds.length ? drillById[drillIds[0]] : undefined;
     if (!first) return;
-    setState(startSession(state, "mixed", first.moduleId, drillIds));
-    setTab("learn");
+    startBoundSession(startSession(state, "mixed", first.moduleId, drillIds), null);
   }
 
   function runPlan(selectedPlan: DailyPlan, warmup = false) {
     const item = selectedPlan.items[0];
     if (!item || item.kind === "done") return;
     if (item.kind === "resume") { setTab("learn"); return; }
-    if (item.kind === "review") { openReview(item.sourceReviewId, false); return; }
-    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId, warmup, item.sourceReviewId, false); return; }
-    if (item.kind === "lesson" && item.moduleId) { openLesson(item.moduleId); return; }
-    if (item.kind === "cards") { setSessionReturnTab(null); setTab("cards"); return; }
+    const origin: SessionOrigin | null = warmup ? null : "today";
+    if (item.kind === "review") { openReview(item.sourceReviewId, origin); return; }
+    if (item.kind === "repair" && item.moduleId) { openRepair(item.moduleId, warmup, item.sourceReviewId, origin); return; }
+    if (item.kind === "lesson" && item.moduleId) { openLesson(item.moduleId, origin); return; }
+    if (item.kind === "cards") { clearReturnOrigin(); setTab("cards"); return; }
     if ((item.kind === "practice" || item.kind === "mixed") && item.moduleId && item.drillIds?.length) {
-      setSessionReturnTab(null);
-      setState(startSession(state, item.kind === "mixed" ? "mixed" : "practice", item.moduleId, item.drillIds));
-      setTab("learn");
+      startBoundSession(startSession(state, item.kind === "mixed" ? "mixed" : "practice", item.moduleId, item.drillIds), origin);
     }
   }
 
@@ -585,12 +605,14 @@ export default function LiveCashAppV11() {
   }
 
   function finishPracticeBlock() {
-    if (!sessionReturnTab) return;
     const target = sessionReturnTab;
-    setSessionReturnTab(null);
-    setNotice(locale === "ru"
-      ? "Пункт завершён. Очередь Review обновлена — выбери следующий оставшийся пункт."
-      : "Item complete. The Review queue is updated — choose the next remaining item.");
+    clearReturnOrigin();
+    if (!target) return;
+    if (target === "review") {
+      setNotice(locale === "ru"
+        ? "Пункт завершён. Очередь Review обновлена — выбери следующий оставшийся пункт."
+        : "Item complete. The Review queue is updated — choose the next remaining item.");
+    }
     setTab(target);
   }
 
@@ -625,12 +647,12 @@ export default function LiveCashAppV11() {
     {notice && <div className="notice"><span>{notice}</span><button onClick={() => setNotice("")}>{t.close}</button></div>}
 
     {tab === "today" && <Today locale={locale} state={state} plan={plan} budget={dailyBudget} onBudget={setDailyBudget} onRun={runToday} onWarmup={runWarmup} onLearn={() => setTab("learn")} onDiagnostic={() => setTab("diagnostic")} onField={() => setTab("field")} />}
-    {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={openMixed} onBurst={openBurst} />}
+    {tab === "learn" && !session && <Learn locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} onMixed={() => openMixed()} onBurst={openBurst} />}
     {tab === "learn" && session && <Session locale={locale} state={state} setState={setState} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={exitSession} onWarmupCards={() => setTab("cards")} onFinished={finishPracticeBlock} />}
-    {tab === "review" && <Review locale={locale} state={state} plan={reviewPlan} budget={reviewBudget} onBudget={setDailyBudget} onReview={(sourceReviewId) => openReview(sourceReviewId, true)} onRepair={(moduleId, sourceReviewId) => openRepair(moduleId, false, sourceReviewId, true)} />}
+    {tab === "review" && <Review locale={locale} state={state} plan={reviewPlan} budget={reviewBudget} onBudget={setDailyBudget} onReview={(sourceReviewId) => openReview(sourceReviewId, "review")} onRepair={(moduleId, sourceReviewId) => openRepair(moduleId, false, sourceReviewId, "review")} />}
     {tab === "cards" && <Cards locale={locale} state={state} setState={setState} warmupIds={warmupCardIds} onLearn={() => setTab("learn")} />}
     {tab === "map" && <SkillMap locale={locale} state={state} onLesson={openLesson} onPractice={openPractice} />}
-    {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
+    {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} lastLocalSaveAt={lastLocalSaveAt} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
     {tab === "diagnostic" && <Diagnostic locale={locale} state={state} setState={setState} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={() => setTab("today")} onImported={finishDiagnosticImport} />}
     {tab === "debug" && <DataSafetyPanel locale={locale} controller={dataSafety} route={tab} />}
   </main>;
@@ -768,7 +790,7 @@ function Session({ locale, state, setState, syncStatus, recoveryCode, lastLocalS
   const session = state.activeSession;
   if (!session) return null;
   return session.mode === "lesson"
-    ? <LessonSession locale={locale} state={state} setState={setState} source={moduleById[session.moduleId]} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} />
+    ? <LessonSession locale={locale} state={state} setState={setState} source={moduleById[session.moduleId]} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} onFinished={onFinished} />
     : <PracticeSession locale={locale} state={state} setState={setState} syncStatus={syncStatus} recoveryCode={recoveryCode} lastLocalSaveAt={lastLocalSaveAt} onExit={onExit} onWarmupCards={onWarmupCards} onFinished={onFinished} />;
 }
 
@@ -778,7 +800,7 @@ function SessionHeader({ locale, label, progress, syncStatus, recoveryCode, stat
   return <div className="session-head"><div><span>{label}</span><span data-testid="session-save" data-save-state={saveState} className={`session-save sync sync-${syncStatus}`} role="status" aria-live="polite">{saveLabel}</span><div className="progress"><i style={{ width: `${progress}%` }} /></div></div>{onExit && <button className="quiet" onClick={onExit}>{t.saveExit}</button>}</div>;
 }
 
-function LessonSession({ locale, state, setState, source, syncStatus, recoveryCode, lastLocalSaveAt, onExit }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; source: ModuleContent; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void }) {
+function LessonSession({ locale, state, setState, source, syncStatus, recoveryCode, lastLocalSaveAt, onExit, onFinished }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; source: ModuleContent; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onFinished: () => void }) {
   const t = runtimeCopy[locale];
   const module = localizedModule(source, locale);
   const session = state.activeSession!;
@@ -795,7 +817,7 @@ function LessonSession({ locale, state, setState, source, syncStatus, recoveryCo
     {session.step === 6 && <><p className="eyebrow">7 · {t.changedSituation}</p><h2>{t.changedSituationTitle}</h2><p className="support">{t.changedSituationHelp}</p><Decision locale={locale} state={state} setState={setState} drill={secondApplication} onContinue={() => setStep(7, 2)} /></>}
     {session.step === 7 && <ExplainBack locale={locale} state={state} setState={setState} module={source} />}
     {session.step === 8 && <TableCard locale={locale} module={source} onNext={() => setStep(9)} />}
-    {session.step === 9 && <LessonSummary locale={locale} state={state} module={source} onFinish={() => setState(completeLesson(state, source.id))} />}
+    {session.step === 9 && <LessonSummary locale={locale} state={state} module={source} onFinish={() => { setState(completeLesson(state, source.id)); onFinished(); }} />}
   </section>;
 }
 
