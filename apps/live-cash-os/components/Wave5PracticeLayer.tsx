@@ -86,12 +86,54 @@ function useLiveHost(selector: string, enabled: boolean, identity: string): HTML
 
 function nextCoreLabStep() { requestAnimationFrame(() => { document.querySelector<HTMLElement>("main .session")?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click(); }); }
 
-function PredictionStep({ locale, prompt, prediction, setPrediction, onContinue }: { locale: LocaleCode; prompt: string; prediction: string; setPrediction: (value: string) => void; onContinue: () => void }) {
-  const copy = locale === "ru"
-    ? { eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ", title: "Сначала спрогнозируй результат.", help: "Ответь одним коротким предложением: «SPR станет выше / ниже / примерно таким же, потому что …». Затем измени одну важную переменную и проверь прогноз.", missing: "Чтобы продолжить, сформулируй и ожидаемое изменение, и причину своими словами. Одного предложения достаточно.", placeholder: "SPR станет ниже, потому что …", button: "Зафиксировать прогноз" }
-    : { eyebrow: "BEFORE THE LAB", title: "Predict the result first.", help: "Use one short sentence: “SPR will go up / down / stay about the same because …”. Then change one material variable and test the prediction.", missing: "To continue, state both the expected change and your reason. One sentence is enough.", placeholder: "SPR will go down because …", button: "Lock prediction" };
+function baselineSpr(lab: SprLab): number {
+  return Math.max(0, (lab.stack - lab.bet) / (lab.initialPot + 2 * lab.bet));
+}
+
+function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: { locale: LocaleCode; lab: Lab; prediction: string; setPrediction: (value: string) => void; onContinue: () => void }) {
   const predictionReady = prediction.trim().length >= 24;
-  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><p className="support"><strong>{locale === "ru" ? "Что проверяем:" : "What you are testing:"}</strong> {prompt}</p><p className="support">{copy.help}</p><textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />{!predictionReady && <p className="support">{copy.missing}</p>}<button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button></>;
+  if (lab.type === "spr") {
+    const start = baselineSpr(lab).toFixed(2);
+    const copy = locale === "ru"
+      ? {
+          eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
+          title: "Сначала выбери одно изменение и предскажи SPR.",
+          task: `Старт: банк ${lab.initialPot}, стек ${lab.stack}, ставка/колл ${lab.bet}, SPR ≈ ${start}.`,
+          help: "Выбери только одно значение — банк, оставшийся стек или ставку/колл — и представь, что оно станет больше или меньше. Напиши, станет SPR выше, ниже или примерно тем же и почему.",
+          missing: "Нужна короткая мысль из двух частей: что изменится с SPR и почему.",
+          placeholder: "Если увеличить банк до ставки, SPR станет ниже, потому что …",
+          button: "Перейти к проверке",
+        }
+      : {
+          eyebrow: "BEFORE THE LAB",
+          title: "Choose one change and predict the SPR first.",
+          task: `Start: pot ${lab.initialPot}, stack ${lab.stack}, bet/call ${lab.bet}, SPR ≈ ${start}.`,
+          help: "Choose only one value — pot, remaining stack, or bet/call — and imagine making it larger or smaller. State whether SPR will rise, fall, or stay about the same, and why.",
+          missing: "Give a short two-part answer: what will happen to SPR and why.",
+          placeholder: "If I increase the pot before the bet, SPR will fall because …",
+          button: "Continue to the check",
+        };
+    return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><p className="support"><strong>{locale === "ru" ? "Исходные данные:" : "Starting values:"}</strong> {copy.task}</p><p className="support">{copy.help}</p><textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />{!predictionReady && <p className="support">{copy.missing}</p>}<button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button></>;
+  }
+
+  const copy = locale === "ru"
+    ? {
+        eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
+        title: `Сначала сравни «${lab.leftTitle}» и «${lab.rightTitle}».`,
+        help: "До открытия подсказок напиши, чем, по-твоему, отличаются эти два варианта. Назови один конкретный фактор и объясни, как он меняет решение или вывод.",
+        missing: "Нужна короткая мысль из двух частей: что здесь меняется и почему это важно.",
+        placeholder: "Главное отличие — …; поэтому решение меняется так: …",
+        button: "Перейти к проверке",
+      }
+    : {
+        eyebrow: "BEFORE THE LAB",
+        title: `Compare “${lab.leftTitle}” and “${lab.rightTitle}” first.`,
+        help: "Before opening the hints, write how you think these two versions differ. Name one concrete factor and explain how it changes the decision or conclusion.",
+        missing: "Give a short two-part answer: what changes here and why it matters.",
+        placeholder: "The key difference is …; therefore the decision changes because …",
+        button: "Continue to the check",
+      };
+  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><p className="support"><strong>{locale === "ru" ? "Что сравниваем:" : "What you are comparing:"}</strong> {lab.description}</p><p className="support">{copy.help}</p><textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />{!predictionReady && <p className="support">{copy.missing}</p>}<button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button></>;
 }
 
 function canonicalNumericInput(raw: string): string {
@@ -104,28 +146,62 @@ function canonicalNumericInput(raw: string): string {
   return `${negative ? "-" : ""}${integer}${decimal}`;
 }
 
-function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: SprLab; onComplete: () => void }) {
+function SprInteraction({ locale, moduleId, lab, prediction, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: SprLab; prediction: string; onComplete: () => void }) {
   const module = moduleById[moduleId];
   const [pot, setPot] = useState(String(lab.initialPot)); const [stack, setStack] = useState(String(lab.stack)); const [bet, setBet] = useState(String(lab.bet));
   const numbers = useMemo(() => [pot, stack, bet].map((value) => value.trim() === "" ? Number.NaN : Number(value)), [pot, stack, bet]);
-  const [potValue, stackValue, betValue] = numbers; const finite = numbers.every((value) => Number.isFinite(value) && value >= 0); const changed = finite && (potValue !== lab.initialPot || stackValue !== lab.stack || betValue !== lab.bet);
+  const [potValue, stackValue, betValue] = numbers;
+  const finite = numbers.every((value) => Number.isFinite(value) && value >= 0);
+  const changedCount = finite ? [potValue !== lab.initialPot, stackValue !== lab.stack, betValue !== lab.bet].filter(Boolean).length : 0;
   let error = "";
   if (!finite) error = locale === "ru" ? "Введи конечные неотрицательные числа." : "Enter finite non-negative numbers."; else if (betValue > stackValue) error = locale === "ru" ? "Ставка/колл не может быть больше оставшегося стека." : "Bet/call cannot exceed the remaining stack."; else if (potValue + 2 * betValue <= 0) error = locale === "ru" ? "После действия размер банка должен быть больше нуля." : "The post-action pot must be greater than zero.";
   const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
-  const copy = locale === "ru" ? { eyebrow: "ПРОВЕРЬ ПРОГНОЗ", title: "Измени хотя бы одну важную переменную.", pot: "Банк до ставки", stack: "Оставшийся стек", bet: "Ставка / колл", unchanged: "Измени хотя бы одно значение — иначе сравнивать нечего.", boundary: "Граница", finish: "Зафиксировать вывод" } : { eyebrow: "TEST THE PREDICTION", title: "Change at least one material variable.", pot: "Pot before bet", stack: "Remaining stack", bet: "Bet / call", unchanged: "Change at least one value so there is something to compare.", boundary: "Boundary", finish: "Lock the conclusion" };
-  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><div className="spr-lab"><label>{copy.pot}<input type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(canonicalNumericInput(event.target.value))} /></label><label>{copy.stack}<input type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(canonicalNumericInput(event.target.value))} /></label><label>{copy.bet}<input type="number" inputMode="decimal" min="0" value={bet} onChange={(event) => setBet(canonicalNumericInput(event.target.value))} /></label><div className="spr-result" aria-live="polite"><span>SPR</span><b>{spr === null ? "—" : spr.toFixed(2)}</b>{spr !== null && <small>({stackValue}−{betValue}) / ({potValue}+2×{betValue})</small>}</div></div>{error ? <p className="assumption-strip" role="alert">{error}</p> : !changed ? <p className="assumption-strip">{copy.unchanged}</p> : <p className="support">{lab.description}</p>}<div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div><button className="primary" disabled={Boolean(error) || !changed} onClick={onComplete}>{copy.finish} <span>→</span></button></>;
+  const start = baselineSpr(lab).toFixed(2);
+  const copy = locale === "ru"
+    ? {
+        eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
+        title: "Теперь измени ровно одно значение.",
+        help: `Стартовый SPR ≈ ${start}. Измени только банк, оставшийся стек или ставку/колл, а два других значения оставь стартовыми. Так будет понятно, что именно изменило SPR.`,
+        prediction: "Твой прогноз",
+        pot: "Банк до ставки",
+        stack: "Оставшийся стек",
+        bet: "Ставка / колл",
+        unchanged: "Пока ничего не изменилось. Выбери одно из трёх значений и измени его.",
+        tooMany: "Изменено несколько значений. Верни остальные к стартовым и оставь изменённым только один показатель.",
+        result: "Сравнение",
+        boundary: "Граница",
+        finish: "Готово — продолжить",
+      }
+    : {
+        eyebrow: "TEST THE PREDICTION",
+        title: "Now change exactly one value.",
+        help: `Starting SPR ≈ ${start}. Change only the pot, remaining stack, or bet/call and leave the other two at their starting values. That makes the cause of the SPR change clear.`,
+        prediction: "Your prediction",
+        pot: "Pot before bet",
+        stack: "Remaining stack",
+        bet: "Bet / call",
+        unchanged: "Nothing has changed yet. Pick one of the three values and change it.",
+        tooMany: "More than one value changed. Restore the others and leave exactly one value changed.",
+        result: "Comparison",
+        boundary: "Boundary",
+        finish: "Done — continue",
+      };
+  const validChange = !error && changedCount === 1;
+  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><div className="answer-panel"><b>{copy.prediction}</b><p>{prediction}</p></div><p className="support">{copy.help}</p><div className="spr-lab"><label>{copy.pot}<input type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(canonicalNumericInput(event.target.value))} /></label><label>{copy.stack}<input type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(canonicalNumericInput(event.target.value))} /></label><label>{copy.bet}<input type="number" inputMode="decimal" min="0" value={bet} onChange={(event) => setBet(canonicalNumericInput(event.target.value))} /></label><div className="spr-result" aria-live="polite"><span>SPR</span><b>{spr === null ? "—" : spr.toFixed(2)}</b>{spr !== null && <small>({stackValue}−{betValue}) / ({potValue}+2×{betValue})</small>}</div></div>{error ? <p className="assumption-strip" role="alert">{error}</p> : changedCount === 0 ? <p className="assumption-strip">{copy.unchanged}</p> : changedCount > 1 ? <p className="assumption-strip">{copy.tooMany}</p> : <p className="support"><strong>{copy.result}:</strong> SPR {start} → {spr?.toFixed(2)}</p>}{validChange && <><p className="support">{lab.description}</p><div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div></>}<button className="primary" disabled={!validChange} onClick={onComplete}>{copy.finish} <span>→</span></button></>;
 }
 
-function CompareInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: CompareLab; onComplete: () => void }) {
+function CompareInteraction({ locale, moduleId, lab, prediction, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: CompareLab; prediction: string; onComplete: () => void }) {
   const module = moduleById[moduleId]; const [active, setActive] = useState<"left" | "right" | null>(null); const [seen, setSeen] = useState<Array<"left" | "right">>([]);
   const visit = (side: "left" | "right") => { setActive(side); setSeen((previous) => previous.includes(side) ? previous : [...previous, side]); }; const complete = seen.length === 2;
-  const copy = locale === "ru" ? { eyebrow: "ПРОВЕРЬ ПРОГНОЗ", title: "Сравни две версии ситуации.", help: "Открой обе стороны и назови переменную, из-за которой меняется решение.", boundary: "Граница", finish: "Зафиксировать вывод" } : { eyebrow: "TEST THE PREDICTION", title: "Compare both versions of the spot.", help: "Inspect both sides and name the variable that changes the decision.", boundary: "Boundary", finish: "Lock the conclusion" };
-  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><p className="support">{copy.help}</p><div className="button-row" role="group" aria-label={copy.title}><button aria-pressed={active === "left"} onClick={() => visit("left")}>{lab.leftTitle}</button><button aria-pressed={active === "right"} onClick={() => visit("right")}>{lab.rightTitle}</button></div>{active && <div className="answer-panel" aria-live="polite"><b>{active === "left" ? lab.leftTitle : lab.rightTitle}</b><p>{active === "left" ? lab.leftText : lab.rightText}</p></div>}{complete && <div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div>}<button className="primary" disabled={!complete} onClick={onComplete}>{copy.finish} <span>→</span></button></>;
+  const copy = locale === "ru"
+    ? { eyebrow: "ПРОВЕРЬ ПРОГНОЗ", title: "Теперь открой оба варианта и сравни.", help: `Открой сначала «${lab.leftTitle}», затем «${lab.rightTitle}». Сверь обе подсказки со своим прогнозом. Когда сможешь своими словами назвать главное отличие и объяснить, почему оно важно, продолжай.`, prediction: "Твой прогноз", boundary: "Граница", finish: "Готово — продолжить" }
+    : { eyebrow: "TEST THE PREDICTION", title: "Now open both versions and compare them.", help: `Open “${lab.leftTitle}” and then “${lab.rightTitle}”. Compare both hints with your prediction. Continue when you can state the key difference in your own words and explain why it matters.`, prediction: "Your prediction", boundary: "Boundary", finish: "Done — continue" };
+  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><div className="answer-panel"><b>{copy.prediction}</b><p>{prediction}</p></div><p className="support">{copy.help}</p><div className="button-row" role="group" aria-label={copy.title}><button aria-pressed={active === "left"} onClick={() => visit("left")}>{lab.leftTitle}</button><button aria-pressed={active === "right"} onClick={() => visit("right")}>{lab.rightTitle}</button></div>{active && <div className="answer-panel" aria-live="polite"><b>{active === "left" ? lab.leftTitle : lab.rightTitle}</b><p>{active === "left" ? lab.leftText : lab.rightText}</p></div>}{complete && <div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div>}<button className="primary" disabled={!complete} onClick={onComplete}>{copy.finish} <span>→</span></button></>;
 }
 
 function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: ModuleId }) {
   const module = moduleById[moduleId]; const [prediction, setPrediction] = useState(""); const [phase, setPhase] = useState<"prediction" | "interact">("prediction");
-  return <section className="wave5-lab-gate" data-wave5-lab-module={moduleId}>{phase === "prediction" ? <PredictionStep locale={locale} prompt={module.lab.description} prediction={prediction} setPrediction={setPrediction} onContinue={() => setPhase("interact")} /> : module.lab.type === "spr" ? <SprInteraction locale={locale} moduleId={moduleId} lab={module.lab} onComplete={nextCoreLabStep} /> : <CompareInteraction locale={locale} moduleId={moduleId} lab={module.lab} onComplete={nextCoreLabStep} />}</section>;
+  return <section className="wave5-lab-gate" data-wave5-lab-module={moduleId}>{phase === "prediction" ? <PredictionStep locale={locale} lab={module.lab} prediction={prediction} setPrediction={setPrediction} onContinue={() => setPhase("interact")} /> : module.lab.type === "spr" ? <SprInteraction locale={locale} moduleId={moduleId} lab={module.lab} prediction={prediction} onComplete={nextCoreLabStep} /> : <CompareInteraction locale={locale} moduleId={moduleId} lab={module.lab} prediction={prediction} onComplete={nextCoreLabStep} />}</section>;
 }
 
 function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; moduleId: ModuleId; revision: number }) {

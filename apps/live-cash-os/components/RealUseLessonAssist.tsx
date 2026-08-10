@@ -26,6 +26,53 @@ const EMPTY: LessonSnapshot = {
   revision: -1,
 };
 
+const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
+  geometry: {
+    ru: "Определи, в каких единицах считать глубину при обязательном страддле и насколько глубок этот стек. Назови одну причину — затем открывай разбор.",
+    en: "Decide which unit should measure depth with the mandatory straddle and how deep this stack is. Name one reason, then reveal the breakdown.",
+  },
+  preflop: {
+    ru: "Выбери, какая ветка здесь лучше сохраняет ценность руки — колл, 3-бет или фолд. Назови один фактор, который делает эту ветку предпочтительнее.",
+    en: "Choose which branch best preserves the hand's value here — call, 3-bet, or fold. Name one factor that makes that branch preferable.",
+  },
+  blinds: {
+    ru: "Сравни план на одном и том же флопе против BB-защиты и SB-колла. Назови, чем отличаются диапазоны, которые дошли до флопа, и как это меняет план.",
+    en: "Compare the plan on the same flop against a BB defend and an SB cold-call. Name how the arriving ranges differ and how that changes the plan.",
+  },
+  filtering: {
+    ru: "Реши, можно ли автоматически продолжать широкий флоп-эксплойт на тёрне после колла соперника. Объясни, что именно колл изменил в его диапазоне.",
+    en: "Decide whether the wide flop exploit should continue automatically on the turn after Villain calls. Explain what the call changed in Villain's range.",
+  },
+  shape: {
+    ru: "Сравни две руки против маленькой широкой ставки: какая чаще выигрывает от рейза, а какая — от колла? Назови причину, связанную с уязвимостью или защитой колл-ветки.",
+    en: "Compare the two hands against the small wide bet: which benefits more from raising and which from calling? Give a reason tied to vulnerability or protecting the calling branch.",
+  },
+  aggression: {
+    ru: "Реши, ставить или чекать рукой почти без шоудаун-вэлью. Перед ответом назови, какую конкретную работу должен выполнить блеф сейчас или на следующей улице.",
+    en: "Decide whether to bet or check with the hand that has almost no showdown value. Before answering, name the specific job a bluff would need to perform now or on the next street.",
+  },
+  ancestry: {
+    ru: "Реши, является ли A5s хорошим 4-бет-блефом против плотного 3-бета SB. Сначала назови более сильные руки, которые реально должны сфолдить.",
+    en: "Decide whether A5s is a good 4-bet bluff against the tight SB 3-bet. First name the better hands that would realistically need to fold.",
+  },
+  multiway: {
+    ru: "Реши, как наличие BB за спиной меняет решение BTN с KQ против ставки HJ. Не переноси heads-up-логику автоматически: сначала учти ещё не ответивший диапазон.",
+    en: "Decide how having the BB behind changes BTN's decision with KQ against the HJ bet. Do not copy heads-up logic automatically; account for the range that has not acted yet.",
+  },
+  river: {
+    ru: "Реши, достаточно ли натсового флеш-блокера для колла. До оценки блокера назови правдоподобные вэлью и блефы, которые реально дошли по этой линии.",
+    en: "Decide whether the nut-flush blocker is enough to justify a call. Before judging the blocker, name the plausible value and bluffs that could actually reach the river through this line.",
+  },
+  evidence: {
+    ru: "Сформулируй рид не как ярлык игрока, а как конкретную ветку: что он делает, в каком узле, и какое будущее наблюдение заставит ослабить этот рид.",
+    en: "Turn the read into a specific branch rather than a player label: what Villain does, in which node, and what future observation would make you weaken the read.",
+  },
+  transfer: {
+    ru: "Определи, что доказывает правильный ответ сразу после объяснения и чего он ещё не доказывает. Назови следующую проверку, нужную для удержания навыка.",
+    en: "Decide what a correct answer immediately after the explanation proves and what it does not prove yet. Name the next check needed for retention.",
+  },
+};
+
 function readSnapshot(): LessonSnapshot {
   const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
   try {
@@ -189,15 +236,14 @@ function PreviousStepButton({ snapshot }: { snapshot: LessonSnapshot }) {
 
 function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
-  const enabled = snapshot.mode === "lesson" && snapshot.moduleId === "geometry" && snapshot.step === 4;
+  const enabled = snapshot.mode === "lesson" && Boolean(snapshot.moduleId) && snapshot.step === 4;
 
   useEffect(() => {
     if (!enabled) {
       setHost(null);
       return;
     }
-    let frame = 0;
-    frame = requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
       const session = document.querySelector<HTMLElement>("main .session");
       const heading = session?.querySelector<HTMLElement>(":scope > h2");
       if (!session || !heading) return;
@@ -207,13 +253,18 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
         slot.dataset.realUseWorkedGuide = "true";
         heading.insertAdjacentElement("afterend", slot);
       }
+      session.classList.add("real-use-worked-guided");
       setHost(slot);
     });
-    return () => cancelAnimationFrame(frame);
-  }, [enabled, snapshot.revision]);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.querySelector<HTMLElement>("main .session.real-use-worked-guided")?.classList.remove("real-use-worked-guided");
+    };
+  }, [enabled, snapshot.moduleId, snapshot.revision]);
 
-  if (!enabled || !host) return null;
-  return createPortal(<p className="real-use-task-guide"><strong>{snapshot.locale === "ru" ? "Что нужно решить сейчас:" : "What to decide now:"}</strong> {snapshot.locale === "ru" ? "сначала определи, в каких единицах считать глубину при обязательном страддле и насколько глубок этот стек. Назови одну причину — затем открывай разбор." : "first decide which unit should measure depth with the mandatory straddle and how deep this stack is. Name one reason, then reveal the breakdown."}</p>, host);
+  if (!enabled || !host || !snapshot.moduleId) return null;
+  const task = WORKED_EXAMPLE_TASKS[snapshot.moduleId][snapshot.locale];
+  return createPortal(<p className="real-use-task-guide"><strong>{snapshot.locale === "ru" ? "Что нужно решить сейчас:" : "What to decide now:"}</strong> {task}</p>, host);
 }
 
 export default function RealUseLessonAssist() {
@@ -222,6 +273,7 @@ export default function RealUseLessonAssist() {
     <style>{`
       .session-head > .real-use-back { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 8px 0; text-transform: none; letter-spacing: normal; }
       .real-use-task-guide { margin: -4px 0 22px; padding: 14px 16px; border-left: 4px solid var(--ink); background: var(--surface-soft); color: var(--ink); }
+      .session.real-use-worked-guided > [data-real-use-worked-guide] + .support { display: none; }
       .real-use-recap-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 18px; background: rgba(20, 21, 19, .48); }
       .real-use-recap { width: min(720px, 100%); max-height: min(82vh, 760px); overflow: auto; padding: 24px; background: var(--surface); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
       .real-use-recap-head { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 22px; }

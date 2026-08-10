@@ -140,19 +140,26 @@ test("Wave 5 practice copy keeps blocker cards distinct without changing stable 
   assert.deepEqual(after, before);
 });
 
-test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and prediction-first labs", async () => {
+test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and explicit prediction-first labs", async () => {
   const source = await readFile(new URL("../components/Wave5PracticeLayer.tsx", import.meta.url), "utf8");
   assert.match(source, /completedModules < 3/u);
   assert.match(source, /data-wave5-mixed/u);
   assert.match(source, /aria-label/u);
-  assert.match(source, /Predict the result first/u);
-  assert.match(source, /Сначала спрогнозируй результат/u);
+  assert.match(source, /Choose one change and predict the SPR first/u);
+  assert.match(source, /Сначала выбери одно изменение и предскажи SPR/u);
   assert.match(source, /prediction\.trim\(\)\.length >= 24/u);
   assert.match(source, /disabled=\{!predictionReady\}/u);
-  assert.match(source, /SPR will go up \/ down \/ stay about the same because/u);
-  assert.match(source, /SPR станет выше \/ ниже \/ примерно таким же, потому что/u);
+  assert.match(source, /State whether SPR will rise, fall, or stay about the same, and why/u);
+  assert.match(source, /станет SPR выше, ниже или примерно тем же и почему/u);
   assert.match(source, /betValue > stackValue/u);
-  assert.match(source, /Change at least one material variable/u);
+  assert.match(source, /changedCount === 1/u);
+  assert.match(source, /Change only the pot, remaining stack, or bet\/call/u);
+  assert.match(source, /Измени только банк, оставшийся стек или ставку\/колл/u);
+  assert.match(source, /What you are comparing/u);
+  assert.match(source, /Что сравниваем/u);
   assert.match(source, /seen\.length === 2/u);
   assert.match(source, /counterexample/u);
+  assert.doesNotMatch(source, /Predict the result first/u);
+  assert.doesNotMatch(source, /Сначала спрогнозируй результат/u);
+  assert.doesNotMatch(source, /Change at least one material variable/u);
 });
