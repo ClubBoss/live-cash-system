@@ -27,6 +27,31 @@ async function seedLesson(page, step = 1) {
   await expect(page.locator("main .session")).toBeVisible();
 }
 
+async function seedWorkedExample(page, moduleId, drillIds) {
+  await page.evaluate(({ key, moduleId, drillIds }) => {
+    const state = JSON.parse(localStorage.getItem(key));
+    const now = new Date().toISOString();
+    state.activeSession = {
+      mode: "lesson",
+      moduleId,
+      step: 4,
+      drillIds,
+      currentIndex: 1,
+      selectedActionId: null,
+      selectedReasonId: null,
+      confidence: 65,
+      startedAt: now,
+      itemStartedAt: now,
+      explainBack: "",
+    };
+    state.revision += 1;
+    state.updatedAt = now;
+    localStorage.setItem(key, JSON.stringify(state));
+  }, { key: STORAGE_KEY, moduleId, drillIds });
+  await page.reload();
+  await expect(page.locator("main .session")).toBeVisible();
+}
+
 async function chooseOption(page, text) {
   await page.getByRole("button", { name: text, exact: true }).click();
 }
@@ -74,9 +99,20 @@ test("new lesson rhythm moves from one compact explanation through active orderi
   await solveExample.click();
 
   await expect(page.getByRole("heading", { name: "$2/$5/$10 с обязательным страддлом. У Hero и соперника по $1,400." })).toBeVisible();
+  await expect(page.getByText("Что нужно решить сейчас:", { exact: true })).toBeVisible();
+  await expect(page.getByText(/в каких единицах считать глубину при обязательном страддле/i)).toBeVisible();
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: /^Я решил — показать разбор/ }).click();
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).toBeVisible();
+});
+
+test("worked examples state the concrete task in modules that are not betting-line decisions", async ({ page }) => {
+  await seedWorkedExample(page, "blinds", ["bli-01", "bli-02", "bli-04"]);
+
+  await expect(page.getByText("Что нужно решить сейчас:", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Сравни план на одном и том же флопе против BB-защиты и SB-колла/i)).toBeVisible();
+  await expect(page.getByText(/как это меняет план/i)).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Я решил — показать разбор/ })).toBeVisible();
 });
 
 test("lesson summary says what was checked and keeps delayed retention explicitly pending", async ({ page }) => {
