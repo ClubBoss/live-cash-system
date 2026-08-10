@@ -116,7 +116,35 @@ test("future transfer policy preserves grandfathered historical aggregate eviden
   assert.deepEqual(next.modules.geometry.evidence.variant_transfer.distinctNodes, ["legacy-node:MEDIUM"]);
 });
 
-test("singleton variant groups prefer deterministic non-identical module applications", () => {
+test("retention prefers a deterministic non-identical sibling from the same mechanism", () => {
+  const catalog = {
+    modules: [{
+      id: "preflop",
+      prerequisites: [],
+      drills: [
+        { id: "pre-01", moduleId: "preflop", nodeKey: "protected", variantGroup: "family-a", kind: "core", targetSeconds: 30 },
+        { id: "pre-04", moduleId: "preflop", nodeKey: "protected", variantGroup: "family-b", kind: "changed", targetSeconds: 30 },
+        { id: "pre-05", moduleId: "preflop", nodeKey: "domination", variantGroup: "family-c", kind: "boundary", targetSeconds: 30 },
+      ],
+    }],
+    cards: [],
+  };
+  const item = {
+    id: "review",
+    moduleId: "preflop",
+    sourceDrillId: "pre-01",
+    variantGroup: "family-a",
+    kind: "retention",
+    dueAt: new Date(T0).toISOString(),
+    attempts: 0,
+    sourceInteractionId: "source",
+  };
+
+  assert.equal(selectRetentionDrillId(item, catalog, "wave-e"), "pre-04");
+  assert.equal(selectRetentionDrillId(item, catalog, "wave-e"), "pre-04");
+});
+
+test("singleton with only unrelated alternatives repeats for maintenance instead of inventing retention", () => {
   const catalog = {
     modules: [{
       id: "preflop",
@@ -139,34 +167,5 @@ test("singleton variant groups prefer deterministic non-identical module applica
     attempts: 0,
     sourceInteractionId: "source",
   };
-
-  const first = selectRetentionDrillId(item, catalog, "wave-e");
-  const second = selectRetentionDrillId(item, catalog, "wave-e");
-  assert.notEqual(first, "pre-01");
-  assert.equal(first, second);
-  assert.ok(first === "pre-04" || first === "pre-05");
-});
-
-test("true one-drill catalog may repeat exact item for maintenance only", () => {
-  const catalog = {
-    modules: [{
-      id: "geometry",
-      prerequisites: [],
-      drills: [
-        { id: "geo-only", moduleId: "geometry", nodeKey: "only", variantGroup: "only", kind: "core", targetSeconds: 30 },
-      ],
-    }],
-    cards: [],
-  };
-  const item = {
-    id: "review",
-    moduleId: "geometry",
-    sourceDrillId: "geo-only",
-    variantGroup: "only",
-    kind: "retention",
-    dueAt: new Date(T0).toISOString(),
-    attempts: 0,
-    sourceInteractionId: "source",
-  };
-  assert.equal(selectRetentionDrillId(item, catalog, "maintenance"), "geo-only");
+  assert.equal(selectRetentionDrillId(item, catalog, "maintenance"), "pre-01");
 });
