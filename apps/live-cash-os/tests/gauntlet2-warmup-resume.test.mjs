@@ -8,12 +8,15 @@ const catalog = {
   modules: [{
     id: "geometry",
     prerequisites: [],
-    drills: [{ id: "geo-a", moduleId: "geometry", nodeKey: "geo-a", variantGroup: "geo-family", kind: "core", targetSeconds: 30 }],
+    drills: [
+      { id: "geo-a", moduleId: "geometry", nodeKey: "geo-a", variantGroup: "geo-family", kind: "core", targetSeconds: 30 },
+      { id: "geo-b", moduleId: "geometry", nodeKey: "geo-b", variantGroup: "geo-family", kind: "changed", targetSeconds: 30 },
+    ],
   }],
   cards: [{ id: "geo-card", moduleId: "geometry" }],
 };
 
-function reviewInput(sourceReviewId) {
+function reviewInput(sourceReviewId, overrides = {}) {
   return {
     moduleId: "geometry",
     drillId: "geo-a",
@@ -29,6 +32,7 @@ function reviewInput(sourceReviewId) {
     elapsedSeconds: 10,
     targetSeconds: 30,
     isBoundary: false,
+    ...overrides,
   };
 }
 
@@ -116,7 +120,7 @@ test("legacy failed-review attempts cannot skip the first successful retrieval s
     mode: "review",
     moduleId: "geometry",
     step: 0,
-    drillIds: ["geo-a"],
+    drillIds: ["geo-b"],
     currentIndex: 0,
     selectedActionId: null,
     selectedReasonId: null,
@@ -127,7 +131,10 @@ test("legacy failed-review attempts cannot skip the first successful retrieval s
     sourceReviewId: "legacy-retention",
   };
 
-  const next = recordDecision(state, reviewInput("legacy-retention"));
+  const next = recordDecision(state, reviewInput("legacy-retention", {
+    drillId: "geo-b",
+    nodeKey: "geo-b",
+  }));
   const staged = next.reviewQueue.find((item) => item.id === "legacy-retention");
   assert.ok(staged);
   assert.equal(staged.attempts, 1);
@@ -183,7 +190,7 @@ test("successful reviews from the same family cannot advance another review item
     mode: "review",
     moduleId: "geometry",
     step: 0,
-    drillIds: ["geo-a"],
+    drillIds: ["geo-b"],
     currentIndex: 0,
     selectedActionId: null,
     selectedReasonId: null,
@@ -194,7 +201,10 @@ test("successful reviews from the same family cannot advance another review item
     sourceReviewId: "target-chain",
   };
 
-  const next = recordDecision(state, reviewInput("target-chain"));
+  const next = recordDecision(state, reviewInput("target-chain", {
+    drillId: "geo-b",
+    nodeKey: "geo-b",
+  }));
   const target = next.reviewQueue.find((item) => item.id === "target-chain");
   assert.ok(target);
   assert.equal(target.attempts, 2);

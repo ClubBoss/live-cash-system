@@ -88,6 +88,7 @@ test("repair, review and mixed modes do not imply transfer", async () => {
 test("only an explicit changed-node probe creates transfer evidence", async () => {
   const model = await modelPromise;
   const next = model.recordDecision(model.emptyLearnerState(), decision({
+    mode: "mixed",
     transferProbe: {
       isTransferProbe: true,
       variantDistance: "NEAR",

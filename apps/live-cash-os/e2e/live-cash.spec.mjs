@@ -70,7 +70,7 @@ test("the starting check has natural T1 copy in both locales", async ({ page }) 
   await expect(page.locator("main")).not.toContainText(/EN REVIEW REQUIRED|editorial review required/i);
 
   await page.getByRole("button", { name: "Start Diagnostic" }).click();
-  await expect(page.getByText(/LD-001 · Depth with a straddle/i)).toBeVisible();
+  await expect(page.getByText(/LD-001 · Diagnostic spot 1/i)).toBeVisible();
   await expect(page.locator(".session")).not.toContainText(/Straddle denominator|Pairwise multiway depth|compensation test|directional raise incentive|MDF burden|credible bluff supply/i);
   await expect(page.locator(".session")).not.toContainText(/[А-Яа-яЁё]/u);
 });

@@ -1,10 +1,19 @@
+import { diagnosticT1 } from "../diagnostic";
 import type { LocaleCode } from "../../lib/model";
+import { diagnosticEnglish } from "./runtime";
 import { applyGeometryLocale } from "./geometry-locale";
 import { applyWave3PriorityLocale } from "./wave3-priority-gold";
 import { applyWave4CurriculumLocale } from "./wave4-curriculum-gold";
 import { applyWave4FinalEditorialLocale } from "./wave4-final-editorial";
 import { applyWave5PracticeCopy } from "./wave5-practice-copy";
 import { applyWave4RFinalLanguage } from "./wave4r-final-language";
+
+function applyDiagnosticIntegrityLabels() {
+  diagnosticT1.forEach((item, index) => {
+    item.title = `Диагностический спот ${index + 1}`;
+    if (diagnosticEnglish[item.id]) diagnosticEnglish[item.id].title = `Diagnostic spot ${index + 1}`;
+  });
+}
 
 /**
  * Applies the approved bilingual corpus directly before React renders the locale.
@@ -18,4 +27,5 @@ export function applyLocaleData(locale: LocaleCode) {
   applyWave4FinalEditorialLocale(locale);
   applyWave5PracticeCopy(locale);
   applyWave4RFinalLanguage(locale);
+  applyDiagnosticIntegrityLabels();
 }

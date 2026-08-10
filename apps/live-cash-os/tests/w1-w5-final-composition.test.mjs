@@ -24,6 +24,10 @@ async function compileInto(root, relativePath, outputPath, transform = (value) =
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "live-cash-os-w1-w5-final-"));
   const modulesPath = await compileInto(root, "content/modules.ts", "content/modules.mjs");
+  await compileInto(root, "content/diagnostic.ts", "content/diagnostic.mjs");
+  await compileInto(root, "content/i18n/runtime-core.ts", "content/i18n/runtime-core.mjs");
+  await compileInto(root, "content/i18n/runtime.ts", "content/i18n/runtime.mjs", (compiled) => compiled
+    .replaceAll('from "./runtime-core"', 'from "./runtime-core.mjs"'));
   await compileInto(root, "content/i18n/geometry-gold.ts", "content/i18n/geometry-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/geometry-ru-gold.ts", "content/i18n/geometry-ru-gold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/geometry-locale.ts", "content/i18n/geometry-locale.mjs", (compiled) => compiled
@@ -36,6 +40,8 @@ async function fixture() {
   await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/wave4r-final-language.ts", "content/i18n/wave4r-final-language.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
+    .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
+    .replace('from "./runtime"', 'from "./runtime.mjs"')
     .replace('from "./geometry-locale"', 'from "./geometry-locale.mjs"')
     .replace('from "./wave3-priority-gold"', 'from "./wave3-priority-gold.mjs"')
     .replace('from "./wave4-curriculum-gold"', 'from "./wave4-curriculum-gold.mjs"')

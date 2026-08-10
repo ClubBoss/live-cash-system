@@ -27,6 +27,7 @@ import {
   shouldFadeDecisionContext,
 } from "../lib/automaticity";
 import { deriveDiagnosticPriorityModules, parseDiagnosticScore } from "../lib/diagnostic-import";
+import { selectLessonDrillIds } from "../lib/retrieval-integrity";
 import { getRuntimeRepairRule } from "../lib/runtime-repair-registry";
 import { HARD_PREREQUISITES, planDailyTraining, type DailyBudget, type DailyPlan, type PlanItem } from "../lib/scheduler";
 import {
@@ -527,8 +528,8 @@ export default function LiveCashAppV11() {
         : locale === "ru" ? "Сначала закончи обязательную базовую тему для этого модуля." : "Complete the required foundation for this module first.");
       return;
     }
-    const changed = module.drills.filter((drill) => drill.kind === "changed" || drill.kind === "boundary").slice(0, 2);
-    startBoundSession(startSession(state, "lesson", moduleId, [module.drills[0].id, ...changed.map((drill) => drill.id)]), origin);
+    const lessonDrillIds = selectLessonDrillIds(module);
+    startBoundSession(startSession(state, "lesson", moduleId, lessonDrillIds), origin);
   }
 
   function openPractice(moduleId: ModuleId, origin: SessionOrigin | null = null) {

@@ -35,15 +35,36 @@ export function nextRetentionDelayMs(completedSuccessfulStages: number): number 
   return null;
 }
 
+function retentionOrder(drills: readonly SchedulerDrill[], seed: string): SchedulerDrill[] {
+  return [...drills].sort((left, right) => hash(`${seed}:${left.id}`) - hash(`${seed}:${right.id}`) || left.id.localeCompare(right.id));
+}
+
 export function selectRetentionDrillId(item: ReviewItem, catalog: SchedulerCatalog, seed: string): string | undefined {
   const module = catalog.modules.find((candidate) => candidate.id === item.moduleId);
   if (!module) return undefined;
-  const sameFamily = module.drills
-    .filter((drill) => drill.variantGroup === item.variantGroup && drill.id !== item.sourceDrillId)
-    .sort((left, right) => hash(`${seed}:${left.id}`) - hash(`${seed}:${right.id}`) || left.id.localeCompare(right.id));
+
+  const nonIdentical = module.drills.filter((drill) => drill.id !== item.sourceDrillId);
+  const sameFamily = retentionOrder(
+    nonIdentical.filter((drill) => drill.variantGroup === item.variantGroup),
+    `${seed}:family`,
+  );
   if (sameFamily.length) return sameFamily[0].id;
-  if (module.drills.some((drill) => drill.id === item.sourceDrillId)) return item.sourceDrillId;
-  return module.drills[0]?.id;
+
+  const source = module.drills.find((drill) => drill.id === item.sourceDrillId);
+  if (source) {
+    const sameNode = retentionOrder(
+      nonIdentical.filter((drill) => drill.nodeKey === source.nodeKey),
+      `${seed}:node`,
+    );
+    if (sameNode.length) return sameNode[0].id;
+  }
+
+  // Do not substitute an arbitrary drill from the same module. A different node
+  // may test a different mechanism and would make the original retention claim
+  // stronger than the evidence supports. Exact recall remains useful maintenance
+  // practice; model.ts prevents it from becoming strong retention evidence.
+  if (source) return source.id;
+  return undefined;
 }
 
 function orderedDrills(drills: readonly SchedulerDrill[], seed: string): SchedulerDrill[] {
