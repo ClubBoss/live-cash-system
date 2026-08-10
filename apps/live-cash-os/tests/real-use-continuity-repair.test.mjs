@@ -31,9 +31,14 @@ test("real-use practice input and prompts are bounded and canonical", async () =
   const wave5 = await source("components/Wave5PracticeLayer.tsx");
   assert.match(wave5, /canonicalNumericInput/u);
   assert.match(wave5, /replace\(\/\^0\+\(\?=\\d\)\//u);
-  assert.match(wave5, /SPR станет выше \/ ниже \/ примерно таким же/u);
-  assert.match(wave5, /One sentence is enough/u);
-  assert.match(wave5, /Одного предложения достаточно/u);
+  assert.match(wave5, /Сначала выбери одно изменение и предскажи SPR/u);
+  assert.match(wave5, /Выбери только одно значение/u);
+  assert.match(wave5, /что изменится с SPR и почему/u);
+  assert.match(wave5, /Нужна короткая мысль из двух частей/u);
+  assert.match(wave5, /Give a short two-part answer/u);
+  assert.match(wave5, /Сначала сравни «\$\{lab\.leftTitle\}» и «\$\{lab\.rightTitle\}»/u);
+  assert.doesNotMatch(wave5, /Сначала спрогнозируй результат/u);
+  assert.doesNotMatch(wave5, /измени важную переменную/u);
 });
 
 test("feedback removes correct-answer duplication and exposes one overlay continue", async () => {
