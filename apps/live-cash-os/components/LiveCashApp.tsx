@@ -1,6 +1,7 @@
 "use client";
 
 import { runtimeCopy } from "../content/i18n/runtime";
+import { APP_VERSION } from "../lib/model";
 import LiveCashAppCore from "./LiveCashAppCore";
 
 const rawBuildSha = (import.meta as ImportMeta & { env?: { VITE_BUILD_SHA?: string } }).env?.VITE_BUILD_SHA ?? "local";
@@ -39,10 +40,11 @@ export default function LiveCashApp() {
     <LiveCashAppCore />
     <footer
       data-build-sha={rawBuildSha}
-      aria-label={`Build ${buildLabel}`}
+      data-app-version={APP_VERSION}
+      aria-label={`Live Cash OS v${APP_VERSION} · Build ${buildLabel}`}
       style={{ padding: "12px 24px 18px", textAlign: "right", fontSize: "12px", opacity: 0.55 }}
     >
-      Build {buildLabel}
+      Live Cash OS v{APP_VERSION} · Build {buildLabel}
     </footer>
   </>;
 }

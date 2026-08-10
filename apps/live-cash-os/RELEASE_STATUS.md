@@ -1,16 +1,29 @@
 # Live Cash OS — Release Status
 
-Status: `POST_INTEGRATION_INTEGRITY_HARDENED / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 ## Current truth
 
-Final Red-Team and Gauntlets 1–4 are integrated implementation history. The post-integration integrity closure hardens verified real-use and release gaps without creating human approval or W10 evidence.
+Final Red-Team, Gauntlets 1–4 and Post-Tester Waves A/B/C are integrated implementation history. App version `1.2.0` labels the A/B/C implementation checkpoint; this label does not create human approval, W10 evidence or stable-production publication. Whether tag `v1.2.0` exists and which commit it identifies is authoritative from Git refs; tag creation is allowed only after exact-main CI, test-mirror deploy and live smoke pass.
 
 Canonical source gate:
 
 `npm run test:release`
 
 Exact commit and run identities live in immutable Git/GitHub Actions history rather than this status file.
+
+## v1.2.0 post-tester checkpoint
+
+The checkpoint groups the accepted tester-driven delta without changing learning semantics:
+
+- **A — Progress & Session Clarity:** lesson completion is separated from skill state; persistent step N/10; truthful local-save status; Today due-review clarity; saved Diagnostic continuation progress.
+- **B — Continuity & Real-Hand Safety:** reload-safe Today/Review return; unfinished Real Hand local draft; zero learner evidence before lock; local-save acknowledgement before draft clear; profile isolation; display-only complete-record example.
+- **C — Mobile & Test Access:** denser but complete mobile decision options with a 48px target floor; distinct invalid/offline/service-unavailable invite states; persisted RU/EN invite-gate locale.
+
+Feature freeze is active. Further product changes require empirical real-use evidence, except independently verified P0/P1 defects. This is implementation-complete **for real-use validation**, not evidence that retention, mastery or field transfer have been empirically validated.
+
+`v1.2.0` tag identity: **consult Git refs**; policy requires exact-main CI, test-mirror deploy and live smoke before creation.
+
 
 ## Post-integration integrity contract
 
