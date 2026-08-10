@@ -81,7 +81,7 @@ test("isolated TEST_DB bootstrap is idempotent, hash-only and production-safe", 
 
   const seedHashes = [...seed.matchAll(/'([a-f0-9]{64})'/g)].map((match) => match[1]);
   for (const hash of seedHashes) assert.match(db, new RegExp(hash));
-  assert.equal(seedHashes.length, 5);
+  assert.equal(seedHashes.length, 6);
 
   assert.doesNotMatch(workflow, /wrangler d1 execute/);
   assert.match(workflow, /TEST_DB bootstrap\/invite lookup expected 401/);
