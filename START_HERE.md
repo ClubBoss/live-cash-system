@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / VERSION_1_2_0_CANDIDATE / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
+Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
 
 ## Bootstrap
 
@@ -20,7 +20,7 @@ Read in this order:
 - repository: `ClubBoss/live-cash-system`;
 - Final Red-Team and Gauntlets 1–4 are historical integrated implementation work;
 - post-integration integrity hardening covers verified Cards, Review, Before Play, Real Hands, recovery, browser-gate and release-path gaps;
-- Post-Tester Waves A/B/C are implementation-complete and integrated; the `1.2.0` version in this branch remains a candidate until evaluator acceptance, merge, exact-main CI, test-mirror deploy and smoke;
+- Post-Tester Waves A/B/C are implementation-complete and integrated; app version is `1.2.0`, while tag presence and exact tag identity are authoritative from Git refs and may be created only after exact-main CI, test-mirror deploy and live smoke pass;
 - feature freeze is active: further product changes require empirical real-use evidence or an independently verified P0/P1 defect;
 - the exact current `main` identity and its CI run are sourced from immutable Git history and GitHub Actions, not this file;
 - editorial state remains `TRANSITIONAL_REVIEW_REQUIRED`.
@@ -87,7 +87,7 @@ Production deployment remains separately authorized and must not be inferred fro
 
 ## Active milestone
 
-`V1_2_0_CANDIDATE -> REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
+`REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
 
 ## Frozen constraints
 
