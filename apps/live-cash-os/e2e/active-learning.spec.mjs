@@ -101,6 +101,7 @@ test("new lesson rhythm moves from one compact explanation through active orderi
   await expect(page.getByRole("heading", { name: "$2/$5/$10 с обязательным страддлом. У Hero и соперника по $1,400." })).toBeVisible();
   await expect(page.getByText("Что нужно решить сейчас:", { exact: true })).toBeVisible();
   await expect(page.getByText(/в каких единицах считать глубину при обязательном страддле/i)).toBeVisible();
+  await expect(page.getByText(/Сначала выбери линию в голове/i)).not.toBeVisible();
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: /^Я решил — показать разбор/ }).click();
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).toBeVisible();
@@ -112,6 +113,7 @@ test("worked examples state the concrete task in modules that are not betting-li
   await expect(page.getByText("Что нужно решить сейчас:", { exact: true })).toBeVisible();
   await expect(page.getByText(/Сравни план на одном и том же флопе против BB-защиты и SB-колла/i)).toBeVisible();
   await expect(page.getByText(/как это меняет план/i)).toBeVisible();
+  await expect(page.getByText(/Сначала выбери линию в голове/i)).not.toBeVisible();
   await expect(page.getByRole("button", { name: /^Я решил — показать разбор/ })).toBeVisible();
 });
 
