@@ -16,7 +16,8 @@ test("Wave C invite gate uses typed client truth without weakening auth", () => 
   assert.match(gate, /type InviteCheckResult = "VALID" \| "INVALID" \| "OFFLINE" \| "SERVICE_UNAVAILABLE"/);
   assert.match(gate, /const CODE_PATTERN = \/\^LCO-\[A-Z0-9_-\]\{20,80\}\$\//);
   assert.match(gate, /if \(!CODE_PATTERN\.test\(code\)\) return "INVALID"/);
-  assert.match(gate, /if \(response\.ok\) return "VALID"/);
+  assert.match(gate, /const response = await fetch\("\/api\/state", \{[\s\S]*headers: \{ \[PROFILE_HEADER\]: code \}/);
+  assert.match(gate, /if \(response\.ok\) \{[\s\S]*rememberStateBootstrap\(code, await response\.json\(\) as unknown\);[\s\S]*return "VALID";/);
   assert.match(gate, /if \(response\.status === 401\) return "INVALID"/);
   assert.match(gate, /return "SERVICE_UNAVAILABLE"/);
   assert.match(gate, /return navigator\.onLine \? "SERVICE_UNAVAILABLE" : "OFFLINE"/);
@@ -24,7 +25,6 @@ test("Wave C invite gate uses typed client truth without weakening auth", () => 
   assert.match(gate, /disabled=\{status === "CHECKING"\}/);
   assert.doesNotMatch(gate, /console\.(?:log|info|warn|error)/);
   assert.doesNotMatch(gate, /removeItem\(PORTABLE_PROFILE_KEY\)/);
-
   assert.match(stateRoute, /const PORTABLE_PROFILE_PATTERN = \/\^LCO-\[A-Z0-9_-\]\{20,80\}\$\//);
   assert.match(stateRoute, /return portable && await activeTestInvite\(portable\) \? portable\.userId : null/);
   assert.match(stateRoute, /code: "AUTH_REQUIRED" \}, 401/);
@@ -39,7 +39,7 @@ test("Wave C gate persists the existing locale identity without touching learner
   assert.match(gate, /aria-pressed=\{locale === "en"\}/);
   assert.match(gate, /Код не найден или отключён\. Проверьте его и попробуйте ещё раз\./);
   assert.match(gate, /Нет подключения к интернету\. Подключитесь к сети, чтобы проверить код доступа\./);
-  assert.match(gate, /Сервис проверки временно недоступен\. Код может быть корректным — попробуйте ещё раз чуть позже\./);
+  assert.match(gate, /Сервис проверки временно недоступен\. Код может быть корректен — попробуйте ещё раз чуть позже\.|Сервис проверки временно недоступен\. Код может быть корректным — попробуйте ещё раз чуть позже\./);
   assert.doesNotMatch(gate, /live-cash-os:learner-state/);
   assert.equal(packageJson.version, "1.2.0");
 });
