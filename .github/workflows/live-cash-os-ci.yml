@@ -138,27 +138,34 @@ jobs:
           LIVE_URL: ${{ steps.deploy.outputs.url }}
           DEPLOYED_SHA: ${{ steps.deploy.outputs.sha }}
           DEPLOYED_AT: ${{ steps.deploy.outputs.timestamp }}
-          LIVE_CASH_TEST_SMOKE_CODE: ${{ secrets.LIVE_CASH_TEST_SMOKE_CODE }}
         run: |
           set -o pipefail
           echo "test-mirror url=$LIVE_URL sha=$DEPLOYED_SHA deployed_at=$DEPLOYED_AT"
-          test -n "$LIVE_CASH_TEST_SMOKE_CODE" || { echo "Missing LIVE_CASH_TEST_SMOKE_CODE secret" >&2; exit 1; }
           curl --fail --show-error --silent --retry 5 --retry-all-errors "$LIVE_URL/" > /dev/null
-          api_status=""
-          for attempt in 1 2 3 4 5 6; do
-            api_status="$(curl --show-error --silent -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
-            [ "$api_status" = "503" ] || break
-            sleep 5
-          done
-          test "$api_status" = "401" || { echo "TEST_DB bootstrap/invite lookup expected 401, got $api_status" >&2; cat test-db-bootstrap.json >&2; exit 1; }
+
+          bootstrap_status="$(curl --show-error --silent --retry 5 --retry-all-errors -X POST -o test-invite-bootstrap.json -w '%{http_code}' "$LIVE_URL/api/test-invite-bootstrap")"
+          test "$bootstrap_status" = "200" || { echo "Test invite sync expected 200, got $bootstrap_status" >&2; cat test-invite-bootstrap.json >&2; exit 1; }
+
+          LIVE_CASH_TEST_SMOKE_CODE="$(node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const access = JSON.parse(readFileSync("test-invites/tester-access.private.json", "utf8"));
+            const code = access.testers?.find((tester) => tester.label === "tester-01" && tester.active)?.code;
+            if (!code) process.exit(1);
+            process.stdout.write(code);
+          ')"
+          export LIVE_CASH_TEST_SMOKE_CODE
+          test -n "$LIVE_CASH_TEST_SMOKE_CODE" || { echo "Recoverable tester-01 access code is missing" >&2; exit 1; }
+
+          api_status="$(curl --show-error --silent -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
+          test "$api_status" = "401" || { echo "TEST_DB invite lookup expected 401, got $api_status" >&2; cat test-db-bootstrap.json >&2; exit 1; }
           node --input-type=module -e '
             import { readFileSync } from "node:fs";
             const body = JSON.parse(readFileSync("test-db-bootstrap.json", "utf8"));
-            if (body.code !== "AUTH_REQUIRED") throw new Error(`Unexpected TEST_DB bootstrap response: ${JSON.stringify(body)}`);
-            console.log("Verified TEST_DB runtime bootstrap and invite lookup without D1 management API access");
+            if (body.code !== "AUTH_REQUIRED") throw new Error(`Unexpected TEST_DB response: ${JSON.stringify(body)}`);
+            console.log("Verified TEST_DB invite lookup rejects an unknown code");
           '
           test_api_status="$(curl --show-error --silent -o test-invite-authorized.json -w '%{http_code}' -H "x-live-cash-profile-code: $LIVE_CASH_TEST_SMOKE_CODE" "$LIVE_URL/api/state")"
-          test "$test_api_status" = "200" || { echo "Issued test invite expected 200, got $test_api_status" >&2; cat test-invite-authorized.json >&2; exit 1; }
+          test "$test_api_status" = "200" || { echo "Recoverable tester-01 invite expected 200, got $test_api_status" >&2; cat test-invite-authorized.json >&2; exit 1; }
           npm run smoke:production
       - name: Upload test-mirror smoke evidence
         if: always()
@@ -167,6 +174,7 @@ jobs:
           name: live-cash-os-test-mirror-smoke
           path: |
             apps/live-cash-os/smoke-evidence
+            apps/live-cash-os/test-invite-bootstrap.json
             apps/live-cash-os/test-db-bootstrap.json
             apps/live-cash-os/test-invite-authorized.json
           if-no-files-found: ignore

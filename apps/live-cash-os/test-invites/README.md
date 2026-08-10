@@ -1,68 +1,62 @@
 # Test invite foundation
 
-Status: `IMPLEMENTED / ISOLATED TEST D1 BOUND / RUNTIME BOOTSTRAP REQUIRED`
+Status: `IMPLEMENTED / ISOLATED TEST D1 / RECOVERABLE PRIVATE-REPO CODES`
 
-This folder prepares five invite-only test profiles without changing the
-production site, production D1 database, learner-state schema, or curriculum.
+This folder provides a small closed test-mirror access layer without changing
+the production site, production D1 database, learner-state schema, or curriculum.
 
-## Existing safety mechanisms retained
+## Current operating model
 
-- The current portable profile code is normalized and SHA-256 hashed before it
-  becomes a learner-state identity.
-- Cloud writes already use a revision plus opaque conditional token, so a stale
-  device receives a conflict instead of silently overwriting newer progress.
-- Existing state migration and local backups remain the source of truth for
-  state compatibility and recovery.
+For the current closed testing phase, operational simplicity is preferred over
+one-time-secret handling:
+
+- plaintext bearer codes are intentionally stored in
+  `tester-access.private.json` inside this private repository;
+- TEST_DB and runtime source still use SHA-256 hashes for invite matching;
+- the deploy smoke reads `tester-01` from the recoverable private file instead
+  of depending on an unrecoverable GitHub Actions secret;
+- production never receives `TEST_DB` or `TEST_INVITE_MODE` and does not expose
+  the test bootstrap endpoint;
+- learner progress remains separate from the access-code file.
+
+Treat repository access as equivalent to access to the test mirror while this
+model is active. Do not copy the access file into public issues, logs, artifacts,
+or a public repository.
 
 ## Integration contract
 
-Before deployment, operations must:
+1. The Cloudflare D1 database for `live-cash-os-mobile-test` remains separate
+   from production and is bound only as `TEST_DB`.
+2. `tester-access.private.json` is the recoverable source of truth for the five
+   current plaintext test codes.
+3. `db/index.ts` and the reviewable seed migration contain the matching hashes.
+4. After a test-mirror deploy, `/api/test-invite-bootstrap` synchronises those
+   hashes into TEST_DB. An existing label is rotated only when its hash changes.
+5. `tester-06` is explicitly removed as part of the current rotation.
+6. A later manual `active = 0` revocation stays durable while that label/hash is
+   unchanged; a deliberate code rotation reactivates that label.
+7. The deploy smoke must prove an unknown code returns `AUTH_REQUIRED` and the
+   recoverable `tester-01` code returns `200`.
+8. State compatibility, conflict handling, local backup and learner-evidence
+   semantics remain unchanged.
 
-1. Create a new Cloudflare D1 database exclusively for
-   `live-cash-os-mobile-test`; never use the production D1 database or the
-   production `DB` binding.
-2. Set `LIVE_CASH_TEST_D1_DATABASE_ID` to that dedicated database ID as a
-   repository secret. The test mirror binds it only as `TEST_DB`; do not alter
-   the production Sites config or its `DB` binding.
-3. Keep exactly five hash-only invite rows. The committed seed migration and the
-   Worker bootstrap contain hashes only; plaintext invite codes are handed to
-   the owner privately and are never committed, added as workflow secrets, or
-   printed by CI.
-4. The test mirror initialises its idempotent `learner_states` and
-   `test_invites` schema through the already-bound `TEST_DB` Worker API before
-   invite lookup. `INSERT OR IGNORE` preserves revocation (`active = 0`) across
-   later deploys. The deploy credential therefore does not need D1-management
-   mutation permission merely to apply schema SQL.
-5. Keep the SQL files in `migrations/` as the explicit reviewable schema/seed
-   source and emergency/manual provisioning reference. Do not run them against
-   production.
-6. In test-invite mode, require an active `test_invites.code_hash` match before
-   serving `/api/state`; update `first_used_at` and `last_used_at` without
-   recording plaintext codes.
-7. Keep deploys backward-compatible with stored learner state. A deploy may
-   change client code, but must never reset `learner_states`, drop tables, or
-   overwrite a state whose conditional token has changed.
-8. The deploy smoke must call `/api/state` with a non-invite profile-shaped code
-   and receive `AUTH_REQUIRED` rather than a storage error. That proves runtime
-   bootstrap and invite-table lookup work on the deployed isolated TEST_DB.
-9. For owner validation, verify a real fresh invite and a same-code second-browser
-   restore check. Verify that a stale second writer receives the existing
-   conflict flow.
+## Rotating codes later
 
-To generate a replacement set of five codes locally:
+Generate a new batch locally with:
 
 ```sh
 node scripts/generate-test-invite-codes.mjs --count=5
 ```
 
-The generated SQL contains hashes only. If the seed set is intentionally
-rotated, update the reviewable hash-only seed and runtime bootstrap together;
-never commit plaintext codes.
+Then replace the five plaintext entries in `tester-access.private.json`, update
+the corresponding hashes in `db/index.ts` and the reviewable seed migration,
+and merge only after CI. The next exact-main test-mirror deploy performs the
+rotation.
 
-## Non-goals for this foundation
+## Non-goals
 
-- No production D1 database or production binding is created, changed, removed,
-  or renamed by this flow.
-- No plaintext invite code is written to D1 or GitHub Actions.
-- This is not passwordless email authentication; codes are bearer secrets for a
-  small closed test group and can be deactivated through `active = 0`.
+- No production D1 database or production binding is changed by this flow.
+- No application account system is introduced; these are simple bearer codes
+  for a small closed test group.
+- This model is intentionally less strict than one-time secret distribution and
+  can be hardened later when wider external testing makes that worthwhile.

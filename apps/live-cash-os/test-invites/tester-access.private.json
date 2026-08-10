@@ -1,0 +1,13 @@
+{
+  "environment": "test-mirror",
+  "url": "https://live-cash-os-mobile-test.blufferus.workers.dev",
+  "purpose": "Closed external tester access. Private repository test-only bearer codes.",
+  "rotatedAt": "2026-08-10T11:42:00.000Z",
+  "testers": [
+    { "label": "tester-01", "code": "LCO-TEST-KNZDDNKXAS_-BV40ZUAODYWK", "active": true },
+    { "label": "tester-02", "code": "LCO-TEST-9V4KHB3TJDKHYCSPAIPKZLHU", "active": true },
+    { "label": "tester-03", "code": "LCO-TEST-JST2F1TBUUZIVZYYSLSXN3QI", "active": true },
+    { "label": "tester-04", "code": "LCO-TEST-5P34I3NEI86GVN-K8U86Q8PN", "active": true },
+    { "label": "tester-05", "code": "LCO-TEST-MXUH66SQVD_JSM6XUVEW0TAS", "active": true }
+  ]
+}
