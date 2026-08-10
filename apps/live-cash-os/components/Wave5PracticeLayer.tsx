@@ -100,7 +100,6 @@ function applyPracticeDom(snapshot: PracticeSnapshot) {
 
 function usePracticeSnapshot(): PracticeSnapshot {
   const [snapshot, setSnapshot] = useState<PracticeSnapshot>(EMPTY_SNAPSHOT);
-
   useEffect(() => {
     let frame = 0;
     const sync = () => {
@@ -111,7 +110,6 @@ function usePracticeSnapshot(): PracticeSnapshot {
         setSnapshot((previous) => sameSnapshot(previous, next) ? previous : next);
       });
     };
-
     sync();
     const events: Array<keyof DocumentEventMap> = ["click", "input", "change", "keydown"];
     for (const event of events) document.addEventListener(event, sync, true);
@@ -124,7 +122,6 @@ function usePracticeSnapshot(): PracticeSnapshot {
       window.removeEventListener("focus", sync);
     };
   }, []);
-
   return snapshot;
 }
 
@@ -145,20 +142,20 @@ function PredictionStep({ locale, prompt, prediction, setPrediction, onContinue 
 }) {
   const copy = locale === "ru" ? {
     eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
-    title: "Сначала предскажи, что произойдёт с результатом.",
+    title: "Сначала спрогнозируй результат.",
     help: "Ответь одним коротким предложением: «SPR станет выше / ниже / примерно таким же, потому что …». Затем измени одну важную переменную и проверь прогноз.",
-    missing: "Напиши направление изменения и одну причину. Одного предложения достаточно.",
+    missing: "Чтобы продолжить, сформулируй и ожидаемое изменение, и причину своими словами. Одного предложения достаточно.",
     placeholder: "SPR станет ниже, потому что …",
     button: "Зафиксировать прогноз",
   } : {
     eyebrow: "BEFORE THE LAB",
-    title: "Predict what will happen first.",
+    title: "Predict the result first.",
     help: "Use one short sentence: “SPR will go up / down / stay about the same because …”. Then change one material variable and test the prediction.",
-    missing: "State the direction of change and one reason. One sentence is enough.",
+    missing: "To continue, state both the expected change and your reason. One sentence is enough.",
     placeholder: "SPR will go down because …",
     button: "Lock prediction",
   };
-  const predictionReady = prediction.trim().length >= 8;
+  const predictionReady = prediction.trim().length >= 24;
   return <>
     <p className="eyebrow">{copy.eyebrow}</p>
     <h2>{copy.title}</h2>
@@ -196,7 +193,7 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
   const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
   const copy = locale === "ru" ? {
     eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
-    title: "Измени одну важную переменную и сравни результат.",
+    title: "Измени хотя бы одну важную переменную.",
     pot: "Банк до ставки",
     stack: "Оставшийся стек",
     bet: "Ставка / колл",
@@ -205,7 +202,7 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
     finish: "Зафиксировать вывод",
   } : {
     eyebrow: "TEST THE PREDICTION",
-    title: "Change one material variable and compare the result.",
+    title: "Change at least one material variable.",
     pot: "Pot before bet",
     stack: "Remaining stack",
     bet: "Bet / call",
@@ -213,10 +210,8 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
     boundary: "Boundary",
     finish: "Lock the conclusion",
   };
-
   return <>
-    <p className="eyebrow">{copy.eyebrow}</p>
-    <h2>{copy.title}</h2>
+    <p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2>
     <div className="spr-lab">
       <label>{copy.pot}<input type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(canonicalNumericInput(event.target.value))} /></label>
       <label>{copy.stack}<input type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(canonicalNumericInput(event.target.value))} /></label>
@@ -233,32 +228,14 @@ function CompareInteraction({ locale, moduleId, lab, onComplete }: { locale: Loc
   const module = moduleById[moduleId];
   const [active, setActive] = useState<"left" | "right" | null>(null);
   const [seen, setSeen] = useState<Array<"left" | "right">>([]);
-  const visit = (side: "left" | "right") => {
-    setActive(side);
-    setSeen((previous) => previous.includes(side) ? previous : [...previous, side]);
-  };
+  const visit = (side: "left" | "right") => { setActive(side); setSeen((previous) => previous.includes(side) ? previous : [...previous, side]); };
   const complete = seen.length === 2;
-  const copy = locale === "ru" ? {
-    eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
-    title: "Сравни две версии ситуации.",
-    help: "Открой обе стороны и назови переменную, из-за которой меняется решение.",
-    boundary: "Граница",
-    finish: "Зафиксировать вывод",
-  } : {
-    eyebrow: "TEST THE PREDICTION",
-    title: "Compare both versions of the spot.",
-    help: "Inspect both sides and name the variable that changes the decision.",
-    boundary: "Boundary",
-    finish: "Lock the conclusion",
-  };
+  const copy = locale === "ru"
+    ? { eyebrow: "ПРОВЕРЬ ПРОГНОЗ", title: "Сравни две версии ситуации.", help: "Открой обе стороны и назови переменную, из-за которой меняется решение.", boundary: "Граница", finish: "Зафиксировать вывод" }
+    : { eyebrow: "TEST THE PREDICTION", title: "Compare both versions of the spot.", help: "Inspect both sides and name the variable that changes the decision.", boundary: "Boundary", finish: "Lock the conclusion" };
   return <>
-    <p className="eyebrow">{copy.eyebrow}</p>
-    <h2>{copy.title}</h2>
-    <p className="support">{copy.help}</p>
-    <div className="button-row" role="group" aria-label={copy.title}>
-      <button aria-pressed={active === "left"} onClick={() => visit("left")}>{lab.leftTitle}</button>
-      <button aria-pressed={active === "right"} onClick={() => visit("right")}>{lab.rightTitle}</button>
-    </div>
+    <p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><p className="support">{copy.help}</p>
+    <div className="button-row" role="group" aria-label={copy.title}><button aria-pressed={active === "left"} onClick={() => visit("left")}>{lab.leftTitle}</button><button aria-pressed={active === "right"} onClick={() => visit("right")}>{lab.rightTitle}</button></div>
     {active && <div className="answer-panel" aria-live="polite"><b>{active === "left" ? lab.leftTitle : lab.rightTitle}</b><p>{active === "left" ? lab.leftText : lab.rightText}</p></div>}
     {complete && <div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div>}
     <button className="primary" disabled={!complete} onClick={onComplete}>{copy.finish} <span>→</span></button>
@@ -269,7 +246,6 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
   const module = moduleById[moduleId];
   const [prediction, setPrediction] = useState("");
   const [phase, setPhase] = useState<"prediction" | "interact">("prediction");
-
   return <section className="wave5-lab-gate" data-wave5-lab-module={moduleId}>
     {phase === "prediction"
       ? <PredictionStep locale={locale} prompt={module.lab.description} prediction={prediction} setPrediction={setPrediction} onContinue={() => setPhase("interact")} />
@@ -281,19 +257,15 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
 
 function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; moduleId: ModuleId; revision: number }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
-
   useEffect(() => {
-    let frame = 0;
-    frame = requestAnimationFrame(() => setHost(document.querySelector<HTMLElement>("main .session")));
+    let frame = requestAnimationFrame(() => setHost(document.querySelector<HTMLElement>("main .session")));
     return () => cancelAnimationFrame(frame);
   }, [moduleId, revision]);
-
   useLayoutEffect(() => {
     if (!host) return;
     host.classList.add("wave5-lab-active");
     return () => host.classList.remove("wave5-lab-active");
   }, [host]);
-
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
 }
 
