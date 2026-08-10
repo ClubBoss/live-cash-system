@@ -59,20 +59,10 @@ export function selectRetentionDrillId(item: ReviewItem, catalog: SchedulerCatal
     if (sameNode.length) return sameNode[0].id;
   }
 
-  // Singleton variant groups are common in the reviewed corpus. Prefer an
-  // existing changed/boundary application from the same module over repeating
-  // the exact wording/answer pair. This is deterministic and adds no poker truth.
-  const application = retentionOrder(
-    nonIdentical.filter((drill) => drill.kind === "changed" || drill.kind === "boundary"),
-    `${seed}:application`,
-  );
-  if (application.length) return application[0].id;
-
-  const alternate = retentionOrder(nonIdentical, `${seed}:alternate`);
-  if (alternate.length) return alternate[0].id;
-
-  // A true one-drill module can still offer exact maintenance practice. The
-  // model layer explicitly prevents that repeat from becoming strong retention.
+  // Do not substitute an arbitrary drill from the same module. A different node
+  // may test a different mechanism and would make the original retention claim
+  // stronger than the evidence supports. Exact recall remains useful maintenance
+  // practice; model.ts prevents it from becoming strong retention evidence.
   if (source) return source.id;
   return undefined;
 }
