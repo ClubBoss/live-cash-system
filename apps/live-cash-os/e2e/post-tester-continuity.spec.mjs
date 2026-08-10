@@ -1,8 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
+const PROFILE_KEY = "live-cash-os:portable-profile-code";
 const ORIGIN_KEY = "live-cash-os:ui-session-origin:v1";
 const DRAFT_KEY = "live-cash-os:real-hand-draft:v1";
+const PROFILE_A = "LCO-AAAAAAAAAAAAAAAAAAAA";
+const PROFILE_B = "LCO-BBBBBBBBBBBBBBBBBBBB";
 
 async function disableCloud(page) {
   await page.route("**/api/state", async (route) => {
@@ -36,8 +39,14 @@ async function seedDueRepair(page, id) {
 async function waitForBoundOrigin(page, expectedOrigin) {
   await expect.poll(async () => page.evaluate(({ key, origin }) => {
     try {
-      const value = JSON.parse(localStorage.getItem(key) ?? "null");
-      return value?.origin === origin && typeof value?.sessionStartedAt === "string" && value.sessionStartedAt.length > 0;
+      const envelope = JSON.parse(localStorage.getItem(key) ?? "null");
+      const value = envelope?.value;
+      return envelope?.version === 1
+        && typeof envelope?.profileMarker === "string"
+        && value?.origin === origin
+        && typeof value?.sessionStartedAt === "string"
+        && value.sessionStartedAt.length > 0
+        && typeof value?.mode === "string";
     } catch {
       return false;
     }
@@ -52,17 +61,17 @@ async function finishCurrentDecision(page) {
   await page.getByRole("button", { name: /^Ответить/ }).click();
   const continueButton = page.locator(".g4-feedback-card > button.primary");
   await expect(continueButton).toBeVisible();
-  await continueButton.evaluate((button) => button.click());
+  await continueButton.click();
 }
 
 async function openField(page) {
-  await page.locator(".tabs button").nth(5).click();
+  await page.getByRole("button", { name: "Руки", exact: true }).click();
   await expect(page.locator(".field-form")).toBeVisible();
   await expect(page.getByTestId("real-hand-draft-tools")).toBeVisible();
 }
 
 function draftField(page, key) {
-  return page.locator(`[data-wave-b-draft-field="${key}"]`);
+  return page.getByTestId(`real-hand-${key}`);
 }
 
 async function fillCompleteHand(page) {
@@ -90,7 +99,7 @@ test("Review item keeps its return destination across reload", async ({ page }) 
   await seedDueRepair(page, "wave-b-review-origin");
   await page.reload();
 
-  await page.locator(".tabs button").nth(2).click();
+  await page.getByRole("button", { name: "Повтор", exact: true }).click();
   await expect(page.locator(".queue article")).toHaveCount(1);
   await page.locator(".queue article button.primary").first().click();
   await expect(page.locator("main .session")).toBeVisible();
@@ -100,7 +109,7 @@ test("Review item keeps its return destination across reload", async ({ page }) 
   await expect(page.locator("main .session")).toBeVisible();
   await finishCurrentDecision(page);
 
-  await expect(page.locator(".tabs button").nth(2)).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "Повтор", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.locator(".section-head").first()).toContainText(/Повтор|Review/);
   expect(await page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
 });
@@ -119,19 +128,22 @@ test("Today scheduled task keeps its return destination across reload", async ({
   await expect(page.locator("main .session")).toBeVisible();
   await finishCurrentDecision(page);
 
-  await expect(page.locator(".tabs button").nth(0)).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "Сегодня", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.locator(".today-card")).toBeVisible();
   expect(await page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
 });
 
 test("manual Learn clears stale Today or Review origin before starting unrelated work", async ({ page }) => {
-  await page.locator(".tabs button").nth(1).click();
+  await page.getByRole("button", { name: "Учиться", exact: true }).click();
   await page.evaluate((key) => localStorage.setItem(key, JSON.stringify({
     version: 1,
-    origin: "review",
-    createdAt: Date.now(),
-    sessionStartedAt: "stale-session",
-    mode: "repair",
+    profileMarker: "local",
+    updatedAt: Date.now(),
+    value: {
+      origin: "review",
+      sessionStartedAt: "stale-session",
+      mode: "repair",
+    },
   })), ORIGIN_KEY);
 
   await page.locator(".module-list article button.primary").first().click();
@@ -151,7 +163,7 @@ test("Before Play repair still flows to Cards and does not acquire a return orig
   expect(await page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
 
   await finishCurrentDecision(page);
-  await expect(page.locator(".tabs button").nth(3)).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("button", { name: "Карточки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("button", { name: /^Показать ответ/ })).toBeVisible();
   await expect.poll(async () => page.evaluate((key) => JSON.parse(localStorage.getItem(key)).activeSession, LEARNER_KEY)).toBeNull();
   expect(await page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
@@ -167,16 +179,16 @@ test("partial Real Hand draft survives tab navigation and reload", async ({ page
 
   await expect.poll(async () => page.evaluate((key) => {
     const draft = JSON.parse(localStorage.getItem(key) ?? "null");
-    return draft?.values?.stakes;
+    return draft?.value?.stakes;
   }, DRAFT_KEY)).toBe("2/5");
 
-  await page.locator(".tabs button").nth(0).click();
+  await page.getByRole("button", { name: "Сегодня", exact: true }).click();
   await openField(page);
   await expect(draftField(page, "stakes")).toHaveValue("2/5");
   await expect(draftField(page, "actionSequence")).toHaveValue("BTN opens to $15, BB calls.");
 
   await page.reload();
-  await page.locator(".tabs button").nth(5).click();
+  await openField(page);
   await expect(draftField(page, "moduleId")).toHaveValue("geometry");
   await expect(draftField(page, "stakes")).toHaveValue("2/5");
   await expect(draftField(page, "heroPosition")).toHaveValue("BTN");
@@ -215,11 +227,28 @@ test("incomplete Real Hand draft creates zero field evidence", async ({ page }) 
   expect(after).toEqual(before);
 });
 
-test("successful Real Hand lock saves exactly once and clears the local draft", async ({ page }) => {
+test("successful Real Hand lock saves exactly once, acknowledges local persistence, then clears draft", async ({ page }) => {
   await openField(page);
   const beforeCount = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).fieldNotes.length, LEARNER_KEY);
   await fillCompleteHand(page);
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key) !== null, DRAFT_KEY)).toBe(true);
+
+  await page.evaluate(({ learnerKey, draftKey }) => {
+    const originalSetItem = Storage.prototype.setItem;
+    const originalRemoveItem = Storage.prototype.removeItem;
+    window.__waveBStorageEvents = [];
+    Storage.prototype.setItem = function setItem(key, value) {
+      if (key === learnerKey) {
+        const parsed = JSON.parse(String(value));
+        window.__waveBStorageEvents.push({ kind: "learner-write", revision: parsed.revision, updatedAt: parsed.updatedAt });
+      }
+      return originalSetItem.call(this, key, value);
+    };
+    Storage.prototype.removeItem = function removeItem(key) {
+      if (key === draftKey) window.__waveBStorageEvents.push({ kind: "draft-remove" });
+      return originalRemoveItem.call(this, key);
+    };
+  }, { learnerKey: LEARNER_KEY, draftKey: DRAFT_KEY });
 
   const lock = page.getByRole("button", { name: /^Зафиксировать решение/ });
   await expect(lock).toBeEnabled();
@@ -237,6 +266,49 @@ test("successful Real Hand lock saves exactly once and clears the local draft", 
   expect(saved.note.stakes).toBe("2/5");
   expect(saved.note.heroPosition).toBe("BTN");
   expect(saved.note.reason).toBe("Before the result, I wanted to record what I noticed and why I chose the action.");
+
+  const events = await page.evaluate(() => window.__waveBStorageEvents);
+  const learnerWriteIndex = events.findIndex((event) => event.kind === "learner-write" && event.revision === saved.note ? false : event.kind === "learner-write");
+  const draftRemoveIndex = events.findIndex((event) => event.kind === "draft-remove");
+  expect(learnerWriteIndex).toBeGreaterThanOrEqual(0);
+  expect(draftRemoveIndex).toBeGreaterThan(learnerWriteIndex);
+});
+
+test("LOCAL_WRITE_FAILED keeps Real Hand draft recoverable without a persisted phantom note", async ({ page }) => {
+  await openField(page);
+  const beforeCount = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).fieldNotes.length, LEARNER_KEY);
+  await fillCompleteHand(page);
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key) !== null, DRAFT_KEY)).toBe(true);
+
+  await page.evaluate(({ learnerKey, count }) => {
+    const originalSetItem = Storage.prototype.setItem;
+    window.__waveBOriginalSetItem = originalSetItem;
+    Storage.prototype.setItem = function setItem(key, value) {
+      if (key === learnerKey) {
+        const parsed = JSON.parse(String(value));
+        if (parsed.fieldNotes.length > count) throw new Error("wave-b-local-write-failure");
+      }
+      return originalSetItem.call(this, key, value);
+    };
+  }, { learnerKey: LEARNER_KEY, count: beforeCount });
+
+  const lock = page.getByRole("button", { name: /^Зафиксировать решение/ });
+  await lock.click();
+  await expect(page.getByText(/Не удалось записать прогресс/)).toBeVisible();
+  expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).fieldNotes.length, LEARNER_KEY)).toBe(beforeCount);
+  expect(await page.evaluate((key) => localStorage.getItem(key) !== null, DRAFT_KEY)).toBe(true);
+  await expect(lock).toBeDisabled();
+
+  await page.evaluate(() => {
+    Storage.prototype.setItem = window.__waveBOriginalSetItem;
+    delete window.__waveBOriginalSetItem;
+  });
+  await page.reload();
+  await openField(page);
+  await expect(draftField(page, "stakes")).toHaveValue("2/5");
+  await expect(draftField(page, "heroPosition")).toHaveValue("BTN");
+  await expect(draftField(page, "reason")).toHaveValue("Before the result, I wanted to record what I noticed and why I chose the action.");
+  expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).fieldNotes.length, LEARNER_KEY)).toBe(beforeCount);
 });
 
 test("malformed and stale Real Hand drafts fail safe without creating evidence", async ({ page }) => {
@@ -246,11 +318,52 @@ test("malformed and stale Real Hand drafts fail safe without creating evidence",
   await expect(page.locator(".field-form")).toBeVisible();
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBeNull();
 
-  await page.locator(".tabs button").nth(0).click();
-  await page.evaluate((key) => localStorage.setItem(key, JSON.stringify({ version: 1, updatedAt: 0, values: {} })), DRAFT_KEY);
+  await page.getByRole("button", { name: "Сегодня", exact: true }).click();
+  await page.evaluate((key) => localStorage.setItem(key, JSON.stringify({ version: 1, profileMarker: "local", updatedAt: 0, value: {} })), DRAFT_KEY);
   await openField(page);
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBeNull();
   expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).fieldNotes.length, LEARNER_KEY)).toBe(beforeCount);
+});
+
+test("Real Hand draft is isolated from a different portable profile", async ({ page }) => {
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_A });
+  await page.reload();
+  await openField(page);
+  await draftField(page, "moduleId").selectOption("geometry");
+  await draftField(page, "stakes").fill("5/10");
+  await draftField(page, "reason").fill("Profile A draft only.");
+  await expect.poll(async () => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null")?.value?.stakes, DRAFT_KEY)).toBe("5/10");
+
+  const storedA = await page.evaluate(({ draftKey, profile }) => {
+    const raw = localStorage.getItem(draftKey) ?? "";
+    return { raw, marker: JSON.parse(raw).profileMarker, containsPlaintext: raw.includes(profile) };
+  }, { draftKey: DRAFT_KEY, profile: PROFILE_A });
+  expect(storedA.containsPlaintext).toBe(false);
+  expect(storedA.marker).not.toBe(PROFILE_A);
+
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_B });
+  await page.reload();
+  await openField(page);
+  await expect(draftField(page, "stakes")).toHaveValue("");
+  await expect(draftField(page, "reason")).toHaveValue("");
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBeNull();
+});
+
+test("session return origin is ignored after portable profile identity changes", async ({ page }) => {
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_A });
+  await seedDueRepair(page, "wave-b-origin-profile-a");
+  await page.reload();
+
+  await page.getByRole("button", { name: "Повтор", exact: true }).click();
+  await page.locator(".queue article button.primary").first().click();
+  await waitForBoundOrigin(page, "review");
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_B });
+  await page.reload();
+
+  await expect(page.locator("main .session")).toBeVisible();
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
+  await finishCurrentDecision(page);
+  await expect(page.getByRole("button", { name: "Повтор", exact: true })).not.toHaveAttribute("aria-current", "page");
 });
 
 test("Real Hand format example renders in RU and EN without populating the form", async ({ page }, testInfo) => {
