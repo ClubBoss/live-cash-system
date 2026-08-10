@@ -14,7 +14,7 @@ Exact commit and run identities live in immutable Git/GitHub Actions history rat
 
 ## v1.2.0 post-tester checkpoint
 
-The candidate groups the accepted tester-driven delta without changing learning semantics:
+The checkpoint groups the accepted tester-driven delta without changing learning semantics:
 
 - **A — Progress & Session Clarity:** lesson completion is separated from skill state; persistent step N/10; truthful local-save status; Today due-review clarity; saved Diagnostic continuation progress.
 - **B — Continuity & Real-Hand Safety:** reload-safe Today/Review return; unfinished Real Hand local draft; zero learner evidence before lock; local-save acknowledgement before draft clear; profile isolation; display-only complete-record example.
