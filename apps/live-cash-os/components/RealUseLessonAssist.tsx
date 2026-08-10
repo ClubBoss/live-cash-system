@@ -92,6 +92,25 @@ function useLessonSnapshot() {
   return snapshot;
 }
 
+function useLiveHost(selector: string, enabled: boolean, identity: string): HTMLElement | null {
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!enabled) {
+      setHost(null);
+      return;
+    }
+    const sync = () => {
+      const next = document.querySelector<HTMLElement>(selector);
+      setHost((previous) => previous === next ? previous : next);
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [selector, enabled, identity]);
+  return host;
+}
+
 function applicationDrill(module: ModuleContent, snapshot: LessonSnapshot, index: 1 | 2) {
   const fromSession = drillById[snapshot.drillIds[index]];
   if (fromSession) return fromSession;
@@ -137,18 +156,12 @@ function PreviousStepContent({ snapshot }: { snapshot: LessonSnapshot }) {
 
 function PreviousStepButton({ snapshot }: { snapshot: LessonSnapshot }) {
   const [open, setOpen] = useState(false);
-  const [host, setHost] = useState<HTMLElement | null>(null);
+  const enabled = Boolean(snapshot.moduleId) && snapshot.mode === "lesson" && snapshot.step > 0;
+  const host = useLiveHost("main .session .session-head", enabled, `${snapshot.moduleId}:${snapshot.step}:${snapshot.revision}`);
 
   useEffect(() => {
-    if (snapshot.mode !== "lesson" || snapshot.step <= 0) {
-      setHost(null);
-      setOpen(false);
-      return;
-    }
-    let frame = 0;
-    frame = requestAnimationFrame(() => setHost(document.querySelector<HTMLElement>("main .session .session-head")));
-    return () => cancelAnimationFrame(frame);
-  }, [snapshot.mode, snapshot.step, snapshot.moduleId, snapshot.revision]);
+    if (!enabled) setOpen(false);
+  }, [enabled]);
 
   useEffect(() => {
     if (!open) return;
@@ -159,7 +172,7 @@ function PreviousStepButton({ snapshot }: { snapshot: LessonSnapshot }) {
     return () => window.removeEventListener("keydown", close);
   }, [open]);
 
-  if (!host || !snapshot.moduleId || snapshot.mode !== "lesson" || snapshot.step <= 0) return null;
+  if (!host || !snapshot.moduleId || !enabled) return null;
   const button = <button className="real-use-back quiet" type="button" onClick={() => setOpen(true)}>{snapshot.locale === "ru" ? "← Предыдущий шаг" : "← Previous step"}</button>;
   return <>
     {createPortal(button, host)}

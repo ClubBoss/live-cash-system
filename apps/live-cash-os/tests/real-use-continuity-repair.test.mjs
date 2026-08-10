@@ -6,18 +6,22 @@ async function source(relativePath) {
   return readFile(new URL(`../${relativePath}`, import.meta.url), "utf8");
 }
 
-test("real-use overlays avoid interval polling and do not hide core content before portals mount", async () => {
-  const [wave5, gauntlet4] = await Promise.all([
+test("real-use overlays avoid interval polling and use live hosts for late portal mounts", async () => {
+  const [wave5, gauntlet4, assist] = await Promise.all([
     source("components/Wave5PracticeLayer.tsx"),
     source("components/Gauntlet4LearningIntegrityLayer.tsx"),
+    source("components/RealUseLessonAssist.tsx"),
   ]);
 
   assert.doesNotMatch(wave5, /setInterval\s*\(/u);
   assert.doesNotMatch(gauntlet4, /setInterval\s*\(/u);
-  assert.doesNotMatch(wave5, /MutationObserver/u);
+  assert.doesNotMatch(assist, /setInterval\s*\(/u);
+  assert.match(wave5, /new MutationObserver/u);
   assert.match(gauntlet4, /new MutationObserver/u);
+  assert.match(assist, /new MutationObserver/u);
   assert.doesNotMatch(wave5, /:has\(/u);
   assert.doesNotMatch(gauntlet4, /:has\(/u);
+  assert.doesNotMatch(assist, /:has\(/u);
   assert.match(wave5, /wave5-lab-active/u);
   assert.match(gauntlet4, /g4-feedback-active/u);
   assert.match(gauntlet4, /useLayoutEffect/u);
@@ -54,7 +58,8 @@ test("valid local learner state renders before cloud reconciliation and writes w
   const durableReread = sync.indexOf("const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));");
   assert.ok(durableReread > remoteFetch,
     "late reconciliation must re-read durable local learner state after the network wait");
-  assert.match(sync, /latestState\.current\.revision > durableRevision/u);
+  assert.match(sync, /Boolean\(localRead\.state\)\s*&&\s*latestState\.current\.revision > durableRevision/u,
+    "only a genuinely hydrated local snapshot may promote a newer in-memory mutation over the durable re-read");
   assert.match(sync, /chooseRestoreState\(currentLocalRead, remote\)/u);
 
   const persistenceEffect = sync.indexOf("const serialized = JSON.stringify(state);");

@@ -388,7 +388,7 @@ export function useReliableLearnerState() {
       // has not reached localStorage yet.
       const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));
       const durableRevision = durableLocalRead.state?.revision ?? -1;
-      const currentLocalRead = latestState.current.revision > durableRevision
+      const currentLocalRead = Boolean(localRead.state) && latestState.current.revision > durableRevision
         ? { kind: "valid" as const, state: latestState.current, raw: JSON.stringify(latestState.current) }
         : durableLocalRead;
       const decision = chooseRestoreState(currentLocalRead, remote);

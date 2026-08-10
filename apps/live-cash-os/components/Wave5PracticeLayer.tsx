@@ -65,6 +65,25 @@ function usePracticeSnapshot(): PracticeSnapshot {
   return snapshot;
 }
 
+function useLiveHost(selector: string, enabled: boolean, identity: string): HTMLElement | null {
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!enabled) {
+      setHost(null);
+      return;
+    }
+    const sync = () => {
+      const next = document.querySelector<HTMLElement>(selector);
+      setHost((previous) => previous === next ? previous : next);
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [selector, enabled, identity]);
+  return host;
+}
+
 function nextCoreLabStep() { requestAnimationFrame(() => { document.querySelector<HTMLElement>("main .session")?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click(); }); }
 
 function PredictionStep({ locale, prompt, prediction, setPrediction, onContinue }: { locale: LocaleCode; prompt: string; prediction: string; setPrediction: (value: string) => void; onContinue: () => void }) {
@@ -110,8 +129,7 @@ function Wave5LabGate({ locale, moduleId }: { locale: LocaleCode; moduleId: Modu
 }
 
 function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; moduleId: ModuleId; revision: number }) {
-  const [host, setHost] = useState<HTMLElement | null>(null);
-  useEffect(() => { const frame = requestAnimationFrame(() => setHost(document.querySelector<HTMLElement>("main .session"))); return () => cancelAnimationFrame(frame); }, [moduleId, revision]);
+  const host = useLiveHost("main .session", true, `${moduleId}:${revision}`);
   useLayoutEffect(() => { if (!host) return; host.classList.add("wave5-lab-active"); return () => host.classList.remove("wave5-lab-active"); }, [host]);
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
 }

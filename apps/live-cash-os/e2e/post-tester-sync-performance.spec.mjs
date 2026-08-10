@@ -5,6 +5,8 @@ const LEARNER_KEY = "live-cash-os:learner-state";
 const TEST_CODE = "LCO-BBBBBBBBBBBBBBBBBBBB";
 const RUNTIME = { appVersion: "1.2.0", contentVersion: "2026.08-wave7-integrity", schemaVersion: 2 };
 
+test.use({ serviceWorkers: "block" });
+
 function stateApiController() {
   let remoteState = null;
   let getDelayMs = 0;
@@ -96,23 +98,41 @@ test.describe("Post-tester Wave D authenticated bootstrap", () => {
 
 test.describe("Post-tester Wave D local-first reconcile and cloud-save ordering", () => {
   test.skip(process.env.LIVE_CASH_DEPLOY_TARGET === "test-mirror", "Regular build isolates local-first sync behavior from test-invite gate.");
-  test("valid local state is usable while the cloud GET is still unresolved", async ({ page }) => {
+  test("valid local state stays usable and a learner mutation during delayed GET wins safely", async ({ page }) => {
     const controller = stateApiController();
     await page.route("**/api/state", (route) => controller.handle(route));
     await page.goto("/");
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     const baseline = await readLocalState(page);
+    expect(controller.counts().posts).toBe(0);
     controller.setRemoteState(baseline);
     const held = controller.holdNextGet();
+    const beforeReload = controller.counts();
     void page.reload();
     await held.started;
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     await expect(page.locator("main.loading")).toHaveCount(0);
     expect((await readLocalState(page)).revision).toBe(baseline.revision);
+
+    await page.getByRole("button", { name: "Учиться", exact: true }).click();
+    await page.getByRole("button", { name: /^Изучить/ }).first().click();
+    const mutated = await readLocalState(page);
+    expect(mutated.revision).toBeGreaterThan(baseline.revision);
+    expect(mutated.activeSession).not.toBeNull();
+
     held.release();
+    await expect.poll(() => controller.counts().posts - beforeReload.posts, { timeout: 5_000 }).toBe(1);
+    await expect.poll(async () => {
+      const durable = await readLocalState(page);
+      const last = controller.postBodies().at(-1)?.state;
+      return durable.revision === mutated.revision
+        && durable.activeSession?.startedAt === mutated.activeSession?.startedAt
+        && last?.revision === durable.revision
+        && last?.activeSession?.startedAt === durable.activeSession?.startedAt;
+    }).toBe(true);
     await expect(page.locator("header.topbar .sync")).toContainText(/сохран|saved|sync/i);
     await page.waitForTimeout(700);
-    expect(controller.counts().posts).toBe(0);
+    expect(controller.counts().posts - beforeReload.posts).toBe(1);
   });
 
   test("a newer learner mutation queues behind a delayed POST and only the final state becomes synced", async ({ page }) => {
