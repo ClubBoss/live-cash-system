@@ -294,7 +294,7 @@ test("LOCAL_WRITE_FAILED keeps Real Hand draft recoverable without a persisted p
 
   const lock = page.getByRole("button", { name: /^Зафиксировать решение/ });
   await lock.click();
-  await expect(page.getByText(/Не удалось записать прогресс/)).toBeVisible();
+  await expect(page.locator(".notice")).toContainText("Не удалось записать прогресс");
   expect(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).fieldNotes.length, LEARNER_KEY)).toBe(beforeCount);
   expect(await page.evaluate((key) => localStorage.getItem(key) !== null, DRAFT_KEY)).toBe(true);
   await expect(lock).toBeDisabled();
