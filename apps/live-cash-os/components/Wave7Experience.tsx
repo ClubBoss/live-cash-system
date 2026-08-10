@@ -123,7 +123,7 @@ function parseRealHandDraft(value: unknown): FieldHandInput | null {
 }
 
 function hasDraftContent(hand: FieldHandInput): boolean {
-  return hand.moduleId !== ""
+  return String(hand.moduleId).trim() !== ""
     || DRAFT_STRING_FIELDS.some((key) => String(hand[key] ?? "").trim() !== "")
     || hand.confidence !== 65
     || (hand.populationReadConfidence ?? 50) !== 50;
