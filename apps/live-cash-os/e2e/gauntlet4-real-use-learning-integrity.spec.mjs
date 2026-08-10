@@ -134,9 +134,9 @@ test("LCM-01 transition-driven progression reaches every lesson step without a h
   expect(await gate.evaluate((element) => Boolean(element.parentElement?.matches("main .session") && element.parentElement?.isConnected))).toBe(true);
   await shot(page, testInfo, "desktop-repaired-lab-transition");
   await gate.locator("textarea").fill("SPR должен измениться, потому что меняются банк и остаток стека после действия.");
-  await gate.getByRole("button", { name: /^Зафиксировать прогноз/ }).click();
+  await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
   await gate.getByLabel("Ставка / колл").fill("15");
-  await gate.getByRole("button", { name: /^Зафиксировать вывод/ }).click();
+  await gate.getByRole("button", { name: /^Готово — продолжить/ }).click();
 
   await assertBody(page);
   await expect(page.locator("main .session > [data-wave5-lab-module='geometry']")).toHaveCount(0);

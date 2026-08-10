@@ -98,9 +98,11 @@ test("lab gives a concrete prediction format and normalizes leading zeroes", asy
 
   const gate = page.locator("main .session > [data-wave5-lab-module='geometry']");
   await expect(gate).toBeVisible();
-  await expect(gate).toContainText("SPR станет выше / ниже / примерно таким же");
+  await expect(gate).toContainText("Сначала выбери одно изменение и предскажи SPR.");
+  await expect(gate).toContainText("Старт: банк 42, стек 158, ставка/колл 14, SPR ≈ 2.06");
+  await expect(gate).toContainText("что изменится с SPR и почему");
   await gate.locator("textarea").fill("SPR станет ниже, потому что банк после действия станет больше.");
-  await gate.getByRole("button", { name: /^Зафиксировать прогноз/ }).click();
+  await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
 
   const pot = gate.getByLabel("Банк до ставки");
   await pot.fill("055");
