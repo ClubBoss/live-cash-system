@@ -152,7 +152,9 @@ test("Before Play repair still flows to Cards and does not acquire a return orig
 
   await finishCurrentDecision(page);
   await expect(page.locator(".tabs button").nth(3)).toHaveAttribute("aria-current", "page");
-  await expect(page.locator("main .session")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Показать ответ/ })).toBeVisible();
+  await expect.poll(async () => page.evaluate((key) => JSON.parse(localStorage.getItem(key)).activeSession, LEARNER_KEY)).toBeNull();
+  expect(await page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
 });
 
 test("partial Real Hand draft survives tab navigation and reload", async ({ page }, testInfo) => {
