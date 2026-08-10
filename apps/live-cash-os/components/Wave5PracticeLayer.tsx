@@ -113,15 +113,12 @@ function usePracticeSnapshot(): PracticeSnapshot {
     };
 
     sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true });
     const events: Array<keyof DocumentEventMap> = ["click", "input", "change", "keydown"];
     for (const event of events) document.addEventListener(event, sync, true);
     window.addEventListener("storage", sync);
     window.addEventListener("focus", sync);
     return () => {
       cancelAnimationFrame(frame);
-      observer.disconnect();
       for (const event of events) document.removeEventListener(event, sync, true);
       window.removeEventListener("storage", sync);
       window.removeEventListener("focus", sync);
@@ -286,7 +283,9 @@ function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; mo
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    setHost(document.querySelector<HTMLElement>("main .session"));
+    let frame = 0;
+    frame = requestAnimationFrame(() => setHost(document.querySelector<HTMLElement>("main .session")));
+    return () => cancelAnimationFrame(frame);
   }, [moduleId, revision]);
 
   useLayoutEffect(() => {
