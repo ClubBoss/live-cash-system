@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { moduleById } from "../content/modules";
 import type { Lab } from "../content/types";
@@ -66,30 +66,34 @@ function readPracticeSnapshot(): PracticeSnapshot {
 
 function applyPracticeDom(snapshot: PracticeSnapshot) {
   document.querySelectorAll<HTMLElement>(".decision-card[data-wave5-mixed='true']").forEach((card) => {
-    delete card.dataset.wave5Mixed;
-    card.removeAttribute("role");
-    card.removeAttribute("aria-label");
-    card.querySelector<HTMLElement>(":scope > .eyebrow")?.removeAttribute("aria-hidden");
+    if (!snapshot.mixedActive) {
+      delete card.dataset.wave5Mixed;
+      card.removeAttribute("role");
+      card.removeAttribute("aria-label");
+      card.querySelector<HTMLElement>(":scope > .eyebrow")?.removeAttribute("aria-hidden");
+    }
   });
 
   if (snapshot.mixedActive) {
     const card = document.querySelector<HTMLElement>("main .session .decision-card");
     const eyebrow = card?.querySelector<HTMLElement>(":scope > .eyebrow");
     if (card && eyebrow) {
-      card.dataset.wave5Mixed = "true";
-      card.setAttribute("role", "group");
-      card.setAttribute("aria-label", snapshot.locale === "ru" ? "Смешанная задача" : "Mixed decision");
-      eyebrow.setAttribute("aria-hidden", "true");
+      if (card.dataset.wave5Mixed !== "true") card.dataset.wave5Mixed = "true";
+      if (card.getAttribute("role") !== "group") card.setAttribute("role", "group");
+      const label = snapshot.locale === "ru" ? "Смешанная задача" : "Mixed decision";
+      if (card.getAttribute("aria-label") !== label) card.setAttribute("aria-label", label);
+      if (eyebrow.getAttribute("aria-hidden") !== "true") eyebrow.setAttribute("aria-hidden", "true");
     }
   }
 
   const mixedButton = document.querySelector<HTMLButtonElement>("button.secondary.wide");
   if (mixedButton && snapshot.completedModules < 3) {
-    mixedButton.disabled = true;
-    mixedButton.title = snapshot.locale === "ru"
+    if (!mixedButton.disabled) mixedButton.disabled = true;
+    const title = snapshot.locale === "ru"
       ? "Смешанная тренировка откроется после трёх пройденных тем."
       : "Mixed practice unlocks after three completed topics.";
-  } else if (mixedButton) {
+    if (mixedButton.title !== title) mixedButton.title = title;
+  } else if (mixedButton?.title) {
     mixedButton.removeAttribute("title");
   }
 }
@@ -98,29 +102,29 @@ function usePracticeSnapshot(): PracticeSnapshot {
   const [snapshot, setSnapshot] = useState<PracticeSnapshot>(EMPTY_SNAPSHOT);
 
   useEffect(() => {
-    let scheduled = false;
+    let frame = 0;
     const sync = () => {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        scheduled = false;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
         const next = readPracticeSnapshot();
         applyPracticeDom(next);
         setSnapshot((previous) => sameSnapshot(previous, next) ? previous : next);
-      }));
+      });
     };
 
     sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
     const events: Array<keyof DocumentEventMap> = ["click", "input", "change", "keydown"];
     for (const event of events) document.addEventListener(event, sync, true);
     window.addEventListener("storage", sync);
     window.addEventListener("focus", sync);
-    const fallback = window.setInterval(sync, 500);
     return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
       for (const event of events) document.removeEventListener(event, sync, true);
       window.removeEventListener("storage", sync);
       window.removeEventListener("focus", sync);
-      window.clearInterval(fallback);
     };
   }, []);
 
@@ -129,7 +133,9 @@ function usePracticeSnapshot(): PracticeSnapshot {
 
 function nextCoreLabStep() {
   requestAnimationFrame(() => {
-    document.querySelector<HTMLElement>("main .session")?.querySelector<HTMLButtonElement>(":scope > button.primary")?.click();
+    document.querySelector<HTMLElement>("main .session")
+      ?.querySelector<HTMLButtonElement>(":scope > button.primary")
+      ?.click();
   });
 }
 
@@ -142,29 +148,39 @@ function PredictionStep({ locale, prompt, prediction, setPrediction, onContinue 
 }) {
   const copy = locale === "ru" ? {
     eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
-    title: "Сначала спрогнозируй результат.",
-    help: "Запиши, что должно измениться и почему. После этого откроется взаимодействие — не наоборот.",
-    missing: "Чтобы продолжить, сформулируй и ожидаемое изменение, и причину своими словами.",
-    placeholder: "Мой прогноз и причина…",
+    title: "Сначала предскажи, что произойдёт с результатом.",
+    help: "Ответь одним коротким предложением: «SPR станет выше / ниже / примерно таким же, потому что …». Затем измени одну важную переменную и проверь прогноз.",
+    missing: "Напиши направление изменения и одну причину. Одного предложения достаточно.",
+    placeholder: "SPR станет ниже, потому что …",
     button: "Зафиксировать прогноз",
   } : {
     eyebrow: "BEFORE THE LAB",
-    title: "Predict the result first.",
-    help: "State what should change and why. The interaction opens only after the prediction.",
-    missing: "To continue, state both the expected change and your reason in your own words.",
-    placeholder: "My prediction and reason…",
+    title: "Predict what will happen first.",
+    help: "Use one short sentence: “SPR will go up / down / stay about the same because …”. Then change one material variable and test the prediction.",
+    missing: "State the direction of change and one reason. One sentence is enough.",
+    placeholder: "SPR will go down because …",
     button: "Lock prediction",
   };
-  const predictionReady = prediction.trim().length >= 20;
+  const predictionReady = prediction.trim().length >= 8;
   return <>
     <p className="eyebrow">{copy.eyebrow}</p>
     <h2>{copy.title}</h2>
-    <p className="support">{prompt}</p>
+    <p className="support"><strong>{locale === "ru" ? "Что проверяем:" : "What you are testing:"}</strong> {prompt}</p>
     <p className="support">{copy.help}</p>
     <textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />
     {!predictionReady && <p className="support">{copy.missing}</p>}
     <button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button>
   </>;
+}
+
+function canonicalNumericInput(raw: string): string {
+  if (raw === "" || raw === "-") return raw;
+  const negative = raw.startsWith("-");
+  const body = negative ? raw.slice(1) : raw;
+  const [integerRaw, ...decimalParts] = body.split(".");
+  const integer = integerRaw.replace(/^0+(?=\d)/, "") || "0";
+  const decimal = decimalParts.length > 0 ? `.${decimalParts.join("")}` : "";
+  return `${negative ? "-" : ""}${integer}${decimal}`;
 }
 
 function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: SprLab; onComplete: () => void }) {
@@ -183,20 +199,20 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
   const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
   const copy = locale === "ru" ? {
     eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
-    title: "Измени хотя бы одну важную переменную.",
+    title: "Измени одну важную переменную и сравни результат.",
     pot: "Банк до ставки",
     stack: "Оставшийся стек",
     bet: "Ставка / колл",
-    unchanged: "Измени хотя бы одно значение — иначе тренажёр не проверяет прогноз.",
+    unchanged: "Измени хотя бы одно значение — иначе сравнивать нечего.",
     boundary: "Граница",
     finish: "Зафиксировать вывод",
   } : {
     eyebrow: "TEST THE PREDICTION",
-    title: "Change at least one material variable.",
+    title: "Change one material variable and compare the result.",
     pot: "Pot before bet",
     stack: "Remaining stack",
     bet: "Bet / call",
-    unchanged: "Change at least one value so the lab actually tests the prediction.",
+    unchanged: "Change at least one value so there is something to compare.",
     boundary: "Boundary",
     finish: "Lock the conclusion",
   };
@@ -205,9 +221,9 @@ function SprInteraction({ locale, moduleId, lab, onComplete }: { locale: LocaleC
     <p className="eyebrow">{copy.eyebrow}</p>
     <h2>{copy.title}</h2>
     <div className="spr-lab">
-      <label>{copy.pot}<input type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(event.target.value)} /></label>
-      <label>{copy.stack}<input type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(event.target.value)} /></label>
-      <label>{copy.bet}<input type="number" inputMode="decimal" min="0" value={bet} onChange={(event) => setBet(event.target.value)} /></label>
+      <label>{copy.pot}<input type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(canonicalNumericInput(event.target.value))} /></label>
+      <label>{copy.stack}<input type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(canonicalNumericInput(event.target.value))} /></label>
+      <label>{copy.bet}<input type="number" inputMode="decimal" min="0" value={bet} onChange={(event) => setBet(canonicalNumericInput(event.target.value))} /></label>
       <div className="spr-result" aria-live="polite"><span>SPR</span><b>{spr === null ? "—" : spr.toFixed(2)}</b>{spr !== null && <small>({stackValue}−{betValue}) / ({potValue}+2×{betValue})</small>}</div>
     </div>
     {error ? <p className="assumption-strip" role="alert">{error}</p> : !changed ? <p className="assumption-strip">{copy.unchanged}</p> : <p className="support">{lab.description}</p>}
@@ -228,13 +244,13 @@ function CompareInteraction({ locale, moduleId, lab, onComplete }: { locale: Loc
   const copy = locale === "ru" ? {
     eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
     title: "Сравни две версии ситуации.",
-    help: "Открой обе стороны и объясни себе, какая переменная меняет решение.",
+    help: "Открой обе стороны и назови переменную, из-за которой меняется решение.",
     boundary: "Граница",
     finish: "Зафиксировать вывод",
   } : {
     eyebrow: "TEST THE PREDICTION",
     title: "Compare both versions of the spot.",
-    help: "Inspect both sides and identify which variable changes the decision.",
+    help: "Inspect both sides and name the variable that changes the decision.",
     boundary: "Boundary",
     finish: "Lock the conclusion",
   };
@@ -270,14 +286,14 @@ function Wave5LabPortal({ locale, moduleId, revision }: { locale: LocaleCode; mo
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    const syncHost = () => {
-      const next = document.querySelector<HTMLElement>("main .session");
-      setHost((previous) => previous === next ? previous : next);
-    };
-    syncHost();
-    const fallback = window.setInterval(syncHost, 100);
-    return () => window.clearInterval(fallback);
+    setHost(document.querySelector<HTMLElement>("main .session"));
   }, [moduleId, revision]);
+
+  useLayoutEffect(() => {
+    if (!host) return;
+    host.classList.add("wave5-lab-active");
+    return () => host.classList.remove("wave5-lab-active");
+  }, [host]);
 
   return host ? createPortal(<Wave5LabGate key={moduleId} locale={locale} moduleId={moduleId} />, host) : null;
 }
@@ -289,7 +305,7 @@ export default function Wave5PracticeLayer() {
       .decision-card[data-wave5-mixed="true"] > .eyebrow { font-size: 0 !important; }
       html[lang="ru"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "СМЕШАННАЯ ЗАДАЧА"; font-size: .75rem; }
       html[lang="en"] .decision-card[data-wave5-mixed="true"] > .eyebrow::after { content: "MIXED DECISION"; font-size: .75rem; }
-      main .session:has(> .wave5-lab-gate) > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
+      main .session.wave5-lab-active > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
       .wave5-lab-gate { display: block; }
       .wave5-lab-gate > .assumption-strip { display: block !important; }
     `}</style>
