@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "db0d10dd83c419610752f4dfb72598a59c0f0466b4a49f61a2bdfd224bc1d745",
+    "current_digest": "aa84fe037d1deb8ae720ad1b584174c6275f44f88746d037f9d3bb1af7e883da",
     "approved_digest": null,
-    "review_corpus_fingerprint": "db0d10dd83c419610752f4dfb72598a59c0f0466b4a49f61a2bdfd224bc1d745",
-    "note": "Gauntlet 4, final shell cleanup, and the bounded post-integration workflow-integrity repairs are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "aa84fe037d1deb8ae720ad1b584174c6275f44f88746d037f9d3bb1af7e883da",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, and the Wave C bilingual test-invite gate are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -23,6 +23,7 @@
     "language": [
       "content/i18n/geometry-locale.ts",
       "components/LiveCashAppCore.tsx",
+      "components/TestInviteGate.tsx",
       "components/Wave5PracticeLayer.tsx",
       "components/Wave7Experience.tsx",
       "components/Gauntlet4LearningIntegrityLayer.tsx"
@@ -61,6 +62,7 @@
     "components/LiveCashApp.tsx": "5a42336d09d11d479f39d077d9cfceebcbbaed92",
     "components/LiveCashAppCore.tsx": "4ea31525160d913fce43cf46735e7a3298757f47",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
+    "components/TestInviteGate.tsx": "f21432799e2a8a869a904b4bd71742e667e79980",
     "components/Wave5PracticeLayer.tsx": "06006fbd6de4ed19ab5df0a712a1cddea1f5af6f",
     "components/Wave7Experience.tsx": "fedd4d463120286738a1b1d46eee83d92a315165",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",

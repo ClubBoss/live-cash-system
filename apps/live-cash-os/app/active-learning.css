@@ -96,6 +96,22 @@
   .session details > .glossary {
     padding: 14px;
   }
+
+  .session .answer-set {
+    margin-block: 22px;
+  }
+
+  .session .answer-set legend {
+    margin-bottom: 6px;
+  }
+
+  .session .answer-set button {
+    min-height: 48px;
+    margin-block: 3px;
+    padding: 12px 15px;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
