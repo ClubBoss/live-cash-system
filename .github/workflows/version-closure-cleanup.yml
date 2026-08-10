@@ -1,0 +1,63 @@
+name: Version Closure Cleanup
+
+on:
+  push:
+    branches:
+      - release/v1.2.0-post-tester-closure
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: release/v1.2.0-post-tester-closure
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Restore minimal manifest formatting and remove generated artifact
+        shell: bash
+        run: |
+          git show origin/main:apps/live-cash-os/content/i18n/editorial-manifest.json > /tmp/editorial-manifest.json
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('/tmp/editorial-manifest.json')
+          text = path.read_text(encoding='utf-8')
+          replacements = [
+            ('"current_digest": "aa84fe037d1deb8ae720ad1b584174c6275f44f88746d037f9d3bb1af7e883da"', '"current_digest": "ce64db5470e86bd55e691ed7d73a0fe2344997d731516e1bdbd2c18c9ee770f6"'),
+            ('"review_corpus_fingerprint": "aa84fe037d1deb8ae720ad1b584174c6275f44f88746d037f9d3bb1af7e883da"', '"review_corpus_fingerprint": "ce64db5470e86bd55e691ed7d73a0fe2344997d731516e1bdbd2c18c9ee770f6"'),
+            ('"components/LiveCashApp.tsx": "5a42336d09d11d479f39d077d9cfceebcbbaed92"', '"components/LiveCashApp.tsx": "8a434cee85e73c296c7235e79e1893e7fd9f1290"'),
+            ('Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, and the Wave C bilingual test-invite gate are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval.', 'Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, and the v1.2.0 release identity are materialized in the review corpus. The strategic claim corpus and correct-answer identities are unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval.'),
+          ]
+          for old, new in replacements:
+              if text.count(old) != 1:
+                  raise RuntimeError(f'expected exactly one manifest match for {old[:60]!r}, got {text.count(old)}')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          cp /tmp/editorial-manifest.json apps/live-cash-os/content/i18n/editorial-manifest.json
+          rm -f apps/live-cash-os/tsconfig.tsbuildinfo
+          git diff --check
+      - name: Install dependencies
+        working-directory: apps/live-cash-os
+        run: npm ci --no-audit --no-fund
+      - name: Revalidate bounded candidate
+        working-directory: apps/live-cash-os
+        run: npm test
+      - name: Commit cleanup without workflow
+        shell: bash
+        run: |
+          rm .github/workflows/version-closure-cleanup.yml
+          git diff --check
+          git status --short
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: minimize v1.2.0 candidate diff"
+          git push origin HEAD:release/v1.2.0-post-tester-closure
