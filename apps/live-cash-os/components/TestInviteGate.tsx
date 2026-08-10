@@ -1,12 +1,42 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useEffect, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { PORTABLE_PROFILE_KEY } from "../lib/use-learner-state-sync";
 
 declare const __LIVE_CASH_TEST_INVITE_MODE__: boolean;
 
 const PROFILE_HEADER = "x-live-cash-profile-code";
 const CODE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
+const LOCALE_KEY = "live-cash-os:locale";
+
+type GateLocale = "ru" | "en";
+type InviteCheckResult = "VALID" | "INVALID" | "OFFLINE" | "SERVICE_UNAVAILABLE";
+type GateStatus = "CHECKING" | "READY" | Exclude<InviteCheckResult, "VALID">;
+
+const GATE_COPY = {
+  ru: {
+    language: "Язык интерфейса",
+    title: "Вход для тестирования",
+    description: "Введите выданный вам код. До подтверждения доступ к обучению и локальному прогрессу закрыт.",
+    codeLabel: "Код доступа",
+    continue: "Продолжить",
+    checking: "Проверяем код доступа…",
+    invalid: "Код не найден или отключён. Проверьте его и попробуйте ещё раз.",
+    offline: "Нет подключения к интернету. Подключитесь к сети, чтобы проверить код доступа.",
+    serviceUnavailable: "Сервис проверки временно недоступен. Код может быть корректным — попробуйте ещё раз чуть позже.",
+  },
+  en: {
+    language: "Interface language",
+    title: "Test access",
+    description: "Enter the code you were given. Training and local progress stay locked until it is verified.",
+    codeLabel: "Access code",
+    continue: "Continue",
+    checking: "Checking access code…",
+    invalid: "The code was not found or has been disabled. Check it and try again.",
+    offline: "No internet connection. Connect to the internet to verify the access code.",
+    serviceUnavailable: "The verification service is temporarily unavailable. Your code may still be valid — try again a little later.",
+  },
+} as const;
 
 function storedCode(): string {
   try { return localStorage.getItem(PORTABLE_PROFILE_KEY)?.trim().toUpperCase() ?? ""; } catch { return ""; }
@@ -16,68 +46,120 @@ function rememberCode(code: string) {
   try { localStorage.setItem(PORTABLE_PROFILE_KEY, code); } catch { /* The server check still protects the mirror. */ }
 }
 
-async function validInvite(code: string): Promise<boolean> {
-  if (!CODE_PATTERN.test(code)) return false;
+function storedLocale(): GateLocale {
+  try { return localStorage.getItem(LOCALE_KEY) === "en" ? "en" : "ru"; } catch { return "ru"; }
+}
+
+function rememberLocale(locale: GateLocale) {
+  try { localStorage.setItem(LOCALE_KEY, locale); } catch { /* Locale persistence is best effort only. */ }
+}
+
+async function checkInvite(code: string): Promise<InviteCheckResult> {
+  if (!CODE_PATTERN.test(code)) return "INVALID";
   try {
     const response = await fetch("/api/state", {
       cache: "no-store",
       headers: { [PROFILE_HEADER]: code },
     });
-    return response.ok;
+    if (response.ok) return "VALID";
+    if (response.status === 401) return "INVALID";
+    return "SERVICE_UNAVAILABLE";
   } catch {
-    return false;
+    return navigator.onLine ? "SERVICE_UNAVAILABLE" : "OFFLINE";
   }
 }
 
 export default function TestInviteGate({ children }: { children: ReactNode }) {
   const enabled = __LIVE_CASH_TEST_INVITE_MODE__;
   const [code, setCode] = useState("");
-  const [status, setStatus] = useState<"checking" | "ready" | "invalid" | "offline">("checking");
+  const [locale, setLocale] = useState<GateLocale>("ru");
+  const [status, setStatus] = useState<GateStatus>("CHECKING");
   const [accessGranted, setAccessGranted] = useState(false);
+  const checkingRef = useRef(false);
+  const copy = GATE_COPY[locale];
 
   useEffect(() => {
     if (!enabled) return;
+    const nextLocale = storedLocale();
+    setLocale(nextLocale);
+    document.documentElement.lang = nextLocale;
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
     const existing = storedCode();
     if (!existing) {
-      setStatus("ready");
+      setStatus("READY");
       return;
     }
-    void validInvite(existing).then((valid) => {
-      if (valid) setAccessGranted(true);
-      else {
-        setCode(existing);
-        setStatus("ready");
+
+    setCode(existing);
+    checkingRef.current = true;
+    void checkInvite(existing).then((result) => {
+      if (cancelled) return;
+      checkingRef.current = false;
+      if (result === "VALID") {
+        setAccessGranted(true);
+        return;
       }
+      setStatus(result);
     });
+
+    return () => {
+      cancelled = true;
+      checkingRef.current = false;
+    };
   }, [enabled]);
 
   if (!enabled) return <>{children}</>;
   if (accessGranted) return <>{children}</>;
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const normalized = code.trim().toUpperCase();
-    setStatus("checking");
-    const valid = await validInvite(normalized);
-    if (valid) {
-      rememberCode(normalized);
-      setAccessGranted(true);
-      return;
-    }
-    setStatus(navigator.onLine ? "invalid" : "offline");
+  function changeLocale(nextLocale: GateLocale) {
+    setLocale(nextLocale);
+    rememberLocale(nextLocale);
+    document.documentElement.lang = nextLocale;
   }
 
-  if (status === "checking") {
-    return <main className="loading"><p>Проверяем код доступа…</p></main>;
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (checkingRef.current) return;
+
+    const normalized = code.trim().toUpperCase();
+    checkingRef.current = true;
+    setStatus("CHECKING");
+    try {
+      const result = await checkInvite(normalized);
+      if (result === "VALID") {
+        rememberCode(normalized);
+        setAccessGranted(true);
+        return;
+      }
+      setStatus(result);
+    } finally {
+      checkingRef.current = false;
+    }
   }
+
+  const alert = status === "INVALID"
+    ? copy.invalid
+    : status === "OFFLINE"
+      ? copy.offline
+      : status === "SERVICE_UNAVAILABLE"
+        ? copy.serviceUnavailable
+        : null;
 
   return <main className="loading">
     <section aria-labelledby="test-access-title" style={{ maxWidth: 420, padding: 24, textAlign: "left" }}>
       <p style={{ margin: "0 0 8px", opacity: 0.7 }}>LIVE CASH OS · TEST</p>
-      <h1 id="test-access-title">Вход для тестирования</h1>
-      <p>Введите выданный вам код. До подтверждения доступ к обучению и локальному прогрессу закрыт.</p>
-      <form onSubmit={submit}>
-        <label htmlFor="test-invite-code">Код доступа</label>
+      <div className="mode-switch" role="group" aria-label={copy.language} style={{ marginBottom: 20 }}>
+        <button type="button" aria-pressed={locale === "ru"} onClick={() => changeLocale("ru")}>RU</button>
+        <button type="button" aria-pressed={locale === "en"} onClick={() => changeLocale("en")}>EN</button>
+      </div>
+      <h1 id="test-access-title">{copy.title}</h1>
+      <p>{copy.description}</p>
+      <form onSubmit={submit} aria-busy={status === "CHECKING"}>
+        <label htmlFor="test-invite-code">{copy.codeLabel}</label>
         <input
           id="test-invite-code"
           value={code}
@@ -86,13 +168,16 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
           autoCapitalize="characters"
           autoCorrect="off"
           autoComplete="off"
+          disabled={status === "CHECKING"}
           required
           style={{ display: "block", width: "100%", margin: "8px 0 12px" }}
         />
-        <button type="submit">Продолжить</button>
+        <button type="submit" disabled={status === "CHECKING"}>
+          {status === "CHECKING" ? copy.checking : copy.continue}
+        </button>
       </form>
-      {status === "invalid" && <p role="alert">Код не найден или отключён. Проверьте его и попробуйте ещё раз.</p>}
-      {status === "offline" && <p role="alert">Нужен интернет, чтобы проверить код доступа.</p>}
+      {status === "CHECKING" && <p role="status">{copy.checking}</p>}
+      {alert && <p role="alert">{alert}</p>}
     </section>
   </main>;
 }
