@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { rememberStateBootstrap } from "../lib/state-bootstrap";
 import { PORTABLE_PROFILE_KEY } from "../lib/use-learner-state-sync";
 
 declare const __LIVE_CASH_TEST_INVITE_MODE__: boolean;
@@ -61,7 +62,14 @@ async function checkInvite(code: string): Promise<InviteCheckResult> {
       cache: "no-store",
       headers: { [PROFILE_HEADER]: code },
     });
-    if (response.ok) return "VALID";
+    if (response.ok) {
+      try {
+        rememberStateBootstrap(code, await response.json() as unknown);
+      } catch {
+        return "SERVICE_UNAVAILABLE";
+      }
+      return "VALID";
+    }
     if (response.status === 401) return "INVALID";
     return "SERVICE_UNAVAILABLE";
   } catch {
