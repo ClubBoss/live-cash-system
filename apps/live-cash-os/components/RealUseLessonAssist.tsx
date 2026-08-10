@@ -78,15 +78,12 @@ function useLessonSnapshot() {
       });
     };
     sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true });
     const events: Array<keyof DocumentEventMap> = ["click", "input", "change", "keydown"];
     for (const event of events) document.addEventListener(event, sync, true);
     window.addEventListener("storage", sync);
     window.addEventListener("focus", sync);
     return () => {
       cancelAnimationFrame(frame);
-      observer.disconnect();
       for (const event of events) document.removeEventListener(event, sync, true);
       window.removeEventListener("storage", sync);
       window.removeEventListener("focus", sync);
@@ -148,11 +145,9 @@ function PreviousStepButton({ snapshot }: { snapshot: LessonSnapshot }) {
       setOpen(false);
       return;
     }
-    const syncHost = () => setHost(document.querySelector<HTMLElement>("main .session .session-head"));
-    syncHost();
-    const observer = new MutationObserver(syncHost);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    let frame = 0;
+    frame = requestAnimationFrame(() => setHost(document.querySelector<HTMLElement>("main .session .session-head")));
+    return () => cancelAnimationFrame(frame);
   }, [snapshot.mode, snapshot.step, snapshot.moduleId, snapshot.revision]);
 
   useEffect(() => {
@@ -188,7 +183,8 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
       setHost(null);
       return;
     }
-    const sync = () => {
+    let frame = 0;
+    frame = requestAnimationFrame(() => {
       const session = document.querySelector<HTMLElement>("main .session");
       const heading = session?.querySelector<HTMLElement>(":scope > h2");
       if (!session || !heading) return;
@@ -198,12 +194,9 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
         slot.dataset.realUseWorkedGuide = "true";
         heading.insertAdjacentElement("afterend", slot);
       }
-      setHost((previous) => previous === slot ? previous : slot);
-    };
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+      setHost(slot);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [enabled, snapshot.revision]);
 
   if (!enabled || !host) return null;
@@ -215,9 +208,9 @@ export default function RealUseLessonAssist() {
   return <>
     <style>{`
       .session-head > .real-use-back { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 8px 0; text-transform: none; letter-spacing: normal; }
-      .real-use-task-guide { margin: -4px 0 22px; padding: 14px 16px; border-left: 4px solid var(--ink); background: var(--panel); color: var(--ink); }
+      .real-use-task-guide { margin: -4px 0 22px; padding: 14px 16px; border-left: 4px solid var(--ink); background: var(--surface-soft); color: var(--ink); }
       .real-use-recap-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 18px; background: rgba(20, 21, 19, .48); }
-      .real-use-recap { width: min(720px, 100%); max-height: min(82vh, 760px); overflow: auto; padding: 24px; background: var(--paper); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
+      .real-use-recap { width: min(720px, 100%); max-height: min(82vh, 760px); overflow: auto; padding: 24px; background: var(--surface); border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.24); }
       .real-use-recap-head { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 22px; }
       .real-use-recap .primary { margin-top: 10px; }
       @media (max-width: 520px) {
