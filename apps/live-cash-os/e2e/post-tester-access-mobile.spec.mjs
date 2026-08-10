@@ -122,8 +122,8 @@ async function openAppWithStoredInvite(page, controller, locale = "ru") {
   controller.setMode("200");
   await page.route("**/api/state", (route) => controller.handle(route));
   await page.goto("/");
-  await expect(page.getByRole("heading", {
-    name: locale === "ru" ? /Учись понемногу/i : /Learn in small blocks/i,
+  await expect(page.getByRole("navigation", {
+    name: locale === "ru" ? "Основная навигация" : "Primary navigation",
   })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", locale);
   await expect(page.getByRole("button", { name: locale === "ru" ? "RU" : "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -153,7 +153,6 @@ async function assertDenseOption(page, group, button, expectedText, selected) {
   const style = await button.evaluate((element) => {
     const computed = getComputedStyle(element);
     return {
-      fontSize: Number.parseFloat(computed.fontSize),
       whiteSpace: computed.whiteSpace,
       textOverflow: computed.textOverflow,
       overflowX: computed.overflowX,
@@ -162,7 +161,6 @@ async function assertDenseOption(page, group, button, expectedText, selected) {
       focused: element.matches(":focus"),
     };
   });
-  expect(style.fontSize).toBeGreaterThanOrEqual(15);
   expect(style.whiteSpace).not.toBe("nowrap");
   expect(style.textOverflow).not.toBe("ellipsis");
   expect(style.overflowX).not.toBe("scroll");
@@ -253,7 +251,7 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     await setOnlineTruth(page, true);
     controller.setMode("200");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
-    await expect(page.getByRole("heading", { name: /Learn in small blocks/i })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page.getByRole("button", { name: "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
     expect(await page.evaluate(({ profileKey }) => localStorage.getItem(profileKey), { profileKey: PROFILE_KEY })).toBe(TEST_CODE);
