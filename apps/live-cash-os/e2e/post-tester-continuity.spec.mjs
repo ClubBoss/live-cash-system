@@ -50,7 +50,7 @@ async function finishCurrentDecision(page) {
   await answerSets.nth(0).locator("button").first().click();
   await answerSets.nth(1).locator("button").first().click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  const continueButton = page.locator(".feedback-view button.primary");
+  const continueButton = page.locator(".g4-feedback-card > button.primary");
   await expect(continueButton).toBeVisible();
   await continueButton.evaluate((button) => button.click());
 }
