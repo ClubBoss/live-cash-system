@@ -243,7 +243,7 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
       setHost(null);
       return;
     }
-    let frame = requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
       const session = document.querySelector<HTMLElement>("main .session");
       const heading = session?.querySelector<HTMLElement>(":scope > h2");
       if (!session || !heading) return;
