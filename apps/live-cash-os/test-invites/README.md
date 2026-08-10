@@ -2,8 +2,8 @@
 
 Status: `IMPLEMENTED / ISOLATED TEST D1 BOUND / RUNTIME BOOTSTRAP REQUIRED`
 
-This folder prepares five invite-only test profiles without changing the
-production site, production D1 database, learner-state schema, or curriculum.
+This folder prepares a small set of invite-only test profiles without changing
+the production site, production D1 database, learner-state schema, or curriculum.
 
 ## Existing safety mechanisms retained
 
@@ -24,10 +24,10 @@ Before deployment, operations must:
 2. Set `LIVE_CASH_TEST_D1_DATABASE_ID` to that dedicated database ID as a
    repository secret. The test mirror binds it only as `TEST_DB`; do not alter
    the production Sites config or its `DB` binding.
-3. Keep exactly five hash-only invite rows. The committed seed migration and the
-   Worker bootstrap contain hashes only; plaintext invite codes are handed to
-   the owner privately and are never committed, added as workflow secrets, or
-   printed by CI.
+3. Keep only hash-only invite rows in source and D1. The committed seed migration
+   and Worker bootstrap contain hashes only; plaintext invite codes are handed
+   to the owner privately and are never committed, added as workflow secrets,
+   or printed by CI.
 4. The test mirror initialises its idempotent `learner_states` and
    `test_invites` schema through the already-bound `TEST_DB` Worker API before
    invite lookup. `INSERT OR IGNORE` preserves revocation (`active = 0`) across
@@ -49,15 +49,15 @@ Before deployment, operations must:
    restore check. Verify that a stale second writer receives the existing
    conflict flow.
 
-To generate a replacement set of five codes locally:
+To generate a replacement batch locally:
 
 ```sh
-node scripts/generate-test-invite-codes.mjs --count=5
+node scripts/generate-test-invite-codes.mjs --count=N
 ```
 
-The generated SQL contains hashes only. If the seed set is intentionally
-rotated, update the reviewable hash-only seed and runtime bootstrap together;
-never commit plaintext codes.
+Use an integer `N` from 1 through 20. The generated SQL contains hashes only. If
+the seed set is intentionally rotated or extended, update the reviewable
+hash-only seed and runtime bootstrap together; never commit plaintext codes.
 
 ## Non-goals for this foundation
 
