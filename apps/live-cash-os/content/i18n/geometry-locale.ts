@@ -7,6 +7,9 @@ function applyGeometryRuRealUseCopy() {
   const target = moduleById.geometry;
   target.plainGoal = "Сначала определи, против какого стека ты реально играешь. Затем оцени, каким станет банк и насколько коротким будет дальнейший розыгрыш после следующего действия.";
   target.scope = "Само по себе это правило не говорит, какие руки нужно открывать, коллировать или 3-бетить. Оно помогает оценить масштаб решения; конкретная линия всё ещё зависит от позиций, сайзингов и условий игры.";
+  if (target.lab.type === "spr") {
+    target.lab.description = "Укажи банк до ставки, стек до колла и размер ставки/колла. Тренажёр покажет SPR после колла.";
+  }
   target.decisionTree.splice(0, target.decisionTree.length,
     "Определи обязательную ставку или страддл, который задаёт рабочую единицу.",
     "Определи эффективный стек отдельно против каждого важного соперника.",
@@ -24,6 +27,9 @@ function applyGeometryEnRealUseCopy() {
   target.scope = "This framework does not tell you which hands to open, call or 3-bet by itself. It sets the scale of the decision; the actual line still depends on positions, sizings and game conditions.";
   target.technicalTerm = "Working unit, pairwise effective stack and post-action SPR.";
   target.theory[1] = "A multiway pot has no single effective stack: calculate it separately against each relevant opponent.";
+  if (target.lab.type === "spr") {
+    target.lab.description = "Enter the pot before the bet, the stack before the call, and the bet/call size. The lab will calculate SPR after the call.";
+  }
   target.decisionTree.splice(0, target.decisionTree.length,
     "Identify the forced bet or straddle that sets the working unit.",
     "Calculate the effective stack separately against each relevant opponent.",
