@@ -151,7 +151,8 @@ test("LCM-02 defines modern vocabulary and call price before its first post-cold
   const price = scaffold.locator("[data-call-price-prerequisite='true']");
   await expect(price).toContainText("Цена колла = колл / (банк после ставки соперника + твой колл).");
   await expect(price).toContainText("50 / 200 = 25%");
-  await expect(price).toContainText("формула сама не выбирает действие");
+  await expect(price).toContainText("четверть итогового банка");
+  await expect(price).toContainText("сама формула не выбирает покерное действие");
 
   const applyButton = page.getByRole("button", { name: /^Сразу применить/ });
   await expect(applyButton).toBeHidden();
