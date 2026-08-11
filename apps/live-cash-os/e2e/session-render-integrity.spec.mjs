@@ -51,7 +51,7 @@ test("all ten lesson steps keep learner content inside the active session", asyn
       await expect(gate).toBeVisible();
       await expect(gate).toBeInViewport();
       await expect(gate.getByRole("heading", { name: "Сначала выбери одно изменение и предскажи SPR." })).toBeVisible();
-      await expect(gate).toContainText("Старт: банк 42, стек 158, ставка/колл 14, SPR ≈ 2.06");
+      await expect(gate).toContainText("Старт: банк 42, стек до колла 158, ставка/колл 14, SPR ≈ 2.06");
       await expect(page.locator("body > [data-wave5-lab-module='geometry']")).toHaveCount(0);
     }
   }
