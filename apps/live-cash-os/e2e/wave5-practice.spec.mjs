@@ -103,7 +103,7 @@ test("mixed practice requires three completed topics and conceals the topic befo
   await expect(page.locator(".session-head > div > span:first-of-type")).toContainText(/^СМЕШАННАЯ ПРАКТИКА · 1\//);
 });
 
-test("SPR lab explains the baseline, keeps the prediction visible and changes one variable at a time", async ({ page }) => {
+test("SPR lab accepts a short real prediction without a hidden character quota and rejects repeated filler", async ({ page }) => {
   await openGeometryLab(page);
 
   const gate = page.locator("[data-wave5-lab-module='geometry']");
@@ -115,12 +115,14 @@ test("SPR lab explains the baseline, keeps the prediction visible and changes on
   const prediction = gate.getByRole("textbox", { name: "Сначала выбери одно изменение и предскажи SPR." });
   const continueToCheck = gate.getByRole("button", { name: /Перейти к проверке/ });
   await expect(continueToCheck).toBeDisabled();
-  await expect(gate.getByText(/что изменится с SPR и почему/i)).toBeVisible();
-  await prediction.fill("SPR снизится");
+  await expect(gate.getByText(/правильность здесь не оценивается автоматически/i)).toBeVisible();
+
+  await prediction.fill("ниже ниже ниже ниже ниже ниже ниже ниже");
   await expect(continueToCheck).toBeDisabled();
 
-  const predictionText = "Если банк растёт быстрее остатка стека, будущий SPR должен уменьшиться.";
+  const predictionText = "SPR ниже: банк больше";
   await prediction.fill(predictionText);
+  await expect(continueToCheck).toBeEnabled();
   await continueToCheck.click();
 
   await expect(gate.getByRole("heading", { name: "Теперь измени ровно одно значение." })).toBeVisible();
