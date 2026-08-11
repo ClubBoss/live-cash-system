@@ -28,8 +28,7 @@ test("switching a verified tester code clears prior profile-local learner snapsh
 });
 
 test("reloading the same tester code preserves its local learner snapshot", () => {
-  assert.match(gate, /if \(previous !== code\) clearPreviousProfileLocalState\(\)/);
-  assert.doesNotMatch(gate, /clearPreviousProfileLocalState\(\);\s*localStorage\.setItem\(PORTABLE_PROFILE_KEY, code\)/);
+  assert.match(gate, /const previous = localStorage\.getItem\(PORTABLE_PROFILE_KEY\)\?\.trim\(\)\.toUpperCase\(\) \?\? "";[\s\S]*if \(previous !== code\) clearPreviousProfileLocalState\(\);[\s\S]*localStorage\.setItem\(PORTABLE_PROFILE_KEY, code\)/);
 });
 
 test("full progress reset is fail-closed and only clears local data after cloud deletion succeeds", () => {
