@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "6dab1936e7433207f7460d305e1d2e9b4b7de63b2ce1c02136d86aed1c55720a",
+    "current_digest": "1d94c69085773de8bc0687b9052a11b5d7364c16f02bfc39e65fbaff2caccb7e",
     "approved_digest": null,
-    "review_corpus_fingerprint": "6dab1936e7433207f7460d305e1d2e9b4b7de63b2ce1c02136d86aed1c55720a",
+    "review_corpus_fingerprint": "1d94c69085773de8bc0687b9052a11b5d7364c16f02bfc39e65fbaff2caccb7e",
     "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, and the final bounded comprehension closure are materialized in the review corpus. The closure aligns active SPR pre-call wording in RU/EN, gives LCM-01 a first-use call-price definition before geo-03 practice, and removes the remaining Russian scaffold jargon without changing strategic claims, correct-answer IDs, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
