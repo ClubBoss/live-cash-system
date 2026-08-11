@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "ddf8fb57074c9d1d7c87a14dba3bdad7ccaf729f0f725b9c2c26b203e8255e8c",
+    "current_digest": "547da9b3581b1765ab3840c2efd1b53f7d81a3f66cd3759534d58e3a5c14fb30",
     "approved_digest": null,
-    "review_corpus_fingerprint": "ddf8fb57074c9d1d7c87a14dba3bdad7ccaf729f0f725b9c2c26b203e8255e8c",
+    "review_corpus_fingerprint": "547da9b3581b1765ab3840c2efd1b53f7d81a3f66cd3759534d58e3a5c14fb30",
     "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. Neither repair changes poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
@@ -86,7 +86,7 @@
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4, N1 and the final bounded comprehension closure changed learner-facing language/interaction composition; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},
     "preflop": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair and N1 novice prerequisites are materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending."},
     "blinds": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair plus N1 terminology clarification are materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."},
-    "filtering": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation plus bounded N1 terminology clarification are materialized; fresh human RU/EN review remains pending."},
+    "filtering": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation plus N1 terminology clarification are materialized; fresh human RU/EN review remains pending."},
     "shape": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, and the final low-risk RU glossary cleanup are materialized; fresh human RU/EN review remains pending."},
     "aggression": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair, active W4R-SEM-01 reconciliation, and bounded N1 low-SPR recall are materialized; strategy, drill and exact integrated RU/EN review remain pending."},
     "ancestry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, and the final low-risk RU glossary cleanup are materialized; fresh human RU/EN review remains pending."},
