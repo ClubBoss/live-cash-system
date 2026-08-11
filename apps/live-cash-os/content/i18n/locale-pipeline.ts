@@ -8,6 +8,7 @@ import { applyWave4FinalEditorialLocale } from "./wave4-final-editorial";
 import { applyWave5PracticeCopy } from "./wave5-practice-copy";
 import { applyWave4RFinalLanguage } from "./wave4r-final-language";
 import { applyNoviceTerminologyCopy } from "./novice-scaffold";
+import { applyFinalPlusEvCopy } from "./final-plus-ev";
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -18,9 +19,9 @@ function applyDiagnosticIntegrityLabels() {
 
 /**
  * Applies the bilingual corpus before React renders the locale. Wave 4R remains
- * the broad editorial pass; N1 then applies only bounded novice-comprehension
- * wording. Neither deterministic layer creates human approval or changes stable
- * strategy/evidence identities.
+ * the broad editorial pass; N1 then applies bounded novice-comprehension wording,
+ * followed by the final low-risk clarity cleanup. None of these deterministic
+ * layers create human approval or change stable strategy/evidence identities.
  */
 export function applyLocaleData(locale: LocaleCode) {
   applyGeometryLocale(locale);
@@ -30,5 +31,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyWave5PracticeCopy(locale);
   applyWave4RFinalLanguage(locale);
   applyNoviceTerminologyCopy(locale);
+  applyFinalPlusEvCopy(locale);
   applyDiagnosticIntegrityLabels();
 }
