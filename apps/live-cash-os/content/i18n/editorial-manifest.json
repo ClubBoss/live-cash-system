@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "2a710774390f99d9f162ef5e6c417ef12048605423acd675c6b97d413842f6f5",
+    "current_digest": "7d104d66b953f8d346cb1773f95df00aa4b65bd52f10409eea84ed8063c86473",
     "approved_digest": null,
-    "review_corpus_fingerprint": "2a710774390f99d9f162ef5e6c417ef12048605423acd675c6b97d413842f6f5",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery; it does not change poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "7d104d66b953f8d346cb1773f95df00aa4b65bd52f10409eea84ed8063c86473",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the viewport when the already-answered Cold Check walkthrough is revealed; it changes presentation continuity only. Neither repair changes poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -70,7 +70,7 @@
     "components/LiveCashApp.tsx": "1f92e7e0df380f9f6209077e015976146e5d712a",
     "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/RealUseLessonAssist.tsx": "152ec299b1d431847fb708c22fa15133716f76aa",
+    "components/RealUseLessonAssist.tsx": "f2f5247f1e2bb7d92bb9114331f129c7894287ff",
     "components/TestInviteGate.tsx": "629f3ba96710ffa00c1e183a62d550ba4e716b57",
     "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
     "components/Wave7Experience.tsx": "3253ea28b33e4a6b306725c83629f648d58a4e6d",
