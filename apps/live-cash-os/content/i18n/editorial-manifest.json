@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "7d104d66b953f8d346cb1773f95df00aa4b65bd52f10409eea84ed8063c86473",
+    "current_digest": "164bea06d81c6f7a3079fd6dfddf60b826975a91673bdeddf00768aa0dddc1fd",
     "approved_digest": null,
-    "review_corpus_fingerprint": "7d104d66b953f8d346cb1773f95df00aa4b65bd52f10409eea84ed8063c86473",
+    "review_corpus_fingerprint": "164bea06d81c6f7a3079fd6dfddf60b826975a91673bdeddf00768aa0dddc1fd",
     "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the viewport when the already-answered Cold Check walkthrough is revealed; it changes presentation continuity only. Neither repair changes poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
