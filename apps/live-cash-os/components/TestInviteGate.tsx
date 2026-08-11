@@ -2,13 +2,27 @@
 
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { rememberStateBootstrap } from "../lib/state-bootstrap";
-import { PORTABLE_PROFILE_KEY } from "../lib/use-learner-state-sync";
+import {
+  CONFLICT_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  LEARNER_STORAGE_KEY,
+  PORTABLE_PROFILE_KEY,
+  RECOVERY_BACKUP_KEY,
+  SYNC_META_KEY,
+} from "../lib/use-learner-state-sync";
 
 declare const __LIVE_CASH_TEST_INVITE_MODE__: boolean;
 
 const PROFILE_HEADER = "x-live-cash-profile-code";
 const CODE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
 const LOCALE_KEY = "live-cash-os:locale";
+const PROFILE_LOCAL_STATE_KEYS = [
+  LEARNER_STORAGE_KEY,
+  SYNC_META_KEY,
+  RECOVERY_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  CONFLICT_BACKUP_KEY,
+] as const;
 
 type GateLocale = "ru" | "en";
 type InviteCheckResult = "VALID" | "INVALID" | "OFFLINE" | "SERVICE_UNAVAILABLE";
@@ -43,8 +57,18 @@ function storedCode(): string {
   try { return localStorage.getItem(PORTABLE_PROFILE_KEY)?.trim().toUpperCase() ?? ""; } catch { return ""; }
 }
 
+function clearPreviousProfileLocalState() {
+  try {
+    for (const key of PROFILE_LOCAL_STATE_KEYS) localStorage.removeItem(key);
+  } catch { /* Server identity still prevents cross-account cloud access. */ }
+}
+
 function rememberCode(code: string) {
-  try { localStorage.setItem(PORTABLE_PROFILE_KEY, code); } catch { /* The server check still protects the mirror. */ }
+  try {
+    const previous = localStorage.getItem(PORTABLE_PROFILE_KEY)?.trim().toUpperCase() ?? "";
+    if (previous !== code) clearPreviousProfileLocalState();
+    localStorage.setItem(PORTABLE_PROFILE_KEY, code);
+  } catch { /* The server check still protects the mirror. */ }
 }
 
 function storedLocale(): GateLocale {
