@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { drillById, moduleById } from "../content/modules";
+import { CALL_PRICE_SCAFFOLD, essentialTermsFor } from "../content/i18n/novice-scaffold";
 import type { ModuleContent } from "../content/types";
 import type { LocaleCode, ModuleId } from "../lib/model";
 
@@ -40,8 +41,8 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
     en: "Compare the plan on the same flop against a BB defend and an SB cold-call. Name how the arriving ranges differ and how that changes the plan.",
   },
   filtering: {
-    ru: "Реши, можно ли автоматически продолжать широкий флоп-эксплойт на тёрне после колла соперника. Объясни, что именно колл изменил в его диапазоне.",
-    en: "Decide whether the wide flop exploit should continue automatically on the turn after Villain calls. Explain what the call changed in Villain's range.",
+    ru: "Реши, можно ли автоматически продолжать широкую подстройку на флопе после колла соперника. Объясни, что именно колл изменил в его диапазоне.",
+    en: "Decide whether the wide flop adjustment should continue automatically on the turn after Villain calls. Explain what the call changed in Villain's range.",
   },
   shape: {
     ru: "Сравни две руки против маленькой широкой ставки: какая чаще выигрывает от рейза, а какая — от колла? Назови причину, связанную с уязвимостью или защитой колл-ветки.",
@@ -64,8 +65,8 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
     en: "Decide whether the nut-flush blocker is enough to justify a call. Before judging the blocker, name the plausible value and bluffs that could actually reach the river through this line.",
   },
   evidence: {
-    ru: "Сформулируй рид не как ярлык игрока, а как конкретную ветку: что он делает, в каком узле, и какое будущее наблюдение заставит ослабить этот рид.",
-    en: "Turn the read into a specific branch rather than a player label: what Villain does, in which node, and what future observation would make you weaken the read.",
+    ru: "Сформулируй рид не как ярлык игрока, а как конкретную ветку: что он делает, в какой ситуации, и какое будущее наблюдение заставит ослабить этот рид.",
+    en: "Turn the read into a specific branch rather than a player label: what Villain does, at which decision point, and what future observation would make you weaken the read.",
   },
   transfer: {
     ru: "Определи, что доказывает правильный ответ сразу после объяснения и чего он ещё не доказывает. Назови следующую проверку, нужную для удержания навыка.",
@@ -234,6 +235,128 @@ function PreviousStepButton({ snapshot }: { snapshot: LessonSnapshot }) {
   </>;
 }
 
+function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
+  const enabled = snapshot.mode === "lesson" && Boolean(snapshot.moduleId) && snapshot.step === 1;
+  const applyHost = useLiveHost(
+    "main .session > .primary",
+    enabled,
+    `${snapshot.moduleId}:${snapshot.step}:${snapshot.revision}`,
+  );
+  const [host, setHost] = useState<HTMLElement | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    setRevealed(false);
+    if (!enabled || !applyHost) {
+      setHost(null);
+      return;
+    }
+    const session = applyHost.parentElement;
+    if (!(session instanceof HTMLElement) || !session.matches("main .session")) {
+      setHost(null);
+      return;
+    }
+    let slot = session.querySelector<HTMLElement>(":scope > [data-novice-scaffold-slot]");
+    if (!slot) {
+      slot = document.createElement("div");
+      slot.dataset.noviceScaffoldSlot = "true";
+      applyHost.insertAdjacentElement("beforebegin", slot);
+    }
+    session.classList.add("real-use-novice-scaffold");
+    session.classList.remove("real-use-novice-ready");
+    setHost(slot);
+    return () => {
+      session.classList.remove("real-use-novice-scaffold", "real-use-novice-ready");
+      slot?.remove();
+    };
+  }, [enabled, applyHost, snapshot.moduleId, snapshot.locale]);
+
+  useEffect(() => {
+    const session = document.querySelector<HTMLElement>("main .session.real-use-novice-scaffold");
+    if (!session) return;
+    session.classList.toggle("real-use-novice-ready", revealed);
+  }, [revealed]);
+
+  if (!enabled || !host || !snapshot.moduleId) return null;
+
+  const module = moduleById[snapshot.moduleId];
+  const locale = snapshot.locale;
+  const terms = essentialTermsFor(snapshot.moduleId, locale);
+  const coldDrill = module.drills[0];
+  const correctAction = coldDrill.actionOptions.find((option) => option.id === coldDrill.correctActionId)?.text ?? "";
+  const correctReason = coldDrill.reasonOptions.find((option) => option.id === coldDrill.correctReasonId)?.text ?? "";
+  const price = CALL_PRICE_SCAFFOLD[locale];
+  const copy = locale === "ru" ? {
+    eyebrow: "СНАЧАЛА ИНСТРУМЕНТЫ",
+    title: "Разбери механизм до следующего решения",
+    terms: "Что означают нужные термины",
+    recognise: "Что замечать за столом",
+    order: "В каком порядке проверять",
+    price: "Цена колла · компактная база",
+    guided: "Разбор уже отвеченного Cold Check",
+    guidedHelp: "Это уже сохранённое стартовое решение. Сначала снова назови ответ и причину в голове, затем открой разбор. Следующая graded-ситуация будет другой.",
+    reveal: "Я решил — разобрать Cold Check",
+    action: "Действие",
+    reason: "Причина",
+    next: "Теперь можно перейти к новой контролируемой ситуации. Подсказки выше относятся к механизму, а не раскрывают её ответ.",
+  } : {
+    eyebrow: "TOOLS BEFORE APPLICATION",
+    title: "Understand the mechanism before the next decision",
+    terms: "Terms you need now",
+    recognise: "What to notice at the table",
+    order: "What to check, in order",
+    price: "Call price · compact prerequisite",
+    guided: "Review the Cold Check you already answered",
+    guidedHelp: "This starting decision is already saved. Name the answer and one reason to yourself again, then reveal the walkthrough. The next graded spot is different.",
+    reveal: "I decided — review the Cold Check",
+    action: "Action",
+    reason: "Reason",
+    next: "You can now move to a new controlled spot. The guidance above teaches the mechanism; it does not reveal that spot's answer.",
+  };
+
+  return createPortal(<section className="novice-scaffold" data-novice-scaffold={snapshot.moduleId}>
+    <div>
+      <p className="eyebrow">{copy.eyebrow}</p>
+      <h3>{copy.title}</h3>
+    </div>
+    {terms.length > 0 && <div className="novice-scaffold-card">
+      <b>{copy.terms}</b>
+      <dl className="novice-terms">{terms.map((item) => <div key={item.term}><dt>{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl>
+    </div>}
+    {snapshot.moduleId === "preflop" && <div className="novice-scaffold-card call-price-prerequisite" data-call-price-prerequisite="true">
+      <b>{copy.price}</b>
+      <p>{price.why}</p>
+      <p>{price.what}</p>
+      <p><strong>{price.formula}</strong></p>
+      <p>{price.shortcut}</p>
+      <p className="assumption-strip">{price.example}</p>
+    </div>}
+    <div className="novice-scaffold-grid">
+      <div className="novice-scaffold-card">
+        <b>{copy.recognise}</b>
+        <ul className="learning-list">{module.heuristics.map((item) => <li key={item}>{item}</li>)}</ul>
+      </div>
+      <div className="novice-scaffold-card">
+        <b>{copy.order}</b>
+        <ol className="learning-list">{module.decisionTree.map((item) => <li key={item}>{item}</li>)}</ol>
+      </div>
+    </div>
+    <div className="novice-scaffold-card novice-guided-example" data-guided-cold-example={coldDrill.id}>
+      <b>{copy.guided}</b>
+      <h3>{coldDrill.question}</h3>
+      <p>{coldDrill.cue}</p>
+      <p className="assumption-strip">{coldDrill.assumptions.join(" · ")}</p>
+      {!revealed ? <>
+        <p className="support">{copy.guidedHelp}</p>
+        <button className="secondary" type="button" onClick={() => setRevealed(true)}>{copy.reveal} <span>→</span></button>
+      </> : <>
+        <div className="answer-panel"><b>{copy.action}</b><p>{correctAction}</p><b>{copy.reason}</b><p>{correctReason}</p><p>{coldDrill.explanation}</p></div>
+        <p className="support">{copy.next}</p>
+      </>}
+    </div>
+  </section>, host);
+}
+
 function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
   const enabled = snapshot.mode === "lesson" && Boolean(snapshot.moduleId) && snapshot.step === 4;
@@ -272,6 +395,19 @@ export default function RealUseLessonAssist() {
   return <>
     <style>{`
       .session-head > .real-use-back { grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 8px 0; text-transform: none; letter-spacing: normal; }
+      .session.real-use-novice-scaffold:not(.real-use-novice-ready) > .primary { display: none; }
+      .novice-scaffold { display: grid; gap: 16px; min-width: 0; margin: 24px 0 4px; }
+      .novice-scaffold > *, .novice-scaffold-grid > *, .novice-terms > * { min-width: 0; }
+      .novice-scaffold h3 { margin: 5px 0 0; }
+      .novice-scaffold-card { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-soft); overflow-wrap: anywhere; }
+      .novice-scaffold-card > :first-child { margin-top: 0; }
+      .novice-scaffold-card > :last-child { margin-bottom: 0; }
+      .novice-scaffold-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .novice-terms { display: grid; gap: 10px; margin: 12px 0 0; }
+      .novice-terms > div { display: grid; grid-template-columns: minmax(120px, .32fr) minmax(0, 1fr); gap: 12px; }
+      .novice-terms dt { font-weight: 700; }
+      .novice-terms dd { margin: 0; }
+      .call-price-prerequisite strong { font-variant-numeric: tabular-nums; }
       .real-use-task-guide { margin: -4px 0 22px; padding: 14px 16px; border-left: 4px solid var(--ink); background: var(--surface-soft); color: var(--ink); }
       .session.real-use-worked-guided > [data-real-use-worked-guide] + .support { display: none; }
       .real-use-recap-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 18px; background: rgba(20, 21, 19, .48); }
@@ -279,11 +415,14 @@ export default function RealUseLessonAssist() {
       .real-use-recap-head { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 22px; }
       .real-use-recap .primary { margin-top: 10px; }
       @media (max-width: 520px) {
+        .novice-scaffold-grid, .novice-terms > div { grid-template-columns: 1fr; }
+        .novice-terms > div { gap: 3px; }
         .real-use-recap-backdrop { align-items: end; padding: 0; }
         .real-use-recap { width: 100%; max-height: 86vh; border-radius: 18px 18px 0 0; border-width: 2px 0 0; padding: 20px; }
       }
     `}</style>
     <PreviousStepButton snapshot={snapshot} />
+    <ConceptScaffold snapshot={snapshot} />
     <WorkedExampleGuide snapshot={snapshot} />
   </>;
 }
