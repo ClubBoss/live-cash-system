@@ -39,6 +39,7 @@ async function fixture() {
   await compileInto(root, "content/i18n/wave4-final-editorial.ts", "content/i18n/wave4-final-editorial.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/wave5-practice-copy.ts", "content/i18n/wave5-practice-copy.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/wave4r-final-language.ts", "content/i18n/wave4r-final-language.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/novice-scaffold.ts", "content/i18n/novice-scaffold.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
     .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
     .replace('from "./runtime"', 'from "./runtime.mjs"')
@@ -47,7 +48,8 @@ async function fixture() {
     .replace('from "./wave4-curriculum-gold"', 'from "./wave4-curriculum-gold.mjs"')
     .replace('from "./wave4-final-editorial"', 'from "./wave4-final-editorial.mjs"')
     .replace('from "./wave5-practice-copy"', 'from "./wave5-practice-copy.mjs"')
-    .replace('from "./wave4r-final-language"', 'from "./wave4r-final-language.mjs"'));
+    .replace('from "./wave4r-final-language"', 'from "./wave4r-final-language.mjs"')
+    .replace('from "./novice-scaffold"', 'from "./novice-scaffold.mjs"'));
 
   return {
     modules: await import(pathToFileURL(modulesPath).href),

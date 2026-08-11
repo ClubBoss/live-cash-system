@@ -35,6 +35,32 @@ async function seedWorkedExample(page, moduleId, drillIds) {
   await seedModuleLesson(page, moduleId, drillIds, 4);
 }
 
+async function delayFirstSessionPrimaryOnNextNavigation(page, delayMs = 180) {
+  await page.addInitScript((delay) => {
+    window.__n1DelayedPrimaryObserved = false;
+    document.addEventListener("DOMContentLoaded", () => {
+      let delayed = false;
+      const observer = new MutationObserver(() => {
+        if (delayed) return;
+        const button = document.querySelector("main .session > .primary");
+        if (!(button instanceof HTMLElement) || !button.parentElement) return;
+        delayed = true;
+        window.__n1DelayedPrimaryObserved = true;
+        const parent = button.parentElement;
+        const nextSibling = button.nextSibling;
+        button.remove();
+        window.setTimeout(() => {
+          if (!button.isConnected && parent.isConnected) {
+            parent.insertBefore(button, nextSibling?.isConnected ? nextSibling : null);
+          }
+          observer.disconnect();
+        }, delay);
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }, { once: true });
+  }, delayMs);
+}
+
 async function chooseOption(page, text) {
   await page.getByRole("button", { name: text, exact: true }).click();
 }
@@ -101,6 +127,17 @@ test("lesson teaches terms, recognition, decision order and a guided Cold Check 
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).not.toBeVisible();
   await page.getByRole("button", { name: /^Я решил — показать разбор/ }).click();
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).toBeVisible();
+});
+
+test("novice scaffold mounts after a deliberately delayed direct Apply host", async ({ page }) => {
+  await delayFirstSessionPrimaryOnNextNavigation(page);
+  await seedLesson(page, 1);
+
+  await expect.poll(async () => page.evaluate(() => Boolean(window.__n1DelayedPrimaryObserved))).toBe(true);
+  const scaffold = page.locator("[data-novice-scaffold='geometry']");
+  await expect(scaffold).toBeVisible();
+  await expect(page.locator("main .session > [data-novice-scaffold-slot]")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /^Сразу применить/ })).toBeHidden();
 });
 
 test("LCM-02 defines modern vocabulary and call price before its first post-cold application", async ({ page }) => {

@@ -36,6 +36,28 @@ test("N1 keeps Cold Check first and gates the first controlled application behin
   assert.match(assist, /The next graded spot is different/);
 });
 
+test("Concept scaffold uses bounded live-host discovery instead of one-shot mount discovery", () => {
+  const liveHostStart = indexOfOrFail(assist, "function useLiveHost(");
+  const liveHostEnd = indexOfOrFail(assist.slice(liveHostStart), "\nfunction applicationDrill") + liveHostStart;
+  const liveHost = assist.slice(liveHostStart, liveHostEnd);
+  const conceptStart = indexOfOrFail(assist, "function ConceptScaffold(");
+  const conceptEnd = indexOfOrFail(assist.slice(conceptStart), "\nfunction WorkedExampleGuide") + conceptStart;
+  const concept = assist.slice(conceptStart, conceptEnd);
+
+  assert.equal((assist.match(/new MutationObserver\s*\(/gu) ?? []).length, 1, "RealUseLessonAssist must reuse one bounded host observer");
+  assert.equal((liveHost.match(/new MutationObserver\s*\(/gu) ?? []).length, 1, "The only observer must stay inside useLiveHost");
+  assert.match(liveHost, /document\.querySelector<HTMLElement>\(selector\)/);
+  assert.match(liveHost, /observer\.observe\(document\.body, \{ childList: true, subtree: true \}\)/);
+  assert.match(liveHost, /return \(\) => observer\.disconnect\(\)/);
+  assert.doesNotMatch(liveHost, /readSnapshot|textContent|setSnapshot|localStorage/);
+
+  assert.match(concept, /useLiveHost\(\s*"main \.session > \.primary"/u);
+  assert.match(concept, /applyHost\.parentElement/);
+  assert.match(concept, /session\.matches\("main \.session"\)/);
+  assert.match(concept, /slot\?\.remove\(\)/);
+  assert.doesNotMatch(concept, /requestAnimationFrame|setInterval|setTimeout/);
+});
+
 test("LCM-02 essential vocabulary and call price are taught before controlled use", () => {
   for (const token of [
     "Диапазон",

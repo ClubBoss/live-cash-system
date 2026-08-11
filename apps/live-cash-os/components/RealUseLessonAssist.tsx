@@ -237,37 +237,39 @@ function PreviousStepButton({ snapshot }: { snapshot: LessonSnapshot }) {
 
 function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
   const enabled = snapshot.mode === "lesson" && Boolean(snapshot.moduleId) && snapshot.step === 1;
+  const applyHost = useLiveHost(
+    "main .session > .primary",
+    enabled,
+    `${snapshot.moduleId}:${snapshot.step}:${snapshot.revision}`,
+  );
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     setRevealed(false);
-    if (!enabled) {
+    if (!enabled || !applyHost) {
       setHost(null);
       return;
     }
-    let slot: HTMLElement | null = null;
-    const frame = requestAnimationFrame(() => {
-      const session = document.querySelector<HTMLElement>("main .session");
-      const applyButton = session?.querySelector<HTMLElement>(":scope > .primary");
-      if (!session || !applyButton) return;
-      slot = session.querySelector<HTMLElement>(":scope > [data-novice-scaffold-slot]");
-      if (!slot) {
-        slot = document.createElement("div");
-        slot.dataset.noviceScaffoldSlot = "true";
-        applyButton.insertAdjacentElement("beforebegin", slot);
-      }
-      session.classList.add("real-use-novice-scaffold");
-      session.classList.remove("real-use-novice-ready");
-      setHost(slot);
-    });
+    const session = applyHost.parentElement;
+    if (!(session instanceof HTMLElement) || !session.matches("main .session")) {
+      setHost(null);
+      return;
+    }
+    let slot = session.querySelector<HTMLElement>(":scope > [data-novice-scaffold-slot]");
+    if (!slot) {
+      slot = document.createElement("div");
+      slot.dataset.noviceScaffoldSlot = "true";
+      applyHost.insertAdjacentElement("beforebegin", slot);
+    }
+    session.classList.add("real-use-novice-scaffold");
+    session.classList.remove("real-use-novice-ready");
+    setHost(slot);
     return () => {
-      cancelAnimationFrame(frame);
-      const session = document.querySelector<HTMLElement>("main .session.real-use-novice-scaffold");
-      session?.classList.remove("real-use-novice-scaffold", "real-use-novice-ready");
+      session.classList.remove("real-use-novice-scaffold", "real-use-novice-ready");
       slot?.remove();
     };
-  }, [enabled, snapshot.moduleId, snapshot.locale]);
+  }, [enabled, applyHost, snapshot.moduleId, snapshot.locale]);
 
   useEffect(() => {
     const session = document.querySelector<HTMLElement>("main .session.real-use-novice-scaffold");
