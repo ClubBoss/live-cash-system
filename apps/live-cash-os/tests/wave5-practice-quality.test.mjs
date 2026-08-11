@@ -170,8 +170,10 @@ test("Wave 5 UI layer enforces explicit prediction-first labs and recoverable SP
   assert.match(source, /Reset to starting values/u);
   assert.match(source, /Сбросить к стартовым значениям/u);
   assert.match(source, /const reset = \(\) => \{ setPot\(String\(lab\.initialPot\)\); setStack\(String\(lab\.stack\)\); setBet\(String\(lab\.bet\)\); \};/u);
-  assert.match(source, /Change only the pot, remaining stack, or bet\/call/u);
-  assert.match(source, /Измени только банк, оставшийся стек или ставку\/колл/u);
+  assert.match(source, /Change only the pot, stack before the call, or bet\/call/u);
+  assert.match(source, /Измени только банк, стек до колла или ставку\/колл/u);
+  assert.match(source, /Stack before the call/u);
+  assert.match(source, /Стек до колла/u);
   assert.match(source, /What you are comparing/u);
   assert.match(source, /Что сравниваем/u);
   assert.match(source, /seen\.length === 2/u);
