@@ -19,6 +19,13 @@ function corpusFingerprint(sourceBlobs) {
   return createHash("sha256").update(canonical).digest("hex");
 }
 
+function gitBlobSha(buffer) {
+  return createHash("sha1")
+    .update(`blob ${buffer.byteLength}\0`)
+    .update(buffer)
+    .digest("hex");
+}
+
 test("final comprehension closure keeps first-use wording and governance truth aligned", async () => {
   const geometryLocale = await text("content/i18n/geometry-locale.ts");
   const scaffold = await text("content/i18n/novice-scaffold.ts");
@@ -55,6 +62,11 @@ test("final comprehension closure keeps first-use wording and governance truth a
     assert.ok(index > previous, `Locale pipeline order drifted at ${symbol}`);
     previous = index;
     assert.match(authority, new RegExp(symbol, "u"), `Content Authority omits ${symbol}`);
+  }
+
+  for (const [sourcePath, expectedSha] of Object.entries(manifest.source_blobs)) {
+    const bytes = await readFile(path.join(root, sourcePath));
+    assert.equal(gitBlobSha(bytes), expectedSha, `${sourcePath}: stale source lock`);
   }
 
   const fingerprint = corpusFingerprint(manifest.source_blobs);
