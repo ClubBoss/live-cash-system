@@ -360,36 +360,35 @@ function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
 function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
   const enabled = snapshot.mode === "lesson" && Boolean(snapshot.moduleId) && snapshot.step === 4;
+  const heading = useLiveHost(
+    "main .session > h2",
+    enabled,
+    `${snapshot.moduleId}:${snapshot.step}:${snapshot.revision}`,
+  );
 
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled || !heading) {
       setHost(null);
       return;
     }
-    const sync = () => {
-      const session = document.querySelector<HTMLElement>("main .session");
-      const heading = session?.querySelector<HTMLElement>(":scope > h2");
-      if (!session || !heading) {
-        setHost(null);
-        return;
-      }
-      let slot = session.querySelector<HTMLElement>(":scope > [data-real-use-worked-guide]");
-      if (!slot) {
-        slot = document.createElement("div");
-        slot.dataset.realUseWorkedGuide = "true";
-        heading.insertAdjacentElement("afterend", slot);
-      }
-      session.classList.add("real-use-worked-guided");
-      setHost((previous) => previous === slot ? previous : slot);
-    };
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(document.body, { childList: true, subtree: true });
+    const session = heading.parentElement;
+    if (!(session instanceof HTMLElement) || !session.matches("main .session")) {
+      setHost(null);
+      return;
+    }
+    let slot = session.querySelector<HTMLElement>(":scope > [data-real-use-worked-guide]");
+    if (!slot) {
+      slot = document.createElement("div");
+      slot.dataset.realUseWorkedGuide = "true";
+      heading.insertAdjacentElement("afterend", slot);
+    }
+    session.classList.add("real-use-worked-guided");
+    setHost(slot);
     return () => {
-      observer.disconnect();
-      document.querySelector<HTMLElement>("main .session.real-use-worked-guided")?.classList.remove("real-use-worked-guided");
+      session.classList.remove("real-use-worked-guided");
+      slot?.remove();
     };
-  }, [enabled, snapshot.moduleId, snapshot.revision]);
+  }, [enabled, heading, snapshot.moduleId, snapshot.revision]);
 
   if (!enabled || !host || !snapshot.moduleId) return null;
   const task = WORKED_EXAMPLE_TASKS[snapshot.moduleId][snapshot.locale];
