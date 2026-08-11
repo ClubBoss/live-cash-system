@@ -108,10 +108,10 @@ test("bounded clarity keeps mixed practice, explain-back and Diagnostic export c
   const explainStart = indexOfOrFail(core, "function ExplainBack");
   const tableStart = indexOfOrFail(core, "function TableCard");
   const explain = core.slice(explainStart, tableStart);
-  assert.match(explain, /value\.trim\(\)\.length >= 30/);
-  assert.match(explain, /value\.trim\(\)\.length < 30/);
-  assert.match(explain, /объясни своими словами само решение и почему оно работает/);
-  assert.doesNotMatch(explain, /missingCharacters|Добавь ещё .*символ|more characters/);
+  assert.match(explain, /const explanationReady = isGenuineExplainBackAttempt\(value\)/u);
+  assert.match(explain, /if \(!explanationReady\) return/u);
+  assert.match(explain, /Короткого содержательного ответа достаточно/u);
+  assert.doesNotMatch(explain, /length\s*[<>]=?\s*30|missingCharacters|Добавь ещё .*символ|more characters/u);
 
   assert.match(core, /live-cash-t1-raw-v0\.2\.json/);
   assert.doesNotMatch(core, /live-cash-diagnostic-raw-v0\.2\.json/);
