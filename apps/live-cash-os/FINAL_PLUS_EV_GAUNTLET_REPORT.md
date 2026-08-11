@@ -1,6 +1,6 @@
 # Final +EV Gauntlet
 
-Status: technical candidate green; final release acceptance remains subject to exact-main validation plus existing human and empirical gates.
+Status: technical closure complete on `main`; final 10/10 release acceptance remains subject only to the existing human/editorial and Wave 10 empirical gates.
 
 ## Scope admitted
 - Replace residual novice-facing jargon in RU glossaries for LCM-05 / LCM-07 / LCM-09 / LCM-10 with plain poker language.
@@ -16,8 +16,9 @@ Status: technical candidate green; final release acceptance remains subject to e
 
 ## Gauntlet invariants
 - Branch baseline: f097bf0da11c21995e4783a73f7bc0b70ab2416d.
-- Canonical exact-head release gate passed before this truth-only documentation update; the final branch head must pass the same gate again before merge.
+- PR #63 was merged to `main` only after exact-head canonical CI passed.
+- The merged exact-main functional SHA passed the canonical release gate and exact-main test-mirror deploy/smoke.
 - Source locks remain rejection-only governance.
-- Strategy/drill/RU/EN/final-composition human approvals remain pending and cannot be created by deterministic CI.
+- Strategy/drill/RU/EN/final-composition human approvals cannot be created by deterministic CI.
 - Wave 10 empirical acceptance remains separate from implementation evidence.
-- Merge requires exact-head GREEN; final technical closure requires exact-main GREEN and its test-mirror deployment.
+- No known P0/P1 implementation blocker remains in the bounded final +EV gauntlet scope.
