@@ -2,15 +2,15 @@ import { expect, test } from "@playwright/test";
 
 const STORAGE_KEY = "live-cash-os:learner-state";
 
-async function seedLesson(page, step = 1) {
-  await page.evaluate(({ key, step }) => {
+async function seedModuleLesson(page, moduleId, drillIds, step = 1) {
+  await page.evaluate(({ key, moduleId, drillIds, step }) => {
     const state = JSON.parse(localStorage.getItem(key));
     const now = new Date().toISOString();
     state.activeSession = {
       mode: "lesson",
-      moduleId: "geometry",
+      moduleId,
       step,
-      drillIds: ["geo-01", "geo-02", "geo-04"],
+      drillIds,
       currentIndex: step >= 6 ? 2 : step >= 2 ? 1 : 0,
       selectedActionId: null,
       selectedReasonId: null,
@@ -22,34 +22,17 @@ async function seedLesson(page, step = 1) {
     state.revision += 1;
     state.updatedAt = now;
     localStorage.setItem(key, JSON.stringify(state));
-  }, { key: STORAGE_KEY, step });
+  }, { key: STORAGE_KEY, moduleId, drillIds, step });
   await page.reload();
   await expect(page.locator("main .session")).toBeVisible();
 }
 
+async function seedLesson(page, step = 1) {
+  await seedModuleLesson(page, "geometry", ["geo-01", "geo-02", "geo-04"], step);
+}
+
 async function seedWorkedExample(page, moduleId, drillIds) {
-  await page.evaluate(({ key, moduleId, drillIds }) => {
-    const state = JSON.parse(localStorage.getItem(key));
-    const now = new Date().toISOString();
-    state.activeSession = {
-      mode: "lesson",
-      moduleId,
-      step: 4,
-      drillIds,
-      currentIndex: 1,
-      selectedActionId: null,
-      selectedReasonId: null,
-      confidence: 65,
-      startedAt: now,
-      itemStartedAt: now,
-      explainBack: "",
-    };
-    state.revision += 1;
-    state.updatedAt = now;
-    localStorage.setItem(key, JSON.stringify(state));
-  }, { key: STORAGE_KEY, moduleId, drillIds });
-  await page.reload();
-  await expect(page.locator("main .session")).toBeVisible();
+  await seedModuleLesson(page, moduleId, drillIds, 4);
 }
 
 async function chooseOption(page, text) {
@@ -71,7 +54,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 });
 
-test("new lesson rhythm moves from one compact explanation through active ordering into application", async ({ page }) => {
+test("lesson teaches terms, recognition, decision order and a guided Cold Check before controlled application", async ({ page }) => {
   await seedLesson(page, 1);
 
   await expect(page.getByText("ЗАПОМНИ", { exact: true })).toBeVisible();
@@ -81,9 +64,22 @@ test("new lesson rhythm moves from one compact explanation through active orderi
   await page.getByText("Дополнительное объяснение", { exact: true }).click();
   await expect(extraTheory).toBeVisible();
 
-  await page.getByRole("button", { name: /^Сразу применить/ }).click();
-  await expect(page.getByRole("heading", { name: "Как правильно описать эффективный стек?" })).toBeVisible();
+  const scaffold = page.locator("[data-novice-scaffold='geometry']");
+  await expect(scaffold).toBeVisible();
+  await expect(scaffold.getByText("Эффективный стек", { exact: true })).toBeVisible();
+  await expect(scaffold.getByText("SPR", { exact: true })).toBeVisible();
+  await expect(scaffold.getByText("Что замечать за столом", { exact: true })).toBeVisible();
+  await expect(scaffold.getByText("В каком порядке проверять", { exact: true })).toBeVisible();
+  await expect(scaffold.locator("[data-guided-cold-example='geo-01']")).toBeVisible();
 
+  const applyButton = page.getByRole("button", { name: /^Сразу применить/ });
+  await expect(applyButton).toBeHidden();
+  await scaffold.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+  await expect(scaffold.locator("[data-guided-cold-example='geo-01'] .answer-panel")).toBeVisible();
+  await expect(applyButton).toBeVisible();
+  await applyButton.click();
+
+  await expect(page.getByRole("heading", { name: "Как правильно описать эффективный стек?" })).toBeVisible();
   await chooseOption(page, "$270 против A и $900 против B");
   await chooseOption(page, "Эффективный стек считается отдельно против каждого соперника");
   await page.getByRole("button", { name: /^Ответить/ }).click();
@@ -107,6 +103,31 @@ test("new lesson rhythm moves from one compact explanation through active orderi
   await expect(page.getByText("Сначала 140 страддлов, затем эффективный стек против соперника и SPR после действия.", { exact: true })).toBeVisible();
 });
 
+test("LCM-02 defines modern vocabulary and call price before its first post-cold application", async ({ page }) => {
+  await seedModuleLesson(page, "preflop", ["pre-01", "pre-02", "pre-03"], 1);
+
+  const scaffold = page.locator("[data-novice-scaffold='preflop']");
+  await expect(scaffold).toBeVisible();
+  for (const term of ["Диапазон", "Эквити", "Реализация эквити", "Доминация", "Блокер", "Полярный сквиз"]) {
+    await expect(scaffold.getByText(term, { exact: true })).toBeVisible();
+  }
+  const price = scaffold.locator("[data-call-price-prerequisite='true']");
+  await expect(price).toContainText("Цена колла = колл / (банк после ставки соперника + твой колл).");
+  await expect(price).toContainText("50 / 200 = 25%");
+  await expect(price).toContainText("формула сама не выбирает действие");
+
+  const applyButton = page.getByRole("button", { name: /^Сразу применить/ });
+  await expect(applyButton).toBeHidden();
+  await scaffold.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+  await expect(applyButton).toBeVisible();
+});
+
+test("LCM-08 primary lesson scaffold does not require raw MDF vocabulary", async ({ page }) => {
+  await seedModuleLesson(page, "multiway", ["mul-01", "mul-02", "mul-04"], 1);
+  await expect(page.locator("main .session")).not.toContainText(/\bMDF\b/);
+  await expect(page.getByText("Не считай, что один игрок обязан нести всю heads-up-защиту.", { exact: true })).toBeVisible();
+});
+
 test("worked examples state the concrete task in modules that are not betting-line decisions", async ({ page }) => {
   await seedWorkedExample(page, "blinds", ["bli-01", "bli-02", "bli-04"]);
 
@@ -125,12 +146,25 @@ test("lesson summary says what was checked and keeps delayed retention explicitl
   await expect(page.getByRole("heading", { name: /Теперь её нужно закрепить/i })).toBeVisible();
 });
 
-test("active-learning hierarchy remains bilingual without exposing hidden Russian detail in English", async ({ page }) => {
+test("active-learning scaffold remains bilingual without Cyrillic fallback in English", async ({ page }) => {
   await seedLesson(page, 1);
   await page.getByRole("button", { name: "EN", exact: true }).click();
 
   await expect(page.getByText("REMEMBER", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Apply it now/ })).toBeVisible();
-  await expect(page.getByText("More explanation", { exact: true })).toBeVisible();
-  await expect(page.locator("main .session")).not.toContainText("Дополнительное объяснение");
+  const scaffold = page.locator("[data-novice-scaffold='geometry']");
+  await expect(scaffold.getByText("Effective stack", { exact: true })).toBeVisible();
+  await expect(scaffold.getByText("SPR", { exact: true })).toBeVisible();
+  const applyButton = page.getByRole("button", { name: /^Apply it now/ });
+  await expect(applyButton).toBeHidden();
+  await expect(page.locator("main .session")).not.toContainText(/[А-Яа-яЁё]/);
+  await scaffold.getByRole("button", { name: "I decided — review the Cold Check", exact: true }).click();
+  await expect(applyButton).toBeVisible();
+});
+
+test("novice scaffold has no horizontal overflow at 390x844", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedModuleLesson(page, "preflop", ["pre-01", "pre-02", "pre-03"], 1);
+  await expect(page.locator("[data-novice-scaffold='preflop']")).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
 });

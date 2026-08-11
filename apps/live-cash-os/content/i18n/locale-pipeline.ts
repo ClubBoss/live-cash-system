@@ -7,6 +7,7 @@ import { applyWave4CurriculumLocale } from "./wave4-curriculum-gold";
 import { applyWave4FinalEditorialLocale } from "./wave4-final-editorial";
 import { applyWave5PracticeCopy } from "./wave5-practice-copy";
 import { applyWave4RFinalLanguage } from "./wave4r-final-language";
+import { applyNoviceTerminologyCopy } from "./novice-scaffold";
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -16,9 +17,10 @@ function applyDiagnosticIntegrityLabels() {
 }
 
 /**
- * Applies the approved bilingual corpus directly before React renders the locale.
- * The final Wave 4R pass is language-only and is the last authority for repaired
- * learner-facing wording; it must not change strategic identities or state.
+ * Applies the bilingual corpus before React renders the locale. Wave 4R remains
+ * the broad editorial pass; N1 then applies only bounded novice-comprehension
+ * wording. Neither deterministic layer creates human approval or changes stable
+ * strategy/evidence identities.
  */
 export function applyLocaleData(locale: LocaleCode) {
   applyGeometryLocale(locale);
@@ -27,5 +29,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyWave4FinalEditorialLocale(locale);
   applyWave5PracticeCopy(locale);
   applyWave4RFinalLanguage(locale);
+  applyNoviceTerminologyCopy(locale);
   applyDiagnosticIntegrityLabels();
 }

@@ -107,7 +107,13 @@ test("LCM-01 transition-driven progression reaches every lesson step without a h
   await assertBody(page);
   await expect(page.getByRole("heading", { name: /Сначала определи, против какого стека/i })).toBeVisible();
   await expect(page.getByText(/Само по себе это правило не говорит, какие руки нужно открывать/)).toBeVisible();
-  await page.getByRole("button", { name: /^Сразу применить/ }).click();
+  const novice = page.locator("[data-novice-scaffold='geometry']");
+  const apply = page.getByRole("button", { name: /^Сразу применить/ });
+  await expect(novice).toBeVisible();
+  await expect(apply).toBeHidden();
+  await novice.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+  await expect(apply).toBeVisible();
+  await apply.click();
 
   await assertBody(page);
   await answerRu(page, "$270 против A и $900 против B", "Эффективный стек считается отдельно против каждого соперника");
