@@ -98,6 +98,6 @@ export function fieldFactLabels(locale: LocaleCode): { cue: string; action: stri
 
 export function labLabels(locale: LocaleCode): { eyebrow: string; pot: string; stack: string; betCall: string } {
   return locale === "ru"
-    ? { eyebrow: "ТРЕНАЖЁР", pot: "Банк", stack: "Стек", betCall: "Ставка / колл" }
-    : { eyebrow: "LAB", pot: "Pot", stack: "Stack", betCall: "Bet / call" };
+    ? { eyebrow: "ТРЕНАЖЁР", pot: "Банк", stack: "Стек до колла", betCall: "Ставка / колл" }
+    : { eyebrow: "LAB", pot: "Pot", stack: "Stack before the call", betCall: "Bet / call" };
 }
