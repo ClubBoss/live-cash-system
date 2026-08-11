@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -8,6 +9,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 async function text(relativePath) {
   return readFile(path.join(root, relativePath), "utf8");
+}
+
+function corpusFingerprint(sourceBlobs) {
+  const canonical = Object.entries(sourceBlobs)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([sourcePath, sha]) => `${sourcePath}=${sha}`)
+    .join("\n");
+  return createHash("sha256").update(canonical).digest("hex");
 }
 
 test("final comprehension closure keeps first-use wording and governance truth aligned", async () => {
@@ -48,8 +57,10 @@ test("final comprehension closure keeps first-use wording and governance truth a
     assert.match(authority, new RegExp(symbol, "u"), `Content Authority omits ${symbol}`);
   }
 
-  assert.equal(manifest.final_composition.current_digest, manifest.final_composition.review_corpus_fingerprint);
-  assert.match(authority, new RegExp(manifest.final_composition.current_digest, "u"));
+  const fingerprint = corpusFingerprint(manifest.source_blobs);
+  assert.equal(manifest.final_composition.current_digest, fingerprint);
+  assert.equal(manifest.final_composition.review_corpus_fingerprint, fingerprint);
+  assert.match(authority, new RegExp(fingerprint, "u"));
   assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_approval, null);
