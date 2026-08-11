@@ -140,7 +140,7 @@ test("Wave 5 practice copy keeps blocker cards distinct without changing stable 
   assert.deepEqual(after, before);
 });
 
-test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and explicit prediction-first labs", async () => {
+test("Wave 5 UI layer enforces explicit prediction-first labs and recoverable SPR exploration", async () => {
   const source = await readFile(new URL("../components/Wave5PracticeLayer.tsx", import.meta.url), "utf8");
   assert.match(source, /completedModules < 3/u);
   assert.match(source, /data-wave5-mixed/u);
@@ -154,10 +154,22 @@ test("Wave 5 UI layer enforces three-topic mixed practice, topic concealment and
   assert.match(source, /disabled=\{!predictionReady\}/u);
   assert.match(source, /correctness is not auto-graded here/u);
   assert.match(source, /правильность здесь не оценивается автоматически/u);
+  assert.match(source, /SPR in plain language/u);
+  assert.match(source, /SPR простыми словами/u);
+  assert.match(source, /SPR — это отношение оставшегося стека к банку после действия/u);
+  assert.match(source, /SPR is the remaining stack divided by the pot after the action/u);
+  assert.match(source, /afterCallStack = lab\.stack - lab\.bet/u);
+  assert.match(source, /afterCallPot = lab\.initialPot \+ 2 \* lab\.bet/u);
+  assert.match(source, /data-spr-primer/u);
   assert.match(source, /State whether SPR will rise, fall, or stay about the same, and why/u);
   assert.match(source, /станет SPR выше, ниже или примерно тем же и почему/u);
   assert.match(source, /betValue > stackValue/u);
   assert.match(source, /changedCount === 1/u);
+  assert.match(source, /data-changed=\{potChanged \? "true" : "false"\}/u);
+  assert.match(source, /Сейчас изменены/u);
+  assert.match(source, /Reset to starting values/u);
+  assert.match(source, /Сбросить к стартовым значениям/u);
+  assert.match(source, /const reset = \(\) => \{ setPot\(String\(lab\.initialPot\)\); setStack\(String\(lab\.stack\)\); setBet\(String\(lab\.bet\)\); \};/u);
   assert.match(source, /Change only the pot, remaining stack, or bet\/call/u);
   assert.match(source, /Измени только банк, оставшийся стек или ставку\/колл/u);
   assert.match(source, /What you are comparing/u);
