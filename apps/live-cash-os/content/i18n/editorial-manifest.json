@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "164bea06d81c6f7a3079fd6dfddf60b826975a91673bdeddf00768aa0dddc1fd",
+    "current_digest": "ddf8fb57074c9d1d7c87a14dba3bdad7ccaf729f0f725b9c2c26b203e8255e8c",
     "approved_digest": null,
-    "review_corpus_fingerprint": "164bea06d81c6f7a3079fd6dfddf60b826975a91673bdeddf00768aa0dddc1fd",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the viewport when the already-answered Cold Check walkthrough is revealed; it changes presentation continuity only. Neither repair changes poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "ddf8fb57074c9d1d7c87a14dba3bdad7ccaf729f0f725b9c2c26b203e8255e8c",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. Neither repair changes poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -25,9 +25,11 @@
       "content/i18n/locale-pipeline.ts",
       "content/i18n/novice-scaffold.ts",
       "content/i18n/final-plus-ev.ts",
+      "app/page.tsx",
       "components/LiveCashApp.tsx",
       "components/LiveCashAppCore.tsx",
       "components/RealUseLessonAssist.tsx",
+      "components/ScrollContinuityGuard.tsx",
       "components/TestInviteGate.tsx",
       "components/Wave5PracticeLayer.tsx",
       "components/Wave7Experience.tsx",
@@ -67,10 +69,12 @@
     "content/i18n/final-plus-ev.ts": "c911fdd02cf70f3ea05f796e9e79a61beb8e07cc",
     "content/i18n/learner-ui.ts": "53616c91a8bfe5eb23f3d26bb434d448fd6565cf",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
+    "app/page.tsx": "b215eb1f01502cb643d250024269c1df69e11fd6",
     "components/LiveCashApp.tsx": "1f92e7e0df380f9f6209077e015976146e5d712a",
     "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/RealUseLessonAssist.tsx": "f2f5247f1e2bb7d92bb9114331f129c7894287ff",
+    "components/ScrollContinuityGuard.tsx": "c47e8bb022916617be3201c2502fe6af1c4317c5",
     "components/TestInviteGate.tsx": "629f3ba96710ffa00c1e183a62d550ba4e716b57",
     "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
     "components/Wave7Experience.tsx": "3253ea28b33e4a6b306725c83629f648d58a4e6d",
