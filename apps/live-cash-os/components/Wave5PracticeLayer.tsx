@@ -90,8 +90,13 @@ function baselineSpr(lab: SprLab): number {
   return Math.max(0, (lab.stack - lab.bet) / (lab.initialPot + 2 * lab.bet));
 }
 
+function hasPredictionAttempt(value: string): boolean {
+  const words = value.toLocaleLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+  return words.length >= 2 && new Set(words).size >= 2;
+}
+
 function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: { locale: LocaleCode; lab: Lab; prediction: string; setPrediction: (value: string) => void; onContinue: () => void }) {
-  const predictionReady = prediction.trim().length >= 24;
+  const predictionReady = hasPredictionAttempt(prediction);
   if (lab.type === "spr") {
     const start = baselineSpr(lab).toFixed(2);
     const copy = locale === "ru"
@@ -100,7 +105,7 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
           title: "Сначала выбери одно изменение и предскажи SPR.",
           task: `Старт: банк ${lab.initialPot}, стек ${lab.stack}, ставка/колл ${lab.bet}, SPR ≈ ${start}.`,
           help: "Выбери только одно значение — банк, оставшийся стек или ставку/колл — и представь, что оно станет больше или меньше. Напиши, станет SPR выше, ниже или примерно тем же и почему.",
-          missing: "Нужна короткая мысль из двух частей: что изменится с SPR и почему.",
+          missing: "Напиши короткий ответ своими словами. Одного повторяющегося слова недостаточно; правильность здесь не оценивается автоматически — сверишь прогноз на следующем шаге.",
           placeholder: "Если увеличить банк до ставки, SPR станет ниже, потому что …",
           button: "Перейти к проверке",
         }
@@ -109,7 +114,7 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
           title: "Choose one change and predict the SPR first.",
           task: `Start: pot ${lab.initialPot}, stack ${lab.stack}, bet/call ${lab.bet}, SPR ≈ ${start}.`,
           help: "Choose only one value — pot, remaining stack, or bet/call — and imagine making it larger or smaller. State whether SPR will rise, fall, or stay about the same, and why.",
-          missing: "Give a short two-part answer: what will happen to SPR and why.",
+          missing: "Write a short answer in your own words. Repeating one word is not enough; correctness is not auto-graded here — you will compare the prediction on the next step.",
           placeholder: "If I increase the pot before the bet, SPR will fall because …",
           button: "Continue to the check",
         };
@@ -121,7 +126,7 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
         eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
         title: `Сначала сравни «${lab.leftTitle}» и «${lab.rightTitle}».`,
         help: "До открытия подсказок напиши, чем, по-твоему, отличаются эти два варианта. Назови один конкретный фактор и объясни, как он меняет решение или вывод.",
-        missing: "Нужна короткая мысль из двух частей: что здесь меняется и почему это важно.",
+        missing: "Напиши короткий ответ своими словами. Одного повторяющегося слова недостаточно; правильность здесь не оценивается автоматически — сверишь ответ на следующем шаге.",
         placeholder: "Главное отличие — …; поэтому решение меняется так: …",
         button: "Перейти к проверке",
       }
@@ -129,7 +134,7 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
         eyebrow: "BEFORE THE LAB",
         title: `Compare “${lab.leftTitle}” and “${lab.rightTitle}” first.`,
         help: "Before opening the hints, write how you think these two versions differ. Name one concrete factor and explain how it changes the decision or conclusion.",
-        missing: "Give a short two-part answer: what changes here and why it matters.",
+        missing: "Write a short answer in your own words. Repeating one word is not enough; correctness is not auto-graded here — you will compare the answer on the next step.",
         placeholder: "The key difference is …; therefore the decision changes because …",
         button: "Continue to the check",
       };

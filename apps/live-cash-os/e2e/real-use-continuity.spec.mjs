@@ -100,7 +100,7 @@ test("lab gives a concrete prediction format and normalizes leading zeroes", asy
   await expect(gate).toBeVisible();
   await expect(gate).toContainText("Сначала выбери одно изменение и предскажи SPR.");
   await expect(gate).toContainText("Старт: банк 42, стек 158, ставка/колл 14, SPR ≈ 2.06");
-  await expect(gate).toContainText("что изменится с SPR и почему");
+  await expect(gate).toContainText("станет SPR выше, ниже или примерно тем же и почему");
   await gate.locator("textarea").fill("SPR станет ниже, потому что банк после действия станет больше.");
   await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
 
