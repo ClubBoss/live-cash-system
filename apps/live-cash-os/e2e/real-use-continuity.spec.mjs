@@ -102,18 +102,18 @@ test("SPR lab explains the calculation, normalizes input and can reset on mobile
   await expect(gate).toContainText("SPR простыми словами");
   await expect(gate).toContainText("SPR — это отношение оставшегося стека к банку после действия");
   await expect(gate).toContainText("144 ÷ 70 = 2.06");
-  await expect(gate).toContainText("Старт: банк 42, стек 158, ставка/колл 14, SPR ≈ 2.06");
+  await expect(gate).toContainText("Старт: банк 42, стек до колла 158, ставка/колл 14, SPR ≈ 2.06");
   await expect(gate).toContainText("станет SPR выше, ниже или примерно тем же и почему");
   await gate.locator("textarea").fill("SPR станет ниже, потому что банк после действия станет больше.");
   await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
 
   const pot = gate.getByLabel("Банк до ставки");
-  const stack = gate.getByLabel("Оставшийся стек");
+  const stack = gate.getByLabel("Стек до колла");
   const reset = gate.getByRole("button", { name: "Сбросить к стартовым значениям" });
   await pot.fill("055");
   await expect(pot).toHaveValue("55");
   await stack.fill("170");
-  await expect(gate.getByText(/Сейчас изменены: Банк до ставки, Оставшийся стек/)).toBeVisible();
+  await expect(gate.getByText(/Сейчас изменены: Банк до ставки, Стек до колла/)).toBeVisible();
   await expect(reset).toBeVisible();
   await reset.click();
   await expect(pot).toHaveValue("42");

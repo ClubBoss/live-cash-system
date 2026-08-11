@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "2452e096072482c161d7d00e6ca9139315a5d3f98c113d1c40facae9bd9818ec",
+    "current_digest": "0ef345bb7407734b08aa171ad18e4a96751fd3d50c29c6d23dacb1e32188dec3",
     "approved_digest": null,
-    "review_corpus_fingerprint": "2452e096072482c161d7d00e6ca9139315a5d3f98c113d1c40facae9bd9818ec",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, and the N1 novice-scaffold learner composition are materialized in the review corpus. N1 adds bounded teaching order, deterministic call-price arithmetic, and terminology clarification without changing strategic claim identities or correct-answer IDs. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "0ef345bb7407734b08aa171ad18e4a96751fd3d50c29c6d23dacb1e32188dec3",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, and FINAL N2 novice-clarity terminology/gating repairs are materialized in the review corpus. N2 aligns SPR stack wording with the existing pre-call math, replaces the arbitrary Explain-back character quota with a bounded structural attempt check, and keeps the worked-example novice guide reliable across delayed mobile rendering without changing strategic claims, correct-answer IDs, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -62,14 +62,14 @@
     "content/i18n/wave4r-final-language.ts": "64dcbd684031ac910d4369c91b88f504c5e6d16b",
     "content/i18n/locale-pipeline.ts": "07b206cdfe1633512d09dd8ea8f5ec93587392ab",
     "content/i18n/novice-scaffold.ts": "4880d3a4becb36c991ed09d91e0094e14a2493e3",
-    "content/i18n/learner-ui.ts": "c5169565b27781aa4bf225d1ac96160d82ce07e6",
+    "content/i18n/learner-ui.ts": "53616c91a8bfe5eb23f3d26bb434d448fd6565cf",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "8a434cee85e73c296c7235e79e1893e7fd9f1290",
-    "components/LiveCashAppCore.tsx": "4ea31525160d913fce43cf46735e7a3298757f47",
+    "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/RealUseLessonAssist.tsx": "5ce0c676fddf13364c7f8db177eca7ffaa124067",
+    "components/RealUseLessonAssist.tsx": "944f7d3092b29d06d74da100a00096963f526a0a",
     "components/TestInviteGate.tsx": "f21432799e2a8a869a904b4bd71742e667e79980",
-    "components/Wave5PracticeLayer.tsx": "06006fbd6de4ed19ab5df0a712a1cddea1f5af6f",
+    "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
     "components/Wave7Experience.tsx": "fedd4d463120286738a1b1d46eee83d92a315165",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
     "components/DataSafetyPanel.tsx": "e858ca06549b5526bc951ca02cf73e18b515ffc2",

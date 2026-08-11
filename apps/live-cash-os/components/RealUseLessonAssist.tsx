@@ -194,7 +194,7 @@ function PreviousStepContent({ snapshot }: { snapshot: LessonSnapshot }) {
     return <><p className="eyebrow">{labels[previous]}</p><h2>{module.workedExample.situation}</h2><ol className="learning-list">{module.workedExample.steps.map((item) => <li key={item}>{item}</li>)}</ol><div className="answer-panel"><p>{module.workedExample.answer}</p></div></>;
   }
   if (previous === 5) {
-    return <><p className="eyebrow">{labels[previous]}</p><h2>{module.lab.title}</h2><p>{module.lab.description}</p>{module.lab.type === "spr" && <p className="assumption-strip">{locale === "ru" ? `Старт: банк ${module.lab.initialPot}, стек ${module.lab.stack}, ставка/колл ${module.lab.bet}.` : `Start: pot ${module.lab.initialPot}, stack ${module.lab.stack}, bet/call ${module.lab.bet}.`}</p>}</>;
+    return <><p className="eyebrow">{labels[previous]}</p><h2>{module.lab.title}</h2><p>{module.lab.description}</p>{module.lab.type === "spr" && <p className="assumption-strip">{locale === "ru" ? `Старт: банк ${module.lab.initialPot}, стек до колла ${module.lab.stack}, ставка/колл ${module.lab.bet}.` : `Start: pot ${module.lab.initialPot}, stack before the call ${module.lab.stack}, bet/call ${module.lab.bet}.`}</p>}</>;
   }
   if (previous === 7) {
     return <><p className="eyebrow">{labels[previous]}</p><h2>{module.explainBackPrompt}</h2><p>{locale === "ru" ? "Это только просмотр предыдущего шага. Текущий ответ и прогресс не меняются." : "This is a read-only recap. Your current answer and progress are unchanged."}</p></>;
@@ -360,30 +360,35 @@ function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
 function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
   const [host, setHost] = useState<HTMLElement | null>(null);
   const enabled = snapshot.mode === "lesson" && Boolean(snapshot.moduleId) && snapshot.step === 4;
+  const heading = useLiveHost(
+    "main .session > h2",
+    enabled,
+    `${snapshot.moduleId}:${snapshot.step}:${snapshot.revision}`,
+  );
 
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled || !heading) {
       setHost(null);
       return;
     }
-    const frame = requestAnimationFrame(() => {
-      const session = document.querySelector<HTMLElement>("main .session");
-      const heading = session?.querySelector<HTMLElement>(":scope > h2");
-      if (!session || !heading) return;
-      let slot = session.querySelector<HTMLElement>(":scope > [data-real-use-worked-guide]");
-      if (!slot) {
-        slot = document.createElement("div");
-        slot.dataset.realUseWorkedGuide = "true";
-        heading.insertAdjacentElement("afterend", slot);
-      }
-      session.classList.add("real-use-worked-guided");
-      setHost(slot);
-    });
+    const session = heading.parentElement;
+    if (!(session instanceof HTMLElement) || !session.matches("main .session")) {
+      setHost(null);
+      return;
+    }
+    let slot = session.querySelector<HTMLElement>(":scope > [data-real-use-worked-guide]");
+    if (!slot) {
+      slot = document.createElement("div");
+      slot.dataset.realUseWorkedGuide = "true";
+      heading.insertAdjacentElement("afterend", slot);
+    }
+    session.classList.add("real-use-worked-guided");
+    setHost(slot);
     return () => {
-      cancelAnimationFrame(frame);
-      document.querySelector<HTMLElement>("main .session.real-use-worked-guided")?.classList.remove("real-use-worked-guided");
+      session.classList.remove("real-use-worked-guided");
+      slot?.remove();
     };
-  }, [enabled, snapshot.moduleId, snapshot.revision]);
+  }, [enabled, heading, snapshot.moduleId, snapshot.revision]);
 
   if (!enabled || !host || !snapshot.moduleId) return null;
   const task = WORKED_EXAMPLE_TASKS[snapshot.moduleId][snapshot.locale];

@@ -66,7 +66,7 @@ import {
   type TransferProbe,
 } from "../lib/model";
 import { useReliableLearnerState, type RecoveryCode, type SyncStatus } from "../lib/use-learner-state-sync";
-import { applyReviewedDiagnostic, pendingHumanReviewCount, saveExplainBack } from "../lib/wave7";
+import { applyReviewedDiagnostic, isGenuineExplainBackAttempt, pendingHumanReviewCount, saveExplainBack } from "../lib/wave7";
 import DataSafetyPanel from "./DataSafetyPanel";
 import LearningRoute from "./LearningRoute";
 import { Wave7ExplainBackHistory, Wave7FieldPanel, Wave7ProgressDetails } from "./Wave7Experience";
@@ -902,14 +902,14 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
   const t = runtimeCopy[locale];
   const [value, setValue] = useState(state.activeSession?.explainBack ?? "");
   const savedDraft = state.activeSession?.explainBack ?? "";
-  const explanationReady = value.trim().length >= 30;
+  const explanationReady = isGenuineExplainBackAttempt(value);
 
   function persistDraft() {
     if (value !== savedDraft) setState(patchSession(state, { explainBack: value }));
   }
 
   function saveAndContinue() {
-    if (value.trim().length < 30) return;
+    if (!explanationReady) return;
     const withDraft = value === savedDraft ? state : patchSession(state, { explainBack: value });
     const saved = saveExplainBack(withDraft, module.id, module.id + ".explainBack", value);
     if (!saved.activeSession) return;
@@ -926,7 +926,7 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
     <h2>{module.explainBackPrompt}</h2>
     <Wave7ExplainBackHistory locale={locale} state={state} moduleId={module.id} />
     <textarea className="large-input" value={value} onChange={(event) => setValue(event.target.value)} onBlur={persistDraft} placeholder={t.explainPlaceholder}/>
-    {!explanationReady && <p className="support">{locale === "ru" ? "Чтобы сохранить, объясни своими словами само решение и почему оно работает в этой ситуации." : "To save, explain the decision in your own words and why it works in this spot."}</p>}
+    {!explanationReady && <p className="support">{locale === "ru" ? "Чтобы сохранить, объясни решение своими словами и назови причину. Короткого содержательного ответа достаточно; одного повторяющегося слова — нет." : "To save, explain the decision in your own words and give a reason. A short meaningful answer is enough; repeating one word is not."}</p>}
     <button className="primary" disabled={!explanationReady} onClick={saveAndContinue}>{t.saveExplanation} <span>→</span></button>
   </>;
 }

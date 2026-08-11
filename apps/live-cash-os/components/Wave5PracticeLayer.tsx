@@ -108,8 +108,8 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
           primerTitle: "SPR простыми словами",
           primerWhy: "SPR — это отношение оставшегося стека к банку после действия. Оно помогает быстро понять масштаб будущих решений; само число не выбирает действие за тебя.",
           primerHow: `Как считать: после колла в стеке останется ${afterCallStack}, банк станет ${afterCallPot}, поэтому SPR ≈ ${afterCallStack} ÷ ${afterCallPot} = ${start}. За столом не обязательно считать до сотых: округли две цифры и оцени их отношение.`,
-          task: `Старт: банк ${lab.initialPot}, стек ${lab.stack}, ставка/колл ${lab.bet}, SPR ≈ ${start}.`,
-          help: "Выбери только одно значение — банк, оставшийся стек или ставку/колл — и представь, что оно станет больше или меньше. Напиши, станет SPR выше, ниже или примерно тем же и почему.",
+          task: `Старт: банк ${lab.initialPot}, стек до колла ${lab.stack}, ставка/колл ${lab.bet}, SPR ≈ ${start}.`,
+          help: "Выбери только одно значение — банк, стек до колла или ставку/колл — и представь, что оно станет больше или меньше. Напиши, станет SPR выше, ниже или примерно тем же и почему.",
           missing: "Напиши короткий ответ своими словами. Одного повторяющегося слова недостаточно; правильность здесь не оценивается автоматически — сверишь прогноз на следующем шаге.",
           placeholder: "Если увеличить банк до ставки, SPR станет ниже, потому что …",
           button: "Перейти к проверке",
@@ -120,8 +120,8 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
           primerTitle: "SPR in plain language",
           primerWhy: "SPR is the remaining stack divided by the pot after the action. It helps you quickly gauge the scale of the decisions ahead; the number does not choose a poker action for you.",
           primerHow: `How to calculate it: after the call the stack is ${afterCallStack}, the pot is ${afterCallPot}, so SPR ≈ ${afterCallStack} ÷ ${afterCallPot} = ${start}. At the table you do not need hundredths: round the two numbers and estimate the ratio.`,
-          task: `Start: pot ${lab.initialPot}, stack ${lab.stack}, bet/call ${lab.bet}, SPR ≈ ${start}.`,
-          help: "Choose only one value — pot, remaining stack, or bet/call — and imagine making it larger or smaller. State whether SPR will rise, fall, or stay about the same, and why.",
+          task: `Start: pot ${lab.initialPot}, stack before the call ${lab.stack}, bet/call ${lab.bet}, SPR ≈ ${start}.`,
+          help: "Choose only one value — pot, stack before the call, or bet/call — and imagine making it larger or smaller. State whether SPR will rise, fall, or stay about the same, and why.",
           missing: "Write a short answer in your own words. Repeating one word is not enough; correctness is not auto-graded here — you will compare the prediction on the next step.",
           placeholder: "If I increase the pot before the bet, SPR will fall because …",
           button: "Continue to the check",
@@ -170,18 +170,18 @@ function SprInteraction({ locale, moduleId, lab, prediction, onComplete }: { loc
   const betChanged = !Number.isFinite(betValue) || betValue !== lab.bet;
   const changedCount = [potChanged, stackChanged, betChanged].filter(Boolean).length;
   let error = "";
-  if (!finite) error = locale === "ru" ? "Введи конечные неотрицательные числа." : "Enter finite non-negative numbers."; else if (betValue > stackValue) error = locale === "ru" ? "Ставка/колл не может быть больше оставшегося стека." : "Bet/call cannot exceed the remaining stack."; else if (potValue + 2 * betValue <= 0) error = locale === "ru" ? "После действия размер банка должен быть больше нуля." : "The post-action pot must be greater than zero.";
+  if (!finite) error = locale === "ru" ? "Введи конечные неотрицательные числа." : "Enter finite non-negative numbers."; else if (betValue > stackValue) error = locale === "ru" ? "Ставка/колл не может быть больше стека до колла." : "Bet/call cannot exceed the stack before the call."; else if (potValue + 2 * betValue <= 0) error = locale === "ru" ? "После действия размер банка должен быть больше нуля." : "The post-action pot must be greater than zero.";
   const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
   const start = baselineSpr(lab).toFixed(2);
   const copy = locale === "ru"
     ? {
         eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
         title: "Теперь измени ровно одно значение.",
-        starting: `Стартовые значения: банк ${lab.initialPot} · стек ${lab.stack} · ставка/колл ${lab.bet}.`,
-        help: `Стартовый SPR ≈ ${start}. Измени только банк, оставшийся стек или ставку/колл, а два других значения оставь стартовыми. Так будет понятно, что именно изменило SPR.`,
+        starting: `Стартовые значения: банк ${lab.initialPot} · стек до колла ${lab.stack} · ставка/колл ${lab.bet}.`,
+        help: `Стартовый SPR ≈ ${start}. Измени только банк, стек до колла или ставку/колл, а два других значения оставь стартовыми. Так будет понятно, что именно изменило SPR.`,
         prediction: "Твой прогноз",
         pot: "Банк до ставки",
-        stack: "Оставшийся стек",
+        stack: "Стек до колла",
         bet: "Ставка / колл",
         changed: "изменено",
         unchanged: "Пока ничего не изменилось. Выбери одно из трёх значений и измени его.",
@@ -195,11 +195,11 @@ function SprInteraction({ locale, moduleId, lab, prediction, onComplete }: { loc
     : {
         eyebrow: "TEST THE PREDICTION",
         title: "Now change exactly one value.",
-        starting: `Starting values: pot ${lab.initialPot} · stack ${lab.stack} · bet/call ${lab.bet}.`,
-        help: `Starting SPR ≈ ${start}. Change only the pot, remaining stack, or bet/call and leave the other two at their starting values. That makes the cause of the SPR change clear.`,
+        starting: `Starting values: pot ${lab.initialPot} · stack before the call ${lab.stack} · bet/call ${lab.bet}.`,
+        help: `Starting SPR ≈ ${start}. Change only the pot, stack before the call, or bet/call and leave the other two at their starting values. That makes the cause of the SPR change clear.`,
         prediction: "Your prediction",
         pot: "Pot before bet",
-        stack: "Remaining stack",
+        stack: "Stack before the call",
         bet: "Bet / call",
         changed: "changed",
         unchanged: "Nothing has changed yet. Pick one of the three values and change it.",
