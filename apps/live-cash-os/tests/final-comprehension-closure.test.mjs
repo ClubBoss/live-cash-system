@@ -29,6 +29,7 @@ function gitBlobSha(buffer) {
 test("final comprehension closure keeps first-use wording and governance truth aligned", async () => {
   const geometryLocale = await text("content/i18n/geometry-locale.ts");
   const scaffold = await text("content/i18n/novice-scaffold.ts");
+  const finalPlusEv = await text("content/i18n/final-plus-ev.ts");
   const assist = await text("components/RealUseLessonAssist.tsx");
   const pipeline = await text("content/i18n/locale-pipeline.ts");
   const authority = await text("content/CONTENT_AUTHORITY.md");
@@ -43,6 +44,13 @@ test("final comprehension closure keeps first-use wording and governance truth a
   assert.match(scaffold, /Pot odds \/ call price/u);
   assert.match(scaffold, /full quick calculation comes in the next topic/u);
 
+  assert.match(finalPlusEv, /колл составляет четверть итогового банка/u);
+  assert.match(finalPlusEv, /Устойчивая рука/u);
+  assert.match(finalPlusEv, /Происхождение диапазона/u);
+  assert.match(finalPlusEv, /Реальные блефы/u);
+  assert.match(finalPlusEv, /Что опровергнет рид/u);
+  assert.doesNotMatch(finalPlusEv, /solver|MDF|точн(?:ая|ые) частот/u);
+
   assert.doesNotMatch(assist, /graded-ситуация/u);
   assert.match(assist, /Следующая задача будет другой/u);
 
@@ -54,6 +62,7 @@ test("final comprehension closure keeps first-use wording and governance truth a
     "applyWave5PracticeCopy",
     "applyWave4RFinalLanguage",
     "applyNoviceTerminologyCopy",
+    "applyFinalPlusEvCopy",
     "applyDiagnosticIntegrityLabels",
   ];
   let previous = -1;
