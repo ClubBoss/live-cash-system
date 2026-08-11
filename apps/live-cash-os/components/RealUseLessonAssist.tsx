@@ -194,7 +194,7 @@ function PreviousStepContent({ snapshot }: { snapshot: LessonSnapshot }) {
     return <><p className="eyebrow">{labels[previous]}</p><h2>{module.workedExample.situation}</h2><ol className="learning-list">{module.workedExample.steps.map((item) => <li key={item}>{item}</li>)}</ol><div className="answer-panel"><p>{module.workedExample.answer}</p></div></>;
   }
   if (previous === 5) {
-    return <><p className="eyebrow">{labels[previous]}</p><h2>{module.lab.title}</h2><p>{module.lab.description}</p>{module.lab.type === "spr" && <p className="assumption-strip">{locale === "ru" ? `Старт: банк ${module.lab.initialPot}, стек ${module.lab.stack}, ставка/колл ${module.lab.bet}.` : `Start: pot ${module.lab.initialPot}, stack ${module.lab.stack}, bet/call ${module.lab.bet}.`}</p>}</>;
+    return <><p className="eyebrow">{labels[previous]}</p><h2>{module.lab.title}</h2><p>{module.lab.description}</p>{module.lab.type === "spr" && <p className="assumption-strip">{locale === "ru" ? `Старт: банк ${module.lab.initialPot}, стек до колла ${module.lab.stack}, ставка/колл ${module.lab.bet}.` : `Start: pot ${module.lab.initialPot}, stack before the call ${module.lab.stack}, bet/call ${module.lab.bet}.`}</p>}</>;
   }
   if (previous === 7) {
     return <><p className="eyebrow">{labels[previous]}</p><h2>{module.explainBackPrompt}</h2><p>{locale === "ru" ? "Это только просмотр предыдущего шага. Текущий ответ и прогресс не меняются." : "This is a read-only recap. Your current answer and progress are unchanged."}</p></>;
