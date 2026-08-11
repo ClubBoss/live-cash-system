@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "2ff2b80ee7de385126590ce3ec11a18e8d697066477967021ada042a9699d684",
+    "current_digest": "0ef345bb7407734b08aa171ad18e4a96751fd3d50c29c6d23dacb1e32188dec3",
     "approved_digest": null,
-    "review_corpus_fingerprint": "2ff2b80ee7de385126590ce3ec11a18e8d697066477967021ada042a9699d684",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, and FINAL N2 novice-clarity terminology/gating repairs are materialized in the review corpus. N2 aligns SPR stack wording with the existing pre-call math and replaces the arbitrary Explain-back character quota with a bounded structural attempt check without changing strategic claims, correct-answer IDs, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "0ef345bb7407734b08aa171ad18e4a96751fd3d50c29c6d23dacb1e32188dec3",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, and FINAL N2 novice-clarity terminology/gating repairs are materialized in the review corpus. N2 aligns SPR stack wording with the existing pre-call math, replaces the arbitrary Explain-back character quota with a bounded structural attempt check, and keeps the worked-example novice guide reliable across delayed mobile rendering without changing strategic claims, correct-answer IDs, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -67,7 +67,7 @@
     "components/LiveCashApp.tsx": "8a434cee85e73c296c7235e79e1893e7fd9f1290",
     "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/RealUseLessonAssist.tsx": "336b8216ba7525914f24c90e02ec363c2d34c203",
+    "components/RealUseLessonAssist.tsx": "944f7d3092b29d06d74da100a00096963f526a0a",
     "components/TestInviteGate.tsx": "f21432799e2a8a869a904b4bd71742e667e79980",
     "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
     "components/Wave7Experience.tsx": "fedd4d463120286738a1b1d46eee83d92a315165",
