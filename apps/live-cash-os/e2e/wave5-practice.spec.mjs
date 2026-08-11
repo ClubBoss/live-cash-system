@@ -106,12 +106,15 @@ test("mixed practice requires three completed topics and conceals the topic befo
   await expect(page.locator(".session-head > div > span:first-of-type")).toContainText(/^СМЕШАННАЯ ПРАКТИКА · 1\//);
 });
 
-test("SPR lab accepts a short real prediction without a hidden character quota and rejects repeated filler", async ({ page }) => {
+test("SPR lab teaches the calculation and recovers from exploratory edits", async ({ page }) => {
   await openGeometryLab(page);
 
   const gate = page.locator("[data-wave5-lab-module='geometry']");
   await expect(gate).toBeVisible();
   await expect(gate.getByRole("heading", { name: "Сначала выбери одно изменение и предскажи SPR." })).toBeVisible();
+  await expect(gate.getByText("SPR простыми словами", { exact: true })).toBeVisible();
+  await expect(gate).toContainText("SPR — это отношение оставшегося стека к банку после действия");
+  await expect(gate).toContainText("144 ÷ 70 = 2.06");
   await expect(gate.getByText(/Старт: банк 42, стек 158, ставка\/колл 14, SPR ≈ 2\.06/)).toBeVisible();
   await expect(page.locator("main .spr-lab")).toBeHidden();
 
@@ -131,19 +134,39 @@ test("SPR lab accepts a short real prediction without a hidden character quota a
   await expect(gate.getByRole("heading", { name: "Теперь измени ровно одно значение." })).toBeVisible();
   await expect(gate.getByText("Твой прогноз", { exact: true })).toBeVisible();
   await expect(gate.getByText(predictionText, { exact: true })).toBeVisible();
+  await expect(gate).toContainText("Стартовые значения: банк 42 · стек 158 · ставка/колл 14.");
 
-  await gate.getByLabel("Оставшийся стек").fill("20");
-  await gate.getByLabel("Ставка / колл").fill("30");
-  await expect(gate.getByRole("alert")).toContainText("не может быть больше");
+  const pot = gate.getByLabel("Банк до ставки");
+  const stack = gate.getByLabel("Оставшийся стек");
+  const bet = gate.getByLabel("Ставка / колл");
   const finish = gate.getByRole("button", { name: /Готово — продолжить/ });
+  const reset = gate.getByRole("button", { name: "Сбросить к стартовым значениям" });
+  await expect(reset).toHaveCount(0);
   await expect(finish).toBeDisabled();
 
-  await gate.getByLabel("Ставка / колл").fill("10");
-  await expect(gate.getByText(/Изменено несколько значений/)).toBeVisible();
-  await expect(finish).toBeDisabled();
+  await stack.fill("20");
+  await bet.fill("30");
+  await expect(gate.getByRole("alert")).toContainText("не может быть больше");
+  await expect(gate.locator(".spr-lab label[data-changed='true']")).toHaveCount(2);
+  await expect(reset).toBeVisible();
+  await reset.click();
+  await expect(pot).toHaveValue("42");
+  await expect(stack).toHaveValue("158");
+  await expect(bet).toHaveValue("14");
+  await expect(gate.locator(".spr-lab label[data-changed='true']")).toHaveCount(0);
+  await expect(reset).toHaveCount(0);
 
-  await gate.getByLabel("Ставка / колл").fill("14");
-  await expect(gate.locator(".spr-result b")).not.toHaveText("—");
+  await pot.fill("125");
+  await stack.fill("124");
+  await expect(gate.getByText(/Сейчас изменены: Банк до ставки, Оставшийся стек/)).toBeVisible();
+  await expect(finish).toBeDisabled();
+  await reset.click();
+  await expect(pot).toHaveValue("42");
+  await expect(stack).toHaveValue("158");
+  await expect(bet).toHaveValue("14");
+
+  await pot.fill("55");
+  await expect(gate.locator(".spr-lab label[data-changed='true']")).toHaveCount(1);
   await expect(gate.getByText(/SPR 2\.06 →/)).toBeVisible();
   await expect(gate.getByText("Граница")).toBeVisible();
   await expect(finish).toBeEnabled();
@@ -153,7 +176,7 @@ test("SPR lab accepts a short real prediction without a hidden character quota a
   await expect(gate).toHaveCount(0);
 });
 
-test("compare lab asks about its actual two branches instead of an unrelated SPR prediction", async ({ page }) => {
+test("compare lab asks about its actual two branches and remains reversible", async ({ page }) => {
   await seedLab(page, "preflop", ["pre-01", "pre-02", "pre-03"]);
 
   const gate = page.locator("[data-wave5-lab-module='preflop']");
@@ -170,10 +193,15 @@ test("compare lab asks about its actual two branches instead of an unrelated SPR
   await expect(gate.getByText("Твой прогноз", { exact: true })).toBeVisible();
   await expect(gate.getByText(predictionText, { exact: true })).toBeVisible();
   const finish = gate.getByRole("button", { name: /Готово — продолжить/ });
+  const left = gate.getByRole("button", { name: "Колл", exact: true });
+  const right = gate.getByRole("button", { name: "3-бет", exact: true });
   await expect(finish).toBeDisabled();
-  await gate.getByRole("button", { name: "Колл", exact: true }).click();
+  await left.click();
   await expect(finish).toBeDisabled();
-  await gate.getByRole("button", { name: "3-бет", exact: true }).click();
+  await right.click();
   await expect(gate.getByText("Граница")).toBeVisible();
+  await expect(finish).toBeEnabled();
+  await left.click();
+  await expect(left).toHaveAttribute("aria-pressed", "true");
   await expect(finish).toBeEnabled();
 });

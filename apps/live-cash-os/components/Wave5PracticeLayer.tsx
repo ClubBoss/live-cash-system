@@ -98,11 +98,16 @@ function hasPredictionAttempt(value: string): boolean {
 function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: { locale: LocaleCode; lab: Lab; prediction: string; setPrediction: (value: string) => void; onContinue: () => void }) {
   const predictionReady = hasPredictionAttempt(prediction);
   if (lab.type === "spr") {
+    const afterCallStack = lab.stack - lab.bet;
+    const afterCallPot = lab.initialPot + 2 * lab.bet;
     const start = baselineSpr(lab).toFixed(2);
     const copy = locale === "ru"
       ? {
           eyebrow: "ПЕРЕД ТРЕНАЖЁРОМ",
           title: "Сначала выбери одно изменение и предскажи SPR.",
+          primerTitle: "SPR простыми словами",
+          primerWhy: "SPR — это отношение оставшегося стека к банку после действия. Оно помогает быстро понять масштаб будущих решений; само число не выбирает действие за тебя.",
+          primerHow: `Как считать: после колла в стеке останется ${afterCallStack}, банк станет ${afterCallPot}, поэтому SPR ≈ ${afterCallStack} ÷ ${afterCallPot} = ${start}. За столом не обязательно считать до сотых: округли две цифры и оцени их отношение.`,
           task: `Старт: банк ${lab.initialPot}, стек ${lab.stack}, ставка/колл ${lab.bet}, SPR ≈ ${start}.`,
           help: "Выбери только одно значение — банк, оставшийся стек или ставку/колл — и представь, что оно станет больше или меньше. Напиши, станет SPR выше, ниже или примерно тем же и почему.",
           missing: "Напиши короткий ответ своими словами. Одного повторяющегося слова недостаточно; правильность здесь не оценивается автоматически — сверишь прогноз на следующем шаге.",
@@ -112,13 +117,16 @@ function PredictionStep({ locale, lab, prediction, setPrediction, onContinue }: 
       : {
           eyebrow: "BEFORE THE LAB",
           title: "Choose one change and predict the SPR first.",
+          primerTitle: "SPR in plain language",
+          primerWhy: "SPR is the remaining stack divided by the pot after the action. It helps you quickly gauge the scale of the decisions ahead; the number does not choose a poker action for you.",
+          primerHow: `How to calculate it: after the call the stack is ${afterCallStack}, the pot is ${afterCallPot}, so SPR ≈ ${afterCallStack} ÷ ${afterCallPot} = ${start}. At the table you do not need hundredths: round the two numbers and estimate the ratio.`,
           task: `Start: pot ${lab.initialPot}, stack ${lab.stack}, bet/call ${lab.bet}, SPR ≈ ${start}.`,
           help: "Choose only one value — pot, remaining stack, or bet/call — and imagine making it larger or smaller. State whether SPR will rise, fall, or stay about the same, and why.",
           missing: "Write a short answer in your own words. Repeating one word is not enough; correctness is not auto-graded here — you will compare the prediction on the next step.",
           placeholder: "If I increase the pot before the bet, SPR will fall because …",
           button: "Continue to the check",
         };
-    return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><p className="support"><strong>{locale === "ru" ? "Исходные данные:" : "Starting values:"}</strong> {copy.task}</p><p className="support">{copy.help}</p><textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />{!predictionReady && <p className="support">{copy.missing}</p>}<button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button></>;
+    return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><div className="answer-panel" data-spr-primer><b>{copy.primerTitle}</b><p>{copy.primerWhy}</p><p>{copy.primerHow}</p></div><p className="support"><strong>{locale === "ru" ? "Исходные данные:" : "Starting values:"}</strong> {copy.task}</p><p className="support">{copy.help}</p><textarea className="large-input" aria-label={copy.title} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={copy.placeholder} />{!predictionReady && <p className="support">{copy.missing}</p>}<button className="primary" disabled={!predictionReady} onClick={onContinue}>{copy.button} <span>→</span></button></>;
   }
 
   const copy = locale === "ru"
@@ -157,7 +165,10 @@ function SprInteraction({ locale, moduleId, lab, prediction, onComplete }: { loc
   const numbers = useMemo(() => [pot, stack, bet].map((value) => value.trim() === "" ? Number.NaN : Number(value)), [pot, stack, bet]);
   const [potValue, stackValue, betValue] = numbers;
   const finite = numbers.every((value) => Number.isFinite(value) && value >= 0);
-  const changedCount = finite ? [potValue !== lab.initialPot, stackValue !== lab.stack, betValue !== lab.bet].filter(Boolean).length : 0;
+  const potChanged = !Number.isFinite(potValue) || potValue !== lab.initialPot;
+  const stackChanged = !Number.isFinite(stackValue) || stackValue !== lab.stack;
+  const betChanged = !Number.isFinite(betValue) || betValue !== lab.bet;
+  const changedCount = [potChanged, stackChanged, betChanged].filter(Boolean).length;
   let error = "";
   if (!finite) error = locale === "ru" ? "Введи конечные неотрицательные числа." : "Enter finite non-negative numbers."; else if (betValue > stackValue) error = locale === "ru" ? "Ставка/колл не может быть больше оставшегося стека." : "Bet/call cannot exceed the remaining stack."; else if (potValue + 2 * betValue <= 0) error = locale === "ru" ? "После действия размер банка должен быть больше нуля." : "The post-action pot must be greater than zero.";
   const spr = error ? null : Math.max(0, (stackValue - betValue) / (potValue + 2 * betValue));
@@ -166,13 +177,17 @@ function SprInteraction({ locale, moduleId, lab, prediction, onComplete }: { loc
     ? {
         eyebrow: "ПРОВЕРЬ ПРОГНОЗ",
         title: "Теперь измени ровно одно значение.",
+        starting: `Стартовые значения: банк ${lab.initialPot} · стек ${lab.stack} · ставка/колл ${lab.bet}.`,
         help: `Стартовый SPR ≈ ${start}. Измени только банк, оставшийся стек или ставку/колл, а два других значения оставь стартовыми. Так будет понятно, что именно изменило SPR.`,
         prediction: "Твой прогноз",
         pot: "Банк до ставки",
         stack: "Оставшийся стек",
         bet: "Ставка / колл",
+        changed: "изменено",
         unchanged: "Пока ничего не изменилось. Выбери одно из трёх значений и измени его.",
-        tooMany: "Изменено несколько значений. Верни остальные к стартовым и оставь изменённым только один показатель.",
+        tooMany: "Оставь изменённым только один показатель или сбрось все значения к стартовым.",
+        changedNow: "Сейчас изменены",
+        reset: "Сбросить к стартовым значениям",
         result: "Сравнение",
         boundary: "Граница",
         finish: "Готово — продолжить",
@@ -180,19 +195,25 @@ function SprInteraction({ locale, moduleId, lab, prediction, onComplete }: { loc
     : {
         eyebrow: "TEST THE PREDICTION",
         title: "Now change exactly one value.",
+        starting: `Starting values: pot ${lab.initialPot} · stack ${lab.stack} · bet/call ${lab.bet}.`,
         help: `Starting SPR ≈ ${start}. Change only the pot, remaining stack, or bet/call and leave the other two at their starting values. That makes the cause of the SPR change clear.`,
         prediction: "Your prediction",
         pot: "Pot before bet",
         stack: "Remaining stack",
         bet: "Bet / call",
+        changed: "changed",
         unchanged: "Nothing has changed yet. Pick one of the three values and change it.",
-        tooMany: "More than one value changed. Restore the others and leave exactly one value changed.",
+        tooMany: "Leave exactly one value changed or reset everything to the starting values.",
+        changedNow: "Currently changed",
+        reset: "Reset to starting values",
         result: "Comparison",
         boundary: "Boundary",
         finish: "Done — continue",
       };
+  const changedLabels = [potChanged ? copy.pot : null, stackChanged ? copy.stack : null, betChanged ? copy.bet : null].filter((value): value is string => Boolean(value));
   const validChange = !error && changedCount === 1;
-  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><div className="answer-panel"><b>{copy.prediction}</b><p>{prediction}</p></div><p className="support">{copy.help}</p><div className="spr-lab"><label>{copy.pot}<input type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(canonicalNumericInput(event.target.value))} /></label><label>{copy.stack}<input type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(canonicalNumericInput(event.target.value))} /></label><label>{copy.bet}<input type="number" inputMode="decimal" min="0" value={bet} onChange={(event) => setBet(canonicalNumericInput(event.target.value))} /></label><div className="spr-result" aria-live="polite"><span>SPR</span><b>{spr === null ? "—" : spr.toFixed(2)}</b>{spr !== null && <small>({stackValue}−{betValue}) / ({potValue}+2×{betValue})</small>}</div></div>{error ? <p className="assumption-strip" role="alert">{error}</p> : changedCount === 0 ? <p className="assumption-strip">{copy.unchanged}</p> : changedCount > 1 ? <p className="assumption-strip">{copy.tooMany}</p> : <p className="support"><strong>{copy.result}:</strong> SPR {start} → {spr?.toFixed(2)}</p>}{validChange && <><p className="support">{lab.description}</p><div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div></>}<button className="primary" disabled={!validChange} onClick={onComplete}>{copy.finish} <span>→</span></button></>;
+  const reset = () => { setPot(String(lab.initialPot)); setStack(String(lab.stack)); setBet(String(lab.bet)); };
+  return <><p className="eyebrow">{copy.eyebrow}</p><h2>{copy.title}</h2><div className="answer-panel"><b>{copy.prediction}</b><p>{prediction}</p></div><p className="support"><strong>{copy.starting}</strong></p><p className="support">{copy.help}</p><div className="spr-lab"><label data-changed={potChanged ? "true" : "false"}>{copy.pot}{potChanged && <small aria-hidden="true"> · {copy.changed}</small>}<input aria-label={copy.pot} type="number" inputMode="decimal" min="0" value={pot} onChange={(event) => setPot(canonicalNumericInput(event.target.value))} /></label><label data-changed={stackChanged ? "true" : "false"}>{copy.stack}{stackChanged && <small aria-hidden="true"> · {copy.changed}</small>}<input aria-label={copy.stack} type="number" inputMode="decimal" min="0" value={stack} onChange={(event) => setStack(canonicalNumericInput(event.target.value))} /></label><label data-changed={betChanged ? "true" : "false"}>{copy.bet}{betChanged && <small aria-hidden="true"> · {copy.changed}</small>}<input aria-label={copy.bet} type="number" inputMode="decimal" min="0" value={bet} onChange={(event) => setBet(canonicalNumericInput(event.target.value))} /></label><div className="spr-result" aria-live="polite"><span>SPR</span><b>{spr === null ? "—" : spr.toFixed(2)}</b>{spr !== null && <small>({stackValue}−{betValue}) / ({potValue}+2×{betValue})</small>}</div></div>{error ? <p className="assumption-strip" role="alert">{error}</p> : changedCount === 0 ? <p className="assumption-strip">{copy.unchanged}</p> : changedCount > 1 ? <p className="assumption-strip">{copy.changedNow}: {changedLabels.join(", ")}. {copy.tooMany}</p> : <p className="support"><strong>{copy.result}:</strong> SPR {start} → {spr?.toFixed(2)}</p>}{changedCount > 0 && <button className="secondary" type="button" onClick={reset}>{copy.reset}</button>}{validChange && <><p className="support">{lab.description}</p><div className="counterexample"><b>{copy.boundary}</b><p>{module.counterexample}</p></div></>}<button className="primary" disabled={!validChange} onClick={onComplete}>{copy.finish} <span>→</span></button></>;
 }
 
 function CompareInteraction({ locale, moduleId, lab, prediction, onComplete }: { locale: LocaleCode; moduleId: ModuleId; lab: CompareLab; prediction: string; onComplete: () => void }) {
@@ -224,5 +245,6 @@ export default function Wave5PracticeLayer() {
     main .session.wave5-lab-active > :not(.session-head):not(.wave5-lab-gate) { display: none !important; }
     .wave5-lab-gate { display: block; }
     .wave5-lab-gate > .assumption-strip { display: block !important; }
+    .spr-lab label[data-changed="true"] input { outline: 2px solid currentColor; outline-offset: 2px; }
   `}</style>{snapshot.labActive && snapshot.moduleId && <Wave5LabPortal locale={snapshot.locale} moduleId={snapshot.moduleId} revision={snapshot.revision} />}</>;
 }
