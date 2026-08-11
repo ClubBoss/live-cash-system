@@ -366,10 +366,13 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
       setHost(null);
       return;
     }
-    const frame = requestAnimationFrame(() => {
+    const sync = () => {
       const session = document.querySelector<HTMLElement>("main .session");
       const heading = session?.querySelector<HTMLElement>(":scope > h2");
-      if (!session || !heading) return;
+      if (!session || !heading) {
+        setHost(null);
+        return;
+      }
       let slot = session.querySelector<HTMLElement>(":scope > [data-real-use-worked-guide]");
       if (!slot) {
         slot = document.createElement("div");
@@ -377,10 +380,13 @@ function WorkedExampleGuide({ snapshot }: { snapshot: LessonSnapshot }) {
         heading.insertAdjacentElement("afterend", slot);
       }
       session.classList.add("real-use-worked-guided");
-      setHost(slot);
-    });
+      setHost((previous) => previous === slot ? previous : slot);
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
     return () => {
-      cancelAnimationFrame(frame);
+      observer.disconnect();
       document.querySelector<HTMLElement>("main .session.real-use-worked-guided")?.classList.remove("real-use-worked-guided");
     };
   }, [enabled, snapshot.moduleId, snapshot.revision]);
