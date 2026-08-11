@@ -88,7 +88,7 @@ test("previous-step recap is read-only and preserves the current lesson step", a
   expect(after).toEqual(before);
 });
 
-test("lab gives a concrete prediction format and normalizes leading zeroes", async ({ page }) => {
+test("SPR lab explains the calculation, normalizes input and can reset on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await localOnly(page);
   await page.goto("/");
@@ -99,14 +99,27 @@ test("lab gives a concrete prediction format and normalizes leading zeroes", asy
   const gate = page.locator("main .session > [data-wave5-lab-module='geometry']");
   await expect(gate).toBeVisible();
   await expect(gate).toContainText("Сначала выбери одно изменение и предскажи SPR.");
+  await expect(gate).toContainText("SPR простыми словами");
+  await expect(gate).toContainText("SPR — это отношение оставшегося стека к банку после действия");
+  await expect(gate).toContainText("144 ÷ 70 = 2.06");
   await expect(gate).toContainText("Старт: банк 42, стек 158, ставка/колл 14, SPR ≈ 2.06");
   await expect(gate).toContainText("станет SPR выше, ниже или примерно тем же и почему");
   await gate.locator("textarea").fill("SPR станет ниже, потому что банк после действия станет больше.");
   await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
 
   const pot = gate.getByLabel("Банк до ставки");
+  const stack = gate.getByLabel("Оставшийся стек");
+  const reset = gate.getByRole("button", { name: "Сбросить к стартовым значениям" });
   await pot.fill("055");
   await expect(pot).toHaveValue("55");
+  await stack.fill("170");
+  await expect(gate.getByText(/Сейчас изменены: Банк до ставки, Оставшийся стек/)).toBeVisible();
+  await expect(reset).toBeVisible();
+  await reset.click();
+  await expect(pot).toHaveValue("42");
+  await expect(stack).toHaveValue("158");
+  await expect(gate.getByLabel("Ставка / колл")).toHaveValue("14");
+  await expect(reset).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 
