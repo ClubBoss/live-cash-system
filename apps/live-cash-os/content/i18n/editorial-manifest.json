@@ -31,7 +31,8 @@
       "components/TestInviteGate.tsx",
       "components/Wave5PracticeLayer.tsx",
       "components/Wave7Experience.tsx",
-      "components/Gauntlet4LearningIntegrityLayer.tsx"
+      "components/Gauntlet4LearningIntegrityLayer.tsx",
+      "components/DataSafetyPanel.tsx"
     ]
   },
   "source_blobs": {
