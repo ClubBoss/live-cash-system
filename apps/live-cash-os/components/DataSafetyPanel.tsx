@@ -176,6 +176,32 @@ export default function DataSafetyPanel({
     if (confirm(message)) await resetLocal();
   }
 
+  async function eraseAllProgress() {
+    const confirmed = confirm(ru
+      ? "Стереть весь прогресс этого профиля и начать с нуля? Будут удалены облачная и локальная копии, включая T1, уроки, повторы, карточки, explain-back и реальные руки. Отменить это действие нельзя, если заранее не экспортировать прогресс."
+      : "Erase all progress for this profile and start from zero? Both cloud and local copies will be removed, including T1, lessons, reviews, cards, explain-back, and real hands. This cannot be undone unless you export progress first.");
+    if (!confirmed) return;
+
+    if (cloudMode === "cloud") {
+      const deleted = await deleteCloud();
+      if (!deleted) {
+        alert(ru
+          ? "Облачную копию удалить не удалось. Прогресс не был сброшен, чтобы не оставить две расходящиеся версии."
+          : "The cloud copy could not be deleted. Progress was not reset to avoid leaving two diverging versions.");
+        return;
+      }
+    }
+
+    const reset = await resetLocal();
+    if (!reset) {
+      alert(ru
+        ? "Локальный сброс не завершён. Перезагрузи страницу и проверь раздел данных перед продолжением."
+        : "The local reset did not complete. Reload the page and check Data & Recovery before continuing.");
+      return;
+    }
+    window.location.reload();
+  }
+
   async function keepLocalConflict() {
     const confirmed = confirm(ru
       ? "Заменить облачную конфликтующую копию прогрессом с этого устройства? Обе версии уже сохранены для восстановления."
@@ -310,9 +336,13 @@ export default function DataSafetyPanel({
         ? <button className="secondary" onClick={() => void removeCloud()}>{ru ? "Удалить облачную копию" : "Delete cloud copy"}</button>
         : <button className="secondary" onClick={() => void enableCloud()}>{ru ? "Включить облачную копию" : "Enable cloud copy"}</button>}
       <button className="secondary" onClick={() => void resetDevice()}>{ru ? "Сбросить локальную копию" : "Reset local copy"}</button>
+      <button className="secondary" onClick={() => void eraseAllProgress()}>{ru ? "Стереть весь прогресс" : "Erase all progress"}</button>
       {state.activeSession && <button className="secondary" onClick={abandonSession}>{ru ? "Завершить сохранённую сессию" : "Abandon saved session"}</button>}
       {(syncStatus === "offline" || syncStatus === "error" || syncStatus === "local") && cloudMode === "cloud" && <button className="secondary" onClick={retrySync}>{ru ? "Повторить синхронизацию" : "Retry sync"}</button>}
     </div>
+    <p className="support">{ru
+      ? "«Стереть весь прогресс» удаляет данные только текущего профиля. После полного сброса облачная копия остаётся выключенной до явного включения."
+      : "“Erase all progress” removes data only for the current profile. After a full reset, cloud sync stays off until you explicitly enable it again."}</p>
 
     {recoveryRaw && <p className="support"><button className="textbutton" onClick={() => downloadText("live-cash-recovery-backup.json", recoveryRaw)}>{ru ? "Скачать сохранённую проблемную копию" : "Download preserved recovery copy"}</button></p>}
 
