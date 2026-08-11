@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "8b79daee67293d5eda862f516f73fea19db8918a465677b228b6e4fba227ff8d",
+    "current_digest": "2a710774390f99d9f162ef5e6c417ef12048605423acd675c6b97d413842f6f5",
     "approved_digest": null,
-    "review_corpus_fingerprint": "8b79daee67293d5eda862f516f73fea19db8918a465677b228b6e4fba227ff8d",
+    "review_corpus_fingerprint": "2a710774390f99d9f162ef5e6c417ef12048605423acd675c6b97d413842f6f5",
     "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery; it does not change poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
