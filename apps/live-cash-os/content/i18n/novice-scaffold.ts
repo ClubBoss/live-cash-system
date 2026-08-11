@@ -17,6 +17,10 @@ const ESSENTIAL_TERMS: Partial<Record<ModuleId, Record<LocaleCode, NoviceTerm[]>
         term: "SPR",
         meaning: "Отношение оставшегося стека к банку. Чем ниже SPR, тем меньше стека осталось относительно банка и тем меньше глубины будущих решений; чем выше SPR, тем больше. Фиксированные пороги здесь не нужны.",
       },
+      {
+        term: "Шансы банка / цена колла",
+        meaning: "Сколько текущий колл стоит относительно итогового банка после колла. Полный быстрый расчёт будет в следующей теме.",
+      },
     ],
     en: [
       {
@@ -26,6 +30,10 @@ const ESSENTIAL_TERMS: Partial<Record<ModuleId, Record<LocaleCode, NoviceTerm[]>
       {
         term: "SPR",
         meaning: "The remaining stack divided by the pot. Lower SPR means less stack remains relative to the pot and less future decision depth; higher SPR means more. No fixed thresholds are needed here.",
+      },
+      {
+        term: "Pot odds / call price",
+        meaning: "How much the current call costs relative to the final pot after calling. The full quick calculation comes in the next topic.",
       },
     ],
   },

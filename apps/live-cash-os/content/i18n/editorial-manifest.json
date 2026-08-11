@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "0ef345bb7407734b08aa171ad18e4a96751fd3d50c29c6d23dacb1e32188dec3",
+    "current_digest": "1d94c69085773de8bc0687b9052a11b5d7364c16f02bfc39e65fbaff2caccb7e",
     "approved_digest": null,
-    "review_corpus_fingerprint": "0ef345bb7407734b08aa171ad18e4a96751fd3d50c29c6d23dacb1e32188dec3",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, and FINAL N2 novice-clarity terminology/gating repairs are materialized in the review corpus. N2 aligns SPR stack wording with the existing pre-call math, replaces the arbitrary Explain-back character quota with a bounded structural attempt check, and keeps the worked-example novice guide reliable across delayed mobile rendering without changing strategic claims, correct-answer IDs, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "review_corpus_fingerprint": "1d94c69085773de8bc0687b9052a11b5d7364c16f02bfc39e65fbaff2caccb7e",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, and the final bounded comprehension closure are materialized in the review corpus. The closure aligns active SPR pre-call wording in RU/EN, gives LCM-01 a first-use call-price definition before geo-03 practice, and removes the remaining Russian scaffold jargon without changing strategic claims, correct-answer IDs, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -54,20 +54,20 @@
     "content/i18n/runtime.ts": "b622da3479b8b71024bc4ed304b406c1e50918e2",
     "content/i18n/geometry-gold.ts": "cbe5d4be29c5035945e1aa853d4651bcb29207eb",
     "content/i18n/geometry-ru-gold.ts": "37efba9b791a7eadcf7d5a87d9916aac215eadee",
-    "content/i18n/geometry-locale.ts": "9cbfb271ed7fe3345ab3b5ac16d192cd6e5343df",
+    "content/i18n/geometry-locale.ts": "60845d0583a58726121aeeef89587dfe9616c025",
     "content/i18n/wave3-priority-gold.ts": "5c22681a219ba3a35fa2dee8f6afc280a033e934",
     "content/i18n/wave4-curriculum-gold.ts": "7f8798ebeb9d38c7f177a4ac561ceb0448889d37",
     "content/i18n/wave4-final-editorial.ts": "9fc4da2e53ef1c013cfb3d6523f52c68b058e1d9",
     "content/i18n/wave5-practice-copy.ts": "d5a79ff83a7bee91dfa88c653e97558b89d466c8",
     "content/i18n/wave4r-final-language.ts": "64dcbd684031ac910d4369c91b88f504c5e6d16b",
     "content/i18n/locale-pipeline.ts": "07b206cdfe1633512d09dd8ea8f5ec93587392ab",
-    "content/i18n/novice-scaffold.ts": "4880d3a4becb36c991ed09d91e0094e14a2493e3",
+    "content/i18n/novice-scaffold.ts": "88b0652ca74955a5267275dc8aeab6d9ad8b0994",
     "content/i18n/learner-ui.ts": "53616c91a8bfe5eb23f3d26bb434d448fd6565cf",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "components/LiveCashApp.tsx": "8a434cee85e73c296c7235e79e1893e7fd9f1290",
     "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/RealUseLessonAssist.tsx": "944f7d3092b29d06d74da100a00096963f526a0a",
+    "components/RealUseLessonAssist.tsx": "152ec299b1d431847fb708c22fa15133716f76aa",
     "components/TestInviteGate.tsx": "f21432799e2a8a869a904b4bd71742e667e79980",
     "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
     "components/Wave7Experience.tsx": "fedd4d463120286738a1b1d46eee83d92a315165",
@@ -76,7 +76,7 @@
     "components/Gauntlet4LearningIntegrityLayer.tsx": "dcc1d3e25059bca5cf8fe1328fdbeb8e990e94fc"
   },
   "modules": {
-    "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4 and N1 learner-facing language/interaction composition changed; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},
+    "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4, N1 and the final bounded comprehension closure changed learner-facing language/interaction composition; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},
     "preflop": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair and N1 novice prerequisites are materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending."},
     "blinds": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair plus N1 terminology clarification are materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."},
     "filtering": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation plus bounded N1 terminology clarification are materialized; fresh human RU/EN review remains pending."},

@@ -1,0 +1,68 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+async function text(relativePath) {
+  return readFile(path.join(root, relativePath), "utf8");
+}
+
+function corpusFingerprint(sourceBlobs) {
+  const canonical = Object.entries(sourceBlobs)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([sourcePath, sha]) => `${sourcePath}=${sha}`)
+    .join("\n");
+  return createHash("sha256").update(canonical).digest("hex");
+}
+
+test("final comprehension closure keeps first-use wording and governance truth aligned", async () => {
+  const geometryLocale = await text("content/i18n/geometry-locale.ts");
+  const scaffold = await text("content/i18n/novice-scaffold.ts");
+  const assist = await text("components/RealUseLessonAssist.tsx");
+  const pipeline = await text("content/i18n/locale-pipeline.ts");
+  const authority = await text("content/CONTENT_AUTHORITY.md");
+  const manifest = JSON.parse(await text("content/i18n/editorial-manifest.json"));
+
+  assert.match(geometryLocale, /стек до колла и размер ставки\/колла/u);
+  assert.match(geometryLocale, /stack before the call, and the bet\/call size/u);
+  assert.doesNotMatch(geometryLocale, /Укажи банк до ставки, оставшийся стек/u);
+
+  assert.match(scaffold, /Шансы банка \/ цена колла/u);
+  assert.match(scaffold, /Полный быстрый расчёт будет в следующей теме/u);
+  assert.match(scaffold, /Pot odds \/ call price/u);
+  assert.match(scaffold, /full quick calculation comes in the next topic/u);
+
+  assert.doesNotMatch(assist, /graded-ситуация/u);
+  assert.match(assist, /Следующая задача будет другой/u);
+
+  const symbols = [
+    "applyGeometryLocale",
+    "applyWave3PriorityLocale",
+    "applyWave4CurriculumLocale",
+    "applyWave4FinalEditorialLocale",
+    "applyWave5PracticeCopy",
+    "applyWave4RFinalLanguage",
+    "applyNoviceTerminologyCopy",
+    "applyDiagnosticIntegrityLabels",
+  ];
+  let previous = -1;
+  for (const symbol of symbols) {
+    const index = pipeline.lastIndexOf(`${symbol}(`);
+    assert.ok(index > previous, `Locale pipeline order drifted at ${symbol}`);
+    previous = index;
+    assert.match(authority, new RegExp(symbol, "u"), `Content Authority omits ${symbol}`);
+  }
+
+  const fingerprint = corpusFingerprint(manifest.source_blobs);
+  assert.equal(manifest.final_composition.current_digest, fingerprint);
+  assert.equal(manifest.final_composition.review_corpus_fingerprint, fingerprint);
+  assert.match(authority, new RegExp(fingerprint, "u"));
+  assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
+  assert.equal(manifest.strategy_approval, null);
+  assert.equal(manifest.drill_approval, null);
+  assert.deepEqual(manifest.human_approvals, {});
+});
