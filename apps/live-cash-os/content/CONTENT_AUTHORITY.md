@@ -43,7 +43,7 @@ Learner-facing material remains original compression. Proprietary transcript pas
 
 `content/POKER_GLOSSARY_RU_EN.md` remains the terminology authority. Russian and English require independent natural-language review while preserving shared stable semantic IDs.
 
-FINAL W4R remains the broad learner-facing language/runtime pass. The bounded novice-comprehension layer and diagnostic-integrity labels apply after it and may clarify terminology or neutralize evaluator-facing labels, but they may not change strategic identities, correct-answer IDs or human approval truth.
+FINAL W4R remains the broad learner-facing language/runtime pass. The bounded novice-comprehension layer, final low-risk clarity layer, and diagnostic-integrity labels apply after it and may clarify terminology, arithmetic interpretation, or evaluator-facing labels, but they may not change strategic identities, correct-answer IDs or human approval truth.
 
 The canonical locale pipeline order is:
 
@@ -54,9 +54,10 @@ The canonical locale pipeline order is:
 5. `applyWave5PracticeCopy`;
 6. `applyWave4RFinalLanguage`;
 7. `applyNoviceTerminologyCopy`;
-8. `applyDiagnosticIntegrityLabels`.
+8. `applyFinalPlusEvCopy`;
+9. `applyDiagnosticIntegrityLabels`.
 
-`applyWave4RFinalLanguage(locale)` applies its final broad language pass only for English. `applyNoviceTerminologyCopy(locale)` then performs bounded novice-comprehension wording in both locales. `applyDiagnosticIntegrityLabels()` neutralizes learner-facing Diagnostic titles without changing stable `LD-*` identities. `wave4r-poker-native.ts` is not part of the active canonical pipeline, and the integrated `applyWave5PracticeCopy()` does not reactivate it transitively.
+`applyWave4RFinalLanguage(locale)` applies its final broad language pass only for English. `applyNoviceTerminologyCopy(locale)` then performs bounded novice-comprehension wording in both locales. `applyFinalPlusEvCopy(locale)` performs only the final low-risk learner-language cleanup: plain-language glossary aliases and a clearer arithmetic interpretation of call price, without changing strategy or evidence semantics. `applyDiagnosticIntegrityLabels()` neutralizes learner-facing Diagnostic titles without changing stable `LD-*` identities. `wave4r-poker-native.ts` is not part of the active canonical pipeline, and the integrated `applyWave5PracticeCopy()` does not reactivate it transitively.
 
 Therefore the compatibility file may remain present without becoming learner-facing authority.
 
@@ -95,7 +96,7 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`1d94c69085773de8bc0687b9052a11b5d7364c16f02bfc39e65fbaff2caccb7e`
+`868af8696d1692f5610b9c66f202df5b369379b6fa1e54868158235fc85c8e51`
 
 Current status:
 
