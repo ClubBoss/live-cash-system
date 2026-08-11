@@ -111,7 +111,7 @@ test("LCM-01 transition-driven progression reaches every lesson step without a h
   const apply = page.getByRole("button", { name: /^Сразу применить/ });
   await expect(novice).toBeVisible();
   await expect(apply).toBeHidden();
-  await novice.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+  await novice.getByRole("button", { name: /^Я решил — разобрать Cold Check/ }).click();
   await expect(apply).toBeVisible();
   await apply.click();
 

@@ -64,6 +64,9 @@ async function openGeometryLab(page) {
   await page.getByRole("button", { name: /^Ответить/ }).click();
   await continueSemanticFeedback(page);
 
+  const novice = page.locator("[data-novice-scaffold='geometry']");
+  await expect(novice).toBeVisible();
+  await novice.getByRole("button", { name: /^Я решил — разобрать Cold Check/ }).click();
   await page.getByRole("button", { name: /^Сразу применить/ }).click();
   await page.getByRole("button", { name: "Глубокий старт может превратиться в низкий SPR уже на флопе" }).click();
   await page.getByRole("button", { name: "Длина дальнейшего розыгрыша зависит от остатка стека относительно уже построенного банка" }).click();

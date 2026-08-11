@@ -100,7 +100,7 @@ test("lesson teaches terms, recognition, decision order and a guided Cold Check 
 
   const applyButton = page.getByRole("button", { name: /^Сразу применить/ });
   await expect(applyButton).toBeHidden();
-  await scaffold.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+  await scaffold.getByRole("button", { name: /^Я решил — разобрать Cold Check/ }).click();
   await expect(scaffold.locator("[data-guided-cold-example='geo-01'] .answer-panel")).toBeVisible();
   await expect(applyButton).toBeVisible();
   await applyButton.click();
@@ -155,7 +155,7 @@ test("LCM-02 defines modern vocabulary and call price before its first post-cold
 
   const applyButton = page.getByRole("button", { name: /^Сразу применить/ });
   await expect(applyButton).toBeHidden();
-  await scaffold.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+  await scaffold.getByRole("button", { name: /^Я решил — разобрать Cold Check/ }).click();
   await expect(applyButton).toBeVisible();
 });
 
@@ -194,7 +194,7 @@ test("active-learning scaffold remains bilingual without Cyrillic fallback in En
   const applyButton = page.getByRole("button", { name: /^Apply it now/ });
   await expect(applyButton).toBeHidden();
   await expect(page.locator("main .session")).not.toContainText(/[А-Яа-яЁё]/);
-  await scaffold.getByRole("button", { name: "I decided — review the Cold Check", exact: true }).click();
+  await scaffold.getByRole("button", { name: /^I decided — review the Cold Check/ }).click();
   await expect(applyButton).toBeVisible();
 });
 
