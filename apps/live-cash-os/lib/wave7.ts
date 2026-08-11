@@ -135,9 +135,14 @@ export function explainBackRecords(state: LearnerState, moduleId?: ModuleId): Ex
   return moduleId ? rows.filter((row) => row.moduleId === moduleId) : rows;
 }
 
+export function isGenuineExplainBackAttempt(text: string): boolean {
+  const words = text.toLocaleLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+  return words.length >= 2 && new Set(words).size >= 2;
+}
+
 export function saveExplainBack(state: LearnerState, moduleId: ModuleId, promptKey: string, text: string): LearnerState {
   const trimmed = text.trim();
-  if (trimmed.length < 30 || !promptKey.trim()) return state;
+  if (!isGenuineExplainBackAttempt(trimmed) || !promptKey.trim()) return state;
   const next = asWave7(state);
   next.explainBackRecords!.push({
     id: id("explain"),
