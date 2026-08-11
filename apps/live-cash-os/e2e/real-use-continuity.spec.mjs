@@ -105,8 +105,7 @@ test("Cold Check reveal preserves the learner viewport on desktop and mobile", a
     const guided = page.locator("[data-guided-cold-example='geo-01']");
     const reveal = guided.getByRole("button", { name: "Я решил — разобрать Cold Check" });
     await expect(reveal).toBeVisible();
-    await reveal.scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollBy(0, 120));
+    await reveal.evaluate((node) => node.scrollIntoView({ block: "center" }));
     expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
     const beforeTop = await viewportAnchorTop(guided);
 
@@ -151,9 +150,11 @@ test("SPR lab explains the calculation, normalizes input and can reset on mobile
   await expect(gate).toContainText("Старт: банк 42, стек до колла 158, ставка/колл 14, SPR ≈ 2.06");
   await expect(gate).toContainText("станет SPR выше, ниже или примерно тем же и почему");
   await gate.locator("textarea").fill("SPR станет ниже, потому что банк после действия станет больше.");
+  const continueButton = gate.getByRole("button", { name: /^Перейти к проверке/ });
+  await continueButton.evaluate((node) => node.scrollIntoView({ block: "center" }));
   const labAnchorBefore = await viewportAnchorTop(gate);
-  await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
-  await expect.poll(async () => Math.abs((await viewportAnchorTop(gate)) - labAnchorBefore)).toBeLessThan(80);
+  await continueButton.click();
+  await expect.poll(async () => Math.abs((await viewportAnchorTop(gate)) - labAnchorBefore)).toBeLessThan(4);
 
   const pot = gate.getByLabel("Банк до ставки");
   const stack = gate.getByLabel("Стек до колла");
