@@ -115,7 +115,7 @@ test("SPR lab teaches the calculation and recovers from exploratory edits", asyn
   await expect(gate.getByText("SPR простыми словами", { exact: true })).toBeVisible();
   await expect(gate).toContainText("SPR — это отношение оставшегося стека к банку после действия");
   await expect(gate).toContainText("144 ÷ 70 = 2.06");
-  await expect(gate.getByText(/Старт: банк 42, стек 158, ставка\/колл 14, SPR ≈ 2\.06/)).toBeVisible();
+  await expect(gate.getByText(/Старт: банк 42, стек до колла 158, ставка\/колл 14, SPR ≈ 2\.06/)).toBeVisible();
   await expect(page.locator("main .spr-lab")).toBeHidden();
 
   const prediction = gate.getByRole("textbox", { name: "Сначала выбери одно изменение и предскажи SPR." });
@@ -134,10 +134,10 @@ test("SPR lab teaches the calculation and recovers from exploratory edits", asyn
   await expect(gate.getByRole("heading", { name: "Теперь измени ровно одно значение." })).toBeVisible();
   await expect(gate.getByText("Твой прогноз", { exact: true })).toBeVisible();
   await expect(gate.getByText(predictionText, { exact: true })).toBeVisible();
-  await expect(gate).toContainText("Стартовые значения: банк 42 · стек 158 · ставка/колл 14.");
+  await expect(gate).toContainText("Стартовые значения: банк 42 · стек до колла 158 · ставка/колл 14.");
 
   const pot = gate.getByLabel("Банк до ставки");
-  const stack = gate.getByLabel("Оставшийся стек");
+  const stack = gate.getByLabel("Стек до колла");
   const bet = gate.getByLabel("Ставка / колл");
   const finish = gate.getByRole("button", { name: /Готово — продолжить/ });
   const reset = gate.getByRole("button", { name: "Сбросить к стартовым значениям" });
@@ -158,7 +158,7 @@ test("SPR lab teaches the calculation and recovers from exploratory edits", asyn
 
   await pot.fill("125");
   await stack.fill("124");
-  await expect(gate.getByText(/Сейчас изменены: Банк до ставки, Оставшийся стек/)).toBeVisible();
+  await expect(gate.getByText(/Сейчас изменены: Банк до ставки, Стек до колла/)).toBeVisible();
   await expect(finish).toBeDisabled();
   await reset.click();
   await expect(pot).toHaveValue("42");
