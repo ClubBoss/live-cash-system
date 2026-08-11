@@ -33,9 +33,10 @@ test("real-use practice input and prompts are bounded and canonical", async () =
   assert.match(wave5, /replace\(\/\^0\+\(\?=\\d\)\//u);
   assert.match(wave5, /Сначала выбери одно изменение и предскажи SPR/u);
   assert.match(wave5, /Выбери только одно значение/u);
-  assert.match(wave5, /что изменится с SPR и почему/u);
-  assert.match(wave5, /Нужна короткая мысль из двух частей/u);
-  assert.match(wave5, /Give a short two-part answer/u);
+  assert.match(wave5, /станет SPR выше, ниже или примерно тем же и почему/u);
+  assert.match(wave5, /Одного повторяющегося слова недостаточно/u);
+  assert.match(wave5, /правильность здесь не оценивается автоматически/u);
+  assert.match(wave5, /correctness is not auto-graded here/u);
   assert.match(wave5, /Сначала сравни «\$\{lab\.leftTitle\}» и «\$\{lab\.rightTitle\}»/u);
   assert.doesNotMatch(wave5, /Сначала спрогнозируй результат/u);
   assert.doesNotMatch(wave5, /измени важную переменную/u);
