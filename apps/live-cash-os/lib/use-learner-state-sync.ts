@@ -113,8 +113,6 @@ function claimLegacyProfileStorage(profileCode: string | null) {
   const scopedLearnerKey = profileStorageKey(LEARNER_STORAGE_KEY, profileCode);
   const existingScopedLearner = safeGet(scopedLearnerKey);
   if (existingScopedLearner !== null && existingScopedLearner !== legacyLearner) {
-    // A scoped snapshot already owns this profile. Leave the legacy copy alone
-    // rather than guessing that it belongs to the same learner.
     safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1");
     return;
   }
@@ -436,9 +434,6 @@ export function useReliableLearnerState() {
         setSyncStatus("local");
       }
 
-      // Preserve the #51 late-GET safety: re-read the durable snapshot after the
-      // network wait, but prefer an even newer in-memory learner mutation if one
-      // has not reached localStorage yet.
       const durableLocalRead = readLocalLearnerState(safeGet(accountKey(LEARNER_STORAGE_KEY)));
       const durableRevision = durableLocalRead.state?.revision ?? -1;
       const currentLocalRead = Boolean(localRead.state) && latestState.current.revision > durableRevision
@@ -704,12 +699,9 @@ export function useReliableLearnerState() {
   const activatePortableProfile = useCallback((rawCode: string) => {
     const code = rawCode.trim().toUpperCase();
     if (!PORTABLE_PROFILE_PATTERN.test(code)) return false;
-    const targetLearnerKey = profileStorageKey(LEARNER_STORAGE_KEY, code);
-    if (safeGet(targetLearnerKey) === null) {
-      if (!safeSet(targetLearnerKey, JSON.stringify(latestState.current))) return false;
-      safeRemove(profileStorageKey(SYNC_META_KEY, code));
-      safeRemove(profileStorageKey(CONFLICT_BACKUP_KEY, code));
-    }
+    // Switching identity never copies the current learner snapshot into the
+    // target namespace. An existing target restores its own local/cloud state;
+    // a fresh target starts fresh. Cross-profile transfer stays explicit via import.
     if (!safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1")) return false;
     if (!safeSet(PORTABLE_PROFILE_KEY, code)) return false;
     portableProfileCode.current = code;
