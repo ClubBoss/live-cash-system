@@ -699,10 +699,10 @@ export function useReliableLearnerState() {
   const activatePortableProfile = useCallback((rawCode: string) => {
     const code = rawCode.trim().toUpperCase();
     if (!PORTABLE_PROFILE_PATTERN.test(code)) return false;
-    // Switching identity never copies the current learner snapshot into the
-    // target namespace. An existing target restores its own local/cloud state;
-    // a fresh target starts fresh. Cross-profile transfer stays explicit via import.
-    if (!safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1")) return false;
+    // Activation itself never clones the current learner snapshot into the target
+    // namespace. On the first anonymous -> profile attachment, restore may claim
+    // the one unscoped legacy snapshot exactly once. After a prior profile or
+    // disconnect, the migration marker blocks any cross-profile claim.
     if (!safeSet(PORTABLE_PROFILE_KEY, code)) return false;
     portableProfileCode.current = code;
     setPortableProfileActive(true);
