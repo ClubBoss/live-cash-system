@@ -349,17 +349,24 @@ test("Real Hand draft is isolated from a different portable profile", async ({ p
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBeNull();
 });
 
-test("session return origin is ignored after portable profile identity changes", async ({ page }) => {
+test("active session and return origin stay isolated when portable profile identity changes", async ({ page }) => {
   await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_A });
   await seedDueRepair(page, "wave-b-origin-profile-a");
   await page.reload();
 
   await page.getByRole("button", { name: "Повтор", exact: true }).click();
   await page.locator(".queue article button.primary").first().click();
+  await expect(page.locator("main .session")).toBeVisible();
   await waitForBoundOrigin(page, "review");
+
   await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_B });
   await page.reload();
+  await expect(page.locator("main .session")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
 
+  await page.evaluate(({ key, value }) => localStorage.setItem(key, value), { key: PROFILE_KEY, value: PROFILE_A });
+  await page.reload();
   await expect(page.locator("main .session")).toBeVisible();
   await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), ORIGIN_KEY)).toBeNull();
   await finishCurrentDecision(page);
