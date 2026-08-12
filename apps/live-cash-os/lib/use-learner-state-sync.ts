@@ -19,13 +19,28 @@ import {
   type SyncMeta,
 } from "./reliability";
 import { consumeStateBootstrap } from "./state-bootstrap";
+import {
+  CONFLICT_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  LEARNER_STORAGE_KEY,
+  PORTABLE_PROFILE_KEY,
+  PROFILE_LOCAL_STATE_KEYS,
+  PROFILE_STORAGE_MIGRATION_KEY,
+  RECOVERY_BACKUP_KEY,
+  SYNC_META_KEY,
+  profileStorageKey,
+} from "./profile-storage";
 
-export const LEARNER_STORAGE_KEY = "live-cash-os:learner-state";
-export const SYNC_META_KEY = "live-cash-os:sync-meta";
-export const RECOVERY_BACKUP_KEY = "live-cash-os:recovery-backup";
-export const IMPORT_BACKUP_KEY = "live-cash-os:pre-import-backup";
-export const CONFLICT_BACKUP_KEY = "live-cash-os:sync-conflict";
-export const PORTABLE_PROFILE_KEY = "live-cash-os:portable-profile-code";
+export {
+  CONFLICT_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  LEARNER_STORAGE_KEY,
+  PORTABLE_PROFILE_KEY,
+  PROFILE_STORAGE_MIGRATION_KEY,
+  RECOVERY_BACKUP_KEY,
+  SYNC_META_KEY,
+} from "./profile-storage";
+
 const PORTABLE_PROFILE_HEADER = "x-live-cash-profile-code";
 const PORTABLE_PROFILE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
 const CLOUD_SAVE_DEBOUNCE_MS = 500;
@@ -83,8 +98,43 @@ function safeGet(key: string): string | null {
   try { return localStorage.getItem(key); } catch { return null; }
 }
 
-function writeSyncMeta(meta: SyncMeta) {
-  safeSet(SYNC_META_KEY, JSON.stringify(meta));
+function writeSyncMeta(key: string, meta: SyncMeta) {
+  safeSet(key, JSON.stringify(meta));
+}
+
+function claimLegacyProfileStorage(profileCode: string | null) {
+  if (!profileCode || safeGet(PROFILE_STORAGE_MIGRATION_KEY)) return;
+  const legacyLearner = safeGet(LEARNER_STORAGE_KEY);
+  if (legacyLearner === null) {
+    safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1");
+    return;
+  }
+
+  const scopedLearnerKey = profileStorageKey(LEARNER_STORAGE_KEY, profileCode);
+  const existingScopedLearner = safeGet(scopedLearnerKey);
+  if (existingScopedLearner !== null && existingScopedLearner !== legacyLearner) {
+    // A scoped snapshot already owns this profile. Leave the legacy copy alone
+    // rather than guessing that it belongs to the same learner.
+    safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1");
+    return;
+  }
+
+  const movable: string[] = [];
+  for (const baseKey of PROFILE_LOCAL_STATE_KEYS) {
+    const legacy = safeGet(baseKey);
+    if (legacy === null) continue;
+    const targetKey = profileStorageKey(baseKey, profileCode);
+    const target = safeGet(targetKey);
+    if (target === null) {
+      if (!safeSet(targetKey, legacy)) return;
+      movable.push(baseKey);
+    } else if (target === legacy) {
+      movable.push(baseKey);
+    }
+  }
+
+  if (!safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1")) return;
+  for (const baseKey of movable) safeRemove(baseKey);
 }
 
 function payloadState(payload: StateApiPayload): LearnerState | null {
@@ -135,6 +185,8 @@ export function useReliableLearnerState() {
     setState(next);
   }, []);
 
+  const accountKey = useCallback((baseKey: string) => profileStorageKey(baseKey, portableProfileCode.current), []);
+
   const profileHeaders = useCallback((): HeadersInit => {
     const code = portableProfileCode.current;
     return code ? { [PORTABLE_PROFILE_HEADER]: code } : {};
@@ -156,8 +208,8 @@ export function useReliableLearnerState() {
     setSyncStatus("conflict");
     setRecoveryCode("STATE_CONFLICT");
     setLastErrorCode("STATE_CONFLICT");
-    safeSet(CONFLICT_BACKUP_KEY, JSON.stringify(snapshot));
-  }, [setLearnerState]);
+    safeSet(accountKey(CONFLICT_BACKUP_KEY), JSON.stringify(snapshot));
+  }, [accountKey, setLearnerState]);
 
   const acceptCloudAck = useCallback((payload: StateApiPayload, fallback: LearnerState) => {
     const acknowledged = JSON.stringify(fallback);
@@ -174,8 +226,8 @@ export function useReliableLearnerState() {
       lastCloudUpdatedAt: serverCloudToken.current,
       lastCloudSaveAt: savedAt,
     };
-    writeSyncMeta(meta);
-  }, []);
+    writeSyncMeta(accountKey(SYNC_META_KEY), meta);
+  }, [accountKey]);
 
   const postState = useCallback(async (
     candidate: LearnerState,
@@ -227,7 +279,7 @@ export function useReliableLearnerState() {
       setCloudMode("local");
       setSyncStatus("local");
       setLastErrorCode("CLOUD_STATE_DELETED");
-      writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
+      writeSyncMeta(accountKey(SYNC_META_KEY), { ...EMPTY_SYNC_META, cloudDisabled: true });
       return { ok: false, response, payload };
     }
     if (response.status === 413) {
@@ -238,7 +290,7 @@ export function useReliableLearnerState() {
     }
     setSyncStatus("error");
     return { ok: false, response, payload };
-  }, [acceptCloudAck, profileHeaders, rememberConflict, requireUpdate]);
+  }, [acceptCloudAck, accountKey, profileHeaders, rememberConflict, requireUpdate]);
 
   const flushCloudState = useCallback(async (candidate: LearnerState) => {
     const serialized = JSON.stringify(candidate);
@@ -276,20 +328,21 @@ export function useReliableLearnerState() {
     restoreSettled.current = false;
 
     async function restore() {
-      const meta = parseSyncMeta(safeGet(SYNC_META_KEY));
       portableProfileCode.current = safeGet(PORTABLE_PROFILE_KEY);
+      claimLegacyProfileStorage(portableProfileCode.current);
       setPortableProfileActive(Boolean(portableProfileCode.current));
+      const meta = parseSyncMeta(safeGet(accountKey(SYNC_META_KEY)));
       cloudDisabled.current = meta.cloudDisabled;
       serverRevision.current = meta.lastCloudRevision;
       serverCloudToken.current = meta.lastCloudUpdatedAt;
       setLastCloudSaveAt(meta.lastCloudSaveAt);
       if (meta.cloudDisabled) setCloudMode("local");
 
-      const rawLocal = safeGet(LEARNER_STORAGE_KEY);
+      const rawLocal = safeGet(accountKey(LEARNER_STORAGE_KEY));
       const localRead = readLocalLearnerState(rawLocal);
       if (localRead.kind === "future") {
         if (localRead.raw) {
-          safeSet(RECOVERY_BACKUP_KEY, localRead.raw);
+          safeSet(accountKey(RECOVERY_BACKUP_KEY), localRead.raw);
           setRecoveryRaw(localRead.raw);
         }
         updateRequired.current = true;
@@ -298,7 +351,7 @@ export function useReliableLearnerState() {
         setLastErrorCode("FUTURE_STATE_UNSUPPORTED");
       } else if (localRead.kind === "corrupt") {
         if (localRead.raw) {
-          safeSet(RECOVERY_BACKUP_KEY, localRead.raw);
+          safeSet(accountKey(RECOVERY_BACKUP_KEY), localRead.raw);
           setRecoveryRaw(localRead.raw);
         }
         setRecoveryBlocked(true);
@@ -306,7 +359,7 @@ export function useReliableLearnerState() {
         setLastErrorCode("LOCAL_STATE_CORRUPT");
       } else if (localRead.kind === "recovered") {
         if (localRead.raw) {
-          safeSet(RECOVERY_BACKUP_KEY, localRead.raw);
+          safeSet(accountKey(RECOVERY_BACKUP_KEY), localRead.raw);
           setRecoveryRaw(localRead.raw);
         }
         setRecoveryCode("LOCAL_STATE_RECOVERED");
@@ -364,7 +417,7 @@ export function useReliableLearnerState() {
               cloudDisabled.current = true;
               setCloudMode("local");
               setSyncStatus("local");
-              writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
+              writeSyncMeta(accountKey(SYNC_META_KEY), { ...EMPTY_SYNC_META, cloudDisabled: true });
             } else if (remotePayload.code === "CLOUD_STATE_UNREADABLE"
               || (remotePayload.state && !validateLearnerState(remotePayload.state))) {
               setRecoveryCode("CLOUD_STATE_UNREADABLE");
@@ -386,7 +439,7 @@ export function useReliableLearnerState() {
       // Preserve the #51 late-GET safety: re-read the durable snapshot after the
       // network wait, but prefer an even newer in-memory learner mutation if one
       // has not reached localStorage yet.
-      const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));
+      const durableLocalRead = readLocalLearnerState(safeGet(accountKey(LEARNER_STORAGE_KEY)));
       const durableRevision = durableLocalRead.state?.revision ?? -1;
       const currentLocalRead = Boolean(localRead.state) && latestState.current.revision > durableRevision
         ? { kind: "valid" as const, state: latestState.current, raw: JSON.stringify(latestState.current) }
@@ -426,13 +479,13 @@ export function useReliableLearnerState() {
       mounted.current = false;
       restoreSettled.current = false;
     };
-  }, [profileHeaders, rememberConflict, requireUpdate, setLearnerState]);
+  }, [accountKey, profileHeaders, rememberConflict, requireUpdate, setLearnerState]);
 
   useEffect(() => {
     if (!ready || recoveryBlocked) return;
     latestState.current = state;
     const serialized = JSON.stringify(state);
-    if (!safeSet(LEARNER_STORAGE_KEY, serialized)) {
+    if (!safeSet(accountKey(LEARNER_STORAGE_KEY), serialized)) {
       setRecoveryCode("LOCAL_WRITE_FAILED");
       setLastErrorCode("LOCAL_WRITE_FAILED");
       setSyncStatus("error");
@@ -453,7 +506,7 @@ export function useReliableLearnerState() {
       void flushCloudState(latestState.current);
     }, CLOUD_SAVE_DEBOUNCE_MS);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [flushCloudState, ready, recoveryBlocked, retryNonce, state]);
+  }, [accountKey, flushCloudState, ready, recoveryBlocked, retryNonce, state]);
 
   useEffect(() => {
     const retry = () => {
@@ -494,14 +547,14 @@ export function useReliableLearnerState() {
       setCloudMode("local");
       setSyncStatus("local");
       setLastErrorCode(null);
-      writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
+      writeSyncMeta(accountKey(SYNC_META_KEY), { ...EMPTY_SYNC_META, cloudDisabled: true });
       return true;
     } catch {
       setSyncStatus("offline");
       setLastErrorCode("NETWORK_DELETE_FAILED");
       return false;
     }
-  }, [profileHeaders, requireUpdate]);
+  }, [accountKey, profileHeaders, requireUpdate]);
 
   const enableCloud = useCallback(async () => {
     if (recoveryBlocked) return false;
@@ -529,12 +582,12 @@ export function useReliableLearnerState() {
     lastAckedSerialized.current = JSON.stringify(current.remote);
     conflictRef.current = null;
     setConflict(null);
-    safeRemove(CONFLICT_BACKUP_KEY);
+    safeRemove(accountKey(CONFLICT_BACKUP_KEY));
     setRecoveryCode(null);
     setLastErrorCode(null);
     setSyncStatus("synced");
     return true;
-  }, [setLearnerState]);
+  }, [accountKey, setLearnerState]);
 
   const resolveConflictWithLocal = useCallback(async () => {
     const current = conflictRef.current;
@@ -548,7 +601,7 @@ export function useReliableLearnerState() {
       setLearnerState(current.local);
       conflictRef.current = null;
       setConflict(null);
-      safeRemove(CONFLICT_BACKUP_KEY);
+      safeRemove(accountKey(CONFLICT_BACKUP_KEY));
       setRecoveryCode(null);
       setLastErrorCode(null);
       return true;
@@ -557,7 +610,7 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_SAVE_FAILED");
       return false;
     }
-  }, [postState, setLearnerState]);
+  }, [accountKey, postState, setLearnerState]);
 
   const prepareImport = useCallback((text: string): ImportResult => {
     const prepared = prepareLearnerStateImport(text, state);
@@ -571,7 +624,7 @@ export function useReliableLearnerState() {
 
   const applyImport = useCallback((candidate: LearnerState) => {
     if (!validateLearnerState(candidate)) return false;
-    if (!safeSet(IMPORT_BACKUP_KEY, JSON.stringify(state))) {
+    if (!safeSet(accountKey(IMPORT_BACKUP_KEY), JSON.stringify(state))) {
       setLastErrorCode("IMPORT_BACKUP_FAILED");
       return false;
     }
@@ -580,12 +633,12 @@ export function useReliableLearnerState() {
     setRecoveryCode(null);
     setLearnerState(candidate);
     return true;
-  }, [setLearnerState, state]);
+  }, [accountKey, setLearnerState, state]);
 
   const resetLocal = useCallback(async () => {
     if (cloudDisabled.current || authUnavailable.current) {
-      safeRemove(LEARNER_STORAGE_KEY);
-      safeRemove(RECOVERY_BACKUP_KEY);
+      safeRemove(accountKey(LEARNER_STORAGE_KEY));
+      safeRemove(accountKey(RECOVERY_BACKUP_KEY));
       updateRequired.current = false;
       setRecoveryRaw(null);
       setRecoveryBlocked(false);
@@ -617,15 +670,15 @@ export function useReliableLearnerState() {
       }
 
       const remote = payload.cloudDeleted ? null : payloadState(payload);
-      safeRemove(LEARNER_STORAGE_KEY);
-      safeRemove(RECOVERY_BACKUP_KEY);
+      safeRemove(accountKey(LEARNER_STORAGE_KEY));
+      safeRemove(accountKey(RECOVERY_BACKUP_KEY));
       updateRequired.current = false;
       setRecoveryRaw(null);
       setRecoveryBlocked(false);
       setRecoveryCode(null);
       if (payload.cloudDeleted) {
         cloudDisabled.current = true;
-        writeSyncMeta({ ...EMPTY_SYNC_META, cloudDisabled: true });
+        writeSyncMeta(accountKey(SYNC_META_KEY), { ...EMPTY_SYNC_META, cloudDisabled: true });
         setCloudMode("local");
         lastAckedSerialized.current = null;
         queuedCloudState.current = null;
@@ -646,11 +699,18 @@ export function useReliableLearnerState() {
       setLastErrorCode("NETWORK_RESET_FAILED");
       return false;
     }
-  }, [profileHeaders, requireUpdate, setLearnerState]);
+  }, [accountKey, profileHeaders, requireUpdate, setLearnerState]);
 
   const activatePortableProfile = useCallback((rawCode: string) => {
     const code = rawCode.trim().toUpperCase();
     if (!PORTABLE_PROFILE_PATTERN.test(code)) return false;
+    const targetLearnerKey = profileStorageKey(LEARNER_STORAGE_KEY, code);
+    if (safeGet(targetLearnerKey) === null) {
+      if (!safeSet(targetLearnerKey, JSON.stringify(latestState.current))) return false;
+      safeRemove(profileStorageKey(SYNC_META_KEY, code));
+      safeRemove(profileStorageKey(CONFLICT_BACKUP_KEY, code));
+    }
+    if (!safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1")) return false;
     if (!safeSet(PORTABLE_PROFILE_KEY, code)) return false;
     portableProfileCode.current = code;
     setPortableProfileActive(true);
@@ -659,10 +719,20 @@ export function useReliableLearnerState() {
   }, []);
 
   const disconnectPortableProfile = useCallback(() => {
+    const serialized = JSON.stringify(latestState.current);
+    if (!safeSet(LEARNER_STORAGE_KEY, serialized)
+      || !safeSet(SYNC_META_KEY, JSON.stringify({ ...EMPTY_SYNC_META, cloudDisabled: true }))
+      || !safeSet(PROFILE_STORAGE_MIGRATION_KEY, "1")) {
+      setRecoveryCode("LOCAL_WRITE_FAILED");
+      setLastErrorCode("LOCAL_WRITE_FAILED");
+      setSyncStatus("error");
+      return false;
+    }
     safeRemove(PORTABLE_PROFILE_KEY);
     portableProfileCode.current = null;
     setPortableProfileActive(false);
     window.location.reload();
+    return true;
   }, []);
 
   return {
