@@ -1,13 +1,44 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import {
+  CONFLICT_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  LEARNER_STORAGE_KEY,
+  RECOVERY_BACKUP_KEY,
+  SYNC_META_KEY,
+  profileStorageKey,
+} from "../lib/profile-storage.ts";
 
-const [gate, dataSafety] = await Promise.all([
+const [gate, dataSafety, syncSource] = await Promise.all([
   readFile(new URL("../components/TestInviteGate.tsx", import.meta.url), "utf8"),
   readFile(new URL("../components/DataSafetyPanel.tsx", import.meta.url), "utf8"),
+  readFile(new URL("../lib/use-learner-state-sync.ts", import.meta.url), "utf8"),
 ]);
 
-test("switching a verified tester code clears prior profile-local learner snapshots", () => {
+const PROFILE_A = "LCO-TEST-AAAAAAAAAAAAAAAAAAAA";
+const PROFILE_B = "LCO-TEST-BBBBBBBBBBBBBBBBBBBB";
+const ACCOUNT_KEYS = [
+  LEARNER_STORAGE_KEY,
+  SYNC_META_KEY,
+  RECOVERY_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  CONFLICT_BACKUP_KEY,
+];
+
+test("tester profiles use distinct local namespaces without putting the access code in storage keys", () => {
+  for (const baseKey of ACCOUNT_KEYS) {
+    const a = profileStorageKey(baseKey, PROFILE_A);
+    const b = profileStorageKey(baseKey, PROFILE_B);
+    assert.notEqual(a, b);
+    assert.notEqual(a, baseKey);
+    assert.notEqual(b, baseKey);
+    assert.equal(a.includes(PROFILE_A), false);
+    assert.equal(b.includes(PROFILE_B), false);
+  }
+});
+
+test("all learner, sync and recovery persistence follows the active profile namespace", () => {
   for (const key of [
     "LEARNER_STORAGE_KEY",
     "SYNC_META_KEY",
@@ -15,20 +46,29 @@ test("switching a verified tester code clears prior profile-local learner snapsh
     "IMPORT_BACKUP_KEY",
     "CONFLICT_BACKUP_KEY",
   ]) {
-    assert.match(gate, new RegExp(`\\b${key}\\b`));
+    assert.match(syncSource, new RegExp(`accountKey\\(${key}\\)`));
   }
+  assert.match(syncSource, /profileStorageKey\(baseKey, portableProfileCode\.current\)/);
+  assert.match(syncSource, /claimLegacyProfileStorage\(portableProfileCode\.current\)/);
+  assert.match(syncSource, /PROFILE_STORAGE_MIGRATION_KEY/);
+});
+
+test("verified tester-code switching clears only legacy unscoped state, not another profile namespace", () => {
   assert.match(gate, /const PROFILE_LOCAL_STATE_KEYS = \[[\s\S]*LEARNER_STORAGE_KEY[\s\S]*SYNC_META_KEY[\s\S]*RECOVERY_BACKUP_KEY[\s\S]*IMPORT_BACKUP_KEY[\s\S]*CONFLICT_BACKUP_KEY[\s\S]*\] as const/);
-  assert.match(gate, /if \(previous !== code\) clearPreviousProfileLocalState\(\)/);
   assert.match(gate, /for \(const key of PROFILE_LOCAL_STATE_KEYS\) localStorage\.removeItem\(key\)/);
+  assert.doesNotMatch(gate, /profileStorageKey/);
+  assert.doesNotMatch(gate, /:profile:/);
 
   const clearAt = gate.indexOf("clearPreviousProfileLocalState();");
   const profileWriteAt = gate.indexOf("localStorage.setItem(PORTABLE_PROFILE_KEY, code)");
-  assert.ok(clearAt >= 0 && profileWriteAt > clearAt, "old learner state must be cleared before the new profile code becomes active");
-  assert.doesNotMatch(gate, /localStorage\.removeItem\(PORTABLE_PROFILE_KEY\)/);
+  assert.ok(clearAt >= 0 && profileWriteAt > clearAt, "legacy ambiguous state must be cleared before a fresh tester code becomes active");
 });
 
-test("reloading the same tester code preserves its local learner snapshot", () => {
-  assert.match(gate, /const previous = localStorage\.getItem\(PORTABLE_PROFILE_KEY\)\?\.trim\(\)\.toUpperCase\(\) \?\? "";[\s\S]*if \(previous !== code\) clearPreviousProfileLocalState\(\);[\s\S]*localStorage\.setItem\(PORTABLE_PROFILE_KEY, code\)/);
+test("disconnecting a profile preserves a safe local-only continuation instead of deleting learner progress", () => {
+  assert.match(syncSource, /const disconnectPortableProfile = useCallback\(\(\) => \{[\s\S]*safeSet\(LEARNER_STORAGE_KEY, serialized\)/);
+  assert.match(syncSource, /safeSet\(SYNC_META_KEY, JSON\.stringify\(\{ \.\.\.EMPTY_SYNC_META, cloudDisabled: true \}\)\)/);
+  assert.match(syncSource, /safeRemove\(PORTABLE_PROFILE_KEY\)/);
+  assert.match(syncSource, /window\.location\.reload\(\)/);
 });
 
 test("full progress reset is fail-closed and only clears local data after cloud deletion succeeds", () => {
