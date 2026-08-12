@@ -64,6 +64,17 @@ test("verified tester-code switching clears only legacy unscoped state, not anot
   assert.ok(clearAt >= 0 && profileWriteAt > clearAt, "legacy ambiguous state must be cleared before a fresh tester code becomes active");
 });
 
+test("first anonymous attachment keeps one-time migration available, while disconnect closes cross-profile migration", () => {
+  const activationStart = syncSource.indexOf("const activatePortableProfile");
+  const disconnectStart = syncSource.indexOf("const disconnectPortableProfile");
+  assert.ok(activationStart >= 0 && disconnectStart > activationStart);
+  const activation = syncSource.slice(activationStart, disconnectStart);
+  const disconnect = syncSource.slice(disconnectStart);
+  assert.doesNotMatch(activation, /safeSet\(PROFILE_STORAGE_MIGRATION_KEY/);
+  assert.match(activation, /safeSet\(PORTABLE_PROFILE_KEY, code\)/);
+  assert.match(disconnect, /safeSet\(PROFILE_STORAGE_MIGRATION_KEY, "1"\)/);
+});
+
 test("disconnecting a profile preserves a safe local-only continuation instead of deleting learner progress", () => {
   assert.match(syncSource, /const disconnectPortableProfile = useCallback\(\(\) => \{[\s\S]*safeSet\(LEARNER_STORAGE_KEY, serialized\)/);
   assert.match(syncSource, /safeSet\(SYNC_META_KEY, JSON\.stringify\(\{ \.\.\.EMPTY_SYNC_META, cloudDisabled: true \}\)\)/);
