@@ -67,7 +67,7 @@ test("Cards has one role, blocks future material, and explains grading impact af
   await openFresh(page);
   await page.getByRole("button", { name: "Карточки", exact: true }).click();
 
-  await expect(page.getByRole("button", { name: "До 2 мин", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Разминка · до 2 мин", exact: true })).toBeVisible();
   await expect(page.getByText(/Оценка меняет только срок следующего показа карточки, а не статус навыка/i)).toBeVisible();
   await expect(page.getByRole("button", { name: /^Открыть обучение/ })).toBeEnabled();
   await page.getByRole("button", { name: "Все", exact: true }).click();
