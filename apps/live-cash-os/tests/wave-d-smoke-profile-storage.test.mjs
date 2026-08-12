@@ -11,3 +11,8 @@ test("Wave D completion smoke resolves learner state from the active profile nam
   assert.doesNotMatch(smoke, /JSON\.parse\(localStorage\.getItem\("live-cash-os:learner-state"/u);
   assert.doesNotMatch(smoke, /localStorage\.setItem\("live-cash-os:learner-state"/u);
 });
+
+test("Wave D completion smoke preserves anonymous learner-state fallback", () => {
+  const fallbackMatches = smoke.match(/\n\s*: learnerKey;/gu) ?? [];
+  assert.ok(fallbackMatches.length >= 5, `expected repeated anonymous learner fallback, found ${fallbackMatches.length}`);
+});
