@@ -62,8 +62,15 @@ function stateApiController() {
 }
 
 async function readLocalState(page) {
-  await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), LEARNER_KEY)).not.toBeNull();
-  return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), LEARNER_KEY);
+  const raw = async () => page.evaluate(({ learnerKey, profileKey }) => {
+    const profiled = Boolean(localStorage.getItem(profileKey));
+    const key = profiled
+      ? Object.keys(localStorage).find((candidate) => candidate.startsWith(`${learnerKey}:profile:`))
+      : learnerKey;
+    return key ? localStorage.getItem(key) : null;
+  }, { learnerKey: LEARNER_KEY, profileKey: PROFILE_KEY });
+  await expect.poll(raw).not.toBeNull();
+  return JSON.parse(await raw());
 }
 
 async function seedStoredInvite(page, learner) {

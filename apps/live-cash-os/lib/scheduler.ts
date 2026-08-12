@@ -213,22 +213,23 @@ export function selectWarmupCardIds(
   seed: string,
   ownerPriorityModules: readonly ModuleId[] = DEFAULT_OWNER_PRIORITY_MODULES,
 ): string[] {
-  // A warm-up may only recall material from completed topics. An unfinished
-  // active lesson is preserved, but it does not make its cards eligible yet.
+  // Warm-up respects the same dueAt contract as Cards. It may shorten the due
+  // queue to two high-value cues, but it must never make a future card appear
+  // early and then silently rewrite its scheduled interval.
   const eligibleModules = new Set<ModuleId>(catalog.modules
     .filter((module) => state.modules[module.id].contentCompleted)
     .map((module) => module.id));
   if (!eligibleModules.size) return [];
   return catalog.cards
     .filter((card) => eligibleModules.has(card.moduleId))
-    .map((card) => {
+    .filter((card) => {
       const cardState = state.cards[card.id];
-      const due = !cardState || parseTime(cardState.dueAt) <= now;
-      const score = (due ? 100 : 0)
-        + priorityBoost(state, card.moduleId, ownerPriorityModules)
-        + moduleWeakness(state, card.moduleId);
-      return { card, score };
+      return !cardState || parseTime(cardState.dueAt) <= now;
     })
+    .map((card) => ({
+      card,
+      score: priorityBoost(state, card.moduleId, ownerPriorityModules) + moduleWeakness(state, card.moduleId),
+    }))
     .sort((left, right) => right.score - left.score || deterministicTie(seed, left.card.id) - deterministicTie(seed, right.card.id))
     .slice(0, 2)
     .map(({ card }) => card.id);

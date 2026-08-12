@@ -4,6 +4,7 @@ import test from "node:test";
 
 const route = await readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8");
 const hook = await readFile(new URL("../lib/use-learner-state-sync.ts", import.meta.url), "utf8");
+const profileStorage = await readFile(new URL("../lib/profile-storage.ts", import.meta.url), "utf8");
 
 test("state API uses an opaque conditional token instead of learner timestamps for CAS", () => {
   assert.match(route, /function cloudToken\(\)/);
@@ -37,9 +38,13 @@ test("API responses carry runtime identity and malformed cloud state is not over
   assert.match(hook, /UPDATE_REQUIRED/);
 });
 
-test("client persists conflict and recovery snapshots locally", () => {
-  assert.match(hook, /live-cash-os:recovery-backup/);
-  assert.match(hook, /live-cash-os:pre-import-backup/);
-  assert.match(hook, /live-cash-os:sync-conflict/);
+test("client persists conflict and recovery snapshots locally inside the active profile namespace", () => {
+  assert.match(profileStorage, /live-cash-os:recovery-backup/);
+  assert.match(profileStorage, /live-cash-os:pre-import-backup/);
+  assert.match(profileStorage, /live-cash-os:sync-conflict/);
+  assert.match(profileStorage, /profileStorageKey/);
+  assert.match(hook, /accountKey\(RECOVERY_BACKUP_KEY\)/);
+  assert.match(hook, /accountKey\(IMPORT_BACKUP_KEY\)/);
+  assert.match(hook, /accountKey\(CONFLICT_BACKUP_KEY\)/);
   assert.match(hook, /rememberConflict/);
 });

@@ -33,6 +33,20 @@ function nextRetentionDelayMs(completedSuccessfulStages: number): number | null 
   return null;
 }
 
+export function cardIsDue(card: core.CardState | undefined, now = Date.now()): boolean {
+  if (!card) return true;
+  const dueAt = Date.parse(card.dueAt);
+  return Number.isFinite(dueAt) && dueAt <= now;
+}
+
+export function gradeCard(state: LearnerState, cardId: string, grade: 0 | 1 | 2 | 3): LearnerState {
+  const current = state.cards[cardId];
+  // Rating a card is a scheduling mutation, not a generic browse action. Once a
+  // card has a future dueAt, an early UI path must not move that deadline.
+  if (current && !cardIsDue(current)) return state;
+  return core.gradeCard(state, cardId, grade);
+}
+
 function isImplicitRuntimeFallback(input: DrillEvidenceInput): boolean {
   const changed = input.transferProbe?.changedVariables ?? [];
   return (changed.length === 1 && changed[0] === input.variantGroup)

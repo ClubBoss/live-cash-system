@@ -61,9 +61,9 @@ test("valid local learner state renders before cloud reconciliation and writes w
   assert.ok(localReady > localHydration && remoteFetch > localReady,
     "local hydration must make the app ready before remote reconciliation fetches state");
 
-  const durableReread = sync.indexOf("const durableLocalRead = readLocalLearnerState(safeGet(LEARNER_STORAGE_KEY));");
+  const durableReread = sync.indexOf("const durableLocalRead = readLocalLearnerState(safeGet(accountKey(LEARNER_STORAGE_KEY)));");
   assert.ok(durableReread > remoteFetch,
-    "late reconciliation must re-read durable local learner state after the network wait");
+    "late reconciliation must re-read the current profile's durable local learner state after the network wait");
   assert.match(sync, /Boolean\(localRead\.state\)\s*&&\s*latestState\.current\.revision > durableRevision/u,
     "only a genuinely hydrated local snapshot may promote a newer in-memory mutation over the durable re-read");
   assert.match(sync, /chooseRestoreState\(currentLocalRead, remote\)/u);
