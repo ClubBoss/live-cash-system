@@ -13,7 +13,7 @@ test("cloud sync is driven by learner-state changes, not sync-label changes", as
   assert.match(hook, /const serialized = JSON\.stringify\(state\)/u);
   assert.match(hook, /serialized === lastAckedSerialized\.current/u);
   assert.match(hook, /void flushCloudState\(latestState\.current\)/u);
-  assert.match(hook, /\[flushCloudState, ready, recoveryBlocked, retryNonce, state\]\);/u);
+  assert.match(hook, /\[accountKey, flushCloudState, ready, recoveryBlocked, retryNonce, state\]\);/u);
   assert.doesNotMatch(hook, /\[[^\]]*syncStatus[^\]]*\]\);/u);
 });
 
