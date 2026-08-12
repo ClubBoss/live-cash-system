@@ -4,6 +4,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os-mobile-test.blufferus.workers.dev";
 const deployedSha = process.env.DEPLOYED_SHA?.trim() || null;
 const testInviteCode = process.env.LIVE_CASH_TEST_SMOKE_CODE?.trim().toUpperCase() || null;
+const LEARNER_KEY = "live-cash-os:learner-state";
+const PROFILE_KEY = "live-cash-os:portable-profile-code";
 
 if (!testInviteCode) {
   console.log("WAVE_D_COMPLETION_SMOKE_SKIPPED no test invite code");
@@ -46,9 +48,18 @@ try {
     if (actual !== deployedSha) throw new Error(`Build identity mismatch: expected ${deployedSha}, got ${actual ?? "missing"}`);
   }
 
-  await page.waitForFunction(() => Boolean(localStorage.getItem("live-cash-os:learner-state")), undefined, { timeout: 10_000 });
-  await page.evaluate(() => {
-    const key = "live-cash-os:learner-state";
+  await page.waitForFunction(({ learnerKey, profileKey }) => {
+    const key = localStorage.getItem(profileKey)
+      ? Object.keys(localStorage).find((candidate) => candidate.startsWith(`${learnerKey}:profile:`))
+      : learnerKey;
+    return Boolean(key && localStorage.getItem(key));
+  }, { learnerKey: LEARNER_KEY, profileKey: PROFILE_KEY }, { timeout: 10_000 });
+
+  await page.evaluate(({ learnerKey, profileKey }) => {
+    const key = localStorage.getItem(profileKey)
+      ? Object.keys(localStorage).find((candidate) => candidate.startsWith(`${learnerKey}:profile:`))
+      : learnerKey;
+    if (!key) throw new Error("Active learner storage key is missing");
     const state = JSON.parse(localStorage.getItem(key));
     const now = new Date().toISOString();
     state.interactions = state.interactions.filter((item) => !(item.mode === "lesson" && item.moduleId === "geometry"));
@@ -73,7 +84,7 @@ try {
     state.updatedAt = now;
     localStorage.setItem("live-cash-os:locale", "ru");
     localStorage.setItem(key, JSON.stringify(state));
-  });
+  }, { learnerKey: LEARNER_KEY, profileKey: PROFILE_KEY });
 
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByText("10 · Итог урока", { exact: true }).waitFor({ timeout: 15_000 });
@@ -83,20 +94,27 @@ try {
   }
 
   await page.getByRole("button", { name: /^Завершить урок и вернуться/ }).click();
-  await page.waitForFunction(() => {
-    const state = JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "null");
+  await page.waitForFunction(({ learnerKey, profileKey }) => {
+    const key = localStorage.getItem(profileKey)
+      ? Object.keys(localStorage).find((candidate) => candidate.startsWith(`${learnerKey}:profile:`))
+      : learnerKey;
+    const state = key ? JSON.parse(localStorage.getItem(key) ?? "null") : null;
     return state?.activeSession === null
       && state?.modules?.geometry?.contentCompleted === true
       && state?.modules?.geometry?.lessonStep === 10;
-  }, undefined, { timeout: 10_000 });
+  }, { learnerKey: LEARNER_KEY, profileKey: PROFILE_KEY }, { timeout: 10_000 });
 
-  const completionTruth = await page.evaluate(() => {
-    const state = JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "null");
+  const completionTruth = await page.evaluate(({ learnerKey, profileKey }) => {
+    const key = localStorage.getItem(profileKey)
+      ? Object.keys(localStorage).find((candidate) => candidate.startsWith(`${learnerKey}:profile:`))
+      : learnerKey;
+    const state = key ? JSON.parse(localStorage.getItem(key) ?? "null") : null;
+    if (!state) throw new Error("Learner state disappeared after completion");
     return {
       repairs: state.reviewQueue.filter((item) => item.kind === "repair" && item.moduleId === "geometry").length,
       misses: state.interactions.filter((item) => item.mode === "lesson" && item.moduleId === "geometry" && (!item.actionOk || !item.reasonOk)).length,
     };
-  });
+  }, { learnerKey: LEARNER_KEY, profileKey: PROFILE_KEY });
   if (completionTruth.repairs !== 0 || completionTruth.misses !== 0) {
     throw new Error(`Clean completion created false error truth: ${JSON.stringify(completionTruth)}`);
   }
@@ -113,7 +131,12 @@ try {
 
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("navigation", { name: "Основная навигация" }).waitFor({ timeout: 15_000 });
-  const reloaded = await page.evaluate(() => JSON.parse(localStorage.getItem("live-cash-os:learner-state") ?? "null"));
+  const reloaded = await page.evaluate(({ learnerKey, profileKey }) => {
+    const key = localStorage.getItem(profileKey)
+      ? Object.keys(localStorage).find((candidate) => candidate.startsWith(`${learnerKey}:profile:`))
+      : learnerKey;
+    return key ? JSON.parse(localStorage.getItem(key) ?? "null") : null;
+  }, { learnerKey: LEARNER_KEY, profileKey: PROFILE_KEY });
   if (reloaded?.activeSession !== null || reloaded?.modules?.geometry?.contentCompleted !== true || reloaded?.modules?.geometry?.lessonStep !== 10) {
     throw new Error("Completed lesson did not survive reload");
   }
