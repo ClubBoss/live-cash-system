@@ -378,12 +378,9 @@ export function planDailyTraining(state: LearnerState, catalog: SchedulerCatalog
     if (nextNew) add({ kind: "lesson", moduleId: nextNew.id, estimatedMinutes: 8, reasonCode: "new" });
   }
 
-  if (!plan.items.length && completed.length) {
-    const module = chooseRankedModule(state, completed, options.now, `${options.seed}:steady`, ownerPriorityModules, () => true) ?? completed[0];
-    const drills = module.drills.slice(0, 2).map((drill) => drill.id);
-    add({ kind: "practice", moduleId: module.id, drillIds: drills, estimatedMinutes: Math.min(3, targetMinutes), reasonCode: "weak" });
-  }
-
+  // A completed topic does not justify inventing more work. If no due review,
+  // concrete weakness, transfer/boundary need, mixed block, or eligible new lesson
+  // remains, Today must terminate instead of manufacturing generic practice.
   if (!plan.items.length) plan.items.push({ kind: "done", estimatedMinutes: 0, reasonCode: "done" });
   return plan;
 }
