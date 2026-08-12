@@ -15,7 +15,7 @@
     "current_digest": "547da9b3581b1765ab3840c2efd1b53f7d81a3f66cd3759534d58e3a5c14fb30",
     "approved_digest": null,
     "review_corpus_fingerprint": "547da9b3581b1765ab3840c2efd1b53f7d81a3f66cd3759534d58e3a5c14fb30",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. Neither repair changes poker strategy, correct-answer IDs, scheduler routing, mastery, retention, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic fingerprint refresh is not a human approval."
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. The bounded card-SRS continuity repair clarifies that the two-minute label describes the warm-up session, while the scheduling implementation preserves the existing card intervals and due-time contract. These repairs do not change poker strategy, correct-answer IDs, mastery, retention evidence, field evidence, or human-review authority. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic source-lock refresh is not a human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -25,6 +25,7 @@
       "content/i18n/locale-pipeline.ts",
       "content/i18n/novice-scaffold.ts",
       "content/i18n/final-plus-ev.ts",
+      "content/i18n/learner-ui.ts",
       "app/page.tsx",
       "components/LiveCashApp.tsx",
       "components/LiveCashAppCore.tsx",
@@ -67,7 +68,7 @@
     "content/i18n/locale-pipeline.ts": "f319d4b206061a9dea975cfba3f1e1ca9cd705bc",
     "content/i18n/novice-scaffold.ts": "88b0652ca74955a5267275dc8aeab6d9ad8b0994",
     "content/i18n/final-plus-ev.ts": "c911fdd02cf70f3ea05f796e9e79a61beb8e07cc",
-    "content/i18n/learner-ui.ts": "53616c91a8bfe5eb23f3d26bb434d448fd6565cf",
+    "content/i18n/learner-ui.ts": "f9f76789c810426846b4135018c1cca195f7b117",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "app/page.tsx": "b215eb1f01502cb643d250024269c1df69e11fd6",
     "components/LiveCashApp.tsx": "1f92e7e0df380f9f6209077e015976146e5d712a",
