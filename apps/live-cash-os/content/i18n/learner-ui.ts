@@ -42,7 +42,7 @@ export function cardKindLabel(locale: LocaleCode, kind: string): string {
 
 export function cardModeLabel(locale: LocaleCode, mode: "warmup" | "due" | "all"): string {
   const labels = {
-    warmup: ["До 2 мин", "Up to 2 min"],
+    warmup: ["Разминка · до 2 мин", "Warm-up · up to 2 min"],
     due: ["К повторению", "Due"],
     all: ["Все", "All"],
   } as const;
