@@ -15,7 +15,7 @@ test("final shell uses one Diagnostic term and honest warm-up timing", async ({ 
   await expect(page.getByText(/Быстрая разминка · до 2 минут/i)).toBeVisible();
 
   await page.getByRole("button", { name: "Карточки", exact: true }).click();
-  await expect(page.getByRole("button", { name: "До 2 мин", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Разминка · до 2 мин", exact: true })).toBeVisible();
 });
 
 test("build identity is present without affecting the learner flow", async ({ page }) => {
