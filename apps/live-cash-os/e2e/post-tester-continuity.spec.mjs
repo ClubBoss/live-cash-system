@@ -53,15 +53,28 @@ async function waitForBoundOrigin(page, expectedOrigin) {
   }, { key: ORIGIN_KEY, origin: expectedOrigin })).toBe(true);
 }
 
+async function clickStableContinue(page) {
+  const semantic = page.locator("[data-g4-feedback-state]").getByRole("button", { name: /^Продолжить/ });
+  const core = page.locator(".feedback-view > button.primary");
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    if (await semantic.isVisible().catch(() => false)) {
+      try { await semantic.click({ timeout: 500 }); return; } catch { /* compatibility host may switch for one frame */ }
+    }
+    if (await core.isVisible().catch(() => false)) {
+      try { await core.click({ timeout: 500 }); return; } catch { /* retry the visible learner control */ }
+    }
+    await page.waitForTimeout(100);
+  }
+  throw new Error("No learner-visible Continue control appeared after the answer");
+}
+
 async function finishCurrentDecision(page) {
   const answerSets = page.locator("main .session .answer-set");
   await expect(answerSets).toHaveCount(2);
   await answerSets.nth(0).locator("button").first().click();
   await answerSets.nth(1).locator("button").first().click();
   await page.getByRole("button", { name: /^Ответить/ }).click();
-  const continueButton = page.locator(".g4-feedback-card > button.primary");
-  await expect(continueButton).toBeVisible();
-  await continueButton.click();
+  await clickStableContinue(page);
 }
 
 async function openField(page) {
