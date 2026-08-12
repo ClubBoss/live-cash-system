@@ -1,0 +1,42 @@
+export const LEARNER_STORAGE_KEY = "live-cash-os:learner-state";
+export const SYNC_META_KEY = "live-cash-os:sync-meta";
+export const RECOVERY_BACKUP_KEY = "live-cash-os:recovery-backup";
+export const IMPORT_BACKUP_KEY = "live-cash-os:pre-import-backup";
+export const CONFLICT_BACKUP_KEY = "live-cash-os:sync-conflict";
+export const PORTABLE_PROFILE_KEY = "live-cash-os:portable-profile-code";
+export const PROFILE_STORAGE_MIGRATION_KEY = "live-cash-os:profile-storage-migration-v1";
+
+export const PROFILE_LOCAL_STATE_KEYS = [
+  LEARNER_STORAGE_KEY,
+  SYNC_META_KEY,
+  RECOVERY_BACKUP_KEY,
+  IMPORT_BACKUP_KEY,
+  CONFLICT_BACKUP_KEY,
+] as const;
+
+function hash32(value: string, seed: number): number {
+  let hash = seed >>> 0;
+  for (const character of value) {
+    hash = Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0;
+  }
+  return hash >>> 0;
+}
+
+/**
+ * Stable browser-local namespace only. Server identity remains the SHA-256
+ * portable profile hash; this token merely keeps one browser's local snapshots
+ * from sharing raw storage keys or embedding the secret profile code in a key.
+ */
+export function profileStorageId(rawCode: string | null | undefined): string | null {
+  const code = rawCode?.trim().toUpperCase();
+  if (!code) return null;
+  const seeds = [2166136261, 2246822519, 3266489917, 668265263];
+  return seeds
+    .map((seed, index) => hash32(`${index}:${code}`, seed).toString(16).padStart(8, "0"))
+    .join("");
+}
+
+export function profileStorageKey(baseKey: string, rawCode: string | null | undefined): string {
+  const storageId = profileStorageId(rawCode);
+  return storageId ? `${baseKey}:profile:${storageId}` : baseKey;
+}
