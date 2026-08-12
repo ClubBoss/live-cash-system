@@ -31,6 +31,10 @@ async function seedGeometryLesson(page, step = 0) {
   }, { key: STORAGE_KEY, step });
 }
 
+async function viewportAnchorTop(locator) {
+  return locator.evaluate((node) => node.getBoundingClientRect().top);
+}
+
 test("valid local lesson renders while cloud reconciliation is deliberately blocked", async ({ page }) => {
   await localOnly(page);
   await page.goto("/");
@@ -88,6 +92,47 @@ test("previous-step recap is read-only and preserves the current lesson step", a
   expect(after).toEqual(before);
 });
 
+test("Cold Check reveal preserves the learner viewport on desktop and mobile", async ({ page }) => {
+  await localOnly(page);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
+
+  for (const viewport of [{ width: 1280, height: 720 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await seedGeometryLesson(page, 1);
+    await page.reload();
+
+    const guided = page.locator("[data-guided-cold-example='geo-01']");
+    const reveal = guided.getByRole("button", { name: "Я решил — разобрать Cold Check" });
+    await expect(reveal).toBeVisible();
+    await reveal.evaluate((node) => node.scrollIntoView({ block: "center" }));
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+    const beforeTop = await viewportAnchorTop(guided);
+
+    await reveal.click();
+    await expect(guided.locator(".answer-panel")).toBeVisible();
+    await expect.poll(async () => Math.abs((await viewportAnchorTop(guided)) - beforeTop)).toBeLessThan(4);
+  }
+});
+
+test("worked-example reveal does not reset the current viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await localOnly(page);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
+  await seedGeometryLesson(page, 4);
+  await page.reload();
+
+  const reveal = page.getByRole("button", { name: "Я решил — показать разбор" });
+  await expect(reveal).toBeVisible();
+  await reveal.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => window.scrollY);
+  await reveal.click();
+  await expect(page.locator("main .session .answer-panel")).toBeVisible();
+  const after = await page.evaluate(() => window.scrollY);
+  expect(Math.abs(after - before)).toBeLessThan(80);
+});
+
 test("SPR lab explains the calculation, normalizes input and can reset on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await localOnly(page);
@@ -105,7 +150,11 @@ test("SPR lab explains the calculation, normalizes input and can reset on mobile
   await expect(gate).toContainText("Старт: банк 42, стек до колла 158, ставка/колл 14, SPR ≈ 2.06");
   await expect(gate).toContainText("станет SPR выше, ниже или примерно тем же и почему");
   await gate.locator("textarea").fill("SPR станет ниже, потому что банк после действия станет больше.");
-  await gate.getByRole("button", { name: /^Перейти к проверке/ }).click();
+  const continueButton = gate.getByRole("button", { name: /^Перейти к проверке/ });
+  await continueButton.evaluate((node) => node.scrollIntoView({ block: "center" }));
+  const labAnchorBefore = await viewportAnchorTop(gate);
+  await continueButton.click();
+  await expect.poll(async () => Math.abs((await viewportAnchorTop(gate)) - labAnchorBefore)).toBeLessThan(4);
 
   const pot = gate.getByLabel("Банк до ставки");
   const stack = gate.getByLabel("Стек до колла");

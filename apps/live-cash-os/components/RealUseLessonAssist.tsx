@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { drillById, moduleById } from "../content/modules";
 import { CALL_PRICE_SCAFFOLD, essentialTermsFor } from "../content/i18n/novice-scaffold";
@@ -244,9 +244,12 @@ function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
   );
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const guidedRef = useRef<HTMLDivElement | null>(null);
+  const revealAnchorTop = useRef<number | null>(null);
 
   useEffect(() => {
     setRevealed(false);
+    revealAnchorTop.current = null;
     if (!enabled || !applyHost) {
       setHost(null);
       return;
@@ -275,6 +278,13 @@ function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
     const session = document.querySelector<HTMLElement>("main .session.real-use-novice-scaffold");
     if (!session) return;
     session.classList.toggle("real-use-novice-ready", revealed);
+  }, [revealed]);
+
+  useLayoutEffect(() => {
+    if (!revealed || revealAnchorTop.current === null || !guidedRef.current) return;
+    const delta = guidedRef.current.getBoundingClientRect().top - revealAnchorTop.current;
+    revealAnchorTop.current = null;
+    if (Math.abs(delta) > 1) window.scrollBy({ top: delta, left: 0, behavior: "auto" });
   }, [revealed]);
 
   if (!enabled || !host || !snapshot.moduleId) return null;
@@ -314,6 +324,11 @@ function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
     next: "You can now move to a new controlled spot. The guidance above teaches the mechanism; it does not reveal that spot's answer.",
   };
 
+  function revealColdCheck() {
+    revealAnchorTop.current = guidedRef.current?.getBoundingClientRect().top ?? null;
+    setRevealed(true);
+  }
+
   return createPortal(<section className="novice-scaffold" data-novice-scaffold={snapshot.moduleId}>
     <div>
       <p className="eyebrow">{copy.eyebrow}</p>
@@ -341,14 +356,14 @@ function ConceptScaffold({ snapshot }: { snapshot: LessonSnapshot }) {
         <ol className="learning-list">{module.decisionTree.map((item) => <li key={item}>{item}</li>)}</ol>
       </div>
     </div>
-    <div className="novice-scaffold-card novice-guided-example" data-guided-cold-example={coldDrill.id}>
+    <div ref={guidedRef} className="novice-scaffold-card novice-guided-example" data-guided-cold-example={coldDrill.id}>
       <b>{copy.guided}</b>
       <h3>{coldDrill.question}</h3>
       <p>{coldDrill.cue}</p>
       <p className="assumption-strip">{coldDrill.assumptions.join(" · ")}</p>
       {!revealed ? <>
         <p className="support">{copy.guidedHelp}</p>
-        <button className="secondary" type="button" onClick={() => setRevealed(true)}>{copy.reveal} <span>→</span></button>
+        <button className="secondary" type="button" onClick={revealColdCheck}>{copy.reveal} <span>→</span></button>
       </> : <>
         <div className="answer-panel"><b>{copy.action}</b><p>{correctAction}</p><b>{copy.reason}</b><p>{correctReason}</p><p>{coldDrill.explanation}</p></div>
         <p className="support">{copy.next}</p>
