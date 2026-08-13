@@ -63,11 +63,12 @@ test("W3 source drills remove unsupported depth precision without changing answe
 
 test("W3 repaired candidate remains explicitly review-pending with approvals invalidated", async () => {
   const manifest = await readJson("content/i18n/editorial-manifest.json");
+  const allModules = ["geometry", "preflop", "blinds", "filtering", "shape", "aggression", "ancestry", "multiway", "river", "evidence", "transfer"];
   assert.equal(manifest.status, "TRANSITIONAL_REVIEW_REQUIRED");
   assert.equal(manifest.strategy_status, "CURRICULUM_STRATEGY_REVIEW_PENDING");
   assert.equal(manifest.drill_content_status, "DRILLS_REVIEW_PENDING");
   assert.deepEqual(manifest.strategy_repair_scope, ["preflop", "blinds", "aggression"]);
-  assert.deepEqual(manifest.drill_repair_scope, ["preflop", "aggression"]);
+  assert.deepEqual(manifest.drill_repair_scope, allModules);
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_approval, null);
   assert.deepEqual(manifest.human_approvals, {});
