@@ -40,14 +40,17 @@ async function verifyLocaleTransfer(page, locale) {
   await seedPreflopConcept(page, locale);
   const session = page.locator("main .session");
   await expect(session).toBeVisible();
+  const scaffold = page.locator("[data-novice-scaffold='preflop']");
+  await expect(scaffold).toBeVisible();
 
   if (locale === "ru") {
     await expect(session).toContainText("Семейства и свойства стартовых рук");
     await session.getByText("Дополнительное объяснение", { exact: true }).click();
     await expect(session).toContainText("76s и 98s — мастевые связки");
     await expect(session).toContainText("Семейство помогает понять руку, но не выбирает действие за тебя");
-    await session.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
-    const apply = session.getByRole("button", { name: /Сразу применить/ });
+    const apply = page.getByRole("button", { name: /^Сразу применить/ });
+    await expect(apply).toBeHidden();
+    await scaffold.getByRole("button", { name: /^Я решил — разобрать Cold Check/ }).click();
     await expect(apply).toBeVisible();
     await apply.click();
   } else {
@@ -55,8 +58,9 @@ async function verifyLocaleTransfer(page, locale) {
     await session.getByText("More explanation", { exact: true }).click();
     await expect(session).toContainText("76s and 98s are suited connectors");
     await expect(session).toContainText("does not choose the action for you");
-    await session.getByRole("button", { name: "I decided — review the Cold Check", exact: true }).click();
-    const apply = session.getByRole("button", { name: /Apply it now/ });
+    const apply = page.getByRole("button", { name: /^Apply it now/ });
+    await expect(apply).toBeHidden();
+    await scaffold.getByRole("button", { name: /^I decided — review the Cold Check/ }).click();
     await expect(apply).toBeVisible();
     await apply.click();
   }
