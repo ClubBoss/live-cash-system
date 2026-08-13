@@ -9,6 +9,7 @@ import { applyWave5PracticeCopy } from "./wave5-practice-copy";
 import { applyWave4RFinalLanguage } from "./wave4r-final-language";
 import { applyNoviceTerminologyCopy } from "./novice-scaffold";
 import { applyFinalPlusEvCopy } from "./final-plus-ev";
+import { applyDecisionTransferIntegrity } from "./decision-transfer-integrity";
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -20,8 +21,9 @@ function applyDiagnosticIntegrityLabels() {
 /**
  * Applies the bilingual corpus before React renders the locale. Wave 4R remains
  * the broad editorial pass; N1 then applies bounded novice-comprehension wording,
- * followed by the final low-risk clarity cleanup. None of these deterministic
- * layers create human approval or change stable strategy/evidence identities.
+ * followed by the final low-risk clarity cleanup and the real-use decision-transfer
+ * integrity layer. None of these deterministic layers create human approval or
+ * change stable strategy/evidence identities.
  */
 export function applyLocaleData(locale: LocaleCode) {
   applyGeometryLocale(locale);
@@ -32,5 +34,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyWave4RFinalLanguage(locale);
   applyNoviceTerminologyCopy(locale);
   applyFinalPlusEvCopy(locale);
+  applyDecisionTransferIntegrity(locale);
   applyDiagnosticIntegrityLabels();
 }
