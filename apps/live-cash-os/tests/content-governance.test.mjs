@@ -173,8 +173,13 @@ test("governance truth represents the materialized W1-W5 candidate without claim
     "content/i18n/wave3-priority-gold.ts",
     "content/i18n/decision-transfer-integrity.ts",
     "content/i18n/decision-option-balance.ts",
+    "content/i18n/final-learning-integrity.ts",
   ]);
-  for (const sourcePath of ["content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-option-balance.ts"]) {
+  for (const sourcePath of [
+    "content/i18n/decision-transfer-integrity.ts",
+    "content/i18n/decision-option-balance.ts",
+    "content/i18n/final-learning-integrity.ts",
+  ]) {
     assert.ok(manifest.repair_source_paths.language.includes(sourcePath));
     assert.ok(manifest.source_blobs[sourcePath]);
   }
