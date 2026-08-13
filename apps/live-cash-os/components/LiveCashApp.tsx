@@ -49,16 +49,20 @@ function ThemeToggle() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const syncShell = () => {
-      setTheme(root.dataset.theme === "dark" ? "dark" : "light");
-      setLanguage(root.lang === "en" ? "en" : "ru");
-      setTarget(document.querySelector<HTMLElement>(".topmeta"));
+    const shellTarget = document.querySelector<HTMLElement>(".topmeta");
+    setTheme(root.dataset.theme === "dark" ? "dark" : "light");
+    setLanguage(root.lang === "en" ? "en" : "ru");
+    setTarget(shellTarget);
+
+    const syncLanguageFromControl = (event: Event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest<HTMLButtonElement>(".mode-switch button");
+      if (!button || !shellTarget?.contains(button)) return;
+      setLanguage(button.textContent?.trim() === "EN" ? "en" : "ru");
     };
 
-    syncShell();
-    const observer = new MutationObserver(syncShell);
-    observer.observe(root, { attributes: true, attributeFilter: ["lang", "data-theme"] });
-    return () => observer.disconnect();
+    shellTarget?.addEventListener("click", syncLanguageFromControl);
+    return () => shellTarget?.removeEventListener("click", syncLanguageFromControl);
   }, []);
 
   if (!target) return null;
