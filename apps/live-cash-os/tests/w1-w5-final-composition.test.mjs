@@ -45,6 +45,7 @@ async function fixture() {
     .replace('from "./novice-scaffold"', 'from "./novice-scaffold.mjs"'));
   await compileInto(root, "content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-transfer-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/decision-option-balance.ts", "content/i18n/decision-option-balance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/final-learning-integrity.ts", "content/i18n/final-learning-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
     .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
     .replace('from "./runtime"', 'from "./runtime.mjs"')
@@ -57,7 +58,8 @@ async function fixture() {
     .replace('from "./novice-scaffold"', 'from "./novice-scaffold.mjs"')
     .replace('from "./final-plus-ev"', 'from "./final-plus-ev.mjs"')
     .replace('from "./decision-transfer-integrity"', 'from "./decision-transfer-integrity.mjs"')
-    .replace('from "./decision-option-balance"', 'from "./decision-option-balance.mjs"'));
+    .replace('from "./decision-option-balance"', 'from "./decision-option-balance.mjs"')
+    .replace('from "./final-learning-integrity"', 'from "./final-learning-integrity.mjs"'));
 
   return {
     modules: await import(pathToFileURL(modulesPath).href),
