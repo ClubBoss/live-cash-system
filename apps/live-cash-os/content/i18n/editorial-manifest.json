@@ -12,14 +12,14 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "8658034d4d75c4385644f47321bba3476ccccd0ac79bff6e44b0e2a6194257fb",
+    "current_digest": "c104eed23e6702857ca61e5056e0193e856c306ad07366f886c02585807f0a5e",
     "approved_digest": null,
-    "review_corpus_fingerprint": "8658034d4d75c4385644f47321bba3476ccccd0ac79bff6e44b0e2a6194257fb",
-    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. The bounded card-SRS continuity repair clarifies that the two-minute label describes the warm-up session, while the scheduling implementation preserves the existing card intervals and due-time contract. The real-use decision-transfer repair restores concrete, explicitly scoped hand/board representatives where the admitted corpus already supports the mechanism, removes obvious wrong-answer wording tells across the final RU/EN drill corpus, and balances option length so correctness is not signalled by prose length. The LCM-01 geo-04 correct reason remains unchanged for continuity while its two distractors are made comparably detailed and plausible. Stable correct-answer IDs, misconception IDs, source-gap boundaries and scoring semantics are preserved. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic source-lock refresh is not a human approval."
+    "review_corpus_fingerprint": "c104eed23e6702857ca61e5056e0193e856c306ad07366f886c02585807f0a5e",
+    "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. The bounded card-SRS continuity repair clarifies that the two-minute label describes the warm-up session, while the scheduling implementation preserves the existing card intervals and due-time contract. The real-use decision-transfer repair restores concrete, explicitly scoped hand/board representatives where the admitted corpus already supports the mechanism, removes obvious wrong-answer wording tells across the final RU/EN drill corpus, and balances option length so correctness is not signalled by prose length. The final learning-integrity closure removes the remaining material prompt-to-answer leakage, repairs the remaining material distractor-parity clusters, and adds an explicit LCM-02 starting-hand family/traits scaffold with 76s/98s sibling recognition plus contextual A5s transfer. It does not add exact chart cells or frequencies. Stable correct-answer IDs, option IDs, misconception IDs, scoring, mastery, scheduler and evidence semantics are preserved. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic source-lock refresh and machine/agent review are not human approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
-    "drills": ["content/i18n/wave3-priority-gold.ts", "content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-option-balance.ts"],
+    "drills": ["content/i18n/wave3-priority-gold.ts", "content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-option-balance.ts", "content/i18n/final-learning-integrity.ts"],
     "language": [
       "content/i18n/geometry-locale.ts",
       "content/i18n/locale-pipeline.ts",
@@ -27,6 +27,7 @@
       "content/i18n/final-plus-ev.ts",
       "content/i18n/decision-transfer-integrity.ts",
       "content/i18n/decision-option-balance.ts",
+      "content/i18n/final-learning-integrity.ts",
       "content/i18n/learner-ui.ts",
       "app/page.tsx",
       "components/LiveCashApp.tsx",
@@ -43,7 +44,7 @@
   "source_blobs": {
     "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
     "content/diagnostic.ts": "b629a8e7fc40fd3451dc32c58e0929802e035c8f",
-    "content/POKER_GLOSSARY_RU_EN.md": "ad43c90de79ad764fb1838d86fa237bedeb71c70",
+    "content/POKER_GLOSSARY_RU_EN.md": "b874bb1c7f50b5612faf758b0af4d8b8b248f3d6",
     "content/claims/claim.schema.json": "f30b7175b8123aac7d214f1de783e152106544a1",
     "content/claims/source-gap-dependencies.json": "16aac91e7b0b809da7879b4262a4f36e8dd9eb37",
     "content/claims/lcm-01.claims.json": "44a43d33607cd0c0fcfae59993ad4cec29b2886b",
@@ -67,10 +68,11 @@
     "content/i18n/wave4-final-editorial.ts": "9fc4da2e53ef1c013cfb3d6523f52c68b058e1d9",
     "content/i18n/wave5-practice-copy.ts": "d5a79ff83a7bee91dfa88c653e97558b89d466c8",
     "content/i18n/wave4r-final-language.ts": "64dcbd684031ac910d4369c91b88f504c5e6d16b",
-    "content/i18n/locale-pipeline.ts": "3207a7b56167edfc9db09a428088fca8d6725c67",
+    "content/i18n/locale-pipeline.ts": "7729ce6b46879f8b032d450642a1915e8ab2c6f7",
     "content/i18n/decision-transfer-integrity.ts": "af59e03b9d7df59951f95eca5e373a442ee90a0e",
     "content/i18n/decision-option-balance.ts": "005392f5a159db5850c4c3527c094c65cb7ea1e8",
-    "content/i18n/novice-scaffold.ts": "88b0652ca74955a5267275dc8aeab6d9ad8b0994",
+    "content/i18n/final-learning-integrity.ts": "6ecf00b78de2cc3a54f94279ba8c804027e7b5a3",
+    "content/i18n/novice-scaffold.ts": "1c0e659b90d09d506b129e51e6f6f1e365b9029d",
     "content/i18n/final-plus-ev.ts": "c911fdd02cf70f3ea05f796e9e79a61beb8e07cc",
     "content/i18n/learner-ui.ts": "f9f76789c810426846b4135018c1cca195f7b117",
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
@@ -89,15 +91,15 @@
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4, N1, the final bounded comprehension closure and the corpus-wide anti-guessing pass are materialized; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},
-    "preflop": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair, N1 novice prerequisites, concrete-hand transfer and compact answer balancing are materialized for LCM-02; strategy, drill and exact integrated RU/EN review remain pending."},
-    "blinds": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair, N1 terminology clarification, a scoped concrete dry-board representative and compact answer balancing are materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."},
-    "filtering": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 terminology clarification and the corpus-wide anti-guessing pass are materialized; fresh human RU/EN review remains pending."},
-    "shape": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, the final low-risk RU glossary cleanup, concrete T55/T6s/KTs transfer examples and compact answer balancing are materialized; fresh human RU/EN review remains pending."},
-    "aggression": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair, active W4R-SEM-01 reconciliation, bounded N1 low-SPR recall and the corpus-wide anti-guessing pass are materialized; strategy, drill and exact integrated RU/EN review remain pending."},
-    "ancestry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, the final low-risk RU glossary cleanup, scoped A5s/98s transfer examples and compact answer balancing are materialized; fresh human RU/EN review remains pending."},
-    "multiway": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 plain-language shared-defence wording, concrete KQ/K97 action-order transfer and compact answer balancing are materialized; fresh human RU/EN review remains pending."},
+    "preflop": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 source repair, N1 novice prerequisites, concrete-hand transfer, final prompt-leak repair, explicit starting-hand family/traits scaffold and bounded distractor parity are materialized for LCM-02; strategy, drills and exact integrated RU/EN review remain pending."},
+    "blinds": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 claim-scope repair, N1 terminology clarification, a scoped concrete dry-board representative and bounded final distractor parity are materialized for LCM-03; strategy and exact integrated RU/EN review remain pending."},
+    "filtering": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 terminology clarification and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
+    "shape": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, the final low-risk RU glossary cleanup, concrete T55/T6s/KTs transfer examples and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
+    "aggression": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair, active W4R-SEM-01 reconciliation, bounded N1 low-SPR recall and bounded final distractor parity are materialized; strategy, drills and exact integrated RU/EN review remain pending."},
+    "ancestry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, scoped A5s/98s examples, final prompt-boundary repair and same-hand/different-context transfer are materialized; fresh human RU/EN review remains pending."},
+    "multiway": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 plain-language shared-defence wording, concrete KQ/K97 action-order transfer and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
     "river": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, the final low-risk RU glossary cleanup and the corpus-wide anti-guessing pass are materialized; fresh human RU/EN review remains pending."},
-    "evidence": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, bounded N1 terminology clarification, the final low-risk RU glossary cleanup and the corpus-wide anti-guessing pass are materialized; fresh human RU/EN review remains pending."},
+    "evidence": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, bounded N1 terminology clarification, final low-risk RU glossary cleanup and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
     "transfer": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, the N1 teach-before-application shell and the corpus-wide anti-guessing pass are materialized; fresh human RU/EN review remains pending."}
   }
 }
