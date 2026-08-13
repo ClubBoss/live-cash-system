@@ -46,6 +46,7 @@ async function fixture() {
   await compileInto(root, "content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-transfer-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/decision-option-balance.ts", "content/i18n/decision-option-balance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/final-learning-integrity.ts", "content/i18n/final-learning-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/stimulus-generalisation-micro.ts", "content/i18n/stimulus-generalisation-micro.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
     .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
     .replace('from "./runtime"', 'from "./runtime.mjs"')
@@ -59,7 +60,8 @@ async function fixture() {
     .replace('from "./final-plus-ev"', 'from "./final-plus-ev.mjs"')
     .replace('from "./decision-transfer-integrity"', 'from "./decision-transfer-integrity.mjs"')
     .replace('from "./decision-option-balance"', 'from "./decision-option-balance.mjs"')
-    .replace('from "./final-learning-integrity"', 'from "./final-learning-integrity.mjs"'));
+    .replace('from "./final-learning-integrity"', 'from "./final-learning-integrity.mjs"')
+    .replace('from "./stimulus-generalisation-micro"', 'from "./stimulus-generalisation-micro.mjs"'));
 
   return {
     modules: await import(pathToFileURL(modulesPath).href),
@@ -68,6 +70,7 @@ async function fixture() {
 }
 
 const PRIORITY_IDS = ["preflop", "blinds", "aggression"];
+const MICRO_CARD_IDS = ["pre-card-family-87s", "pre-card-family-a4s"];
 
 function identity(module) {
   return {
@@ -77,6 +80,10 @@ function identity(module) {
     reasonIds: module.drills.map((drill) => drill.reasonOptions.map((option) => option.id)),
     cardIds: module.flashcards.map((card) => card.id),
   };
+}
+
+function expectedIdentity(before, moduleId) {
+  return moduleId === "preflop" ? { ...before, cardIds: [...before.cardIds, ...MICRO_CARD_IDS] } : before;
 }
 
 function drillText(drill) {
@@ -108,13 +115,13 @@ test("canonical locale pipeline keeps wave4r-poker-native compatibility copy ine
   assert.doesNotMatch(wave5, /wave4r-poker-native/u);
 });
 
-test("final W3 RU and EN composition preserves stable IDs and repaired semantics", async () => {
+test("final W3 RU and EN composition preserves stable IDs plus the two authorised retrieval cards", async () => {
   const value = await fixture();
   const before = Object.fromEntries(PRIORITY_IDS.map((id) => [id, identity(value.modules.moduleById[id])]));
 
   value.pipeline.applyLocaleData("ru");
   assertPriorityIntegrity(value.modules, "ru");
-  for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), before[id], `ru/${id}: stable identity drift`);
+  for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), expectedIdentity(before[id], id), `ru/${id}: stable identity drift`);
 
   const ruPre05 = value.modules.moduleById.preflop.drills.find((drill) => drill.id === "pre-05");
   const ruAgg01 = value.modules.moduleById.aggression.drills.find((drill) => drill.id === "agg-01");
@@ -134,7 +141,7 @@ test("final W3 RU and EN composition preserves stable IDs and repaired semantics
 
   value.pipeline.applyLocaleData("en");
   assertPriorityIntegrity(value.modules, "en");
-  for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), before[id], `en/${id}: stable identity drift`);
+  for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), expectedIdentity(before[id], id), `en/${id}: stable identity drift`);
 
   const enPre05 = value.modules.moduleById.preflop.drills.find((drill) => drill.id === "pre-05");
   const enAgg01 = value.modules.moduleById.aggression.drills.find((drill) => drill.id === "agg-01");
@@ -153,5 +160,5 @@ test("final W3 RU and EN composition preserves stable IDs and repaired semantics
 
   value.pipeline.applyLocaleData("ru");
   assertPriorityIntegrity(value.modules, "ru-return");
-  for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), before[id], `ru-return/${id}: stable identity drift`);
+  for (const id of PRIORITY_IDS) assert.deepEqual(identity(value.modules.moduleById[id]), expectedIdentity(before[id], id), `ru-return/${id}: stable identity drift`);
 });

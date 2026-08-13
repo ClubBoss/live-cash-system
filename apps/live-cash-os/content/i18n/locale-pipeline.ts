@@ -12,6 +12,7 @@ import { applyFinalPlusEvCopy } from "./final-plus-ev";
 import { applyDecisionTransferIntegrity } from "./decision-transfer-integrity";
 import { applyDecisionOptionBalance } from "./decision-option-balance";
 import { applyFinalLearningIntegrityClosure } from "./final-learning-integrity";
+import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } from "./stimulus-generalisation-micro";
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -20,14 +21,8 @@ function applyDiagnosticIntegrityLabels() {
   });
 }
 
-/**
- * Applies the bilingual corpus before React renders the locale. Wave 4R remains
- * the broad editorial pass; N1 then applies bounded novice-comprehension wording,
- * followed by final low-risk clarity, concrete decision transfer, compact option
- * balancing, and the final learning-integrity closure. None of these deterministic
- * layers create human approval or change stable strategy/evidence identities.
- */
 export function applyLocaleData(locale: LocaleCode) {
+  resetStimulusGeneralisationMicro();
   applyGeometryLocale(locale);
   applyWave3PriorityLocale(locale);
   applyWave4CurriculumLocale(locale);
@@ -39,5 +34,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyDecisionTransferIntegrity(locale);
   applyDecisionOptionBalance(locale);
   applyFinalLearningIntegrityClosure(locale);
+  applyStimulusGeneralisationMicro(locale);
   applyDiagnosticIntegrityLabels();
 }
