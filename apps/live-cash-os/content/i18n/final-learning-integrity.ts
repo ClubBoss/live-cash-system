@@ -45,7 +45,7 @@ function applyRussianHandFamilyScaffold() {
   const existingTheory = [...preflop.theory];
   preflop.plainGoal = "Сначала распознавать семейство и свойства конкретной руки, затем выбирать между коллом, 3-бетом и фолдом по контексту — без заучивания десятков чартов.";
   preflop.tableCue = "Рука → семейство и свойства → контекст → действие.";
-  preflop.scope = "Направленная архитектура для live cash. Конкретные руки здесь иллюстрируют семейства и свойства, а не задают точные chart-клетки или частоты; решение всё равно зависит от позиций, глубины, размера открытия, рейка и игроков за спиной.";
+  preflop.scope = "Направленная архитектура для live cash. Конкретные руки здесь иллюстрируют семейства и свойства, а не задают точные клетки чарта или частоты; решение всё равно зависит от позиций, глубины, размера открытия, рейка и игроков за спиной.";
   preflop.theory = [
     "Семейства и свойства стартовых рук. Семейство отвечает на вопрос «что это за структурный тип руки?», а свойства — чем эта структура может быть полезна или уязвима. Семейство помогает понять руку, но не выбирает действие за тебя.",
     "TT — карманная пара; 76s и 98s — мастевые связки (suited connectors); A5s — мастевой туз колеса; KTs — мастевой бродвей; KJo — разномастный бродвей. Сначала назови одно-два свойства, которые важны именно здесь, затем проверь позицию, диапазоны, эффективный стек, цену и игроков за спиной.",
@@ -57,7 +57,7 @@ function applyRussianHandFamilyScaffold() {
     "Перед 3-бетом назови более сильные руки, которые реально сфолдят, и более слабые руки, которые продолжат.",
   ];
   preflop.decisionTree = [
-    "Назови семейство руки и релевантные свойства: готовая пара, масть, связность, high-card сила, доминация, блокер.",
+    "Назови семейство руки и релевантные свойства: готовая пара, масть, связность, сила старших карт, доминация, блокер.",
     ...preflop.decisionTree,
   ];
   preflop.tableCard = [
@@ -70,15 +70,15 @@ function applyRussianHandFamilyScaffold() {
   preflop.glossary = [
     ...preflop.glossary,
     { term: "Карманная пара", meaning: "Две карты одного ранга, например TT: готовая пара и потенциал сета. Это не готовая команда на 3-бет или колл." },
-    { term: "Мастевая связка (suited connector)", meaning: "Соседние карты одной масти, например 76s или 98s: масть и связность помогают собирать сильные дро, но скромная high-card сила повышает зависимость от позиции и реализации." },
-    { term: "Мастевой туз колеса", meaning: "A2s–A5s-подобная структура: туз-блокер, натсовый флеш-потенциал и связность к нижнему стриту. Блокер сам по себе не создаёт прибыльный блеф." },
-    { term: "Мастевой бродвей", meaning: "Две высокие бродвейные карты одной масти, например KTs: high-card структура плюс масть. Семейство не задаёт автоматическое продолжение." },
-    { term: "Разномастный бродвей", meaning: "Две высокие карты разных мастей, например KJo: сильные top-pair сценарии сочетаются с чувствительностью к доминации и отсутствием мастевого преимущества." },
+    { term: "Мастевая связка (suited connector)", meaning: "Соседние карты одной масти, например 76s или 98s: масть и связность помогают собирать сильные дро, но скромная сила старших карт повышает зависимость от позиции и реализации." },
+    { term: "Мастевой туз колеса", meaning: "Структура вроде A2s–A5s: туз-блокер, потенциал натсового флеша и связность к нижнему стриту. Блокер сам по себе не создаёт прибыльный блеф." },
+    { term: "Мастевой бродвей", meaning: "Две высокие бродвейные карты одной масти, например KTs: сила старших карт плюс масть. Семейство не задаёт автоматическое продолжение." },
+    { term: "Разномастный бродвей", meaning: "Две высокие карты разных мастей, например KJo: потенциал сильной топ-пары сочетается с чувствительностью к доминации и отсутствием преимущества масти." },
   ];
   preflop.workedExample = {
     situation: "200bb. HJ открывается, CO коллирует, Hero на BTN с 76s; блайнды пассивны.",
     steps: [
-      "76s — мастевая связка: масть и соседние ранги дают связность, но не делают руку сильной по high-card.",
+      "76s — мастевая связка: масть и соседние ранги дают связность, но не делают руку сильной по старшим картам.",
       "В этой модели позиция, глубина и низкий риск нового рейза помогают реализовать эти свойства через колл.",
       "98s относится к тому же широкому семейству, но само семейство не говорит «колл»: при другой позиции, глубине или диапазонах действие нужно выбирать заново.",
     ],
@@ -136,49 +136,49 @@ function applyEnglishHandFamilyScaffold() {
 
 function applyRussianTransferPrompts() {
   patchDrill("preflop", "pre-02", {
-    assumptions: ["200bb", "HJ открывается", "CO коллирует", "Hero BTN 76s", "блайнды пассивны", "точная chart-частота для 76s не утверждается"],
+    assumptions: ["200bb", "HJ открывается", "CO коллирует", "Hero BTN 76s", "блайнды пассивны", "точная частота для 76s по чарту не утверждается"],
     cue: "200bb: HJ open, CO call, Hero BTN с 76s; блайнды пассивны.",
     question: "Сначала назови семейство 76s и важные здесь свойства. Затем выбери действие по позиции, глубине, диапазонам и игрокам за спиной.",
-    explanation: "76s — мастевая связка: масть и связность помогают реализации, но не выбирают действие. В этой заданной модели позиция, глубина и пассивные блайнды сохраняют ценность колла. 98s — безопасный пример того же семейства для распознавания, а не новая chart-клетка.",
+    explanation: "76s — мастевая связка: масть и связность помогают реализации, но не выбирают действие. В этой заданной модели позиция, глубина и пассивные блайнды сохраняют ценность колла. 98s — безопасный пример того же семейства для распознавания, а не новая клетка чарта.",
   });
   patchDrill("preflop", "pre-03", {
-    assumptions: ["100bb", "EP открывается 4bb", "HJ коллирует", "Hero CO KJo", "два исходных диапазона сильнее позднего open+call", "точная chart-граница для KJo не утверждается"],
+    assumptions: ["100bb", "EP открывается 4bb", "HJ коллирует", "Hero CO KJo", "два исходных диапазона сильнее позднего open+call", "точная граница KJo по чарту не утверждается"],
     cue: "EP open 4bb, HJ call, Hero CO с KJo против двух сильных исходных диапазонов.",
     question: "Сначала определи семейство KJo и свойства, которые важны против этих диапазонов. Затем выбери действие.",
-    explanation: "KJo — разномастный бродвей: high-card сила и top-pair потенциал идут вместе с чувствительностью к доминации и без мастевого преимущества. В этой модели именно диапазоны и реализация ведут к фолду, а не запомненная формула «KJo = fold».",
+    explanation: "KJo — разномастный бродвей: сила старших карт и потенциал топ-пары идут вместе с чувствительностью к доминации и без преимущества масти. В этой модели именно диапазоны и реализация ведут к фолду, а не запомненная формула «KJo = fold».",
   });
   patchDrill("preflop", "pre-04", {
-    question: "Premise задачи уже относит A5s к смешанным полярным кандидатам baseline. Какую частотную подстройку теперь поддерживает подтверждённо широкий open+call?",
-    explanation: "A5s — мастевой туз колеса: блокер, масть и wheel-связность делают его удобным представителем уже существующей полярной ветки, но не универсальным «4-бет/сквиз-блефом». Здесь проверяется downstream-подстройка к широким входам, а не право A5s быть кандидатом вообще.",
+    question: "Условие задачи уже относит A5s к смешанным полярным кандидатам базовой модели. Какую частотную подстройку теперь поддерживает подтверждённо широкий open+call?",
+    explanation: "A5s — мастевой туз колеса: блокер, масть и связность к нижнему стриту делают его удобным представителем уже существующей полярной ветки, но не универсальным «4-бет/сквиз-блефом». Здесь проверяется дальнейшая подстройка к широким входам, а не право A5s быть кандидатом вообще.",
   });
 
   patchDrill("ancestry", "anc-01", {
-    assumptions: ["BTN открывается широко", "BB 3-бетит шире baseline", "Hero BTN A5s", "точная 4-бет-частота и chart-клетка не утверждаются"],
+    assumptions: ["BTN открывается широко", "BB 3-бетит шире базовой модели", "Hero BTN A5s", "точная частота 4-бета и клетка чарта не утверждаются"],
     cue: "BTN open, BB использует широкий 3-бет; Hero держит A5s.",
     question: "Что нужно подтвердить до превращения A5s в 4-бет-блеф?",
-    explanation: "A5s даёт туз-блокер и suited wheel traits, но этого недостаточно: сначала нужны правдоподобное вэлью продолжения и реальные более сильные руки, которые сфолдят. Название комбинации не создаёт блеф.",
+    explanation: "A5s даёт туз-блокер, масть и связность к нижнему стриту, но этого недостаточно: сначала нужны правдоподобное вэлью продолжения и реальные более сильные руки, которые сфолдят. Название комбинации не создаёт блеф.",
   });
   patchDrill("ancestry", "anc-02", {
     cue: "Та же A5s, но теперь после раннего открытия SB 3-бетит очень тайтово и почти без блефов.",
     question: "Что именно в новом контексте ломает знакомую идею с A5s?",
-    explanation: "Комбо не изменилось: A5s всё ещё имеет те же structural traits. Изменился исходный диапазон SB — почти нет более сильных рук, которые реально сфолдят. Поэтому это не урок «A5s = блеф», а пример одного и того же комбо в двух разных ветках.",
+    explanation: "Комбо не изменилось: у A5s всё те же структурные свойства. Изменился исходный диапазон SB — почти нет более сильных рук, которые реально сфолдят. Поэтому это не урок «A5s = блеф», а пример одного и того же комбо в двух разных ветках.",
   });
   patchDrill("ancestry", "anc-03", {
-    assumptions: ["150bb", "Hero BTN против BB 3-бета", "Hero 98s", "premise задачи: у 98s есть правдоподобная альтернатива колла; точная chart-частота не утверждается", "98s слабо блокирует премиальные продолжения"],
-    cue: "150bb BTN vs BB 3-bet, Hero с 98s. По premise задачи сравнение включает реальную колл-альтернативу.",
-    question: "Сначала распознай 98s как мастевую связку. При заданном premise что нужно сравнить до превращения этой руки в 4-бет-блеф?",
-    explanation: "98s — мастевая связка того же широкого семейства, что 76s. Здесь premise специально даёт колл-альтернативу, потому что проверяется downstream-сравнение реализации против blocker/fold-target ценности, а не точная chart-клетка 98s.",
+    assumptions: ["150bb", "Hero BTN против BB 3-бета", "Hero 98s", "по условию задачи у 98s есть правдоподобная альтернатива колла; точная частота по чарту не утверждается", "98s слабо блокирует премиальные продолжения"],
+    cue: "150bb BTN vs BB 3-bet, Hero с 98s. По условию задачи сравнение включает реальную колл-альтернативу.",
+    question: "Сначала распознай 98s как мастевую связку. При этом заданном условии что нужно сравнить до превращения руки в 4-бет-блеф?",
+    explanation: "98s — мастевая связка того же широкого семейства, что 76s. Здесь условие специально даёт колл-альтернативу, потому что проверяется дальнейшее сравнение реализации против ценности блокеров и реальных фолдов, а не точная клетка чарта 98s.",
   });
 
   const ancestry = moduleById.ancestry;
-  ancestry.counterexample = "Сравни одну и ту же A5s: против широкого 3-бета сначала ищи реальные фолды и только затем оценивай blocker value; против тайтовой value-heavy ветки эти фолды могут исчезнуть. Комбо то же, контекст другой — поэтому меняется пригодность блефа.";
+  ancestry.counterexample = "Сравни одну и ту же A5s: против широкого 3-бета сначала ищи реальные фолды и только затем оценивай ценность блокера; против тайтовой value-heavy ветки эти фолды могут исчезнуть. Комбо то же, контекст другой — поэтому меняется пригодность блефа.";
   if (ancestry.lab.type === "compare") {
     ancestry.lab.title = "Одна A5s — две исходные ветки";
-    ancestry.lab.description = "Сравни один и тот же suited wheel ace против широкого 3-бета и против тайтового value-heavy диапазона. Семейство руки не меняется; меняются реальные fold targets.";
+    ancestry.lab.description = "Сравни один и тот же мастевой туз колеса против широкого 3-бета и против тайтового value-heavy диапазона. Семейство руки не меняется; реальные fold targets меняются.";
     ancestry.lab.leftTitle = "Широкий 3-бет";
     ancestry.lab.leftText = "Сначала проверь, какие более сильные руки реально сфолдят и какие продолжат; только затем используй блокер.";
     ancestry.lab.rightTitle = "Тайтовый value-heavy 3-бет";
-    ancestry.lab.rightText = "Продолжения сильнее и fold targets могут почти исчезнуть; тот же блокер не создаёт их заново.";
+    ancestry.lab.rightText = "Продолжения сильнее и реальные фолды могут почти исчезнуть; тот же блокер не создаёт их заново.";
   }
 }
 
@@ -232,21 +232,21 @@ function applyEnglishTransferPrompts() {
 
 function applyRussianDistractorParity() {
   patchWrongOptions("preflop", "pre-01", "reason", [
-    "TT достаточно сильна, поэтому ценность 3-бета почти не зависит от точного диапазона продолжения и роли BB за спиной",
-    "Минус позиции SB — главный фактор, поэтому цена колла и состав диапазонов становятся второстепенными по сравнению с агрессией",
+    "Сила TT сама оправдывает 3-бет; точный диапазон продолжения и BB вторичны",
+    "Минус позиции SB делает инициативу важнее цены колла и состава диапазонов",
   ]);
   patchWrongOptions("preflop", "pre-04", "reason", [
-    "Без прямого sample fold-to-squeeze безопаснее оставить baseline-микс, даже когда оба входных диапазона подтверждённо слишком широки",
-    "Масть, натсовый флеш-потенциал и Ace-high реализация A5s делают сохранение постфлоп-ветки важнее дополнительного сквиза",
+    "Без локальной выборки по fold-to-squeeze безопаснее сохранить базовый микс, несмотря на широкие входы",
+    "Масть и потенциал натсового флеша A5s делают постфлоп-реализацию важнее дополнительного сквиза",
   ]);
 
   patchWrongOptions("blinds", "bli-01", "reason", [
-    "На сухом A-high флопе текстура настолько сильно задаёт план, что различия исходных SB- и BB-диапазонов становятся вторичными",
-    "После одного префлоп-колла оба блайнд-диапазона достаточно сжаты, чтобы практический c-bet-план почти совпадал",
+    "Сухой A-high флоп важнее различий исходных SB- и BB-диапазонов",
+    "После префлоп-колла оба blind-диапазона достаточно похожи для общего c-bet плана",
   ]);
   patchWrongOptions("blinds", "bli-02", "reason", [
-    "Инициатицию и изоляцию в банке с dead money стоит ставить выше скидки BB, потому что пассивная ветка оставляет сложную реализацию",
-    "Хорошей цены и приемлемого сырого эквити достаточно для колла; будущая реализация заметно менее важна, чем текущая цена",
+    "Инициатива и изоляция dead money важнее скидки BB и пассивной реализации",
+    "Хорошей цены и сырого эквити достаточно; будущая реализация вторична",
   ]);
 
   patchWrongOptions("filtering", "fil-05", "action", [
@@ -254,8 +254,8 @@ function applyRussianDistractorParity() {
     "Вернуться к baseline без exploit-надбавки сразу после любого колла",
   ]);
   patchWrongOptions("filtering", "fil-05", "reason", [
-    "Флоп-read описывает склонность игрока к фолду, поэтому его можно переносить на многие тёрны, пока доска радикально не изменилась",
-    "Сам факт колла достаточно фильтрует диапазон, поэтому прежний флоп-read больше не должен влиять на следующую улицу",
+    "Флоп-read можно переносить на нейтральные тёрны, пока доска резко не меняется",
+    "Сам колл достаточно фильтрует диапазон, поэтому прошлый read больше не нужен",
   ]);
 
   patchWrongOptions("shape", "sha-03", "action", [
@@ -263,8 +263,8 @@ function applyRussianDistractorParity() {
     "Коллить KTs главным образом как замаскированную сильную руку",
   ]);
   patchWrongOptions("shape", "sha-03", "reason", [
-    "Высокая абсолютная сила KTs и защита от будущих оверкарт важнее сохранения сильных рук внутри колл-диапазона",
-    "Если соперник способен блефовать дальше, главная ценность колла — скрыть силу KTs, даже без диапазонной причины",
+    "Сила KTs и защита важнее сохранения сильных рук внутри колл-диапазона",
+    "Колл ценен главным образом тем, что маскирует силу KTs против будущих блефов",
   ]);
 
   patchWrongOptions("aggression", "agg-02", "action", [
@@ -272,16 +272,16 @@ function applyRussianDistractorParity() {
     "Сместить ставку к крупному полярному размеру",
   ]);
   patchWrongOptions("aggression", "agg-02", "reason", [
-    "Даже при премиальном преимуществе средняя часть лучше сохраняет эквити через чек, поэтому широкая малая ставка перегружает bet-ветку",
-    "Если диапазон заметно сильнее, крупный размер лучше монетизирует преимущество, поэтому высокая частота небольшой ставки не нужна",
+    "Средняя часть лучше реализуется через чек, поэтому широкая малая ставка перегружена",
+    "Сильный диапазон лучше монетизировать крупным размером, а не частой малой ставкой",
   ]);
   patchWrongOptions("aggression", "agg-05", "action", [
     "Добавить часть средней made-hand зоны в пуш ради лишения эквити",
     "Перевести слабые коллы в блеф-рейзы, чтобы разгрузить пассивную ветку",
   ]);
   patchWrongOptions("aggression", "agg-05", "reason", [
-    "Низкий SPR повышает ценность лишения эквити настолько, что сильная средняя часть может сама поддержать пуш без заметного верхнего вэлью",
-    "Если рука плохо работает коллом, превращение части таких рук в блеф-рейз может исправить структуру ещё до построения вэлью-ветки",
+    "Низкий SPR делает denial достаточным основанием добавить средние made hands в пуш",
+    "Плохие коллы можно превратить в блеф-рейзы ещё до построения вэлью-ветки",
   ]);
 
   patchWrongOptions("ancestry", "anc-01", "action", [
@@ -289,24 +289,24 @@ function applyRussianDistractorParity() {
     "Использовать саму ширину BB 3-бета как достаточную причину для давления",
   ]);
   patchWrongOptions("ancestry", "anc-01", "reason", [
-    "Ace-блокер уменьшает премиумы, поэтому широкий 3-бет уже даёт A5s достаточно оснований для блефа до подсчёта fold targets",
-    "Широкий диапазон содержит достаточно dead money, поэтому инициатива 4-бета ценна даже без отдельной карты реально фолдящих рук",
+    "Ace-блокер A5s уже даёт достаточно блеф-ценности против широкого 3-бета",
+    "Ширина BB создаёт достаточно dead money для 4-бета без карты реальных фолдов",
   ]);
   patchWrongOptions("ancestry", "anc-02", "action", [
     "Считать главной проблемой слабую пятёрку в составе A5s",
     "Сократить блеф прежде всего из-за уже большого префлоп-банка",
   ]);
   patchWrongOptions("ancestry", "anc-02", "reason", [
-    "Низкая вторая карта делает A5s недостаточно сильной агрессивной рукой, поэтому ancestry диапазона здесь вторична",
-    "Большой префлоп-банк повышает риск блефа настолько, что размер банка важнее состава продолжающего диапазона",
+    "Слабая пятёрка делает A5s плохим блефом независимо от исходного диапазона",
+    "Большой префлоп-банк делает риск блефа важнее состава продолжающего диапазона",
   ]);
   patchWrongOptions("ancestry", "anc-03", "action", [
     "Сделать инициативу 4-бета приоритетнее благодаря масти и связности 98s",
     "Сместиться к фолду, потому что спекулятивная рука слишком хрупка после 3-бета",
   ]);
   patchWrongOptions("ancestry", "anc-03", "reason", [
-    "Глубина усиливает мастевую связность, поэтому 98s выигрывает больше от инициативы 4-бета, чем от сохранения пассивной реализации",
-    "После 3-бета будущие ставки делают реализацию мастевой связки слишком нестабильной, поэтому колл не стоит сохранять как альтернативу",
+    "Глубина усиливает связность 98s, поэтому инициатива 4-бета ценнее колла",
+    "Будущее давление делает реализацию 98s слишком нестабильной для серьёзной колл-ветки",
   ]);
 
   patchWrongOptions("multiway", "mul-01", "action", [
@@ -314,8 +314,8 @@ function applyRussianDistractorParity() {
     "Сначала оценить уязвимость KQ на K-9-7, а диапазон BB учесть вторым шагом",
   ]);
   patchWrongOptions("multiway", "mul-01", "reason", [
-    "Heads-up защита остаётся полезной первой точкой отсчёта, а игрок за спиной лишь немного сдвигает готовую частоту продолжения",
-    "На динамичной K-9-7 качество одной пары сильнее влияет на решение, чем ещё не ответивший диапазон за спиной",
+    "Heads-up защита — полезная база; игрок за спиной лишь сдвигает готовую частоту",
+    "На динамичной доске хрупкость одной пары важнее ещё не ответившего диапазона",
   ]);
 
   patchWrongOptions("evidence", "evi-03", "action", [
@@ -323,28 +323,28 @@ function applyRussianDistractorParity() {
     "Оставаться только на структурном baseline и не учитывать внешний prior до локальной выборки",
   ]);
   patchWrongOptions("evidence", "evi-03", "reason", [
-    "Надёжный обучающий источник достаточно устойчив, чтобы его population-направление считать полевым default, пока стол не покажет обратное",
-    "Без локальной выборки внешний population prior скорее смещает решение, поэтому его полезнее полностью исключить из текущей модели",
+    "Надёжный source-backed prior можно считать полевым default до локального опровержения",
+    "Без локальной выборки внешний prior лучше полностью убрать из текущей модели",
   ]);
 }
 
 function applyEnglishDistractorParity() {
   patchWrongOptions("preflop", "pre-01", "reason", [
-    "TT is strong enough that the value of 3-betting depends little on the exact continuing range or the BB still behind",
-    "The SB positional disadvantage is the main issue, so call price and range composition become secondary to taking the aggressive branch",
+    "TT is strong enough that exact continuing ranges and the BB behind are secondary",
+    "SB's positional disadvantage makes initiative more important than call price and range composition",
   ]);
   patchWrongOptions("preflop", "pre-04", "reason", [
-    "Without a direct fold-to-squeeze sample, preserving the baseline mix is safer even when both entering ranges are confirmed too wide",
-    "A5s suitedness, nut-flush potential and ace-high realisation make preserving the postflop branch more valuable than adding squeezes",
+    "Without a local fold-to-squeeze sample, preserving the baseline mix is safer despite wide entries",
+    "A5s suitedness and nut-flush potential make postflop realisation more valuable than extra squeezes",
   ]);
 
   patchWrongOptions("blinds", "bli-01", "reason", [
-    "On a dry A-high flop, board texture drives the plan strongly enough that the different SB and BB source ranges become secondary",
-    "After one preflop call, both blind ranges are condensed enough that the practical c-bet plan should be nearly the same",
+    "A dry A-high flop matters more than differences between the SB and BB source ranges",
+    "After one preflop call, both blind ranges are similar enough for one c-bet plan",
   ]);
   patchWrongOptions("blinds", "bli-02", "reason", [
-    "Initiative and isolation in a dead-money pot should outweigh the BB discount because the passive branch leaves difficult realisation",
-    "Good price plus acceptable raw equity is enough for the call; future realisation matters much less than the current price",
+    "Initiative and dead-money isolation outweigh the BB discount and passive realisation",
+    "Good price plus raw equity is enough; future realisation is secondary",
   ]);
 
   patchWrongOptions("filtering", "fil-05", "action", [
@@ -352,8 +352,8 @@ function applyEnglishDistractorParity() {
     "Return to baseline with no exploit premium immediately after any call",
   ]);
   patchWrongOptions("filtering", "fil-05", "reason", [
-    "The flop read describes a folding tendency, so it can carry to many turns unless the board changes the spot dramatically",
-    "The call filters the range enough that the earlier flop read should no longer affect the next street",
+    "A flop folding read can carry to neutral turns until the board changes sharply",
+    "The call filters the range enough that the earlier read should no longer matter",
   ]);
 
   patchWrongOptions("shape", "sha-03", "action", [
@@ -361,8 +361,8 @@ function applyEnglishDistractorParity() {
     "Call KTs mainly to disguise a strong hand",
   ]);
   patchWrongOptions("shape", "sha-03", "reason", [
-    "KTs's high absolute strength and protection from future overcards matter more than keeping strong hands inside the calling range",
-    "If Villain can bluff later, the main value of calling is disguising KTs even without a range-construction reason",
+    "KTs strength and protection matter more than keeping strong hands in the calling range",
+    "Calling is valuable mainly because it disguises KTs against future bluffs",
   ]);
 
   patchWrongOptions("aggression", "agg-02", "action", [
@@ -370,16 +370,16 @@ function applyEnglishDistractorParity() {
     "Shift toward a large polar betting size",
   ]);
   patchWrongOptions("aggression", "agg-02", "reason", [
-    "Even with a premium advantage, the middle realises better through checks, so a wide small bet overloads the betting branch",
-    "When one range is materially stronger, a large size monetises that advantage better, so high-frequency small betting is unnecessary",
+    "The middle realises better through checks, so a wide small bet overloads the branch",
+    "A stronger range monetises its advantage better with size than frequent small bets",
   ]);
   patchWrongOptions("aggression", "agg-05", "action", [
     "Add some medium made hands to the jam for equity denial",
     "Turn weak calls into bluff raises to unload the passive branch",
   ]);
   patchWrongOptions("aggression", "agg-05", "reason", [
-    "Low SPR makes equity denial valuable enough that strong medium hands can support a jam without much genuine top-end value",
-    "When a hand performs poorly as a call, converting some of those hands into bluff raises can repair the range before mapping value",
+    "Low SPR makes denial sufficient reason to add medium made hands to the jam",
+    "Poor calls can become bluff raises before the value branch is fully mapped",
   ]);
 
   patchWrongOptions("ancestry", "anc-01", "action", [
@@ -387,24 +387,24 @@ function applyEnglishDistractorParity() {
     "Use the width of BB's 3-bet as sufficient reason to apply pressure",
   ]);
   patchWrongOptions("ancestry", "anc-01", "reason", [
-    "The ace blocker removes premiums, so a wide 3-bet already gives A5s enough bluff value before mapping actual fold targets",
-    "A wide range contains enough dead money that 4-bet initiative is valuable even without identifying better hands that really fold",
+    "A5s's ace blocker already supplies enough bluff value against a wide 3-bet",
+    "BB's width creates enough dead money for a 4-bet without mapping actual folds",
   ]);
   patchWrongOptions("ancestry", "anc-02", "action", [
     "Treat the low five in A5s as the main problem",
     "Reduce the bluff mainly because the preflop pot is already large",
   ]);
   patchWrongOptions("ancestry", "anc-02", "reason", [
-    "The low side card makes A5s too weak an aggressive hand, so range ancestry is secondary in this decision",
-    "A large preflop pot raises bluff risk enough that pot size matters more than the composition of the continuing range",
+    "The low five makes A5s a poor bluff regardless of the source range",
+    "The large preflop pot makes bluff risk more important than continuing-range composition",
   ]);
   patchWrongOptions("ancestry", "anc-03", "action", [
     "Prioritise 4-bet initiative because 98s is suited and connected",
     "Shift toward folding because a speculative hand is too fragile after a 3-bet",
   ]);
   patchWrongOptions("ancestry", "anc-03", "reason", [
-    "Depth increases the value of suited connectivity, so 98s gains more from 4-bet initiative than from preserving passive realisation",
-    "Future pressure after a 3-bet makes suited-connector realisation too unstable, so calling should not remain a serious alternative",
+    "Depth strengthens 98s connectivity, so 4-bet initiative is more valuable than calling",
+    "Future pressure makes 98s realisation too unstable for a serious calling branch",
   ]);
 
   patchWrongOptions("multiway", "mul-01", "action", [
@@ -412,8 +412,8 @@ function applyEnglishDistractorParity() {
     "Judge KQ's vulnerability on K-9-7 first and account for BB second",
   ]);
   patchWrongOptions("multiway", "mul-01", "reason", [
-    "Heads-up defence remains a useful first anchor, while the live player behind only modestly shifts the continuing threshold",
-    "On a dynamic K-9-7 board, the fragility of one pair matters more than the unacted range still behind Hero",
+    "Heads-up defence is a useful anchor; the player behind only shifts the target",
+    "On a dynamic board, one-pair fragility matters more than the unacted range behind",
   ]);
 
   patchWrongOptions("evidence", "evi-03", "action", [
@@ -421,8 +421,8 @@ function applyEnglishDistractorParity() {
     "Stay on structural baseline and ignore the external prior until a local sample exists",
   ]);
   patchWrongOptions("evidence", "evi-03", "reason", [
-    "A reliable training source is stable enough that its population direction can be treated as a field default until the table disproves it",
-    "Without a local sample, an external population prior is more likely to bias the decision, so it should be excluded from the current model",
+    "A reliable source-backed prior can serve as the field default until locally contradicted",
+    "Without a local sample, the external prior should be removed from the current model",
   ]);
 }
 
