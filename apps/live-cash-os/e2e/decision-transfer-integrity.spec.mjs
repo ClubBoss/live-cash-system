@@ -46,13 +46,19 @@ async function verifyLocaleTransfer(page, locale) {
     await session.getByText("Дополнительное объяснение", { exact: true }).click();
     await expect(session).toContainText("76s и 98s — мастевые связки");
     await expect(session).toContainText("Семейство помогает понять руку, но не выбирает действие за тебя");
-    await session.getByRole("button", { name: /Сразу применить/ }).click();
+    await session.getByRole("button", { name: "Я решил — разобрать Cold Check", exact: true }).click();
+    const apply = session.getByRole("button", { name: /Сразу применить/ });
+    await expect(apply).toBeVisible();
+    await apply.click();
   } else {
     await expect(session).toContainText("Starting-hand families and traits");
     await session.getByText("More explanation", { exact: true }).click();
     await expect(session).toContainText("76s and 98s are suited connectors");
     await expect(session).toContainText("does not choose the action for you");
-    await session.getByRole("button", { name: /Apply it now/ }).click();
+    await session.getByRole("button", { name: "I decided — review the Cold Check", exact: true }).click();
+    const apply = session.getByRole("button", { name: /Apply it now/ });
+    await expect(apply).toBeVisible();
+    await apply.click();
   }
 
   const decision = session.locator(".decision-card");
