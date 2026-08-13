@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ThemeToggle from "../components/ThemeToggle";
 import "./globals.css";
 import "./v11-overrides.css";
 import "./w8-premium.css";
@@ -53,7 +54,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ThemeToggle />
+      </body>
     </html>
   );
 }
