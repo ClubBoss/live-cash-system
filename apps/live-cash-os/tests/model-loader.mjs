@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import ts from "typescript";
 
+const APP_ROOT_URL = new URL("../", import.meta.url).href;
 const CORE_URL = new URL("../lib/model-core.ts", import.meta.url).href;
 const MODEL_URL = new URL("../lib/model.ts", import.meta.url).href;
 const RELIABILITY_URL = new URL("../lib/reliability.ts", import.meta.url).href;
@@ -16,6 +17,14 @@ function isTemporaryHarness(parentURL) {
   return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-test-");
 }
 
+function isAppTypeScript(url) {
+  return url.startsWith(APP_ROOT_URL) && url.endsWith(".ts");
+}
+
+function hasExplicitExtension(specifier) {
+  return /\.[a-z0-9]+$/iu.test(specifier);
+}
+
 export async function resolve(specifier, context, nextResolve) {
   if (isTemporaryHarness(context.parentURL)) {
     if (specifier === "./model-core") return { url: CORE_URL, shortCircuit: true };
@@ -24,6 +33,9 @@ export async function resolve(specifier, context, nextResolve) {
     if (specifier === "./automaticity") return { url: AUTOMATICITY_URL, shortCircuit: true };
     if (specifier === "./scheduler") return { url: SCHEDULER_URL, shortCircuit: true };
     if (specifier === "./profile-storage") return { url: PROFILE_STORAGE_URL, shortCircuit: true };
+  }
+  if (context.parentURL?.startsWith(APP_ROOT_URL) && specifier.startsWith(".") && !hasExplicitExtension(specifier)) {
+    return { url: new URL(`${specifier}.ts`, context.parentURL).href, shortCircuit: true };
   }
   if (context.parentURL === CLOUD_SYNC_CONTRACT_URL && specifier === "./reliability") {
     return { url: RELIABILITY_URL, shortCircuit: true };
@@ -38,7 +50,7 @@ export async function resolve(specifier, context, nextResolve) {
 }
 
 export async function load(url, context, nextLoad) {
-  if (TRANSPILED_URLS.has(url)) {
+  if (TRANSPILED_URLS.has(url) || isAppTypeScript(url)) {
     const source = await readFile(new URL(url), "utf8");
     const compiled = ts.transpileModule(source, {
       compilerOptions: {
