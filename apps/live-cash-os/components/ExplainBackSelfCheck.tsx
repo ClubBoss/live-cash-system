@@ -39,9 +39,11 @@ function optionText(options: Array<{ id: string; text: string }>, id: string | u
 
 function verificationDrill(module: ModuleContent, state: LearnerState): Drill {
   const used = new Set(state.activeSession?.drillIds ?? []);
-  return module.drills.find((drill) => !used.has(drill.id) && (drill.kind === "changed" || drill.kind === "boundary"))
-    ?? module.drills.find((drill) => !used.has(drill.id))
+  const drill = module.drills.find((candidate) => !used.has(candidate.id) && (candidate.kind === "changed" || candidate.kind === "boundary"))
+    ?? module.drills.find((candidate) => !used.has(candidate.id))
     ?? module.drills[module.drills.length - 1];
+  if (!drill) throw new Error(`Module ${module.id} has no verification drill`);
+  return drill;
 }
 
 export default function ExplainBackSelfCheck({
@@ -119,6 +121,7 @@ export default function ExplainBackSelfCheck({
       <p className="support">{ru ? "Это self-check, не автоматическая оценка текста. Система не ищет ключевые слова и не делает вид, что поняла твой free-text." : "This is a self-check, not automatic text grading. The system does not keyword-score or pretend it understood your free text."}</p>
       <div className="answer-panel"><b>{ru ? "Рабочая опора" : "Reference cue"}</b><p>{module.tableCue}</p></div>
       <div className="table-card">{module.tableCard.map((item, index) => <div key={item}><span>{String(index + 1).padStart(2, "0")}</span><b>{item}</b></div>)}</div>
+      <details><summary>{ru ? "Термины и подробности" : "Terms and details"}</summary><div className="glossary">{module.glossary.map((item) => <p key={item.term}><b>{item.term}</b>{item.meaning}</p>)}</div></details>
       <p className="support">{ru ? "Что было в твоём объяснении? Эта отметка нужна только тебе и не меняет skill state." : "How much of this was present in your explanation? This mark is only for you and does not change skill state."}</p>
       <div className="grade-row">
         <button onClick={() => chooseSelfCheck("covered")}>{ru ? "Покрыл главное" : "Covered the core"}</button>
