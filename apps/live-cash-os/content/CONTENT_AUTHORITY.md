@@ -45,7 +45,7 @@ Concrete hand or board notation may be used as an original exercise embodiment o
 
 `content/POKER_GLOSSARY_RU_EN.md` remains the terminology authority. Russian and English require independent natural-language review while preserving shared stable semantic IDs.
 
-FINAL W4R remains the broad learner-facing language/runtime pass. The bounded novice-comprehension layer, final low-risk clarity layer, real-use decision-transfer integrity layer, and diagnostic-integrity labels apply after it. They may clarify terminology, arithmetic interpretation, concrete recognition context, or evaluator-facing labels, but they may not change strategic identities, correct-answer IDs or human approval truth.
+FINAL W4R remains the broad learner-facing language/runtime pass. The bounded novice-comprehension layer, final low-risk clarity layer, real-use decision-transfer integrity layer, compact option-balance layer, and diagnostic-integrity labels apply after it. They may clarify terminology, arithmetic interpretation, concrete recognition context, or evaluator-facing labels, but they may not change strategic identities, correct-answer IDs or human approval truth.
 
 The canonical locale pipeline order is:
 
@@ -58,9 +58,10 @@ The canonical locale pipeline order is:
 7. `applyNoviceTerminologyCopy`;
 8. `applyFinalPlusEvCopy`;
 9. `applyDecisionTransferIntegrity`;
-10. `applyDiagnosticIntegrityLabels`.
+10. `applyDecisionOptionBalance`;
+11. `applyDiagnosticIntegrityLabels`.
 
-`applyWave4RFinalLanguage(locale)` applies its final broad language pass only for English. `applyNoviceTerminologyCopy(locale)` then performs bounded novice-comprehension wording in both locales. `applyFinalPlusEvCopy(locale)` performs only the final low-risk learner-language cleanup: plain-language glossary aliases and a clearer arithmetic interpretation of call price, without changing strategy or evidence semantics. `applyDecisionTransferIntegrity(locale)` is a bounded real-use repair that restores explicitly scoped concrete hand/board representatives where the current admitted corpus already supports the mechanism and removes conspicuous wrong-answer wording tells from the final RU/EN drills; it preserves option IDs, correct-answer IDs, misconception IDs, scoring and evidence semantics. `applyDiagnosticIntegrityLabels()` neutralizes learner-facing Diagnostic titles without changing stable `LD-*` identities. `wave4r-poker-native.ts` is not part of the active canonical pipeline, and the integrated `applyWave5PracticeCopy()` does not reactivate it transitively.
+`applyWave4RFinalLanguage(locale)` applies its final broad language pass only for English. `applyNoviceTerminologyCopy(locale)` then performs bounded novice-comprehension wording in both locales. `applyFinalPlusEvCopy(locale)` performs only the final low-risk learner-language cleanup: plain-language glossary aliases and a clearer arithmetic interpretation of call price, without changing strategy or evidence semantics. `applyDecisionTransferIntegrity(locale)` is a bounded real-use repair that restores explicitly scoped concrete hand/board representatives where the current admitted corpus already supports the mechanism and removes conspicuous wrong-answer wording tells from the final RU/EN drills; it preserves option IDs, correct-answer IDs, misconception IDs, scoring and evidence semantics. `applyDecisionOptionBalance(locale)` shortens only the correct selectable options that a corpus-level audit found disproportionately verbose relative to both distractors. Teaching detail remains in the feedback explanation; the layer preserves the same correct IDs, misconception mapping and strategy identity. `applyDiagnosticIntegrityLabels()` neutralizes learner-facing Diagnostic titles without changing stable `LD-*` identities. `wave4r-poker-native.ts` is not part of the active canonical pipeline, and the integrated `applyWave5PracticeCopy()` does not reactivate it transitively.
 
 The decision-transfer layer may not resolve `GAP-VISUAL-BOARDS-SUITS`, `GAP-VISUAL-PREFLOP-MATRICES`, exact mixed-cell gaps or other visual/source gaps by invention. Where a hand such as `76s`, `KJo`, `A5s`, `98s`, `T6s`, `KTs` or `KQ` is used, the exercise itself must remain scoped as a representative/premise unless the underlying exact cell is separately admitted. Likewise, board ranks used for recognition practice are illustrative family representatives unless exact suit/rank truth is already source-admitted.
 
@@ -101,7 +102,7 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`5c84895f7bd7776f25c37855139e87e84a959a3c3f6bac2fdf9a9e5ec62b4141`
+`bd1800a8a1434e27cce1a882503e5a3f8982cf426d7d09aa2b27909b35d1400d`
 
 Current status:
 
@@ -143,7 +144,7 @@ Only one active learner-facing semantic defect required direct copy repair durin
 
 Exact inspection also revealed that FINAL W4R `wave5-practice-copy.ts` transitively called the compatibility overlay even though `locale-pipeline.ts` did not. The integration removes that call so the compatibility file is genuinely inert. No RU `agg-01`, `agg-02` or `agg-04` wording is edited to accommodate dead compatibility semantics.
 
-The later decision-transfer layer must not reverse that reconciliation: concrete examples can instantiate an already scoped mechanism, but cannot restore unsupported exact thresholds or promote a representative hand into a universal prescription.
+The later decision-transfer and option-balance layers must not reverse that reconciliation: concrete examples can instantiate an already scoped mechanism, and correct-option copy can be compressed, but neither layer can restore unsupported exact thresholds or promote a representative hand into a universal prescription.
 
 ## 9. Wave 5 boundary and real-use drill integrity
 
@@ -153,7 +154,7 @@ The current integrated disposition remains:
 
 The W5 audit branch contributes reports only. FINAL W4R owns the underlying practice layer. Superseded MutationObserver/textContent localisation or duplicate-composition behavior is not restored.
 
-Real use exposed two material drill-quality defects that were not prevented by the historical Wave 5 implementation: important decision items were presented as already-classified hand categories instead of requiring recognition from concrete cards, and some wrong answers carried conspicuous lexical/length cues. The bounded decision-transfer repair addresses those defects without changing stable scoring identities. Its deterministic anti-guessing checks are rejection-only and do not substitute for the still-pending human drill review required by the Wave 5 constitution.
+Real use exposed two material drill-quality defects that were not prevented by the historical Wave 5 implementation: important decision items were presented as already-classified hand categories instead of requiring recognition from concrete cards, and some wrong answers carried conspicuous lexical cues while correct answers were often disproportionately long and nuanced. The bounded decision-transfer and option-balance repairs address those defects without changing stable scoring identities. Their deterministic anti-guessing checks are rejection-only and do not substitute for the still-pending human drill review required by the Wave 5 constitution.
 
 Accepted P2 compatibility debt is documented separately and does not create strategy, language, accessibility or empirical approval.
 
@@ -162,7 +163,7 @@ Accepted P2 compatibility debt is documented separately and does not create stra
 Human poker review must cover:
 
 - three repaired W3 claim sets;
-- the final-composition drills affected by the bilingual decision-transfer and distractor-language pass;
+- the final-composition drills affected by the bilingual decision-transfer, distractor-language and option-balance passes;
 - affected runtime distractor semantics;
 - the distinction between an illustrative concrete representative and an exact chart/solver claim.
 
