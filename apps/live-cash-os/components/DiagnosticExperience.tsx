@@ -58,11 +58,13 @@ export default function DiagnosticExperience({
   state,
   setState,
   onExit,
+  onRouted,
 }: {
   locale: LocaleCode;
   state: LearnerState;
   setState: (value: LearnerState) => void;
   onExit: () => void;
+  onRouted?: () => void;
 }) {
   const diagnostic = state.diagnostic;
   const sourceItem = diagnosticT1[diagnostic.responses.length];
@@ -154,7 +156,8 @@ export default function DiagnosticExperience({
     }, {} as Record<string, number>);
     const usePriorities = () => {
       setState(routeDiagnosticPriorities(state, assessment.priorityModules));
-      onExit();
+      if (onRouted) onRouted();
+      else onExit();
     };
     return <section className="surface">
       <div className="section-head">
@@ -168,11 +171,11 @@ export default function DiagnosticExperience({
           <div><b>{counts.UNCERTAIN ?? 0}</b><span>{diagnosticFeedbackLevelLabel("UNCERTAIN", locale)}</span></div>
         </div>
         <p className="assumption-strip">{ru ? "Это baseline/routing signal, не статус навыка. Ни один ответ здесь не добавляет learner evidence." : "This is a baseline/routing signal, not a skill status. No answer here adds learner evidence."}</p>
-        {assessment.priorityModules.length > 0 ? <>
+        {assessment.priorityModules.length > 0 && <>
           <h2>{ru ? "Рекомендуемый старт" : "Recommended starting point"}</h2>
           {assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}
-          <button className="primary" onClick={usePriorities}>{ru ? "Использовать эти приоритеты в Today" : "Use these priorities in Today"} <span>→</span></button>
-        </> : <button className="primary" onClick={onExit}>{ru ? "Вернуться в Today" : "Return to Today"} <span>→</span></button>}
+        </>}
+        <button className="primary" onClick={usePriorities}>{assessment.priorityModules.length > 0 ? (ru ? "Использовать эти приоритеты в Today" : "Use these priorities in Today") : (ru ? "Вернуться в Today" : "Return to Today")} <span>→</span></button>
         <button className="textbutton" onClick={exportRun}>{ru ? "Скачать raw ответы" : "Download raw responses"}</button>
       </div>
       <div className="queue">
