@@ -60,6 +60,7 @@ test("claim schema carries the minimum strategic admission contract", async () =
   }
 
   assert.deepEqual(schema.properties.claim_type.enum, ["BASELINE", "HEURISTIC", "EXPLOIT", "SIMPLIFICATION", "OPEN_QUESTION"]);
+  assert.deepEqual(schema.properties.conflicts.enum, undefined);
   assert.deepEqual(schema.properties.confidence.enum, ["HIGH", "MEDIUM", "LOW", "UNRESOLVED"]);
 });
 
@@ -155,7 +156,7 @@ test("governance truth represents the materialized W1-W5 candidate without claim
   assert.deepEqual(manifest.strategy_repair_scope, ["preflop", "blinds", "aggression"]);
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_content_status, "DRILLS_REVIEW_PENDING");
-  assert.deepEqual(manifest.drill_repair_scope, ["preflop", "aggression"]);
+  assert.deepEqual(manifest.drill_repair_scope, expectedModules);
   assert.equal(manifest.drill_approval, null);
   assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
   assert.match(manifest.final_composition.current_digest, /^[a-f0-9]{64}$/u);
@@ -169,7 +170,12 @@ test("governance truth represents the materialized W1-W5 candidate without claim
     "content/claims/lcm-03.claims.json",
     "content/claims/lcm-06.claims.json",
   ]);
-  assert.deepEqual(manifest.repair_source_paths.drills, ["content/i18n/wave3-priority-gold.ts"]);
+  assert.deepEqual(manifest.repair_source_paths.drills, [
+    "content/i18n/wave3-priority-gold.ts",
+    "content/i18n/decision-transfer-integrity.ts",
+  ]);
+  assert.ok(manifest.repair_source_paths.language.includes("content/i18n/decision-transfer-integrity.ts"));
+  assert.ok(manifest.source_blobs["content/i18n/decision-transfer-integrity.ts"]);
 
   for (const moduleId of expectedModules) {
     const localeStatus = manifest.modules[moduleId];
