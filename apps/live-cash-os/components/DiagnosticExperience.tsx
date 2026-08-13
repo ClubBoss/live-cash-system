@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { diagnosticT1 } from "../content/diagnostic";
-import { diagnosticEnglish } from "../content/i18n/runtime";
 import { drillById, moduleById } from "../content/modules";
 import {
   assessDiagnosticResponses,
@@ -68,7 +67,6 @@ export default function DiagnosticExperience({
 }) {
   const diagnostic = state.diagnostic;
   const sourceItem = diagnosticT1[diagnostic.responses.length];
-  const title = sourceItem && locale === "en" ? diagnosticEnglish[sourceItem.id]?.title ?? sourceItem.title : sourceItem?.title;
   const drill = sourceItem ? drillById[sourceItem.drillId] : undefined;
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
   const [selectedReasonId, setSelectedReasonId] = useState<string | null>(null);
@@ -123,30 +121,23 @@ export default function DiagnosticExperience({
   }
 
   if (diagnostic.status === "NOT_STARTED") {
-    return <section className="surface">
-      <div className="section-head">
-        <p className="eyebrow">{ru ? "СТАРТОВАЯ ДИАГНОСТИКА" : "STARTING DIAGNOSTIC"}</p>
-        <h1>{ru ? "10 решений без подсказок." : "10 decisions without hints."}<br/><em>{ru ? "Фидбек — после финиша." : "Feedback comes after the finish."}</em></h1>
-        <p>{role}</p>
-        <p className="support">{ru ? "Формат тот же, что в практике: действие → причина → уверенность. Никакого открытого ответа, который уходит в пустоту." : "The format matches practice: action → reason → confidence. No open response disappears without feedback."}</p>
-        <button className="primary" onClick={begin}>{ru ? "Начать диагностику" : "Start Diagnostic"} <span>→</span></button>
-      </div>
-    </section>;
+    return <section className="surface"><div className="section-head">
+      <p className="eyebrow">{ru ? "СТАРТОВАЯ ДИАГНОСТИКА" : "STARTING DIAGNOSTIC"}</p>
+      <h1>{ru ? "10 решений без подсказок." : "10 decisions without hints."}<br/><em>{ru ? "Фидбек — после финиша." : "Feedback comes after the finish."}</em></h1>
+      <p>{role}</p>
+      <p className="support">{ru ? "Формат тот же, что в практике: действие → причина → уверенность. Диагностика использует отдельные проверочные споты, чтобы последующий урок не превращался в узнавание уже показанного ответа." : "The format matches practice: action → reason → confidence. Diagnostic uses separate check spots so the later lesson does not become recognition of an answer you have already seen."}</p>
+      <button className="primary" onClick={begin}>{ru ? "Начать диагностику" : "Start Diagnostic"} <span>→</span></button>
+    </div></section>;
   }
 
   if (legacyRun) {
-    return <section className="surface">
-      <div className="section-head">
-        <p className="eyebrow">{ru ? "ДИАГНОСТИКА · СОХРАНЁН СТАРЫЙ ФОРМАТ" : "DIAGNOSTIC · LEGACY RUN SAVED"}</p>
-        <h1>{diagnostic.responses.length}/10 {ru ? "старых free-text ответов сохранено." : "legacy free-text answers saved."}</h1>
-        <p>{ru ? "Эти ответы не будут автоматически оценены: старый формат не содержит governed option IDs, поэтому машинный score был бы выдумкой." : "These answers will not be auto-scored: the legacy format does not contain governed option IDs, so a machine score would be invented."}</p>
-        <p className="support">{ru ? "Можно скачать старую попытку перед перезапуском. Перезапуск создаст новую structured-попытку и не даст старому тексту влиять на mastery." : "You can download the old run before restarting. Restarting creates a new structured run and does not let the old text affect mastery."}</p>
-        <div className="button-row">
-          <button className="secondary" onClick={exportRun}>{ru ? "Скачать старую попытку" : "Download legacy run"}</button>
-          <button className="primary" onClick={begin}>{ru ? "Начать новый формат" : "Start structured run"} <span>→</span></button>
-        </div>
-      </div>
-    </section>;
+    return <section className="surface"><div className="section-head">
+      <p className="eyebrow">{ru ? "ДИАГНОСТИКА · СОХРАНЁН СТАРЫЙ ФОРМАТ" : "DIAGNOSTIC · LEGACY RUN SAVED"}</p>
+      <h1>{diagnostic.responses.length}/10 {ru ? "старых free-text ответов сохранено." : "legacy free-text answers saved."}</h1>
+      <p>{ru ? "Эти ответы не будут автоматически оценены: старый формат не содержит governed option IDs, поэтому машинный score был бы выдумкой." : "These answers will not be auto-scored: the legacy format does not contain governed option IDs, so a machine score would be invented."}</p>
+      <p className="support">{ru ? "Можно скачать старую попытку перед перезапуском. Перезапуск создаст новую structured-попытку и не даст старому тексту влиять на mastery." : "You can download the old run before restarting. Restarting creates a new structured run and does not let the old text affect mastery."}</p>
+      <div className="button-row"><button className="secondary" onClick={exportRun}>{ru ? "Скачать старую попытку" : "Download legacy run"}</button><button className="primary" onClick={begin}>{ru ? "Начать новый формат" : "Start structured run"} <span>→</span></button></div>
+    </div></section>;
   }
 
   if (["AWAITING_REVIEW", "SCORED", "ROUTED"].includes(diagnostic.status) && assessment.structured) {
@@ -171,34 +162,23 @@ export default function DiagnosticExperience({
           <div><b>{counts.UNCERTAIN ?? 0}</b><span>{diagnosticFeedbackLevelLabel("UNCERTAIN", locale)}</span></div>
         </div>
         <p className="assumption-strip">{ru ? "Это baseline/routing signal, не статус навыка. Ни один ответ здесь не добавляет learner evidence." : "This is a baseline/routing signal, not a skill status. No answer here adds learner evidence."}</p>
-        {assessment.priorityModules.length > 0 && <>
-          <h2>{ru ? "Рекомендуемый старт" : "Recommended starting point"}</h2>
-          {assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}
-        </>}
+        {assessment.priorityModules.length > 0 && <><h2>{ru ? "Рекомендуемый старт" : "Recommended starting point"}</h2>{assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}</>}
         <button className="primary" onClick={usePriorities}>{assessment.priorityModules.length > 0 ? (ru ? "Использовать эти приоритеты в Today" : "Use these priorities in Today") : (ru ? "Вернуться в Today" : "Return to Today")} <span>→</span></button>
         <button className="textbutton" onClick={exportRun}>{ru ? "Скачать raw ответы" : "Download raw responses"}</button>
       </div>
-      <div className="queue">
-        {assessment.items.map((item, index) => {
-          const source = diagnosticT1.find((candidate) => candidate.id === item.itemId)!;
-          const sourceDrill = drillById[item.drillId];
-          const response = diagnostic.responses.find((candidate) => candidate.item_id === item.itemId)!;
-          return <article key={item.itemId} className={levelClass(item.level)}>
-            <span className="kind">{index + 1}/10 · {diagnosticFeedbackLevelLabel(item.level, locale)}</span>
-            <h3>{locale === "en" ? diagnosticEnglish[source.id]?.title ?? source.title : source.title}</h3>
-            <p><b>{ru ? "Твой выбор" : "Your choice"}</b></p>
-            <p>{ru ? "Действие" : "Action"}: {optionText(sourceDrill.actionOptions, response.answer)}</p>
-            <p>{ru ? "Причина" : "Reason"}: {optionText(sourceDrill.reasonOptions, response.reasoning)}</p>
-            <p className="support">{ru ? "Уверенность" : "Confidence"}: {response.confidence}%</p>
-            <details>
-              <summary>{ru ? "Показать рабочий ответ и объяснение" : "Show working answer and explanation"}</summary>
-              <p><b>{ru ? "Рабочее действие" : "Working action"}</b>: {optionText(sourceDrill.actionOptions, sourceDrill.correctActionId)}</p>
-              <p><b>{ru ? "Рабочая причина" : "Working reason"}</b>: {optionText(sourceDrill.reasonOptions, sourceDrill.correctReasonId)}</p>
-              <p>{sourceDrill.explanation}</p>
-            </details>
-          </article>;
-        })}
-      </div>
+      <div className="queue">{assessment.items.map((item, index) => {
+        const sourceDrill = drillById[item.drillId];
+        const response = diagnostic.responses.find((candidate) => candidate.item_id === item.itemId)!;
+        return <article key={item.itemId} className={levelClass(item.level)}>
+          <span className="kind">{index + 1}/10 · {diagnosticFeedbackLevelLabel(item.level, locale)}</span>
+          <h3>{moduleById[sourceDrill.moduleId].lcm} · {sourceDrill.question}</h3>
+          <p><b>{ru ? "Твой выбор" : "Your choice"}</b></p>
+          <p>{ru ? "Действие" : "Action"}: {optionText(sourceDrill.actionOptions, response.answer)}</p>
+          <p>{ru ? "Причина" : "Reason"}: {optionText(sourceDrill.reasonOptions, response.reasoning)}</p>
+          <p className="support">{ru ? "Уверенность" : "Confidence"}: {response.confidence}%</p>
+          <details><summary>{ru ? "Показать рабочий ответ и объяснение" : "Show working answer and explanation"}</summary><p><b>{ru ? "Рабочее действие" : "Working action"}</b>: {optionText(sourceDrill.actionOptions, sourceDrill.correctActionId)}</p><p><b>{ru ? "Рабочая причина" : "Working reason"}</b>: {optionText(sourceDrill.reasonOptions, sourceDrill.correctReasonId)}</p><p>{sourceDrill.explanation}</p></details>
+        </article>;
+      })}</div>
     </section>;
   }
 
@@ -206,7 +186,7 @@ export default function DiagnosticExperience({
   const missing = [!selectedActionId ? (ru ? "действие" : "an action") : "", !selectedReasonId ? (ru ? "причину" : "a reason") : ""].filter(Boolean);
   return <section className="session">
     <div className="session-head"><div><span>{ru ? "Диагностика" : "Diagnostic"} · {diagnostic.responses.length + 1}/10</span><div className="progress"><i style={{ width: `${Math.round(((diagnostic.responses.length + 1) / 10) * 100)}%` }} /></div></div><button className="quiet" onClick={onExit}>{ru ? "Сохранить и выйти" : "Save and exit"}</button></div>
-    <p className="eyebrow">{sourceItem.id} · {title}</p>
+    <p className="eyebrow">{sourceItem.id} · {moduleById[drill.moduleId].lcm}</p>
     <p className="support">{ru ? "Ответы и объяснение появятся только после 10/10, чтобы не подсказывать следующие вопросы." : "Answers and explanations appear only after 10/10 so earlier feedback cannot cue later questions."}</p>
     <p className="cue">{drill.cue}</p>
     <h2>{drill.question}</h2>
