@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "a7ff3a8bea50ebbbc549303171a883d25e953c066ea1489bc2eacf31e4f03e6b",
+    "current_digest": "aa358e5b2a15164331e5e375860da563ee0d586fb6fabf5a62d7e5e16cb9a583",
     "approved_digest": null,
-    "review_corpus_fingerprint": "a7ff3a8bea50ebbbc549303171a883d25e953c066ea1489bc2eacf31e4f03e6b",
+    "review_corpus_fingerprint": "aa358e5b2a15164331e5e375860da563ee0d586fb6fabf5a62d7e5e16cb9a583",
     "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. The bounded card-SRS continuity repair clarifies that the two-minute label describes the warm-up session, while the scheduling implementation preserves the existing card intervals and due-time contract. The real-use decision-transfer repair restores concrete, explicitly scoped hand/board representatives where the admitted corpus already supports the mechanism, removes obvious wrong-answer wording tells across the final RU/EN drill corpus, and balances option length so correctness is not signalled by prose length. The final learning-integrity closure removes the remaining material prompt-to-answer leakage, repairs the remaining material distractor-parity clusters, and adds an explicit LCM-02 starting-hand family/traits scaffold with 76s/98s sibling recognition plus contextual A5s transfer. The stimulus-generalisation micro-closure adds exactly two ordinary LCM-02 Cards/SRS retrieval stimuli, fresh 87s and A4s, so the learner must independently classify an unseen suited connector and suited wheel ace by family and traits; neither card adds an exact poker action. The scaffold is additive to the existing LCM-02 curriculum rather than replacing its heuristics, and it does not add exact chart cells or frequencies. Stable correct-answer IDs, option IDs, misconception IDs, scoring, mastery, scheduler and evidence semantics are preserved. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic source-lock refresh and machine/agent review are not human approval."
   },
   "repair_source_paths": {
@@ -69,11 +69,11 @@
     "content/i18n/wave4-final-editorial.ts": "9fc4da2e53ef1c013cfb3d6523f52c68b058e1d9",
     "content/i18n/wave5-practice-copy.ts": "d5a79ff83a7bee91dfa88c653e97558b89d466c8",
     "content/i18n/wave4r-final-language.ts": "64dcbd684031ac910d4369c91b88f504c5e6d16b",
-    "content/i18n/locale-pipeline.ts": "2457cbcfb8f8a6c67ec96d60659d3a3ba4ea13e5",
+    "content/i18n/locale-pipeline.ts": "7d4d07808e2dce8f28179e8e6962f3e0a9536f76",
     "content/i18n/decision-transfer-integrity.ts": "af59e03b9d7df59951f95eca5e373a442ee90a0e",
     "content/i18n/decision-option-balance.ts": "005392f5a159db5850c4c3527c094c65cb7ea1e8",
     "content/i18n/final-learning-integrity.ts": "d7e9ee46054aaec7c5856c81100cc79cc2472485",
-    "content/i18n/stimulus-generalisation-micro.ts": "c9e07f0063647a4c567e90f1b532bba5e91045db",
+    "content/i18n/stimulus-generalisation-micro.ts": "c6643a7c218ddc6ec1a9c8d36da779fee0ac3c1d",
     "content/i18n/novice-scaffold.ts": "8e4dab654584d49caf826387d14b868e1df2e7d3",
     "content/i18n/final-plus-ev.ts": "c911fdd02cf70f3ea05f796e9e79a61beb8e07cc",
     "content/i18n/learner-ui.ts": "f9f76789c810426846b4135018c1cca195f7b117",
