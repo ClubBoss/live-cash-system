@@ -1,9 +1,29 @@
 import type { Metadata } from "next";
+import ThemeToggle from "../components/ThemeToggle";
 import "./globals.css";
 import "./v11-overrides.css";
 import "./w8-premium.css";
 import "./mobile-visual-closure.css";
 import "./active-learning.css";
+import "./theme.css";
+
+const themeBootstrap = `(() => {
+  const key = "live-cash-os:theme";
+  const apply = (theme) => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  };
+  try {
+    const stored = localStorage.getItem(key);
+    if (stored === "light" || stored === "dark") {
+      apply(stored);
+      return;
+    }
+    apply(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  } catch {
+    apply(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  }
+})();`;
 
 export const metadata: Metadata = {
   title: "Live Cash OS",
@@ -31,7 +51,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body>{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
+      <body>
+        {children}
+        <ThemeToggle />
+      </body>
     </html>
   );
 }
