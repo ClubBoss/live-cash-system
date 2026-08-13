@@ -63,6 +63,14 @@ const ESSENTIAL_TERMS: Partial<Record<ModuleId, Record<LocaleCode, NoviceTerm[]>
         term: "Полярный сквиз",
         meaning: "Сквиз, где рядом с сильным вэлью есть отдельные блеф-кандидаты. Это описание формы диапазона, а не готовая частота.",
       },
+      {
+        term: "Семейство стартовой руки",
+        meaning: "Структурный тип, а не действие: TT — карманная пара; 76s/98s — мастевые связки; A5s — мастевой туз колеса; KTs — мастевой бродвей; KJo — разномастный бродвей.",
+      },
+      {
+        term: "Свойства руки",
+        meaning: "Готовая пара, масть, связность, сила старших карт, чувствительность к доминации и блокеры помогают понять руку. Какие свойства важны, решает конкретный контекст; семейство не выбирает действие само.",
+      },
     ],
     en: [
       {
@@ -88,6 +96,14 @@ const ESSENTIAL_TERMS: Partial<Record<ModuleId, Record<LocaleCode, NoviceTerm[]>
       {
         term: "Polar squeeze",
         meaning: "A squeeze range with strong value plus separate bluff candidates. It describes range shape, not a prescribed frequency.",
+      },
+      {
+        term: "Starting-hand family",
+        meaning: "A structural type, not an action: TT is a pocket pair; 76s/98s are suited connectors; A5s is a suited wheel ace; KTs is suited Broadway; KJo is offsuit Broadway.",
+      },
+      {
+        term: "Hand traits",
+        meaning: "Made-pair status, suitedness, connectivity, high-card strength, domination sensitivity and blockers help describe a hand. Context decides which traits matter; the family does not choose the action.",
       },
     ],
   },

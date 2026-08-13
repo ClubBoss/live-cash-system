@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "mission": "FINAL_LEARNING_INTEGRITY_CLOSURE_V1",
+  "baseSha": "ca43e892af2063d6bfdb1557fc05cf6740975694",
+  "status": "MACHINE_AGENT_REVIEW_ONLY",
+  "humanApproval": false,
+  "crossProductSemantics": "Every listed moduleId/drillId was reviewed in every listed locale for action parity, reason parity, and prompt leakage after the final locale pipeline.",
+  "locales": ["ru", "en"],
+  "dimensions": {
+    "actionParityReviewed": true,
+    "reasonParityReviewed": true,
+    "promptLeakageReviewed": true
+  },
+  "drills": {
+    "geometry": ["geo-01", "geo-02", "geo-03", "geo-04", "geo-05"],
+    "preflop": ["pre-01", "pre-02", "pre-03", "pre-04", "pre-05"],
+    "blinds": ["bli-01", "bli-02", "bli-03", "bli-04", "bli-05"],
+    "filtering": ["fil-01", "fil-02", "fil-03", "fil-04", "fil-05"],
+    "shape": ["sha-01", "sha-02", "sha-03", "sha-04", "sha-05"],
+    "aggression": ["agg-01", "agg-02", "agg-03", "agg-04", "agg-05"],
+    "ancestry": ["anc-01", "anc-02", "anc-03", "anc-04", "anc-05"],
+    "multiway": ["mul-01", "mul-02", "mul-03", "mul-04", "mul-05"],
+    "river": ["riv-01", "riv-02", "riv-03", "riv-04", "riv-05"],
+    "evidence": ["evi-01", "evi-02", "evi-03", "evi-04", "evi-05"],
+    "transfer": ["tra-01", "tra-02", "tra-03", "tra-04", "tra-05"]
+  },
+  "materialRepairs": {
+    "promptLeakage": ["pre-02", "anc-01", "anc-03"],
+    "optionParity": ["pre-01", "pre-04", "bli-01", "bli-02", "fil-05", "sha-03", "agg-02", "agg-05", "anc-01", "anc-02", "anc-03", "mul-01", "evi-03"],
+    "handFamilyTransfer": ["pre-02", "pre-03", "pre-04", "anc-01", "anc-02", "anc-03"]
+  },
+  "notes": [
+    "The ledger records implementation audit evidence only; it is not human poker, drill, RU, EN, or final-composition approval.",
+    "Correct action/reason IDs, option IDs, misconception IDs, scoring, mastery, scheduler, and evidence semantics are intentionally outside the repair surface.",
+    "A5s and 98s items that require an admitted exercise premise now label the tested inference as downstream rather than pretending the premise itself is being rediscovered."
+  ]
+}

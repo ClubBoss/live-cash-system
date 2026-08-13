@@ -54,6 +54,11 @@ This glossary controls learner-facing terminology. It does not prohibit ordinary
 | exploit | подстройка | exploit / adjustment | Russian copy should name the observed leak and confidence; avoid using `эксплойт` alone as an explanation. |
 | population read | наблюдение о поле | population read | State sample, branch relevance, and alternative explanations. |
 | heuristic | ориентир / практическое правило | heuristic | Russian learner copy prefers `ориентир`; every heuristic needs a boundary. |
+| pocket pair | карманная пара | pocket pair | Structural family such as TT: a made pair with set potential. The family does not prescribe an action. |
+| suited connector | мастевая связка (suited connector) | suited connector | Adjacent ranks of one suit, such as 76s or 98s. Teach suitedness/connectivity as traits, never “suited connector = call.” |
+| suited wheel ace | мастевой туз колеса | suited wheel ace | A2s–A5s-type structure: ace blocker, nut-flush potential, and wheel connectivity. Blocker value does not manufacture a bluff. |
+| suited Broadway | мастевой бродвей | suited Broadway | Two Broadway ranks of one suit, such as KTs. High-card structure plus suitedness does not imply an automatic continue. |
+| offsuit Broadway | разномастный бродвей | offsuit Broadway | Two Broadway ranks of different suits, such as KJo. Explain high-card/top-pair potential together with domination sensitivity and lack of suitedness. |
 | changed-node transfer | применение в изменённых условиях | changed-node transfer | Learner copy should describe the changed detail, not the internal measurement term. |
 | boundary case | граница правила | boundary case | Show a case where the default no longer applies. |
 | repair | работа над ошибкой | repair | `Repair` remains internal; learner copy says what error is being corrected. |
@@ -107,6 +112,8 @@ Every heuristic must contain:
 - Ask for one decision at a time.
 - Do not make the correct option longer, more precise, or more cautious by default.
 - Use “данных недостаточно” only when it is genuinely the best answer.
+- Do not state the exact strategic branch in a premise if that branch is what the item claims to test.
+- A concrete combo may be classified by family/traits without creating a new chart cell; family recognition and strategy selection remain separate tasks.
 
 ### Explanations
 
@@ -114,6 +121,7 @@ Every heuristic must contain:
 - Name the range or hand class affected.
 - State what would change the answer.
 - Do not merely repeat the option text.
+- For concrete-hand examples, prefer the chain `combo → family/traits → context → decision` over memorised combo-to-action rules.
 
 ### Calls to action
 
@@ -137,4 +145,4 @@ They do not need identical sentence structure. Naturalness is evaluated independ
 
 ## 6. Approval rule
 
-A language version is approved only after an explicit poker-aware read in full module context. Spellcheck, lint, hash locks, and prohibited-term scans are rejection tools, not approval tools.
+A language version is approved only after an explicit poker-aware read in full module context. Spellcheck, lint, hash locks, deterministic tests, and machine/AI review are rejection tools, not approval tools.

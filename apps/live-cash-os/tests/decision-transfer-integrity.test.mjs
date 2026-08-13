@@ -19,6 +19,7 @@ function identitySnapshot() {
 }
 
 const originalIdentities = identitySnapshot();
+const expectedDrillCount = originalIdentities.length;
 
 function drill(moduleId, drillId) {
   const result = moduleById[moduleId].drills.find((item) => item.id === drillId);
@@ -58,8 +59,12 @@ function antiGuessingRisks(locale) {
         const wrongWords = wrong.map((option) => words(option.text));
         const wrongAverage = (wrongWords[0] + wrongWords[1]) / 2;
         const wrongMax = Math.max(...wrongWords);
+        const wrongMin = Math.min(...wrongWords);
         if (correctWords >= 10 && correctWords > wrongAverage * 1.75 && correctWords - wrongMax >= 4) {
-          length.push(`${item.id}.${kind}: correct=${correctWords}, wrong=${wrongWords.join("/")}`);
+          length.push(`${item.id}.${kind}: correct uniquely long=${correctWords}, wrong=${wrongWords.join("/")}`);
+        }
+        if (wrongMin >= 10 && wrongMin > correctWords * 2 && wrongMin - correctWords >= 8) {
+          length.push(`${item.id}.${kind}: correct uniquely short=${correctWords}, wrong=${wrongWords.join("/")}`);
         }
       }
     }
@@ -70,11 +75,18 @@ function antiGuessingRisks(locale) {
 for (const locale of ["ru", "en"]) {
   test(`${locale}: concrete decision transfer survives the final locale pipeline`, () => {
     applyLocaleData(locale);
-    assert.equal(moduleIds.reduce((sum, moduleId) => sum + moduleById[moduleId].drills.length, 0), 55);
+    assert.equal(moduleIds.reduce((sum, moduleId) => sum + moduleById[moduleId].drills.length, 0), expectedDrillCount);
 
     const pre02 = drill("preflop", "pre-02");
-    assert.match(`${pre02.cue} ${pre02.assumptions.join(" ")}`, /76s/u);
-    assert.doesNotMatch(`${pre02.cue} ${pre02.assumptions.join(" ")}`, locale === "ru" ? /нижнюю мастевую часть базового колл-региона/iu : /lower suited part of a baseline call region/iu);
+    const pre02Before = `${pre02.cue} ${pre02.assumptions.join(" ")} ${pre02.question}`;
+    assert.match(pre02Before, /76s/u);
+    assert.doesNotMatch(
+      pre02Before,
+      locale === "ru"
+        ? /(?:нижнюю мастевую часть базового колл-региона|жизнеспособн\w*\s+(?:базов\w*\s+)?колл|базов\w*\s+колл)/iu
+        : /(?:lower suited part of a baseline call region|viable\s+(?:baseline\s+)?call|baseline\s+call)/iu,
+    );
+    assert.match(pre02.question, locale === "ru" ? /семейств.*свойств/iu : /family.*traits/iu);
     assert.match(`${drill("preflop", "pre-03").cue} ${drill("preflop", "pre-03").assumptions.join(" ")}`, /KJo/u);
     assert.match(`${drill("preflop", "pre-04").cue} ${drill("preflop", "pre-04").assumptions.join(" ")}`, /A5s/u);
     assert.match(`${drill("blinds", "bli-01").cue} ${drill("blinds", "bli-01").assumptions.join(" ")}`, /A-7-2/iu);
@@ -100,14 +112,14 @@ for (const locale of ["ru", "en"]) {
       drill("ancestry", "anc-01").assumptions.join(" "),
       drill("ancestry", "anc-03").assumptions.join(" "),
     ].join(" ");
-    assert.match(scopeCopy, locale === "ru" ? /не (?:утверждается|универсальн|новая точная|новую chart)/iu : /not (?:a new|an? universal)|no exact chart frequency|no exact.*claimed/iu);
+    assert.match(scopeCopy, locale === "ru" ? /не (?:утверждается|универсальн|новая точная|новую chart|задаёт)/iu : /not (?:a new|an? universal)|no exact chart frequency|no exact.*claimed/iu);
   });
 
-  test(`${locale}: final 55-drill corpus has no obvious lexical or length answer tells`, () => {
+  test(`${locale}: final runtime corpus has no obvious lexical or severe bidirectional length answer tells`, () => {
     applyLocaleData(locale);
     const risks = antiGuessingRisks(locale);
     assert.deepEqual(risks.lexical, [], `Lexical wrong-answer tells remain:\n${risks.lexical.join("\n")}`);
-    assert.deepEqual(risks.length, [], `Correct-answer length tells remain:\n${risks.length.join("\n")}`);
+    assert.deepEqual(risks.length, [], `Severe answer-length tells remain:\n${risks.length.join("\n")}`);
   });
 
   test(`${locale}: wording repair preserves every scoring and misconception identity`, () => {
