@@ -155,7 +155,7 @@ test("governance truth represents the materialized W1-W5 candidate without claim
   assert.deepEqual(manifest.strategy_repair_scope, ["preflop", "blinds", "aggression"]);
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_content_status, "DRILLS_REVIEW_PENDING");
-  assert.deepEqual(manifest.drill_repair_scope, ["preflop", "aggression"]);
+  assert.deepEqual(manifest.drill_repair_scope, expectedModules);
   assert.equal(manifest.drill_approval, null);
   assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
   assert.match(manifest.final_composition.current_digest, /^[a-f0-9]{64}$/u);
@@ -169,7 +169,15 @@ test("governance truth represents the materialized W1-W5 candidate without claim
     "content/claims/lcm-03.claims.json",
     "content/claims/lcm-06.claims.json",
   ]);
-  assert.deepEqual(manifest.repair_source_paths.drills, ["content/i18n/wave3-priority-gold.ts"]);
+  assert.deepEqual(manifest.repair_source_paths.drills, [
+    "content/i18n/wave3-priority-gold.ts",
+    "content/i18n/decision-transfer-integrity.ts",
+    "content/i18n/decision-option-balance.ts",
+  ]);
+  for (const sourcePath of ["content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-option-balance.ts"]) {
+    assert.ok(manifest.repair_source_paths.language.includes(sourcePath));
+    assert.ok(manifest.source_blobs[sourcePath]);
+  }
 
   for (const moduleId of expectedModules) {
     const localeStatus = manifest.modules[moduleId];
