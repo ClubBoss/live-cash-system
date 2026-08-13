@@ -34,16 +34,6 @@ export function isStructuredDiagnosticResponse(response: DiagnosticRawResponse):
     && drill.reasonOptions.some((option) => option.id === response.reasoning));
 }
 
-export function structuredDiagnosticDrillIds(responses: DiagnosticRawResponse[]): string[] {
-  const ids = new Set<string>();
-  for (const response of responses) {
-    if (!isStructuredDiagnosticResponse(response)) continue;
-    const drill = itemDrill(response.item_id);
-    if (drill) ids.add(drill.id);
-  }
-  return [...ids];
-}
-
 export function assessDiagnosticResponses(responses: DiagnosticRawResponse[]): DiagnosticAssessment {
   if (responses.length !== diagnosticT1.length || !responses.every(isStructuredDiagnosticResponse)) {
     return { structured: false, items: [], priorityModules: [] };
