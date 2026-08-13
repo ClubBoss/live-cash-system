@@ -10,6 +10,7 @@ import { applyWave4RFinalLanguage } from "./wave4r-final-language";
 import { applyNoviceTerminologyCopy } from "./novice-scaffold";
 import { applyFinalPlusEvCopy } from "./final-plus-ev";
 import { applyDecisionTransferIntegrity } from "./decision-transfer-integrity";
+import { applyDecisionOptionBalance } from "./decision-option-balance";
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -21,8 +22,8 @@ function applyDiagnosticIntegrityLabels() {
 /**
  * Applies the bilingual corpus before React renders the locale. Wave 4R remains
  * the broad editorial pass; N1 then applies bounded novice-comprehension wording,
- * followed by the final low-risk clarity cleanup and the real-use decision-transfer
- * integrity layer. None of these deterministic layers create human approval or
+ * followed by final low-risk clarity, concrete decision transfer and compact
+ * option balancing. None of these deterministic layers create human approval or
  * change stable strategy/evidence identities.
  */
 export function applyLocaleData(locale: LocaleCode) {
@@ -35,5 +36,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyNoviceTerminologyCopy(locale);
   applyFinalPlusEvCopy(locale);
   applyDecisionTransferIntegrity(locale);
+  applyDecisionOptionBalance(locale);
   applyDiagnosticIntegrityLabels();
 }
