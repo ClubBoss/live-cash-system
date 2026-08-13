@@ -1,11 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { runtimeCopy } from "../content/i18n/runtime";
 import { APP_VERSION } from "../lib/model";
 import LiveCashAppCore from "./LiveCashAppCore";
 
+const THEME_KEY = "live-cash-os:theme";
 const rawBuildSha = (import.meta as ImportMeta & { env?: { VITE_BUILD_SHA?: string } }).env?.VITE_BUILD_SHA ?? "local";
 const buildLabel = rawBuildSha === "local" ? "local" : rawBuildSha.slice(0, 7);
+
+type ThemeMode = "light" | "dark";
+type ShellLanguage = "ru" | "en";
 
 // Final learner-facing terminology cleanup. The canonical runtime copy is already
 // composed through Object.assign in content/i18n/runtime.ts; keep this bounded to
@@ -36,6 +42,64 @@ Object.assign(runtimeCopy.en, {
   saveReturn: "Complete lesson and return",
 });
 
+function ThemeToggle() {
+  const [theme, setTheme] = useState<ThemeMode>("light");
+  const [language, setLanguage] = useState<ShellLanguage>("ru");
+  const [target, setTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const syncShell = () => {
+      setTheme(root.dataset.theme === "dark" ? "dark" : "light");
+      setLanguage(root.lang === "en" ? "en" : "ru");
+      setTarget(document.querySelector<HTMLElement>(".topmeta"));
+    };
+
+    syncShell();
+    const observer = new MutationObserver(syncShell);
+    observer.observe(root, { attributes: true, attributeFilter: ["lang", "data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+
+  if (!target) return null;
+
+  const dark = theme === "dark";
+  const label = language === "ru" ? "Темная тема" : "Dark theme";
+  const title = language === "ru"
+    ? dark ? "Переключить на светлую тему" : "Переключить на темную тему"
+    : dark ? "Switch to light theme" : "Switch to dark theme";
+
+  function toggleTheme() {
+    const next: ThemeMode = dark ? "light" : "dark";
+    const root = document.documentElement;
+    root.dataset.theme = next;
+    root.style.colorScheme = next;
+    setTheme(next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // Theme preference is optional; the visual change still applies for this tab.
+    }
+  }
+
+  return createPortal(
+    <button
+      type="button"
+      className="theme-toggle"
+      role="switch"
+      aria-checked={dark}
+      aria-label={label}
+      title={title}
+      onClick={toggleTheme}
+    >
+      <span className="theme-toggle-track" aria-hidden="true">
+        <span className="theme-toggle-thumb" />
+      </span>
+    </button>,
+    target,
+  );
+}
+
 /**
  * Runtime shell. Locale changes are rendered directly by LiveCashAppCore;
  * no DOM text replacement or post-render localisation bridge is used.
@@ -44,6 +108,7 @@ Object.assign(runtimeCopy.en, {
 export default function LiveCashApp() {
   return <>
     <LiveCashAppCore />
+    <ThemeToggle />
     <footer
       data-build-sha={rawBuildSha}
       data-app-version={APP_VERSION}
