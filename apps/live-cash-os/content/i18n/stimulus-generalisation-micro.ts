@@ -3,6 +3,7 @@ import type { Flashcard } from "../types";
 import type { LocaleCode } from "../../lib/model";
 
 const CARD_IDS = ["pre-card-family-87s", "pre-card-family-a4s"] as const;
+const CARD_ID_SET = new Set<string>(CARD_IDS);
 
 const COPY: Record<LocaleCode, readonly Flashcard[]> = {
   ru: [
@@ -15,9 +16,12 @@ const COPY: Record<LocaleCode, readonly Flashcard[]> = {
   ],
 };
 
-export function applyStimulusGeneralisationMicro(locale: LocaleCode) {
+export function resetStimulusGeneralisationMicro() {
   const preflop = moduleById.preflop;
-  const ids = new Set<string>(CARD_IDS);
-  preflop.flashcards = preflop.flashcards.filter((card) => !ids.has(card.id));
-  preflop.flashcards.push(...COPY[locale].map((card) => ({ ...card })));
+  preflop.flashcards = preflop.flashcards.filter((card) => !CARD_ID_SET.has(card.id));
+}
+
+export function applyStimulusGeneralisationMicro(locale: LocaleCode) {
+  resetStimulusGeneralisationMicro();
+  moduleById.preflop.flashcards.push(...COPY[locale].map((card) => ({ ...card })));
 }
