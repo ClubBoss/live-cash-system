@@ -30,6 +30,7 @@ test("final comprehension closure keeps first-use wording and governance truth a
   const geometryLocale = await text("content/i18n/geometry-locale.ts");
   const scaffold = await text("content/i18n/novice-scaffold.ts");
   const finalPlusEv = await text("content/i18n/final-plus-ev.ts");
+  const decisionTransfer = await text("content/i18n/decision-transfer-integrity.ts");
   const assist = await text("components/RealUseLessonAssist.tsx");
   const pipeline = await text("content/i18n/locale-pipeline.ts");
   const authority = await text("content/CONTENT_AUTHORITY.md");
@@ -51,6 +52,13 @@ test("final comprehension closure keeps first-use wording and governance truth a
   assert.match(finalPlusEv, /Что опровергнет рид/u);
   assert.doesNotMatch(finalPlusEv, /solver|MDF|точн(?:ая|ые) частот/u);
 
+  for (const concrete of ["76s", "KJo", "A5s", "98s", "T6s", "KTs", "KQ", "K-9-7", "A-7-2"]) {
+    assert.match(decisionTransfer, new RegExp(concrete.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"), `Decision-transfer layer misses ${concrete}`);
+  }
+  assert.match(decisionTransfer, /softenAllDistractors/u);
+  assert.match(decisionTransfer, /option\.id !== drill\.correctActionId/u);
+  assert.match(decisionTransfer, /option\.id !== drill\.correctReasonId/u);
+
   assert.doesNotMatch(assist, /graded-ситуация/u);
   assert.match(assist, /Следующая задача будет другой/u);
 
@@ -63,6 +71,7 @@ test("final comprehension closure keeps first-use wording and governance truth a
     "applyWave4RFinalLanguage",
     "applyNoviceTerminologyCopy",
     "applyFinalPlusEvCopy",
+    "applyDecisionTransferIntegrity",
     "applyDiagnosticIntegrityLabels",
   ];
   let previous = -1;
