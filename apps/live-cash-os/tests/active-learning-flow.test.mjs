@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const core = readFileSync(new URL("../components/LiveCashAppCore.tsx", import.meta.url), "utf8");
+const explainBackSelfCheck = readFileSync(new URL("../components/ExplainBackSelfCheck.tsx", import.meta.url), "utf8");
 const model = readFileSync(new URL("../lib/model-core.ts", import.meta.url), "utf8");
 
 function indexOfOrFail(source, token) {
@@ -47,12 +48,9 @@ test("all curriculum detail remains available while the primary hierarchy stays 
   const conceptStart = indexOfOrFail(core, "function ConceptStep");
   const frameworkStart = indexOfOrFail(core, "function FrameworkStep");
   const workedStart = indexOfOrFail(core, "function Worked");
-  const tableStart = indexOfOrFail(core, "function TableCard");
-  const summaryStart = indexOfOrFail(core, "function LessonSummary");
 
   const concept = core.slice(conceptStart, frameworkStart);
   const framework = core.slice(frameworkStart, workedStart);
-  const table = core.slice(tableStart, summaryStart);
 
   assert.match(concept, /module\.theory/);
   assert.match(concept, /<details>/);
@@ -60,9 +58,9 @@ test("all curriculum detail remains available while the primary hierarchy stays 
   assert.match(concept, /module\.scope/);
   assert.match(framework, /module\.heuristics/);
   assert.match(framework, /module\.decisionTree/);
-  assert.match(table, /module\.tableCard/);
-  assert.match(table, /module\.glossary/);
-  assert.match(table, /<details>/);
+  assert.match(explainBackSelfCheck, /module\.tableCard/);
+  assert.match(explainBackSelfCheck, /module\.glossary/);
+  assert.match(explainBackSelfCheck, /<details>/);
 });
 
 test("worked example requires prediction before revealing the answer", () => {
