@@ -14,7 +14,15 @@ export default function ThemeToggle() {
   useEffect(() => {
     const root = document.documentElement;
     setTheme(root.dataset.theme === "dark" ? "dark" : "light");
-    setTarget(document.querySelector<HTMLElement>(".topmeta"));
+
+    const syncTarget = () => {
+      const next = document.querySelector<HTMLElement>(".topmeta");
+      setTarget((previous) => previous === next ? previous : next);
+    };
+    syncTarget();
+    const observer = new MutationObserver(syncTarget);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
   if (!target) return null;
