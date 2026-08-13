@@ -31,7 +31,7 @@ Object.assign(runtimeCopy.en, {
   coldAvailable: "STARTING DIAGNOSTIC · T1",
   postLearning: "CURRENT DIAGNOSTIC · T1",
   warmupTitle: "Quick warm-up · up to 2 minutes",
-  warmupDescription: "One familiar decision from a recent miss plus up to two cards you have already studied.",
+  warmupDescription: "One familiar decision from a recent miss and up to two cards you have already studied.",
   finishLesson: "Open lesson summary",
   lessonFinished: "Lesson summary",
   saveReturn: "Complete lesson and return",
