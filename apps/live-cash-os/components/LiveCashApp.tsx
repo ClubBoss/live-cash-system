@@ -2,6 +2,7 @@
 
 import { runtimeCopy } from "../content/i18n/runtime";
 import { APP_VERSION } from "../lib/model";
+import FeedbackDedupGuard from "./FeedbackDedupGuard";
 import LiveCashAppCore from "./LiveCashAppCore";
 
 const rawBuildSha = (import.meta as ImportMeta & { env?: { VITE_BUILD_SHA?: string } }).env?.VITE_BUILD_SHA ?? "local";
@@ -30,7 +31,7 @@ Object.assign(runtimeCopy.en, {
   coldAvailable: "STARTING DIAGNOSTIC · T1",
   postLearning: "CURRENT DIAGNOSTIC · T1",
   warmupTitle: "Quick warm-up · up to 2 minutes",
-  warmupDescription: "One familiar decision from a recent miss and up to two cards you have already studied.",
+  warmupDescription: "One familiar decision from a recent miss plus up to two cards you have already studied.",
   finishLesson: "Open lesson summary",
   lessonFinished: "Lesson summary",
   saveReturn: "Complete lesson and return",
@@ -44,6 +45,7 @@ Object.assign(runtimeCopy.en, {
 export default function LiveCashApp() {
   return <>
     <LiveCashAppCore />
+    <FeedbackDedupGuard />
     <footer
       data-build-sha={rawBuildSha}
       data-app-version={APP_VERSION}
