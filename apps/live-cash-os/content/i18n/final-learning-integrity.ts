@@ -5,8 +5,6 @@ type DrillPatch = Partial<{
   assumptions: string[];
   cue: string;
   question: string;
-  actions: [string, string, string];
-  reasons: [string, string, string];
   explanation: string;
 }>;
 
@@ -21,8 +19,6 @@ function patchDrill(moduleId: ModuleId, drillId: string, patch: DrillPatch) {
   if (patch.assumptions) target.assumptions = [...patch.assumptions];
   if (patch.cue) target.cue = patch.cue;
   if (patch.question) target.question = patch.question;
-  if (patch.actions) target.actionOptions.forEach((option, index) => { option.text = patch.actions![index]; });
-  if (patch.reasons) target.reasonOptions.forEach((option, index) => { option.text = patch.reasons![index]; });
   if (patch.explanation) target.explanation = patch.explanation;
 }
 
@@ -42,31 +38,19 @@ function patchWrongOptions(
 
 function applyRussianHandFamilyScaffold() {
   const preflop = moduleById.preflop;
-  const existingTheory = [...preflop.theory];
   preflop.plainGoal = "Сначала распознавать семейство и свойства конкретной руки, затем выбирать между коллом, 3-бетом и фолдом по контексту — без заучивания десятков чартов.";
   preflop.tableCue = "Рука → семейство и свойства → контекст → действие.";
   preflop.scope = "Направленная архитектура для live cash. Конкретные руки здесь иллюстрируют семейства и свойства, а не задают точные клетки чарта или частоты; решение всё равно зависит от позиций, глубины, размера открытия, рейка и игроков за спиной.";
   preflop.theory = [
     "Семейства и свойства стартовых рук. Семейство отвечает на вопрос «что это за структурный тип руки?», а свойства — чем эта структура может быть полезна или уязвима. Семейство помогает понять руку, но не выбирает действие за тебя.",
     "TT — карманная пара; 76s и 98s — мастевые связки (suited connectors); A5s — мастевой туз колеса; KTs — мастевой бродвей; KJo — разномастный бродвей. Сначала назови одно-два свойства, которые важны именно здесь, затем проверь позицию, диапазоны, эффективный стек, цену и игроков за спиной.",
-    ...existingTheory,
-  ];
-  preflop.heuristics = [
-    "Сначала назови семейство руки и одно-два свойства, которые важны именно в этой ситуации.",
-    "Проверь цену, диапазоны и игроков за спиной: есть ли хороший колл и кто ещё может повысить.",
-    "Перед 3-бетом назови более сильные руки, которые реально сфолдят, и более слабые руки, которые продолжат.",
+    ...preflop.theory,
   ];
   preflop.decisionTree = [
     "Назови семейство руки и релевантные свойства: готовая пара, масть, связность, сила старших карт, доминация, блокер.",
     ...preflop.decisionTree,
   ];
-  preflop.tableCard = [
-    "Семейство и 1–2 свойства",
-    "Позиции, цена и диапазоны",
-    "Игроки за спиной",
-    "Качество колла",
-    "Зачем нужен 3-бет?",
-  ];
+  preflop.tableCard = ["Семейство и 1–2 свойства", ...preflop.tableCard];
   preflop.glossary = [
     ...preflop.glossary,
     { term: "Карманная пара", meaning: "Две карты одного ранга, например TT: готовая пара и потенциал сета. Это не готовая команда на 3-бет или колл." },
@@ -89,31 +73,19 @@ function applyRussianHandFamilyScaffold() {
 
 function applyEnglishHandFamilyScaffold() {
   const preflop = moduleById.preflop;
-  const existingTheory = [...preflop.theory];
   preflop.plainGoal = "Recognise the hand family and relevant traits first, then choose between call, 3-bet and fold from context instead of memorising dozens of charts.";
   preflop.tableCue = "Hand → family and traits → context → decision.";
   preflop.scope = "A directional live-cash framework. Concrete hands illustrate families and traits rather than prescribing exact chart cells or frequencies; positions, depth, open size, rake and players behind still determine the decision.";
   preflop.theory = [
     "Starting-hand families and traits. A family answers what structural kind of hand this is; traits describe where that structure can help or hurt. The family helps you understand the hand, but it does not choose the action for you.",
     "TT is a pocket pair; 76s and 98s are suited connectors; A5s is a suited wheel ace; KTs is suited Broadway; KJo is offsuit Broadway. Name one or two traits that matter in this spot, then apply position, ranges, effective stack, price and players behind.",
-    ...existingTheory,
-  ];
-  preflop.heuristics = [
-    "Name the hand family and one or two traits that matter in this specific spot.",
-    "Check price, ranges and players behind: is there a good call, and who can still raise?",
-    "Before 3-betting, name better hands that can actually fold and worse hands that can continue.",
+    ...preflop.theory,
   ];
   preflop.decisionTree = [
     "Name the hand family and relevant traits: made pair, suitedness, connectivity, high-card strength, domination sensitivity or blocker value.",
     ...preflop.decisionTree,
   ];
-  preflop.tableCard = [
-    "Family and 1–2 traits",
-    "Positions, price and ranges",
-    "Players behind",
-    "Call quality",
-    "What is the 3-bet doing?",
-  ];
+  preflop.tableCard = ["Family and 1–2 traits", ...preflop.tableCard];
   preflop.glossary = [
     ...preflop.glossary,
     { term: "Pocket pair", meaning: "Two cards of the same rank, such as TT: a made pair with set potential. The family does not prescribe a 3-bet or call." },
@@ -171,13 +143,13 @@ function applyRussianTransferPrompts() {
   });
 
   const ancestry = moduleById.ancestry;
-  ancestry.counterexample = "Сравни одну и ту же A5s: против широкого 3-бета сначала ищи реальные фолды и только затем оценивай ценность блокера; против тайтовой value-heavy ветки эти фолды могут исчезнуть. Комбо то же, контекст другой — поэтому меняется пригодность блефа.";
+  ancestry.counterexample = "Сравни одну и ту же A5s: против широкого 3-бета сначала ищи реальные фолды и только затем оценивай ценность блокера; против тайтового преимущественно вэлью-диапазона эти фолды могут исчезнуть. Комбо то же, контекст другой — поэтому меняется пригодность блефа.";
   if (ancestry.lab.type === "compare") {
-    ancestry.lab.title = "Одна A5s — две исходные ветки";
-    ancestry.lab.description = "Сравни один и тот же мастевой туз колеса против широкого 3-бета и против тайтового value-heavy диапазона. Семейство руки не меняется; реальные fold targets меняются.";
+    ancestry.lab.title = "Одна A5s — два исходных диапазона";
+    ancestry.lab.description = "Сравни один и тот же мастевой туз колеса против широкого 3-бета и против тайтового преимущественно вэлью-диапазона. Семейство руки не меняется; реальные фолды меняются.";
     ancestry.lab.leftTitle = "Широкий 3-бет";
     ancestry.lab.leftText = "Сначала проверь, какие более сильные руки реально сфолдят и какие продолжат; только затем используй блокер.";
-    ancestry.lab.rightTitle = "Тайтовый value-heavy 3-бет";
+    ancestry.lab.rightTitle = "Тайтовый вэлью-диапазон";
     ancestry.lab.rightText = "Продолжения сильнее и реальные фолды могут почти исчезнуть; тот же блокер не создаёт их заново.";
   }
 }
@@ -242,20 +214,20 @@ function applyRussianDistractorParity() {
 
   patchWrongOptions("blinds", "bli-01", "reason", [
     "Сухой A-high флоп важнее различий исходных SB- и BB-диапазонов",
-    "После префлоп-колла оба blind-диапазона достаточно похожи для общего c-bet плана",
+    "После префлоп-колла диапазоны обоих блайндов достаточно похожи для общего c-bet плана",
   ]);
   patchWrongOptions("blinds", "bli-02", "reason", [
-    "Инициатива и изоляция dead money важнее скидки BB и пассивной реализации",
+    "Инициатива и изоляция мёртвых денег важнее скидки BB и пассивной реализации",
     "Хорошей цены и сырого эквити достаточно; будущая реализация вторична",
   ]);
 
   patchWrongOptions("filtering", "fil-05", "action", [
     "Сохранить расширенный баррель-план на большинстве нейтральных тёрнов",
-    "Вернуться к baseline без exploit-надбавки сразу после любого колла",
+    "Вернуться к базовой линии без дополнительной подстройки сразу после любого колла",
   ]);
   patchWrongOptions("filtering", "fil-05", "reason", [
-    "Флоп-read можно переносить на нейтральные тёрны, пока доска резко не меняется",
-    "Сам колл достаточно фильтрует диапазон, поэтому прошлый read больше не нужен",
+    "Рид на флопе можно переносить на нейтральные тёрны, пока доска резко не меняется",
+    "Сам колл достаточно фильтрует диапазон, поэтому прошлый рид больше не нужен",
   ]);
 
   patchWrongOptions("shape", "sha-03", "action", [
@@ -276,21 +248,21 @@ function applyRussianDistractorParity() {
     "Сильный диапазон лучше монетизировать крупным размером, а не частой малой ставкой",
   ]);
   patchWrongOptions("aggression", "agg-05", "action", [
-    "Добавить часть средней made-hand зоны в пуш ради лишения эквити",
+    "Добавить часть средних готовых рук в пуш ради лишения эквити",
     "Перевести слабые коллы в блеф-рейзы, чтобы разгрузить пассивную ветку",
   ]);
   patchWrongOptions("aggression", "agg-05", "reason", [
-    "Низкий SPR делает denial достаточным основанием добавить средние made hands в пуш",
+    "Низкий SPR делает лишение эквити достаточным основанием добавить средние готовые руки в пуш",
     "Плохие коллы можно превратить в блеф-рейзы ещё до построения вэлью-ветки",
   ]);
 
   patchWrongOptions("ancestry", "anc-01", "action", [
-    "Строить 4-бет прежде всего от Ace-блокера и мастевой играбельности A5s",
+    "Строить 4-бет прежде всего от туз-блокера и мастевой играбельности A5s",
     "Использовать саму ширину BB 3-бета как достаточную причину для давления",
   ]);
   patchWrongOptions("ancestry", "anc-01", "reason", [
-    "Ace-блокер A5s уже даёт достаточно блеф-ценности против широкого 3-бета",
-    "Ширина BB создаёт достаточно dead money для 4-бета без карты реальных фолдов",
+    "Туз-блокер A5s уже даёт достаточно блеф-ценности против широкого 3-бета",
+    "Ширина BB создаёт достаточно мёртвых денег для 4-бета без карты реальных фолдов",
   ]);
   patchWrongOptions("ancestry", "anc-02", "action", [
     "Считать главной проблемой слабую пятёрку в составе A5s",
@@ -319,12 +291,12 @@ function applyRussianDistractorParity() {
   ]);
 
   patchWrongOptions("evidence", "evi-03", "action", [
-    "Использовать source-backed population prior как рабочий default до опровержения",
-    "Оставаться только на структурном baseline и не учитывать внешний prior до локальной выборки",
+    "Использовать внешний ориентир по полю как рабочую базу до опровержения",
+    "Оставаться на структурной базовой линии и не учитывать внешний ориентир без локальной выборки",
   ]);
   patchWrongOptions("evidence", "evi-03", "reason", [
-    "Надёжный source-backed prior можно считать полевым default до локального опровержения",
-    "Без локальной выборки внешний prior лучше полностью убрать из текущей модели",
+    "Надёжный внешний ориентир по полю можно принять за рабочую базу до локального опровержения",
+    "Без локальной выборки внешний ориентир лучше полностью исключить из текущей модели",
   ]);
 }
 
