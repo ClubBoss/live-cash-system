@@ -42,24 +42,34 @@ function words(text) {
 }
 
 function reasonParityRisks(locale) {
-  const causal = locale === "ru"
-    ? /(?:потому|поэтому|если|когда|без |даже |из-за|важнее|чем |пока |чтобы |а |но )/iu
-    : /(?:because|therefore|if |when |without |even |than |while |until |so |but |and )/iu;
+  const caricature = locale === "ru"
+    ? /(?:\bвсегда\b|\bникогда\b|автоматически|только потому|само по себе гарантирует)/iu
+    : /(?:\balways\b|\bnever\b|automatically|merely|solely|by itself guarantees)/iu;
   const risks = [];
+
   for (const moduleId of moduleIds) {
     for (const item of moduleById[moduleId].drills) {
       if (!parityRepairs.has(item.id)) continue;
-      const counts = item.reasonOptions.map((option) => words(option.text));
-      const min = Math.min(...counts);
-      const max = Math.max(...counts);
-      if (max >= 12 && max - min >= 8 && max > min * 2.5) {
-        risks.push(`${item.id}: severe reason-length asymmetry ${counts.join("/")}`);
-      }
+      const correct = item.reasonOptions.find((option) => option.id === item.correctReasonId);
       const wrong = item.reasonOptions.filter((option) => option.id !== item.correctReasonId);
+      assert.ok(correct, `${item.id}: missing correct reason`);
+      assert.equal(wrong.length, 2, `${item.id}: expected two reason distractors`);
+
+      const correctCount = words(correct.text);
+      const wrongCounts = wrong.map((option) => words(option.text));
+      const shortestWrong = Math.min(...wrongCounts);
+      const longestWrong = Math.max(...wrongCounts);
+
+      if (correctCount >= longestWrong * 1.8 && correctCount - longestWrong >= 8) {
+        risks.push(`${item.id}: correct reason is uniquely much longer ${correctCount}/${wrongCounts.join("/")}`);
+      }
+      if (shortestWrong >= correctCount * 2 && shortestWrong - correctCount >= 8) {
+        risks.push(`${item.id}: correct reason is uniquely much shorter ${correctCount}/${wrongCounts.join("/")}`);
+      }
+
       for (const option of wrong) {
-        if (words(option.text) < 8 || !causal.test(option.text)) {
-          risks.push(`${item.id}: shallow repaired distractor: ${option.text}`);
-        }
+        if (words(option.text) < 7) risks.push(`${item.id}: repaired distractor is too shallow: ${option.text}`);
+        if (caricature.test(option.text)) risks.push(`${item.id}: repaired distractor contains a caricature marker: ${option.text}`);
       }
     }
   }
@@ -113,12 +123,12 @@ for (const locale of ["ru", "en"]) {
     assert.match(anc01.question, locale === "ru" ? /подтвердить.*4-бет-блеф/iu : /established.*4-bet bluff/iu);
 
     const anc03 = getDrill("ancestry", "anc-03");
-    assert.match(anc03.assumptions.join(" "), locale === "ru" ? /premise задачи/iu : /exercise premise/iu);
-    assert.match(anc03.question, locale === "ru" ? /при заданном premise.*сравнить/iu : /given the stated premise.*compared/iu);
+    assert.match(anc03.assumptions.join(" "), locale === "ru" ? /условию задачи/iu : /exercise premise/iu);
+    assert.match(anc03.question, locale === "ru" ? /заданном условии.*сравнить/iu : /given the stated premise.*compared/iu);
     assert.doesNotMatch(anc03.question, locale === "ru" ? /должна ли 98s коллировать/iu : /should 98s call/iu);
 
     const pre04 = getDrill("preflop", "pre-04");
-    assert.match(pre04.question, locale === "ru" ? /Premise задачи.*подстрой/iu : /exercise premise.*adjustment/iu);
+    assert.match(pre04.question, locale === "ru" ? /Условие задачи.*подстрой/iu : /exercise premise.*adjustment/iu);
   });
 
   test(`${locale}: LCM-02 explicitly teaches combo -> family/traits -> context -> decision`, () => {
@@ -170,7 +180,7 @@ for (const locale of ["ru", "en"]) {
     assert.match(anc03.explanation, locale === "ru" ? /мастевая связка/iu : /suited connector/iu);
   });
 
-  test(`${locale}: repaired material distractors have no severe parity regression`, () => {
+  test(`${locale}: repaired material distractors have no severe lexical or length parity regression`, () => {
     applyLocaleData(locale);
     assert.deepEqual(reasonParityRisks(locale), []);
   });
