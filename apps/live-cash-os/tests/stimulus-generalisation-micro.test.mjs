@@ -55,6 +55,16 @@ test("micro-closure adds exactly two stable LCM-02 cards and no new card archite
   assert.ok(cards.every((card) => ["heuristic", "boundary", "procedure"].includes(card.kind)));
 });
 
+test("micro cards survive repeated RU -> EN -> RU composition without entering legacy gold inventory", () => {
+  for (const locale of ["ru", "en", "ru"]) {
+    applyLocaleData(locale);
+    const microCards = moduleById.preflop.flashcards.filter((card) => NEW_CARD_IDS.includes(card.id));
+    assert.deepEqual(microCards.map((card) => card.id), NEW_CARD_IDS);
+    assert.equal(moduleById.preflop.flashcards.length, baselineCardIds.length + 2);
+    assert.match(microCards[0].front, locale === "ru" ? /назови семейство/u : /name the hand family/u);
+  }
+});
+
 for (const locale of ["ru", "en"]) {
   test(`${locale}: final learner-facing cards require structural retrieval and reject family -> action shortcuts`, () => {
     applyLocaleData(locale);
