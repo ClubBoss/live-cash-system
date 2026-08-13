@@ -27,8 +27,14 @@ function patchCorrectOptions(patches: Record<string, CorrectPatch>) {
   }
 }
 
+function patchWrongReasons(drillId: string, texts: [string, string]) {
+  const drill = findDrill(drillId);
+  const wrong = drill.reasonOptions.filter((option) => option.id !== drill.correctReasonId);
+  if (wrong.length !== 2) throw new Error(`Expected two wrong reasons for ${drillId}`);
+  wrong.forEach((option, index) => { option.text = texts[index]; });
+}
+
 const RU: Record<string, CorrectPatch> = {
-  "geo-04": { reason: "Размер банка и остаток стека определяют будущий SPR" },
   "bli-02": { reason: "Цена и закрытие торговли поддерживают колл" },
   "bli-03": { reason: "SB не закрывает торговлю; BB всё ещё может сквизить" },
   "bli-04": { reason: "Позиция и доминация снижают реальную реализацию эквити" },
@@ -102,4 +108,10 @@ const EN: Record<string, CorrectPatch> = {
  */
 export function applyDecisionOptionBalance(locale: LocaleCode) {
   patchCorrectOptions(locale === "ru" ? RU : EN);
+  if (locale === "ru") {
+    patchWrongReasons("geo-04", [
+      "Позиция настолько важна, что отдельный расчёт SPR уже не нужен",
+      "100bb уже задают короткую постфлоп-геометрию независимо от размера банка",
+    ]);
+  }
 }
