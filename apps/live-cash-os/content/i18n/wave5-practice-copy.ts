@@ -161,6 +161,14 @@ function applyRussianRealUseLanguagePolish() {
   });
 }
 
+function applyEnglishRealUseLanguageParity() {
+  const target = moduleById.multiway.drills.find((item) => item.id === "mul-05");
+  if (!target) throw new Error("Missing learner-language drill mul-05");
+  const correctReason = target.reasonOptions.find((option) => option.id === target.correctReasonId);
+  if (!correctReason) throw new Error("Missing learner-language reason mul-05");
+  correctReason.text = "Repeated evidence updates that overcall range without erasing action order";
+}
+
 export function applyWave5PracticeCopy(locale: LocaleCode) {
   const card = moduleById.filtering.flashcards.find((item) => item.id === FILTER_CARD_ID);
   if (!card) throw new Error(`Missing Wave 5 card ${FILTER_CARD_ID}`);
@@ -169,4 +177,5 @@ export function applyWave5PracticeCopy(locale: LocaleCode) {
     : "What should be rebuilt before judging a blocker on a new street?";
 
   if (locale === "ru") applyRussianRealUseLanguagePolish();
+  else applyEnglishRealUseLanguageParity();
 }
