@@ -1,5 +1,4 @@
 import { diagnosticT1 } from "../diagnostic";
-import { moduleById } from "../modules";
 import type { LocaleCode } from "../../lib/model";
 import { diagnosticEnglish } from "./runtime";
 import { applyGeometryLocale } from "./geometry-locale";
@@ -14,15 +13,6 @@ import { applyDecisionTransferIntegrity } from "./decision-transfer-integrity";
 import { applyDecisionOptionBalance } from "./decision-option-balance";
 import { applyFinalLearningIntegrityClosure } from "./final-learning-integrity";
 import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } from "./stimulus-generalisation-micro";
-
-function applyFinalLanguageParity(locale: LocaleCode) {
-  if (locale !== "en") return;
-  const drill = moduleById.multiway.drills.find((item) => item.id === "mul-05");
-  if (!drill) throw new Error("Missing final-language parity drill mul-05");
-  const correctReason = drill.reasonOptions.find((option) => option.id === drill.correctReasonId);
-  if (!correctReason) throw new Error("Missing final-language parity reason mul-05");
-  correctReason.text = "Repeated evidence updates that overcall range without erasing action order";
-}
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -46,6 +36,5 @@ export function applyLocaleData(locale: LocaleCode) {
   applyFinalLearningIntegrityClosure(locale);
   applyStimulusGeneralisationMicro(locale);
   applyFinalLanguagePolish(locale);
-  applyFinalLanguageParity(locale);
   applyDiagnosticIntegrityLabels();
 }
