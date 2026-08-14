@@ -6,8 +6,7 @@ import { drillById, moduleById } from "../content/modules";
 import { CALL_PRICE_SCAFFOLD, essentialTermsFor } from "../content/i18n/novice-scaffold";
 import type { ModuleContent } from "../content/types";
 import type { LocaleCode, ModuleId } from "../lib/model";
-
-const STORAGE_KEY = "live-cash-os:learner-state";
+import { activeProfileStorageKey, LEARNER_STORAGE_KEY } from "../lib/profile-storage";
 
 type LessonSnapshot = {
   locale: LocaleCode;
@@ -77,7 +76,7 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
 function readSnapshot(): LessonSnapshot {
   const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(activeProfileStorageKey(LEARNER_STORAGE_KEY));
     if (!raw) return { ...EMPTY, locale };
     const state = JSON.parse(raw) as {
       revision?: number;
