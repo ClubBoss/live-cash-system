@@ -107,7 +107,7 @@ test("Diagnostic confidence and disabled submit explain their contract", async (
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await page.getByRole("button", { name: "Начать диагностику", exact: true }).click();
 
-  await expect(page.getByText(/грубая самооценка, а не точная вероятность/i)).toBeVisible();
+  await expect(page.getByText(/Грубая самооценка до фидбека, не точная вероятность/i)).toBeVisible();
   await expect(page.getByText(/Чтобы сохранить ответ, выбери действие и причину/i)).toBeVisible();
   const submit = page.getByRole("button", { name: /^Зафиксировать ответ/ });
   await expect(submit).toBeDisabled();
