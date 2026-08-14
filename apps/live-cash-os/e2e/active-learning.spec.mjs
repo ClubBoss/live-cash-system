@@ -163,7 +163,7 @@ test("LCM-02 defines modern vocabulary and call price before its first post-cold
 test("LCM-08 primary lesson scaffold does not require raw MDF vocabulary", async ({ page }) => {
   await seedModuleLesson(page, "multiway", ["mul-01", "mul-02", "mul-04"], 1);
   await expect(page.locator("main .session")).not.toContainText(/\bMDF\b/);
-  await expect(page.getByText("Не считай, что один игрок обязан нести всю heads-up-защиту.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Не считай, что один игрок обязан нести всю защиту как в игре один на один.", { exact: true })).toBeVisible();
 });
 
 test("worked examples state the concrete task in modules that are not betting-line decisions", async ({ page }) => {
