@@ -32,7 +32,7 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
     en: "Decide which unit should measure depth with the mandatory straddle and how deep this stack is. Name one reason, then reveal the breakdown.",
   },
   preflop: {
-    ru: "Выбери, какая ветка здесь лучше сохраняет ценность руки — колл, 3-бет или фолд. Назови один фактор, который делает эту ветку предпочтительнее.",
+    ru: "Выбери, какое действие здесь лучше сохраняет ценность руки — колл, 3-бет или фолд. Назови один фактор, который делает это действие предпочтительнее.",
     en: "Choose which branch best preserves the hand's value here — call, 3-bet, or fold. Name one factor that makes that branch preferable.",
   },
   blinds: {
@@ -44,7 +44,7 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
     en: "Decide whether the wide flop adjustment should continue automatically on the turn after Villain calls. Explain what the call changed in Villain's range.",
   },
   shape: {
-    ru: "Сравни две руки против маленькой широкой ставки: какая чаще выигрывает от рейза, а какая — от колла? Назови причину, связанную с уязвимостью или защитой колл-ветки.",
+    ru: "Сравни две руки против маленькой широкой ставки: какая чаще выигрывает от рейза, а какая — от колла? Объясни через уязвимость руки или причину оставить сильную руку в колле.",
     en: "Compare the two hands against the small wide bet: which benefits more from raising and which from calling? Give a reason tied to vulnerability or protecting the calling branch.",
   },
   aggression: {
@@ -56,7 +56,7 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
     en: "Decide whether A5s is a good 4-bet bluff against the tight SB 3-bet. First name the better hands that would realistically need to fold.",
   },
   multiway: {
-    ru: "Реши, как наличие BB за спиной меняет решение BTN с KQ против ставки HJ. Не переноси heads-up-логику автоматически: сначала учти ещё не ответивший диапазон.",
+    ru: "Реши, как наличие BB за спиной меняет решение BTN с KQ против ставки HJ. Не переноси логику игры один на один автоматически: сначала учти диапазон BB, который ещё не ответил.",
     en: "Decide how having the BB behind changes BTN's decision with KQ against the HJ bet. Do not copy heads-up logic automatically; account for the range that has not acted yet.",
   },
   river: {
@@ -64,7 +64,7 @@ const WORKED_EXAMPLE_TASKS: Record<ModuleId, { ru: string; en: string }> = {
     en: "Decide whether the nut-flush blocker is enough to justify a call. Before judging the blocker, name the plausible value and bluffs that could actually reach the river through this line.",
   },
   evidence: {
-    ru: "Сформулируй рид не как ярлык игрока, а как конкретную ветку: что он делает, в какой ситуации, и какое будущее наблюдение заставит ослабить этот рид.",
+    ru: "Сформулируй рид не как ярлык игрока, а как конкретное наблюдение: что он делает, в какой ситуации и какое будущее наблюдение заставит ослабить этот рид.",
     en: "Turn the read into a specific branch rather than a player label: what Villain does, at which decision point, and what future observation would make you weaken the read.",
   },
   transfer: {
