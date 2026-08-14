@@ -63,8 +63,8 @@ async function seedLessonStep(page, step) {
 async function completeExplainBackTransferCheck(page) {
   await expect(page.getByText("9 · СРАВНИ СВОЁ ОБЪЯСНЕНИЕ", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Покрыл главное", exact: true }).click();
-  await page.getByRole("button", { name: "Глубокий старт может превратиться в низкий postflop SPR", exact: true }).click();
-  await page.getByRole("button", { name: "Длина будущего дерева зависит от оставшегося стека относительно сформированного банка", exact: true }).click();
+  await page.getByRole("button", { name: /Глубокий старт может превратиться в низкий.*SPR/i }).click();
+  await page.getByRole("button", { name: /Длина .*зависит от .*стека относительно .*банка/i }).click();
   await page.getByRole("button", { name: "Зафиксировать решение", exact: true }).click();
   await expect(page.getByRole("button", { name: /^Открыть итог урока/ })).toBeVisible();
 }
