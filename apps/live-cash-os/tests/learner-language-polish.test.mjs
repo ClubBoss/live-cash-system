@@ -129,6 +129,7 @@ function componentTextLiterals(source, fileName) {
   const parsed = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const values = [];
   const visit = (node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(parsed) === "style") return;
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isJsxText(node)) {
       values.push(node.text);
     } else if (ts.isTemplateExpression(node)) {
