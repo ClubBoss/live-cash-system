@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 
 const ENABLED = process.env.LIVE_CASH_VISUAL_EVIDENCE === "1";
-const OUTPUT_DIR = path.resolve("test-results", "pr-visual-evidence");
+const OUTPUT_DIR = path.resolve("visual-evidence", "pr");
 const NAV_LABELS = ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"];
 
 async function openFresh(page) {
@@ -77,6 +77,7 @@ test("UI-relevant PR emits compact real-browser visual evidence", async ({ page 
   test.skip(!ENABLED, "visual evidence is only enabled for UI-relevant PRs or manual dispatch");
   test.skip(testInfo.project.name !== "chromium", "one Chromium probe owns the evidence packet");
 
+  await rm(OUTPUT_DIR, { recursive: true, force: true });
   await mkdir(OUTPUT_DIR, { recursive: true });
   const browserErrors = [];
   page.on("console", (message) => {
