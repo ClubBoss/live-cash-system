@@ -82,14 +82,14 @@
     "components/LiveCashApp.tsx": "d189818df2aebdd58107e4e4a113d9abb24e2eec",
     "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/RealUseLessonAssist.tsx": "f2f5247f1e2bb7d92bb9114331f129c7894287ff",
+    "components/RealUseLessonAssist.tsx": "07fd21b791f8fdeed6699af1b70e169ddf54327d",
     "components/ScrollContinuityGuard.tsx": "c47e8bb022916617be3201c2502fe6af1c4317c5",
     "components/TestInviteGate.tsx": "629f3ba96710ffa00c1e183a62d550ba4e716b57",
-    "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
+    "components/Wave5PracticeLayer.tsx": "d8a131927ac41b8bbf0c6fbb7548e4231c410e02",
     "components/Wave7Experience.tsx": "3253ea28b33e4a6b306725c83629f648d58a4e6d",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
     "components/DataSafetyPanel.tsx": "b204fa0fe25b09cb88c3123d734b51fad7103a62",
-    "components/Gauntlet4LearningIntegrityLayer.tsx": "3d13ee02b087f23e146aa9b91a385be34f22aeda"
+    "components/Gauntlet4LearningIntegrityLayer.tsx": "5e8ad8a5eac83b1993e20e07ec32a00e699ada5e"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4, N1, the final bounded comprehension closure and the corpus-wide anti-guessing pass are materialized; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},
