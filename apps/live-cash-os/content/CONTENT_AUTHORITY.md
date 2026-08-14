@@ -112,7 +112,7 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`e7bac9a3cf6a95f29ca89a43287584be0d6895c9f9161dde4750c39ff22ed907`
+`20c16e6356daf86a73d193af0fc1ea1a9d373b779279d5185f3abbad8e679594`
 
 Current status:
 
