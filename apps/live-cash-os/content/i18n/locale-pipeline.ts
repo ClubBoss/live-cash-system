@@ -8,7 +8,7 @@ import { applyWave4FinalEditorialLocale } from "./wave4-final-editorial";
 import { applyWave5PracticeCopy } from "./wave5-practice-copy";
 import { applyWave4RFinalLanguage } from "./wave4r-final-language";
 import { applyNoviceTerminologyCopy } from "./novice-scaffold";
-import { applyFinalPlusEvCopy } from "./final-plus-ev";
+import { applyFinalLanguagePolish, applyFinalPlusEvCopy } from "./final-plus-ev";
 import { applyDecisionTransferIntegrity } from "./decision-transfer-integrity";
 import { applyDecisionOptionBalance } from "./decision-option-balance";
 import { applyFinalLearningIntegrityClosure } from "./final-learning-integrity";
@@ -16,7 +16,7 @@ import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } fr
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
-    item.title = `Диагностический спот ${index + 1}`;
+    item.title = `Диагностическая ситуация ${index + 1}`;
     if (diagnosticEnglish[item.id]) diagnosticEnglish[item.id].title = `Diagnostic spot ${index + 1}`;
   });
 }
@@ -35,5 +35,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyDecisionOptionBalance(locale);
   applyFinalLearningIntegrityClosure(locale);
   applyStimulusGeneralisationMicro(locale);
+  applyFinalLanguagePolish(locale);
   applyDiagnosticIntegrityLabels();
 }
