@@ -16,7 +16,7 @@ import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } fr
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
-    item.title = `Диагностическая ситуация ${index + 1}`;
+    item.title = `Диагностический спот ${index + 1}`;
     if (diagnosticEnglish[item.id]) diagnosticEnglish[item.id].title = `Diagnostic spot ${index + 1}`;
   });
 }
