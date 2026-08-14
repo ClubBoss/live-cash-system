@@ -34,6 +34,36 @@ jobs:
         working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v7
+
+      - name: Detect PR visual evidence scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          enabled=0
+          reason=not-requested
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            enabled=1
+            reason=manual-dispatch
+          elif [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null || git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null || git fetch --no-tags --depth=1 origin "$HEAD_SHA"
+            changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+            printf '%s\n' "$changed_files"
+
+            if printf '%s\n' "$changed_files" | grep -Eq '^(apps/live-cash-os/(app|components|public)/.*|apps/live-cash-os/.*\.(css|tsx|jsx)|apps/live-cash-os/e2e/pr-visual-evidence\.spec\.mjs|\.github/workflows/live-cash-os-ci\.yml)$'; then
+              enabled=1
+              reason=ui-relevant-pr
+            fi
+          fi
+
+          echo "LIVE_CASH_VISUAL_EVIDENCE=$enabled" >> "$GITHUB_ENV"
+          echo "LIVE_CASH_VISUAL_EVIDENCE_REASON=$reason" >> "$GITHUB_ENV"
+          echo "visual evidence: enabled=$enabled reason=$reason"
+
       - uses: actions/setup-node@v7
         with:
           node-version: 22.13.0
@@ -47,9 +77,38 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Release gate
+        env:
+          LIVE_CASH_VISUAL_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -o pipefail
           npm run test:release 2>&1 | tee release-gate.log
+
+      - name: Verify PR visual evidence packet
+        if: success() && env.LIVE_CASH_VISUAL_EVIDENCE == '1'
+        run: |
+          set -euo pipefail
+          test -f visual-evidence/pr/evidence.json
+          screenshot_count="$(find visual-evidence/pr -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')"
+          test "$screenshot_count" = "5" || { echo "Expected 5 visual evidence screenshots, got $screenshot_count" >&2; exit 1; }
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const evidence = JSON.parse(readFileSync("visual-evidence/pr/evidence.json", "utf8"));
+            if (evidence.schema !== "LIVE_CASH_PR_VISUAL_EVIDENCE_V1") throw new Error("Unexpected visual evidence schema");
+            if (evidence.screenshotCount !== 5 || evidence.screenshots?.length !== 5) throw new Error("Visual evidence packet is incomplete");
+            for (const shot of evidence.screenshots) {
+              if (!/^[a-f0-9]{64}$/.test(shot.sha256 ?? "")) throw new Error(`Missing screenshot sha256 for ${shot.name}`);
+            }
+            console.log(`Verified ${evidence.screenshotCount} PR visual evidence screenshots for source ${evidence.sourceHeadSha}`);
+          '
+
+      - name: Upload PR visual evidence
+        if: always() && env.LIVE_CASH_VISUAL_EVIDENCE == '1'
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-pr-visual-evidence
+          path: apps/live-cash-os/visual-evidence/pr
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload release gate log
         if: always()
