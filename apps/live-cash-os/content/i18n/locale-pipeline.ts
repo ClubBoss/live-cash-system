@@ -13,6 +13,7 @@ import { applyDecisionTransferIntegrity } from "./decision-transfer-integrity";
 import { applyDecisionOptionBalance } from "./decision-option-balance";
 import { applyFinalLearningIntegrityClosure } from "./final-learning-integrity";
 import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } from "./stimulus-generalisation-micro";
+import { applyPokerNativeTerminologyRebalance } from "./poker-native-terminology-rebalance";
 
 function applyDiagnosticIntegrityLabels() {
   diagnosticT1.forEach((item, index) => {
@@ -36,5 +37,6 @@ export function applyLocaleData(locale: LocaleCode) {
   applyFinalLearningIntegrityClosure(locale);
   applyStimulusGeneralisationMicro(locale);
   applyFinalLanguagePolish(locale);
+  applyPokerNativeTerminologyRebalance(locale);
   applyDiagnosticIntegrityLabels();
 }
