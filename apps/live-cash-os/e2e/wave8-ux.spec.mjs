@@ -101,7 +101,8 @@ test("explain-back has an accessible name and focus moves to the next meaningful
   await expect(textarea).toHaveAttribute("aria-labelledby", /w8-textarea-heading-/);
   await textarea.fill("Сначала определяю эффективный стек и рабочую единицу ставок, затем строю решение из этой геометрии, а не из номинального числа BB.");
   await page.getByRole("button", { name: "Сохранить объяснение" }).click();
-  await expect(page.getByText("ПАМЯТКА ЗА СТОЛОМ")).toBeVisible();
+  await expect(page.getByText("9 · СРАВНИ СВОЁ ОБЪЯСНЕНИЕ", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Сверь механизм, а не отдельные слова." })).toBeVisible();
   await expect(page.locator(":focus")).toHaveAttribute("tabindex", "-1");
 });
 
