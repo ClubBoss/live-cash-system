@@ -5,8 +5,8 @@ import { createPortal } from "react-dom";
 import { drillById, moduleById } from "../content/modules";
 import type { Drill } from "../content/types";
 import type { LocaleCode, ModuleId } from "../lib/model";
+import { activeProfileStorageKey, LEARNER_STORAGE_KEY } from "../lib/profile-storage";
 
-const STORAGE_KEY = "live-cash-os:learner-state";
 const MAX_ORDERING_ATTEMPTS = 3;
 
 type FeedbackSnapshot = {
@@ -41,7 +41,7 @@ function sameSnapshot(left: IntegritySnapshot, right: IntegritySnapshot): boolea
 function readSnapshot(): IntegritySnapshot {
   const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(activeProfileStorageKey(LEARNER_STORAGE_KEY));
     if (!raw) return { ...EMPTY_SNAPSHOT, locale };
     const state = JSON.parse(raw) as {
       revision?: number;

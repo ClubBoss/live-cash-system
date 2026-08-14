@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "7a7b62a9d2604c5adfcaea27f1e0b8482c1909b45f336e8129f626dfe1826b79",
+    "current_digest": "3464afb35c841a75e37f545466891b5111af843d82c7d94c19fa6d6b96514715",
     "approved_digest": null,
-    "review_corpus_fingerprint": "7a7b62a9d2604c5adfcaea27f1e0b8482c1909b45f336e8129f626dfe1826b79",
+    "review_corpus_fingerprint": "3464afb35c841a75e37f545466891b5111af843d82c7d94c19fa6d6b96514715",
     "note": "Gauntlet 4, final shell cleanup, bounded post-integration workflow-integrity repairs, the Wave C bilingual test-invite gate, v1.2.0 release identity, the N1 novice-scaffold learner composition, FINAL N2 novice-clarity repairs, the final bounded comprehension closure, the exact source-lock closure, and the final low-risk plus-EV clarity cleanup are materialized in the review corpus. The current bounded tester-profile repair isolates local learner state when a verified tester code changes and adds explicit full-progress deletion in Data & Recovery. The bounded post-tester scroll-continuity repair preserves the learner viewport and stable focus anchor when the already-answered Cold Check walkthrough or the lab prediction check is revealed; it changes presentation continuity only. The bounded card-SRS continuity repair clarifies that the two-minute label describes the warm-up session, while the scheduling implementation preserves the existing card intervals and due-time contract. The real-use decision-transfer repair restores concrete, explicitly scoped hand/board representatives where the admitted corpus already supports the mechanism, removes obvious wrong-answer wording tells across the final RU/EN drill corpus, and balances option length so correctness is not signalled by prose length. The final learning-integrity closure removes the remaining material prompt-to-answer leakage, repairs the remaining material distractor-parity clusters, and adds an explicit LCM-02 starting-hand family/traits scaffold with 76s/98s sibling recognition plus contextual A5s transfer. The stimulus-generalisation micro-closure adds exactly two ordinary LCM-02 Cards/SRS retrieval stimuli, fresh 87s and A4s, so the learner must independently classify an unseen suited connector and suited wheel ace by family and traits; neither card adds an exact poker action. The bounded real-use feedback repair collapses only an exact duplicate selected/working action-reason pair in the fallback feedback surface; any real mismatch remains visible for comparison. It changes presentation only and does not alter poker content, answer IDs, scoring, mastery, scheduler, retention, field evidence or learner state. The scaffold is additive to the existing LCM-02 curriculum rather than replacing its heuristics, and it does not add exact chart cells or frequencies. Stable correct-answer IDs, option IDs, misconception IDs, scoring, mastery, scheduler and evidence semantics are preserved. Strategy, drills, exact RU/EN human review and final composition approval remain pending; this deterministic source-lock refresh and machine/agent review are not human approval."
   },
   "repair_source_paths": {
@@ -82,14 +82,14 @@
     "components/LiveCashApp.tsx": "d189818df2aebdd58107e4e4a113d9abb24e2eec",
     "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
-    "components/RealUseLessonAssist.tsx": "f2f5247f1e2bb7d92bb9114331f129c7894287ff",
+    "components/RealUseLessonAssist.tsx": "07fd21b791f8fdeed6699af1b70e169ddf54327d",
     "components/ScrollContinuityGuard.tsx": "c47e8bb022916617be3201c2502fe6af1c4317c5",
     "components/TestInviteGate.tsx": "629f3ba96710ffa00c1e183a62d550ba4e716b57",
-    "components/Wave5PracticeLayer.tsx": "dedd070747a74fc7771bd1d6243dc8be36d2c0e7",
+    "components/Wave5PracticeLayer.tsx": "d8a131927ac41b8bbf0c6fbb7548e4231c410e02",
     "components/Wave7Experience.tsx": "3253ea28b33e4a6b306725c83629f648d58a4e6d",
     "components/Wave8AccessibilityLayer.tsx": "157baa03d0824dfbabd8efad2f1119bce47e74d2",
     "components/DataSafetyPanel.tsx": "b204fa0fe25b09cb88c3123d734b51fad7103a62",
-    "components/Gauntlet4LearningIntegrityLayer.tsx": "3d13ee02b087f23e146aa9b91a385be34f22aeda"
+    "components/Gauntlet4LearningIntegrityLayer.tsx": "5e8ad8a5eac83b1993e20e07ec32a00e699ada5e"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Gauntlet 4, N1, the final bounded comprehension closure and the corpus-wide anti-guessing pass are materialized; strategic meaning remains source-locked, while fresh human RU/EN review remains pending."},

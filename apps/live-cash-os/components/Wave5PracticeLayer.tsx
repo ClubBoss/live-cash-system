@@ -5,8 +5,7 @@ import { createPortal } from "react-dom";
 import { moduleById } from "../content/modules";
 import type { Lab } from "../content/types";
 import type { LocaleCode, ModuleId } from "../lib/model";
-
-const STORAGE_KEY = "live-cash-os:learner-state";
+import { activeProfileStorageKey, LEARNER_STORAGE_KEY } from "../lib/profile-storage";
 
 type PracticeSnapshot = { locale: LocaleCode; moduleId: ModuleId | null; labActive: boolean; mixedActive: boolean; completedModules: number; revision: number };
 type SprLab = Extract<Lab, { type: "spr" }>;
@@ -20,7 +19,7 @@ function sameSnapshot(left: PracticeSnapshot, right: PracticeSnapshot): boolean 
 function readPracticeSnapshot(): PracticeSnapshot {
   const locale: LocaleCode = document.documentElement.lang === "en" ? "en" : "ru";
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(activeProfileStorageKey(LEARNER_STORAGE_KEY));
     if (!raw) return { ...EMPTY_SNAPSHOT, locale };
     const state = JSON.parse(raw) as { revision?: number; activeSession?: { moduleId?: string; mode?: string; step?: number } | null; modules?: Record<string, { contentCompleted?: boolean }> };
     const moduleId = typeof state.activeSession?.moduleId === "string" && state.activeSession.moduleId in moduleById ? state.activeSession.moduleId as ModuleId : null;
