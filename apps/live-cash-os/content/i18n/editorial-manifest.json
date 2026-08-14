@@ -20,7 +20,27 @@
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
     "drills": ["content/i18n/wave3-priority-gold.ts", "content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-option-balance.ts", "content/i18n/final-learning-integrity.ts"],
-    "language": ["content/i18n/geometry-locale.ts", "content/i18n/locale-pipeline.ts", "content/i18n/novice-scaffold.ts", "content/i18n/final-plus-ev.ts", "content/i18n/decision-transfer-integrity.ts", "content/i18n/decision-option-balance.ts", "content/i18n/final-learning-integrity.ts", "content/i18n/stimulus-generalisation-micro.ts", "content/i18n/learner-ui.ts", "app/page.tsx", "components/LiveCashApp.tsx", "components/LiveCashAppCore.tsx", "components/RealUseLessonAssist.tsx", "components/ScrollContinuityGuard.tsx", "components/TestInviteGate.tsx", "components/Wave5PracticeLayer.tsx", "components/Wave7Experience.tsx", "components/Gauntlet4LearningIntegrityLayer.tsx", "components/DataSafetyPanel.tsx"]
+    "language": [
+      "content/i18n/geometry-locale.ts",
+      "content/i18n/locale-pipeline.ts",
+      "content/i18n/novice-scaffold.ts",
+      "content/i18n/final-plus-ev.ts",
+      "content/i18n/decision-transfer-integrity.ts",
+      "content/i18n/decision-option-balance.ts",
+      "content/i18n/final-learning-integrity.ts",
+      "content/i18n/stimulus-generalisation-micro.ts",
+      "content/i18n/learner-ui.ts",
+      "app/page.tsx",
+      "components/LiveCashApp.tsx",
+      "components/LiveCashAppCore.tsx",
+      "components/RealUseLessonAssist.tsx",
+      "components/ScrollContinuityGuard.tsx",
+      "components/TestInviteGate.tsx",
+      "components/Wave5PracticeLayer.tsx",
+      "components/Wave7Experience.tsx",
+      "components/Gauntlet4LearningIntegrityLayer.tsx",
+      "components/DataSafetyPanel.tsx"
+    ]
   },
   "source_blobs": {
     "content/modules.ts": "077cca4459b9ab8f0bd6f1b28dfe1af77bfb7d09",
@@ -79,7 +99,7 @@
     "shape": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, the final low-risk RU glossary cleanup, concrete T55/T6s/KTs transfer examples and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
     "aggression": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "W3 repair, active W4R-SEM-01 reconciliation, bounded N1 low-SPR recall and bounded final distractor parity are materialized; strategy, drills and exact integrated RU/EN review remain pending."},
     "ancestry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, scoped A5s/98s examples, final prompt-boundary repair and same-hand/different-context transfer are materialized; fresh human RU/EN review remains pending."},
-    "multiway": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 plain-language shared-defence wording, concrete KQ/K97 action-order transfer and bounded final distractor parity are materialized; fresh human RU/EN review remain pending."},
+    "multiway": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 plain-language shared-defence wording, concrete KQ/K97 action-order transfer and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
     "river": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, N1 teach-before-application, the final low-risk RU glossary cleanup and the corpus-wide anti-guessing pass are materialized; fresh human RU/EN review remains pending."},
     "evidence": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, bounded N1 terminology clarification, final low-risk RU glossary cleanup and bounded final distractor parity are materialized; fresh human RU/EN review remains pending."},
     "transfer": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "FINAL W4R learner-facing implementation, the N1 teach-before-application shell and the corpus-wide anti-guessing pass are materialized; fresh human RU/EN review remains pending."}
