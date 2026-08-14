@@ -112,7 +112,7 @@ export default function ExplainBackSelfCheck({
       </div>
       <p className="support">{drill.explanation}</p>
       <p className="assumption-strip">{ru ? "Explain-back и self-check сами по себе не засчитывались. Evidence здесь создаёт только отдельное решение на новом, не использованном в Диагностике споте." : "The explain-back and self-check did not award evidence by themselves. Only this separate decision on a spot not used in Diagnostic creates learner evidence."}</p>
-      <button className="primary" onClick={onNext}>{ru ? "Открыть итог урока" : "Open lesson summary"} <span>→</span></button>
+      <button className="primary" aria-label={ru ? "Открыть итог урока" : "Open lesson summary"} onClick={onNext}>{ru ? "Открыть итог урока" : "Open lesson summary"} <span aria-hidden="true">→</span></button>
     </>;
   }
 
@@ -145,6 +145,6 @@ export default function ExplainBackSelfCheck({
     <fieldset className="answer-set"><legend>{ru ? "Выбери причину" : "Choose a reason"}</legend>{reasonOptions.map((option) => <button type="button" key={option.id} aria-pressed={selectedReasonId === option.id} className={selectedReasonId === option.id ? "selected" : ""} onClick={() => setSelectedReasonId(option.id)}>{option.text}</button>)}</fieldset>
     <label className="confidence">{ru ? "Уверенность" : "Confidence"} <b>{ru ? "примерно" : "roughly"} {confidence}%</b><input type="range" min="0" max="100" step="5" value={confidence} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
     {missing.length > 0 && <p className="support">{ru ? `Чтобы ответить, выбери ${missing.join(" и ")}.` : `To submit, choose ${missing.join(" and ")}.`}</p>}
-    <button className="primary" disabled={missing.length > 0} onClick={lock}>{ru ? "Зафиксировать решение" : "Lock decision"} <span>→</span></button>
+    <button className="primary" aria-label={ru ? "Зафиксировать решение" : "Lock decision"} disabled={missing.length > 0} onClick={lock}>{ru ? "Зафиксировать решение" : "Lock decision"} <span aria-hidden="true">→</span></button>
   </>;
 }
