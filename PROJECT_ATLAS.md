@@ -8,7 +8,6 @@ Status: `ACTIVE / FEATURE_FREEZE / REAL_USE_VALIDATION / W10_EMPIRICAL_VALIDATIO
 |---|---|
 | bootstrap / authority | `START_HERE.md` |
 | machine state | `state/CURRENT_PROJECT_STATE.yaml` |
-| governing 10/10 plan | `LIVE_CASH_OS_10_OF_10_MASTER_WAVE_PLAN_2026-08-07.md` |
 | W10 evidence workflow | `apps/live-cash-os/w10/README.md` |
 | bounded human review packet | `apps/live-cash-os/w10/HUMAN_REVIEW_TRANCHE_v1.md` |
 | Diagnostic content | `apps/live-cash-os/content/diagnostic.ts` |
