@@ -80,8 +80,8 @@ export default function DiagnosticExperience({
   const ru = locale === "ru";
 
   const role = ru
-    ? "Необязательная cold-проверка: выбери действие, причину и примерную уверенность. Правильные ответы не показываются до завершения всех 10 вопросов. Результат помогает выбрать приоритеты, но не засчитывает mastery, retention или игру за столом."
-    : "Optional cold check: choose an action, a reason, and rough confidence. Correct answers stay hidden until all 10 questions are complete. The result can prioritise study, but it does not award mastery, retention, or real-table evidence.";
+    ? "Диагностика — необязательная проверка текущего хода решения. Выбери действие, причину и примерную уверенность. Ответы скрыты до конца всех 10 ситуаций. Результат помогает выбрать, что изучать дальше, но сам по себе не подтверждает навык."
+    : "Diagnostic is an optional check of how you currently make decisions. Choose an action, a reason, and rough confidence. Answers stay hidden until all 10 spots are complete. The result helps choose what to study next, but does not prove a skill by itself.";
 
   function begin() {
     setSelectedActionId(null);
@@ -123,20 +123,21 @@ export default function DiagnosticExperience({
   if (diagnostic.status === "NOT_STARTED") {
     return <section className="surface"><div className="section-head">
       <p className="eyebrow">{ru ? "СТАРТОВАЯ ДИАГНОСТИКА" : "STARTING DIAGNOSTIC"}</p>
-      <h1>{ru ? "10 решений без подсказок." : "10 decisions without hints."}<br/><em>{ru ? "Фидбек — после финиша." : "Feedback comes after the finish."}</em></h1>
+      <h1>{ru ? "Проверь, как принимаешь решения сейчас." : "Check how you make decisions now."}</h1>
+      <p className="support">{ru ? "10 ситуаций · около 15 минут · можно пропустить" : "10 spots · about 15 minutes · optional"}</p>
       <p>{role}</p>
-      <p className="support">{ru ? "Формат тот же, что в практике: действие → причина → уверенность. Диагностика использует отдельные проверочные споты, чтобы последующий урок не превращался в узнавание уже показанного ответа." : "The format matches practice: action → reason → confidence. Diagnostic uses separate check spots so the later lesson does not become recognition of an answer you have already seen."}</p>
+      <p className="support">{ru ? "Ответы сохранятся для отдельного разбора. Формат тот же, что в практике: действие → причина → уверенность. Диагностика использует отдельные проверочные ситуации, чтобы последующий урок не превращался в узнавание уже показанного ответа." : "Your answers are saved for a separate review. The format matches practice: action → reason → confidence. Diagnostic uses separate check spots so the later lesson does not become recognition of an answer you have already seen."}</p>
       <button className="primary" onClick={begin}>{ru ? "Начать диагностику" : "Start Diagnostic"} <span>→</span></button>
     </div></section>;
   }
 
   if (legacyRun) {
     return <section className="surface"><div className="section-head">
-      <p className="eyebrow">{ru ? "ДИАГНОСТИКА · СОХРАНЁН СТАРЫЙ ФОРМАТ" : "DIAGNOSTIC · LEGACY RUN SAVED"}</p>
-      <h1>{diagnostic.responses.length}/10 {ru ? "старых free-text ответов сохранено." : "legacy free-text answers saved."}</h1>
-      <p>{ru ? "Эти ответы не будут автоматически оценены: старый формат не содержит governed option IDs, поэтому машинный score был бы выдумкой." : "These answers will not be auto-scored: the legacy format does not contain governed option IDs, so a machine score would be invented."}</p>
-      <p className="support">{ru ? "Можно скачать старую попытку перед перезапуском. Перезапуск создаст новую structured-попытку и не даст старому тексту влиять на mastery." : "You can download the old run before restarting. Restarting creates a new structured run and does not let the old text affect mastery."}</p>
-      <div className="button-row"><button className="secondary" onClick={exportRun}>{ru ? "Скачать старую попытку" : "Download legacy run"}</button><button className="primary" onClick={begin}>{ru ? "Начать новый формат" : "Start structured run"} <span>→</span></button></div>
+      <p className="eyebrow">{ru ? "ДИАГНОСТИКА · СОХРАНЁН ПРЕДЫДУЩИЙ ФОРМАТ" : "DIAGNOSTIC · PREVIOUS FORMAT SAVED"}</p>
+      <h1>{diagnostic.responses.length}/10 {ru ? "ответов из предыдущего формата сохранено." : "responses from the previous format are saved."}</h1>
+      <p>{ru ? "Их нельзя честно оценить автоматически: в старых ответах нет однозначно выбранных вариантов действия и причины." : "They cannot be scored honestly by the app because the older answers do not contain unambiguous action and reason choices."}</p>
+      <p className="support">{ru ? "Можно скачать старую попытку перед перезапуском. Новый запуск использует текущий формат; старые ответы не меняют статус навыка." : "You can download the previous attempt before restarting. A new run uses the current format; the older answers do not change skill status."}</p>
+      <div className="button-row"><button className="secondary" onClick={exportRun}>{ru ? "Скачать старую попытку" : "Download previous run"}</button><button className="primary" onClick={begin}>{ru ? "Начать новый формат" : "Start current format"} <span>→</span></button></div>
     </div></section>;
   }
 
@@ -153,7 +154,7 @@ export default function DiagnosticExperience({
     return <section className="surface">
       <div className="section-head">
         <p className="eyebrow">{ru ? "ДИАГНОСТИКА · ФИДБЕК" : "DIAGNOSTIC · FEEDBACK"}</p>
-        <h1>{ru ? "Теперь видно, где ты находишься." : "Now you can see where you stand."}</h1>
+        <h1>{ru ? "Теперь видно, где стоит начать." : "Now you can see where to start."}</h1>
         <p>{role}</p>
         <div className="metrics">
           <div><b>{counts.STRONG ?? 0}</b><span>{diagnosticFeedbackLevelLabel("STRONG", locale)}</span></div>
@@ -161,10 +162,10 @@ export default function DiagnosticExperience({
           <div><b>{counts.NEEDS_WORK ?? 0}</b><span>{diagnosticFeedbackLevelLabel("NEEDS_WORK", locale)}</span></div>
           <div><b>{counts.UNCERTAIN ?? 0}</b><span>{diagnosticFeedbackLevelLabel("UNCERTAIN", locale)}</span></div>
         </div>
-        <p className="assumption-strip">{ru ? "Это baseline/routing signal, не статус навыка. Ни один ответ здесь не добавляет learner evidence." : "This is a baseline/routing signal, not a skill status. No answer here adds learner evidence."}</p>
+        <p className="assumption-strip">{ru ? "Это ориентир для старта, а не статус навыка. Ответы Диагностики сами по себе не засчитывают освоение." : "This is a starting-point signal, not a skill status. Diagnostic answers do not count as learning progress by themselves."}</p>
         {assessment.priorityModules.length > 0 && <><h2>{ru ? "Рекомендуемый старт" : "Recommended starting point"}</h2>{assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}</>}
         <button className="primary" onClick={usePriorities}>{assessment.priorityModules.length > 0 ? (ru ? "Использовать эти приоритеты в Today" : "Use these priorities in Today") : (ru ? "Вернуться в Today" : "Return to Today")} <span>→</span></button>
-        <button className="textbutton" onClick={exportRun}>{ru ? "Скачать raw ответы" : "Download raw responses"}</button>
+        <button className="textbutton" onClick={exportRun}>{ru ? "Скачать ответы" : "Download responses"}</button>
       </div>
       <div className="queue">{assessment.items.map((item, index) => {
         const sourceDrill = drillById[item.drillId];
