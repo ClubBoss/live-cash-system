@@ -80,7 +80,7 @@
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "app/page.tsx": "b215eb1f01502cb643d250024269c1df69e11fd6",
     "components/LiveCashApp.tsx": "d189818df2aebdd58107e4e4a113d9abb24e2eec",
-    "components/LiveCashAppCore.tsx": "a35bef9ed5e797be0339bd2b9416f27ae515f926",
+    "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
     "components/LearningRoute.tsx": "1c7bca34319aa1dffbbd2c2934103e142589af32",
     "components/RealUseLessonAssist.tsx": "f2f5247f1e2bb7d92bb9114331f129c7894287ff",
     "components/ScrollContinuityGuard.tsx": "c47e8bb022916617be3201c2502fe6af1c4317c5",
