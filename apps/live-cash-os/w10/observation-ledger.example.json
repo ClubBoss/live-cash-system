@@ -1,0 +1,37 @@
+{
+  "schema": "LIVE_CASH_W10_OBSERVATIONS_V1",
+  "sessions": [
+    {
+      "id": "session-001",
+      "startedAt": "2026-08-14T08:00:00.000Z",
+      "endedAt": "2026-08-14T08:12:00.000Z",
+      "completed": true,
+      "phase": "learning",
+      "intendedAction": "lesson",
+      "startedIntendedActionWithoutNavigationConfusion": true,
+      "navigationConfusion": false,
+      "unnecessaryClicks": 0,
+      "queueOverload": false,
+      "desireToReturn": 4,
+      "beforePlayUsefulness": null,
+      "preSessionWarmup": false,
+      "returnedAfterMultiDayBreak": false,
+      "comprehension": {
+        "mechanismExplainable": true,
+        "promptUnderstoodFirstRead": true,
+        "assumptionsNoticed": true
+      }
+    }
+  ],
+  "friction": [
+    {
+      "id": "friction-001",
+      "at": "2026-08-14T08:03:00.000Z",
+      "category": "navigation_confusion",
+      "severity": "P2",
+      "repeatKey": "example-only-delete-me",
+      "resolved": true,
+      "note": "Optional local observer note. Free text is omitted from generated summaries."
+    }
+  ]
+}

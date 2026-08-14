@@ -8,6 +8,7 @@ on:
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
       - "state/CURRENT_PROJECT_STATE.yaml"
       - "START_HERE.md"
+      - "PROJECT_ATLAS.md"
       - ".github/workflows/live-cash-os-ci.yml"
   pull_request:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
       - "state/CURRENT_PROJECT_STATE.yaml"
       - "START_HERE.md"
+      - "PROJECT_ATLAS.md"
       - ".github/workflows/live-cash-os-ci.yml"
   workflow_dispatch:
 
@@ -44,6 +46,19 @@ jobs:
           set -euo pipefail
           enabled=0
           reason=not-requested
+          changed_files=""
+          targets=()
+
+          add_target() {
+            local candidate="$1"
+            local existing
+            for existing in "${targets[@]:-}"; do
+              [[ "$existing" == "$candidate" ]] && return 0
+            done
+            if [[ "${#targets[@]}" -lt 2 ]]; then
+              targets+=("$candidate")
+            fi
+          }
 
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
             enabled=1
@@ -58,11 +73,23 @@ jobs:
               enabled=1
               reason=ui-relevant-pr
             fi
+
+            if printf '%s\n' "$changed_files" | grep -Eq 'DiagnosticExperience|diagnostic-feedback|content/diagnostic'; then add_target diagnostic; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'ExplainBackSelfCheck|RealUseLessonAssist|LearningRoute|content/modules'; then add_target learn; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'Review|review|scheduler'; then add_target review; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'RealHand|Wave7Field|field|hands'; then add_target hands; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'Card|cards'; then add_target cards; fi
           fi
+
+          if [[ "${#targets[@]}" -eq 0 ]]; then
+            targets=(learn hands)
+          fi
+          targets_csv="$(IFS=,; echo "${targets[*]}")"
 
           echo "LIVE_CASH_VISUAL_EVIDENCE=$enabled" >> "$GITHUB_ENV"
           echo "LIVE_CASH_VISUAL_EVIDENCE_REASON=$reason" >> "$GITHUB_ENV"
-          echo "visual evidence: enabled=$enabled reason=$reason"
+          echo "LIVE_CASH_VISUAL_TARGETS=$targets_csv" >> "$GITHUB_ENV"
+          echo "visual evidence: enabled=$enabled reason=$reason targets=$targets_csv"
 
       - uses: actions/setup-node@v7
         with:
@@ -93,12 +120,14 @@ jobs:
           node --input-type=module -e '
             import { readFileSync } from "node:fs";
             const evidence = JSON.parse(readFileSync("visual-evidence/pr/evidence.json", "utf8"));
-            if (evidence.schema !== "LIVE_CASH_PR_VISUAL_EVIDENCE_V1") throw new Error("Unexpected visual evidence schema");
+            if (evidence.schema !== "LIVE_CASH_PR_VISUAL_EVIDENCE_V2") throw new Error("Unexpected visual evidence schema");
             if (evidence.screenshotCount !== 5 || evidence.screenshots?.length !== 5) throw new Error("Visual evidence packet is incomplete");
+            if (!Array.isArray(evidence.requestedTargets) || evidence.requestedTargets.length < 1) throw new Error("Visual evidence targets are missing");
+            if ((evidence.browserErrors?.length ?? 0) !== 0) throw new Error(`Visual evidence captured browser errors: ${evidence.browserErrors.join(" | ")}`);
             for (const shot of evidence.screenshots) {
               if (!/^[a-f0-9]{64}$/.test(shot.sha256 ?? "")) throw new Error(`Missing screenshot sha256 for ${shot.name}`);
             }
-            console.log(`Verified ${evidence.screenshotCount} PR visual evidence screenshots for source ${evidence.sourceHeadSha}`);
+            console.log(`Verified ${evidence.screenshotCount} PR visual evidence screenshots for source ${evidence.sourceHeadSha}; targets=${evidence.requestedTargets.join(",")}`);
           '
 
       - name: Upload PR visual evidence
