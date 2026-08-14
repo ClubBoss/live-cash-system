@@ -65,7 +65,7 @@ export function applyPokerNativeTerminologyRebalance(locale: LocaleCode) {
   });
   const wrongActions = mul04.actionOptions.filter((option) => option.id !== mul04.correctActionId);
   wrongActions[0].text = "Поставить, потому что HJ был префлоп-агрессором";
-  wrongActions[1].text = "Чекать только потому, что банк мультивей";
+  wrongActions[1].text = "Чекать: в мультивее контбет получает слишком много продолжений";
   mul04.reasonOptions.forEach((option) => {
     if (option.id === mul04.correctReasonId) option.text = "У BB больше низких двух пар, сетов и стритов, а HJ играет против двоих";
   });
