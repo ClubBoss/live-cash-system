@@ -1,80 +1,103 @@
 # Live Cash System — Project Atlas
 
-Status: `ACTIVE / DIAGNOSTIC_EXECUTION_PHASE`
+Status: `ACTIVE / FEATURE_FREEZE / REAL_USE_VALIDATION / W10_EMPIRICAL_VALIDATION_NEXT`
 
 ## Fast navigation
 
 | Need | Open |
 |---|---|
-| bootstrap | `START_HERE.md` |
+| bootstrap / authority | `START_HERE.md` |
 | machine state | `state/CURRENT_PROJECT_STATE.yaml` |
-| latest report | `reports/LEARNER_DIAGNOSTIC_RUNTIME_WAVE_TERMINAL_REPORT_v1.md` |
-| active questions | `learning/diagnostics/INITIAL_PERSONALISED_DIAGNOSTIC_BATTERY_v0_1.md` |
-| evaluator key | `learning/diagnostics/DIAGNOSTIC_ANSWER_KEY_AND_ROUTING_v0_1.md` |
-| runtime/scoring | `learning/diagnostics/DIAGNOSTIC_RUNTIME_AND_SCORING_v0_1.md` |
-| machine manifest | `learning/diagnostics/DIAGNOSTIC_ITEM_MANIFEST_v0_1.json` |
-| learner profile | `profiles/CURRENT_LEARNER_BASELINE_PROFILE_v0_1.yaml` |
-| learner state | `training/learner-state/CURRENT_LEARNER_STATE_v0_1.yaml` |
-| active queue | `training/drill-queue.md` |
-| micro-cycle | `training/PERSONALISED_MICRO_CYCLE_v0_1.md` |
-| Max-EV priority | `synthesis/MAX_EV_CANDIDATE_PRIORITY_RANKING_v0_5.md` |
-| readiness | `learning/ADAPTIVE_MODULE_READINESS_MANIFEST_v0_12.md` |
+| governing 10/10 plan | `LIVE_CASH_OS_10_OF_10_MASTER_WAVE_PLAN_2026-08-07.md` |
+| W10 evidence workflow | `apps/live-cash-os/w10/README.md` |
+| bounded human review packet | `apps/live-cash-os/w10/HUMAN_REVIEW_TRANCHE_v1.md` |
+| Diagnostic content | `apps/live-cash-os/content/diagnostic.ts` |
+| Diagnostic feedback/routing | `apps/live-cash-os/lib/diagnostic-feedback.ts` |
+| learner state model | `apps/live-cash-os/lib/model-core.ts` |
+| scheduler / queues | `apps/live-cash-os/lib/scheduler.ts` |
+| runtime repair registry | `apps/live-cash-os/lib/runtime-repair-registry.ts` |
+| PR visual evidence | `apps/live-cash-os/e2e/pr-visual-evidence.spec.mjs` |
 
-## Inventory
+## Current product inventory
 
 ```text
-34 candidates
-29 DRILL_READY
-5 VALIDATION_PENDING
-34/34 direct drills
-30 misconception IDs
-9 learner dimensions
-20 diagnostic items
-10 active T1 items
-0 measured responses
-0 admitted rules
+app version: 1.2.0
+state schema: 2
+11 learning modules
+55 governed drills
+33 cards
+10 structured Diagnostic/T1 items
+9 learner evidence dimensions
+feature freeze: ON
+W10 empirical validation: NOT_COMPLETED
+W11 release acceptance: NOT_COMPLETED
+human strategy review: PENDING
+human RU review: PENDING
+human EN review: PENDING
+final composition review: PENDING
 ```
 
-## Directional memory systems
-
-- preflop A1–A5;
-- multiway M1–M5;
-- deep OOP D1–D5.
+Do not infer measured learner performance from repository inventory. Real-use evidence must come from the learner progress export plus explicit W10 observations.
 
 ## Measurement architecture
 
 ```text
-prior hypotheses
-→ cold free-text decisions
-→ response class
-→ misconception evidence
-→ shrinkage estimate
-→ changed-node retest
-→ repair family
+cold structured Diagnostic
+→ deterministic post-completion feedback / routing
+→ lesson prediction + mechanism
+→ action + reason decisions
+→ repair on observed errors
+→ changed / boundary transfer checks
 → delayed retrieval
-→ field transfer
+→ reviewed field hands
+→ W10 empirical evidence summary
+→ human W10 adjudication
 ```
+
+Free-text explain-back remains useful recall evidence for the learner, but the runtime does not pretend to automatically understand or grade that text. Explain-back self-check creates no skill evidence by itself; independent changed/boundary decisions do.
 
 ## Current path
 
 ```text
-run T1
-→ score
-→ tentative personal rerank
-→ first repair micro-cycle
-→ targeted T2
-→ delayed retest
-→ Batumi field calibration
+REAL_USE_VALIDATION
+→ collect >=14-day W10 evidence
+→ W10_EMPIRICAL_VALIDATION
+→ evidence-backed repair only if repeated/high-severity findings justify it
+→ W11_RELEASE_ACCEPTANCE
 ```
 
-## Truth boundary
+The repository is no longer in `T1_EXECUTION_NEXT`. Structured Diagnostic and its feedback loop are already implemented on current main.
 
-Diagnostic readiness is not learner mastery. Untested means `UNMEASURED`, not weak or retained.
+## Feature-freeze boundary
+
+Further learner-facing product work requires one of:
+
+1. real-use/W10 evidence showing a repeated material problem;
+2. a separately verified P0/P1 correctness, learning-integrity, continuity, safety or UX defect.
+
+Do not reopen curriculum, scheduler policy, mastery thresholds, strategy truth, visual redesign or broad architecture from preference-level findings.
+
+## Environment boundary
+
+- Exact `origin/main` and exact-main CI must be re-resolved before repository work; do not trust an embedded SHA.
+- The automated deployment target is the isolated Cloudflare **test mirror** with dedicated `TEST_DB` only.
+- Production DB/deployment is not authorized by this Atlas.
+
+## Acceptance boundary
+
+Machine tooling may produce `READY_FOR_HUMAN_W10_REVIEW`; it may not create:
+
+- `W10_COMPLETE`;
+- human strategy approval;
+- human RU approval;
+- human EN approval;
+- final composition approval;
+- empirical field-valid truth without required reviewed field evidence.
 
 ## Verdict
 
-`DIAGNOSTIC_RUNTIME_READY`
+`IMPLEMENTATION_COMPLETE_FOR_REAL_USE_VALIDATION`
 
-`T1_EXECUTION_NEXT`
+`W10_EVIDENCE_COLLECTION_NEXT`
 
-`FINAL_RULE_COUNT_EMERGENT`
+`FEATURE_FREEZE_UNLESS_EVIDENCE_JUSTIFIES_CHANGE`
