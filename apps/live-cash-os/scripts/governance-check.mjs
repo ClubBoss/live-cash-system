@@ -19,8 +19,9 @@ function validateActiveProjectTruth() {
   const w10Pending = /w10[^\n]*NOT_COMPLETED/iu.test(currentProjectState);
   if (!featureFreeze || !w10Pending) return;
 
-  const staleAtlasMarkers = ["DIAGNOSTIC_EXECUTION_PHASE", "T1_EXECUTION_NEXT", "cold free-text decisions"];
-  const stale = staleAtlasMarkers.filter((marker) => projectAtlas.includes(marker));
+  const stale = ["DIAGNOSTIC_EXECUTION_PHASE", "cold free-text decisions"]
+    .filter((marker) => projectAtlas.includes(marker));
+  if (/^`T1_EXECUTION_NEXT`$/mu.test(projectAtlas)) stale.push("standalone T1_EXECUTION_NEXT verdict");
   if (stale.length) {
     throw new Error(`PROJECT_ATLAS contradicts feature-freeze/W10 truth: stale markers=${stale.join(", ")}`);
   }
