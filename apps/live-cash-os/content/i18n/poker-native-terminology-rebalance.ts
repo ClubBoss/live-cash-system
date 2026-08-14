@@ -67,7 +67,7 @@ export function applyPokerNativeTerminologyRebalance(locale: LocaleCode) {
   wrongActions[0].text = "Поставить, потому что HJ был префлоп-агрессором";
   wrongActions[1].text = "Чекать: в мультивее контбет получает слишком много продолжений";
   mul04.reasonOptions.forEach((option) => {
-    if (option.id === mul04.correctReasonId) option.text = "У BB больше низких двух пар, сетов и стритов, а HJ играет против двоих";
+    if (option.id === mul04.correctReasonId) option.text = "У BB больше низких сильных рук, а HJ против двоих";
   });
   const wrongReasons = mul04.reasonOptions.filter((option) => option.id !== mul04.correctReasonId);
   wrongReasons[0].text = "Префлоп-агрессор обычно сохраняет преимущество и после флопа";
