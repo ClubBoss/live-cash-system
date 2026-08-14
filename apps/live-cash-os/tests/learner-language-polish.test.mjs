@@ -74,7 +74,7 @@ const ruHybridPatterns = [
   /\bbetting range\b/iu,
   /\brange shape\b/iu,
   /\brange construction\b/iu,
-  /\branges?\b/iu,
+  /\branges?\b(?!-bet)/iu,
   /\bbranches?\b/iu,
   /\bplayers? behind\b/iu,
   /\bclosing action\b/iu,
@@ -92,7 +92,6 @@ const ruHybridPatterns = [
   /\bnode(?:-specific| signature)?\b/iu,
   /\b(?:gate|probe)\b/iu,
   /\bMDF\b/u,
-  /\bOOP\b/u,
   /\bheads-up\b/iu,
   /\brealisation\b/iu,
   /\bplayability\b/iu,
@@ -163,20 +162,31 @@ const componentHybridPatterns = [
   /\bMDF\b/u,
 ];
 
-test("final RU learner corpus is free of known technical-Frankenstein language", () => {
+test("final RU learner corpus rejects internal jargon while retaining scaffolded poker-native terms", () => {
   applyLocaleData("ru");
   assert.equal(moduleIds.length, 11);
   assert.equal(moduleIds.reduce((sum, moduleId) => sum + moduleById[moduleId].drills.length, 0), 55);
-  const failures = matchingCorpusStrings(finalCorpusStrings(), ruHybridPatterns);
+  const corpus = finalCorpusStrings();
+  const failures = matchingCorpusStrings(corpus, ruHybridPatterns);
   assert.deepEqual(failures, [], `Hybrid learner language remains:\n${failures.join("\n")}`);
+
+  assert.ok(corpus.some((text) => text.includes("мультивей (банк на троих и более)")), "Multiway first use must explain the player count");
+  assert.ok(corpus.some((text) => text.includes("хедз-ап (один на один)")), "Heads-up first use must explain one-on-one play");
+  assert.ok(corpus.some((text) => text.includes("OOP (вне позиции)")), "OOP first use must expose the Russian meaning");
+  assert.ok(corpus.some((text) => text.includes("range-bet (став")), "Range-bet first use must explain the practical meaning");
+  assert.ok(corpus.some((text) => /натс/iu.test(text)), "Standard nuts vocabulary should remain recognizable");
 
   const mul04 = moduleById.multiway.drills.find((item) => item.id === "mul-04");
   assert.ok(mul04);
   assert.equal(mul04.question, "Что HJ нужно проверить перед контбетом?");
-  assert.equal(mul04.actionOptions.find((option) => option.id === mul04.correctActionId)?.text, "Сильнейшие руки у BB и влияние игрока за спиной");
+  assert.equal(mul04.actionOptions.find((option) => option.id === mul04.correctActionId)?.text, "Преимущество BB по натсам и другим сильным рукам плюс второй соперник");
   assert.match(mul04.explanation, /одной префлоп-инициативы недостаточно/u);
 
-  assert.deepEqual(identitySnapshot(), originalIdentities, "Language polish changed scoring or misconception identities");
+  const agg04 = moduleById.aggression.drills.find((item) => item.id === "agg-04");
+  assert.ok(agg04);
+  assert.equal(agg04.question, "Можно ли автоматически продолжить range-bet (ставку почти всем диапазоном) на тёрне?");
+
+  assert.deepEqual(identitySnapshot(), originalIdentities, "Terminology rebalance changed scoring or misconception identities");
 });
 
 test("final EN learner corpus is free of residual research-language fragments", () => {

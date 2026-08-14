@@ -69,13 +69,13 @@ jobs:
             changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
             printf '%s\n' "$changed_files"
 
-            if printf '%s\n' "$changed_files" | grep -Eq '^(apps/live-cash-os/(app|components|public)/.*|apps/live-cash-os/.*\.(css|tsx|jsx)|apps/live-cash-os/e2e/pr-visual-evidence\.spec\.mjs|\.github/workflows/live-cash-os-ci\.yml)$'; then
+            if printf '%s\n' "$changed_files" | grep -Eq '^(apps/live-cash-os/(app|components|public)/.*|apps/live-cash-os/content/(i18n/.*|modules\.ts|diagnostic\.ts)|apps/live-cash-os/.*\.(css|tsx|jsx)|apps/live-cash-os/e2e/pr-visual-evidence\.spec\.mjs|\.github/workflows/live-cash-os-ci\.yml)$'; then
               enabled=1
               reason=ui-relevant-pr
             fi
 
             if printf '%s\n' "$changed_files" | grep -Eq 'DiagnosticExperience|diagnostic-feedback|content/diagnostic'; then add_target diagnostic; fi
-            if printf '%s\n' "$changed_files" | grep -Eq 'ExplainBackSelfCheck|RealUseLessonAssist|LearningRoute|content/modules'; then add_target learn; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'ExplainBackSelfCheck|RealUseLessonAssist|LearningRoute|content/modules|content/i18n'; then add_target learn; fi
             if printf '%s\n' "$changed_files" | grep -Eq 'Review|review|scheduler'; then add_target review; fi
             if printf '%s\n' "$changed_files" | grep -Eq 'RealHand|Wave7Field|field|hands'; then add_target hands; fi
             if printf '%s\n' "$changed_files" | grep -Eq 'Card|cards'; then add_target cards; fi

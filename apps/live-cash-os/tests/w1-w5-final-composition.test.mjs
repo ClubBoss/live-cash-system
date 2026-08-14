@@ -47,6 +47,7 @@ async function fixture() {
   await compileInto(root, "content/i18n/decision-option-balance.ts", "content/i18n/decision-option-balance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/final-learning-integrity.ts", "content/i18n/final-learning-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/stimulus-generalisation-micro.ts", "content/i18n/stimulus-generalisation-micro.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/poker-native-terminology-rebalance.ts", "content/i18n/poker-native-terminology-rebalance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
     .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
     .replace('from "./runtime"', 'from "./runtime.mjs"')
@@ -61,7 +62,8 @@ async function fixture() {
     .replace('from "./decision-transfer-integrity"', 'from "./decision-transfer-integrity.mjs"')
     .replace('from "./decision-option-balance"', 'from "./decision-option-balance.mjs"')
     .replace('from "./final-learning-integrity"', 'from "./final-learning-integrity.mjs"')
-    .replace('from "./stimulus-generalisation-micro"', 'from "./stimulus-generalisation-micro.mjs"'));
+    .replace('from "./stimulus-generalisation-micro"', 'from "./stimulus-generalisation-micro.mjs"')
+    .replace('from "./poker-native-terminology-rebalance"', 'from "./poker-native-terminology-rebalance.mjs"'));
 
   return {
     modules: await import(pathToFileURL(modulesPath).href),
@@ -135,7 +137,7 @@ test("final W3 RU and EN composition preserves stable IDs plus the two authorise
   assert.equal(ruAgg01.actionOptions[0].text, "Защищаться шире против недокомпенсированной c-bet-частоты");
   assert.equal(ruAgg02.question, "Какой план является разумным кандидатом?");
   assert.match(ruAgg02.assumptions.join(" "), /обычный сильный 3-бет-диапазон.*сухая старшая или спаренная доска/iu);
-  assert.equal(ruAgg04.question, "Можно ли автоматически снова ставить почти всем диапазоном на тёрне?");
+  assert.equal(ruAgg04.question, "Можно ли автоматически продолжить range-bet (ставку почти всем диапазоном) на тёрне?");
   assert.equal(ruAgg04.actionOptions[0].text, "Нет; заново отфильтровать оба диапазона и стать селективнее");
   assert.match(`${ruAgg05.question} ${ruAgg05.explanation}`, /крупн.*(?:рейз|пуш)|верхн.*вэлью/iu);
 
