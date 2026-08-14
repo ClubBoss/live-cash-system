@@ -68,6 +68,8 @@ import {
 import { useReliableLearnerState, type RecoveryCode, type SyncStatus } from "../lib/use-learner-state-sync";
 import { applyReviewedDiagnostic, isGenuineExplainBackAttempt, pendingHumanReviewCount, saveExplainBack } from "../lib/wave7";
 import DataSafetyPanel from "./DataSafetyPanel";
+import DiagnosticExperience from "./DiagnosticExperience";
+import ExplainBackSelfCheck from "./ExplainBackSelfCheck";
 import LearningRoute from "./LearningRoute";
 import { Wave7ExplainBackHistory, Wave7FieldPanel, Wave7ProgressDetails } from "./Wave7Experience";
 
@@ -620,8 +622,8 @@ export default function LiveCashAppV11() {
   function finishDiagnosticImport() {
     setDailyBudget("15");
     setNotice(locale === "ru"
-      ? "Разобранный результат импортирован. Today перестроен по приоритетам; импорт сам по себе не подтверждает освоение навыка, запоминание после паузы или применение за столом."
-      : "The reviewed result was imported. Today is reprioritised; the import by itself does not prove the skill, later recall, or real-table use.");
+      ? "Диагностика завершена. Today перестроен по приоритетам; этот baseline сам по себе не подтверждает освоение навыка, запоминание после паузы или применение за столом."
+      : "Diagnostic complete. Today is reprioritised; this baseline by itself does not prove the skill, later recall, or real-table use.");
     setTab("today");
   }
 
@@ -817,7 +819,7 @@ function LessonSession({ locale, state, setState, source, syncStatus, recoveryCo
     {session.step === 5 && <Lab locale={locale} module={source} onNext={() => setStep(6, 2)} />}
     {session.step === 6 && <><p className="eyebrow">7 · {t.changedSituation}</p><h2>{t.changedSituationTitle}</h2><p className="support">{t.changedSituationHelp}</p><Decision locale={locale} state={state} setState={setState} drill={secondApplication} onContinue={() => setStep(7, 2)} /></>}
     {session.step === 7 && <ExplainBack locale={locale} state={state} setState={setState} module={source} />}
-    {session.step === 8 && <TableCard locale={locale} module={source} onNext={() => setStep(9)} />}
+    {session.step === 8 && <TableCard locale={locale} state={state} setState={setState} module={source} onNext={() => setStep(9)} />}
     {session.step === 9 && <LessonSummary locale={locale} state={state} module={source} onFinish={() => { setState(completeLesson(state, source.id)); onFinished(); }} />}
   </section>;
 }
@@ -931,10 +933,8 @@ function ExplainBack({ locale, state, setState, module }: { locale: LocaleCode; 
   </>;
 }
 
-function TableCard({ locale, module, onNext }: { locale: LocaleCode; module: ModuleContent; onNext: () => void }) {
-  const t = runtimeCopy[locale];
-  const copy = locale === "ru" ? { details: "Термины и подробности" } : { details: "Terms and details" };
-  return <><p className="eyebrow">9 · {t.tableCard}</p><h2>{localizedModule(module, locale).tableCue}</h2><div className="table-card">{module.tableCard.map((item, index) => <div key={item}><span>{String(index + 1).padStart(2, "0")}</span><b>{item}</b></div>)}</div><details><summary>{copy.details}</summary><div className="glossary">{module.glossary.map((item) => <p key={item.term}><b>{item.term}</b>{item.meaning}</p>)}</div></details><button className="primary" onClick={onNext}>{t.finishLesson} <span>→</span></button></>;
+function TableCard({ locale, state, setState, module, onNext }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; module: ModuleContent; onNext: () => void }) {
+  return <ExplainBackSelfCheck locale={locale} state={state} setState={setState} module={module} onNext={onNext} />;
 }
 
 function LessonSummary({ locale, state, module, onFinish }: { locale: LocaleCode; state: LearnerState; module: ModuleContent; onFinish: () => void }) {
@@ -1163,7 +1163,11 @@ function SkillMap({ locale, state, onLesson, onPractice }: { locale: LocaleCode;
   </section>;
 }
 
-function Diagnostic({ locale, state, setState, syncStatus, recoveryCode, lastLocalSaveAt, onExit, onImported }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onImported: () => void }) {
+function Diagnostic({ locale, state, setState, onExit, onImported }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onImported: () => void }) {
+  return <DiagnosticExperience locale={locale} state={state} setState={setState} onExit={onExit} onRouted={onImported} />;
+}
+
+export function LegacyDiagnostic({ locale, state, setState, syncStatus, recoveryCode, lastLocalSaveAt, onExit, onImported }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; syncStatus: SyncStatus; recoveryCode: RecoveryCode; lastLocalSaveAt: string | null; onExit: () => void; onImported: () => void }) {
   const t = runtimeCopy[locale];
   const diagnostic = state.diagnostic;
   const sourceItem = diagnosticT1[diagnostic.responses.length];
