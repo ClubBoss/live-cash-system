@@ -53,7 +53,7 @@ test("explain-back saves durably and is visible after reload", async ({ page }) 
   const explanation = "Сначала определяю эффективный стек и рабочую единицу ставок, затем строю решение из этой геометрии, а не из номинального числа BB.";
   await page.locator(".large-input").fill(explanation);
   await page.getByRole("button", { name: "Сохранить объяснение" }).click();
-  await expect(page.getByText("ПАМЯТКА ЗА СТОЛОМ")).toBeVisible();
+  await expect(page.getByText("9 · СРАВНИ СВОЁ ОБЪЯСНЕНИЕ", { exact: true })).toBeVisible();
 
   await page.reload();
   await page.getByRole("button", { name: "Руки", exact: true }).click();

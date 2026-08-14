@@ -143,14 +143,18 @@ test("the starting check freezes the start locale, item locale and real first-it
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await page.waitForTimeout(5_000);
   await page.getByRole("button", { name: "Начать диагностику" }).click();
-  await page.getByLabel("Как бы ты сыграл?").fill("140 страддлов");
-  await page.getByLabel("Почему?").fill("Страддл задаёт рабочую ставку.");
-  await page.getByRole("button", { name: /^Ответить/ }).click();
+  const ruSets = page.locator("fieldset.answer-set");
+  await expect(ruSets).toHaveCount(2);
+  await ruSets.nth(0).getByRole("button").first().click();
+  await ruSets.nth(1).getByRole("button").first().click();
+  await page.getByRole("button", { name: /^Зафиксировать ответ/ }).click();
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  await page.getByLabel("How would you play?").fill("270 and 900 pairwise");
-  await page.getByLabel("Why?").fill("Effective depth is opponent-specific in a multiway pot.");
-  await page.getByRole("button", { name: /^Answer/ }).click();
+  const enSets = page.locator("fieldset.answer-set");
+  await expect(enSets).toHaveCount(2);
+  await enSets.nth(0).getByRole("button").first().click();
+  await enSets.nth(1).getByRole("button").first().click();
+  await page.getByRole("button", { name: /^Lock response/ }).click();
 
   const state = await localState(page);
   expect(state.diagnostic.localeAtStart).toBe("ru");

@@ -107,12 +107,19 @@ test("Diagnostic confidence and disabled submit explain their contract", async (
   await page.getByRole("button", { name: "Диагностика", exact: true }).click();
   await page.getByRole("button", { name: "Начать диагностику", exact: true }).click();
 
-  await expect(page.getByText(/грубая самооценка, а не точная вероятность/i)).toBeVisible();
-  await expect(page.getByText(/Чтобы сохранить ответ, укажи действие и причину/i)).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Ответить/ })).toBeDisabled();
+  await expect(page.getByText(/Грубая самооценка до фидбека, не точная вероятность/i)).toBeVisible();
+  await expect(page.getByText(/Чтобы сохранить ответ, выбери действие и причину/i)).toBeVisible();
+  const submit = page.getByRole("button", { name: /^Зафиксировать ответ/ });
+  await expect(submit).toBeDisabled();
 
-  await page.getByLabel("Как бы ты сыграл?").fill("Call");
-  await expect(page.getByText(/Чтобы сохранить ответ, укажи причину/i)).toBeVisible();
+  const answerSets = page.locator("fieldset.answer-set");
+  await expect(answerSets).toHaveCount(2);
+  await answerSets.nth(0).getByRole("button").first().click();
+  await expect(page.getByText(/Чтобы сохранить ответ, выбери причину/i)).toBeVisible();
+  await expect(submit).toBeDisabled();
+
+  await answerSets.nth(1).getByRole("button").first().click();
+  await expect(submit).toBeEnabled();
 });
 
 test("Real Hands shows completion count and exact missing required fields", async ({ page }) => {
