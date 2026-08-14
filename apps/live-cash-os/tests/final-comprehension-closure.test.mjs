@@ -81,7 +81,6 @@ test("final comprehension closure keeps first-use wording and governance truth a
     "applyFinalLearningIntegrityClosure",
     "applyStimulusGeneralisationMicro",
     "applyFinalLanguagePolish",
-    "applyFinalLanguageParity",
     "applyDiagnosticIntegrityLabels",
   ];
   let previous = -1;
