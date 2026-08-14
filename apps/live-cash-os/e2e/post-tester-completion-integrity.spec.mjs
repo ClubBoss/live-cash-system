@@ -60,6 +60,15 @@ async function seedLessonStep(page, step) {
   }, { key: LEARNER_KEY, step });
 }
 
+async function completeExplainBackTransferCheck(page) {
+  await expect(page.getByText("9 · СРАВНИ СВОЁ ОБЪЯСНЕНИЕ", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Покрыл главное", exact: true }).click();
+  await page.getByRole("button", { name: "Глубокий старт может превратиться в низкий postflop SPR", exact: true }).click();
+  await page.getByRole("button", { name: "Длина будущего дерева зависит от оставшегося стека относительно сформированного банка", exact: true }).click();
+  await page.getByRole("button", { name: "Зафиксировать решение", exact: true }).click();
+  await expect(page.getByRole("button", { name: /^Открыть итог урока/ })).toBeVisible();
+}
+
 test.describe("Post-tester Wave D completed lesson integrity", () => {
   test.skip(process.env.LIVE_CASH_DEPLOY_TARGET === "test-mirror", "Completion ordering is isolated from the test-invite gate in the regular build.");
 
@@ -69,8 +78,8 @@ test.describe("Post-tester Wave D completed lesson integrity", () => {
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     await seedLessonStep(page, 8);
     await page.reload();
-    await expect(page.getByRole("button", { name: /^Открыть итог урока/ })).toBeVisible();
     expect((await localState(page)).activeSession?.step).toBe(8);
+    await completeExplainBackTransferCheck(page);
     await page.getByRole("button", { name: /^Открыть итог урока/ }).click();
     await expect(page.getByText("10 · Итог урока", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /^Завершить урок и вернуться/ })).toBeVisible();
