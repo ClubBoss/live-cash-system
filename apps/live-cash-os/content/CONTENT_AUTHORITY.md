@@ -88,7 +88,7 @@ The final transition requires explicit human poker review of the current corpus.
 
 Drill lifecycle:
 
-`DRILLS_APPROVED -> DRILLS_REPAIR_REQUIRED -> DRILLS_APPROVED`
+`DRILLS_APPROVED -> DRILLS_REPAIR_REQUIRED -> DRILLS_REVIEW_PENDING -> DRILLS_APPROVED`
 
 The final transition requires explicit human drill review of the current corpus.
 
