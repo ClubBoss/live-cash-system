@@ -40,3 +40,10 @@ export function profileStorageKey(baseKey: string, rawCode: string | null | unde
   const storageId = profileStorageId(rawCode);
   return storageId ? `${baseKey}:profile:${storageId}` : baseKey;
 }
+
+export function activeProfileStorageKey(baseKey: string): string {
+  if (typeof window === "undefined") return baseKey;
+  let profileCode: string | null = null;
+  try { profileCode = window.localStorage.getItem(PORTABLE_PROFILE_KEY); } catch { /* best effort */ }
+  return profileStorageKey(baseKey, profileCode);
+}
