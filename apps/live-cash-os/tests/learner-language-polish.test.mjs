@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import ts from "typescript";
 import { fileURLToPath } from "node:url";
 import { moduleById } from "../content/modules.ts";
 import { applyLocaleData } from "../content/i18n/locale-pipeline.ts";
@@ -124,11 +125,19 @@ function matchingCorpusStrings(strings, patterns) {
   return failures;
 }
 
-function quotedStrings(source) {
+function componentTextLiterals(source, fileName) {
+  const parsed = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   const values = [];
-  for (const pattern of [/"((?:\\.|[^"\\])*)"/gu, /'((?:\\.|[^'\\])*)'/gu, /`((?:\\.|[^`\\])*)`/gu]) {
-    for (const match of source.matchAll(pattern)) values.push(match[1]);
-  }
+  const visit = (node) => {
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isJsxText(node)) {
+      values.push(node.text);
+    } else if (ts.isTemplateExpression(node)) {
+      values.push(node.head.text);
+      for (const span of node.templateSpans) values.push(span.literal.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
   return values;
 }
 
@@ -163,7 +172,7 @@ test("final RU learner corpus is free of known technical-Frankenstein language",
   const mul04 = moduleById.multiway.drills.find((item) => item.id === "mul-04");
   assert.ok(mul04);
   assert.equal(mul04.question, "Что HJ нужно проверить перед контбетом?");
-  assert.equal(mul04.actionOptions.find((option) => option.id === mul04.correctActionId)?.text, "У кого больше сильнейших рук на этой доске и как влияет игрок за спиной");
+  assert.equal(mul04.actionOptions.find((option) => option.id === mul04.correctActionId)?.text, "Сильнейшие руки у BB и влияние игрока за спиной");
   assert.match(mul04.explanation, /одной префлоп-инициативы недостаточно/u);
 
   assert.deepEqual(identitySnapshot(), originalIdentities, "Language polish changed scoring or misconception identities");
@@ -176,13 +185,13 @@ test("final EN learner corpus is free of residual research-language fragments", 
   assert.deepEqual(identitySnapshot(), originalIdentities, "English language polish changed scoring or misconception identities");
 });
 
-test("all RU component string literals are free of internal architecture jargon", async () => {
+test("all RU component text literals are free of internal architecture jargon", async () => {
   const componentDir = path.join(root, "components");
   const names = (await readdir(componentDir)).filter((name) => name.endsWith(".tsx"));
   const failures = [];
   for (const name of names) {
     const source = await readFile(path.join(componentDir, name), "utf8");
-    const russianStrings = quotedStrings(source).filter((text) => /[А-Яа-яЁё]/u.test(text));
+    const russianStrings = componentTextLiterals(source, name).filter((text) => /[А-Яа-яЁё]/u.test(text));
     for (const text of russianStrings) {
       for (const pattern of componentHybridPatterns) {
         if (pattern.test(text)) failures.push(`${name}: ${pattern} :: ${text}`);
