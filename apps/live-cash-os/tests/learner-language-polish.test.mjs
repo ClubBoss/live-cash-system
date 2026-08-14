@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -61,8 +61,8 @@ function learnerStrings(module) {
   return strings.filter(Boolean);
 }
 
-function finalCorpus() {
-  return moduleIds.flatMap((moduleId) => learnerStrings(moduleById[moduleId])).join("\n");
+function finalCorpusStrings() {
+  return moduleIds.flatMap((moduleId) => learnerStrings(moduleById[moduleId]));
 }
 
 const ruHybridPatterns = [
@@ -114,12 +114,50 @@ const enResearchPatterns = [
   /\bstructural prior\b/iu,
 ];
 
+function matchingCorpusStrings(strings, patterns) {
+  const failures = [];
+  for (const text of strings) {
+    for (const pattern of patterns) {
+      if (pattern.test(text)) failures.push(`${pattern} :: ${text}`);
+    }
+  }
+  return failures;
+}
+
+function quotedStrings(source) {
+  const values = [];
+  for (const pattern of [/"((?:\\.|[^"\\])*)"/gu, /'((?:\\.|[^'\\])*)'/gu, /`((?:\\.|[^`\\])*)`/gu]) {
+    for (const match of source.matchAll(pattern)) values.push(match[1]);
+  }
+  return values;
+}
+
+const componentHybridPatterns = [
+  /\bself-check\b/iu,
+  /\bfree-text\b/iu,
+  /\bskill state\b/iu,
+  /\bevidence\b/iu,
+  /\bsource ranges?\b/iu,
+  /\branges?\b/iu,
+  /\bbranches?\b/iu,
+  /\bnode\b/iu,
+  /\b(?:gate|probe)\b/iu,
+  /\bheads-up\b/iu,
+  /\bownership\b/iu,
+  /\bbluff supply\b/iu,
+  /\bpopulation prior\b/iu,
+  /\bfield evidence\b/iu,
+  /\brealisation\b/iu,
+  /\bplayability\b/iu,
+  /\bOOP\b/u,
+  /\bMDF\b/u,
+];
+
 test("final RU learner corpus is free of known technical-Frankenstein language", () => {
   applyLocaleData("ru");
   assert.equal(moduleIds.length, 11);
   assert.equal(moduleIds.reduce((sum, moduleId) => sum + moduleById[moduleId].drills.length, 0), 55);
-  const corpus = finalCorpus();
-  const failures = ruHybridPatterns.filter((pattern) => pattern.test(corpus)).map(String);
+  const failures = matchingCorpusStrings(finalCorpusStrings(), ruHybridPatterns);
   assert.deepEqual(failures, [], `Hybrid learner language remains:\n${failures.join("\n")}`);
 
   const mul04 = moduleById.multiway.drills.find((item) => item.id === "mul-04");
@@ -133,33 +171,23 @@ test("final RU learner corpus is free of known technical-Frankenstein language",
 
 test("final EN learner corpus is free of residual research-language fragments", () => {
   applyLocaleData("en");
-  const corpus = finalCorpus();
-  const failures = enResearchPatterns.filter((pattern) => pattern.test(corpus)).map(String);
+  const failures = matchingCorpusStrings(finalCorpusStrings(), enResearchPatterns);
   assert.deepEqual(failures, [], `Research/editorial language remains in English learner copy:\n${failures.join("\n")}`);
   assert.deepEqual(identitySnapshot(), originalIdentities, "English language polish changed scoring or misconception identities");
 });
 
-test("high-use RU UI does not expose known internal language fragments", async () => {
-  const files = [
-    "components/ExplainBackSelfCheck.tsx",
-    "components/RealUseLessonAssist.tsx",
-    "components/LiveCashAppCore.tsx",
-    "components/DiagnosticExperience.tsx",
-    "components/Wave7Experience.tsx",
-  ];
-  const sources = await Promise.all(files.map(async (relativePath) => [relativePath, await readFile(path.join(root, relativePath), "utf8")]));
-  const forbidden = [
-    /Explain-back и self-check/iu,
-    /Evidence здесь создаёт/iu,
-    /не меняет skill state/iu,
-    /поняла твой free-text/iu,
-    /ПРОВЕРЬ НА НОВОМ СПОТЕ/iu,
-    /Новый спот показал/iu,
-    /новом, не использованном в Диагностике споте/iu,
-  ];
+test("all RU component string literals are free of internal architecture jargon", async () => {
+  const componentDir = path.join(root, "components");
+  const names = (await readdir(componentDir)).filter((name) => name.endsWith(".tsx"));
   const failures = [];
-  for (const [relativePath, source] of sources) {
-    for (const pattern of forbidden) if (pattern.test(source)) failures.push(`${relativePath}: ${pattern}`);
+  for (const name of names) {
+    const source = await readFile(path.join(componentDir, name), "utf8");
+    const russianStrings = quotedStrings(source).filter((text) => /[А-Яа-яЁё]/u.test(text));
+    for (const text of russianStrings) {
+      for (const pattern of componentHybridPatterns) {
+        if (pattern.test(text)) failures.push(`${name}: ${pattern} :: ${text}`);
+      }
+    }
   }
-  assert.deepEqual(failures, [], `Internal learner UI language remains:\n${failures.join("\n")}`);
+  assert.deepEqual(failures, [], `Internal jargon remains in RU component copy:\n${failures.join("\n")}`);
 });
