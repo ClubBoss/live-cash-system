@@ -11,6 +11,7 @@ This glossary controls learner-facing terminology. It does not prohibit ordinary
 - Short, practical, poker-native sentences.
 - Prefer the decision the learner can execute at the table.
 - Use an English poker term in parentheses only when it improves recognition in courses, software, or live discussion.
+- Standard poker vocabulary is not a defect. On first meaningful use, pair a term with a short plain-Russian explanation when a less experienced learner may not know it; later uses may stay poker-native.
 - Do not translate one term differently across modules without a strategic reason.
 - Do not expose internal words such as `gate`, `node signature`, `source range`, `evidence probe`, or `measurement context` as unexplained learner copy.
 
@@ -29,6 +30,12 @@ This glossary controls learner-facing terminology. It does not prohibit ordinary
 | effective depth | эффективная глубина | effective depth | Use for the strategic depth expressed in BB/straddles, not as a synonym for the raw stack amount. |
 | stack-to-pot ratio | SPR / отношение стека к банку | SPR / stack-to-pot ratio | Introduce the full meaning once; `SPR` is acceptable thereafter. |
 | range | диапазон | range | `Рейндж` is allowed only in quoted table speech or where the owner explicitly prefers it. Default learner copy uses `диапазон`. |
+| IP / OOP | IP (в позиции) / OOP (вне позиции) | IP / OOP | On first meaningful use, expose the abbreviation with its Russian meaning. After that, `IP`/`OOP` are useful poker-native shorthand. Do not use hybrids such as `OOP discomfort` as an explanation. |
+| heads-up | хедз-ап (один на один) | heads-up / HU | First meaningful use makes “one on one” explicit; later `хедз-ап` or `HU` is acceptable. Do not replace every occurrence with a long бытовой paraphrase. |
+| multiway | мультивей (банк на троих и более) | multiway | First meaningful use makes the player count clear; later learner copy should normally use `мультивей`, not repeatedly spell out “банк на троих и более”. |
+| range-bet | range-bet (ставка почти всем диапазоном) | range bet | Introduce the practical meaning once; later `range-bet` is acceptable when the lesson has already established it. Do not expose abstract `range construction` or other research-language hybrids. |
+| nuts | натс / натсы | nuts | Standard poker term. Define as the strongest possible hand(s) in the current context when first introduced to a novice; retain `натс/натсы` afterward. |
+| nut blocker | натсовый блокер | nut blocker | Standard poker term. Explain which nut-value combinations it removes and whether it also removes bluffs; do not reduce the decision to blocker prestige. |
 | equity realisation | реализация эквити | equity realisation | Avoid bare `realisation` in Russian. Explain which future actions prevent the hand from realising equity. |
 | squeeze | сквиз | squeeze | Standard poker loanword; define the players and dead money rather than saying “squeeze branch”. |
 | blocker | блокер | blocker | The card-removal effect must be linked to credible value/bluff combinations. |
@@ -48,7 +55,6 @@ This glossary controls learner-facing terminology. It does not prohibit ordinary
 | source of the range | откуда пришёл диапазон | range source | In learner copy ask “кто и из какой позиции заколлировал?” rather than displaying `source range`. |
 | branch | ветка розыгрыша / конкретная линия | branch | Use only when the action sequence is clear. Avoid abstract `branch construction`. |
 | node | ситуация / точка решения | node / decision point | Russian learner copy normally uses `ситуация` or `точка решения`. `Node` is acceptable in internal provenance. |
-| multiway | мультивей / банк на троих и более | multiway | First occurrence should make the player count clear. |
 | straddle | страддл | straddle | State whether mandatory/live and use the correct strategic unit. |
 | baseline | базовая линия | baseline | A default under explicit assumptions, not a claim of universal GTO. |
 | exploit | подстройка | exploit / adjustment | Russian copy should name the observed leak and confidence; avoid using `эксплойт` alone as an explanation. |
@@ -86,7 +92,7 @@ The following are not admissible as unexplained Russian learner copy:
 - `OOP discomfort не заменяет анализ realisation`;
 - `evidence gate`, `probe`, `measurement context`, or raw state-machine labels in primary UI.
 
-These phrases may appear in internal governance or code when they are the precise implementation term.
+These phrases may appear in internal governance or code when they are the precise implementation term. Standard poker terms such as `OOP`, `range-bet`, `натсы`, `блокер`, `блеф-кетчер`, `мультивей` and `хедз-ап` are not prohibited when their first meaningful use is scaffolded and the surrounding sentence remains understandable.
 
 ## 4. Copy rules
 
