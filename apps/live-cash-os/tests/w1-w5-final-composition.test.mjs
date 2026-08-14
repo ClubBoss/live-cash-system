@@ -135,7 +135,7 @@ test("final W3 RU and EN composition preserves stable IDs plus the two authorise
   assert.equal(ruAgg01.actionOptions[0].text, "Защищаться шире против недокомпенсированной c-bet-частоты");
   assert.equal(ruAgg02.question, "Какой план является разумным кандидатом?");
   assert.match(ruAgg02.assumptions.join(" "), /обычный сильный 3-бет-диапазон.*сухая старшая или спаренная доска/iu);
-  assert.equal(ruAgg04.question, "Можно ли автоматически повторить range-bet на тёрне?");
+  assert.equal(ruAgg04.question, "Можно ли автоматически снова ставить почти всем диапазоном на тёрне?");
   assert.equal(ruAgg04.actionOptions[0].text, "Нет; заново отфильтровать оба диапазона и стать селективнее");
   assert.match(`${ruAgg05.question} ${ruAgg05.explanation}`, /крупн.*(?:рейз|пуш)|верхн.*вэлью/iu);
 

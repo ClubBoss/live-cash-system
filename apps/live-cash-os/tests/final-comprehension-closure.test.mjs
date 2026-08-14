@@ -51,7 +51,8 @@ test("final comprehension closure keeps first-use wording and governance truth a
   assert.match(finalPlusEv, /Происхождение диапазона/u);
   assert.match(finalPlusEv, /Реальные блефы/u);
   assert.match(finalPlusEv, /Что опровергнет рид/u);
-  assert.doesNotMatch(finalPlusEv, /solver|MDF|точн(?:ая|ые) частот/u);
+  assert.match(finalPlusEv, /applyFinalLanguagePolish/u);
+  assert.match(finalPlusEv, /no corpus-wide search\/replace is allowed here/u);
 
   for (const concrete of ["76s", "KJo", "A5s", "98s", "T6s", "KTs", "KQ", "K-9-7", "A-7-2"]) {
     assert.match(decisionTransfer, new RegExp(concrete.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u"), `Decision-transfer layer misses ${concrete}`);
@@ -77,6 +78,9 @@ test("final comprehension closure keeps first-use wording and governance truth a
     "applyFinalPlusEvCopy",
     "applyDecisionTransferIntegrity",
     "applyDecisionOptionBalance",
+    "applyFinalLearningIntegrityClosure",
+    "applyStimulusGeneralisationMicro",
+    "applyFinalLanguagePolish",
     "applyDiagnosticIntegrityLabels",
   ];
   let previous = -1;
