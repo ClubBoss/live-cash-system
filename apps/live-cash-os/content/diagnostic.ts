@@ -1,3 +1,6 @@
+import { drillById } from "./modules";
+import type { LocaleCode } from "../lib/model";
+
 export type DiagnosticItem = {
   id: string;
   title: string;
@@ -15,8 +18,8 @@ const item = (id: string, targetSeconds: number, drillId: string): DiagnosticIte
 });
 
 // title/prompt are compatibility fields for LegacyDiagnostic only. They are intentionally
-// empty here and are derived from the mapped final drill by the locale pipeline, so this
-// file cannot become a second source of learner-facing Diagnostic truth.
+// empty at source and are derived from the mapped final drill after locale composition,
+// so this file cannot become a second source of learner-facing Diagnostic truth.
 export const diagnosticT1: DiagnosticItem[] = [
   item("LD-001", 30, "geo-04"),
   item("LD-002", 25, "pre-04"),
@@ -29,3 +32,12 @@ export const diagnosticT1: DiagnosticItem[] = [
   item("LD-009", 45, "mul-04"),
   item("LD-010", 55, "riv-04"),
 ];
+
+export function syncDiagnosticCompatibility(locale: LocaleCode) {
+  diagnosticT1.forEach((entry, index) => {
+    const drill = drillById[entry.drillId];
+    if (!drill) throw new Error(`Missing Diagnostic drill ${entry.drillId}`);
+    entry.title = locale === "ru" ? `Диагностический спот ${index + 1}` : `Diagnostic spot ${index + 1}`;
+    entry.prompt = drill.question;
+  });
+}
