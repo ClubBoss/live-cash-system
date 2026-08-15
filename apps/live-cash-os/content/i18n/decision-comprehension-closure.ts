@@ -37,7 +37,7 @@ function applyRussianDecisionComprehensionClosure() {
   });
   patchDrill("preflop", "pre-02", {
     assumptions: ["200bb", "HJ открывается", "CO коллирует", "Hero BTN 76s", "блайнды пассивны"],
-    question: "Сначала классифицируй 76s. Затем выбери действие с учётом позиции, глубины и пассивных блайндов.",
+    question: "Сначала назови семейство 76s и его важные свойства. Затем выбери действие с учётом позиции, глубины и пассивных блайндов.",
     explanation: "76s — мастевая связка: масть и связность помогают реализации, но сами по себе не выбирают действие. Здесь позиция, глубина и низкий риск сквиза сохраняют ценность колла. 98s относится к тому же семейству, но конкретное действие каждый раз зависит от контекста.",
   });
   patchDrill("preflop", "pre-03", {
@@ -100,7 +100,7 @@ function applyRussianDecisionComprehensionClosure() {
     explanation: "A5s даёт туз-блокер, масть и связность, но этого недостаточно: для 4-бет-блефа нужны правдоподобное вэлью-продолжение и реальные более сильные руки, которые могут сфолдить.",
   });
   patchDrill("ancestry", "anc-02", {
-    explanation: "A5s не изменился; изменился диапазон SB. Против очень тайтового 3-бета почти нет более сильных рук, которые реально сфолдят, поэтому ценность 4-бет-блефа резко падает.",
+    explanation: "Комбо A5s не изменилось; изменился диапазон SB. Против очень тайтового 3-бета почти нет более сильных рук, которые реально сфолдят, поэтому ценность 4-бет-блефа резко падает.",
   });
   patchDrill("ancestry", "anc-03", {
     assumptions: ["150bb", "Hero BTN против BB 3-бета", "Hero 98s", "колл остаётся реальной альтернативой", "98s слабо блокирует премиальные продолжения"],
@@ -173,11 +173,11 @@ function applyEnglishDecisionComprehensionClosure() {
   });
   patchDrill("preflop", "pre-02", {
     assumptions: ["200bb", "HJ opens", "CO calls", "Hero BTN 76s", "passive blinds"],
-    question: "Classify 76s first, then choose the action using position, depth and the passive blinds.",
+    question: "Name the family of 76s and its relevant traits first, then choose the action using position, depth and the passive blinds.",
     explanation: "76s is a suited connector: suitedness and connectivity help realisation, but they do not choose the action by themselves. Here, position, depth and low squeeze risk preserve the value of calling. 98s belongs to the same family, but its action still depends on context.",
   });
   patchDrill("preflop", "pre-03", {
-    assumptions: ["100bb", "EP opens 4bb", "HJ calls", "Hero CO KJo", "both source ranges are stronger than a late-position open-plus-call"],
+    assumptions: ["100bb", "EP opens 4bb", "HJ calls", "Hero CO KJo", "the opener and caller ranges are both stronger than a late-position open-plus-call"],
     question: "Classify KJo and recall its weaknesses against strong ranges. What should Hero do here?",
   });
   patchDrill("preflop", "pre-04", {
@@ -198,7 +198,7 @@ function applyEnglishDecisionComprehensionClosure() {
     explanation: "A5s has an ace blocker, suitedness and wheel connectivity, but that is not enough by itself: a 4-bet bluff still needs a credible value region and genuinely stronger hands that can fold.",
   });
   patchDrill("ancestry", "anc-02", {
-    explanation: "A5s has not changed; the SB range has. Against a very tight 3-bet there are few stronger hands that can actually fold, so the value of the 4-bet bluff drops sharply.",
+    explanation: "The A5s combo is unchanged; the SB range changed. Against a very tight 3-bet there are few stronger hands that can actually fold, so the value of the 4-bet bluff drops sharply.",
   });
   patchDrill("ancestry", "anc-03", {
     assumptions: ["150bb", "Hero BTN versus a BB 3-bet", "Hero 98s", "calling remains a real alternative", "98s weakly blocks premium continues"],
