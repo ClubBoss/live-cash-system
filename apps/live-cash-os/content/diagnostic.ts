@@ -9,28 +9,20 @@ export type DiagnosticItem = {
   drillId: string;
 };
 
-const item = (id: string, targetSeconds: number, drillId: string): DiagnosticItem => ({
-  id,
-  title: "",
-  prompt: "",
-  targetSeconds,
-  drillId,
-});
-
 // title/prompt are compatibility fields for LegacyDiagnostic only. They are intentionally
 // empty at source and are derived from the mapped final drill after locale composition,
 // so this file cannot become a second source of learner-facing Diagnostic truth.
 export const diagnosticT1: DiagnosticItem[] = [
-  item("LD-001", 30, "geo-04"),
-  item("LD-002", 25, "pre-04"),
-  item("LD-003", 35, "bli-03"),
-  item("LD-004", 40, "fil-04"),
-  item("LD-005", 45, "agg-04"),
-  item("LD-006", 50, "sha-04"),
-  item("LD-007", 35, "anc-04"),
-  item("LD-008", 50, "evi-04"),
-  item("LD-009", 45, "mul-04"),
-  item("LD-010", 55, "riv-04"),
+  { id: "LD-001", title: "", prompt: "", targetSeconds: 30, drillId: "geo-04" },
+  { id: "LD-002", title: "", prompt: "", targetSeconds: 25, drillId: "pre-04" },
+  { id: "LD-003", title: "", prompt: "", targetSeconds: 35, drillId: "bli-03" },
+  { id: "LD-004", title: "", prompt: "", targetSeconds: 40, drillId: "fil-04" },
+  { id: "LD-005", title: "", prompt: "", targetSeconds: 45, drillId: "agg-04" },
+  { id: "LD-006", title: "", prompt: "", targetSeconds: 50, drillId: "sha-04" },
+  { id: "LD-007", title: "", prompt: "", targetSeconds: 35, drillId: "anc-04" },
+  { id: "LD-008", title: "", prompt: "", targetSeconds: 50, drillId: "evi-04" },
+  { id: "LD-009", title: "", prompt: "", targetSeconds: 45, drillId: "mul-04" },
+  { id: "LD-010", title: "", prompt: "", targetSeconds: 55, drillId: "riv-04" },
 ];
 
 export function syncDiagnosticCompatibility(locale: LocaleCode) {
