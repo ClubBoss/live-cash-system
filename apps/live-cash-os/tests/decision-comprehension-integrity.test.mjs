@@ -79,13 +79,15 @@ test("decision comprehension closure preserves scoring identities and removes RU
   assert.equal(drillById["tra-05"].question, "Какой статус навыка теперь оправдан?");
 });
 
-test("Diagnostic has one drill-backed truth instead of stale parallel prompts", () => {
+test("Diagnostic compatibility copy is derived from the same mapped final drills", () => {
+  applyLocaleData("ru");
   assert.equal(diagnosticT1.length, 10);
   assert.equal(new Set(diagnosticT1.map((item) => item.drillId)).size, 10);
-  for (const item of diagnosticT1) {
+  diagnosticT1.forEach((item, index) => {
     assert.ok(drillById[item.drillId], `${item.id}: missing mapped drill ${item.drillId}`);
-    assert.deepEqual(Object.keys(item).sort(), ["drillId", "id", "targetSeconds"]);
-  }
+    assert.equal(item.title, `Диагностический спот ${index + 1}`);
+    assert.equal(item.prompt, drillById[item.drillId].question);
+  });
 });
 
 test("English final decision surfaces reject the same internal meta-language class", () => {
@@ -94,4 +96,8 @@ test("English final decision surfaces reject the same internal meta-language cla
   assert.deepEqual(identities(), before, "English wording must preserve drill/scoring identities");
   assert.deepEqual(violations(EN_CONTAMINATION), []);
   assert.equal(drillById["pre-04"].question, "If A5s is already used sometimes as a squeeze, what changes against confirmed wider entries?");
+  diagnosticT1.forEach((item, index) => {
+    assert.equal(item.title, `Diagnostic spot ${index + 1}`);
+    assert.equal(item.prompt, drillById[item.drillId].question);
+  });
 });
