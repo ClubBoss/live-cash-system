@@ -1,4 +1,5 @@
-import { diagnosticT1, syncDiagnosticCompatibility } from "../diagnostic";
+import { diagnosticT1 } from "../diagnostic";
+import { syncDiagnosticCompatibility } from "../diagnostic";
 import type { LocaleCode } from "../../lib/model";
 import { diagnosticEnglish } from "./runtime";
 import { applyGeometryLocale } from "./geometry-locale";
@@ -15,14 +16,6 @@ import { applyFinalLearningIntegrityClosure } from "./final-learning-integrity";
 import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } from "./stimulus-generalisation-micro";
 import { applyPokerNativeTerminologyRebalance } from "./poker-native-terminology-rebalance";
 import { applyDecisionComprehensionClosure } from "./decision-comprehension-closure";
-
-function syncLegacyDiagnosticCopy(locale: LocaleCode) {
-  syncDiagnosticCompatibility(locale);
-  if (locale !== "en") return;
-  for (const entry of diagnosticT1) {
-    diagnosticEnglish[entry.id] = { title: entry.title, prompt: entry.prompt };
-  }
-}
 
 export function applyLocaleData(locale: LocaleCode) {
   resetStimulusGeneralisationMicro();
@@ -41,5 +34,17 @@ export function applyLocaleData(locale: LocaleCode) {
   applyFinalLanguagePolish(locale);
   applyPokerNativeTerminologyRebalance(locale);
   applyDecisionComprehensionClosure(locale);
-  syncLegacyDiagnosticCopy(locale);
+
+  function applyDiagnosticIntegrityLabels() {
+    syncDiagnosticCompatibility(locale);
+    diagnosticT1.forEach((item, index) => {
+      if (locale === "ru") item.title = `Диагностический спот ${index + 1}`;
+      else item.title = `Diagnostic spot ${index + 1}`;
+      if (locale !== "en") return;
+      diagnosticEnglish[item.id].title = `Diagnostic spot ${index + 1}`;
+      diagnosticEnglish[item.id].prompt = item.prompt;
+    });
+  }
+
+  applyDiagnosticIntegrityLabels();
 }
