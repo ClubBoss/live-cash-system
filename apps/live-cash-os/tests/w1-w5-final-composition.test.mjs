@@ -50,7 +50,7 @@ async function fixture() {
   await compileInto(root, "content/i18n/poker-native-terminology-rebalance.ts", "content/i18n/poker-native-terminology-rebalance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/decision-comprehension-closure.ts", "content/i18n/decision-comprehension-closure.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
-    .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
+    .replaceAll('from "../diagnostic"', 'from "../diagnostic.mjs"')
     .replace('from "./runtime"', 'from "./runtime.mjs"')
     .replace('from "./geometry-locale"', 'from "./geometry-locale.mjs"')
     .replace('from "./wave3-priority-gold"', 'from "./wave3-priority-gold.mjs"')
