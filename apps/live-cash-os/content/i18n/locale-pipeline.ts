@@ -1,4 +1,6 @@
+import { diagnosticT1, syncDiagnosticCompatibility } from "../diagnostic";
 import type { LocaleCode } from "../../lib/model";
+import { diagnosticEnglish } from "./runtime";
 import { applyGeometryLocale } from "./geometry-locale";
 import { applyWave3PriorityLocale } from "./wave3-priority-gold";
 import { applyWave4CurriculumLocale } from "./wave4-curriculum-gold";
@@ -13,6 +15,14 @@ import { applyFinalLearningIntegrityClosure } from "./final-learning-integrity";
 import { applyStimulusGeneralisationMicro, resetStimulusGeneralisationMicro } from "./stimulus-generalisation-micro";
 import { applyPokerNativeTerminologyRebalance } from "./poker-native-terminology-rebalance";
 import { applyDecisionComprehensionClosure } from "./decision-comprehension-closure";
+
+function syncLegacyDiagnosticCopy(locale: LocaleCode) {
+  syncDiagnosticCompatibility(locale);
+  if (locale !== "en") return;
+  for (const entry of diagnosticT1) {
+    diagnosticEnglish[entry.id] = { title: entry.title, prompt: entry.prompt };
+  }
+}
 
 export function applyLocaleData(locale: LocaleCode) {
   resetStimulusGeneralisationMicro();
@@ -31,4 +41,5 @@ export function applyLocaleData(locale: LocaleCode) {
   applyFinalLanguagePolish(locale);
   applyPokerNativeTerminologyRebalance(locale);
   applyDecisionComprehensionClosure(locale);
+  syncLegacyDiagnosticCopy(locale);
 }
