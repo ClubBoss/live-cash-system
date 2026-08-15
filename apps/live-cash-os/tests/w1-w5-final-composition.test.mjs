@@ -24,7 +24,7 @@ async function compileInto(root, relativePath, outputPath, transform = (value) =
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "live-cash-os-w1-w5-final-"));
   const modulesPath = await compileInto(root, "content/modules.ts", "content/modules.mjs");
-  await compileInto(root, "content/diagnostic.ts", "content/diagnostic.mjs");
+  await compileInto(root, "content/diagnostic.ts", "content/diagnostic.mjs", (compiled) => compiled.replace('from "./modules"', 'from "./modules.mjs"'));
   await compileInto(root, "content/i18n/runtime-core.ts", "content/i18n/runtime-core.mjs");
   await compileInto(root, "content/i18n/runtime.ts", "content/i18n/runtime.mjs", (compiled) => compiled
     .replaceAll('from "./runtime-core"', 'from "./runtime-core.mjs"'));
@@ -48,8 +48,9 @@ async function fixture() {
   await compileInto(root, "content/i18n/final-learning-integrity.ts", "content/i18n/final-learning-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/stimulus-generalisation-micro.ts", "content/i18n/stimulus-generalisation-micro.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/poker-native-terminology-rebalance.ts", "content/i18n/poker-native-terminology-rebalance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/decision-comprehension-closure.ts", "content/i18n/decision-comprehension-closure.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
-    .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
+    .replaceAll('from "../diagnostic"', 'from "../diagnostic.mjs"')
     .replace('from "./runtime"', 'from "./runtime.mjs"')
     .replace('from "./geometry-locale"', 'from "./geometry-locale.mjs"')
     .replace('from "./wave3-priority-gold"', 'from "./wave3-priority-gold.mjs"')
@@ -63,7 +64,8 @@ async function fixture() {
     .replace('from "./decision-option-balance"', 'from "./decision-option-balance.mjs"')
     .replace('from "./final-learning-integrity"', 'from "./final-learning-integrity.mjs"')
     .replace('from "./stimulus-generalisation-micro"', 'from "./stimulus-generalisation-micro.mjs"')
-    .replace('from "./poker-native-terminology-rebalance"', 'from "./poker-native-terminology-rebalance.mjs"'));
+    .replace('from "./poker-native-terminology-rebalance"', 'from "./poker-native-terminology-rebalance.mjs"')
+    .replace('from "./decision-comprehension-closure"', 'from "./decision-comprehension-closure.mjs"'));
 
   return {
     modules: await import(pathToFileURL(modulesPath).href),

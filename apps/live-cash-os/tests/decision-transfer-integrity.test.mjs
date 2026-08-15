@@ -87,6 +87,7 @@ for (const locale of ["ru", "en"]) {
         : /(?:lower suited part of a baseline call region|viable\s+(?:baseline\s+)?call|baseline\s+call)/iu,
     );
     assert.match(pre02.question, locale === "ru" ? /семейств.*свойств/iu : /family.*traits/iu);
+    assert.match(pre02.explanation, locale === "ru" ? /сами по себе не выбирают действие/iu : /do not choose the action by themselves/iu);
     assert.match(`${drill("preflop", "pre-03").cue} ${drill("preflop", "pre-03").assumptions.join(" ")}`, /KJo/u);
     assert.match(`${drill("preflop", "pre-04").cue} ${drill("preflop", "pre-04").assumptions.join(" ")}`, /A5s/u);
     assert.match(`${drill("blinds", "bli-01").cue} ${drill("blinds", "bli-01").assumptions.join(" ")}`, /A-7-2/iu);
@@ -103,16 +104,6 @@ for (const locale of ["ru", "en"]) {
     const multiwayCopy = `${moduleById.multiway.workedExample.situation} ${drill("multiway", "mul-01").cue} ${drill("multiway", "mul-02").cue}`;
     assert.match(multiwayCopy, /KQ/u);
     assert.match(multiwayCopy, /K-9-7/iu);
-
-    const scopeCopy = [
-      moduleById.preflop.workedExample.situation,
-      pre02.assumptions.join(" "),
-      drill("preflop", "pre-03").assumptions.join(" "),
-      drill("preflop", "pre-04").assumptions.join(" "),
-      drill("ancestry", "anc-01").assumptions.join(" "),
-      drill("ancestry", "anc-03").assumptions.join(" "),
-    ].join(" ");
-    assert.match(scopeCopy, locale === "ru" ? /не (?:утверждается|универсальн|новая точная|новую chart|задаёт)/iu : /not (?:a new|an? universal)|no exact chart frequency|no exact.*claimed/iu);
   });
 
   test(`${locale}: final runtime corpus has no obvious lexical or severe bidirectional length answer tells`, () => {

@@ -123,12 +123,18 @@ for (const locale of ["ru", "en"]) {
     assert.match(anc01.question, locale === "ru" ? /подтвердить.*4-бет-блеф/iu : /established.*4-bet bluff/iu);
 
     const anc03 = getDrill("ancestry", "anc-03");
-    assert.match(anc03.assumptions.join(" "), locale === "ru" ? /условию задачи/iu : /exercise premise/iu);
-    assert.match(anc03.question, locale === "ru" ? /заданном условии.*сравнить/iu : /given the stated premise.*compared/iu);
+    const anc03Context = anc03.assumptions.join(" ");
+    assert.match(anc03Context, /150bb/u);
+    assert.match(anc03Context, /98s/u);
+    assert.match(anc03Context, locale === "ru" ? /колл остаётся реальной альтернативой/iu : /calling remains a real alternative/iu);
+    assert.match(anc03Context, locale === "ru" ? /слабо блокирует премиальн/iu : /weakly blocks premium continues/iu);
+    assert.match(anc03.question, locale === "ru" ? /Что нужно сравнить.*98s.*4-бет-блеф/iu : /What should.*compare.*98s.*4-bet bluff/iu);
     assert.doesNotMatch(anc03.question, locale === "ru" ? /должна ли 98s коллировать/iu : /should 98s call/iu);
+    assert.doesNotMatch(preAnswerCopy(anc03), locale === "ru" ? /услови(?:е|я) задачи|заданн.*услов/iu : /exercise premise|stated premise/iu);
 
     const pre04 = getDrill("preflop", "pre-04");
-    assert.match(pre04.question, locale === "ru" ? /Условие задачи.*подстрой/iu : /exercise premise.*adjustment/iu);
+    assert.match(pre04.question, locale === "ru" ? /A5s.*сквиз.*что меняется.*широк/iu : /A5s.*squeeze.*what changes.*wider/iu);
+    assert.doesNotMatch(preAnswerCopy(pre04), locale === "ru" ? /услови(?:е|я) задачи|chart[- ]?клет/iu : /exercise premise|chart cell/iu);
   });
 
   test(`${locale}: LCM-02 explicitly teaches combo -> family/traits -> context -> decision`, () => {
@@ -173,10 +179,9 @@ for (const locale of ["ru", "en"]) {
     assert.match(`${anc02.cue} ${anc02.assumptions.join(" ")}`, /A5s/u);
     assert.match(`${anc01.cue} ${anc01.assumptions.join(" ")}`, locale === "ru" ? /широк/iu : /wide/iu);
     assert.match(`${anc02.cue} ${anc02.assumptions.join(" ")}`, locale === "ru" ? /тайтов|почти без блеф/iu : /tight|almost.*bluff/iu);
-    assert.match(anc02.explanation, locale === "ru" ? /Комбо не изменилось/iu : /combo is unchanged/iu);
-    assert.match(anc02.explanation, locale === "ru" ? /не урок.*A5s.*блеф/iu : /not.*A5s.*bluff/iu);
+    assert.match(anc02.explanation, locale === "ru" ? /Комбо A5s не изменилось/iu : /A5s combo is unchanged/iu);
+    assert.match(anc02.explanation, locale === "ru" ? /тайтов.*3-бет.*сфолдят.*ценность 4-бет-блефа.*падает/iu : /very tight 3-bet.*few stronger hands.*fold.*4-bet bluff drops/iu);
     assert.match(anc03.explanation, /98s/u);
-    assert.match(anc03.explanation, /76s/u);
     assert.match(anc03.explanation, locale === "ru" ? /мастевая связка/iu : /suited connector/iu);
   });
 
