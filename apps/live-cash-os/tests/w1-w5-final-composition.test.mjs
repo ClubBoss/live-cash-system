@@ -48,9 +48,8 @@ async function fixture() {
   await compileInto(root, "content/i18n/final-learning-integrity.ts", "content/i18n/final-learning-integrity.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/stimulus-generalisation-micro.ts", "content/i18n/stimulus-generalisation-micro.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   await compileInto(root, "content/i18n/poker-native-terminology-rebalance.ts", "content/i18n/poker-native-terminology-rebalance.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
+  await compileInto(root, "content/i18n/decision-comprehension-closure.ts", "content/i18n/decision-comprehension-closure.mjs", (compiled) => compiled.replace('from "../modules"', 'from "../modules.mjs"'));
   const pipelinePath = await compileInto(root, "content/i18n/locale-pipeline.ts", "content/i18n/locale-pipeline.mjs", (compiled) => compiled
-    .replace('from "../diagnostic"', 'from "../diagnostic.mjs"')
-    .replace('from "./runtime"', 'from "./runtime.mjs"')
     .replace('from "./geometry-locale"', 'from "./geometry-locale.mjs"')
     .replace('from "./wave3-priority-gold"', 'from "./wave3-priority-gold.mjs"')
     .replace('from "./wave4-curriculum-gold"', 'from "./wave4-curriculum-gold.mjs"')
@@ -63,7 +62,8 @@ async function fixture() {
     .replace('from "./decision-option-balance"', 'from "./decision-option-balance.mjs"')
     .replace('from "./final-learning-integrity"', 'from "./final-learning-integrity.mjs"')
     .replace('from "./stimulus-generalisation-micro"', 'from "./stimulus-generalisation-micro.mjs"')
-    .replace('from "./poker-native-terminology-rebalance"', 'from "./poker-native-terminology-rebalance.mjs"'));
+    .replace('from "./poker-native-terminology-rebalance"', 'from "./poker-native-terminology-rebalance.mjs"')
+    .replace('from "./decision-comprehension-closure"', 'from "./decision-comprehension-closure.mjs"'));
 
   return {
     modules: await import(pathToFileURL(modulesPath).href),
