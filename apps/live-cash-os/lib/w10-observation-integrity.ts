@@ -24,7 +24,9 @@ function optionalBoolean(value: unknown): boolean {
 }
 
 function optionalScoreOneToFive(value: unknown): boolean {
-  return value === undefined || value === null || (Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 5);
+  return value === undefined
+    || value === null
+    || (typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 5);
 }
 
 function nonEmptyId(value: string): boolean {
