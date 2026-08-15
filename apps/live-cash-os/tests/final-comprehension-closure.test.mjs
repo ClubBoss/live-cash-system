@@ -32,6 +32,7 @@ test("final comprehension closure keeps first-use wording and governance truth a
   const finalPlusEv = await text("content/i18n/final-plus-ev.ts");
   const decisionTransfer = await text("content/i18n/decision-transfer-integrity.ts");
   const decisionBalance = await text("content/i18n/decision-option-balance.ts");
+  const decisionComprehension = await text("content/i18n/decision-comprehension-closure.ts");
   const assist = await text("components/RealUseLessonAssist.tsx");
   const pipeline = await text("content/i18n/locale-pipeline.ts");
   const authority = await text("content/CONTENT_AUTHORITY.md");
@@ -63,6 +64,9 @@ test("final comprehension closure keeps first-use wording and governance truth a
   assert.match(decisionBalance, /applyDecisionOptionBalance/u);
   assert.match(decisionBalance, /drill\.correctActionId/u);
   assert.match(decisionBalance, /drill\.correctReasonId/u);
+  assert.match(decisionComprehension, /applyDecisionComprehensionClosure/u);
+  assert.match(decisionComprehension, /Missing action option/u);
+  assert.match(decisionComprehension, /Missing reason option/u);
 
   assert.doesNotMatch(assist, /graded-ситуация/u);
   assert.match(assist, /Следующая задача будет другой/u);
@@ -82,7 +86,7 @@ test("final comprehension closure keeps first-use wording and governance truth a
     "applyStimulusGeneralisationMicro",
     "applyFinalLanguagePolish",
     "applyPokerNativeTerminologyRebalance",
-    "applyDiagnosticIntegrityLabels",
+    "applyDecisionComprehensionClosure",
   ];
   let previous = -1;
   for (const symbol of symbols) {
