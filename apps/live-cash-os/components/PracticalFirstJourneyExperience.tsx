@@ -7,11 +7,10 @@ import {
   PRACTICAL_MASTERY_STATE_SCHEMA_VERSION,
   createPracticalMasteryState,
   markPracticalConceptTaught,
-  nextPracticalDecision,
   recordPracticalDecision,
   type PracticalMasteryState,
 } from "../lib/practical-mastery-core";
-import { firstJourneyProgress, recommendFirstJourneyStep } from "../lib/practical-first-journey";
+import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 
 const STORAGE_KEY = "live-cash-os:practical-mastery:v2";
 type Locale = "ru" | "en";
@@ -57,7 +56,7 @@ export default function PracticalFirstJourneyExperience() {
   const rules = journeyStep?.memoryRuleIds.map((ruleId) => practicalRuleById.get(ruleId)).filter(Boolean) ?? [];
   const rule = rules[0] ?? null;
   const anchor = skill ? practicalAnchors.find((item) => item.skillId === skill.id) ?? null : null;
-  const decision = skill && state.skills[skill.id]?.conceptTaught ? nextPracticalDecision(state, skill.id) : null;
+  const decision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
 
   useEffect(() => {
     setPrediction("");
@@ -153,7 +152,7 @@ export default function PracticalFirstJourneyExperience() {
       </fieldset>
 
       {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
-        <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Repair needed" : "Repair needed")}</h3>
+        <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
         <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
         <p className="support">{decision.sourceRefs.join(", ")}</p>
         <button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий шаг" : "Next step"} <span>→</span></button>
