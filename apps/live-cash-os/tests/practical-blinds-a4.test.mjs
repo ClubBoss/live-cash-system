@@ -15,7 +15,7 @@ const gaps = await readFile(path.join(root, "content/practical-mastery/source-ga
 const rules = await readFile(path.join(root, "content/practical-mastery/blind-a4-memory.ts"), "utf8");
 
 function count(skillId, kindPattern) {
-  return [...corpus.matchAll(new RegExp(`skillId:\\s*[\"']${skillId}[\"']\\s*,\\s*kind:\\s*[\"'](${kindPattern})[\"']`, "g"))].length;
+  return [...corpus.matchAll(new RegExp(`skillId:\\s*["']${skillId}["']\\s*,\\s*kind:\\s*["'](${kindPattern})["']`, "g"))].length;
 }
 
 test("source-supported core blind families have practical evidence depth", () => {
@@ -29,7 +29,7 @@ test("source-supported core blind families have practical evidence depth", () =>
 
 test("unsupported BvB preflop nodes are explicitly fail-closed", () => {
   for (const skillId of ["BL-06", "BL-08", "BL-09"]) {
-    assert.match(gaps, new RegExp(`skillId: [\"']${skillId}[\"'][\\s\\S]{0,180}status: [\"']SOURCE_BLOCKED[\"']`));
+    assert.match(gaps, new RegExp(`skillId: ["']${skillId}["'][\\s\\S]{0,180}status: ["']SOURCE_BLOCKED["']`));
   }
   assert.match(gaps, /skillId: "BL-07"[\s\S]{0,180}status: "PARTIAL"/);
   assert.match(gaps, /skillId: "BL-11"[\s\S]{0,180}status: "PARTIAL"/);
