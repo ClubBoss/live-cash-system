@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import LegacyToolDeepLink from "./LegacyToolDeepLink";
+import PracticalNextLearningLink from "./PracticalNextLearningLink";
 
 const LOCALE_KEY = "live-cash-os:locale";
 type Locale = "ru" | "en";
@@ -62,18 +63,18 @@ export default function PracticalMasteryGateway() {
   return <>
     <LegacyToolDeepLink />
     <section
-      aria-label={locale === "ru" ? "Основной маршрут Practical Mastery" : "Primary Practical Mastery route"}
+      aria-label={locale === "ru" ? "Основной маршрут обучения" : "Primary learning route"}
       className="surface practical-mastery-gateway"
       style={{ maxWidth: 1180, margin: "18px auto 0", padding: "18px 20px" }}
     >
-      <p className="eyebrow practical-mastery-gateway__eyebrow">PRACTICAL MASTERY</p>
-      <h2>{locale === "ru" ? "Основное обучение: тренируй решения, а не прохождение модулей" : "Primary learning: train decisions, not module completion"}</h2>
+      <p className="eyebrow practical-mastery-gateway__eyebrow">LIVE CASH TRAINING</p>
+      <h2>{locale === "ru" ? "Один маршрут: учись, решай, применяй, повторяй" : "One route: learn, decide, apply, repeat"}</h2>
       <p className="practical-mastery-gateway__detail">{locale === "ru"
-        ? "Основной учебный маршрут теперь здесь: распознавание спота → решение → перенос → повторение после паузы → реальные руки. Разделы Live Cash OS ниже — дополнительные инструменты для диагностики, карточек, рук и данных."
-        : "The primary learning route is here: spot recognition → decision → transfer → delayed review → real hands. The Live Cash OS sections below are supporting tools for diagnostics, cards, hands, and data."}</p>
+        ? "Нажми «Продолжить обучение». Система сама выберет следующий полезный шаг: новый механизм, решение, перенос на изменённый спот или повторение. Карта, чтение стола и разбор после игры — дополнительные инструменты, а не отдельные курсы."
+        : "Choose “Continue learning”. The system picks the next useful step: a new mechanism, a decision, changed-node transfer, or review. The map, table reading, and after-play review are supporting tools, not separate courses."}</p>
       <div className="practical-mastery-gateway__actions" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
-        <a className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></a>
-        <a className="secondary practical-mastery-gateway__map" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</a>
+        <PracticalNextLearningLink className="primary" />
+        <a className="secondary practical-mastery-gateway__map" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</a>
       </div>
       <style>{`
         @media (max-width: 650px) {
