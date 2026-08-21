@@ -12,7 +12,7 @@ const internal = (ref: string, note: string): PracticalSourceAuthority => ({ ref
 const alias = (ref: string, canonicalRefs: string[]): PracticalSourceAuthority => ({ ref, kind: "SOURCE_GROUP_ALIAS", canonicalRefs });
 
 export const practicalSourceAuthorities: PracticalSourceAuthority[] = [
-  ...Array.from({ length: 30 }, (_, index) => canonical(`FTGU-E${String(index + 1).padStart(2, "0")}`)),
+  ...Array.from({ length: 29 }, (_, index) => canonical(`FTGU-E${String(index + 1).padStart(2, "0")}`)),
   ...Array.from({ length: 10 }, (_, index) => canonical(`CINJ-E${String(index + 1).padStart(2, "0")}`)),
   ...Array.from({ length: 10 }, (_, index) => canonical(`CP-G3-L${String(index + 1).padStart(2, "0")}`)),
   ...Array.from({ length: 3 }, (_, index) => canonical(`SLC-M01-L${String(index + 1).padStart(2, "0")}`)),
@@ -22,6 +22,7 @@ export const practicalSourceAuthorities: PracticalSourceAuthority[] = [
 
   // C-program provenance. These sources are useful learner-facing evidence, but they are deliberately
   // not poker-strategy answer-key authority.
+  supporting("FTGU-E30", "FTGU Episode 30, Three Tips for Success. Learning-process evidence for play/study/review/recovery balance, process-not-result review, and prediction before feedback; not poker-strategy answer-key authority."),
   supporting("SLC-M07-L63", "Smash Live Cash M07 L63, How to Build Your Own Stuff Going Forward. Supports prediction/review/saved-error/retest study workflow; exact UI/report parameters remain visual-dependent."),
   reference("SLC-PREFLOP-CHART-INDEX", "Smash normalized preflop chart routing inventory: 980 scenarios indexed, strategy not yet extracted. Supports topology and reference-family routing only, not exact hand/frequency claims."),
 
