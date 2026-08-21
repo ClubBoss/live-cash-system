@@ -7,9 +7,9 @@ export type PracticalCoverageStatus =
   | "SOURCE_BLOCKED"
   | "SOURCE_ONLY"
   | "ANCHORED"
-  | "DECISION_TRAINED"
-  | "TRANSFER_EXPOSED"
-  | "BOUNDARY_EXPOSED";
+  | "DECISION_AVAILABLE"
+  | "TRANSFER_VARIANT_AVAILABLE"
+  | "BOUNDARY_VARIANT_AVAILABLE";
 
 export type PracticalCoverageRow = {
   skillId: string;
@@ -41,11 +41,11 @@ export function practicalCoverageRows(): PracticalCoverageRow[] {
     const status: PracticalCoverageStatus = sourceGapStatus === "SOURCE_BLOCKED"
       ? "SOURCE_BLOCKED"
       : boundaryDecisionCount > 0
-        ? "BOUNDARY_EXPOSED"
+        ? "BOUNDARY_VARIANT_AVAILABLE"
         : changedDecisionCount > 0 || mixedDecisionCount > 0
-          ? "TRANSFER_EXPOSED"
+          ? "TRANSFER_VARIANT_AVAILABLE"
           : decisions.length > 0
-            ? "DECISION_TRAINED"
+            ? "DECISION_AVAILABLE"
             : anchors.length > 0
               ? "ANCHORED"
               : "SOURCE_ONLY";
