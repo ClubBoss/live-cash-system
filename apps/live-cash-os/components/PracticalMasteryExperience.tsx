@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { practicalDecisions, practicalSkillFamilies } from "../content/practical-mastery";
+import { practicalAnchors, practicalDecisions, practicalSkillFamilies } from "../content/practical-mastery";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalDecision, PracticalSkillFamily } from "../content/practical-mastery";
 import {
+  PRACTICAL_MASTERY_STATE_SCHEMA_VERSION,
   availablePracticalSkills,
   createPracticalMasteryState,
   markPracticalConceptTaught,
@@ -12,10 +13,11 @@ import {
   practicalPrerequisitesMet,
   practicalRepairQueue,
   recordPracticalDecision,
+  stageAtLeast,
   type PracticalMasteryState,
 } from "../lib/practical-mastery-core";
 
-const STORAGE_KEY = "live-cash-os:practical-mastery:v1";
+const STORAGE_KEY = "live-cash-os:practical-mastery:v2";
 type Locale = "ru" | "en";
 
 function loadState(): PracticalMasteryState {
@@ -24,7 +26,7 @@ function loadState(): PracticalMasteryState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return createPracticalMasteryState(new Date(), true);
     const parsed = JSON.parse(raw) as PracticalMasteryState;
-    if (parsed.schemaVersion !== 1 || !parsed.skills || !Array.isArray(parsed.attempts)) throw new Error("invalid practical state");
+    if (parsed.schemaVersion !== PRACTICAL_MASTERY_STATE_SCHEMA_VERSION || !parsed.skills || !Array.isArray(parsed.attempts)) throw new Error("invalid practical state");
     return parsed;
   } catch {
     return createPracticalMasteryState(new Date(), true);
@@ -127,8 +129,9 @@ export default function PracticalMasteryExperience() {
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
   const progress = state.skills[skill.id];
   const available = practicalPrerequisitesMet(state, skill.id);
-  const decision = available ? nextPracticalDecision(state, skill.id) : null;
+  const decision = available && progress?.conceptTaught ? nextPracticalDecision(state, skill.id) : null;
   const gap = practicalSourceGapBySkillId.get(skill.id);
+  const lessonAnchors = practicalAnchors.filter((anchor) => anchor.skillId === skill.id);
   const availableIds = useMemo(() => new Set(availablePracticalSkills(state).map((candidate) => candidate.id)), [state]);
   const repairIds = useMemo(() => new Set(practicalRepairQueue(state)), [state]);
   const grouped = useMemo(() => {
@@ -142,23 +145,38 @@ export default function PracticalMasteryExperience() {
   }, []);
   const attempted = state.attempts.length;
   const correct = state.attempts.filter((attempt) => attempt.correct).length;
+  const trained = practicalSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
+  const recommendedSkill = practicalSkillFamilies.find((item) => {
+    const itemGap = practicalSourceGapBySkillId.get(item.id);
+    if (itemGap?.status === "SOURCE_BLOCKED") return false;
+    if (!practicalPrerequisitesMet(state, item.id)) return false;
+    return !stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED");
+  });
 
   return <main style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 20px 60px" }}>
     <section className="hero compact-hero">
       <p className="eyebrow">PRACTICAL MASTERY · W0–W14</p>
       <h1>{locale === "ru" ? "Не пройти курс." : "Not finish a course."}<br /><em>{locale === "ru" ? "Научиться принимать решения." : "Build a decision engine."}</em></h1>
-      <p className="lede">{locale === "ru" ? "Новая skill-graph программа Live Cash OS. Старые 11 LCM остаются conceptual spine, но больше не ограничивают объём обучения." : "The new Live Cash OS skill-graph program. The legacy 11 LCMs remain a conceptual spine but no longer cap the curriculum."}</p>
+      <p className="lede">{locale === "ru" ? "Новая skill-graph программа Live Cash OS. Теория здесь ведёт к распознаванию, решениям, переносу и delayed retrieval — а не к галочке за просмотр." : "The new Live Cash OS skill-graph program. Theory leads into recognition, decisions, transfer and delayed retrieval rather than a completion checkbox."}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
 
     <section className="metrics">
-      <div><b>{practicalSkillFamilies.length}</b><span>{locale === "ru" ? "skill families" : "skill families"}</span></div>
+      <div><b>{practicalSkillFamilies.length}</b><span>skill families</span></div>
       <div><b>{practicalDecisions.length}</b><span>{locale === "ru" ? "scored decisions сейчас" : "scored decisions now"}</span></div>
+      <div><b>{trained}</b><span>{locale === "ru" ? "decision-trained skills" : "decision-trained skills"}</span></div>
       <div><b>{attempted ? Math.round((correct / attempted) * 100) : 0}%</b><span>{locale === "ru" ? "точность попыток" : "attempt accuracy"}</span></div>
     </section>
 
+    {recommendedSkill && <section className="today-card" style={{ marginTop: 22 }}>
+      <p className="eyebrow">{locale === "ru" ? "РЕКОМЕНДОВАНО СЕЙЧАС" : "RECOMMENDED NOW"}</p>
+      <h2>{skillTitle(recommendedSkill, locale)}</h2>
+      <p>{locale === "ru" ? recommendedSkill.objectiveRu : recommendedSkill.titleEn}</p>
+      <button className="primary" onClick={() => setSelectedSkillId(recommendedSkill.id)}>{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></button>
+    </section>}
+
     <section className="surface" style={{ marginTop: 22 }}>
-      <div className="section-head"><p className="eyebrow">SKILL GRAPH</p><h2>{locale === "ru" ? "Выбери узел" : "Choose a node"}</h2></div>
+      <div className="section-head"><p className="eyebrow">SKILL GRAPH</p><h2>{locale === "ru" ? "Карта навыков" : "Skill map"}</h2></div>
       {grouped.map(([wave, skills]) => <details key={wave} open={wave === skill.wave} style={{ marginBottom: 12 }}>
         <summary style={{ cursor: "pointer", fontWeight: 700 }}>{waveLabel(wave)} · {skills.length}</summary>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
@@ -181,17 +199,24 @@ export default function PracticalMasteryExperience() {
       <p className="support">{locale === "ru" ? "Целевой evidence" : "Target evidence"}: {evidenceLabel(locale, skill.targetEvidenceStage)} · {locale === "ru" ? "Текущий" : "Current"}: {evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</p>
       <p className="support">{locale === "ru" ? "Source routing" : "Source routing"}: {skill.sourceRefs.join(", ")}</p>
       {gap && <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">SOURCE {gap.status}</p><p>{gap.reason}</p><p className="support">{gap.nextEvidenceNeeded}</p></div>}
-      {!gap || gap.status !== "SOURCE_BLOCKED" ? <>
-        {!progress?.conceptTaught && <button className="secondary" onClick={() => setState(markPracticalConceptTaught(state, skill.id))}>{locale === "ru" ? "Отметить concept intro пройденным" : "Mark concept intro complete"}</button>}
-        {!available && <p className="support">{locale === "ru" ? `Locked: сначала decision-trained prerequisites — ${skill.prerequisiteSkillIds.join(", ") || "—"}.` : `Locked: first decision-train prerequisites — ${skill.prerequisiteSkillIds.join(", ") || "—"}.`}</p>}
-        {available && decision && <DecisionCard locale={locale} decision={decision} state={state} onState={setState} />}
-        {available && !decision && <p className="support">{locale === "ru" ? "Skill уже в graph, но scored practice ещё не произведена. Он не считается trained." : "The skill exists in the graph, but scored practice has not been produced yet. It is not considered trained."}</p>}
-      </> : null}
+      {!available && <p className="support">{locale === "ru" ? `Locked: сначала decision-trained prerequisites — ${skill.prerequisiteSkillIds.join(", ") || "—"}.` : `Locked: first decision-train prerequisites — ${skill.prerequisiteSkillIds.join(", ") || "—"}.`}</p>}
+      {available && (!gap || gap.status !== "SOURCE_BLOCKED") && !progress?.conceptTaught && <div className="today-card" style={{ marginTop: 18 }}>
+        <p className="eyebrow">{locale === "ru" ? "СНАЧАЛА ПОЙМИ МЕХАНИЗМ" : "UNDERSTAND THE MECHANISM FIRST"}</p>
+        {lessonAnchors.length ? lessonAnchors.map((anchor) => <div key={anchor.id} style={{ marginTop: 18 }}>
+          <h3>{locale === "ru" ? anchor.promptRu : anchor.promptEn}</h3>
+          <p><b>{locale === "ru" ? anchor.answerRu : anchor.answerEn}</b></p>
+          <p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p>
+          <p className="support">{anchor.sourceRefs.join(", ")}</p>
+        </div>) : <p>{locale === "ru" ? "Для этого skill пока нет достаточно качественного teaching anchor. Он остаётся в graph, но не должен считаться изученным." : "This skill does not yet have a sufficiently strong teaching anchor. It remains in the graph but should not be considered taught."}</p>}
+        {lessonAnchors.length > 0 && <button className="primary" onClick={() => setState(markPracticalConceptTaught(state, skill.id))}>{locale === "ru" ? "Понял — перейти к решениям" : "Understood — move to decisions"} <span>→</span></button>}
+      </div>}
+      {available && progress?.conceptTaught && decision && <DecisionCard locale={locale} decision={decision} state={state} onState={setState} />}
+      {available && progress?.conceptTaught && !decision && (!gap || gap.status !== "SOURCE_BLOCKED") && <p className="support">{locale === "ru" ? "Skill уже в graph, но scored practice ещё не произведена. Он не считается trained." : "The skill exists in the graph, but scored practice has not been produced yet. It is not considered trained."}</p>}
     </section>
 
     <section className="integrity" style={{ marginTop: 22 }}>
       <h2>{locale === "ru" ? "Evidence integrity" : "Evidence integrity"}</h2>
-      <p>{locale === "ru" ? "Immediate correct answer не создаёт delayed retention или real-hand transfer. Новый state начинается заново; legacy completion не переносится в mastery автоматически." : "An immediate correct answer cannot create delayed retention or real-hand transfer. The new state starts fresh; legacy completion does not automatically migrate into mastery."}</p>
+      <p>{locale === "ru" ? "Одна правильная задача не создаёт mastery. Нужны разные recognition-, direct-, transfer- и boundary-stimuli; delayed retention и real-hand transfer фиксируются отдельно. Legacy completion не переносится автоматически." : "One correct answer does not create mastery. Distinct recognition, direct, transfer and boundary stimuli are required; delayed retention and real-hand transfer are recorded separately. Legacy completion does not migrate automatically."}</p>
     </section>
   </main>;
 }
