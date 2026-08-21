@@ -34,7 +34,7 @@ test("canonical home exposes Practical Mastery as the primary learning route", a
   await page.goto("/");
   const gateway = page.getByRole("region", { name: "Основной маршрут Practical Mastery" });
   await expect(gateway).toBeVisible();
-  await expect(gateway.getByRole("link", { name: /Продолжить Practical Mastery/ })).toHaveAttribute("href", "/mastery/journey");
+  await expect(gateway.getByRole("link", { name: /Продолжить обучение/ })).toHaveAttribute("href", "/mastery/journey");
   const legacyHeading = page.getByRole("heading", { name: /Учись понемногу/i });
   await expect(legacyHeading).toBeVisible();
   const gatewayBox = await gateway.boundingBox();
@@ -49,6 +49,22 @@ test("all Practical Mastery learner routes render without runtime or horizontal-
     await expectNoHorizontalOverflow(page);
     await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
   }
+});
+
+test("Practical Mastery navigation makes the current section explicit and clicks change section", async ({ page }) => {
+  test.skip(crossMatrix, "navigation behavior is covered once in canonical Chromium");
+  await page.goto("/mastery");
+  const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(nav.getByRole("link", { name: "Карта навыков", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Старт обучения", exact: true })).not.toHaveAttribute("aria-current", "page");
+
+  await nav.getByRole("link", { name: "Старт обучения", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await expect(nav.getByRole("link", { name: "Старт обучения", exact: true })).toHaveAttribute("aria-current", "page");
+
+  await nav.getByRole("link", { name: "Практика", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/session$/);
+  await expect(nav.getByRole("link", { name: "Практика", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
 test("Practical Mastery remains usable at phone width", async ({ page }) => {
@@ -85,13 +101,13 @@ test("First Journey writes schema-v3 evidence inside the reliable learner profil
 test("mastery locale persists across route changes and localizes shared navigation", async ({ page }) => {
   test.skip(crossMatrix, "locale persistence is covered once in canonical Chromium");
   await page.goto("/mastery");
-  await expect(page.getByRole("link", { name: "Смешанная практика", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Практика", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.goto("/mastery/study");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { name: /Play → review → repair → retest/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Study loop", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "After play", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
 test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
@@ -109,10 +125,15 @@ test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", 
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
 });
 
-test("Study Loop points back to the existing Real Hands surface rather than duplicating capture", async ({ page }) => {
+test("After-play flow deep-links to the existing Real Hands tool rather than the legacy home default", async ({ page }) => {
   test.skip(crossMatrix, "navigation contract is covered once in canonical Chromium");
   await page.goto("/mastery/study");
-  const realHands = page.getByRole("link", { name: "Реальные руки · Live Cash OS", exact: true });
+  const realHands = page.getByRole("link", { name: "Реальные руки →", exact: true });
   await expect(realHands).toBeVisible();
-  await expect(realHands).toHaveAttribute("href", "/");
+  await expect(realHands).toHaveAttribute("href", "/?tab=field");
+  await realHands.click();
+
+  const legacyNav = page.getByRole("navigation", { name: "Основная навигация" });
+  await expect(legacyNav.getByRole("button", { name: "Руки", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page).toHaveURL(/\/$/);
 });
