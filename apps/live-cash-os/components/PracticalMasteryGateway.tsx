@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const LOCALE_KEY = "live-cash-os:locale";
@@ -9,11 +10,8 @@ export default function PracticalMasteryGateway() {
   const [locale, setLocale] = useState<Locale>("ru");
 
   useEffect(() => {
-    try {
-      setLocale(window.localStorage.getItem(LOCALE_KEY) === "en" ? "en" : "ru");
-    } catch {
-      setLocale("ru");
-    }
+    try { setLocale(window.localStorage.getItem(LOCALE_KEY) === "en" ? "en" : "ru"); }
+    catch { setLocale("ru"); }
   }, []);
 
   return <section
@@ -24,11 +22,11 @@ export default function PracticalMasteryGateway() {
     <p className="eyebrow">PRACTICAL MASTERY</p>
     <h2>{locale === "ru" ? "Основной маршрут: тренируй решения, а не прохождение модулей" : "Primary route: train decisions, not module completion"}</h2>
     <p>{locale === "ru"
-      ? "Skill graph ведёт от распознавания спота к решению, переносу, retention и реальным рукам. Старые разделы ниже остаются полезными для диагностики, карточек, разбора рук и данных."
+      ? "Карта навыков ведёт от распознавания спота к решению, переносу на новые ситуации, повторению после паузы и разбору реальных рук. Старые разделы ниже остаются полезны для диагностики, карточек, разбора рук и восстановления данных."
       : "The skill graph moves from spot recognition to decisions, transfer, retention, and real hands. The legacy tools below remain useful for diagnostics, cards, hand review, and data."}</p>
     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
-      <a className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить Practical Mastery" : "Continue Practical Mastery"} <span>→</span></a>
-      <a className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</a>
+      <Link className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить Practical Mastery" : "Continue Practical Mastery"} <span>→</span></Link>
+      <Link className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</Link>
     </div>
   </section>;
 }
