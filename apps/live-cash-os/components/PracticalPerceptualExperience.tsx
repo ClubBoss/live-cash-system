@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { practicalDecisionById, practicalSkillById, practicalTableStates, type PracticalTableState } from "../content/practical-mastery";
+import { allPracticalTableStates, practicalDecisionById, practicalSkillById, type PracticalTableState } from "../content/practical-mastery";
 import {
   PRACTICAL_MASTERY_STATE_SCHEMA_VERSION,
   createPracticalMasteryState,
@@ -66,7 +66,7 @@ export default function PracticalPerceptualExperience(){
 
   const eligible=useMemo(()=>{
     const attempted=new Set(state.attempts.map((attempt)=>attempt.decisionId));
-    const exposed=practicalTableStates.filter((table)=>state.skills[practicalDecisionById.get(table.decisionId)?.skillId??""]?.conceptTaught);
+    const exposed=allPracticalTableStates.filter((table)=>state.skills[practicalDecisionById.get(table.decisionId)?.skillId??""]?.conceptTaught);
     return [...exposed.filter((table)=>!attempted.has(table.decisionId)),...exposed.filter((table)=>attempted.has(table.decisionId))];
   },[state]);
   const table=eligible[index%Math.max(eligible.length,1)]??null;
@@ -85,15 +85,15 @@ export default function PracticalPerceptualExperience(){
   if(!table||!decision||!skill) return <main style={{maxWidth:760,margin:"0 auto",padding:"32px 20px 64px"}}>
     <p className="eyebrow">PERCEPTUAL PRACTICE</p>
     <h1>{locale==="ru"?"Сначала познакомься с механизмами":"Learn the mechanisms first"}</h1>
-    <p>{locale==="ru"?"Этот режим намеренно не тестирует незнакомые темы. Пройди First Journey, затем сюда попадут уже изученные skills в виде состояния стола.":"This mode intentionally does not test unseen topics. Complete First Journey first; learned skills will then appear here as table states."}</p>
-    <a className="primary" href="/mastery/journey">{locale==="ru"?"First Journey →":"First Journey →"}</a>
+    <p>{locale==="ru"?"Этот режим намеренно не тестирует незнакомые темы. Пройди First Journey, затем сюда попадут уже изученные навыки в виде состояния стола.":"This mode intentionally does not test unseen topics. Complete First Journey first; learned skills will then appear here as table states."}</p>
+    <a className="primary" href="/mastery/journey">First Journey →</a>
   </main>;
 
   return <main style={{maxWidth:900,margin:"0 auto",padding:"24px 18px 64px"}}>
     <section className="hero compact-hero">
       <p className="eyebrow">PERCEPTUAL PRACTICE · {table.scaffold.toUpperCase()}</p>
       <h1>{locale==="ru"?"Прочитай стол до того, как назовёшь тему":"Read the table before naming the topic"}</h1>
-      <p>{locale==="ru"?"Никакой подсветки правильной переменной. Найди node сам, затем выбери вывод и причину.":"No highlighting of the correct variable. Extract the node yourself, then choose the conclusion and reason."}</p>
+      <p>{locale==="ru"?"Никакой подсветки правильной переменной. Найди узел сам, затем выбери вывод и причину.":"No highlighting of the correct variable. Extract the node yourself, then choose the conclusion and reason."}</p>
       <div className="mode-switch"><button aria-pressed={locale==="ru"} onClick={()=>setLocale("ru")}>RU</button><button aria-pressed={locale==="en"} onClick={()=>setLocale("en")}>EN</button></div>
     </section>
 
@@ -104,9 +104,9 @@ export default function PracticalPerceptualExperience(){
       <fieldset style={{border:0,padding:0,margin:"16px 0"}}><legend><b>{locale==="ru"?"Почему":"Why"}</b></legend>{decision.reasonOptions.map((option)=><label key={option.id} style={{display:"block",padding:"7px 0"}}><input type="radio" name={`${decision.id}-r`} checked={reasonId===option.id} disabled={revealed} onChange={()=>setReasonId(option.id)}/> {locale==="ru"?option.textRu:option.textEn}</label>)}</fieldset>
       {!revealed?<button className="primary" disabled={!actionId||!reasonId} onClick={submit}>{locale==="ru"?"Зафиксировать решение":"Commit decision"} <span>→</span></button>:<div className="today-card" style={{marginTop:16}}>
         <p className="eyebrow">REVEAL AFTER COMMITMENT</p>
-        <h3>{lastCorrect?(locale==="ru"?"Верно":"Correct"):(locale==="ru"?"Нужен repair":"Repair needed")}</h3>
-        <p><b>{locale==="ru"?"Skill:":"Skill:"}</b> {locale==="ru"?skill.titleRu:skill.titleEn}</p>
-        <p><b>{locale==="ru"?"Какой cue mattered:":"Cue that mattered:"}</b> {locale==="ru"?table.revealCueRu:table.revealCueEn}</p>
+        <h3>{lastCorrect?(locale==="ru"?"Верно":"Correct"):(locale==="ru"?"Нужен ремонт":"Repair needed")}</h3>
+        <p><b>{locale==="ru"?"Навык:":"Skill:"}</b> {locale==="ru"?skill.titleRu:skill.titleEn}</p>
+        <p><b>{locale==="ru"?"Ключевой сигнал:":"Cue that mattered:"}</b> {locale==="ru"?table.revealCueRu:table.revealCueEn}</p>
         <p>{locale==="ru"?decision.explanationRu:decision.explanationEn}</p>
         <button className="secondary" onClick={next}>{locale==="ru"?"Следующий стол":"Next table"} <span>→</span></button>
       </div>}
