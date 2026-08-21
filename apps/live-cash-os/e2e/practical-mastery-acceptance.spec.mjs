@@ -97,9 +97,13 @@ test("mastery locale persists across route changes and localizes shared navigati
 test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
   test.skip(crossMatrix, "source-ceiling semantics are covered once in canonical Chromium");
   await page.goto("/mastery");
-  const bl11 = page.getByRole("button", { name: /^BL-11\b/ });
-  await expect(bl11).toHaveCount(1);
-  await bl11.evaluate((element) => element.click());
+  const bl11Button = page.getByRole("button", { name: /^BL-11\b/ });
+  const bl11Group = page.locator("details").filter({ has: bl11Button });
+  await expect(bl11Group).toHaveCount(1);
+  await bl11Group.locator("summary").click();
+  const bl11 = bl11Group.getByRole("button", { name: /^BL-11\b/ });
+  await expect(bl11).toBeVisible();
+  await bl11.click();
   await expect(page.getByText("ОГРАНИЧЕНИЕ ИСТОЧНИКА", { exact: true })).toBeVisible();
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
 });

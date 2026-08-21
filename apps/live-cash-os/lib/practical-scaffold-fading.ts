@@ -38,7 +38,7 @@ export function effectivePracticalScaffold(state:PracticalMasteryState,skillId:s
 }
 
 export function practicalScaffoldCue(level:PracticalScaffoldLevel,locale:"ru"|"en"){
-  if(level==="guided") return locale==="ru"?"Найди один сигнал, который меняет ветку: цена, позиция, глубина, action history или ranges.":"Find the one signal that changes the branch: price, position, depth, action history, or ranges.";
+  if(level==="guided") return locale==="ru"?"Найди один сигнал, который меняет ветку: цена, позиция, глубина, история действий или диапазоны.":"Find the one signal that changes the branch: price, position, depth, action history, or ranges.";
   if(level==="reduced") return locale==="ru"?"Что здесь изменяет решение?":"What changes the decision here?";
   return "";
 }
