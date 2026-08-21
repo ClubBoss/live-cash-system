@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import ts from "typescript";
 
 const APP_ROOT_URL = new URL("../", import.meta.url).href;
@@ -11,7 +11,19 @@ const SCHEDULER_URL = new URL("../lib/scheduler.ts", import.meta.url).href;
 const SESSION_CLARITY_URL = new URL("../lib/session-clarity.ts", import.meta.url).href;
 const RETRIEVAL_INTEGRITY_URL = new URL("../lib/retrieval-integrity.ts", import.meta.url).href;
 const PROFILE_STORAGE_URL = new URL("../lib/profile-storage.ts", import.meta.url).href;
-const TRANSPILED_URLS = new Set([CORE_URL, MODEL_URL, RELIABILITY_URL, CLOUD_SYNC_CONTRACT_URL, AUTOMATICITY_URL, SCHEDULER_URL, SESSION_CLARITY_URL, RETRIEVAL_INTEGRITY_URL, PROFILE_STORAGE_URL]);
+const PRACTICAL_PROFILE_CONTRACT_URL = new URL("../lib/practical-profile-contract.ts", import.meta.url).href;
+const TRANSPILED_URLS = new Set([
+  CORE_URL,
+  MODEL_URL,
+  RELIABILITY_URL,
+  CLOUD_SYNC_CONTRACT_URL,
+  AUTOMATICITY_URL,
+  SCHEDULER_URL,
+  SESSION_CLARITY_URL,
+  RETRIEVAL_INTEGRITY_URL,
+  PROFILE_STORAGE_URL,
+  PRACTICAL_PROFILE_CONTRACT_URL,
+]);
 
 function isTemporaryHarness(parentURL) {
   return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-test-");
@@ -25,6 +37,25 @@ function hasExplicitExtension(specifier) {
   return /\.[a-z0-9]+$/iu.test(specifier);
 }
 
+async function resolveAppTypeScript(specifier, parentURL) {
+  const fileUrl = new URL(`${specifier}.ts`, parentURL);
+  try {
+    if ((await stat(fileUrl)).isFile()) return fileUrl.href;
+  } catch {
+    // Fall through to a directory index. Practical Mastery intentionally owns
+    // its public surface through content/practical-mastery/index.ts.
+  }
+
+  const indexUrl = new URL(`${specifier}/index.ts`, parentURL);
+  try {
+    if ((await stat(indexUrl)).isFile()) return indexUrl.href;
+  } catch {
+    // Preserve the historical file resolution below so a genuinely missing
+    // module still fails closed with the expected path in the error.
+  }
+  return fileUrl.href;
+}
+
 export async function resolve(specifier, context, nextResolve) {
   if (isTemporaryHarness(context.parentURL)) {
     if (specifier === "./model-core") return { url: CORE_URL, shortCircuit: true };
@@ -33,9 +64,10 @@ export async function resolve(specifier, context, nextResolve) {
     if (specifier === "./automaticity") return { url: AUTOMATICITY_URL, shortCircuit: true };
     if (specifier === "./scheduler") return { url: SCHEDULER_URL, shortCircuit: true };
     if (specifier === "./profile-storage") return { url: PROFILE_STORAGE_URL, shortCircuit: true };
+    if (specifier === "./practical-profile-contract") return { url: PRACTICAL_PROFILE_CONTRACT_URL, shortCircuit: true };
   }
   if (context.parentURL?.startsWith(APP_ROOT_URL) && specifier.startsWith(".") && !hasExplicitExtension(specifier)) {
-    return { url: new URL(`${specifier}.ts`, context.parentURL).href, shortCircuit: true };
+    return { url: await resolveAppTypeScript(specifier, context.parentURL), shortCircuit: true };
   }
   if (context.parentURL === CLOUD_SYNC_CONTRACT_URL && specifier === "./reliability") {
     return { url: RELIABILITY_URL, shortCircuit: true };

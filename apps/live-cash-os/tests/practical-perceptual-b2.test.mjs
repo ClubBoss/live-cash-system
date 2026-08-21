@@ -18,9 +18,9 @@ test("B2 has guided, reduced and hidden-cue scaffolding",()=>{
   for(const level of ["guided","reduced","hidden"]) assert.match(corpus,new RegExp(`scaffold:\\"${level}\\"`));
 });
 
-test("perceptual reps are first-class PracticalDecisions on the same mastery state",()=>{
+test("perceptual reps are first-class PracticalDecisions on the reliable learner profile",()=>{
   assert.match(index,/perceptualPracticalDecisions/);
-  assert.match(ui,/live-cash-os:practical-mastery:v3/);
+  assert.match(ui,/usePracticalProfileState/);
   assert.match(ui,/recordPracticalDecision/);
   assert.match(ui,/conceptTaught/);
 });

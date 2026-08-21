@@ -12,7 +12,7 @@ const studyModel = await readFile(path.join(root, "content/practical-mastery/stu
 const studyUi = await readFile(path.join(root, "components/PracticalStudyLoopExperience.tsx"), "utf8");
 const referenceModel = await readFile(path.join(root, "content/practical-mastery/reference-baselines-c2.ts"), "utf8");
 const referenceUi = await readFile(path.join(root, "components/PracticalReferenceExperience.tsx"), "utf8");
-const masteryPage = await readFile(path.join(root, "app/mastery/page.tsx"), "utf8");
+const masteryNav = await readFile(path.join(root, "components/PracticalMasteryNav.tsx"), "utf8");
 const studyPage = await readFile(path.join(root, "app/mastery/study/page.tsx"), "utf8");
 const referencePage = await readFile(path.join(root, "app/mastery/reference/page.tsx"), "utf8");
 const reconciliation = await readFile(path.join(root, "../../analysis/SOURCE_UTILIZATION_RECONCILIATION_C0_V1.md"), "utf8");
@@ -53,7 +53,7 @@ test("C1 is a player-development loop, not a second mastery system", () => {
   assert.match(studyModel, /FTGU-E30/);
   assert.match(studyModel, /SLC-M07-L63/);
   assert.match(studyModel, /A written rule is a study artifact, not proof/);
-  assert.match(studyUi, /practical-mastery:v3/);
+  assert.match(studyUi, /usePracticalProfileState/);
   assert.match(studyUi, /practicalRepairQueue/);
   assert.match(studyUi, /recommendNextPracticalSkill/);
   assert.match(studyUi, /high-confidence wrong/i);
@@ -79,9 +79,9 @@ test("C2 exposes a small reference layer and preserves exact visual authority bo
   assert.match(referenceUi, /no invented A5s=37%/i);
 });
 
-test("C1/C2 routes are discoverable from the canonical mastery surface", () => {
-  assert.match(masteryPage, /href="\/mastery\/study"/);
-  assert.match(masteryPage, /href="\/mastery\/reference"/);
+test("C1/C2 routes are discoverable from the canonical shared mastery navigation", () => {
+  assert.match(masteryNav, /href="\/mastery\/study"/);
+  assert.match(masteryNav, /href="\/mastery\/reference"/);
   assert.match(studyPage, /PracticalStudyLoopExperience/);
   assert.match(referencePage, /PracticalReferenceExperience/);
 });

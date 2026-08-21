@@ -58,8 +58,8 @@ test("real-hand routing classifies causal mechanisms rather than results", () =>
   assert.match(integratedCorpus, /Outcome size is not a skill-family label/);
 });
 
-test("First Journey hands off to mixed practice on the same v3 state", () => {
-  assert.match(journey, /practical-mastery:v3/);
+test("First Journey hands off to mixed practice on the same nested v3 mastery state", () => {
+  assert.match(journey, /usePracticalProfileState/);
   assert.match(journey, /href="\/mastery\/session"/);
   assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
 });
