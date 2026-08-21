@@ -2,6 +2,7 @@
 
 import { runtimeCopy } from "../content/i18n/runtime";
 import { APP_VERSION } from "../lib/model";
+import { usePracticalLocale } from "../lib/use-practical-locale";
 import FeedbackDedupGuard from "./FeedbackDedupGuard";
 import LiveCashAppCore from "./LiveCashAppCore";
 
@@ -43,7 +44,14 @@ Object.assign(runtimeCopy.en, {
  * The accepted Wave 5 practice layer is composed once by app/page.tsx.
  */
 export default function LiveCashApp() {
-  return <>
+  const [locale] = usePracticalLocale();
+  return <section aria-label={locale === "ru" ? "Дополнительные инструменты Live Cash OS" : "Supporting Live Cash OS tools"}>
+    <div className="surface" style={{ maxWidth: 1180, margin: "28px auto 8px", padding: "14px 20px" }}>
+      <p className="eyebrow" style={{ marginBottom: 6 }}>{locale === "ru" ? "ДОПОЛНИТЕЛЬНЫЕ ИНСТРУМЕНТЫ" : "SUPPORTING TOOLS"}</p>
+      <p style={{ margin: 0, color: "var(--muted)" }}>{locale === "ru"
+        ? "Ниже остаются прежние инструменты Live Cash OS: план на сегодня, уроки, повторение, карточки, темы, реальные руки и диагностика. Основной маршрут обучения — «Учиться» в Practical Mastery выше."
+        : "The original Live Cash OS tools remain below: Today, lessons, review, cards, topics, real hands, and diagnostics. The primary learning route is “Learn” in Practical Mastery above."}</p>
+    </div>
     <LiveCashAppCore />
     <FeedbackDedupGuard />
     <footer
@@ -54,5 +62,5 @@ export default function LiveCashApp() {
     >
       Live Cash OS v{APP_VERSION} · Build {buildLabel}
     </footer>
-  </>;
+  </section>;
 }
