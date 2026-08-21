@@ -1,55 +1,59 @@
 # Live Cash OS — Release Status
 
-Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `PRACTICAL_MASTERY_RELEASE_CANDIDATE / APP_VERSION_1_2_0 / FEATURE_FREEZE_AFTER_AUTHORIZED_RELEASE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 ## Current truth
 
-Final Red-Team, Gauntlets 1–4 and Post-Tester Waves A/B/C are integrated implementation history. App version `1.2.0` labels the A/B/C implementation checkpoint; this label does not create human approval, W10 evidence or stable-production publication. Whether tag `v1.2.0` exists and which commit it identifies is authoritative from Git refs; tag creation is allowed only after exact-main CI, test-mirror deploy and live smoke pass.
+Live Cash OS keeps the accepted Post-Tester integrity work and now has an owner-authorized Practical Mastery release candidate as its primary learning route. The Practical program expands learning architecture without converting machine validation into human poker approval or empirical mastery proof.
 
-Canonical source gate:
+Canonical source/browser gate:
 
 `npm run test:release`
 
-Exact commit and run identities live in immutable Git/GitHub Actions history rather than this status file.
+Exact commit, run, merge and deploy identities live in immutable Git/GitHub Actions history rather than this status file.
 
-## v1.2.0 post-tester checkpoint
+## Practical Mastery release candidate
 
-The checkpoint groups the accepted tester-driven delta without changing learning semantics:
+The current candidate includes:
 
-- **A — Progress & Session Clarity:** lesson completion is separated from skill state; persistent step N/10; truthful local-save status; Today due-review clarity; saved Diagnostic continuation progress.
-- **B — Continuity & Real-Hand Safety:** reload-safe Today/Review return; unfinished Real Hand local draft; zero learner evidence before lock; local-save acknowledgement before draft clear; profile isolation; display-only complete-record example.
-- **C — Mobile & Test Access:** denser but complete mobile decision options with a 48px target floor; distinct invalid/offline/service-unavailable invite states; persisted RU/EN invite-gate locale.
+- a source-governed Practical Mastery route above the legacy module shell;
+- First Journey prediction -> mechanism -> decision learning;
+- contextual preflop, blinds, board/hand recognition, SRP, 3BP/4BP, turn/river, multiway/deep/straddle and exploit practice;
+- recognition/direct/changed/boundary evidence ladders;
+- topic-hidden integrated sessions;
+- non-identical `1/3/7` retention;
+- causal repair and adaptive guided -> reduced -> hidden scaffolding;
+- perceptual table-state transfer;
+- EV-weighted repetition depth;
+- performance telemetry for action, reason, latency, hidden cues, transfer, boundary, perceptual performance and confidence calibration;
+- one reliable local/cloud learner snapshot: root schema `2` with nested Practical mastery schema `3`.
 
-Feature freeze is active. Further product changes require empirical real-use evidence, except independently verified P0/P1 defects. This is implementation-complete **for real-use validation**, not evidence that retention, mastery or field transfer have been empirically validated.
+Legacy Diagnostic, modules, Cards, Review and Real Hands remain supported complementary surfaces.
 
-`v1.2.0` tag identity: **consult Git refs**; policy requires exact-main CI, test-mirror deploy and live smoke before creation.
+## Source ceiling
 
+The Practical source-gap ledger has one explicit residual:
 
-## Post-integration integrity contract
+`BL-11 = PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`
 
-The bounded closure addresses verified residue only:
+Dedicated SB-vs-BB 3-bet-pot scored frequencies/hand branches require inspectable solver/course authority. Until then the product remains fail-closed and routes learners through supported generic 3BP role mechanics plus BvB range identity.
 
-- Cards expose only material from completed topics and use a fixed bounded snapshot;
-- Review is item-by-item and returns to the updated Review queue after completion;
-- Before Play is separate from a saved learning session;
-- Real Hands require an explicit linked topic;
-- SELF hand review remains non-evidentiary and can be followed by a later genuine human review of the same locked hand;
-- local/cloud conflicts show side-by-side progress facts before a copy is chosen;
-- learner-facing RU fast-series naming is simplified;
-- smoke verifies the immutable Git build identity;
-- the canonical browser gate keeps full Chromium/mobile coverage and adds focused Firefox/WebKit learner-flow coverage;
-- root truth files participate in CI triggers;
-- release-gate logs are retained for exact failure diagnosis.
+Supporting/reference sources do not become strategy-answer authority.
 
-## Test-mirror storage contract
+## Reliability boundary
 
-The Workers test mirror uses one isolated D1 binding named `TEST_DB`. Production `DB` must not be present in the generated mirror configuration. Test schema initialization is idempotent through the already-bound test database before invite lookup, and deployed smoke verifies that the isolated state endpoint is operational. Test-mirror evidence is not stable-production evidence.
+The release preserves:
 
-## Preservation boundary
-
-This closure does not intentionally change poker curriculum, correct-answer identities, drill/card IDs, source provenance, hard prerequisites, learner-state schema version, mastery semantics, the `FIELD_VALIDATED` threshold, the `1/3/7` retention policy, diagnostic scoring semantics, or the stable production URL.
-
-Scheduler behavior changes only where required to make Before Play honor its declared separate warm-up contract. The internal fast-series evidence semantics are unchanged; only learner-facing naming is simplified.
+- local-first state availability;
+- root learner schema `2`;
+- additive Practical profile schema `3`;
+- no competing standalone Practical learner store;
+- import/export preservation of Practical state;
+- explicit confirmation before an older snapshot replaces current Practical progress;
+- fail-closed divergent local/cloud history;
+- immutable prior Practical evidence on lost-ack recovery unless monotonic ancestry is proven;
+- SELF hand review as non-evidentiary;
+- existing field-validation and delayed-retention evidence requirements.
 
 ## Governance truth
 
@@ -61,20 +65,28 @@ The editorial manifest intentionally remains review-pending:
 - drill approval: `null`;
 - human RU approvals: none;
 - human EN approvals: none;
-- final composition approval: pending.
+- final composition approval: pending;
+- `HUMAN_MASTERY_VALIDATED = FALSE`;
+- W10 empirical validation: `NOT_COMPLETED`;
+- W11 empirical/final acceptance: `NOT_COMPLETED`.
 
-A source-lock fingerprint refresh is deterministic bookkeeping, not human approval.
+A deterministic source lock, CI pass or deployed smoke is engineering evidence, not human approval.
 
-## Human and empirical gates
+## Canonical release target
 
-Still open: human poker/strategy review, human drill review, final Russian review, final English review, W10 empirical validation, and W11 final integration/release acceptance.
+`https://live-cash-os-mobile-test.blufferus.workers.dev/`
 
-W10 is not completed by this closure.
+The current operating model treats this Cloudflare Workers endpoint as the canonical release/deploy target. The former GPT-site URL is not release authority.
 
-## Deployment truth
+Release publication requires:
 
-Stable URL remains:
+1. exact final PR head GREEN;
+2. current-main reconciliation and merge of that exact head;
+3. exact resulting `main` GREEN;
+4. exact-SHA Workers deploy;
+5. generated Workers configuration containing isolated `TEST_DB` only and no production `DB`;
+6. post-deploy smoke proving build identity and learner-critical flows.
 
-`https://live-cash-os.elmarsal.chatgpt.site/`
+## Completion boundary
 
-Historical stable-production smoke proves only the source state against which it was recorded. Current test-mirror smoke may prove exact-main deployability, but it must not be presented as stable-production publication.
+Engineering/release closure may be completed under the current owner authorization when all gates above are GREEN. Genuine learning-effectiveness validation remains a later `REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION` evidence path.

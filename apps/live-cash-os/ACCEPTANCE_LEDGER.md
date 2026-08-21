@@ -1,66 +1,67 @@
 # Live Cash OS — Acceptance Ledger
 
-Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `PRACTICAL_MASTERY_RELEASE_CANDIDATE / APP_VERSION_1_2_0 / FEATURE_FREEZE_AFTER_AUTHORIZED_RELEASE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
-This ledger records the current acceptance boundary. Automated implementation evidence may reject a bad change; it cannot create human strategy, drill, Russian or English approval.
+This ledger records the current acceptance boundary. Automated implementation evidence may reject a bad change; it cannot create human strategy, drill, Russian/English approval or human mastery validation.
 
 ## Carried-forward truth
 
-Final Red-Team and Gauntlets 1–4 are integrated implementation history. Their technical acceptance does not upgrade human content/language approval or W10 empirical evidence.
+Final Red-Team, Gauntlets 1–4 and Post-Tester integrity work remain integrated history. Their technical acceptance does not upgrade human content/language approval or W10 empirical evidence.
 
-Earlier bounded dispositions remain historical implementation dispositions only:
+The legacy 11-module / 55-drill / 33-card system remains supported, but it is no longer the ceiling of the learning architecture. The owner-authorized Practical Mastery program is the current primary learning route and release candidate.
 
-Post-Tester Waves A/B/C are accepted and integrated implementation work. App version `1.2.0` labels this implementation checkpoint; tag presence and identity remain authoritative from Git refs and do not satisfy human review, W10 or W11. Feature freeze rejects unsupported synthetic feature work by default: reopening requires empirical real-use evidence or an independently verified P0/P1 defect.
+## Practical Mastery engineering boundary
 
-- W1 historical implementation disposition: `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`.
-- W5 historical implementation disposition: `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`.
+The candidate implements:
 
-## Post-Tester A/B/C implementation closure
+- source-governed skill-family learning instead of module-completion as the primary route;
+- First Journey prediction -> mechanism -> decision;
+- practical preflop, blinds, recognition, SRP, 3BP/4BP, later-street, multiway/deep/straddle and exploit engines;
+- recognition/direct/changed/boundary evidence separation;
+- topic-hidden bounded integrated sessions;
+- latest-state causal repair and high-confidence-miss priority;
+- delayed non-identical `1/3/7` retention;
+- perceptual table-state training on the same skill/evidence system;
+- adaptive guided -> reduced -> hidden scaffolding with support restored after misses;
+- real-hand causal routing while preserving reviewer authority;
+- separate performance telemetry without converting telemetry into mastery evidence;
+- reliable profile integration: root learner schema `2`, nested Practical mastery schema `3`, one local/cloud persistence path.
 
-- Wave A: progress/session clarity — lesson-vs-skill truth, step N/10, save acknowledgement, due-review clarity and Diagnostic continuation.
-- Wave B: continuity/Real-Hand safety — reload-safe origin, local drafts with zero evidence before lock, acknowledged-save clearing, profile isolation and a display-only record-format example.
-- Wave C: mobile/test-access truth — compact full-text mobile options, 48px target floor, typed invite failure states and persistent RU/EN gate locale.
+## Source authority boundary
 
-No curriculum, correct-answer, scheduler, mastery, evidence, learner-schema, reviewer-authority or human-approval semantics are upgraded by this release label.
+The Practical source-gap ledger deliberately retains one residual:
 
-## Integrated Gauntlet 4 boundary
+`BL-11 = PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`
 
-Gauntlet 4 repaired demonstrated LCM-01 real-use integrity defects: semantic correct/partial/wrong feedback, duplicate-feedback removal, bounded learner copy repair, accessible ordering, Wave5 Lab transition integrity, and transition-driven browser regression evidence. The ordering interaction remains an in-lesson active-learning check only; it does not create mastery, retention or field evidence.
+Public material is sufficient to know dedicated BvB 3BP solutions exist, but not sufficient to invent a dedicated scored answer-key tree. BL-11 therefore remains fail-closed until inspectable solver/course authority is available.
 
-## Post-integration integrity hardening
+Supporting/reference sources may support pedagogy and reference surfaces; they do not gain strategy-answer authority.
 
-The final bounded repair covers verified gaps found after the Gauntlets:
+## Evidence integrity boundary
 
-- Cards are limited to completed-topic material and use fixed bounded snapshots;
-- Review returns to the updated queue after each completed item;
-- Before Play remains separate from a saved learning session;
-- Real Hands require an explicit linked topic;
-- SELF hand review remains non-evidentiary and can be followed by a later genuine human/human-assisted review of the same hand;
-- local/cloud conflict recovery shows version facts before the learner chooses;
-- RU fast-series naming is learner-facing rather than exposing an internal product label;
-- smoke follows the current shell and verifies immutable build identity;
-- full Chromium/mobile regression remains canonical, with a focused Firefox/WebKit learner-flow matrix added;
-- root truth files trigger CI and release-gate logs are retained;
-- the test mirror uses only its isolated `TEST_DB` binding and initializes its idempotent test schema through that binding before invite lookup.
+The candidate must continue to enforce:
 
-These changes do not authorize a new curriculum, mastery model, evidence threshold or stable-production release.
+- completion is not mastery;
+- Diagnostic routing is not mastery evidence;
+- cued lesson/practice/repair is not independent transfer evidence;
+- exact immediate repeats do not create delayed retention;
+- SELF hand review does not create field-transfer evidence;
+- reviewed hands cannot bypass the required retention/transfer combination;
+- performance telemetry is measurement only;
+- source-blocked/partial concepts cannot masquerade as fully scored mastery.
 
-## Preservation proof boundary
+## Reliability and recovery boundary
 
-The closure does not intentionally change:
+The release must preserve:
 
-- poker curriculum or correct-answer identities;
-- drill/card IDs;
-- source provenance;
-- hard prerequisites;
-- learner-state schema version;
-- mastery semantics;
-- `FIELD_VALIDATED` threshold;
-- `1/3/7` retention policy;
-- diagnostic scoring semantics;
-- stable production URL.
-
-The Before Play scheduler branch changes only to honor the already-declared separate warm-up contract. Internal fast-series evidence semantics are unchanged.
+- immediate local durability and background cloud sync;
+- a single reliable learner snapshot rather than a shadow Practical store;
+- import/export preservation of the Practical profile;
+- explicit confirmation before older snapshots replace current Practical state;
+- fail-closed divergent ancestry;
+- no silent loss of durable Practical attempts/evidence on cloud conflicts or lost acknowledgements;
+- API traffic outside PWA caches;
+- browser/mobile/cross-browser release evidence.
 
 ## Governance and editorial truth
 
@@ -73,25 +74,29 @@ The manifest remains deliberately review-pending:
 - strategy approval: `null`;
 - drill approval: `null`;
 - human RU approvals: none;
-- human EN approvals: none.
+- human EN approvals: none;
+- `HUMAN_MASTERY_VALIDATED = FALSE`.
 
 A deterministic source-lock/fingerprint refresh records changed learner-facing corpus. It is not human approval.
 
 ## Technical acceptance contract
 
-Canonical source gate:
+Canonical source/browser gate:
 
 `npm run test:release`
 
-A post-integration change is acceptable only when:
+The owner-authorized release can close only when:
 
-1. canonical source/release validation is GREEN;
-2. Gauntlet and new post-integration regressions are GREEN;
-3. the branch-vs-current-main diff is bounded with no known P0/P1 product regression;
-4. after integration, GitHub Actions is GREEN on the exact final `main` commit;
-5. the main-branch test mirror deploys that exact accepted SHA and smoke verifies build identity plus isolated test-storage availability.
+1. the exact final PR head passes the canonical static/source/unit/build/browser/E2E/visual gates;
+2. two bounded post-change audit passes find no remaining actionable positive-net-EV defect;
+3. PR metadata/control-plane truth is reconciled without moving the validated code SHA;
+4. the exact validated head is merged to current `main` without unreviewed drift;
+5. GitHub Actions is GREEN on the exact resulting `main` commit;
+6. that exact `main` SHA deploys to the canonical Workers target;
+7. generated deployment configuration contains isolated `TEST_DB` only and no production `DB`;
+8. post-deploy smoke verifies the immutable Git build identity plus learner-critical flows.
 
-Exact SHA/run identities belong to immutable Git/GitHub history and the closure report rather than this self-referential ledger.
+Exact SHA/run identities belong to immutable Git/GitHub history and the final closure report rather than this self-referential ledger.
 
 ## Human and empirical gates still open
 
@@ -99,15 +104,18 @@ Exact SHA/run identities belong to immutable Git/GitHub history and the closure 
 - genuine drill human review;
 - final Russian human review;
 - final English human review;
-- W10 empirical validation from real learner use;
-- W11 final integration/release acceptance.
+- genuine learner-effectiveness evidence;
+- W10 empirical validation;
+- W11 empirical/final acceptance.
 
-W10 has not been completed. W11 has not been completed. Those states cannot be inferred from automation.
+W10 and W11 are not completed by an engineering deployment. Those states cannot be inferred from automation.
 
-## Deployment boundary
+## Canonical deployment boundary
 
-Stable production URL:
+Release target:
 
-`https://live-cash-os.elmarsal.chatgpt.site/`
+`https://live-cash-os-mobile-test.blufferus.workers.dev/`
 
-A Cloudflare Workers test mirror is release evidence only; it is not the stable production site. Repository integration or mirror deployment must not be described as stable-production publication unless that publication actually occurs and the live build is independently verified.
+This Cloudflare Workers endpoint is the canonical release/deploy target under the current owner-authorized operating model. The former GPT-site URL is not release authority.
+
+The Workers deployment is accepted only when it corresponds to the exact GREEN merged-main SHA and passes post-deploy smoke.

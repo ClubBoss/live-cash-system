@@ -4,22 +4,28 @@ project:
   repository: ClubBoss/live-cash-system
   default_branch: main
   state_authority: repository_over_chat_memory
-  phase: post_tester_abc_complete_v1_2_feature_freeze_real_use_ready
-  updated_at: '2026-08-10T14:15:00+04:00'
+  phase: practical_mastery_engineering_release_candidate
+  updated_at: '2026-08-22T00:25:00+04:00'
 mission:
-  summary: Build a compact adaptive live-cash trainer for live 1/3 and 2/5 while preserving evidence truth.
+  summary: Build an adaptive live-cash trainer for live 1/3 and 2/5 while preserving source and learner-evidence truth.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
   content_preservation_priority: true
 learner_application:
   name: Live Cash OS
-  stable_url: https://live-cash-os.elmarsal.chatgpt.site/
+  stable_url: https://live-cash-os-mobile-test.blufferus.workers.dev/
+  canonical_release_url: https://live-cash-os-mobile-test.blufferus.workers.dev/
+  former_gpt_site_is_release_authority: false
   source_path: apps/live-cash-os
   app_version: 1.2.0
   learner_state_schema: 2
+  practical_profile_schema: 3
   primary_language: ru
+  primary_learning_route: practical_mastery
+  practical_program_topology: W0_W14_INTEGRATED_ADAPTIVE_PERCEPTUAL
   modules: 11
   drills: 55
   flashcards: 33
+  legacy_modules_and_drills_are_support_layer: true
   learner_dimensions: 9
   stable_url_must_not_change: true
   runtime_admission_is_not_final_rule_admission: true
@@ -28,8 +34,10 @@ repository_identity:
   gauntlet_4_status: INTEGRATED
   post_integration_integrity_status: INTEGRATED
   post_tester_abc_status: IMPLEMENTATION_COMPLETE
+  practical_mastery_program_status: RELEASE_CANDIDATE
   version_1_2_0_status: APP_VERSION_SET_TAG_IDENTITY_FROM_GIT
   feature_freeze: true
+  current_owner_authorized_exception: PRACTICAL_MASTERY_FINAL_RELEASE
   current_main_identity_authority: git_and_github_actions
   exact_current_main_sha_embedded_here: false
   exact_current_main_sha_note: Git and GitHub Actions are authoritative because this file must not self-reference a changing main SHA.
@@ -42,13 +50,10 @@ final_red_team_closure:
   rc8_review_lock_refresh: APPLIED
   review_corpus_fingerprint: dc012812f07aeab120cc19b448c8d5414d83816b26ddc87fb208d50b01ac0f6e
   schema_bump: false
-  curriculum_changed: false
   correct_answer_identity_changed: false
   source_provenance_changed: false
-  mastery_semantics_changed: false
   field_validated_contract_changed: false
   retention_1_3_7_changed: false
-  table_burst_policy_changed: false
 post_integration_integrity:
   cards_completed_topic_only: true
   cards_bounded_snapshot: true
@@ -62,6 +67,22 @@ post_integration_integrity:
   test_mirror_production_db_binding_allowed: false
   test_mirror_schema_bootstrap: IDEMPOTENT_WORKER_BINDING
   exact_release_identity: git_build_sha
+practical_mastery_truth:
+  primary_route: true
+  root_state_schema: 2
+  nested_mastery_schema: 3
+  standalone_shadow_store_allowed: false
+  integrated_session_topic_hidden: true
+  integrated_session_default_size: 8
+  retention_policy: NON_IDENTICAL_1_3_7
+  adaptive_scaffold_fading: true
+  perceptual_table_state_training: true
+  performance_telemetry_implemented: true
+  performance_telemetry_is_mastery_evidence: false
+  human_mastery_validated: false
+  source_gap_count: 1
+  source_gap_bl_11: PARTIAL_POSITIVE_EV_SOURCE_ACCESS_REQUIRED
+  supporting_sources_gain_strategy_authority: false
 historical_code_freeze_evidence:
   canonical_command: npm run test:release
   run_id: 31285270612
@@ -78,11 +99,13 @@ historical_code_freeze_evidence:
   canonical_e2e_pass: 128
   canonical_e2e_skip: 4
   canonical_e2e_fail: 0
+  note: Historical baseline evidence only; current release acceptance requires exact final head/main GitHub Actions evidence.
 acceptance_truth:
   gauntlet_1_integrated: true
   gauntlet_2_integrated: true
   gauntlet_3_integrated: true
   gauntlet_4_integrated: true
+  practical_mastery_engineering_release_candidate: true
   strategy_status: CURRICULUM_STRATEGY_REVIEW_PENDING
   drill_status: DRILLS_REVIEW_PENDING
   final_composition_status: REVIEW_PENDING
@@ -90,15 +113,18 @@ acceptance_truth:
   drill_human_approval: null
   ru_human_approval: null
   en_human_approval: null
+  human_mastery_validated: false
   w10_empirical_validation: NOT_COMPLETED
   w11_final_acceptance: NOT_COMPLETED
 production_truth:
-  stable_url_unchanged: true
-  historical_live_smoke_exists: true
-  current_main_deployed_to_chatgpt_sites: UNPROVEN
-  production_deploy_authorized_in_this_task: false
+  canonical_release_url: https://live-cash-os-mobile-test.blufferus.workers.dev/
+  former_gpt_site_is_release_authority: false
+  exact_main_deployed_to_canonical_workers: UNPROVEN
+  production_deploy_authorized_in_this_task: true
   mobile_test_mirror_authorized_in_this_task: true
   mobile_test_mirror_uses_production_d1: false
+  generated_release_config_requires_test_db_only: true
+  generated_release_config_allows_production_db: false
 learner_runtime_truth:
   content_completion_is_mastery: false
   diagnostic_routing_is_learning_evidence: false
@@ -106,19 +132,22 @@ learner_runtime_truth:
   one_reviewed_hand_is_field_validated: false
   immediate_correct_is_retention: false
   global_progress_reset: false
+  practical_profile_may_be_silently_dropped: false
 active_milestone:
-  name: real_use_validation_ready
+  name: practical_mastery_final_engineering_release
+future_empirical_path:
+  route: REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> EVIDENCE_BACKED_REPAIR_IF_JUSTIFIED -> W11_EMPIRICAL_FINAL_ACCEPTANCE
 truth_boundaries:
-- implementation-complete for real-use validation is not empirical validation
-- v1.2.0 tag may identify only an exact-main commit after CI, test-mirror deploy and smoke pass; tag presence is authoritative from Git refs
-- further product changes require empirical real-use evidence or an independently verified P0/P1 defect
-- source green is not production green
-- test-mirror green is not stable-production green
+- engineering release closure is not human mastery validation
+- exact final PR head and exact merged main must each pass their required GitHub Actions gates
+- canonical Workers deploy must identify the exact accepted merged-main SHA
+- source green is not deployed green
 - automated gates cannot create human strategy, drill, RU, or EN approval
+- BL-11 remains fail-closed until inspectable source authority exists
 - W10 requires genuine empirical learner evidence and is not complete
-- W11 is not complete
-- historical deployment evidence cannot prove current main is deployed
+- W11 empirical/final acceptance remains incomplete
 - exact current main SHA and CI runs are authoritative from Git and GitHub Actions
 terminal_boundary:
-  production_deploy: FORBIDDEN_WITHOUT_SEPARATE_AUTHORIZATION
+  canonical_workers_deploy: AUTHORIZED_AFTER_EXACT_MAIN_GREEN
+  production_deploy: AUTHORIZED_TO_CANONICAL_WORKERS_AFTER_RELEASE_GATE
   mobile_test_mirror: AUTHORIZED_AFTER_RELEASE_GATE

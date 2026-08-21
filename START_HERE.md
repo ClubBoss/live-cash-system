@@ -1,6 +1,6 @@
 # Live Cash System — Start Here
 
-Status: `POST_TESTER_A_B_C_IMPLEMENTATION_COMPLETE / APP_VERSION_1_2_0 / FEATURE_FREEZE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / TEST_MIRROR_AUTHORIZED`
+Status: `PRACTICAL_MASTERY_RELEASE_CANDIDATE / APP_VERSION_1_2_0 / FEATURE_FREEZE_AFTER_AUTHORIZED_RELEASE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
 
 ## Bootstrap
 
@@ -11,53 +11,62 @@ Read in this order:
 1. `START_HERE.md`;
 2. `AGENTS.md`;
 3. `state/CURRENT_PROJECT_STATE.yaml`;
-4. `apps/live-cash-os/RELEASE_STATUS.md`;
-5. `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
-6. only the authorities required for the active task.
+4. `PROJECT_ATLAS.md`;
+5. `apps/live-cash-os/RELEASE_STATUS.md`;
+6. `apps/live-cash-os/ACCEPTANCE_LEDGER.md`;
+7. only the authorities required for the active task.
+
+Exact `main`, PR head, CI run and deployed build identity are resolved from Git/GitHub Actions rather than hard-coded here.
 
 ## Current repository truth
 
 - repository: `ClubBoss/live-cash-system`;
-- Final Red-Team and Gauntlets 1–4 are historical integrated implementation work;
-- post-integration integrity hardening covers verified Cards, Review, Before Play, Real Hands, recovery, browser-gate and release-path gaps;
-- Post-Tester Waves A/B/C are implementation-complete and integrated; app version is `1.2.0`, while tag presence and exact tag identity are authoritative from Git refs and may be created only after exact-main CI, test-mirror deploy and live smoke pass;
-- feature freeze is active: further product changes require empirical real-use evidence or an independently verified P0/P1 defect;
-- the exact current `main` identity and its CI run are sourced from immutable Git history and GitHub Actions, not this file;
+- Final Red-Team, Gauntlets 1–4 and Post-Tester A/B/C/D/E are integrated historical implementation work;
+- the owner-authorized Practical Mastery program is the current release candidate and replaces the old 11-module ceiling as the primary learning route;
+- legacy modules, Diagnostic, Cards, Review and Real Hands remain supported complementary surfaces;
+- root learner state remains schema `2`; Practical Mastery is an additive nested profile with mastery schema `3` inside the same reliable local/cloud snapshot;
+- source authority remains fail-closed; `BL-11` is explicitly `PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED` rather than filled with invented solver precision;
+- empirical instrumentation is implemented, but genuine learner effectiveness is not established;
+- `HUMAN_MASTERY_VALIDATED = FALSE`;
 - editorial state remains `TRANSITIONAL_REVIEW_REQUIRED`.
 
-The exact current `main` SHA and run IDs are not hard-coded here because they change with accepted repository work. Git and GitHub Actions are the authority for those identities.
+## Learning/evidence truth
 
-## Preserved product truth
+The current system preserves these boundaries:
 
-The current closure preserves:
+- completion is not mastery;
+- Diagnostic routing is not learning evidence;
+- cued lesson/practice/repair is not independent transfer evidence;
+- immediate exact repetition is not delayed retention;
+- retention uses the existing `1/3/7` delayed, non-identical contract where eligible;
+- SELF hand review is non-evidentiary;
+- one or two reviewed hands cannot bypass required retention and transfer evidence;
+- performance telemetry is measurement, not automatic mastery credit;
+- supporting/reference sources do not become strategy-answer authority.
 
-- poker curriculum and correct-answer identities;
-- drill/card IDs and source provenance;
-- hard prerequisites;
-- learner-state schema version `2`;
-- mastery semantics and `FIELD_VALIDATED` threshold;
-- `1/3/7` retention policy;
-- diagnostic scoring semantics;
-- stable production URL.
+## Reliability truth
 
-Before Play changes only to honor its already-declared separate warm-up contract. The fast-series mechanism/evidence semantics are unchanged; RU learner-facing naming is simplified.
+- local learner state is available before cloud completion;
+- Practical Mastery shares the hardened root profile instead of a competing standalone store;
+- import/export preserves the nested Practical profile;
+- divergent offline/cloud ancestry fails closed instead of silently selecting a winner;
+- the Workers release target uses only isolated `TEST_DB`; production `DB` is forbidden from the generated mirror configuration;
+- build identity is verified after deploy.
 
-## Post-integration integrity truth
+## Canonical release target
 
-The closure additionally enforces:
+`https://live-cash-os-mobile-test.blufferus.workers.dev/`
 
-- Cards use completed-topic material and bounded snapshots;
-- Review returns to its updated queue after each item;
-- a saved learning session is not overwritten by Before Play;
-- Real Hands require an explicit linked topic;
-- SELF hand review remains non-evidentiary and open to a later genuine human/human-assisted review;
-- conflict recovery shows local/cloud version facts before selection;
-- canonical browser evidence keeps full Chromium/mobile coverage and adds focused Firefox/WebKit learner-flow checks;
-- release smoke verifies immutable Git build identity.
+This Cloudflare Workers endpoint is the project’s canonical release/deploy target for the current operating model. The former GPT-site URL is not release authority and is not part of release acceptance.
 
-## Test-mirror boundary
+Publication requires:
 
-The authorized Workers test mirror is isolated from production storage. It binds a dedicated D1 database only as `TEST_DB`; production `DB` must not appear in mirror configuration. Test schema initialization is idempotent through that isolated binding and deployed smoke verifies the test storage path. Test-mirror evidence is not stable-production evidence.
+1. exact final PR head GREEN on `npm run test:release` and required CI evidence;
+2. no unresolved material audit finding;
+3. merge of that exact head to `main`;
+4. exact merged-main CI GREEN;
+5. exact-SHA Workers deploy using isolated `TEST_DB` only;
+6. post-deploy smoke proving build identity and learner-critical flows.
 
 ## Acceptance and human-review truth
 
@@ -70,47 +79,36 @@ Current governance remains:
 - RU human approval: pending;
 - EN human approval: pending;
 - final learner-facing composition: `REVIEW_PENDING`;
-- W10 empirical validation: not completed;
-- W11 final integration/release acceptance: not completed.
+- W10 empirical validation: `NOT_COMPLETED`;
+- W11 empirical/final acceptance: `NOT_COMPLETED`.
 
 No strategy, drill, RU or EN approval is inferred from model review or CI.
 
-## Deployment boundary
-
-Stable URL remains:
-
-`https://live-cash-os.elmarsal.chatgpt.site/`
-
-Historical production smoke evidence is not proof that the current `main` is deployed there.
-
-Production deployment remains separately authorized and must not be inferred from CI. The owner-authorized test mirror may deploy accepted `main` after the release gate; it must use neither the production URL nor the production D1 database.
-
 ## Active milestone
 
-`REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> W11_RELEASE_ACCEPTANCE`
+The authorized release program may close engineering/release work now. Genuine effectiveness remains a later evidence path:
 
-## Frozen constraints
+`REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> evidence-backed repair if justified -> W11 empirical/final acceptance`
+
+## Frozen constraints after this authorized release
 
 Do not:
 
-- call source-green production-green;
-- synthesize human approvals;
-- claim W10 or W11 complete;
-- infer mastery from completion, Diagnostic routing or one reviewed hand;
+- call source-green deployed-green;
+- synthesize human approvals or source authority;
+- claim W10 complete without genuine learner evidence;
+- infer mastery from completion, telemetry, Diagnostic routing or one reviewed hand;
 - grant retention from immediate repetition;
-- reset learner progress globally;
-- change the stable URL;
-- open a new synthetic product/UX feature wave without empirical real-use evidence or an independently verified P0/P1 defect;
-- deploy the production site without separate authorization.
+- silently drop or overwrite Practical profile history;
+- add dedicated BL-11 scored branches without inspectable authority;
+- reopen broad product/curriculum work without new material evidence.
 
-## Verdict
+## Verdict boundary
 
 `REPO_STATE_OVERRIDES_CHAT_MEMORY`
 
-`IMPLEMENTATION_COMPLETE_FOR_REAL_USE_VALIDATION / FEATURE_FREEZE`
+`PRACTICAL_MASTERY_ENGINEERING_RELEASE_CANDIDATE`
 
-`HUMAN_REVIEW_PENDING`
+`HUMAN_MASTERY_VALIDATED_FALSE`
 
 `W10_NOT_COMPLETED / W11_NOT_COMPLETED`
-
-`NO_PRODUCTION_DEPLOYMENT_CLAIM`

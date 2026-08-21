@@ -1,6 +1,6 @@
 # Live Cash System — Project Atlas
 
-Status: `ACTIVE / FEATURE_FREEZE / REAL_USE_VALIDATION / W10_EMPIRICAL_VALIDATION_NEXT`
+Status: `ACTIVE / PRACTICAL_MASTERY_RELEASE_CANDIDATE / FEATURE_FREEZE_AFTER_AUTHORIZED_RELEASE / REAL_USE_VALIDATION / W10_EMPIRICAL_VALIDATION_FUTURE`
 
 ## Fast navigation
 
@@ -8,95 +8,122 @@ Status: `ACTIVE / FEATURE_FREEZE / REAL_USE_VALIDATION / W10_EMPIRICAL_VALIDATIO
 |---|---|
 | bootstrap / authority | `START_HERE.md` |
 | machine state | `state/CURRENT_PROJECT_STATE.yaml` |
+| release status | `apps/live-cash-os/RELEASE_STATUS.md` |
+| acceptance boundary | `apps/live-cash-os/ACCEPTANCE_LEDGER.md` |
+| Practical Mastery program | `analysis/PRACTICAL_MASTERY_PROGRAM_V1.md` |
+| Practical source authority | `apps/live-cash-os/content/practical-mastery/source-authority.ts` |
+| Practical source gaps | `apps/live-cash-os/content/practical-mastery/source-gaps.ts` |
+| Practical learner state | `apps/live-cash-os/lib/practical-profile-contract.ts` |
 | W10 evidence workflow | `apps/live-cash-os/w10/README.md` |
 | bounded human review packet | `apps/live-cash-os/w10/HUMAN_REVIEW_TRANCHE_v1.md` |
 | Diagnostic content | `apps/live-cash-os/content/diagnostic.ts` |
-| Diagnostic feedback/routing | `apps/live-cash-os/lib/diagnostic-feedback.ts` |
 | learner state model | `apps/live-cash-os/lib/model-core.ts` |
 | scheduler / queues | `apps/live-cash-os/lib/scheduler.ts` |
-| runtime repair registry | `apps/live-cash-os/lib/runtime-repair-registry.ts` |
 | PR visual evidence | `apps/live-cash-os/e2e/pr-visual-evidence.spec.mjs` |
 
 ## Current product inventory
 
 ```text
 app version: 1.2.0
-state schema: 2
-11 learning modules
-55 governed drills
-33 cards
-10 structured Diagnostic/T1 items
-9 learner evidence dimensions
-feature freeze: ON
+root learner-state schema: 2
+Practical Mastery nested schema: 3
+primary learning route: Practical Mastery
+Practical program topology: W0-W14 + integrated/adaptive/perceptual engines
+legacy support layer: 11 modules / 55 governed drills / 33 cards
+Diagnostic: 10 structured T1 items
+source residuals: BL-11 PARTIAL only in the Practical source-gap ledger
+empirical instrumentation: IMPLEMENTED
+human mastery validated: FALSE
+feature freeze after authorized release: ON
 W10 empirical validation: NOT_COMPLETED
-W11 release acceptance: NOT_COMPLETED
+W11 empirical/final acceptance: NOT_COMPLETED
 human strategy review: PENDING
 human RU review: PENDING
 human EN review: PENDING
 final composition review: PENDING
 ```
 
-Do not infer measured learner performance from repository inventory. Real-use evidence must come from the learner progress export plus explicit W10 observations.
+Inventory does not imply measured learner performance. Real-use evidence must come from genuine learner state/telemetry plus explicit W10 observations and required human review.
 
-## Measurement architecture
+## Current learning architecture
 
 ```text
-cold structured Diagnostic
-→ deterministic post-completion feedback / routing
-→ lesson prediction + mechanism
-→ action + reason decisions
-→ repair on observed errors
-→ changed / boundary transfer checks
-→ delayed retrieval
-→ reviewed field hands
-→ W10 empirical evidence summary
-→ human W10 adjudication
+Practical First Journey: predict -> mechanism -> decision
+-> recognition/direct/changed/boundary evidence
+-> topic-hidden integrated practice
+-> causal repair + adaptive scaffolding
+-> non-identical delayed 1/3/7 retrieval
+-> perceptual/table-state transfer
+-> reviewed real-hand application
+-> performance telemetry
+-> later W10 empirical evidence summary
+-> human W10 adjudication
 ```
 
-Free-text explain-back remains useful recall evidence for the learner, but the runtime does not pretend to automatically understand or grade that text. Explain-back self-check creates no skill evidence by itself; independent changed/boundary decisions do.
+The legacy Diagnostic/module/Card/Review/Hands surfaces remain complementary. They do not create a second Practical mastery store.
+
+## Authority boundaries
+
+- `CANONICAL_SOURCE` and admitted source aliases may support strategy answer keys within their declared scope.
+- `SUPPORTING_SOURCE` and `REFERENCE_SOURCE` may support pedagogy/reference but do not gain strategy-answer authority.
+- `BL-11` remains `PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`; dedicated BvB 3BP scored frequencies/branches require an inspectable solver or owner-provided course source.
+- machine tests cannot create human approval or human mastery validation.
+
+## Reliability and recovery
+
+```text
+reliable root schema 2 snapshot
++ nested Practical profile schema 3
++ local-first persistence
++ revision / opaque cloud-token contract
++ monotonic ancestry checks for lost acknowledgements
++ fail-closed divergent history
++ explicit import confirmation when older snapshots would replace newer Practical state
+```
+
+## Release path
+
+Canonical release target:
+
+`https://live-cash-os-mobile-test.blufferus.workers.dev/`
+
+The accepted exact `main` SHA is deployed through the existing Cloudflare Workers workflow. Generated release configuration must contain isolated `TEST_DB` only and must not contain production `DB`. Post-deploy smoke must verify the deployed Git SHA and learner-critical flows.
+
+The former GPT-site URL is not release authority.
 
 ## Current path
 
-```text
-REAL_USE_VALIDATION
-→ collect >=14-day W10 evidence
-→ W10_EMPIRICAL_VALIDATION
-→ evidence-backed repair only if repeated/high-severity findings justify it
-→ W11_RELEASE_ACCEPTANCE
-```
+The owner-authorized Practical Mastery release can close engineering/release work after exact-head, exact-main and deployed-green gates. Empirical learning validation remains subsequent:
 
-The repository is no longer in `T1_EXECUTION_NEXT`. Structured Diagnostic and its feedback loop are already implemented on current main.
+`REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION -> evidence-backed bounded repairs only if justified -> W11 empirical/final acceptance`
 
 ## Feature-freeze boundary
 
-Further learner-facing product work requires one of:
+After this authorized release, further learner-facing product work requires one of:
 
-1. real-use/W10 evidence showing a repeated material problem;
-2. a separately verified P0/P1 correctness, learning-integrity, continuity, safety or UX defect.
+1. genuine real-use/W10 evidence showing a repeated material problem;
+2. a separately verified correctness, learning-integrity, continuity, safety, source or UX defect with positive net EV.
 
-Do not reopen curriculum, scheduler policy, mastery thresholds, strategy truth, visual redesign or broad architecture from preference-level findings.
-
-## Environment boundary
-
-- Exact `origin/main` and exact-main CI must be re-resolved before repository work; do not trust an embedded SHA.
-- The automated deployment target is the isolated Cloudflare **test mirror** with dedicated `TEST_DB` only.
-- Production DB/deployment is not authorized by this Atlas.
+Do not reopen broad curriculum, scheduler policy, mastery thresholds, strategy truth, visual redesign or architecture from preference-level findings.
 
 ## Acceptance boundary
 
-Machine tooling may produce `READY_FOR_HUMAN_W10_REVIEW`; it may not create:
+Machine tooling may prove engineering/release readiness; it may not create:
 
-- `W10_COMPLETE`;
 - human strategy approval;
+- human drill approval;
 - human RU approval;
 - human EN approval;
 - final composition approval;
-- empirical field-valid truth without required reviewed field evidence.
+- `HUMAN_MASTERY_VALIDATED = TRUE`;
+- W10 completion without genuine empirical evidence.
 
 ## Verdict
 
-`IMPLEMENTATION_COMPLETE_FOR_REAL_USE_VALIDATION`
+`PRACTICAL_MASTERY_ENGINEERING_RELEASE_CANDIDATE`
 
-`W10_EVIDENCE_COLLECTION_NEXT`
+`EMPIRICAL_INSTRUMENTATION_IMPLEMENTED`
 
-`FEATURE_FREEZE_UNLESS_EVIDENCE_JUSTIFIES_CHANGE`
+`HUMAN_MASTERY_VALIDATED_FALSE`
+
+`W10_EVIDENCE_COLLECTION_FUTURE`
