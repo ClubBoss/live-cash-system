@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-const MASTERY_KEY = "live-cash-os:practical-mastery:v3";
+const LEARNER_KEY = "live-cash-os:learner-state";
+const LEGACY_PRACTICAL_KEYS = [
+  "live-cash-os:practical-mastery:v3",
+  "live-cash-os:practical-performance:v1",
+  "live-cash-os:study-loop:v1",
+];
 const crossMatrix = process.env.LIVE_CASH_MASTERY_CROSS === "1";
 const masteryRoutes = [
   "/mastery",
@@ -67,7 +72,7 @@ test("Practical Mastery remains usable at phone width", async ({ page }) => {
   }
 });
 
-test("First Journey creates schema-v3 evidence and preserves it across mastery routes", async ({ page }) => {
+test("First Journey writes schema-v3 evidence inside the reliable learner profile", async ({ page }) => {
   test.skip(crossMatrix, "state semantics are covered once in canonical Chromium");
   await page.goto("/mastery/journey");
   await expect(page.getByLabel("Твой прогноз")).toBeVisible();
@@ -77,15 +82,30 @@ test("First Journey creates schema-v3 evidence and preserves it across mastery r
   await expect.poll(async () => page.evaluate((key) => {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const state = JSON.parse(raw);
-    return { schemaVersion: state.schemaVersion, conceptTaught: state.skills?.["FND-01"]?.conceptTaught };
-  }, MASTERY_KEY)).toEqual({ schemaVersion: 3, conceptTaught: true });
+    const root = JSON.parse(raw);
+    return {
+      rootSchema: root.schemaVersion,
+      practicalSchema: root._practicalProfile?.mastery?.schemaVersion,
+      conceptTaught: root._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught,
+    };
+  }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 3, conceptTaught: true });
 
+  await expect.poll(async () => page.evaluate((keys) => keys.every((key) => localStorage.getItem(key) === null), LEGACY_PRACTICAL_KEYS)).toBe(true);
   await page.goto("/mastery");
   await expect.poll(async () => page.evaluate((key) => {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw).skills?.["FND-01"]?.conceptTaught : false;
-  }, MASTERY_KEY)).toBe(true);
+    return raw ? JSON.parse(raw)._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught : false;
+  }, LEARNER_KEY)).toBe(true);
+});
+
+test("mastery locale persists across route changes and updates document language", async ({ page }) => {
+  test.skip(crossMatrix, "locale persistence is covered once in canonical Chromium");
+  await page.goto("/mastery");
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.goto("/mastery/study");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByRole("heading", { name: /Play → review → repair → retest/i })).toBeVisible();
 });
 
 test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
