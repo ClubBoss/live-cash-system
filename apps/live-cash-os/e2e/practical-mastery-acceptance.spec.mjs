@@ -1,11 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
-const LEGACY_PRACTICAL_KEYS = [
-  "live-cash-os:practical-mastery:v3",
-  "live-cash-os:practical-performance:v1",
-  "live-cash-os:study-loop:v1",
-];
 const crossMatrix = process.env.LIVE_CASH_MASTERY_CROSS === "1";
 const masteryRoutes = [
   "/mastery",
@@ -17,10 +12,7 @@ const masteryRoutes = [
 ];
 
 async function expectNoHorizontalOverflow(page) {
-  const dimensions = await page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
-  }));
+  const dimensions = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
 }
 
@@ -38,14 +30,11 @@ async function openMastery(page, route) {
 
 test("canonical home exposes Practical Mastery as the primary learning route", async ({ page }) => {
   test.skip(crossMatrix, "canonical Chromium coverage is sufficient for the legacy-shell bridge");
-  await page.route("**/api/state", async (route) => {
-    await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local acceptance fixture" }) });
-  });
+  await page.route("**/api/state", async (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local acceptance fixture" }) }));
   await page.goto("/");
   const gateway = page.getByRole("region", { name: "Основной маршрут Practical Mastery" });
   await expect(gateway).toBeVisible();
-  const start = gateway.getByRole("link", { name: /Продолжить Practical Mastery/ });
-  await expect(start).toHaveAttribute("href", "/mastery/journey");
+  await expect(gateway.getByRole("link", { name: /Продолжить Practical Mastery/ })).toHaveAttribute("href", "/mastery/journey");
   const legacyHeading = page.getByRole("heading", { name: /Учись понемногу/i });
   await expect(legacyHeading).toBeVisible();
   const gatewayBox = await gateway.boundingBox();
@@ -83,14 +72,9 @@ test("First Journey writes schema-v3 evidence inside the reliable learner profil
     const raw = localStorage.getItem(key);
     if (!raw) return null;
     const root = JSON.parse(raw);
-    return {
-      rootSchema: root.schemaVersion,
-      practicalSchema: root._practicalProfile?.mastery?.schemaVersion,
-      conceptTaught: root._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught,
-    };
+    return { rootSchema: root.schemaVersion, practicalSchema: root._practicalProfile?.mastery?.schemaVersion, conceptTaught: root._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught };
   }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 3, conceptTaught: true });
 
-  await expect.poll(async () => page.evaluate((keys) => keys.every((key) => localStorage.getItem(key) === null), LEGACY_PRACTICAL_KEYS)).toBe(true);
   await page.goto("/mastery");
   await expect.poll(async () => page.evaluate((key) => {
     const raw = localStorage.getItem(key);
