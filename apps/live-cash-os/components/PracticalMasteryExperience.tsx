@@ -1,22 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { practicalAnchors, practicalSkillFamilies } from "../content/practical-mastery";
+import { useMemo, useState } from "react";
+import { practicalSkillFamilies } from "../content/practical-mastery";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
-import type { PracticalDecision, PracticalSkillFamily } from "../content/practical-mastery";
+import type { PracticalSkillFamily } from "../content/practical-mastery";
 import {
   availablePracticalSkills,
-  markPracticalConceptTaught,
-  nextPracticalDecision,
-  practicalPrerequisitesMet,
   practicalRepairQueue,
-  practicalSkillCorpusCanReach,
   recommendNextPracticalSkill,
-  recordPracticalDecision,
   stageAtLeast,
-  type PracticalMasteryState,
 } from "../lib/practical-mastery-core";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
@@ -60,77 +54,32 @@ function evidenceLabel(locale: Locale, stage: string): string {
   return locale === "ru" ? ru[stage] ?? stage : stage.toLowerCase().replaceAll("_", " ");
 }
 
-function skillTitle(skill: PracticalSkillFamily, locale: Locale): string { return locale === "ru" ? skill.titleRu : skill.titleEn; }
-function optionText(option: { textRu: string; textEn: string }, locale: Locale): string { return locale === "ru" ? option.textRu : option.textEn; }
-
-function DecisionCard({ locale, decision, state, onState }: { locale: Locale; decision: PracticalDecision; state: PracticalMasteryState; onState: (state: PracticalMasteryState) => void }) {
-  const [shownDecision, setShownDecision] = useState<PracticalDecision>(decision);
-  const [actionId, setActionId] = useState("");
-  const [reasonId, setReasonId] = useState("");
-  const [confidence, setConfidence] = useState(65);
-  const [revealed, setRevealed] = useState(false);
-  const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    if (revealed) return;
-    setShownDecision(decision);
-    setActionId("");
-    setReasonId("");
-    setConfidence(65);
-    setWasCorrect(null);
-  }, [decision, revealed]);
-
-  const submit = () => {
-    if (!actionId || !reasonId) return;
-    const correct = actionId === shownDecision.correctActionId && reasonId === shownDecision.correctReasonId;
-    onState(recordPracticalDecision(state, { decisionId: shownDecision.id, actionId, reasonId, confidence }));
-    setWasCorrect(correct);
-    setRevealed(true);
-  };
-
-  const advance = () => {
-    setShownDecision(decision);
-    setActionId("");
-    setReasonId("");
-    setConfidence(65);
-    setRevealed(false);
-    setWasCorrect(null);
-  };
-
-  return <article className="today-card" style={{ marginTop: 18 }}>
-    <p className="eyebrow">{locale === "ru" ? "ПРАКТИКА НАВЫКА" : "SKILL PRACTICE"}</p>
-    <h2>{locale === "ru" ? shownDecision.cueRu : shownDecision.cueEn}</h2>
-    <p>{locale === "ru" ? shownDecision.questionRu : shownDecision.questionEn}</p>
-    <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{shownDecision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${shownDecision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
-    <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{shownDecision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${shownDecision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
-    <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
-    {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
-      <p><b>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</b></p>
-      <p>{locale === "ru" ? shownDecision.explanationRu : shownDecision.explanationEn}</p>
-      <button className="secondary" onClick={advance}>{locale === "ru" ? "Следующая задача" : "Next item"} <span>→</span></button>
-    </div>}
-  </article>;
+function skillTitle(skill: PracticalSkillFamily, locale: Locale): string {
+  return locale === "ru" ? skill.titleRu : skill.titleEn;
 }
 
 export default function PracticalMasteryExperience() {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, setMastery, ready, syncStatus, cloudMode, recoveryBlocked } = usePracticalProfileState();
+  const { mastery: state, ready, syncStatus, cloudMode, recoveryBlocked } = usePracticalProfileState();
   const [selectedSkillId, setSelectedSkillId] = useState("FND-01");
 
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
   const progress = state.skills[skill.id];
-  const available = practicalPrerequisitesMet(state, skill.id);
-  const decisionTrainable = practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED");
-  const decision = available && progress?.conceptTaught ? nextPracticalDecision(state, skill.id) : null;
   const gap = practicalSourceGapBySkillId.get(skill.id);
-  const lessonAnchors = practicalAnchors.filter((anchor) => anchor.skillId === skill.id);
   const hardPrerequisiteIds = hardDependenciesFor(skill.id).map((dependency) => dependency.fromSkillId);
-  const hardPrerequisiteTitles = hardPrerequisiteIds.map((id) => practicalSkillFamilies.find((candidate) => candidate.id === id)).filter(Boolean).map((item) => skillTitle(item as PracticalSkillFamily, locale));
+  const hardPrerequisiteTitles = hardPrerequisiteIds
+    .map((id) => practicalSkillFamilies.find((candidate) => candidate.id === id))
+    .filter((item): item is PracticalSkillFamily => Boolean(item))
+    .map((item) => skillTitle(item, locale));
   const availableIds = useMemo(() => new Set(availablePracticalSkills(state).map((candidate) => candidate.id)), [state]);
   const repairIds = useMemo(() => new Set(practicalRepairQueue(state)), [state]);
   const grouped = useMemo(() => {
     const map = new Map<string, PracticalSkillFamily[]>();
-    for (const item of practicalSkillFamilies) { const list = map.get(item.wave) ?? []; list.push(item); map.set(item.wave, list); }
+    for (const item of practicalSkillFamilies) {
+      const list = map.get(item.wave) ?? [];
+      list.push(item);
+      map.set(item.wave, list);
+    }
     return [...map.entries()];
   }, []);
   const trained = practicalSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
@@ -146,8 +95,11 @@ export default function PracticalMasteryExperience() {
     <section className="hero compact-hero">
       <p className="eyebrow">{locale === "ru" ? "КАРТА НАВЫКОВ" : "SKILL MAP"}</p>
       <h1>{locale === "ru" ? "Смотри прогресс." : "See your progress."}<br /><em>{locale === "ru" ? "Учись через один маршрут." : "Learn through one route."}</em></h1>
-      <p className="lede">{locale === "ru" ? "Карта нужна, чтобы увидеть сильные места, ошибки и то, что ещё предстоит закрепить. Для обычного обучения просто нажимай «Продолжить обучение»." : "Use the map to see strengths, repairs, and what still needs reinforcement. For normal training, simply choose Continue learning."}</p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}><div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div><PracticalNextLearningLink className="primary" /></div>
+      <p className="lede">{locale === "ru" ? "Карта показывает, что уже получается и что ещё нужно закрепить. Она не является отдельным курсом: для обучения и практики используй «Продолжить обучение»." : "The map shows what is working and what still needs reinforcement. It is not a separate course: use Continue learning for teaching and practice."}</p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
+        <PracticalNextLearningLink className="primary" />
+      </div>
       <p className="support">{locale === "ru" ? (cloudMode === "cloud" ? `Облако · ${syncStatus}` : `На устройстве · ${syncStatus}`) : (cloudMode === "cloud" ? `Cloud · ${syncStatus}` : `Local · ${syncStatus}`)}</p>
     </section>
 
@@ -158,26 +110,56 @@ export default function PracticalMasteryExperience() {
       <div><b>{repairIds.size}</b><span>{locale === "ru" ? "нужно повторить" : "need repair"}</span></div>
     </section>
 
-    {recommendedSkill ? <section className="today-card" style={{ marginTop: 22 }}><p className="eyebrow">{locale === "ru" ? "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" : "BEST NEXT FOCUS"}</p><h2>{skillTitle(recommendedSkill, locale)}</h2><p>{locale === "ru" ? recommendedSkill.objectiveRu : recommendedSkill.titleEn}</p><button className="secondary" onClick={() => setSelectedSkillId(recommendedSkill.id)}>{locale === "ru" ? "Посмотреть навык" : "View skill"} <span>→</span></button></section> : null}
-
-    <section className="surface" style={{ marginTop: 22 }}><div className="section-head"><p className="eyebrow">{locale === "ru" ? "ВСЕ НАВЫКИ" : "ALL SKILLS"}</p><h2>{locale === "ru" ? "По игровым ситуациям" : "Grouped by poker situation"}</h2></div>{grouped.map(([wave, skills]) => <details key={wave} open={wave === skill.wave} style={{ marginBottom: 12 }}><summary style={{ cursor: "pointer", fontWeight: 700 }}>{waveLabel(wave, locale)} · {skills.length}</summary><div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>{skills.map((item) => {
-      const itemGap = practicalSourceGapBySkillId.get(item.id); const itemProgress = state.skills[item.id]; const locked = !availableIds.has(item.id);
-      const status = itemGap?.status === "SOURCE_BLOCKED" ? (locale === "ru" ? "ограничено" : "limited") : repairIds.has(item.id) ? (locale === "ru" ? "повторить" : "repair") : locked ? (locale === "ru" ? "пока закрыто" : "locked") : evidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED");
-      return <button key={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
-    })}</div></details>)}</section>
+    {recommendedSkill ? <section className="today-card" style={{ marginTop: 22 }}>
+      <p className="eyebrow">{locale === "ru" ? "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" : "BEST NEXT FOCUS"}</p>
+      <h2>{skillTitle(recommendedSkill, locale)}</h2>
+      <p>{locale === "ru" ? recommendedSkill.objectiveRu : recommendedSkill.titleEn}</p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <PracticalNextLearningLink className="primary" />
+        <button className="secondary" onClick={() => setSelectedSkillId(recommendedSkill.id)}>{locale === "ru" ? "Посмотреть на карте" : "View on map"} <span>→</span></button>
+      </div>
+    </section> : null}
 
     <section className="surface" style={{ marginTop: 22 }}>
-      <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ НАВЫК" : "SELECTED SKILL"}</p><h1>{skillTitle(skill, locale)}</h1><p>{locale === "ru" ? skill.objectiveRu : skill.titleEn}</p>
+      <div className="section-head"><p className="eyebrow">{locale === "ru" ? "ВСЕ НАВЫКИ" : "ALL SKILLS"}</p><h2>{locale === "ru" ? "По игровым ситуациям" : "Grouped by poker situation"}</h2></div>
+      {grouped.map(([wave, skills]) => <details key={wave} open={wave === skill.wave} style={{ marginBottom: 12 }}>
+        <summary style={{ cursor: "pointer", fontWeight: 700 }}>{waveLabel(wave, locale)} · {skills.length}</summary>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>{skills.map((item) => {
+          const itemGap = practicalSourceGapBySkillId.get(item.id);
+          const itemProgress = state.skills[item.id];
+          const locked = !availableIds.has(item.id);
+          const status = itemGap?.status === "SOURCE_BLOCKED"
+            ? (locale === "ru" ? "ограничено" : "limited")
+            : repairIds.has(item.id)
+              ? (locale === "ru" ? "повторить" : "repair")
+              : locked
+                ? (locale === "ru" ? "пока закрыто" : "locked")
+                : evidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED");
+          return <button key={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
+        })}</div>
+      </details>)}
+    </section>
+
+    <section className="surface" style={{ marginTop: 22 }}>
+      <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ НАВЫК" : "SELECTED SKILL"}</p>
+      <h1>{skillTitle(skill, locale)}</h1>
+      <p>{locale === "ru" ? skill.objectiveRu : skill.titleEn}</p>
       <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
 
       {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.reasonRu : gap.reason}</p><p className="support">{locale === "ru" ? gap.nextEvidenceNeededRu : gap.nextEvidenceNeeded}</p></div> : null}
-      {!available ? <p className="support">{locale === "ru" ? `Сначала нужны: ${hardPrerequisiteTitles.join(", ") || "предыдущие базовые навыки"}.` : `First complete: ${hardPrerequisiteTitles.join(", ") || "the required foundations"}.`}</p> : null}
-      {available && !decisionTrainable && (!gap || gap.status !== "SOURCE_BLOCKED") ? <p className="support">{locale === "ru" ? "Для следующего уровня пока не хватает разных независимых задач." : "There are not enough independent items yet for the next honest stage."}</p> : null}
+      {!availableIds.has(skill.id) ? <p className="support">{locale === "ru" ? `Сначала нужны: ${hardPrerequisiteTitles.join(", ") || "предыдущие базовые навыки"}.` : `First complete: ${hardPrerequisiteTitles.join(", ") || "the required foundations"}.`}</p> : null}
 
-      {available && (!gap || gap.status !== "SOURCE_BLOCKED") && !progress?.conceptTaught && lessonAnchors.length > 0 ? <div className="today-card" style={{ marginTop: 18 }}><p className="eyebrow">{locale === "ru" ? "СНАЧАЛА МЕХАНИЗМ" : "MECHANISM FIRST"}</p>{lessonAnchors.map((anchor) => <div key={anchor.id} style={{ marginTop: 14 }}><h3>{locale === "ru" ? anchor.titleRu : anchor.titleEn}</h3><p>{locale === "ru" ? anchor.bodyRu : anchor.bodyEn}</p></div>)}<button className="primary" onClick={() => setMastery(markPracticalConceptTaught(state, skill.id))}>{locale === "ru" ? "Перейти к практике" : "Start practice"} <span>→</span></button></div> : null}
-      {available && !progress?.conceptTaught && lessonAnchors.length === 0 ? <p className="support">{locale === "ru" ? "Для этого навыка пока нет отдельного подтверждённого объяснения. Система не засчитает понимание автоматически." : "There is no source-backed teaching anchor for this skill yet; the system will not award concept evidence automatically."}</p> : null}
-      {available && progress?.conceptTaught && decision ? <DecisionCard locale={locale} decision={decision} state={state} onState={setMastery} /> : null}
-      {available && progress?.conceptTaught && !decision && (!gap || gap.status !== "SOURCE_BLOCKED") ? <p className="support">{locale === "ru" ? "Сейчас следующая полезная проверка появится через практику, повторение после паузы или разбор реальной руки." : "The next useful check will come through practice, delayed review, or a real-hand review."}</p> : null}
+      <div className="today-card" style={{ marginTop: 18 }}>
+        <p className="eyebrow">{locale === "ru" ? "ЧТО ДЕЛАТЬ ДАЛЬШЕ" : "WHAT TO DO NEXT"}</p>
+        <p>{locale === "ru"
+          ? repairIds.has(skill.id)
+            ? "Этот навык стоит повторить. Основной маршрут сам вернёт нужную задачу и не засчитает исправление как удержание после паузы."
+            : "Продолжай через основной маршрут: он сам решит, нужен новый механизм, самостоятельная задача, изменённые условия или повторение после паузы."
+          : repairIds.has(skill.id)
+            ? "This skill needs repair. The primary route will bring back the right item without pretending an immediate repair is delayed retention."
+            : "Continue through the primary route; it will choose whether you need teaching, an independent decision, changed conditions, or delayed review."}</p>
+        <PracticalNextLearningLink className="primary" />
+      </div>
     </section>
   </main>;
 }
