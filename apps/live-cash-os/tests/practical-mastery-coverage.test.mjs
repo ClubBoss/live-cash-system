@@ -12,6 +12,7 @@ const decisionFiles = [
   "decisions-gap-fill",
   "decisions-foundation-expansion",
   "decisions-preflop-core-expansion",
+  "decisions-preflop-advanced-expansion",
   "decisions-blind-defence-expansion",
   "decisions-w14",
 ];
@@ -51,12 +52,17 @@ test("foundation expansion teaches math and realization without evidence inflati
 });
 
 test("preflop expansion trains mechanisms without importing visual chart cells", async () => {
-  const corpus = await read("content/practical-mastery/decisions-preflop-core-expansion.ts");
-  for (const source of ["FTGU-E02", "FTGU-E03", "FTGU-E04", "FTGU-E05", "FTGU-E06"]) assert.match(corpus, new RegExp(source));
-  for (const skill of ["PF-01", "PF-02", "PF-03", "PF-04", "PF-05"]) assert.match(corpus, new RegExp(skill));
+  const core = await read("content/practical-mastery/decisions-preflop-core-expansion.ts");
+  const advanced = await read("content/practical-mastery/decisions-preflop-advanced-expansion.ts");
+  for (const source of ["FTGU-E02", "FTGU-E03", "FTGU-E04", "FTGU-E05", "FTGU-E06"]) assert.match(core, new RegExp(source));
+  for (const source of ["FTGU-E15", "FTGU-E16", "FTGU-E17", "FTGU-E18"]) assert.match(advanced, new RegExp(source));
+  for (const skill of ["PF-01", "PF-02", "PF-03", "PF-04", "PF-05"]) assert.match(core, new RegExp(skill));
+  for (const skill of ["PF-06", "PF-07", "PF-08"]) assert.match(advanced, new RegExp(skill));
+  const corpus = `${core}\n${advanced}`;
   assert.doesNotMatch(corpus, /open exactly \d+%/i);
   assert.doesNotMatch(corpus, /call exactly \d+%/i);
   assert.doesNotMatch(corpus, /3-bet exactly \d+%/i);
+  assert.doesNotMatch(corpus, /invent exact \d+% frequency/i);
 });
 
 test("blind defence expansion stays directional and source-backed", async () => {
