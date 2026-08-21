@@ -60,3 +60,30 @@ export type PracticalAnchor = {
   rationaleEn: string;
   changedVariables?: string[];
 };
+
+export type PracticalDecisionOption = {
+  id: string;
+  textRu: string;
+  textEn: string;
+  misconception?: string;
+};
+
+export type PracticalDecision = {
+  id: string;
+  skillId: string;
+  kind: "recognition" | "decision" | "changed" | "boundary" | "mixed";
+  sourceRefs: string[];
+  assumptions: string[];
+  cueRu: string;
+  cueEn: string;
+  questionRu: string;
+  questionEn: string;
+  actionOptions: PracticalDecisionOption[];
+  reasonOptions: PracticalDecisionOption[];
+  correctActionId: string;
+  correctReasonId: string;
+  explanationRu: string;
+  explanationEn: string;
+  changedVariables?: string[];
+  targetSeconds: number;
+};
