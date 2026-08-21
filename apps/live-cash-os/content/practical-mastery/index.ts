@@ -10,6 +10,7 @@ import { foundationExpansionDecisions } from "./decisions-foundation-expansion";
 import { preflopCoreExpansionDecisions } from "./decisions-preflop-core-expansion";
 import { preflopAdvancedExpansionDecisions } from "./decisions-preflop-advanced-expansion";
 import { blindDefenceExpansionDecisions } from "./decisions-blind-defence-expansion";
+import { recognitionExpansionDecisions } from "./decisions-recognition-expansion";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -31,6 +32,7 @@ export const practicalDecisions = [
   ...preflopCoreExpansionDecisions,
   ...preflopAdvancedExpansionDecisions,
   ...blindDefenceExpansionDecisions,
+  ...recognitionExpansionDecisions,
   ...integratedMasteryDecisions,
 ];
 
