@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const masteryLayout = readFileSync(fileURLToPath(new URL("../app/mastery/layout.tsx", import.meta.url)), "utf8");
 
-test("all Practical Mastery routes inherit the test-invite boundary", () => {
+test("all Practical Mastery routes inherit the shared test-invite boundary and navigation", () => {
+  assert.match(masteryLayout, /import PracticalMasteryNav from "\.\.\/\.\.\/components\/PracticalMasteryNav"/);
   assert.match(masteryLayout, /import TestInviteGate from "\.\.\/\.\.\/components\/TestInviteGate"/);
-  assert.match(masteryLayout, /<TestInviteGate>\{children\}<\/TestInviteGate>/);
+  assert.match(masteryLayout, /<TestInviteGate>[\s\S]*<PracticalMasteryNav\s*\/>[\s\S]*\{children\}[\s\S]*<\/TestInviteGate>/);
 });
