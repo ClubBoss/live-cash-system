@@ -6,7 +6,6 @@ import {
   PRACTICAL_PERFORMANCE_LIMIT,
   createPracticalProfileState,
   practicalProfileFromLearnerState,
-  removeLegacyStandalonePracticalKeys,
   withPracticalProfile,
   type LearnerStateWithPracticalProfile,
   type PracticalProfileState,
@@ -36,7 +35,6 @@ export function usePracticalProfileState() {
       nextProfile,
     ) as LearnerState;
     controller.setState(nextLearner);
-    if (typeof window !== "undefined") removeLegacyStandalonePracticalKeys(window.localStorage);
     return true;
   }, [controller, profileError]);
 
