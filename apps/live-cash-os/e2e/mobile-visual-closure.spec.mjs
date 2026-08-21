@@ -8,12 +8,18 @@ async function openLocal(page) {
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 }
 
-test("real-device mobile closure keeps Today action above the fold at 390x844", async ({ page }, testInfo) => {
+test("real-device mobile closure keeps the primary learning action above the fold at 390x844", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openLocal(page);
 
   const marker = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--mobile-visual-closure").trim());
   expect(marker).toBe("closure-20260808");
+
+  const gateway = page.getByRole("region", { name: "Основной маршрут Practical Mastery" });
+  const primaryAction = gateway.getByRole("link", { name: /Продолжить Practical Mastery/ });
+  await expect(gateway).toBeVisible();
+  await expect(primaryAction).toBeVisible();
+  await expect(primaryAction).toBeInViewport();
 
   const topbar = page.locator(".topbar");
   const topbarBox = await topbar.boundingBox();
@@ -38,9 +44,9 @@ test("real-device mobile closure keeps Today action above the fold at 390x844", 
   const radius = Number.parseFloat(await card.evaluate((element) => getComputedStyle(element).borderTopLeftRadius));
   expect(radius).toBeGreaterThanOrEqual(18);
 
+  // The legacy Today route remains available below the new primary Practical Mastery entry.
   const start = page.getByRole("button", { name: "Начать", exact: true });
   await expect(start).toBeVisible();
-  await expect(start).toBeInViewport();
 
   await page.screenshot({ path: testInfo.outputPath("today-390x844.png"), fullPage: true });
 });

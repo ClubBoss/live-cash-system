@@ -97,8 +97,9 @@ test("mastery locale persists across route changes and localizes shared navigati
 test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
   test.skip(crossMatrix, "source-ceiling semantics are covered once in canonical Chromium");
   await page.goto("/mastery");
-  const bl11Button = page.getByRole("button", { name: /^BL-11\b/ });
-  const bl11Group = page.locator("details").filter({ has: bl11Button });
+  // Locate the containing stage structurally even while its disclosure is closed;
+  // role locators intentionally exclude hidden descendants before expansion.
+  const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /^BL-11\b/ }) });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
   const bl11 = bl11Group.getByRole("button", { name: /^BL-11\b/ });
@@ -111,7 +112,7 @@ test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", 
 test("Study Loop points back to the existing Real Hands surface rather than duplicating capture", async ({ page }) => {
   test.skip(crossMatrix, "navigation contract is covered once in canonical Chromium");
   await page.goto("/mastery/study");
-  const realHands = page.getByRole("link", { name: "Реальные руки · Live Cash OS", exact: true });
+  const realHands = page.getByRole("link", { name: "Реальные руки ¯ Live Cash OS", exact: true });
   await expect(realHands).toBeVisible();
   await expect(realHands).toHaveAttribute("href", "/");
 });
