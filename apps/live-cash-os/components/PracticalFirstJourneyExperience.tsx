@@ -52,45 +52,45 @@ export default function PracticalFirstJourneyExperience() {
   };
 
   if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
-  if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Ничего не будет перезаписано. Используй Data & Recovery в Live Cash OS." : "Nothing will be overwritten. Use Data & Recovery in Live Cash OS."}</p><Link href="/">Live Cash OS →</Link></main>;
+  if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Ничего не будет перезаписано. Вернись в Live Cash OS и открой раздел «Данные и восстановление»." : "Nothing will be overwritten. Use Data & Recovery in Live Cash OS."}</p><Link href="/">Live Cash OS →</Link></main>;
 
   if (!recommendation || !skill || !journeyStep) {
     return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
-      <p className="eyebrow">FIRST JOURNEY</p>
+      <p className="eyebrow">{locale === "ru" ? "ПЕРВЫЙ КРУГ" : "FIRST JOURNEY"}</p>
       <h1>{locale === "ru" ? "Первый круг завершён" : "First loop complete"}</h1>
-      <p>{locale === "ru" ? "Первый spiral-pass завершён. Это ещё не mastery: дальше система смешивает навыки, возвращает ошибки и позже проверяет retention на новых стимулах." : "The first spiral pass is complete. This is not mastery: the system now mixes skills, brings mistakes back, and later tests retention on new stimuli."}</p>
+      <p>{locale === "ru" ? "Ты познакомился с первым набором ключевых навыков. Это ещё не полное освоение: дальше задачи будут перемешиваться, ошибки вернутся на повторение, а позже система проверит, сохранился ли навык на новых примерах." : "The first spiral pass is complete. This is not mastery: the system now mixes skills, brings mistakes back, and later tests retention on new stimuli."}</p>
       <p><b>{progress.reached}/{progress.total}</b></p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Начать mixed session →" : "Start mixed session →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</Link></div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Начать смешанную практику →" : "Start mixed session →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</Link></div>
     </main>;
   }
 
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
     <section className="hero compact-hero">
-      <p className="eyebrow">FIRST JOURNEY · {progress.reached}/{progress.total}</p>
+      <p className="eyebrow">{locale === "ru" ? `ПЕРВЫЙ КРУГ · ${progress.reached}/${progress.total}` : `FIRST JOURNEY · ${progress.reached}/${progress.total}`}</p>
       <h1>{locale === "ru" ? skill.titleRu : skill.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
 
-    <section className="today-card" style={{ marginTop: 20 }}><p className="eyebrow">WHY NOW</p><p>{locale === "ru" ? recommendation.whyNowRu : recommendation.whyNowEn}</p></section>
+    <section className="today-card" style={{ marginTop: 20 }}><p className="eyebrow">{locale === "ru" ? "ПОЧЕМУ СЕЙЧАС" : "WHY NOW"}</p><p>{locale === "ru" ? recommendation.whyNowRu : recommendation.whyNowEn}</p></section>
 
     {!ruleRevealed ? <section className="surface" style={{ marginTop: 20 }}>
-      <p className="eyebrow">PREDICT FIRST</p>
+      <p className="eyebrow">{locale === "ru" ? "СНАЧАЛА ПРОГНОЗ" : "PREDICT FIRST"}</p>
       <h2>{locale === "ru" ? "До объяснения — что здесь должно измениться?" : "Before the explanation — what should change here?"}</h2>
       <p>{rule ? (locale === "ru" ? rule.triggerRu : rule.triggerEn) : anchor ? (locale === "ru" ? anchor.promptRu : anchor.promptEn) : (locale === "ru" ? skill.objectiveRu : skill.titleEn)}</p>
       <textarea aria-label={locale === "ru" ? "Твой прогноз" : "Your prediction"} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={locale === "ru" ? "Коротко: куда двигается решение и почему?" : "Briefly: which way does the decision move, and why?"} style={{ width: "100%", minHeight: 88, margin: "12px 0" }} />
       <button className="primary" onClick={revealMechanism}>{locale === "ru" ? "Показать механизм" : "Reveal mechanism"} <span>→</span></button>
     </section> : <section className="surface" style={{ marginTop: 20 }}>
-      <p className="eyebrow">MECHANISM</p>
-      {rule ? <><h2>{locale === "ru" ? rule.defaultRu : rule.defaultEn}</h2><p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? rule.whyRu : rule.whyEn}</p><p><b>{locale === "ru" ? "Когда правило слабеет/ломается:" : "When it weakens/breaks:"}</b> {(locale === "ru" ? rule.reversalsRu : rule.reversalsEn).join(" · ")}</p><p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p></> : anchor ? <><h2>{locale === "ru" ? anchor.answerRu : anchor.answerEn}</h2><p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p><p className="support">{anchor.sourceRefs.join(", ")}</p></> : null}
+      <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
+      {rule ? <><h2>{locale === "ru" ? rule.defaultRu : rule.defaultEn}</h2><p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? rule.whyRu : rule.whyEn}</p><p><b>{locale === "ru" ? "Когда правило слабеет или ломается:" : "When it weakens/breaks:"}</b> {(locale === "ru" ? rule.reversalsRu : rule.reversalsEn).join(" · ")}</p><p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p></> : anchor ? <><h2>{locale === "ru" ? anchor.answerRu : anchor.answerEn}</h2><p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p><p className="support">{locale === "ru" ? "Источники" : "Sources"}: {anchor.sourceRefs.join(", ")}</p></> : null}
     </section>}
 
     {ruleRevealed && decision ? <section className="today-card" style={{ marginTop: 20 }}>
-      <p className="eyebrow">{journeyStep.requiresHiddenCue ? "HIDDEN-CUE RETRIEVAL" : decision.kind.toUpperCase()}</p>
+      <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "ПРОВЕРКА БЕЗ ПОДСКАЗКИ" : "РЕШЕНИЕ") : (journeyStep.requiresHiddenCue ? "HIDDEN-CUE RETRIEVAL" : decision.kind.toUpperCase())}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div><h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3><p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p><p className="support">{decision.sourceRefs.join(", ")}</p><button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий шаг" : "Next step"} <span>→</span></button></div>}
-    </section> : ruleRevealed ? <section className="today-card" style={{ marginTop: 20 }}><p>{locale === "ru" ? "Для этого узла сейчас нет следующего честно доступного scored stimulus. Journey не выдаёт fake completion." : "There is no next honestly available scored stimulus for this node. The journey will not grant fake completion."}</p></section> : null}
+      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div><h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3><p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p><p className="support">{locale === "ru" ? "Источники" : "Sources"}: {decision.sourceRefs.join(", ")}</p><button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий шаг" : "Next step"} <span>→</span></button></div>}
+    </section> : ruleRevealed ? <section className="today-card" style={{ marginTop: 20 }}><p>{locale === "ru" ? "Для этого навыка сейчас нет следующей подходящей задачи. Система не будет засчитывать прогресс без новой независимой проверки." : "There is no next honestly available scored stimulus for this node. The journey will not grant fake completion."}</p></section> : null}
   </main>;
 }
