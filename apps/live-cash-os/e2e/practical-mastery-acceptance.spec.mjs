@@ -112,7 +112,7 @@ test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", 
 test("Study Loop points back to the existing Real Hands surface rather than duplicating capture", async ({ page }) => {
   test.skip(crossMatrix, "navigation contract is covered once in canonical Chromium");
   await page.goto("/mastery/study");
-  const realHands = page.getByRole("link", { name: "Реальные руки ¯ Live Cash OS", exact: true });
+  const realHands = page.getByRole("link", { name: "Реальные руки · Live Cash OS", exact: true });
   await expect(realHands).toBeVisible();
   await expect(realHands).toHaveAttribute("href", "/");
 });
