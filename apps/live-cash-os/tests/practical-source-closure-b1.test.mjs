@@ -20,13 +20,13 @@ test("B1 admits reviewed public source authority for every cheaply closeable res
 
 test("newly supported B1 families use the shared full evidence ladder",()=>{
   for(const skill of ["FND-04","BL-06","BL-07","BL-08","BL-09","W4-DRAW-01","DEEP-02","MW-05","EXP-06"]){
-    assert.match(corpus,new RegExp(`skillId:\\"${skill}\\"`),`${skill} family config`);
+    assert.match(corpus,new RegExp(`skillId:"${skill}"`),`${skill} family config`);
   }
   const ladder=corpus.slice(corpus.indexOf("const rows"),corpus.indexOf("return rows.map"));
-  assert.equal((ladder.match(/kind:\"recognition\"/g)??[]).length,2);
-  assert.equal((ladder.match(/kind:\"decision\"/g)??[]).length,3);
-  assert.equal((ladder.match(/kind:\"changed\"/g)??[]).length,2);
-  assert.equal((ladder.match(/kind:\"boundary\"/g)??[]).length,1);
+  assert.equal((ladder.match(/kind:"recognition"/g)??[]).length,2);
+  assert.equal((ladder.match(/kind:"decision"/g)??[]).length,3);
+  assert.equal((ladder.match(/kind:"changed"/g)??[]).length,2);
+  assert.equal((ladder.match(/kind:"boundary"/g)??[]).length,1);
 });
 
 test("BL-11 remains the only explicit source ceiling and is not falsely closed",()=>{
