@@ -3,6 +3,7 @@
 import { useLayoutEffect } from "react";
 
 const sourceIdPattern = /\b(?:FTGU-E\d+(?:\/E\d+)?|SLC-M\d+-L\d+|LCM-\d+|CP-G\d+-L\d+)\b/giu;
+const sourceIdTestPattern = /\b(?:FTGU-E\d+(?:\/E\d+)?|SLC-M\d+-L\d+|LCM-\d+|CP-G\d+-L\d+)\b/iu;
 const sourceLinePattern = /^(?:Источники|Sources)\s*:/iu;
 
 const exactReplacements = new Map<string, string>([
@@ -102,6 +103,18 @@ const exactReplacements = new Map<string, string>([
     "FTGU-E01 explicitly identifies all-in/river nodes as cases where price and equity dominate.",
     "When almost no future betting remains, most realization and leverage effects disappear. Current price and equity therefore drive the decision more directly than on earlier streets.",
   ],
+  ["Какие две основные причины FTGU даёт для IP cold-call?", "Какие две основные причины могут сделать cold-call в позиции прибыльным?"],
+  ["What two principal reasons does FTGU give for an in-position cold call?", "What two main reasons can make an in-position cold call profitable?"],
+  ["Это прямой framework FTGU-E04.", "Cold-call должен либо иметь достаточно value против opening range, либо компенсировать текущую цену будущим потенциалом через implied odds."],
+  ["This is the direct framework in FTGU-E04.", "A cold call should either have enough value against the opening range or compensate for today's price through future implied-odds value."],
+  ["Какой simplified flop plan source поддерживает при большом concentrated advantage?", "Какой упрощённый план на flop уместен при большом concentrated range advantage?"],
+  ["Which simplified flop plan does the source support with a large concentrated range advantage?", "Which simplified flop plan fits a large concentrated range advantage?"],
+  ["Какой practical simplification source предлагает для многих favourable/neutral low-SPR 4-bet flops?", "Какое практическое упрощение уместно на многих favourable/neutral low-SPR 4-bet flops?"],
+  ["What practical simplification does the source propose for many favorable/neutral low-SPR 4-bet flops?", "What practical simplification fits many favorable or neutral low-SPR 4-bet flops?"],
+  ["Нет автоматически; source сдвигается к более value-heavy/linear response и tighter stack-offs.", "Нет автоматически; против underbluffing range реакция сдвигается к более value-heavy/linear структуре и более tight stack-offs."],
+  ["Not automatically; the source shifts toward a more value-heavy/linear response and tighter stack-offs.", "Not automatically; against an underbluffing range, the response shifts toward a more value-heavy/linear structure and tighter stack-offs."],
+  ["Нет. Source поддерживает exploitative overfold против реально underbluffed branch.", "Нет. Против действительно underbluffed branch exploitative overfold может быть правильным."],
+  ["No. The source supports exploitative overfolding against a genuinely underbluffed branch.", "No. Exploitative overfolding can be correct against a genuinely underbluffed branch."],
 ]);
 
 function cleanupSourceLanguage(value: string): string {
@@ -122,7 +135,7 @@ function cleanupSourceLanguage(value: string): string {
 function transformText(value: string): string {
   const exact = exactReplacements.get(value.trim());
   if (exact) return exact;
-  return sourceIdPattern.test(value) ? cleanupSourceLanguage(value) : value;
+  return sourceIdTestPattern.test(value) ? cleanupSourceLanguage(value) : value;
 }
 
 function applyPresentation(root: ParentNode) {
