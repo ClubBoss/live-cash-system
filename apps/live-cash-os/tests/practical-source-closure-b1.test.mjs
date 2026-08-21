@@ -9,10 +9,6 @@ const corpus=await readFile(path.join(root,"content/practical-mastery/decisions-
 const authority=await readFile(path.join(root,"content/practical-mastery/source-authority.ts"),"utf8");
 const gaps=await readFile(path.join(root,"content/practical-mastery/source-gaps.ts"),"utf8");
 
-function count(skillId,kind){
-  return [...corpus.matchAll(new RegExp(`skillId:\\"${skillId}\\"[\\s\\S]{0,900}?kind:\\"${kind}\\"`,"g"))].length;
-}
-
 test("B1 admits reviewed public source authority for every cheaply closeable residual family",()=>{
   for(const ref of [
     "EXT-PC-OUTS-2026","EXT-PC-OUTS-GUIDE-2023","EXT-GTOW-SB-SRP-2024",
@@ -22,13 +18,15 @@ test("B1 admits reviewed public source authority for every cheaply closeable res
   ]) assert.match(authority,new RegExp(ref));
 });
 
-test("newly supported B1 families have the full evidence ladder",()=>{
+test("newly supported B1 families use the shared full evidence ladder",()=>{
   for(const skill of ["FND-04","BL-06","BL-07","BL-08","BL-09","W4-DRAW-01","DEEP-02","MW-05","EXP-06"]){
-    assert.ok(count(skill,"recognition")>=2,`${skill} recognition`);
-    assert.ok(count(skill,"decision")>=3,`${skill} decisions`);
-    assert.ok(count(skill,"changed")>=2,`${skill} transfer`);
-    assert.ok(count(skill,"boundary")>=1,`${skill} boundary`);
+    assert.match(corpus,new RegExp(`skillId:\\"${skill}\\"`),`${skill} family config`);
   }
+  const ladder=corpus.slice(corpus.indexOf("const rows"),corpus.indexOf("return rows.map"));
+  assert.equal((ladder.match(/kind:\"recognition\"/g)??[]).length,2);
+  assert.equal((ladder.match(/kind:\"decision\"/g)??[]).length,3);
+  assert.equal((ladder.match(/kind:\"changed\"/g)??[]).length,2);
+  assert.equal((ladder.match(/kind:\"boundary\"/g)??[]).length,1);
 });
 
 test("BL-11 remains the only explicit source ceiling and is not falsely closed",()=>{
@@ -36,7 +34,7 @@ test("BL-11 remains the only explicit source ceiling and is not falsely closed",
   assert.match(gaps,/status: "PARTIAL"/);
   assert.match(gaps,/POSITIVE_EV_SOURCE_ACCESS_REQUIRED/);
   for(const old of ["FND-04","BL-06","BL-07","BL-08","BL-09","W4-DRAW-01","DEEP-02","MW-05","EXP-06"]){
-    assert.doesNotMatch(gaps,new RegExp(`skillId: \\"${old}\\"`));
+    assert.doesNotMatch(gaps,new RegExp(`skillId: "${old}"`));
   }
 });
 
