@@ -16,7 +16,7 @@ const corpus = (await Promise.all(files.map((file) => readFile(path.join(root, f
 const memory = await readFile(path.join(root, "content/practical-mastery/preflop-a3-memory.ts"), "utf8");
 
 function count(skillId, kindPattern) {
-  return [...corpus.matchAll(new RegExp(`skillId:\\s*[\"']${skillId}[\"']\\s*,\\s*kind:\\s*[\"'](${kindPattern})[\"']`, "g"))].length;
+  return [...corpus.matchAll(new RegExp(`skillId:\\s*["']${skillId}["']\\s*,\\s*kind:\\s*["'](${kindPattern})["']`, "g"))].length;
 }
 
 test("PF-01 through PF-10 have full practical evidence corpora", () => {
