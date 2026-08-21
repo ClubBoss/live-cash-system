@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import type { LearnerState } from "./model";
 import {
   PRACTICAL_PERFORMANCE_LIMIT,
+  createPracticalProfileState,
   practicalProfileFromLearnerState,
   removeLegacyStandalonePracticalKeys,
   withPracticalProfile,
@@ -17,26 +18,34 @@ import { useReliableLearnerState } from "./use-learner-state-sync";
 
 export function usePracticalProfileState() {
   const controller = useReliableLearnerState();
-  const profile = useMemo(
-    () => practicalProfileFromLearnerState(controller.state),
-    [controller.state],
-  );
+  const resolved = useMemo(() => {
+    try {
+      return { profile: practicalProfileFromLearnerState(controller.state), profileError: false } as const;
+    } catch {
+      // Never overwrite an unreadable slice with an empty one. Keep the raw root
+      // learner snapshot intact so Data & Recovery can export/restore it.
+      return { profile: createPracticalProfileState(new Date()), profileError: true } as const;
+    }
+  }, [controller.state]);
+  const { profile, profileError } = resolved;
 
   const commitProfile = useCallback((nextProfile: PracticalProfileState) => {
+    if (profileError || controller.recoveryBlocked) return false;
     const nextLearner = withPracticalProfile(
       controller.state as LearnerState & LearnerStateWithPracticalProfile,
       nextProfile,
     ) as LearnerState;
     controller.setState(nextLearner);
     if (typeof window !== "undefined") removeLegacyStandalonePracticalKeys(window.localStorage);
-  }, [controller]);
+    return true;
+  }, [controller, profileError]);
 
   const setMastery = useCallback((mastery: PracticalMasteryState) => {
-    commitProfile({ ...profile, mastery });
+    return commitProfile({ ...profile, mastery });
   }, [commitProfile, profile]);
 
   const setMasteryWithPerformance = useCallback((mastery: PracticalMasteryState, event: PracticalPerformanceEvent) => {
-    commitProfile({
+    return commitProfile({
       ...profile,
       mastery,
       performance: [...profile.performance, event].slice(-PRACTICAL_PERFORMANCE_LIMIT),
@@ -44,7 +53,7 @@ export function usePracticalProfileState() {
   }, [commitProfile, profile]);
 
   const setStudyWorkspace = useCallback((studyWorkspace: PracticalStudyWorkspace) => {
-    commitProfile({ ...profile, studyWorkspace });
+    return commitProfile({ ...profile, studyWorkspace });
   }, [commitProfile, profile]);
 
   return {
@@ -57,6 +66,7 @@ export function usePracticalProfileState() {
     ready: controller.ready,
     syncStatus: controller.syncStatus,
     cloudMode: controller.cloudMode,
-    recoveryBlocked: controller.recoveryBlocked,
+    recoveryBlocked: controller.recoveryBlocked || profileError,
+    profileError,
   } as const;
 }
