@@ -5,6 +5,7 @@ import { advancedPracticalAnchors } from "./anchors-w7-w13";
 import { foundationPreflopBlindDecisions } from "./decisions-w1-w3";
 import { postflopAndLiveDecisions } from "./decisions-w4-w13";
 import { integratedMasteryDecisions } from "./decisions-w14";
+import { integratedA11ExpansionDecisions } from "./decisions-integrated-a11-expansion";
 import { sourceSupportedGapFillDecisions } from "./decisions-gap-fill";
 import { foundationExpansionDecisions } from "./decisions-foundation-expansion";
 import { preflopCoreExpansionDecisions } from "./decisions-preflop-core-expansion";
@@ -35,6 +36,7 @@ export * from "./live-a9-memory";
 export * from "./decisions-live-a9-expansion";
 export * from "./exploit-a10-memory";
 export * from "./decisions-exploit-a10-expansion";
+export * from "./decisions-integrated-a11-expansion";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
@@ -60,6 +62,7 @@ export const practicalDecisions = [
   ...liveA9ExpansionDecisions,
   ...exploitA10ExpansionDecisions,
   ...integratedMasteryDecisions,
+  ...integratedA11ExpansionDecisions,
 ];
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));

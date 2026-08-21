@@ -12,7 +12,7 @@ import {
 } from "../lib/practical-mastery-core";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 
-const STORAGE_KEY = "live-cash-os:practical-mastery:v2";
+const STORAGE_KEY = "live-cash-os:practical-mastery:v3";
 type Locale = "ru" | "en";
 
 function loadState(): PracticalMasteryState {
@@ -21,7 +21,12 @@ function loadState(): PracticalMasteryState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return createPracticalMasteryState(new Date(), true);
     const parsed = JSON.parse(raw) as PracticalMasteryState;
-    if (parsed.schemaVersion !== PRACTICAL_MASTERY_STATE_SCHEMA_VERSION || !parsed.skills || !Array.isArray(parsed.attempts)) throw new Error("invalid practical state");
+    if (
+      parsed.schemaVersion !== PRACTICAL_MASTERY_STATE_SCHEMA_VERSION ||
+      !parsed.skills ||
+      !Array.isArray(parsed.attempts) ||
+      Object.values(parsed.skills).some((progress) => !Array.isArray(progress.retentionDaysPassed))
+    ) throw new Error("invalid practical state");
     return parsed;
   } catch {
     return createPracticalMasteryState(new Date(), true);
@@ -87,9 +92,12 @@ export default function PracticalFirstJourneyExperience() {
     return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
       <p className="eyebrow">FIRST JOURNEY</p>
       <h1>{locale === "ru" ? "Первый круг завершён" : "First loop complete"}</h1>
-      <p>{locale === "ru" ? "Ты прошёл первый spiral-pass. Это не означает mastery: следующие сессии вернут эти навыки через direct decisions, changed nodes, boundaries и mixed retrieval." : "You completed the first spiral pass. This is not mastery: later sessions revisit these skills through direct decisions, changed nodes, boundaries and mixed retrieval."}</p>
+      <p>{locale === "ru" ? "Ты прошёл первый spiral-pass. Это не mastery: теперь система начнёт смешивать эти навыки, возвращать ошибки и позже проверять retention на новых стимулах." : "You completed the first spiral pass. This is not mastery: the system now mixes these skills, brings back mistakes, and later tests retention on new stimuli."}</p>
       <p><b>{progress.reached}/{progress.total}</b></p>
-      <a href="/mastery">{locale === "ru" ? "Открыть полную карту навыков →" : "Open the full skill map →"}</a>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
+        <a className="primary" href="/mastery/session">{locale === "ru" ? "Начать mixed session →" : "Start mixed session →"}</a>
+        <a className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</a>
+      </div>
     </main>;
   }
 
@@ -110,13 +118,7 @@ export default function PracticalFirstJourneyExperience() {
       <p className="eyebrow">PREDICT FIRST</p>
       <h2>{locale === "ru" ? "До объяснения — что здесь должно измениться?" : "Before the explanation — what should change here?"}</h2>
       <p>{rule ? (locale === "ru" ? rule.triggerRu : rule.triggerEn) : anchor ? (locale === "ru" ? anchor.promptRu : anchor.promptEn) : (locale === "ru" ? skill.objectiveRu : skill.titleEn)}</p>
-      <textarea
-        aria-label={locale === "ru" ? "Твой прогноз" : "Your prediction"}
-        value={prediction}
-        onChange={(event) => setPrediction(event.target.value)}
-        placeholder={locale === "ru" ? "Коротко: куда двигается решение и почему?" : "Briefly: which way does the decision move, and why?"}
-        style={{ width: "100%", minHeight: 88, margin: "12px 0" }}
-      />
+      <textarea aria-label={locale === "ru" ? "Твой прогноз" : "Your prediction"} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={locale === "ru" ? "Коротко: куда двигается решение и почему?" : "Briefly: which way does the decision move, and why?"} style={{ width: "100%", minHeight: 88, margin: "12px 0" }} />
       <button className="primary" onClick={revealMechanism}>{locale === "ru" ? "Показать механизм" : "Reveal mechanism"} <span>→</span></button>
     </section> : <section className="surface" style={{ marginTop: 20 }}>
       <p className="eyebrow">MECHANISM</p>
@@ -136,27 +138,9 @@ export default function PracticalFirstJourneyExperience() {
       <p className="eyebrow">{journeyStep.requiresHiddenCue ? "HIDDEN-CUE RETRIEVAL" : decision.kind.toUpperCase()}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2>
       <p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}>
-        <legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>
-        {decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}>
-          <input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}
-        </label>)}
-      </fieldset>
-
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}>
-        <legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>
-        {decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}>
-          <input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}
-        </label>)}
-      </fieldset>
-
-      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
-        <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
-        <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
-        <p className="support">{decision.sourceRefs.join(", ")}</p>
-        <button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий шаг" : "Next step"} <span>→</span></button>
-      </div>}
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div><h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3><p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p><p className="support">{decision.sourceRefs.join(", ")}</p><button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий шаг" : "Next step"} <span>→</span></button></div>}
     </section> : ruleRevealed ? <section className="today-card" style={{ marginTop: 20 }}><p>{locale === "ru" ? "Для этого узла сейчас нет следующего честно доступного scored stimulus. Journey не будет выдавать fake completion." : "There is no next honestly available scored stimulus for this node. The journey will not grant fake completion."}</p></section> : null}
   </main>;
 }
