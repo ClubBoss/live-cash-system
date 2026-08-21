@@ -16,6 +16,8 @@ import { practicalSkillFamilies } from "./registry";
 export * from "./types";
 export * from "./source-authority";
 export * from "./learning-route";
+export * from "./mental-model";
+export * from "./memory-practice";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
