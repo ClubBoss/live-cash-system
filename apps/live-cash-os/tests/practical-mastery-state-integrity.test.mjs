@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "utf8");
 const experience = await readFile(path.join(root, "components/PracticalMasteryExperience.tsx"), "utf8");
+const anchors = await readFile(path.join(root, "content/practical-mastery/index.ts"), "utf8");
 
 test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
   for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_TRANSFER_STIMULI = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
@@ -40,16 +41,18 @@ test("concept completion is preceded by learner-facing source-backed anchors", (
   assert.match(experience, /practicalAnchors/);
   assert.match(experience, /lessonAnchors\.map/);
   assert.match(experience, /UNDERSTAND THE MECHANISM FIRST/);
-  assert.match(experience, /lessonAnchors\.length > 0/);
+  assert.match(experience, /markPracticalConceptTaught/);
+  assert.match(anchors, /practicalAnchors/);
 });
 
-test("v3 reset is explicit and retention tiers are first-class state", () => {
+test("v3 practical evidence remains first-class while persistence moves into the reliable learner profile", () => {
   assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
   assert.match(core, /practical-mastery-v3/);
   assert.match(core, /retentionDaysPassed: number\[\]/);
   assert.match(core, /retentionDaysPassed: \[\]/);
   assert.match(core, /resetFromLegacyAt/);
-  assert.match(experience, /practical-mastery:v3/);
+  assert.match(experience, /usePracticalProfileState/);
+  assert.doesNotMatch(experience, /live-cash-os:practical-mastery:v3/);
   assert.doesNotMatch(core, /contentCompleted/);
   assert.doesNotMatch(core, /FIELD_VALIDATED/);
 });

@@ -1,6 +1,5 @@
 import { practicalDecisionById } from "../content/practical-mastery";
 
-export const PRACTICAL_PERFORMANCE_TELEMETRY_KEY="live-cash-os:practical-performance:v1";
 export type PracticalStimulusMode="FIRST_JOURNEY"|"TEXT_MIXED"|"PERCEPTUAL_TABLE"|"REAL_HAND";
 export type PracticalPerformanceEvent={
   id:string; decisionId:string; skillId:string; mode:PracticalStimulusMode;
