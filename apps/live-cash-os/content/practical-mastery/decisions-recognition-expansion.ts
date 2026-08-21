@@ -1,7 +1,11 @@
 import type { PracticalDecision } from "./types";
 
 const o=(id:string,textRu:string,textEn:string,misconception?:string)=>({id,textRu,textEn,misconception});
-const q=(id:string,skillId:string,kind:PracticalDecision["kind"],sourceRefs:string[],cueRu:string,cueEn:string,questionRu:string,questionEn:string,goodRu:string,goodEn:string,badRu:string,badEn:string,whyRu:string,whyEn:string,changedVariables?:string[]):PracticalDecision=>({id,skillId,kind,sourceRefs,assumptions:["mechanism-level classification; no exact solver frequency claimed"],cueRu,cueEn,questionRu,questionEn,actionOptions:[o("a",goodRu,goodEn),o("b",badRu,badEn,"CLASSIFICATION_SHORTCUT"),o("c","Контекст не важен","Context is irrelevant","CONTEXT_IGNORED")],reasonOptions:[o("r1",whyRu,whyEn),o("r2","Название board/hand само определяет strategy","The board/hand label alone determines strategy","LABEL_AS_STRATEGY"),o("r3","Initiative важнее ranges и action history","Initiative matters more than ranges and action history","INITIATIVE_ONLY")],correctActionId:"a",correctReasonId:"r1",targetSeconds:22,explanationRu:whyRu,explanationEn:whyEn,changedVariables});
+const q=(id:string,skillId:string,kind:PracticalDecision["kind"],sourceRefs:string[],cueRu:string,cueEn:string,questionRu:string,questionEn:string,goodRu:string,goodEn:string,badRu:string,badEn:string,whyRu:string,whyEnOrChanged?:string|string[],changedVariablesArg?:string[]):PracticalDecision=>{
+  const whyEn=typeof whyEnOrChanged==="string"?whyEnOrChanged:whyRu;
+  const changedVariables=Array.isArray(whyEnOrChanged)?whyEnOrChanged:changedVariablesArg;
+  return {id,skillId,kind,sourceRefs,assumptions:["mechanism-level classification; no exact solver frequency claimed"],cueRu,cueEn,questionRu,questionEn,actionOptions:[o("a",goodRu,goodEn),o("b",badRu,badEn,"CLASSIFICATION_SHORTCUT"),o("c","Контекст не важен","Context is irrelevant","CONTEXT_IGNORED")],reasonOptions:[o("r1",whyRu,whyEn),o("r2","Название board/hand само определяет strategy","The board/hand label alone determines strategy","LABEL_AS_STRATEGY"),o("r3","Initiative важнее ranges и action history","Initiative matters more than ranges and action history","INITIATIVE_ONLY")],correctActionId:"a",correctReasonId:"r1",targetSeconds:22,explanationRu:whyRu,explanationEn:whyEn,changedVariables};
+};
 
 export const recognitionExpansionDecisions:PracticalDecision[]=[
 // W4-BOARD-01 — board classes through range interaction, FTGU E07 + Smash board reports.
