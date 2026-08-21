@@ -18,6 +18,7 @@ import { threeBetFourBetA7ExpansionDecisions } from "./decisions-3bp-4bp-a7-expa
 import { turnRiverA8ExpansionDecisions } from "./decisions-turn-river-a8-expansion";
 import { liveA9ExpansionDecisions } from "./decisions-live-a9-expansion";
 import { exploitA10ExpansionDecisions } from "./decisions-exploit-a10-expansion";
+import { sourceClosureB1Decisions } from "./decisions-source-closure-b1";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -37,6 +38,7 @@ export * from "./decisions-live-a9-expansion";
 export * from "./exploit-a10-memory";
 export * from "./decisions-exploit-a10-expansion";
 export * from "./decisions-integrated-a11-expansion";
+export * from "./decisions-source-closure-b1";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
@@ -61,6 +63,7 @@ export const practicalDecisions = [
   ...turnRiverA8ExpansionDecisions,
   ...liveA9ExpansionDecisions,
   ...exploitA10ExpansionDecisions,
+  ...sourceClosureB1Decisions,
   ...integratedMasteryDecisions,
   ...integratedA11ExpansionDecisions,
 ];
