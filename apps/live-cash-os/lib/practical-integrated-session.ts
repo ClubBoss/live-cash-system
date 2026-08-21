@@ -86,7 +86,7 @@ export function retentionTierDue(state: PracticalMasteryState, skillId: string, 
   const lastCorrect = latestCorrectAttempt(state, skillId);
   if (!lastCorrect) return null;
   const elapsed = elapsedDays(lastCorrect.answeredAt, now);
-  const passed = new Set(progress.retentionDaysPassed ?? []);
+  const passed = new Set(progress.retentionDaysPassed);
   for (const tier of RETENTION_INTERVAL_DAYS) if (elapsed >= tier && !passed.has(tier)) return tier;
   return null;
 }
@@ -115,11 +115,19 @@ function recentExposurePenalty(state: PracticalMasteryState, skillId: string): n
   return Math.min(18, count * 4);
 }
 
-function supportedSkillIds(state: PracticalMasteryState): string[] {
+export function integratedBreadthReady(state: PracticalMasteryState): boolean {
+  const trained = Object.values(state.skills).filter((progress) => !progress.skillId.startsWith("INT-") && stageAtLeast(progress.evidenceStage, "DECISION_TRAINED"));
+  const waves = new Set(trained.map((progress) => practicalSkillById.get(progress.skillId)?.wave).filter(Boolean));
+  return trained.length >= 8 && waves.size >= 4;
+}
+
+export function supportedIntegratedSkillIds(state: PracticalMasteryState): string[] {
   return [...new Set(practicalDecisions.map((decision) => decision.skillId))].filter((skillId) => {
     if (skillId.startsWith("INT-")) return false;
     if (BRIDGE_SKILL_IDS.has(skillId)) return false;
     if (practicalSourceGapBySkillId.get(skillId)?.status === "SOURCE_BLOCKED") return false;
+    const progress = state.skills[skillId];
+    if (!progress?.conceptTaught) return false;
     return practicalPrerequisitesMet(state, skillId);
   });
 }
@@ -128,6 +136,7 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
   const items: IntegratedSessionItem[] = [];
   const excluded = new Set<string>();
   const skillUse = new Map<string, number>();
+  const eligibleIds = new Set(supportedIntegratedSkillIds(state));
   const push = (decision: PracticalDecision, reason: IntegratedSessionItem["reason"], priority: number, why: string, retentionTierDays: number | null = null) => {
     if (items.length >= size || excluded.has(decision.id) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
     items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays });
@@ -137,12 +146,12 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
 
   for (const family of unresolvedMistakeFamilies(state)) {
     if (items.length >= size) break;
-    if (practicalSourceGapBySkillId.get(family.skillId)?.status === "SOURCE_BLOCKED") continue;
+    if (!eligibleIds.has(family.skillId)) continue;
     const decision = candidateDecisionForSkill(state, family.skillId, ["changed", "boundary", "decision", "mixed", "recognition"], excluded, true);
     if (decision) push(decision, "REPAIR", 120 + family.priority, `Repair ${family.key}: repeated or high-confidence miss in ${family.skillId}.`);
   }
 
-  for (const skillId of supportedSkillIds(state)) {
+  for (const skillId of eligibleIds) {
     if (items.length >= size) break;
     const tier = retentionTierDue(state, skillId, now);
     if (!tier) continue;
@@ -150,7 +159,7 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
     if (decision) push(decision, "RETENTION", 100 + tier, `Due ${tier}-day non-identical retrieval for ${skillId}.`, tier);
   }
 
-  const rankedSkills = supportedSkillIds(state).map((skillId) => {
+  const rankedSkills = [...eligibleIds].map((skillId) => {
     const skill = practicalSkillById.get(skillId);
     if (!skill) return null;
     const stage = currentStage(state, skillId);
@@ -192,13 +201,11 @@ export function recordIntegratedDecision(
     if (actualGap >= item.retentionTierDays) {
       const clone = structuredClone(next);
       const progress = clone.skills[decision.skillId];
-      progress.retentionDaysPassed = [...new Set([...(progress.retentionDaysPassed ?? []), item.retentionTierDays])].sort((a, b) => a - b);
+      progress.retentionDaysPassed = [...new Set([...progress.retentionDaysPassed, item.retentionTierDays])].sort((a, b) => a - b);
       clone.revision += 1;
       clone.updatedAt = now.toISOString();
       next = clone;
-      if (item.retentionTierDays >= 1 && !next.skills[decision.skillId].delayedRetrievalPassed) {
-        next = markDelayedPracticalRetrieval(next, decision.skillId, true, now);
-      }
+      if (!next.skills[decision.skillId].delayedRetrievalPassed) next = markDelayedPracticalRetrieval(next, decision.skillId, true, now);
     }
   }
   return next;
