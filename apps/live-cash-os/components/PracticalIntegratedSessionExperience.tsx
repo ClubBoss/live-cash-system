@@ -7,9 +7,9 @@ import {
   createPracticalMasteryState,
   type PracticalMasteryState,
 } from "../lib/practical-mastery-core";
+import { buildAdaptiveIntegratedSession } from "../lib/practical-adaptive-session";
 import {
   INTEGRATED_SESSION_SIZE,
-  buildIntegratedSession,
   recordIntegratedDecision,
   type IntegratedSessionItem,
 } from "../lib/practical-integrated-session";
@@ -54,7 +54,7 @@ export default function PracticalIntegratedSessionExperience() {
   useEffect(() => {
     const loaded = loadState();
     setState(loaded);
-    setItems(buildIntegratedSession(loaded, new Date(), INTEGRATED_SESSION_SIZE));
+    setItems(buildAdaptiveIntegratedSession(loaded, new Date(), INTEGRATED_SESSION_SIZE));
     setHydrated(true);
   }, []);
 
@@ -107,7 +107,7 @@ export default function PracticalIntegratedSessionExperience() {
           : "The next session will be rebuilt from current mistakes, due retention, and underexposed skills. The topic is not chosen in advance."}</p>
         <p><b>{score.correct}/{items.length}</b> {locale === "ru" ? "последних ответов в batch" : "latest answers in the batch"}</p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
-          <button className="primary" onClick={() => { const nextItems = buildIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE); setItems(nextItems); setIndex(0); }}>
+          <button className="primary" onClick={() => { const nextItems = buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE); setItems(nextItems); setIndex(0); }}>
             {locale === "ru" ? "Собрать следующую сессию" : "Build next session"} <span>→</span>
           </button>
           <a className="secondary" href="/mastery">{locale === "ru" ? "Изучить следующий навык" : "Learn the next skill"}</a>
@@ -157,7 +157,7 @@ export default function PracticalIntegratedSessionExperience() {
       </label>
 
       {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Зафиксировать решение" : "Lock answer"} <span>→</span></button> : <div>
-        <h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужен repair" : "Repair needed")}</h3>
+        <h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужен ремонт" : "Repair needed")}</h3>
         <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
         <div className="today-card" style={{ marginTop: 14 }}>
           <p className="eyebrow">REVEAL AFTER COMMITMENT</p>
