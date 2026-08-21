@@ -7,6 +7,16 @@ const sourceIdTestPattern = /\b(?:FTGU-E\d+(?:\/E\d+)?|SLC-M\d+-L\d+|LCM-\d+|CP-
 const sourceLinePattern = /^(?:Источники|Sources)\s*:/iu;
 
 const exactReplacements = new Map<string, string>([
+  ["Первый круг", "Старт обучения"],
+  ["First Journey", "Start learning"],
+  [
+    "Смешанная практика не проверяет незнакомые концепции. Сначала пройди первый круг.",
+    "Практика не проверяет незнакомые концепции. Сначала пройди старт обучения.",
+  ],
+  [
+    "Mixed practice will not test an unseen concept.",
+    "Practice will not test a concept you have not learned yet.",
+  ],
   [
     "Hero рискует 1 единицей, чтобы выиграть 2. Нужно ли выигрывать более 50% раздач, чтобы call был прибыльным?",
     "В банке 2 единицы. Hero должен доплатить 1 единицу, после чего будущих ставок не будет. Какую минимальную equity должен иметь call для безубыточности?",
@@ -15,6 +25,10 @@ const exactReplacements = new Map<string, string>([
   [
     "FTGU-E01 прямо показывает, что pot odds задают required equity и порог не равен автоматически 50%.",
     "После call итоговый банк будет 3 единицы. Hero вкладывает 1 из этих 3, поэтому порог безубыточности: 1 / (2 + 1) = 33,3%. Сравнивай equity руки с этим порогом, а не с 50%.",
+  ],
+  [
+    "Нет. Порог безубыточности около одной трети. FTGU-E01 прямо показывает, что pot odds задают required equity и порог не равен автоматически 50%.",
+    "Около 33,3%. После call итоговый банк будет 3 единицы. Hero вкладывает 1 из этих 3, поэтому порог безубыточности: 1 / (2 + 1) = 33,3%. Сравнивай equity руки с этим порогом, а не с 50%.",
   ],
   [
     "Hero risks 1 unit to win 2. Must the call win more than 50% of the time to be profitable?",
@@ -26,6 +40,10 @@ const exactReplacements = new Map<string, string>([
     "After the call the final pot is 3 units. Hero contributes 1 of those 3, so the break-even threshold is 1 / (2 + 1) = 33.3%. Compare the hand's equity with that threshold, not with 50%.",
   ],
   [
+    "No. The break-even threshold is about one third. FTGU-E01 explicitly shows that pot odds determine required equity and the threshold is not automatically 50%.",
+    "About 33.3%. After the call the final pot is 3 units. Hero contributes 1 of those 3, so the break-even threshold is 1 / (2 + 1) = 33.3%. Compare the hand's equity with that threshold, not with 50%.",
+  ],
+  [
     "Цена call стала хуже, а диапазон соперника не изменился. Что происходит с required equity?",
     "В банке 2 единицы. Теперь call стоит 2 единицы, и будущих ставок не будет. Какой новый порог безубыточности?",
   ],
@@ -35,6 +53,10 @@ const exactReplacements = new Map<string, string>([
     "После call итоговый банк будет 4 единицы. Hero вкладывает 2 из 4, поэтому required equity = 2 / (2 + 2) = 50%. Изменилась только цена — порог вырос с 33,3% до 50%.",
   ],
   [
+    "Required equity растёт. Когда будущих решений нет, цена и equity доминируют; более дорогой call требует большей доли банка.",
+    "50%. После call итоговый банк будет 4 единицы. Hero вкладывает 2 из 4, поэтому required equity = 2 / (2 + 2) = 50%. Изменилась только цена — порог вырос с 33,3% до 50%.",
+  ],
+  [
     "The call price becomes worse while villain's range is unchanged. What happens to required equity?",
     "The pot is 2 units. The call now costs 2 units and there will be no future betting. What is the new break-even threshold?",
   ],
@@ -42,6 +64,10 @@ const exactReplacements = new Map<string, string>([
   [
     "With no future decisions, price and equity dominate; a worse price requires a larger share of the pot.",
     "After the call the final pot is 4 units. Hero contributes 2 of those 4, so required equity = 2 / (2 + 2) = 50%. Only the price changed, so the threshold rose from 33.3% to 50%.",
+  ],
+  [
+    "Required equity increases. With no future decisions, price and equity dominate; a worse price requires a larger share of the pot.",
+    "50%. After the call the final pot is 4 units. Hero contributes 2 of those 4, so required equity = 2 / (2 + 2) = 50%. Only the price changed, so the threshold rose from 33.3% to 50%.",
   ],
   [
     "FTGU-E01 отделяет equity от EV; FTGU-E05 добавляет, что postflop execution может сделать marginal BB defend неприбыльным.",
