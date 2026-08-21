@@ -19,6 +19,7 @@ import { turnRiverA8ExpansionDecisions } from "./decisions-turn-river-a8-expansi
 import { liveA9ExpansionDecisions } from "./decisions-live-a9-expansion";
 import { exploitA10ExpansionDecisions } from "./decisions-exploit-a10-expansion";
 import { sourceClosureB1Decisions } from "./decisions-source-closure-b1";
+import { sourceUtilizationC0Decisions } from "./decisions-source-utilization-c0";
 import { perceptualPracticalDecisions, practicalTableStates } from "./perceptual-table-states";
 import { variationB3Decisions } from "./decisions-variation-b3";
 import { b3PracticalTableStates } from "./perceptual-table-states-b3";
@@ -44,12 +45,15 @@ export * from "./exploit-a10-memory";
 export * from "./decisions-exploit-a10-expansion";
 export * from "./decisions-integrated-a11-expansion";
 export * from "./decisions-source-closure-b1";
+export * from "./decisions-source-utilization-c0";
 export * from "./perceptual-table-states";
 export * from "./perceptual-table-states-b3";
 export * from "./decisions-variation-b3";
 export * from "./decisions-live-edge-b4";
 export * from "./decisions-executable-gate-repair";
 export * from "./rep-depth-policy";
+export * from "./study-loop-c1";
+export * from "./reference-baselines-c2";
 export { practicalSkillFamilies } from "./registry";
 
 export const allPracticalTableStates = [...practicalTableStates, ...b3PracticalTableStates];
@@ -77,6 +81,7 @@ export const practicalDecisions = [
   ...liveA9ExpansionDecisions,
   ...exploitA10ExpansionDecisions,
   ...sourceClosureB1Decisions,
+  ...sourceUtilizationC0Decisions,
   ...variationB3Decisions,
   ...liveEdgeB4Decisions,
   ...executableGateRepairDecisions,
