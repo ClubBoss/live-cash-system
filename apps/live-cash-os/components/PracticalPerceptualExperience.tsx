@@ -8,6 +8,7 @@ import {
   recordPracticalDecision,
   type PracticalMasteryState,
 } from "../lib/practical-mastery-core";
+import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 
 const STORAGE_KEY="live-cash-os:practical-mastery:v3";
 type Locale="ru"|"en";
@@ -72,6 +73,8 @@ export default function PracticalPerceptualExperience(){
   const table=eligible[index%Math.max(eligible.length,1)]??null;
   const decision=table?practicalDecisionById.get(table.decisionId)??null:null;
   const skill=decision?practicalSkillById.get(decision.skillId)??null:null;
+  const scaffold=table&&skill?effectivePracticalScaffold(state,skill.id,table.scaffold):"guided";
+  const supportCue=practicalScaffoldCue(scaffold,locale);
 
   const submit=()=>{
     if(!decision||!actionId||!reasonId) return;
@@ -91,9 +94,9 @@ export default function PracticalPerceptualExperience(){
 
   return <main style={{maxWidth:900,margin:"0 auto",padding:"24px 18px 64px"}}>
     <section className="hero compact-hero">
-      <p className="eyebrow">PERCEPTUAL PRACTICE · {table.scaffold.toUpperCase()}</p>
+      <p className="eyebrow">PERCEPTUAL PRACTICE · {scaffold.toUpperCase()}</p>
       <h1>{locale==="ru"?"Прочитай стол до того, как назовёшь тему":"Read the table before naming the topic"}</h1>
-      <p>{locale==="ru"?"Никакой подсветки правильной переменной. Найди узел сам, затем выбери вывод и причину.":"No highlighting of the correct variable. Extract the node yourself, then choose the conclusion and reason."}</p>
+      {supportCue?<p>{supportCue}</p>:<p>{locale==="ru"?"Подсказка снята: сам найди переменную, которая меняет решение.":"The cue has faded: identify the decision-changing variable yourself."}</p>}
       <div className="mode-switch"><button aria-pressed={locale==="ru"} onClick={()=>setLocale("ru")}>RU</button><button aria-pressed={locale==="en"} onClick={()=>setLocale("en")}>EN</button></div>
     </section>
 
