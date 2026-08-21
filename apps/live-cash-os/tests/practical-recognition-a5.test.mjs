@@ -10,7 +10,7 @@ const gaps = await readFile(path.join(root, "content/practical-mastery/source-ga
 const rules = await readFile(path.join(root, "content/practical-mastery/recognition-a5-memory.ts"), "utf8");
 
 function count(skillId, kindPattern) {
-  return [...corpus.matchAll(new RegExp(`skillId:[\\s]*[\"']${skillId}[\"'][\\s]*,[\\s]*kind:[\\s]*[\"'](${kindPattern})[\"']`, "g"))].length;
+  return [...corpus.matchAll(new RegExp(`skillId:[\\s]*["']${skillId}["'][\\s]*,[\\s]*kind:[\\s]*["'](${kindPattern})["']`, "g"))].length;
 }
 
 test("supported recognition families have full evidence depth", () => {
