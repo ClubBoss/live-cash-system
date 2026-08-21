@@ -16,16 +16,18 @@ export default function PracticalNextLearningLink({
   className,
   style,
   children,
+  ariaCurrent,
   labelRu = "Продолжить обучение",
   labelEn = "Continue learning",
 }: {
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
+  ariaCurrent?: "page";
   labelRu?: string;
   labelEn?: string;
 }) {
   const [locale] = usePracticalLocale();
   const href = usePracticalNextLearningHref();
-  return <Link className={className} style={style} href={href}>{children ?? (locale === "ru" ? labelRu : labelEn)}</Link>;
+  return <Link className={className} style={style} href={href} aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</Link>;
 }
