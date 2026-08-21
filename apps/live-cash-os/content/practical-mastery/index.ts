@@ -20,6 +20,7 @@ export * from "./learning-route";
 export * from "./mental-model";
 export * from "./memory-practice";
 export * from "./preflop-a3-memory";
+export * from "./blind-a4-memory";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
