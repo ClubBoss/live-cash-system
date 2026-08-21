@@ -64,12 +64,12 @@ export default function PracticalMasteryGateway() {
     style={{ maxWidth: 1180, margin: "18px auto 0", padding: "18px 20px" }}
   >
     <p className="eyebrow practical-mastery-gateway__eyebrow">PRACTICAL MASTERY</p>
-    <h2>{locale === "ru" ? "Основной маршрут: тренируй решения, а не прохождение модулей" : "Primary route: train decisions, not module completion"}</h2>
+    <h2>{locale === "ru" ? "Основное обучение: тренируй решения, а не прохождение модулей" : "Primary learning: train decisions, not module completion"}</h2>
     <p className="practical-mastery-gateway__detail">{locale === "ru"
-      ? "Карта навыков ведёт от распознавания спота к решению, переносу на новые ситуации, повторению после паузы и разбору реальных рук. Старые разделы ниже остаются полезны для диагностики, карточек, разбора рук и восстановления данных."
-      : "The skill graph moves from spot recognition to decisions, transfer, retention, and real hands. The legacy tools below remain useful for diagnostics, cards, hand review, and data."}</p>
+      ? "Основной учебный маршрут теперь здесь: распознавание спота → решение → перенос → повторение после паузы → реальные руки. Разделы Live Cash OS ниже — дополнительные инструменты для диагностики, карточек, рук и данных."
+      : "The primary learning route is here: spot recognition → decision → transfer → delayed review → real hands. The Live Cash OS sections below are supporting tools for diagnostics, cards, hands, and data."}</p>
     <div className="practical-mastery-gateway__actions" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
-      <a className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить Practical Mastery" : "Continue Practical Mastery"} <span>→</span></a>
+      <a className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></a>
       <a className="secondary practical-mastery-gateway__map" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</a>
     </div>
     <style>{`
