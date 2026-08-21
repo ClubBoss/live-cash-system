@@ -56,17 +56,17 @@ export default function PracticalFirstJourneyExperience() {
 
   if (!recommendation || !skill || !journeyStep) {
     return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
-      <p className="eyebrow">{locale === "ru" ? "ПЕРВЫЙ КРУГ" : "FIRST JOURNEY"}</p>
-      <h1>{locale === "ru" ? "Первый круг завершён" : "First loop complete"}</h1>
-      <p>{locale === "ru" ? "Ты познакомился с первым набором ключевых навыков. Это ещё не полное освоение: дальше задачи будут перемешиваться, ошибки вернутся на повторение, а позже система проверит, сохранился ли навык на новых примерах." : "The first spiral pass is complete. This is not mastery: the system now mixes skills, brings mistakes back, and later tests retention on new stimuli."}</p>
+      <p className="eyebrow">{locale === "ru" ? "СТАРТ ОБУЧЕНИЯ" : "START LEARNING"}</p>
+      <h1>{locale === "ru" ? "Базовый проход завершён" : "Foundation pass complete"}</h1>
+      <p>{locale === "ru" ? "Ты познакомился с первым набором ключевых навыков. Это ещё не полное освоение: дальше задачи будут перемешиваться, ошибки вернутся на повторение, а позже система проверит, сохранился ли навык на новых примерах." : "You have met the first set of key skills. This is not mastery yet: the system now mixes skills, brings mistakes back, and later tests retention on new stimuli."}</p>
       <p><b>{progress.reached}/{progress.total}</b></p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Начать смешанную практику →" : "Start mixed session →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</Link></div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Начать практику →" : "Start practice →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</Link></div>
     </main>;
   }
 
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
     <section className="hero compact-hero">
-      <p className="eyebrow">{locale === "ru" ? `ПЕРВЫЙ КРУГ · ${progress.reached}/${progress.total}` : `FIRST JOURNEY · ${progress.reached}/${progress.total}`}</p>
+      <p className="eyebrow">{locale === "ru" ? `СТАРТ ОБУЧЕНИЯ · ${progress.reached}/${progress.total}` : `START LEARNING · ${progress.reached}/${progress.total}`}</p>
       <h1>{locale === "ru" ? skill.titleRu : skill.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
