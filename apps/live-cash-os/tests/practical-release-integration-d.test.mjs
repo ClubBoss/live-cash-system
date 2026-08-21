@@ -12,7 +12,7 @@ test("canonical product exposes Practical Mastery without removing the hardened 
   const gateway = await read("components/PracticalMasteryGateway.tsx");
   assert.match(page, /PracticalMasteryGateway/);
   assert.match(page, /<PracticalMasteryGateway \/>[\s\S]*<LiveCashApp \/>/);
-  assert.match(gateway, /href=\"\/mastery\/journey\"/);
+  assert.match(gateway, /href="\/mastery\/journey"/);
   assert.match(gateway, /Primary route|Основной маршрут/);
 });
 
@@ -21,7 +21,7 @@ test("every Practical Mastery route inherits the same test-invite boundary", asy
   assert.match(layout, /TestInviteGate/);
   assert.match(layout, /<TestInviteGate>/);
   for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
-    assert.match(layout, new RegExp(`href=\\"${route.replaceAll("/", "\\/")}\\"`));
+    assert.match(layout, new RegExp(`href="${route.replaceAll("/", "\\/")}"`));
   }
 });
 
