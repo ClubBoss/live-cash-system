@@ -10,11 +10,11 @@ const session=await readFile(path.join(root,"lib/practical-adaptive-session.ts")
 const ui=await readFile(path.join(root,"components/PracticalIntegratedSessionExperience.tsx"),"utf8");
 
 test("B6 distinguishes causal repair modes",()=>{
- for(const need of ["RECOGNITION","MECHANISM","TRANSFER","BOUNDARY","AUTOMATICITY","UNDEREXPOSED"]) assert.match(repair,new RegExp(`\\"${need}\\"`));
+ for(const need of ["RECOGNITION","MECHANISM","TRANSFER","BOUNDARY","AUTOMATICITY","UNDEREXPOSED"]) assert.match(repair,new RegExp(`"${need}"`));
  assert.match(repair,/actionCorrect&&!reasonCorrect/);
- assert.match(repair,/decision\?\.kind===\"recognition\"/);
- assert.match(repair,/decision\?\.kind===\"changed\"\|\|decision\?\.kind===\"mixed\"/);
- assert.match(repair,/decision\?\.kind===\"boundary\"/);
+ assert.match(repair,/decision\?\.kind==="recognition"/);
+ assert.match(repair,/decision\?\.kind==="changed"\|\|decision\?\.kind==="mixed"/);
+ assert.match(repair,/decision\?\.kind==="boundary"/);
 });
 
 test("B6 preserves high-confidence wrong priority and supports latency automaticity",()=>{
@@ -25,7 +25,7 @@ test("B6 preserves high-confidence wrong priority and supports latency automatic
 
 test("B6 uses EV-weighted rep-depth target to detect underexposure",()=>{
  assert.match(repair,/practicalRepDepthTargetForSkill/);
- assert.match(repair,/target\.tier===\"INTENSIVE\"/);
+ assert.match(repair,/target\.tier==="INTENSIVE"/);
  assert.match(repair,/deficit/);
 });
 
