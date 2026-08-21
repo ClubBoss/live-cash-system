@@ -13,6 +13,7 @@ import { preflopLiveExpansionDecisions } from "./decisions-preflop-live-expansio
 import { blindDefenceExpansionDecisions } from "./decisions-blind-defence-expansion";
 import { recognitionExpansionDecisions } from "./decisions-recognition-expansion";
 import { srpA6ExpansionDecisions } from "./decisions-srp-a6-expansion";
+import { threeBetFourBetA7ExpansionDecisions } from "./decisions-3bp-4bp-a7-expansion";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -44,6 +45,7 @@ export const practicalDecisions = [
   ...blindDefenceExpansionDecisions,
   ...recognitionExpansionDecisions,
   ...srpA6ExpansionDecisions,
+  ...threeBetFourBetA7ExpansionDecisions,
   ...integratedMasteryDecisions,
 ];
 
