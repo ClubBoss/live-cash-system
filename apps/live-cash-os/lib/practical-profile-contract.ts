@@ -1,3 +1,4 @@
+import type { CardState } from "./model-core";
 import type { PracticalMasteryState } from "./practical-mastery-core";
 import type { PracticalPerformanceEvent } from "./practical-performance-telemetry";
 
@@ -5,6 +6,7 @@ export const PRACTICAL_PROFILE_FIELD = "_practicalProfile" as const;
 export const PRACTICAL_PROFILE_VERSION = 1 as const;
 export const PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION = 3 as const;
 export const PRACTICAL_PERFORMANCE_LIMIT = 2000;
+export const PRACTICAL_PROFILE_ANCHOR_CARD_ID = "__system:practical-profile:v1" as const;
 
 export type PracticalStudyWorkspace = {
   version: 1;
@@ -24,6 +26,7 @@ export type PracticalProfileState = {
 export type LearnerStateWithPracticalProfile = Record<string, unknown> & {
   revision: number;
   updatedAt: string;
+  cards: Record<string, CardState>;
   [PRACTICAL_PROFILE_FIELD]?: PracticalProfileState;
 };
 
