@@ -8,6 +8,11 @@ This ledger records the current acceptance boundary. Automated implementation ev
 
 Final Red-Team, Gauntlets 1–4 and Post-Tester integrity work remain integrated history. Their technical acceptance does not upgrade human content/language approval or W10 empirical evidence.
 
+Historical bounded implementation dispositions remain true and are retained for governance compatibility:
+
+- `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`;
+- `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`.
+
 The legacy 11-module / 55-drill / 33-card system remains supported, but it is no longer the ceiling of the learning architecture. The owner-authorized Practical Mastery program is the current primary learning route and release candidate.
 
 ## Practical Mastery engineering boundary
