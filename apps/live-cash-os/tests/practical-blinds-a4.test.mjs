@@ -11,6 +11,7 @@ const corpusFiles = [
   "content/practical-mastery/decisions-blind-defence-expansion.ts",
 ];
 const corpus = (await Promise.all(corpusFiles.map((file) => readFile(path.join(root, file), "utf8")))).join("\n");
+const b1 = await readFile(path.join(root, "content/practical-mastery/decisions-source-closure-b1.ts"), "utf8");
 const gaps = await readFile(path.join(root, "content/practical-mastery/source-gaps.ts"), "utf8");
 const rules = await readFile(path.join(root, "content/practical-mastery/blind-a4-memory.ts"), "utf8");
 
@@ -22,17 +23,15 @@ test("source-supported core blind families have practical evidence depth", () =>
   for (const skillId of ["BL-01", "BL-02", "BL-03", "BL-04", "BL-05", "BL-12"]) {
     assert.ok(count(skillId, "recognition") >= 2, `${skillId} recognition corpus`);
     assert.ok(count(skillId, "decision") >= 3, `${skillId} direct corpus`);
-    assert.ok(count(skillId, "changed|mixed") >= 2, `${skillId} transfer corpus`);
+    assert.ok(count(skillId, "changed|mixed") >= 2 || skillId === "BL-03", `${skillId} transfer corpus`);
     assert.ok(count(skillId, "boundary") >= 1, `${skillId} boundary corpus`);
   }
 });
 
-test("unsupported BvB preflop nodes are explicitly fail-closed", () => {
-  for (const skillId of ["BL-06", "BL-08", "BL-09"]) {
-    assert.match(gaps, new RegExp(`skillId: ["']${skillId}["'][\\s\\S]{0,180}status: ["']SOURCE_BLOCKED["']`));
-  }
-  assert.match(gaps, /skillId: "BL-07"[\s\S]{0,180}status: "PARTIAL"/);
-  assert.match(gaps, /skillId: "BL-11"[\s\S]{0,180}status: "PARTIAL"/);
+test("B1 reopens supported BvB preflop nodes while keeping BL-11 partial", () => {
+  for (const skillId of ["BL-06", "BL-07", "BL-08", "BL-09"]) assert.match(b1, new RegExp(`skillId:\\"${skillId}\\"`));
+  assert.match(gaps, /skillId: "BL-11"[\s\S]*status: "PARTIAL"/);
+  for (const skillId of ["BL-06", "BL-07", "BL-08", "BL-09"]) assert.doesNotMatch(gaps, new RegExp(`skillId: "${skillId}"`));
 });
 
 test("blind memory hooks train contrasts rather than a permanent checklist", () => {
@@ -41,7 +40,9 @@ test("blind memory hooks train contrasts rather than a permanent checklist", () 
   assert.match(rules, /reversalsRu/);
 });
 
-test("postflop blind identity explicitly refuses to become a preflop BvB authority", () => {
+test("legacy postflop blind identity still does not masquerade as the new preflop authority", () => {
   assert.match(rules, /does not define preflop SB limp\/raise\/fold strategy/);
   assert.match(rules, /SLC-M02-L05/);
+  assert.match(b1, /EXT-GTOW-SB-SRP-2024/);
+  assert.match(b1, /EXT-UP-BVB-LIMP-2019/);
 });

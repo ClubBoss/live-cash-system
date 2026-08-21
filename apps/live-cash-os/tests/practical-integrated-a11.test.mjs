@@ -64,20 +64,12 @@ test("First Journey hands off to mixed practice on the same v3 state", () => {
   assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
 });
 
-test("known source ceilings remain explicit in the whole system", () => {
-  const expectations = [
-    ["FND-04", "SOURCE_BLOCKED"],
-    ["BL-06", "SOURCE_BLOCKED"],
-    ["BL-07", "PARTIAL"],
-    ["BL-08", "SOURCE_BLOCKED"],
-    ["BL-09", "SOURCE_BLOCKED"],
-    ["BL-11", "PARTIAL"],
-    ["W4-DRAW-01", "PARTIAL"],
-    ["DEEP-02", "SOURCE_BLOCKED"],
-    ["MW-05", "PARTIAL"],
-    ["EXP-06", "SOURCE_BLOCKED"],
-  ];
-  for (const [skill, status] of expectations) assert.match(gaps, new RegExp(`skillId: "${skill}"[\\s\\S]*?status: "${status}"`));
+test("post-B1 source ceiling remains explicit in the whole system", () => {
+  assert.match(gaps, /skillId: "BL-11"[\s\S]*?status: "PARTIAL"/);
+  assert.match(gaps, /POSITIVE_EV_SOURCE_ACCESS_REQUIRED/);
+  for (const closed of ["FND-04","BL-06","BL-07","BL-08","BL-09","W4-DRAW-01","DEEP-02","MW-05","EXP-06"]) {
+    assert.doesNotMatch(gaps, new RegExp(`skillId: "${closed}"`));
+  }
 });
 
 test("A11 does not authorize main cutover or production deployment", () => {
