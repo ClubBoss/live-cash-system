@@ -16,13 +16,18 @@ test("canonical product exposes Practical Mastery without removing the hardened 
   assert.match(gateway, /Primary route|Основной маршрут/);
 });
 
-test("every Practical Mastery route inherits the same test-invite boundary", async () => {
+test("every Practical Mastery route inherits the same test-invite boundary and shared navigation", async () => {
   const layout = await read("app/mastery/layout.tsx");
+  const nav = await read("components/PracticalMasteryNav.tsx");
   assert.match(layout, /TestInviteGate/);
   assert.match(layout, /<TestInviteGate>/);
+  assert.match(layout, /PracticalMasteryNav/);
   for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
-    assert.ok(layout.includes(`href="${route}"`), `${route} must be linked from the shared mastery navigation`);
+    assert.ok(nav.includes(`href="${route}"`), `${route} must be linked from the shared mastery navigation`);
   }
+  assert.match(nav, /Карта навыков/);
+  assert.match(nav, /Смешанная практика/);
+  assert.match(nav, /Чтение стола/);
 });
 
 test("release gate now carries dedicated Practical Mastery browser evidence", async () => {
