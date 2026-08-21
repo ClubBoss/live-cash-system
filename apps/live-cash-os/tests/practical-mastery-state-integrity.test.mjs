@@ -6,23 +6,27 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "utf8");
+const experience = await readFile(path.join(root, "components/PracticalMasteryExperience.tsx"), "utf8");
 
-test("practical mastery keeps evidence stages sequential and explicit", () => {
+test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
   for (const token of [
-    "conceptTaught",
-    "recognitionCorrect",
-    "directDecisionCorrect",
-    "changedCorrect",
-    "boundaryCorrect",
-    "delayedRetrievalPassed",
-    "realHandTransferReviewed",
+    "successfulDecisionIds",
+    "MIN_RECOGNITION_STIMULI = 2",
+    "MIN_DIRECT_DECISION_STIMULI = 3",
+    "MIN_TRANSFER_STIMULI = 2",
+    "MIN_BOUNDARY_STIMULI = 1",
   ]) assert.match(core, new RegExp(token));
 
-  assert.match(core, /if \(!progress\.conceptTaught\) return "SOURCE_SUPPORTED"/);
-  assert.match(core, /if \(progress\.recognitionCorrect < 1\) return "CONCEPT_TAUGHT"/);
-  assert.match(core, /if \(progress\.directDecisionCorrect < 1\) return "RECOGNITION_TRAINED"/);
-  assert.match(core, /if \(progress\.changedCorrect \+ progress\.mixedCorrect < 1\) return "DECISION_TRAINED"/);
-  assert.match(core, /if \(progress\.boundaryCorrect < 1\) return "CHANGED_NODE_TRANSFER"/);
+  assert.match(core, /distinctSuccessfulByKind/);
+  assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI\) return "CONCEPT_TAUGHT"/);
+  assert.match(core, /if \(direct < MIN_DIRECT_DECISION_STIMULI\) return "RECOGNITION_TRAINED"/);
+  assert.match(core, /if \(transfer < MIN_TRANSFER_STIMULI\) return "DECISION_TRAINED"/);
+  assert.match(core, /if \(boundary < MIN_BOUNDARY_STIMULI\) return "CHANGED_NODE_TRANSFER"/);
+});
+
+test("repeat-grinding one decision cannot inflate distinct evidence", () => {
+  assert.match(core, /!nextProgress\.successfulDecisionIds\.includes\(decision\.id\)/);
+  assert.match(core, /new Set\(/);
 });
 
 test("immediate answers cannot grant delayed or real-hand evidence", () => {
@@ -32,7 +36,15 @@ test("immediate answers cannot grant delayed or real-hand evidence", () => {
   assert.match(core, /if \(reviewed && nextProgress\.delayedRetrievalPassed\) nextProgress\.realHandTransferReviewed = true/);
 });
 
-test("legacy reset is explicit metadata rather than silent mastery migration", () => {
+test("concept completion is preceded by learner-facing source-backed anchors", () => {
+  assert.match(experience, /practicalAnchors/);
+  assert.match(experience, /lessonAnchors\.map/);
+  assert.match(experience, /UNDERSTAND THE MECHANISM FIRST/);
+  assert.match(experience, /lessonAnchors\.length > 0/);
+});
+
+test("legacy reset is explicit and practical schema is independently versioned", () => {
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 2/);
   assert.match(core, /resetFromLegacyAt/);
   assert.doesNotMatch(core, /contentCompleted/);
   assert.doesNotMatch(core, /FIELD_VALIDATED/);
