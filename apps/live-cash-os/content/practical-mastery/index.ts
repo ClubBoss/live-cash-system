@@ -63,7 +63,13 @@ export const practicalAnchors = [
   ...preflopAndBlindAnchors,
   ...recognitionAndSrpAnchors,
   ...advancedPracticalAnchors,
-];
+].map((anchor) => ({
+  ...anchor,
+  titleRu: anchor.promptRu,
+  titleEn: anchor.promptEn,
+  bodyRu: `${anchor.answerRu} ${anchor.rationaleRu}`,
+  bodyEn: `${anchor.answerEn} ${anchor.rationaleEn}`,
+}));
 
 export const practicalDecisions = [
   ...foundationPreflopBlindDecisions,
