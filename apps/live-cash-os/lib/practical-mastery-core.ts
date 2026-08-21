@@ -1,4 +1,5 @@
 import { practicalDecisionById, practicalDecisions, practicalSkillById, practicalSkillFamilies } from "../content/practical-mastery";
+import { canonicalFirstJourneySkillIds, hardDependenciesFor, learningRouteScore, whyNowForSkill } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalDecision, PracticalEvidenceStage } from "../content/practical-mastery";
 
@@ -43,6 +44,12 @@ export type PracticalMasteryState = {
   resetFromLegacyAt: string | null;
   skills: Record<string, PracticalSkillProgress>;
   attempts: PracticalAttempt[];
+};
+
+export type PracticalRecommendedSkill = {
+  skillId: string;
+  score: number;
+  whyNow: string;
 };
 
 const STAGE_ORDER: PracticalEvidenceStage[] = [
@@ -160,11 +167,10 @@ export function practicalSkillCorpusCanReach(skillId: string, stage: PracticalEv
 }
 
 export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean {
-  const skill = practicalSkillById.get(skillId);
-  if (!skill) return false;
+  if (!practicalSkillById.has(skillId)) return false;
   if (practicalSourceGapBySkillId.get(skillId)?.status === "SOURCE_BLOCKED") return false;
-  return skill.prerequisiteSkillIds.every((prerequisiteId) => {
-    const progress = state.skills[prerequisiteId];
+  return hardDependenciesFor(skillId).every((dependency) => {
+    const progress = state.skills[dependency.fromSkillId];
     return progress ? stageAtLeast(progress.evidenceStage, "DECISION_TRAINED") : false;
   });
 }
@@ -175,6 +181,71 @@ export function availablePracticalSkills(state: PracticalMasteryState) {
 
 export function trainablePracticalSkills(state: PracticalMasteryState) {
   return availablePracticalSkills(state).filter((skill) => practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED"));
+}
+
+function repairUrgencyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 {
+  const attempts = state.attempts.filter((attempt) => attempt.skillId === skillId);
+  const wrong = attempts.filter((attempt) => !attempt.correct).length;
+  if (wrong >= 4) return 3;
+  if (wrong >= 2) return 2;
+  if (wrong >= 1) return 1;
+  return 0;
+}
+
+function recentExposurePenaltyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 {
+  const recent = state.attempts.slice(-8);
+  const count = recent.filter((attempt) => attempt.skillId === skillId).length;
+  if (count >= 5) return 3;
+  if (count >= 3) return 2;
+  if (count >= 1) return 1;
+  return 0;
+}
+
+export function recommendNextPracticalSkill(state: PracticalMasteryState): PracticalRecommendedSkill | null {
+  const trainable = trainablePracticalSkills(state);
+  if (!trainable.length) return null;
+
+  // During the first journey, prefer the next unfinished canonical step that is
+  // genuinely trainable. This is a spiral route hypothesis, not a permanent
+  // chapter lock; repair urgency can still interrupt it below.
+  const urgentRepair = trainable
+    .map((skill) => ({ skill, urgency: repairUrgencyForSkill(state, skill.id) }))
+    .filter((candidate) => candidate.urgency >= 2)
+    .sort((a, b) => b.urgency - a.urgency)[0];
+
+  if (urgentRepair) {
+    const progress = state.skills[urgentRepair.skill.id];
+    return {
+      skillId: urgentRepair.skill.id,
+      score: learningRouteScore({ skill: urgentRepair.skill, currentStage: progress.evidenceStage, repairUrgency: urgentRepair.urgency }),
+      whyNow: whyNowForSkill(urgentRepair.skill, progress.evidenceStage, urgentRepair.urgency),
+    };
+  }
+
+  for (const skillId of canonicalFirstJourneySkillIds) {
+    const skill = trainable.find((candidate) => candidate.id === skillId);
+    const progress = skill ? state.skills[skill.id] : null;
+    if (skill && progress && !stageAtLeast(progress.evidenceStage, "CHANGED_NODE_TRANSFER")) {
+      return {
+        skillId: skill.id,
+        score: learningRouteScore({ skill, currentStage: progress.evidenceStage, recentExposurePenalty: recentExposurePenaltyForSkill(state, skill.id) }),
+        whyNow: whyNowForSkill(skill, progress.evidenceStage),
+      };
+    }
+  }
+
+  const ranked = trainable.map((skill) => {
+    const progress = state.skills[skill.id];
+    const repairUrgency = repairUrgencyForSkill(state, skill.id);
+    const recentExposurePenalty = recentExposurePenaltyForSkill(state, skill.id);
+    return {
+      skillId: skill.id,
+      score: learningRouteScore({ skill, currentStage: progress.evidenceStage, repairUrgency, recentExposurePenalty }),
+      whyNow: whyNowForSkill(skill, progress.evidenceStage, repairUrgency),
+    };
+  }).sort((a, b) => b.score - a.score || a.skillId.localeCompare(b.skillId));
+
+  return ranked[0] ?? null;
 }
 
 export function recordPracticalDecision(
@@ -238,18 +309,10 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
   const repair = progress?.lastIncorrectDecisionId ? practicalDecisionById.get(progress.lastIncorrectDecisionId) ?? null : null;
   if (repair) return repair;
 
-  if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) {
-    return unattemptedDecisionOfKinds(state, skillId, ["recognition"]);
-  }
-  if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) {
-    return unattemptedDecisionOfKinds(state, skillId, ["decision"]);
-  }
-  if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) {
-    return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"]);
-  }
-  if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) {
-    return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
-  }
+  if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["recognition"]);
+  if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["decision"]);
+  if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"]);
+  if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
 
   const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
   return pool.find((decision) => !attemptedIds.has(decision.id)) ?? null;
@@ -277,9 +340,7 @@ export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skil
   if (!progress) throw new Error(`Unknown practical skill: ${skillId}`);
   const next = structuredClone(state);
   const nextProgress = next.skills[skillId];
-  if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") {
-    nextProgress.delayedRetrievalPassed = true;
-  }
+  if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") nextProgress.delayedRetrievalPassed = true;
   refreshEvidenceStage(nextProgress);
   next.revision += 1;
   next.updatedAt = nowIso(now);
