@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import PracticalNextLearningLink, { usePracticalNextLearningHref } from "./PracticalNextLearningLink";
+import PracticalNextLearningLink from "./PracticalNextLearningLink";
 
 const tools = [
   { href: "/mastery", ru: "Карта", en: "Map" },
@@ -15,7 +15,6 @@ const tools = [
 export default function PracticalMasteryNav() {
   const [locale] = usePracticalLocale();
   const pathname = usePathname();
-  const nextLearningHref = usePracticalNextLearningHref();
   const learningActive = pathname === "/mastery/journey" || pathname === "/mastery/session";
 
   return <nav
@@ -38,6 +37,7 @@ export default function PracticalMasteryNav() {
       <PracticalNextLearningLink
         labelRu="Учиться"
         labelEn="Learn"
+        ariaCurrent={learningActive ? "page" : undefined}
         style={{
           flex: "none",
           minHeight: 44,
@@ -54,9 +54,7 @@ export default function PracticalMasteryNav() {
           textDecoration: "none",
           whiteSpace: "nowrap",
         }}
-      >
-        <span aria-current={learningActive ? "page" : undefined}>{locale === "ru" ? "Учиться" : "Learn"}</span>
-      </PracticalNextLearningLink>
+      />
       {tools.map((item) => {
         const active = pathname === item.href;
         return <Link
@@ -85,8 +83,8 @@ export default function PracticalMasteryNav() {
 
     <p style={{ margin: 0, color: "var(--muted)", fontSize: 12 }}>
       {locale === "ru"
-        ? `Основной маршрут — «Учиться». Карта и остальные разделы помогают посмотреть прогресс, потренировать чтение стола или разобрать игру.`
-        : `“Learn” is the primary route. The map and other sections are supporting tools for progress, table reading, and review.`}
+        ? "Основной маршрут — «Учиться». Карта и остальные разделы помогают посмотреть прогресс, потренировать чтение стола или разобрать игру."
+        : "“Learn” is the primary route. The map and other sections are supporting tools for progress, table reading, and review."}
     </p>
   </nav>;
 }
