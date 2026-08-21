@@ -25,6 +25,7 @@ export * from "./preflop-a3-memory";
 export * from "./blind-a4-memory";
 export * from "./recognition-a5-memory";
 export * from "./srp-a6-memory";
+export * from "./threebet-fourbet-a7-memory";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
