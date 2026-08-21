@@ -64,28 +64,51 @@ function skillTitle(skill: PracticalSkillFamily, locale: Locale): string { retur
 function optionText(option: { textRu: string; textEn: string }, locale: Locale): string { return locale === "ru" ? option.textRu : option.textEn; }
 
 function DecisionCard({ locale, decision, state, onState }: { locale: Locale; decision: PracticalDecision; state: PracticalMasteryState; onState: (state: PracticalMasteryState) => void }) {
+  const [shownDecision, setShownDecision] = useState<PracticalDecision>(decision);
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [confidence, setConfidence] = useState(65);
   const [revealed, setRevealed] = useState(false);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
 
-  useEffect(() => { setActionId(""); setReasonId(""); setConfidence(65); setRevealed(false); setWasCorrect(null); }, [decision.id]);
+  useEffect(() => {
+    if (revealed) return;
+    setShownDecision(decision);
+    setActionId("");
+    setReasonId("");
+    setConfidence(65);
+    setWasCorrect(null);
+  }, [decision, revealed]);
+
   const submit = () => {
     if (!actionId || !reasonId) return;
-    const correct = actionId === decision.correctActionId && reasonId === decision.correctReasonId;
-    onState(recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence }));
-    setWasCorrect(correct); setRevealed(true);
+    const correct = actionId === shownDecision.correctActionId && reasonId === shownDecision.correctReasonId;
+    onState(recordPracticalDecision(state, { decisionId: shownDecision.id, actionId, reasonId, confidence }));
+    setWasCorrect(correct);
+    setRevealed(true);
+  };
+
+  const advance = () => {
+    setShownDecision(decision);
+    setActionId("");
+    setReasonId("");
+    setConfidence(65);
+    setRevealed(false);
+    setWasCorrect(null);
   };
 
   return <article className="today-card" style={{ marginTop: 18 }}>
     <p className="eyebrow">{locale === "ru" ? "ПРАКТИКА НАВЫКА" : "SKILL PRACTICE"}</p>
-    <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2>
-    <p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-    <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
-    <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
+    <h2>{locale === "ru" ? shownDecision.cueRu : shownDecision.cueEn}</h2>
+    <p>{locale === "ru" ? shownDecision.questionRu : shownDecision.questionEn}</p>
+    <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{shownDecision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${shownDecision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
+    <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{shownDecision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${shownDecision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
     <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
-    {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div><p><b>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</b></p><p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p></div>}
+    {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
+      <p><b>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</b></p>
+      <p>{locale === "ru" ? shownDecision.explanationRu : shownDecision.explanationEn}</p>
+      <button className="secondary" onClick={advance}>{locale === "ru" ? "Следующая задача" : "Next item"} <span>→</span></button>
+    </div>}
   </article>;
 }
 
