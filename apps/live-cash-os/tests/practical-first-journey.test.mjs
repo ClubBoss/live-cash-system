@@ -19,6 +19,9 @@ test("first journey is a spiral across multiple capability families", () => {
 
 test("first exposure advances on recognition rather than requiring transfer mastery", () => {
   assert.match(engine, /RECOGNITION_TRAINED/);
+  assert.match(engine, /practicalSkillCorpusCanReach\(skill\.id, "RECOGNITION_TRAINED"\)/);
+  assert.match(engine, /availablePracticalSkills/);
+  assert.doesNotMatch(engine, /trainablePracticalSkills/);
   const recommendationSection = engine.slice(engine.indexOf("export function recommendFirstJourneyStep"), engine.indexOf("export function firstJourneyProgress"));
   assert.doesNotMatch(recommendationSection, /CHANGED_NODE_TRANSFER/);
 });
