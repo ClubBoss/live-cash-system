@@ -9,14 +9,7 @@ const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "u
 const experience = await readFile(path.join(root, "components/PracticalMasteryExperience.tsx"), "utf8");
 
 test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
-  for (const token of [
-    "successfulDecisionIds",
-    "MIN_RECOGNITION_STIMULI = 2",
-    "MIN_DIRECT_DECISION_STIMULI = 3",
-    "MIN_TRANSFER_STIMULI = 2",
-    "MIN_BOUNDARY_STIMULI = 1",
-  ]) assert.match(core, new RegExp(token));
-
+  for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_TRANSFER_STIMULI = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
   assert.match(core, /distinctSuccessfulByKind/);
   assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI\) return "CONCEPT_TAUGHT"/);
   assert.match(core, /if \(direct < MIN_DIRECT_DECISION_STIMULI\) return "RECOGNITION_TRAINED"/);
@@ -27,6 +20,13 @@ test("practical mastery requires multiple distinct stimuli before higher evidenc
 test("repeat-grinding one decision cannot inflate distinct evidence", () => {
   assert.match(core, /!nextProgress\.successfulDecisionIds\.includes\(decision\.id\)/);
   assert.match(core, /new Set\(/);
+});
+
+test("corrected mistakes stop being unresolved repairs", () => {
+  assert.match(core, /if \(nextProgress\.lastIncorrectDecisionId === decision\.id\) nextProgress\.lastIncorrectDecisionId = null/);
+  assert.match(core, /latestAttemptsByDecision/);
+  const repairSection = core.slice(core.indexOf("export function practicalRepairQueue"), core.indexOf("export function markDelayedPracticalRetrieval"));
+  assert.match(repairSection, /if \(attempt\.correct\) continue/);
 });
 
 test("immediate answers cannot grant delayed or real-hand evidence", () => {
@@ -43,9 +43,13 @@ test("concept completion is preceded by learner-facing source-backed anchors", (
   assert.match(experience, /lessonAnchors\.length > 0/);
 });
 
-test("legacy reset is explicit and practical schema is independently versioned", () => {
-  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 2/);
+test("v3 reset is explicit and retention tiers are first-class state", () => {
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
+  assert.match(core, /practical-mastery-v3/);
+  assert.match(core, /retentionDaysPassed: number\[\]/);
+  assert.match(core, /retentionDaysPassed: \[\]/);
   assert.match(core, /resetFromLegacyAt/);
+  assert.match(experience, /practical-mastery:v3/);
   assert.doesNotMatch(core, /contentCompleted/);
   assert.doesNotMatch(core, /FIELD_VALIDATED/);
 });
