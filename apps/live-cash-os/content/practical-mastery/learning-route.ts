@@ -24,33 +24,46 @@ export type PracticalRouteCandidate = {
   whyNow: string;
 };
 
-const hardDependencies: PracticalLearningDependency[] = practicalSkillFamilies.flatMap((skill) =>
+// The old registry prerequisite field was authored before route optimization.
+// Preserve it as useful preparation, but do not silently promote the old topic
+// sequence into a hard lock.
+const legacyDeclaredDependencies: PracticalLearningDependency[] = practicalSkillFamilies.flatMap((skill) =>
   skill.prerequisiteSkillIds.map((fromSkillId) => ({
     fromSkillId,
     toSkillId: skill.id,
-    kind: "HARD" as const,
-    reason: "Existing prerequisite contract: target should not be scored before this capability is decision-trained.",
+    kind: "SOFT" as const,
+    reason: "Legacy-declared preparation. Useful for comprehension, but not a canonical hard learner-order lock after A0.",
   })),
 );
+
+// HARD is intentionally sparse. Add only when the target cannot be meaningfully
+// taught/scored without the prior capability.
+const curatedHardDependencies: PracticalLearningDependency[] = [
+  { fromSkillId: "FND-01", toSkillId: "FND-02", kind: "HARD", reason: "Equity-realisation training assumes the learner can distinguish price/equity from a binary win-rate shortcut." },
+  { fromSkillId: "FND-01", toSkillId: "PF-04", kind: "HARD", reason: "BB call quality cannot be scored coherently without price / required-equity intuition." },
+  { fromSkillId: "W4-BOARD-01", toSkillId: "IP-01", kind: "HARD", reason: "C-bet selection requires basic board/range interaction recognition." },
+  { fromSkillId: "W4-BOARD-01", toSkillId: "OOP-01", kind: "HARD", reason: "OOP range-check selection requires basic board/range interaction recognition." },
+];
 
 const softAndReinforcingDependencies: PracticalLearningDependency[] = [
   { fromSkillId: "PF-01", toSkillId: "W4-BOARD-01", kind: "SOFT", reason: "Seeing position/range origin first makes board ownership easier, but full RFI mastery is not required." },
   { fromSkillId: "PF-04", toSkillId: "W4-BOARD-01", kind: "SOFT", reason: "BB range identity improves board-class interpretation without needing complete blind mastery." },
-  { fromSkillId: "W4-BOARD-01", toSkillId: "IP-01", kind: "HARD", reason: "C-bet selection is not meaningfully trainable before basic board/range interaction recognition." },
-  { fromSkillId: "W4-BOARD-01", toSkillId: "OOP-01", kind: "HARD", reason: "Range-check simplification depends on recognizing board ownership." },
+  { fromSkillId: "FND-02", toSkillId: "PF-04", kind: "SOFT", reason: "Realisation improves BB judgement but should not prevent early price-driven BB exposure." },
   { fromSkillId: "IP-01", toSkillId: "PF-06", kind: "REINFORCING", reason: "Early postflop range-shape exposure makes polar/linear preflop construction more concrete." },
-  { fromSkillId: "PF-06", toSkillId: "B3-01", kind: "HARD", reason: "3-bet-pot postflop should inherit an understood preflop range-construction model." },
-  { fromSkillId: "B3-01", toSkillId: "PF-06", kind: "REINFORCING", reason: "3-bet-pot play reinforces why preflop range shape and SPR consequences matter." },
-  { fromSkillId: "W4-RUNOUT-01", toSkillId: "TURN-01", kind: "HARD", reason: "Turn barreling requires recognizing blank versus game-changing runouts." },
-  { fromSkillId: "FND-05", toSkillId: "RIV-02", kind: "HARD", reason: "River bluff selection requires combo/removal awareness." },
-  { fromSkillId: "RIV-01", toSkillId: "EXP-01", kind: "SOFT", reason: "Exploit decisions become more robust after baseline river value/bluff-catch mechanics are understood." },
-  { fromSkillId: "MW-01", toSkillId: "DEEP-01", kind: "REINFORCING", reason: "Multiway value-threshold discipline reinforces deep-stack one-pair caution." },
-  { fromSkillId: "DEEP-01", toSkillId: "MW-01", kind: "REINFORCING", reason: "Deep-stack nut-potential reasoning reinforces multiway hand-class selection." },
+  { fromSkillId: "PF-06", toSkillId: "IP-01", kind: "REINFORCING", reason: "Preflop range construction later sharpens why the flop range has its observed shape." },
+  { fromSkillId: "PF-04", toSkillId: "BL-04", kind: "REINFORCING", reason: "Open-size sensitivity reinforces the original BB price model through a changed node." },
+  { fromSkillId: "W4-BOARD-01", toSkillId: "W4-RUNOUT-01", kind: "REINFORCING", reason: "Runout classification revisits board ownership as ranges and nut regions change." },
 ];
 
+function dependencyKey(dependency: PracticalLearningDependency): string {
+  return `${dependency.fromSkillId}>${dependency.toSkillId}>${dependency.kind}`;
+}
+
 export const practicalLearningDependencies: PracticalLearningDependency[] = [
-  ...hardDependencies,
-  ...softAndReinforcingDependencies,
+  ...new Map(
+    [...legacyDeclaredDependencies, ...curatedHardDependencies, ...softAndReinforcingDependencies]
+      .map((dependency) => [dependencyKey(dependency), dependency] as const),
+  ).values(),
 ];
 
 const defaultSignalsByWave: Record<PracticalSkillFamily["wave"], PracticalRouteSignals> = {
@@ -137,9 +150,15 @@ export const canonicalFirstJourneySkillIds = [
   "W4-RUNOUT-01",
 ] as const;
 
+export function firstJourneyOrder(skillId: string): number {
+  return canonicalFirstJourneySkillIds.indexOf(skillId as (typeof canonicalFirstJourneySkillIds)[number]);
+}
+
 export function whyNowForSkill(skill: PracticalSkillFamily, stage: PracticalEvidenceStage, repairUrgency = 0): string {
   const signals = routeSignalsForSkill(skill);
   if (repairUrgency > 0) return `Repair now: repeated evidence gap in ${skill.id} outweighs nominal topic order.`;
+  const journeyIndex = firstJourneyOrder(skill.id);
+  if (journeyIndex >= 0) return `First journey step ${journeyIndex + 1}: connect a high-value concept to a concrete table decision early.`;
   if (stage === "SOURCE_SUPPORTED") return `High-value next capability: live frequency ${signals.liveFrequency}/5, transfer leverage ${signals.transferLeverage}/5.`;
   return `Advance ${skill.id}: current evidence is ${stage}; target is ${skill.targetEvidenceStage}.`;
 }
