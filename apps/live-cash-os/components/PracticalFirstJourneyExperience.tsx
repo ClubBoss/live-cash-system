@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { firstJourneyStepForSkill } from "../content/practical-mastery/first-journey";
-import { practicalAnchors, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
+import { practicalAnchors, practicalDecisionById, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
 import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/practical-mastery-core";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -13,6 +13,7 @@ export default function PracticalFirstJourneyExperience() {
   const [locale, setLocale] = usePracticalLocale();
   const { mastery: state, setMastery, ready, recoveryBlocked } = usePracticalProfileState();
   const [practiceStarted, setPracticeStarted] = useState(false);
+  const [answeredDecisionId, setAnsweredDecisionId] = useState<string | null>(null);
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [answerRevealed, setAnswerRevealed] = useState(false);
@@ -27,15 +28,17 @@ export default function PracticalFirstJourneyExperience() {
   const skillAnchors = skill ? practicalAnchors.filter((item) => item.skillId === skill.id) : [];
   const anchor = skillAnchors[0] ?? null;
   const contrastAnchor = skillAnchors.find((item) => item.kind === "changed" || item.kind === "boundary") ?? null;
-  const decision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
+  const nextDecision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
+  const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
 
   useEffect(() => {
     setPracticeStarted(false);
+    setAnsweredDecisionId(null);
     setActionId("");
     setReasonId("");
     setAnswerRevealed(false);
     setLastCorrect(null);
-  }, [recommendation?.skillId, decision?.id]);
+  }, [recommendation?.skillId]);
 
   const startPractice = () => {
     if (!skill) return;
@@ -46,9 +49,18 @@ export default function PracticalFirstJourneyExperience() {
   const submitDecision = () => {
     if (!decision || !actionId || !reasonId) return;
     const correct = actionId === decision.correctActionId && reasonId === decision.correctReasonId;
+    setAnsweredDecisionId(decision.id);
     setMastery(recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 }));
     setLastCorrect(correct);
     setAnswerRevealed(true);
+  };
+
+  const advanceDecision = () => {
+    setAnsweredDecisionId(null);
+    setActionId("");
+    setReasonId("");
+    setAnswerRevealed(false);
+    setLastCorrect(null);
   };
 
   if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
@@ -109,7 +121,7 @@ export default function PracticalFirstJourneyExperience() {
         <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
         <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
         <p className="support">{locale === "ru" ? "Это только первый контакт с навыком. Система вернёт его в новых ситуациях и позже проверит после паузы." : "This is only the first contact with the skill. The system will revisit it in new situations and later after a delay."}</p>
-        <button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий пример" : "Next example"} <span>→</span></button>
+        <button className="secondary" onClick={advanceDecision}>{locale === "ru" ? "Следующий пример" : "Next example"} <span>→</span></button>
       </div>}
     </section> : practiceStarted ? <section className="today-card" style={{ marginTop: 20 }}><p>{locale === "ru" ? "Для этого навыка сейчас нет следующей независимой задачи. Система не будет засчитывать прогресс без новой проверки." : "There is no next independent item for this skill right now. The system will not grant progress without another check."}</p></section> : null}
   </main>;
