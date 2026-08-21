@@ -25,6 +25,7 @@ import { variationB3Decisions } from "./decisions-variation-b3";
 import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
+import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -94,7 +95,7 @@ export const practicalDecisions = [
   ...perceptualPracticalDecisions,
   ...integratedMasteryDecisions,
   ...integratedA11ExpansionDecisions,
-];
+].map(applyPracticalRuCopyRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
