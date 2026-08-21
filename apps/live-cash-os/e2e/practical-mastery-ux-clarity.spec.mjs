@@ -20,7 +20,7 @@ test("learner surfaces hide provenance IDs while keeping source ceilings underst
   }
 
   await page.goto("/mastery");
-  const bl11Group = page.locator("details").filter({ has: page.getByRole("button", { name: /BvB 3-bet pots/i }) });
+  const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /BvB 3-bet pots/i }) });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
   await bl11Group.getByRole("button", { name: /BvB 3-bet pots/i }).click();
