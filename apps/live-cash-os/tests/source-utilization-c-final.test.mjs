@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const decisions = await readFile(path.join(root, "content/practical-mastery/decisions-source-utilization-c0.ts"), "utf8");
 const index = await readFile(path.join(root, "content/practical-mastery/index.ts"), "utf8");
+const authority = await readFile(path.join(root, "content/practical-mastery/source-authority.ts"), "utf8");
 const studyModel = await readFile(path.join(root, "content/practical-mastery/study-loop-c1.ts"), "utf8");
 const studyUi = await readFile(path.join(root, "components/PracticalStudyLoopExperience.tsx"), "utf8");
 const referenceModel = await readFile(path.join(root, "content/practical-mastery/reference-baselines-c2.ts"), "utf8");
@@ -33,6 +34,18 @@ test("C0 keeps origin width directional and field-gated rather than inventing po
   assert.match(decisions, /wide origin is only a prior/i);
   assert.match(decisions, /later filtering can override/i);
   assert.doesNotMatch(decisions, /\b\d{1,2}(?:\.\d+)?%\b/);
+});
+
+test("pedagogy and reference sources resolve without gaining strategy-answer authority", () => {
+  assert.match(authority, /SUPPORTING_SOURCE/);
+  assert.match(authority, /REFERENCE_SOURCE/);
+  assert.match(authority, /supporting\("FTGU-E30"/);
+  assert.match(authority, /supporting\("SLC-M07-L63"/);
+  assert.match(authority, /reference\("SLC-PREFLOP-CHART-INDEX"/);
+  assert.match(authority, /authority\.kind === "CANONICAL_SOURCE" \|\| authority\.kind === "SOURCE_GROUP_ALIAS"/);
+  assert.doesNotMatch(authority, /canonical\("FTGU-E30"/);
+  assert.doesNotMatch(authority, /canonical\("SLC-M07-L63"/);
+  assert.doesNotMatch(authority, /canonical\("SLC-PREFLOP-CHART-INDEX"/);
 });
 
 test("C1 is a player-development loop, not a second mastery system", () => {
