@@ -1,6 +1,6 @@
 import { firstJourneySteps } from "../content/practical-mastery/first-journey";
 import { practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
-import { trainablePracticalSkills, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
+import { availablePracticalSkills, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type FirstJourneyRecommendation = {
   skillId: string;
@@ -35,19 +35,20 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
     state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct).map((attempt) => attempt.decisionId),
   );
 
-  // First-journey purpose is recognition + a fast table link, not full topic
-  // mastery. Prefer independent recognition stimuli, then one direct/changed
-  // table decision if recognition corpus is already exhausted.
   return skillDecisions.find((decision) => decision.kind === "recognition" && !successfulIds.has(decision.id))
     ?? skillDecisions.find((decision) => (decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id))
     ?? null;
 }
 
 export function recommendFirstJourneyStep(state: PracticalMasteryState): FirstJourneyRecommendation | null {
-  const trainableIds = new Set(trainablePracticalSkills(state).map((skill) => skill.id));
+  const recognitionReadyIds = new Set(
+    availablePracticalSkills(state)
+      .filter((skill) => practicalSkillCorpusCanReach(skill.id, "RECOGNITION_TRAINED"))
+      .map((skill) => skill.id),
+  );
 
   const repair = firstJourneySteps
-    .filter((step) => trainableIds.has(step.skillId) && unresolvedWrongCount(state, step.skillId) >= 2)
+    .filter((step) => recognitionReadyIds.has(step.skillId) && unresolvedWrongCount(state, step.skillId) >= 2)
     .sort((a, b) => unresolvedWrongCount(state, b.skillId) - unresolvedWrongCount(state, a.skillId) || a.order - b.order)[0];
 
   if (repair) {
@@ -62,7 +63,7 @@ export function recommendFirstJourneyStep(state: PracticalMasteryState): FirstJo
   }
 
   for (const step of firstJourneySteps) {
-    if (!trainableIds.has(step.skillId)) continue;
+    if (!recognitionReadyIds.has(step.skillId)) continue;
     const progress = state.skills[step.skillId];
     if (!progress || !stageAtLeast(progress.evidenceStage, "RECOGNITION_TRAINED")) {
       return {
