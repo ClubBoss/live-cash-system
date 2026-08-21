@@ -9,6 +9,7 @@ import { sourceSupportedGapFillDecisions } from "./decisions-gap-fill";
 import { foundationExpansionDecisions } from "./decisions-foundation-expansion";
 import { preflopCoreExpansionDecisions } from "./decisions-preflop-core-expansion";
 import { preflopAdvancedExpansionDecisions } from "./decisions-preflop-advanced-expansion";
+import { preflopLiveExpansionDecisions } from "./decisions-preflop-live-expansion";
 import { blindDefenceExpansionDecisions } from "./decisions-blind-defence-expansion";
 import { recognitionExpansionDecisions } from "./decisions-recognition-expansion";
 import { practicalSkillFamilies } from "./registry";
@@ -34,6 +35,7 @@ export const practicalDecisions = [
   ...foundationExpansionDecisions,
   ...preflopCoreExpansionDecisions,
   ...preflopAdvancedExpansionDecisions,
+  ...preflopLiveExpansionDecisions,
   ...blindDefenceExpansionDecisions,
   ...recognitionExpansionDecisions,
   ...integratedMasteryDecisions,
