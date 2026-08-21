@@ -11,13 +11,15 @@ test("canonical product exposes one Practical learning entry without removing th
   const page = await read("app/page.tsx");
   const gateway = await read("components/PracticalMasteryGateway.tsx");
   const nextLearning = await read("components/PracticalNextLearningLink.tsx");
+  const journey = await read("components/PracticalFirstJourneyExperience.tsx");
   assert.match(page, /PracticalMasteryGateway/);
   assert.match(page, /<PracticalMasteryGateway \/>[\s\S]*<LiveCashApp \/>/);
   assert.match(gateway, /PracticalNextLearningLink/);
   assert.match(gateway, /Один маршрут|One route/);
-  assert.match(nextLearning, /firstJourneyProgress/);
-  assert.match(nextLearning, /"\/mastery\/journey"/);
-  assert.match(nextLearning, /"\/mastery\/session"/);
+  assert.match(nextLearning, /href="\/mastery\/journey"/);
+  assert.doesNotMatch(nextLearning, /usePracticalProfileState|useReliableLearnerState|firstJourneyProgress/, "shared navigation must not create another learner-state sync owner");
+  assert.match(journey, /href="\/mastery\/session"/);
+  assert.match(journey, /Быстрый старт завершён|Quick start complete/);
 });
 
 test("every Practical Mastery route inherits the invite boundary while shared navigation separates learning from tools", async () => {
@@ -33,8 +35,7 @@ test("every Practical Mastery route inherits the invite boundary while shared na
   for (const route of ["/mastery", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
     assert.ok(nav.includes(`href: "${route}"`), `${route} must remain declared as a supporting tool route`);
   }
-  assert.match(nextLearning, /"\/mastery\/journey"/);
-  assert.match(nextLearning, /"\/mastery\/session"/);
+  assert.match(nextLearning, /href="\/mastery\/journey"/);
   for (const label of ["Учиться", "Карта", "Чтение стола", "После игры", "Справочник"]) assert.match(nav, new RegExp(label));
   assert.doesNotMatch(nav, /Старт обучения|Смешанная практика/);
 });
