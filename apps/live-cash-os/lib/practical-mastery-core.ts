@@ -1,8 +1,8 @@
 import { practicalDecisionById, practicalDecisions, practicalSkillById, practicalSkillFamilies } from "../content/practical-mastery";
 import type { PracticalDecision, PracticalEvidenceStage } from "../content/practical-mastery";
 
-export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 1 as const;
-export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v1";
+export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 2 as const;
+export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v2";
 
 export type PracticalAttempt = {
   id: string;
@@ -19,11 +19,13 @@ export type PracticalSkillProgress = {
   skillId: string;
   evidenceStage: PracticalEvidenceStage;
   conceptTaught: boolean;
+  conceptTaughtAt: string | null;
   recognitionCorrect: number;
   directDecisionCorrect: number;
   changedCorrect: number;
   boundaryCorrect: number;
   mixedCorrect: number;
+  successfulDecisionIds: string[];
   delayedRetrievalPassed: boolean;
   realHandTransferReviewed: boolean;
   attempts: number;
@@ -53,16 +55,38 @@ const STAGE_ORDER: PracticalEvidenceStage[] = [
   "REAL_HAND_TRANSFER",
 ];
 
+const MIN_RECOGNITION_STIMULI = 2;
+const MIN_DIRECT_DECISION_STIMULI = 3;
+const MIN_TRANSFER_STIMULI = 2;
+const MIN_BOUNDARY_STIMULI = 1;
+
 function nowIso(now?: Date): string {
   return (now ?? new Date()).toISOString();
 }
 
+function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number {
+  return new Set(
+    progress.successfulDecisionIds.filter((decisionId) => {
+      const decision = practicalDecisionById.get(decisionId);
+      return decision ? kinds.includes(decision.kind) : false;
+    }),
+  ).size;
+}
+
 function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
   if (!progress.conceptTaught) return "SOURCE_SUPPORTED";
-  if (progress.recognitionCorrect < 1) return "CONCEPT_TAUGHT";
-  if (progress.directDecisionCorrect < 1) return "RECOGNITION_TRAINED";
-  if (progress.changedCorrect + progress.mixedCorrect < 1) return "DECISION_TRAINED";
-  if (progress.boundaryCorrect < 1) return "CHANGED_NODE_TRANSFER";
+
+  const recognition = distinctSuccessfulByKind(progress, ["recognition"]);
+  if (recognition < MIN_RECOGNITION_STIMULI) return "CONCEPT_TAUGHT";
+
+  const direct = distinctSuccessfulByKind(progress, ["decision"]);
+  if (direct < MIN_DIRECT_DECISION_STIMULI) return "RECOGNITION_TRAINED";
+
+  const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]);
+  if (transfer < MIN_TRANSFER_STIMULI) return "DECISION_TRAINED";
+
+  const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
+  if (boundary < MIN_BOUNDARY_STIMULI) return "CHANGED_NODE_TRANSFER";
   if (!progress.delayedRetrievalPassed) return "BOUNDARY_TESTED";
   if (!progress.realHandTransferReviewed) return "DELAYED_RETRIEVAL";
   return "REAL_HAND_TRANSFER";
@@ -79,11 +103,13 @@ export function createPracticalMasteryState(now = new Date(), resetFromLegacy = 
       skillId: skill.id,
       evidenceStage: "SOURCE_SUPPORTED" as const,
       conceptTaught: false,
+      conceptTaughtAt: null,
       recognitionCorrect: 0,
       directDecisionCorrect: 0,
       changedCorrect: 0,
       boundaryCorrect: 0,
       mixedCorrect: 0,
+      successfulDecisionIds: [],
       delayedRetrievalPassed: false,
       realHandTransferReviewed: false,
       attempts: 0,
@@ -111,6 +137,7 @@ export function markPracticalConceptTaught(state: PracticalMasteryState, skillId
   if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`);
   const next = structuredClone(state);
   next.skills[skillId].conceptTaught = true;
+  next.skills[skillId].conceptTaughtAt = nowIso(now);
   refreshEvidenceStage(next.skills[skillId]);
   next.revision += 1;
   next.updatedAt = nowIso(now);
@@ -156,6 +183,7 @@ export function recordPracticalDecision(
   nextProgress.attempts += 1;
   if (correct) {
     nextProgress.correct += 1;
+    if (!nextProgress.successfulDecisionIds.includes(decision.id)) nextProgress.successfulDecisionIds.push(decision.id);
     if (decision.kind === "recognition") nextProgress.recognitionCorrect += 1;
     if (decision.kind === "decision") nextProgress.directDecisionCorrect += 1;
     if (decision.kind === "changed") nextProgress.changedCorrect += 1;
@@ -206,7 +234,7 @@ export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skil
   if (!progress) throw new Error(`Unknown practical skill: ${skillId}`);
   const next = structuredClone(state);
   const nextProgress = next.skills[skillId];
-  if (successful && nextProgress.boundaryCorrect > 0 && nextProgress.changedCorrect + nextProgress.mixedCorrect > 0 && nextProgress.directDecisionCorrect > 0 && nextProgress.recognitionCorrect > 0 && nextProgress.conceptTaught) {
+  if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") {
     nextProgress.delayedRetrievalPassed = true;
   }
   refreshEvidenceStage(nextProgress);
@@ -225,4 +253,13 @@ export function markPracticalRealHandTransfer(state: PracticalMasteryState, skil
   next.revision += 1;
   next.updatedAt = nowIso(now);
   return next;
+}
+
+export function practicalEvidenceRequirements() {
+  return {
+    recognitionStimuli: MIN_RECOGNITION_STIMULI,
+    directDecisionStimuli: MIN_DIRECT_DECISION_STIMULI,
+    transferStimuli: MIN_TRANSFER_STIMULI,
+    boundaryStimuli: MIN_BOUNDARY_STIMULI,
+  } as const;
 }
