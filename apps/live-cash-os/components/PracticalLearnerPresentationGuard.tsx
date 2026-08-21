@@ -164,7 +164,7 @@ function transformText(value: string): string {
   return sourceIdTestPattern.test(value) ? cleanupSourceLanguage(value) : value;
 }
 
-function applyPresentation(root: ParentNode) {
+function applyPresentation(root: HTMLElement) {
   for (const element of Array.from(root.querySelectorAll<HTMLElement>("p, small"))) {
     const text = element.textContent?.trim() ?? "";
     if (sourceLinePattern.test(text)) {
