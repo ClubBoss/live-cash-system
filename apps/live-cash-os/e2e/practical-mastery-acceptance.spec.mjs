@@ -118,16 +118,16 @@ test("mastery locale persists across route changes and localizes shared navigati
   await expect(page.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
 });
 
-test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
+test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
   test.skip(crossMatrix, "source-ceiling semantics are covered once in canonical Chromium");
   await page.goto("/mastery");
-  const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /^BL-11\b/ }) });
+  const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /BvB 3-bet pots/i }) });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
-  const bl11 = bl11Group.getByRole("button", { name: /^BL-11\b/ });
+  const bl11 = bl11Group.getByRole("button", { name: /BvB 3-bet pots/i });
   await expect(bl11).toBeVisible();
   await bl11.click();
-  await expect(page.getByText("ОГРАНИЧЕНИЕ ИСТОЧНИКА", { exact: true })).toBeVisible();
+  await expect(page.getByText("ПОКА ЕСТЬ ОГРАНИЧЕНИЕ", { exact: true })).toBeVisible();
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
 });
 
