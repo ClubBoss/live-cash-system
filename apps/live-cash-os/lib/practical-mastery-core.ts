@@ -18,11 +18,16 @@ export type PracticalAttempt = {
 export type PracticalSkillProgress = {
   skillId: string;
   evidenceStage: PracticalEvidenceStage;
-  attempts: number;
-  correct: number;
+  conceptTaught: boolean;
+  recognitionCorrect: number;
+  directDecisionCorrect: number;
   changedCorrect: number;
   boundaryCorrect: number;
   mixedCorrect: number;
+  delayedRetrievalPassed: boolean;
+  realHandTransferReviewed: boolean;
+  attempts: number;
+  correct: number;
   lastAttemptAt: string | null;
   lastIncorrectDecisionId: string | null;
 };
@@ -52,17 +57,37 @@ function nowIso(now?: Date): string {
   return (now ?? new Date()).toISOString();
 }
 
+function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
+  if (!progress.conceptTaught) return "SOURCE_SUPPORTED";
+  if (progress.recognitionCorrect < 1) return "CONCEPT_TAUGHT";
+  if (progress.directDecisionCorrect < 1) return "RECOGNITION_TRAINED";
+  if (progress.changedCorrect + progress.mixedCorrect < 1) return "DECISION_TRAINED";
+  if (progress.boundaryCorrect < 1) return "CHANGED_NODE_TRANSFER";
+  if (!progress.delayedRetrievalPassed) return "BOUNDARY_TESTED";
+  if (!progress.realHandTransferReviewed) return "DELAYED_RETRIEVAL";
+  return "REAL_HAND_TRANSFER";
+}
+
+function refreshEvidenceStage(progress: PracticalSkillProgress): void {
+  progress.evidenceStage = deriveEvidenceStage(progress);
+}
+
 export function createPracticalMasteryState(now = new Date(), resetFromLegacy = false): PracticalMasteryState {
   const skills = Object.fromEntries(practicalSkillFamilies.map((skill) => [
     skill.id,
     {
       skillId: skill.id,
       evidenceStage: "SOURCE_SUPPORTED" as const,
-      attempts: 0,
-      correct: 0,
+      conceptTaught: false,
+      recognitionCorrect: 0,
+      directDecisionCorrect: 0,
       changedCorrect: 0,
       boundaryCorrect: 0,
       mixedCorrect: 0,
+      delayedRetrievalPassed: false,
+      realHandTransferReviewed: false,
+      attempts: 0,
+      correct: 0,
       lastAttemptAt: null,
       lastIncorrectDecisionId: null,
     },
@@ -82,6 +107,16 @@ export function stageAtLeast(actual: PracticalEvidenceStage, required: Practical
   return STAGE_ORDER.indexOf(actual) >= STAGE_ORDER.indexOf(required);
 }
 
+export function markPracticalConceptTaught(state: PracticalMasteryState, skillId: string, now = new Date()): PracticalMasteryState {
+  if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`);
+  const next = structuredClone(state);
+  next.skills[skillId].conceptTaught = true;
+  refreshEvidenceStage(next.skills[skillId]);
+  next.revision += 1;
+  next.updatedAt = nowIso(now);
+  return next;
+}
+
 export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean {
   const skill = practicalSkillById.get(skillId);
   if (!skill) return false;
@@ -93,19 +128,6 @@ export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId:
 
 export function availablePracticalSkills(state: PracticalMasteryState) {
   return practicalSkillFamilies.filter((skill) => practicalPrerequisitesMet(state, skill.id));
-}
-
-function deriveImmediateStage(progress: PracticalSkillProgress, decision: PracticalDecision, correct: boolean): PracticalEvidenceStage {
-  if (!correct) return progress.evidenceStage;
-  if (decision.kind === "boundary") return "BOUNDARY_TESTED";
-  if (decision.kind === "changed") return "CHANGED_NODE_TRANSFER";
-  if (decision.kind === "mixed") return "CHANGED_NODE_TRANSFER";
-  if (decision.kind === "decision") return "DECISION_TRAINED";
-  return "RECOGNITION_TRAINED";
-}
-
-function maxStage(left: PracticalEvidenceStage, right: PracticalEvidenceStage): PracticalEvidenceStage {
-  return STAGE_ORDER.indexOf(left) >= STAGE_ORDER.indexOf(right) ? left : right;
 }
 
 export function recordPracticalDecision(
@@ -134,14 +156,16 @@ export function recordPracticalDecision(
   nextProgress.attempts += 1;
   if (correct) {
     nextProgress.correct += 1;
+    if (decision.kind === "recognition") nextProgress.recognitionCorrect += 1;
+    if (decision.kind === "decision") nextProgress.directDecisionCorrect += 1;
     if (decision.kind === "changed") nextProgress.changedCorrect += 1;
     if (decision.kind === "boundary") nextProgress.boundaryCorrect += 1;
     if (decision.kind === "mixed") nextProgress.mixedCorrect += 1;
-    nextProgress.evidenceStage = maxStage(nextProgress.evidenceStage, deriveImmediateStage(nextProgress, decision, true));
   } else {
     nextProgress.lastIncorrectDecisionId = decision.id;
   }
   nextProgress.lastAttemptAt = answeredAt;
+  refreshEvidenceStage(nextProgress);
   next.attempts.push(attempt);
   next.revision += 1;
   next.updatedAt = answeredAt;
@@ -181,7 +205,11 @@ export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skil
   const progress = state.skills[skillId];
   if (!progress) throw new Error(`Unknown practical skill: ${skillId}`);
   const next = structuredClone(state);
-  if (successful) next.skills[skillId].evidenceStage = maxStage(progress.evidenceStage, "DELAYED_RETRIEVAL");
+  const nextProgress = next.skills[skillId];
+  if (successful && nextProgress.boundaryCorrect > 0 && nextProgress.changedCorrect + nextProgress.mixedCorrect > 0 && nextProgress.directDecisionCorrect > 0 && nextProgress.recognitionCorrect > 0 && nextProgress.conceptTaught) {
+    nextProgress.delayedRetrievalPassed = true;
+  }
+  refreshEvidenceStage(nextProgress);
   next.revision += 1;
   next.updatedAt = nowIso(now);
   return next;
@@ -191,7 +219,9 @@ export function markPracticalRealHandTransfer(state: PracticalMasteryState, skil
   const progress = state.skills[skillId];
   if (!progress) throw new Error(`Unknown practical skill: ${skillId}`);
   const next = structuredClone(state);
-  if (reviewed) next.skills[skillId].evidenceStage = maxStage(progress.evidenceStage, "REAL_HAND_TRANSFER");
+  const nextProgress = next.skills[skillId];
+  if (reviewed && nextProgress.delayedRetrievalPassed) nextProgress.realHandTransferReviewed = true;
+  refreshEvidenceStage(nextProgress);
   next.revision += 1;
   next.updatedAt = nowIso(now);
   return next;
