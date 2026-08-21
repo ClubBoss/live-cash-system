@@ -3,8 +3,8 @@ import { canonicalFirstJourneySkillIds, hardDependenciesFor, learningRouteScore,
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalDecision, PracticalEvidenceStage } from "../content/practical-mastery";
 
-export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 2 as const;
-export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v2";
+export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3 as const;
+export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v3";
 
 export type PracticalAttempt = {
   id: string;
@@ -28,6 +28,7 @@ export type PracticalSkillProgress = {
   boundaryCorrect: number;
   mixedCorrect: number;
   successfulDecisionIds: string[];
+  retentionDaysPassed: number[];
   delayedRetrievalPassed: boolean;
   realHandTransferReviewed: boolean;
   attempts: number;
@@ -114,6 +115,7 @@ export function createPracticalMasteryState(now = new Date(), resetFromLegacy = 
       boundaryCorrect: 0,
       mixedCorrect: 0,
       successfulDecisionIds: [],
+      retentionDaysPassed: [],
       delayedRetrievalPassed: false,
       realHandTransferReviewed: false,
       attempts: 0,
@@ -188,8 +190,8 @@ export function trainablePracticalSkills(state: PracticalMasteryState) {
 }
 
 function repairUrgencyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 {
-  const attempts = state.attempts.filter((attempt) => attempt.skillId === skillId);
-  const wrong = attempts.filter((attempt) => !attempt.correct).length;
+  const latest = latestAttemptsByDecision(state, skillId);
+  const wrong = [...latest.values()].filter((attempt) => !attempt.correct).length;
   if (wrong >= 4) return 3;
   if (wrong >= 2) return 2;
   if (wrong >= 1) return 1;
@@ -281,6 +283,7 @@ export function recordPracticalDecision(
     if (decision.kind === "changed") nextProgress.changedCorrect += 1;
     if (decision.kind === "boundary") nextProgress.boundaryCorrect += 1;
     if (decision.kind === "mixed") nextProgress.mixedCorrect += 1;
+    if (nextProgress.lastIncorrectDecisionId === decision.id) nextProgress.lastIncorrectDecisionId = null;
   } else {
     nextProgress.lastIncorrectDecisionId = decision.id;
   }
@@ -296,6 +299,14 @@ export function decisionsForPracticalSkill(skillId: string): PracticalDecision[]
   return practicalDecisions.filter((decision) => decision.skillId === skillId);
 }
 
+function latestAttemptsByDecision(state: PracticalMasteryState, skillId?: string): Map<string, PracticalAttempt> {
+  const map = new Map<string, PracticalAttempt>();
+  for (const attempt of state.attempts) {
+    if (!skillId || attempt.skillId === skillId) map.set(attempt.decisionId, attempt);
+  }
+  return map;
+}
+
 function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][]): PracticalDecision | null {
   const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
   return decisionsForPracticalSkill(skillId).find((decision) => kinds.includes(decision.kind) && !attemptedIds.has(decision.id)) ?? null;
@@ -307,7 +318,9 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
   if (!pool.length) return null;
   const progress = state.skills[skillId];
 
-  const repair = progress?.lastIncorrectDecisionId ? practicalDecisionById.get(progress.lastIncorrectDecisionId) ?? null : null;
+  const latest = latestAttemptsByDecision(state, skillId);
+  const unresolved = [...latest.values()].reverse().find((attempt) => !attempt.correct) ?? null;
+  const repair = unresolved ? practicalDecisionById.get(unresolved.decisionId) ?? null : null;
   if (repair) return repair;
 
   if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["recognition"]);
@@ -320,19 +333,16 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
 }
 
 export function practicalRepairQueue(state: PracticalMasteryState): string[] {
+  const latest = latestAttemptsByDecision(state);
   const bySkill = new Map<string, PracticalAttempt[]>();
-  for (const attempt of state.attempts) {
+  for (const attempt of latest.values()) {
+    if (attempt.correct) continue;
     const attempts = bySkill.get(attempt.skillId) ?? [];
     attempts.push(attempt);
     bySkill.set(attempt.skillId, attempts);
   }
   return [...bySkill.entries()]
-    .filter(([, attempts]) => attempts.some((attempt) => !attempt.correct))
-    .sort((left, right) => {
-      const leftWrong = left[1].filter((attempt) => !attempt.correct).length;
-      const rightWrong = right[1].filter((attempt) => !attempt.correct).length;
-      return rightWrong - leftWrong || left[0].localeCompare(right[0]);
-    })
+    .sort((left, right) => right[1].length - left[1].length || left[0].localeCompare(right[0]))
     .map(([skillId]) => skillId);
 }
 
