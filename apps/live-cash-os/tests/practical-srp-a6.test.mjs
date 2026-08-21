@@ -12,7 +12,7 @@ const rules = await readFile(path.join(root, "content/practical-mastery/srp-a6-m
 const dod = await readFile(path.join(root, "../../analysis/SRP_ENGINE_A6_DOD_V1.md"), "utf8");
 
 function count(skillId, kindPattern) {
-  return [...corpus.matchAll(new RegExp(`skillId:\\s*[\"']${skillId}[\"']\\s*,\\s*kind:\\s*[\"'](${kindPattern})[\"']`, "g"))].length;
+  return [...corpus.matchAll(new RegExp(`skillId:\\s*["']${skillId}["']\\s*,\\s*kind:\\s*["'](${kindPattern})["']`, "g"))].length;
 }
 
 test("A6 core SRP flop families have full evidence depth", () => {
