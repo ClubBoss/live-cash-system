@@ -1,0 +1,62 @@
+import type { PracticalDecision } from "./types";
+
+const o = (id: string, textRu: string, textEn: string, misconception?: string) => ({ id, textRu, textEn, misconception });
+
+export const integratedMasteryDecisions: PracticalDecision[] = [
+  {
+    id: "PM-INT-01-001", skillId: "INT-01", kind: "mixed", sourceRefs: ["FTGU-E05", "FTGU-E22", "SLC-M04-L36"],
+    assumptions: ["topic hidden", "learner must identify relevant mechanism"],
+    cueRu: "Hero BB закрывает action против небольшого BTN open. Рука marginal, но playable.", cueEn: "Hero in BB closes the action versus a small BTN open. The hand is marginal but playable.",
+    questionRu: "Какой механизм должен быть первым в reasoning?", questionEn: "Which mechanism should come first in the reasoning?",
+    actionOptions: [o("a", "Price + closing action + realisation", "Price + closing action + realization"), o("b", "River blocker logic", "River blocker logic", "WRONG_TOPIC"), o("c", "Multiway sandwich", "Multiway sandwich", "WRONG_TOPIC")],
+    reasonOptions: [o("r1", "Это preflop BB-defence node; mechanism выбирается из state, а не из memorized lesson label", "This is a preflop BB-defense node; the mechanism is chosen from the state, not a memorized lesson label"), o("r2", "Последний изученный topic всегда главный", "The most recently studied topic is always primary", "TOPIC_RECENCY_BIAS"), o("r3", "Все marginal hands решаются blockers", "All marginal hands are solved with blockers", "BLOCKER_OVERUSE")],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 20,
+    explanationRu: "Integrated practice не сообщает тему: сначала распознаётся node, затем извлекается подходящий mechanism.",
+    explanationEn: "Integrated practice hides the topic: recognize the node first, then retrieve the appropriate mechanism.",
+  },
+  {
+    id: "PM-INT-02-001", skillId: "INT-02", kind: "changed", sourceRefs: ["FTGU-E05", "FTGU-E06"],
+    assumptions: ["same marginal hand", "position changes BB -> SB", "player remains behind"],
+    cueRu: "Та же marginal hand теперь в SB, а BB ещё действует.", cueEn: "The same marginal hand is now in SB and BB still acts.",
+    questionRu: "Можно ли перенести BB call logic без изменений?", questionEn: "Can the BB call logic be transferred unchanged?",
+    actionOptions: [o("a", "Нет — re-evaluate because price/closing action/position changed", "No — re-evaluate because price/closing action/position changed"), o("b", "Да — hand cards те же", "Yes — the hole cards are the same", "STIMULUS_MEMORIZATION"), o("c", "Да — обе позиции blinds", "Yes — both positions are blinds", "BLINDS_SAME")],
+    reasonOptions: [o("r1", "Changed node materially alters realization and squeeze exposure", "The changed node materially alters realization and squeeze exposure"), o("r2", "Exact combo determines action independently of context", "The exact combo determines action independently of context", "COMBO_ONLY"), o("r3", "Blind identity не меняет preflop tree", "Blind identity does not change the preflop tree", "BLINDS_SAME")],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 25,
+    explanationRu: "FTGU-E05/E06 показывают, почему BB и SB не разделяют одну defence identity.",
+    explanationEn: "FTGU-E05/E06 show why BB and SB do not share one defense identity.",
+    changedVariables: ["position", "closing_action", "players_behind"],
+  },
+  {
+    id: "PM-INT-03-001", skillId: "INT-03", kind: "mixed", sourceRefs: ["FTGU-E07", "FTGU-E27"],
+    assumptions: ["learner repeatedly c-bets OOP from initiative on equalising boards"],
+    cueRu: "Повторяющаяся ошибка: Hero PFR OOP автоматически c-bet на boards, где caller получает сильное взаимодействие.", cueEn: "Repeated error: Hero PFR OOP automatically c-bets boards that strongly interact with the caller.",
+    questionRu: "К какой skill family лучше маршрутизировать repair?", questionEn: "Which skill family is the best repair target?",
+    actionOptions: [o("a", "OOP range checking / board-range ownership", "OOP range checking / board-range ownership"), o("b", "Preflop 4-bet bluffing", "Preflop 4-bet bluffing", "WRONG_REPAIR_FAMILY"), o("c", "River block betting", "River block betting", "WRONG_REPAIR_FAMILY")],
+    reasonOptions: [o("r1", "Repair должен соответствовать повторяющемуся mechanism error, не exact question ID", "Repair should match the recurring mechanism error, not the exact question ID"), o("r2", "Любая postflop ошибка ремонтируется river drills", "Any postflop error is repaired with river drills", "WRONG_REPAIR_FAMILY"), o("r3", "Повторяющиеся ошибки не нужно агрегировать", "Repeated errors should not be aggregated", "NO_LEAK_AGGREGATION")],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 25,
+    explanationRu: "Mistake-family repair должен лечить underlying skill leak, а не заставлять запоминать один prompt.",
+    explanationEn: "Mistake-family repair should target the underlying skill leak rather than memorization of one prompt.",
+  },
+  {
+    id: "PM-INT-04-001", skillId: "INT-04", kind: "boundary", sourceRefs: ["FTGU-E22", "FTGU-E23"],
+    assumptions: ["delayed review", "source decision was a river bluff catcher", "new item has different combo/removal"],
+    cueRu: "Через несколько дней learner получает новый river bluff-catcher с другой blocker structure.", cueEn: "Days later the learner receives a new river bluff-catcher with different blocker structure.",
+    questionRu: "Почему это сильнее exact-repeat recall?", questionEn: "Why is this stronger than exact-repeat recall?",
+    actionOptions: [o("a", "Проверяет retained mechanism на non-identical stimulus", "It tests the retained mechanism on a non-identical stimulus"), o("b", "Потому что новый prompt всегда легче", "Because a new prompt is always easier", "TRANSFER_EASIER_FALSE"), o("c", "Exact repeat и changed item дают одинаковое evidence", "Exact repeat and a changed item give identical evidence", "RECALL_EQUALS_TRANSFER")],
+    reasonOptions: [o("r1", "Нужно заново построить value/bluff/removal logic, а не вспомнить wording", "The learner must rebuild value/bluff/removal logic rather than recall wording"), o("r2", "Memory of answer text is sufficient mastery", "Memory of answer text is sufficient mastery", "ANSWER_MEMORY_MASTERY"), o("r3", "Blockers не меняют bluff-catcher ordering", "Blockers do not change bluff-catcher ordering", "BLOCKER_IGNORED")],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 30,
+    explanationRu: "Delayed non-identical retrieval отделяет retention механизма от памяти exact stimulus.",
+    explanationEn: "Delayed non-identical retrieval separates mechanism retention from memory of the exact stimulus.",
+  },
+  {
+    id: "PM-INT-05-001", skillId: "INT-05", kind: "mixed", sourceRefs: ["SLC-M02-L21", "FTGU-E27"],
+    assumptions: ["real hand", "200bb OOP", "Hero forced marginal value with medium region and lost large pot"],
+    cueRu: "В реальной руке 200bb OOP Hero разогнал pot medium-strength hand на dynamic board.", cueEn: "In a real hand at 200bb OOP, Hero forced a medium-strength hand into a large pot on a dynamic board.",
+    questionRu: "Какой repair route наиболее причинный?", questionEn: "Which repair route is most causal?",
+    actionOptions: [o("a", "Deep OOP realisation + protected checking", "Deep OOP realization + protected checking"), o("b", "Общий tilt lesson независимо от decision", "Generic tilt lesson regardless of the decision", "NON_CAUSAL_REPAIR"), o("c", "RFI chart memorization", "RFI chart memorization", "WRONG_REPAIR_FAMILY")],
+    reasonOptions: [o("r1", "Ошибка относится к high-SPR OOP range protection и realised EV", "The error concerns high-SPR OOP range protection and realized EV"), o("r2", "Большой проигранный pot автоматически mental-game error", "A large lost pot is automatically a mental-game error", "RESULTS_ORIENTED_REPAIR"), o("r3", "Размер проигрыша определяет skill family", "Loss size determines the skill family", "RESULTS_ORIENTED_REPAIR")],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 30,
+    explanationRu: "Real-hand routing классифицирует decision mechanism, а не результат раздачи.",
+    explanationEn: "Real-hand routing classifies the decision mechanism rather than the hand result.",
+  },
+];

@@ -100,15 +100,23 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      # Keep cheap/static validation ahead of browser provisioning. If typecheck,
+      # lint, governance, build, or unit tests fail, do not spend runner time and
+      # bandwidth installing three Playwright browser stacks first.
+      - name: Static release gate
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee release-gate.log
+
       - name: Install canonical browsers
         run: npx playwright install --with-deps chromium firefox webkit
 
-      - name: Release gate
+      - name: E2E release gate
         env:
           LIVE_CASH_VISUAL_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -o pipefail
-          npm run test:release 2>&1 | tee release-gate.log
+          (npm run test:e2e && npm run test:e2e:wave-c) 2>&1 | tee -a release-gate.log
 
       - name: Verify PR visual evidence packet
         if: success() && env.LIVE_CASH_VISUAL_EVIDENCE == '1'
@@ -136,7 +144,10 @@ jobs:
         with:
           name: live-cash-os-pr-visual-evidence
           path: apps/live-cash-os/visual-evidence/pr
-          if-no-files-found: error
+          # Verification above remains fail-closed on successful validation. On
+          # an earlier static failure, absence of screenshots must not create a
+          # second misleading failure on top of the real root cause.
+          if-no-files-found: ignore
           retention-days: 3
 
       - name: Upload release gate log

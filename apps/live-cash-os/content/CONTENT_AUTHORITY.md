@@ -71,6 +71,8 @@ The canonical locale pipeline order is:
 
 `applyWave4RFinalLanguage(locale)` applies its final broad language pass only for English. `applyNoviceTerminologyCopy(locale)` then performs bounded novice-comprehension wording in both locales and now includes the minimum starting-hand family/trait prerequisites needed before LCM-02 application. `applyFinalPlusEvCopy(locale)` performs only the final low-risk learner-language cleanup: plain-language glossary aliases and a clearer arithmetic interpretation of call price, without changing strategy or evidence semantics. `applyDecisionTransferIntegrity(locale)` is a bounded real-use repair that restores explicitly scoped concrete hand/board representatives where the current admitted corpus already supports the mechanism and removes conspicuous wrong-answer wording tells from the final RU/EN drills; it preserves option IDs, correct-answer IDs, misconception IDs, scoring and evidence semantics. `applyDecisionOptionBalance(locale)` removes answer-length tells by shortening overlong correct options where appropriate and, for the established LCM-01 geo-04 wording, by preserving the correct reason while making both distractors comparably detailed and plausible. `applyFinalLearningIntegrityClosure(locale)` removes the remaining material prompt-to-answer leakage, repairs the remaining material distractor-parity clusters, and gives LCM-02 an explicit `combo -> family/traits -> context -> decision` scaffold with non-prescriptive sibling recognition and same-hand/different-context transfer. It may state a strategic status as an exercise premise only when the question explicitly tests a downstream inference rather than pretending to test the supplied premise itself. `applyStimulusGeneralisationMicro(locale)` is the last authorised synthetic classification-transfer layer before real learner use; it idempotently materializes exactly two ordinary LCM-02 Cards/SRS items, 87s and A4s, and tests structural family/trait retrieval only. It adds no exact poker action, card kind, state field, scheduler rule, mastery rule or evidence semantics. `applyFinalLanguagePolish(locale)` is an evidence-backed wording-only pass over the already assembled learner corpus. Its only authority is to remove or rewrite learner-facing hybrid/internal language that obstructs comprehension, including findings exposed by real use. `applyPokerNativeTerminologyRebalance(locale)` is a narrower evidence-backed correction after that pass: standard poker vocabulary may be restored when it improves transfer to courses, software or live discussion, but its first meaningful learner-facing use must remain understandable in plain Russian. `applyDecisionComprehensionClosure(locale)` is the final bounded presentation-only layer admitted after a 55/55 drill and 10/10 Diagnostic assembled-corpus audit. It removes decoding-heavy author/meta language, redundant chart/solver caveats from decision surfaces, malformed distractor wording, and other cases where reading complexity could contaminate the poker measurement. It must preserve stable module/drill/card/option IDs, correct-action and correct-reason IDs, misconception mappings, scoring, source claims, strategy, scheduler, mastery, retention, field-evidence semantics and learner state. All of these wording layers remain subject to explicit human RU/EN review and cannot create approval.
 
+The generated Practical Mastery decision and anchor corpora have separate final presentation-only RU composition steps, `applyPracticalRuCopyRepair` and `applyPracticalAnchorRuCopyRepair`, after their source-governed content is assembled. They only replace learner-facing Russian strings and are source-locked together with `content/practical-mastery/index.ts`; they may not change decision/anchor IDs, option IDs, correct-answer IDs, misconceptions, source references, scoring, mastery, scheduler, retention, transfer, field evidence or English copy. Their machine checks are rejection evidence only and do not create human RU approval.
+
 Diagnostic `LD-*` identities remain stable. `content/diagnostic.ts` keeps `title` and `prompt` only as compatibility fields for the exported `LegacyDiagnostic`; those fields are intentionally empty at source and are derived after final locale composition from the same mapped drill used by the current structured Diagnostic. They therefore cannot carry an independently authored or stale second learner-facing Diagnostic truth. English legacy compatibility copy is synchronized from those same derived values.
 
 The bounded EN answer-length parity repair remains inside the existing `applyWave5PracticeCopy(locale)` owner and may shorten wording only; it may not change which option is correct or any semantic identity. `wave4r-poker-native.ts` is not part of the active canonical pipeline, and the integrated `applyWave5PracticeCopy()` does not reactivate it transitively.
@@ -118,7 +120,7 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`10c8ca9a173d820d98969286a6597a9fbf1395820cd75050ce2e4880cb7e1d5f`
+`d6ca50ca1f9a553ee385000b42b6742375620db6cbdb39c2d5f4b0b5d00ef81b`
 
 Current status:
 
@@ -188,9 +190,10 @@ Human poker review must cover:
 
 Separate human language review must cover:
 
-- exact final RU composition at digest `10c8ca9a173d820d98969286a6597a9fbf1395820cd75050ce2e4880cb7e1d5f`;
+- exact final RU composition at digest `d6ca50ca1f9a553ee385000b42b6742375620db6cbdb39c2d5f4b0b5d00ef81b`;
 - exact final EN composition at the same digest;
-- the 55/55 drill and 10/10 Diagnostic decision surfaces affected by the comprehension closure.
+- the 55/55 drill and 10/10 Diagnostic decision surfaces affected by the comprehension closure;
+- the generated Practical Mastery RU decision and anchor surfaces affected by `applyPracticalRuCopyRepair` and `applyPracticalAnchorRuCopyRepair`.
 
 Wave 1 first-use comprehension requires its own fresh-context empirical evidence and is not satisfied by editorial review.
 
