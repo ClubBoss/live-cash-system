@@ -86,7 +86,7 @@ export default function PracticalStudyLoopExperience() {
       .map(([skillId, row]) => ({ skillId, ...row, score: row.wrong + row.highConfidenceWrong * 2 }))
       .sort((a, b) => b.score - a.score || a.skillId.localeCompare(b.skillId))
       .slice(0, 3);
-  }, [mastery.attempts]);
+  }, [mastery]);
 
   const toggleFlag = (id: string) => setWorkspace((current) => ({
     ...current,
