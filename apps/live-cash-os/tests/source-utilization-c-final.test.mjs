@@ -12,7 +12,7 @@ const studyModel = await readFile(path.join(root, "content/practical-mastery/stu
 const studyUi = await readFile(path.join(root, "components/PracticalStudyLoopExperience.tsx"), "utf8");
 const referenceModel = await readFile(path.join(root, "content/practical-mastery/reference-baselines-c2.ts"), "utf8");
 const referenceUi = await readFile(path.join(root, "components/PracticalReferenceExperience.tsx"), "utf8");
-const masteryPage = await readFile(path.join(root, "app/mastery/page.tsx"), "utf8");
+const masteryLayout = await readFile(path.join(root, "app/mastery/layout.tsx"), "utf8");
 const studyPage = await readFile(path.join(root, "app/mastery/study/page.tsx"), "utf8");
 const referencePage = await readFile(path.join(root, "app/mastery/reference/page.tsx"), "utf8");
 const reconciliation = await readFile(path.join(root, "../../analysis/SOURCE_UTILIZATION_RECONCILIATION_C0_V1.md"), "utf8");
@@ -79,9 +79,9 @@ test("C2 exposes a small reference layer and preserves exact visual authority bo
   assert.match(referenceUi, /no invented A5s=37%/i);
 });
 
-test("C1/C2 routes are discoverable from the canonical mastery surface", () => {
-  assert.match(masteryPage, /href="\/mastery\/study"/);
-  assert.match(masteryPage, /href="\/mastery\/reference"/);
+test("C1/C2 routes are discoverable from the shared canonical mastery navigation", () => {
+  assert.match(masteryLayout, /href="\/mastery\/study"/);
+  assert.match(masteryLayout, /href="\/mastery\/reference"/);
   assert.match(studyPage, /PracticalStudyLoopExperience/);
   assert.match(referencePage, /PracticalReferenceExperience/);
 });
