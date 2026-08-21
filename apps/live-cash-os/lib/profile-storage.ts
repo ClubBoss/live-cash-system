@@ -3,9 +3,6 @@ export const SYNC_META_KEY = "live-cash-os:sync-meta";
 export const RECOVERY_BACKUP_KEY = "live-cash-os:recovery-backup";
 export const IMPORT_BACKUP_KEY = "live-cash-os:pre-import-backup";
 export const CONFLICT_BACKUP_KEY = "live-cash-os:sync-conflict";
-export const PRACTICAL_MASTERY_STORAGE_KEY = "live-cash-os:practical-mastery:v3";
-export const PRACTICAL_STUDY_STORAGE_KEY = "live-cash-os:study-loop:v1";
-export const PRACTICAL_PERFORMANCE_STORAGE_KEY = "live-cash-os:practical-performance:v1";
 export const PORTABLE_PROFILE_KEY = "live-cash-os:portable-profile-code";
 export const PROFILE_STORAGE_MIGRATION_KEY = "live-cash-os:profile-storage-migration-v1";
 
@@ -15,9 +12,6 @@ export const PROFILE_LOCAL_STATE_KEYS = [
   RECOVERY_BACKUP_KEY,
   IMPORT_BACKUP_KEY,
   CONFLICT_BACKUP_KEY,
-  PRACTICAL_MASTERY_STORAGE_KEY,
-  PRACTICAL_STUDY_STORAGE_KEY,
-  PRACTICAL_PERFORMANCE_STORAGE_KEY,
 ] as const;
 
 function hash32(value: string, seed: number): number {
