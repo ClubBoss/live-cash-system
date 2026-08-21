@@ -11,7 +11,7 @@ test("practical mastery has a scored decision contract and all decision corpora"
   const types = await read("content/practical-mastery/types.ts");
   const index = await read("content/practical-mastery/index.ts");
   assert.match(types, /export type PracticalDecision/);
-  for (const file of ["decisions-w1-w3", "decisions-w4-w13", "decisions-gap-fill", "decisions-preflop-core-expansion", "decisions-w14"]) assert.match(index, new RegExp(file));
+  for (const file of ["decisions-w1-w3", "decisions-w4-w13", "decisions-gap-fill", "decisions-foundation-expansion", "decisions-preflop-core-expansion", "decisions-w14"]) assert.match(index, new RegExp(file));
   assert.match(index, /practicalDecisions/);
 });
 
@@ -29,14 +29,25 @@ test("scored decisions preserve source-purity boundaries", async () => {
     await read("content/practical-mastery/decisions-w1-w3.ts"),
     await read("content/practical-mastery/decisions-w4-w13.ts"),
     await read("content/practical-mastery/decisions-gap-fill.ts"),
+    await read("content/practical-mastery/decisions-foundation-expansion.ts"),
     await read("content/practical-mastery/decisions-preflop-core-expansion.ts"),
     await read("content/practical-mastery/decisions-w14.ts"),
   ].join("\n");
   assert.doesNotMatch(corpus, /exact solver frequency is/i);
   assert.doesNotMatch(corpus, /always defend exactly 50%/i);
   assert.doesNotMatch(corpus, /unknown live players always/i);
-  assert.match(corpus, /ballpark baseline|not a law|не закон|default with exceptions/);
+  assert.match(corpus, /ballpark baseline|not a law|не закон|default with exceptions|table-specific branch/);
   assert.match(corpus, /pool hypothesis|field-dependent|requiring validation|table-specific branch/);
+});
+
+test("foundation expansion teaches math and realization without evidence inflation", async () => {
+  const corpus = await read("content/practical-mastery/decisions-foundation-expansion.ts");
+  for (const skill of ["FND-01", "FND-02", "FND-03", "FND-06"]) assert.match(corpus, new RegExp(skill));
+  assert.match(corpus, /risk 1 to win 3/i);
+  assert.match(corpus, /Equity realisation|Equity realization/);
+  assert.match(corpus, /Implied odds/);
+  assert.match(corpus, /SPR/);
+  assert.doesNotMatch(corpus, /solver frequency/i);
 });
 
 test("preflop expansion trains mechanisms without importing visual chart cells", async () => {
