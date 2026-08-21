@@ -80,12 +80,15 @@ test("Practical Mastery remains usable at phone width", async ({ page }) => {
   }
 });
 
-test("First Journey writes schema-v3 evidence inside the reliable learner profile", async ({ page }) => {
+test("Quick Start teaches the mechanism before scored practice and writes schema-v3 concept evidence", async ({ page }) => {
   test.skip(crossMatrix, "state semantics are covered once in canonical Chromium");
   await page.goto("/mastery/journey");
-  await expect(page.getByLabel("Твой прогноз")).toBeVisible();
-  await page.getByLabel("Твой прогноз").fill("Сначала определяю механизм и переменную, которая меняет решение.");
-  await page.getByRole("button", { name: /Показать механизм/ }).click();
+  await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
+  await expect(page.getByText("ГДЕ ЭТО НУЖНО", { exact: true })).toBeVisible();
+  await expect(page.getByText("МЕХАНИЗМ", { exact: true })).toBeVisible();
+  await expect(page.locator("textarea")).toHaveCount(0);
+  await expect(page.getByText(/1 \/ \(2 \+ 1\) = 33,3%/)).toBeVisible();
+  await page.getByRole("button", { name: /Проверить на примере/ }).click();
 
   await expect.poll(async () => page.evaluate((key) => {
     const raw = localStorage.getItem(key);
@@ -93,6 +96,7 @@ test("First Journey writes schema-v3 evidence inside the reliable learner profil
     const root = JSON.parse(raw);
     return { rootSchema: root.schemaVersion, practicalSchema: root._practicalProfile?.mastery?.schemaVersion, conceptTaught: root._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught };
   }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 3, conceptTaught: true });
+  await expect(page.getByText("ТЕПЕРЬ ТЫ", { exact: true })).toBeVisible();
 
   await page.goto("/mastery");
   await expect.poll(async () => page.evaluate((key) => {
