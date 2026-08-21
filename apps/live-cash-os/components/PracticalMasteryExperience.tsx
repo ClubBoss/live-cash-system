@@ -12,8 +12,11 @@ import {
   nextPracticalDecision,
   practicalPrerequisitesMet,
   practicalRepairQueue,
+  practicalSkillCorpusCanReach,
+  practicalSkillCorpusStats,
   recordPracticalDecision,
   stageAtLeast,
+  trainablePracticalSkills,
   type PracticalMasteryState,
 } from "../lib/practical-mastery-core";
 
@@ -129,10 +132,13 @@ export default function PracticalMasteryExperience() {
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
   const progress = state.skills[skill.id];
   const available = practicalPrerequisitesMet(state, skill.id);
+  const corpusStats = practicalSkillCorpusStats(skill.id);
+  const decisionTrainable = practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED");
   const decision = available && progress?.conceptTaught ? nextPracticalDecision(state, skill.id) : null;
   const gap = practicalSourceGapBySkillId.get(skill.id);
   const lessonAnchors = practicalAnchors.filter((anchor) => anchor.skillId === skill.id);
   const availableIds = useMemo(() => new Set(availablePracticalSkills(state).map((candidate) => candidate.id)), [state]);
+  const trainableIds = useMemo(() => new Set(trainablePracticalSkills(state).map((candidate) => candidate.id)), [state]);
   const repairIds = useMemo(() => new Set(practicalRepairQueue(state)), [state]);
   const grouped = useMemo(() => {
     const map = new Map<string, PracticalSkillFamily[]>();
@@ -146,12 +152,7 @@ export default function PracticalMasteryExperience() {
   const attempted = state.attempts.length;
   const correct = state.attempts.filter((attempt) => attempt.correct).length;
   const trained = practicalSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
-  const recommendedSkill = practicalSkillFamilies.find((item) => {
-    const itemGap = practicalSourceGapBySkillId.get(item.id);
-    if (itemGap?.status === "SOURCE_BLOCKED") return false;
-    if (!practicalPrerequisitesMet(state, item.id)) return false;
-    return !stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED");
-  });
+  const recommendedSkill = practicalSkillFamilies.find((item) => trainableIds.has(item.id) && !stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED"));
 
   return <main style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 20px 60px" }}>
     <section className="hero compact-hero">
@@ -168,11 +169,14 @@ export default function PracticalMasteryExperience() {
       <div><b>{attempted ? Math.round((correct / attempted) * 100) : 0}%</b><span>{locale === "ru" ? "точность попыток" : "attempt accuracy"}</span></div>
     </section>
 
-    {recommendedSkill && <section className="today-card" style={{ marginTop: 22 }}>
+    {recommendedSkill ? <section className="today-card" style={{ marginTop: 22 }}>
       <p className="eyebrow">{locale === "ru" ? "РЕКОМЕНДОВАНО СЕЙЧАС" : "RECOMMENDED NOW"}</p>
       <h2>{skillTitle(recommendedSkill, locale)}</h2>
       <p>{locale === "ru" ? recommendedSkill.objectiveRu : recommendedSkill.titleEn}</p>
       <button className="primary" onClick={() => setSelectedSkillId(recommendedSkill.id)}>{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></button>
+    </section> : <section className="today-card" style={{ marginTop: 22 }}>
+      <p className="eyebrow">CONTENT READINESS</p>
+      <p>{locale === "ru" ? "Сейчас нет следующего узла, для которого corpus уже способен честно доказать decision-trained уровень. Это content-production blocker, а не learner failure." : "There is currently no next node whose corpus can honestly prove decision-trained evidence. This is a content-production blocker, not a learner failure."}</p>
     </section>}
 
     <section className="surface" style={{ marginTop: 22 }}>
@@ -184,8 +188,9 @@ export default function PracticalMasteryExperience() {
             const itemGap = practicalSourceGapBySkillId.get(item.id);
             const itemProgress = state.skills[item.id];
             const locked = !availableIds.has(item.id);
+            const trainable = trainableIds.has(item.id);
             return <button key={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.58 : 1 }}>
-              {item.id} · {skillTitle(item, locale)}{itemGap?.status === "SOURCE_BLOCKED" ? " · SOURCE BLOCKED" : repairIds.has(item.id) ? " · REPAIR" : itemProgress ? ` · ${evidenceLabel(locale, itemProgress.evidenceStage)}` : ""}
+              {item.id} · {skillTitle(item, locale)}{itemGap?.status === "SOURCE_BLOCKED" ? " · SOURCE BLOCKED" : repairIds.has(item.id) ? " · REPAIR" : !trainable && !locked ? " · CONTENT BUILD" : itemProgress ? ` · ${evidenceLabel(locale, itemProgress.evidenceStage)}` : ""}
             </button>;
           })}
         </div>
@@ -197,8 +202,10 @@ export default function PracticalMasteryExperience() {
       <h1>{skillTitle(skill, locale)}</h1>
       <p>{skill.objectiveRu}</p>
       <p className="support">{locale === "ru" ? "Целевой evidence" : "Target evidence"}: {evidenceLabel(locale, skill.targetEvidenceStage)} · {locale === "ru" ? "Текущий" : "Current"}: {evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</p>
+      <p className="support">{locale === "ru" ? "Corpus" : "Corpus"}: R {corpusStats.recognition} · D {corpusStats.direct} · T {corpusStats.transfer} · B {corpusStats.boundary}</p>
       <p className="support">{locale === "ru" ? "Source routing" : "Source routing"}: {skill.sourceRefs.join(", ")}</p>
       {gap && <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">SOURCE {gap.status}</p><p>{gap.reason}</p><p className="support">{gap.nextEvidenceNeeded}</p></div>}
+      {available && !decisionTrainable && (!gap || gap.status !== "SOURCE_BLOCKED") && <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">CONTENT BUILD</p><p>{locale === "ru" ? "Узел определён и source-routed, но corpus ещё недостаточен для честного DECISION_TRAINED. Его можно изучать как preview, но scheduler не должен выдавать его как полноценную mastery-сессию." : "The node is defined and source-routed, but its corpus is not yet sufficient for honest DECISION_TRAINED evidence. It can be previewed, but the scheduler must not present it as a full mastery session."}</p></div>}
       {!available && <p className="support">{locale === "ru" ? `Locked: сначала decision-trained prerequisites — ${skill.prerequisiteSkillIds.join(", ") || "—"}.` : `Locked: first decision-train prerequisites — ${skill.prerequisiteSkillIds.join(", ") || "—"}.`}</p>}
       {available && (!gap || gap.status !== "SOURCE_BLOCKED") && !progress?.conceptTaught && <div className="today-card" style={{ marginTop: 18 }}>
         <p className="eyebrow">{locale === "ru" ? "СНАЧАЛА ПОЙМИ МЕХАНИЗМ" : "UNDERSTAND THE MECHANISM FIRST"}</p>
@@ -211,7 +218,7 @@ export default function PracticalMasteryExperience() {
         {lessonAnchors.length > 0 && <button className="primary" onClick={() => setState(markPracticalConceptTaught(state, skill.id))}>{locale === "ru" ? "Понял — перейти к решениям" : "Understood — move to decisions"} <span>→</span></button>}
       </div>}
       {available && progress?.conceptTaught && decision && <DecisionCard locale={locale} decision={decision} state={state} onState={setState} />}
-      {available && progress?.conceptTaught && !decision && (!gap || gap.status !== "SOURCE_BLOCKED") && <p className="support">{locale === "ru" ? "Skill уже в graph, но scored practice ещё не произведена. Он не считается trained." : "The skill exists in the graph, but scored practice has not been produced yet. It is not considered trained."}</p>}
+      {available && progress?.conceptTaught && !decision && (!gap || gap.status !== "SOURCE_BLOCKED") && <p className="support">{locale === "ru" ? "На текущем evidence-этапе нет следующего независимого stimulus. Skill не повышается автоматически: требуется дополнительный content или delayed/real-hand evidence." : "There is no next independent stimulus at the current evidence stage. The skill does not advance automatically: additional content or delayed/real-hand evidence is required."}</p>}
     </section>
 
     <section className="integrity" style={{ marginTop: 22 }}>
