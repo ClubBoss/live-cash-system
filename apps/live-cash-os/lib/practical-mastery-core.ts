@@ -83,10 +83,14 @@ function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: Pract
 
 function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
   if (!progress.conceptTaught) return "SOURCE_SUPPORTED";
-  if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return "CONCEPT_TAUGHT";
-  if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return "RECOGNITION_TRAINED";
-  if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return "DECISION_TRAINED";
-  if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return "CHANGED_NODE_TRANSFER";
+  const recognition = distinctSuccessfulByKind(progress, ["recognition"]);
+  const direct = distinctSuccessfulByKind(progress, ["decision"]);
+  const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]);
+  const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
+  if (recognition < MIN_RECOGNITION_STIMULI) return "CONCEPT_TAUGHT";
+  if (direct < MIN_DIRECT_DECISION_STIMULI) return "RECOGNITION_TRAINED";
+  if (transfer < MIN_TRANSFER_STIMULI) return "DECISION_TRAINED";
+  if (boundary < MIN_BOUNDARY_STIMULI) return "CHANGED_NODE_TRANSFER";
   if (!progress.delayedRetrievalPassed) return "BOUNDARY_TESTED";
   if (!progress.realHandTransferReviewed) return "DELAYED_RETRIEVAL";
   return "REAL_HAND_TRANSFER";
@@ -205,9 +209,6 @@ export function recommendNextPracticalSkill(state: PracticalMasteryState): Pract
   const trainable = trainablePracticalSkills(state);
   if (!trainable.length) return null;
 
-  // During the first journey, prefer the next unfinished canonical step that is
-  // genuinely trainable. This is a spiral route hypothesis, not a permanent
-  // chapter lock; repair urgency can still interrupt it below.
   const urgentRepair = trainable
     .map((skill) => ({ skill, urgency: repairUrgencyForSkill(state, skill.id) }))
     .filter((candidate) => candidate.urgency >= 2)
