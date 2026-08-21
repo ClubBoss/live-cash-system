@@ -38,8 +38,9 @@ test("release gate now carries dedicated Practical Mastery browser evidence", as
   assert.match(pkg, /practical-mastery-access\.spec\.mjs/);
   for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) assert.ok(acceptance.includes(route), `${route} must be browser-covered`);
   assert.match(acceptance, /390, height: 844/);
-  assert.match(acceptance, /rootSchema: 2/);
-  assert.match(acceptance, /practicalSchema: 3/);
-  assert.match(acceptance, /POSITIVE_EV_SOURCE_ACCESS_REQUIRED/);
+  assert.match(acceptance, /rootSchema: root\.schemaVersion/);
+  assert.match(acceptance, /practicalSchema: root\._practicalProfile\?\.mastery\?\.schemaVersion/);
+  assert.match(acceptance, /ОГРАНИЧЕНИЕ ИСТОЧНИКА/);
+  assert.match(acceptance, /недостаточно, чтобы честно задавать точные частоты/i);
   assert.match(access, /Вход для тестирования/);
 });

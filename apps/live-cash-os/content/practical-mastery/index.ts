@@ -26,6 +26,7 @@ import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
+import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -64,13 +65,15 @@ export const practicalAnchors = [
   ...preflopAndBlindAnchors,
   ...recognitionAndSrpAnchors,
   ...advancedPracticalAnchors,
-].map((anchor) => ({
-  ...anchor,
-  titleRu: anchor.promptRu,
-  titleEn: anchor.promptEn,
-  bodyRu: `${anchor.answerRu} ${anchor.rationaleRu}`,
-  bodyEn: `${anchor.answerEn} ${anchor.rationaleEn}`,
-}));
+]
+  .map(applyPracticalAnchorRuCopyRepair)
+  .map((anchor) => ({
+    ...anchor,
+    titleRu: anchor.promptRu,
+    titleEn: anchor.promptEn,
+    bodyRu: `${anchor.answerRu} ${anchor.rationaleRu}`,
+    bodyEn: `${anchor.answerEn} ${anchor.rationaleEn}`,
+  }));
 
 export const practicalDecisions = [
   ...foundationPreflopBlindDecisions,
