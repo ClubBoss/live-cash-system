@@ -6,15 +6,17 @@ import { fileURLToPath } from "node:url";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const telemetry=await readFile(path.join(root,"lib/practical-performance-telemetry.ts"),"utf8");
+const profile=await readFile(path.join(root,"lib/practical-profile-contract.ts"),"utf8");
 const perceptual=await readFile(path.join(root,"components/PracticalPerceptualExperience.tsx"),"utf8");
 const mixed=await readFile(path.join(root,"components/PracticalIntegratedSessionExperience.tsx"),"utf8");
 const journey=await readFile(path.join(root,"components/PracticalFirstJourneyExperience.tsx"),"utf8");
 const integrated=await readFile(path.join(root,"lib/practical-integrated-session.ts"),"utf8");
 const dod=await readFile(path.join(root,"../../analysis/MASTERY_COMPLETION_B7_EMPIRICAL_GAUNTLET_DOD_V1.md"),"utf8");
 
-test("B7 telemetry separates performance analytics from mastery state",()=>{
- assert.match(telemetry,/practical-performance:v1/);
+test("B7 telemetry remains a separate evidence dimension without a competing storage truth",()=>{
+ assert.doesNotMatch(telemetry,/practical-performance:v1/);
  assert.doesNotMatch(telemetry,/PracticalMasteryState/);
+ assert.match(profile,/performance: PracticalPerformanceEvent\[\]/);
  assert.match(telemetry,/responseMs/);
  assert.match(telemetry,/actionCorrect/);
  assert.match(telemetry,/reasonCorrect/);
@@ -30,6 +32,8 @@ test("perceptual and mixed practice record distinct stimulus modes",()=>{
  assert.match(mixed,/TEXT_MIXED/);
  assert.match(perceptual,/createPracticalPerformanceEvent/);
  assert.match(mixed,/createPracticalPerformanceEvent/);
+ assert.match(perceptual,/setMasteryWithPerformance/);
+ assert.match(mixed,/setMasteryWithPerformance/);
 });
 
 test("blind novice flow still refuses unseen concept testing",()=>{
