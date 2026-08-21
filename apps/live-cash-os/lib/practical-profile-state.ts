@@ -1,9 +1,9 @@
 import { createPracticalMasteryState } from "./practical-mastery-core";
 import {
   PRACTICAL_PERFORMANCE_LIMIT,
+  PRACTICAL_PROFILE_ANCHOR_CARD_ID,
   PRACTICAL_PROFILE_FIELD,
   PRACTICAL_PROFILE_VERSION,
-  hasPracticalProfileField,
   validatePracticalProfileState,
   type LearnerStateWithPracticalProfile,
   type PracticalProfileState,
@@ -50,23 +50,19 @@ export function withPracticalProfile<T extends LearnerStateWithPracticalProfile>
     ...structuredClone(practicalProfile),
     performance: structuredClone(practicalProfile.performance).slice(-PRACTICAL_PERFORMANCE_LIMIT),
   };
+  // This reserved, non-content card is an ancestry marker only. Existing
+  // reliability already proves card preservation on imports/restores/lost-ack
+  // writes, so a pre-Practical snapshot cannot silently replace a profile that
+  // already contains Practical Mastery evidence. Learner-facing card lists are
+  // sourced from canonical content IDs and never render this reserved ID.
+  next.cards[PRACTICAL_PROFILE_ANCHOR_CARD_ID] ??= {
+    dueAt: "9999-12-31T23:59:59.999Z",
+    intervalDays: 36500,
+    repetitions: 0,
+    lapses: 0,
+    lastGrade: null,
+  };
   next.revision += 1;
   next.updatedAt = now.toISOString();
   return next;
-}
-
-export function removeLegacyStandalonePracticalKeys(storage: Storage): void {
-  // These keys existed only on the unmerged program branch. Removing them after
-  // the reliable profile slice is established prevents two competing truths.
-  for (const key of [
-    "live-cash-os:practical-mastery:v3",
-    "live-cash-os:practical-performance:v1",
-    "live-cash-os:study-loop:v1",
-  ]) {
-    try { storage.removeItem(key); } catch { /* best effort after durable profile write */ }
-  }
-}
-
-export function practicalProfileNeedsMigration(value: unknown): boolean {
-  return !hasPracticalProfileField(value);
 }
