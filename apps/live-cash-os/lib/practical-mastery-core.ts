@@ -1,4 +1,5 @@
 import { practicalDecisionById, practicalDecisions, practicalSkillById, practicalSkillFamilies } from "../content/practical-mastery";
+import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalDecision, PracticalEvidenceStage } from "../content/practical-mastery";
 
 export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 2 as const;
@@ -75,18 +76,10 @@ function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: Pract
 
 function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
   if (!progress.conceptTaught) return "SOURCE_SUPPORTED";
-
-  const recognition = distinctSuccessfulByKind(progress, ["recognition"]);
-  if (recognition < MIN_RECOGNITION_STIMULI) return "CONCEPT_TAUGHT";
-
-  const direct = distinctSuccessfulByKind(progress, ["decision"]);
-  if (direct < MIN_DIRECT_DECISION_STIMULI) return "RECOGNITION_TRAINED";
-
-  const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]);
-  if (transfer < MIN_TRANSFER_STIMULI) return "DECISION_TRAINED";
-
-  const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
-  if (boundary < MIN_BOUNDARY_STIMULI) return "CHANGED_NODE_TRANSFER";
+  if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return "CONCEPT_TAUGHT";
+  if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return "RECOGNITION_TRAINED";
+  if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return "DECISION_TRAINED";
+  if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return "CHANGED_NODE_TRANSFER";
   if (!progress.delayedRetrievalPassed) return "BOUNDARY_TESTED";
   if (!progress.realHandTransferReviewed) return "DELAYED_RETRIEVAL";
   return "REAL_HAND_TRANSFER";
@@ -144,9 +137,32 @@ export function markPracticalConceptTaught(state: PracticalMasteryState, skillId
   return next;
 }
 
+export function practicalSkillCorpusStats(skillId: string) {
+  const decisions = practicalDecisions.filter((decision) => decision.skillId === skillId);
+  return {
+    recognition: decisions.filter((decision) => decision.kind === "recognition").length,
+    direct: decisions.filter((decision) => decision.kind === "decision").length,
+    transfer: decisions.filter((decision) => decision.kind === "changed" || decision.kind === "mixed").length,
+    boundary: decisions.filter((decision) => decision.kind === "boundary").length,
+    total: decisions.length,
+  } as const;
+}
+
+export function practicalSkillCorpusCanReach(skillId: string, stage: PracticalEvidenceStage): boolean {
+  const gap = practicalSourceGapBySkillId.get(skillId);
+  if (gap?.status === "SOURCE_BLOCKED") return false;
+  const stats = practicalSkillCorpusStats(skillId);
+  if (stageAtLeast(stage, "RECOGNITION_TRAINED") && stats.recognition < MIN_RECOGNITION_STIMULI) return false;
+  if (stageAtLeast(stage, "DECISION_TRAINED") && stats.direct < MIN_DIRECT_DECISION_STIMULI) return false;
+  if (stageAtLeast(stage, "CHANGED_NODE_TRANSFER") && stats.transfer < MIN_TRANSFER_STIMULI) return false;
+  if (stageAtLeast(stage, "BOUNDARY_TESTED") && stats.boundary < MIN_BOUNDARY_STIMULI) return false;
+  return true;
+}
+
 export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean {
   const skill = practicalSkillById.get(skillId);
   if (!skill) return false;
+  if (practicalSourceGapBySkillId.get(skillId)?.status === "SOURCE_BLOCKED") return false;
   return skill.prerequisiteSkillIds.every((prerequisiteId) => {
     const progress = state.skills[prerequisiteId];
     return progress ? stageAtLeast(progress.evidenceStage, "DECISION_TRAINED") : false;
@@ -155,6 +171,10 @@ export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId:
 
 export function availablePracticalSkills(state: PracticalMasteryState) {
   return practicalSkillFamilies.filter((skill) => practicalPrerequisitesMet(state, skill.id));
+}
+
+export function trainablePracticalSkills(state: PracticalMasteryState) {
+  return availablePracticalSkills(state).filter((skill) => practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED"));
 }
 
 export function recordPracticalDecision(
@@ -204,12 +224,35 @@ export function decisionsForPracticalSkill(skillId: string): PracticalDecision[]
   return practicalDecisions.filter((decision) => decision.skillId === skillId);
 }
 
+function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][]): PracticalDecision | null {
+  const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
+  return decisionsForPracticalSkill(skillId).find((decision) => kinds.includes(decision.kind) && !attemptedIds.has(decision.id)) ?? null;
+}
+
 export function nextPracticalDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   if (!practicalPrerequisitesMet(state, skillId)) return null;
   const pool = decisionsForPracticalSkill(skillId);
   if (!pool.length) return null;
+  const progress = state.skills[skillId];
+
+  const repair = progress?.lastIncorrectDecisionId ? practicalDecisionById.get(progress.lastIncorrectDecisionId) ?? null : null;
+  if (repair) return repair;
+
+  if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) {
+    return unattemptedDecisionOfKinds(state, skillId, ["recognition"]);
+  }
+  if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) {
+    return unattemptedDecisionOfKinds(state, skillId, ["decision"]);
+  }
+  if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) {
+    return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"]);
+  }
+  if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) {
+    return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
+  }
+
   const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
-  return pool.find((decision) => !attemptedIds.has(decision.id)) ?? pool.find((decision) => decision.id === state.skills[skillId]?.lastIncorrectDecisionId) ?? pool[0];
+  return pool.find((decision) => !attemptedIds.has(decision.id)) ?? null;
 }
 
 export function practicalRepairQueue(state: PracticalMasteryState): string[] {
