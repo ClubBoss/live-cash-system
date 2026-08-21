@@ -12,6 +12,7 @@ import { preflopAdvancedExpansionDecisions } from "./decisions-preflop-advanced-
 import { preflopLiveExpansionDecisions } from "./decisions-preflop-live-expansion";
 import { blindDefenceExpansionDecisions } from "./decisions-blind-defence-expansion";
 import { recognitionExpansionDecisions } from "./decisions-recognition-expansion";
+import { srpA6ExpansionDecisions } from "./decisions-srp-a6-expansion";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -22,6 +23,7 @@ export * from "./memory-practice";
 export * from "./preflop-a3-memory";
 export * from "./blind-a4-memory";
 export * from "./recognition-a5-memory";
+export * from "./srp-a6-memory";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
@@ -41,6 +43,7 @@ export const practicalDecisions = [
   ...preflopLiveExpansionDecisions,
   ...blindDefenceExpansionDecisions,
   ...recognitionExpansionDecisions,
+  ...srpA6ExpansionDecisions,
   ...integratedMasteryDecisions,
 ];
 
