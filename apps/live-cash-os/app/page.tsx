@@ -6,11 +6,13 @@ import Gauntlet4LearningIntegrityLayer from "../components/Gauntlet4LearningInte
 import RealUseLessonAssist from "../components/RealUseLessonAssist";
 import ScrollContinuityGuard from "../components/ScrollContinuityGuard";
 import TestInviteGate from "../components/TestInviteGate";
+import LegacyToolDeepLink from "../components/LegacyToolDeepLink";
 
 export default function Home() {
   return <TestInviteGate>
     <PracticalMasteryGateway />
     <LiveCashApp />
+    <LegacyToolDeepLink />
     <Wave5PracticeLayer />
     <Wave8AccessibilityLayer />
     <Gauntlet4LearningIntegrityLayer />
