@@ -80,8 +80,8 @@ test("C2 exposes a small reference layer and preserves exact visual authority bo
 });
 
 test("C1/C2 routes are discoverable from the canonical mastery surface", () => {
-  assert.match(masteryPage, /href=\"\/mastery\/study\"/);
-  assert.match(masteryPage, /href=\"\/mastery\/reference\"/);
+  assert.match(masteryPage, /href="\/mastery\/study"/);
+  assert.match(masteryPage, /href="\/mastery\/reference"/);
   assert.match(studyPage, /PracticalStudyLoopExperience/);
   assert.match(referencePage, /PracticalReferenceExperience/);
 });
