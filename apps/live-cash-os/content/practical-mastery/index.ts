@@ -6,6 +6,7 @@ import { foundationPreflopBlindDecisions } from "./decisions-w1-w3";
 import { postflopAndLiveDecisions } from "./decisions-w4-w13";
 import { integratedMasteryDecisions } from "./decisions-w14";
 import { sourceSupportedGapFillDecisions } from "./decisions-gap-fill";
+import { preflopCoreExpansionDecisions } from "./decisions-preflop-core-expansion";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -23,6 +24,7 @@ export const practicalDecisions = [
   ...foundationPreflopBlindDecisions,
   ...postflopAndLiveDecisions,
   ...sourceSupportedGapFillDecisions,
+  ...preflopCoreExpansionDecisions,
   ...integratedMasteryDecisions,
 ];
 
