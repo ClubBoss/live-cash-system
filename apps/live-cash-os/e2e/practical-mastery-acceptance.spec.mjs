@@ -82,14 +82,16 @@ test("First Journey writes schema-v3 evidence inside the reliable learner profil
   }, LEARNER_KEY)).toBe(true);
 });
 
-test("mastery locale persists across route changes and updates document language", async ({ page }) => {
+test("mastery locale persists across route changes and localizes shared navigation", async ({ page }) => {
   test.skip(crossMatrix, "locale persistence is covered once in canonical Chromium");
   await page.goto("/mastery");
+  await expect(page.getByRole("link", { name: "Смешанная практика", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.goto("/mastery/study");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { name: /Play → review → repair → retest/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Study loop", exact: true })).toBeVisible();
 });
 
 test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
@@ -98,14 +100,14 @@ test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", 
   const bl11 = page.getByRole("button", { name: /^BL-11\b/ });
   await expect(bl11).toHaveCount(1);
   await bl11.evaluate((element) => element.click());
-  await expect(page.getByText("SOURCE PARTIAL", { exact: true })).toBeVisible();
-  await expect(page.getByText(/POSITIVE_EV_SOURCE_ACCESS_REQUIRED/)).toBeVisible();
+  await expect(page.getByText("ОГРАНИЧЕНИЕ ИСТОЧНИКА", { exact: true })).toBeVisible();
+  await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
 });
 
 test("Study Loop points back to the existing Real Hands surface rather than duplicating capture", async ({ page }) => {
   test.skip(crossMatrix, "navigation contract is covered once in canonical Chromium");
   await page.goto("/mastery/study");
-  const realHands = page.getByRole("link", { name: "Real Hands · Live Cash OS", exact: true });
+  const realHands = page.getByRole("link", { name: "Реальные руки · Live Cash OS", exact: true });
   await expect(realHands).toBeVisible();
   await expect(realHands).toHaveAttribute("href", "/");
 });
