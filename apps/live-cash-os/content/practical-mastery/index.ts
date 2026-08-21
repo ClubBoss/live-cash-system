@@ -15,6 +15,7 @@ import { recognitionExpansionDecisions } from "./decisions-recognition-expansion
 import { srpA6ExpansionDecisions } from "./decisions-srp-a6-expansion";
 import { threeBetFourBetA7ExpansionDecisions } from "./decisions-3bp-4bp-a7-expansion";
 import { turnRiverA8ExpansionDecisions } from "./decisions-turn-river-a8-expansion";
+import { liveA9ExpansionDecisions } from "./decisions-live-a9-expansion";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -29,6 +30,8 @@ export * from "./srp-a6-memory";
 export * from "./threebet-fourbet-a7-memory";
 export * from "./turn-river-a8-memory";
 export * from "./decisions-turn-river-a8-expansion";
+export * from "./live-a9-memory";
+export * from "./decisions-live-a9-expansion";
 export { practicalSkillFamilies } from "./registry";
 
 export const practicalAnchors = [
@@ -51,6 +54,7 @@ export const practicalDecisions = [
   ...srpA6ExpansionDecisions,
   ...threeBetFourBetA7ExpansionDecisions,
   ...turnRiverA8ExpansionDecisions,
+  ...liveA9ExpansionDecisions,
   ...integratedMasteryDecisions,
 ];
 
