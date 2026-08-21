@@ -28,13 +28,14 @@ async function openMastery(page, route) {
   page.off("pageerror", listener);
 }
 
-test("canonical home exposes Practical Mastery as the primary learning route", async ({ page }) => {
+test("canonical home exposes one primary learning route", async ({ page }) => {
   test.skip(crossMatrix, "canonical Chromium coverage is sufficient for the legacy-shell bridge");
   await page.route("**/api/state", async (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local acceptance fixture" }) }));
   await page.goto("/");
-  const gateway = page.getByRole("region", { name: "Основной маршрут Practical Mastery" });
+  const gateway = page.getByRole("region", { name: "Основной маршрут обучения" });
   await expect(gateway).toBeVisible();
   await expect(gateway.getByRole("link", { name: /Продолжить обучение/ })).toHaveAttribute("href", "/mastery/journey");
+  await expect(gateway).toContainText("Один маршрут");
   const legacyHeading = page.getByRole("heading", { name: /Учись понемногу/i });
   await expect(legacyHeading).toBeVisible();
   const gatewayBox = await gateway.boundingBox();
@@ -51,20 +52,22 @@ test("all Practical Mastery learner routes render without runtime or horizontal-
   }
 });
 
-test("Practical Mastery navigation makes the current section explicit and clicks change section", async ({ page }) => {
+test("shared navigation exposes one learning entry and secondary tools", async ({ page }) => {
   test.skip(crossMatrix, "navigation behavior is covered once in canonical Chromium");
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  await expect(nav.getByRole("link", { name: "Карта навыков", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(nav.getByRole("link", { name: "Старт обучения", exact: true })).not.toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Карта", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).not.toHaveAttribute("aria-current", "page");
+  await expect(nav).not.toContainText("Старт обучения");
+  await expect(nav).not.toContainText("Практика");
 
-  await nav.getByRole("link", { name: "Старт обучения", exact: true }).click();
+  await nav.getByRole("link", { name: "Учиться", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);
-  await expect(nav.getByRole("link", { name: "Старт обучения", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
 
-  await nav.getByRole("link", { name: "Практика", exact: true }).click();
-  await expect(page).toHaveURL(/\/mastery\/session$/);
-  await expect(nav.getByRole("link", { name: "Практика", exact: true })).toHaveAttribute("aria-current", "page");
+  await nav.getByRole("link", { name: "Чтение стола", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/perception$/);
+  await expect(nav.getByRole("link", { name: "Чтение стола", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
 test("Practical Mastery remains usable at phone width", async ({ page }) => {
@@ -101,20 +104,19 @@ test("First Journey writes schema-v3 evidence inside the reliable learner profil
 test("mastery locale persists across route changes and localizes shared navigation", async ({ page }) => {
   test.skip(crossMatrix, "locale persistence is covered once in canonical Chromium");
   await page.goto("/mastery");
-  await expect(page.getByRole("link", { name: "Практика", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Учиться", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.goto("/mastery/study");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { name: /Play → review → repair → retest/i })).toBeVisible();
   await expect(page.getByRole("link", { name: "After play", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
 });
 
 test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
   test.skip(crossMatrix, "source-ceiling semantics are covered once in canonical Chromium");
   await page.goto("/mastery");
-  // Locate the containing stage structurally even while its disclosure is closed;
-  // role locators intentionally exclude hidden descendants before expansion.
   const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /^BL-11\b/ }) });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
