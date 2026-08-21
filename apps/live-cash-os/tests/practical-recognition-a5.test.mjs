@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const corpus = await readFile(path.join(root, "content/practical-mastery/decisions-recognition-expansion.ts"), "utf8");
+const b1 = await readFile(path.join(root, "content/practical-mastery/decisions-source-closure-b1.ts"), "utf8");
 const gaps = await readFile(path.join(root, "content/practical-mastery/source-gaps.ts"), "utf8");
 const rules = await readFile(path.join(root, "content/practical-mastery/recognition-a5-memory.ts"), "utf8");
 
@@ -22,9 +23,11 @@ test("supported recognition families have full evidence depth", () => {
   }
 });
 
-test("draw taxonomy stays explicitly partial rather than fabricated", () => {
-  assert.match(gaps, /skillId: "W4-DRAW-01"[\s\S]{0,220}status: "PARTIAL"/);
-  assert.match(gaps, /full nut\/weak\/combo\/pair\+draw taxonomy is broader/i);
+test("B1 closes the draw-quality source gap without fabricating exact chart logic", () => {
+  assert.doesNotMatch(gaps, /skillId: "W4-DRAW-01"/);
+  assert.match(b1, /skillId:"W4-DRAW-01"/);
+  assert.match(b1, /EXT-PC-OUTS-GUIDE-2023/);
+  assert.match(b1, /clean outs \+ nut potential \+ overlap\/double-counting \+ showdown value/i);
 });
 
 test("recognition is contextual instead of label-to-action memorisation", () => {
