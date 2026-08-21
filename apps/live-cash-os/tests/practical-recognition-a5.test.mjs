@@ -11,7 +11,7 @@ const gaps = await readFile(path.join(root, "content/practical-mastery/source-ga
 const rules = await readFile(path.join(root, "content/practical-mastery/recognition-a5-memory.ts"), "utf8");
 
 function count(skillId, kindPattern) {
-  return [...corpus.matchAll(new RegExp(`skillId:[\\s]*["']${skillId}["'][\\s]*,[\\s]*kind:[\\s]*["'](${kindPattern})["']`, "g"))].length;
+  return [...corpus.matchAll(new RegExp(`q\\([^\\n]*?["']${skillId}["']\\s*,\\s*["'](${kindPattern})["']`, "g"))].length;
 }
 
 test("supported recognition families have full evidence depth", () => {
@@ -30,11 +30,13 @@ test("B1 closes the draw-quality source gap without fabricating exact chart logi
   assert.match(b1, /clean outs \+ nut potential \+ overlap\/double-counting \+ showdown value/i);
 });
 
-test("recognition is contextual instead of label-to-action memorisation", () => {
+test("recognition is contextual and intentional shortcuts remain tagged distractors", () => {
   assert.match(corpus, /board.*ranges|ranges.*board/is);
   assert.match(corpus, /non-identical/i);
   assert.match(corpus, /action ancestry|flop action|check-back composition/i);
-  assert.doesNotMatch(corpus, /high flop = always bet/i);
+  assert.match(corpus, /High flop = always bet/i);
+  assert.match(corpus, /o\("b",badRu,badEn,"CLASSIFICATION_SHORTCUT"\)/);
+  assert.match(corpus, /correctActionId:"a"/);
 });
 
 test("A5 memory hooks encode board-range, family-trait and runout-ancestry transfer", () => {

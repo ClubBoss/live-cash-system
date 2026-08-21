@@ -26,7 +26,7 @@ test("A7 explicitly rejects universal 3BP and low-SPR shortcuts", () => {
   assert.match(memory, /ROLE-FIRST|ROLE_FIRST|ROLE-FIRST/i);
   assert.match(memory, /Low SPR reduces future branches|Low SPR сокращает/);
   assert.match(memory, /automatic stack-off/i);
-  assert.match(dod, /not a universal 3BP rule/i);
+  assert.match(dod, /(?:not|never) a universal 3BP rule/i);
 });
 
 test("no fabricated exact-frequency objective is introduced", () => {

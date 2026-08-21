@@ -9,7 +9,6 @@ const policy=await readFile(path.join(root,"content/practical-mastery/rep-depth-
 const variation=await readFile(path.join(root,"content/practical-mastery/decisions-variation-b3.ts"),"utf8");
 const b2=await readFile(path.join(root,"content/practical-mastery/perceptual-table-states.ts"),"utf8");
 const b3=await readFile(path.join(root,"content/practical-mastery/perceptual-table-states-b3.ts"),"utf8");
-const blindBase=await readFile(path.join(root,"content/practical-mastery/decisions-blind-defence-expansion.ts"),"utf8");
 
 const intensive=["PF-01","PF-04","PF-06","PF-07","BL-03","BL-04","W4-BOARD-01","W4-RUNOUT-01","OOP-02","IP-01","3BP-05","TURN-02","TURN-03","RIV-01","RIV-03","MW-01","MW-02","DEEP-01","DEEP-03","EXP-01"];
 
@@ -46,13 +45,10 @@ test("every intensive family has at least two table-state perceptual reps across
   }
 });
 
-test("BL-03 transfer under-depth is explicitly over-repaired, not merely documented",()=>{
-  const corpus=`${blindBase}\n${variation}\n${b2}`;
-  const changed=(corpus.match(/skillId:"BL-03"[\s\S]{0,900}?kind:"changed"/g)??[]).length;
-  assert.ok(changed>=2 || (corpus.match(/PM-B3-BL03-10[34]/g)??[]).length>=2,"BL-03 has multiple transfer variants");
-  assert.match(variation,/open_size/);
-  assert.match(variation,/realisation/);
-  assert.match(variation,/rake/);
+test("BL-03 transfer under-depth is explicitly over-repaired by the shared B3 generator",()=>{
+  const ladder=variation.slice(variation.indexOf("const rows"),variation.indexOf("return rows.map"));
+  assert.equal((ladder.match(/kind:"changed"/g)??[]).length,2);
+  assert.match(variation,/skillId:"BL-03"[\s\S]*?prefix:"PM-B3-BL03"[\s\S]*?vars1:\["open_size"\][\s\S]*?vars2:\["realisation","rake"\]/);
 });
 
 test("B3 adds no invented exact-frequency memory target",()=>{

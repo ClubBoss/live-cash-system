@@ -23,6 +23,7 @@ import { perceptualPracticalDecisions, practicalTableStates } from "./perceptual
 import { variationB3Decisions } from "./decisions-variation-b3";
 import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
+import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -47,6 +48,7 @@ export * from "./perceptual-table-states";
 export * from "./perceptual-table-states-b3";
 export * from "./decisions-variation-b3";
 export * from "./decisions-live-edge-b4";
+export * from "./decisions-executable-gate-repair";
 export * from "./rep-depth-policy";
 export { practicalSkillFamilies } from "./registry";
 
@@ -77,6 +79,7 @@ export const practicalDecisions = [
   ...sourceClosureB1Decisions,
   ...variationB3Decisions,
   ...liveEdgeB4Decisions,
+  ...executableGateRepairDecisions,
   ...perceptualPracticalDecisions,
   ...integratedMasteryDecisions,
   ...integratedA11ExpansionDecisions,

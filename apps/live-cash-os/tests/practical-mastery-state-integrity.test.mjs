@@ -11,10 +11,10 @@ const experience = await readFile(path.join(root, "components/PracticalMasteryEx
 test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
   for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_TRANSFER_STIMULI = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
   assert.match(core, /distinctSuccessfulByKind/);
-  assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI\) return "CONCEPT_TAUGHT"/);
-  assert.match(core, /if \(direct < MIN_DIRECT_DECISION_STIMULI\) return "RECOGNITION_TRAINED"/);
-  assert.match(core, /if \(transfer < MIN_TRANSFER_STIMULI\) return "DECISION_TRAINED"/);
-  assert.match(core, /if \(boundary < MIN_BOUNDARY_STIMULI\) return "CHANGED_NODE_TRANSFER"/);
+  assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI\) stage = "CONCEPT_TAUGHT"/);
+  assert.match(core, /else if \(direct < MIN_DIRECT_DECISION_STIMULI\) stage = "RECOGNITION_TRAINED"/);
+  assert.match(core, /else if \(transfer < MIN_TRANSFER_STIMULI\) stage = "DECISION_TRAINED"/);
+  assert.match(core, /else if \(boundary < MIN_BOUNDARY_STIMULI\) stage = "CHANGED_NODE_TRANSFER"/);
 });
 
 test("repeat-grinding one decision cannot inflate distinct evidence", () => {
@@ -26,7 +26,7 @@ test("corrected mistakes stop being unresolved repairs", () => {
   assert.match(core, /if \(nextProgress\.lastIncorrectDecisionId === decision\.id\) nextProgress\.lastIncorrectDecisionId = null/);
   assert.match(core, /latestAttemptsByDecision/);
   const repairSection = core.slice(core.indexOf("export function practicalRepairQueue"), core.indexOf("export function markDelayedPracticalRetrieval"));
-  assert.match(repairSection, /if \(attempt\.correct\) continue/);
+  assert.match(repairSection, /if \(attempt\.correct \|\| isPracticalBridgeSkill\(attempt\.skillId\)\) continue/);
 });
 
 test("immediate answers cannot grant delayed or real-hand evidence", () => {

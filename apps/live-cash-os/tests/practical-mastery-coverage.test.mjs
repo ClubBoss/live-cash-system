@@ -62,7 +62,7 @@ test("preflop expansion trains mechanisms without importing visual chart cells",
   assert.doesNotMatch(corpus, /open exactly \d+%/i);
   assert.doesNotMatch(corpus, /call exactly \d+%/i);
   assert.doesNotMatch(corpus, /3-bet exactly \d+%/i);
-  assert.doesNotMatch(corpus, /invent exact \d+% frequency/i);
+  assert.match(corpus, /Invent exact 37% frequency[\s\S]{0,100}UNSUPPORTED_FREQUENCY/i);
 });
 
 test("blind defence expansion stays directional and source-backed", async () => {

@@ -36,12 +36,12 @@ test("preflop corpus avoids unsupported exact chart/frequency obligations", () =
   assert.doesNotMatch(corpus, /always defend exactly 50%/i);
 });
 
-test("squeeze corpus includes called branch, fold equity, position and a boundary", () => {
+test("squeeze corpus includes called branch, fold equity, position and a boundary", async () => {
   const live = await readFile(path.join(root, "content/practical-mastery/decisions-preflop-live-expansion.ts"), "utf8");
   for (const token of ["called branch", "fold equity", "position_when_called", "DEAD_MONEY_MAGIC"]) assert.match(live, new RegExp(token, "i"));
 });
 
-test("live-adjustment corpus covers straddle, rake, depth and players behind", () => {
+test("live-adjustment corpus covers straddle, rake, depth and players behind", async () => {
   const live = await readFile(path.join(root, "content/practical-mastery/decisions-preflop-live-expansion.ts"), "utf8");
   for (const token of ["straddle", "rake", "depth", "players behind"]) assert.match(live, new RegExp(token, "i"));
 });

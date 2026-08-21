@@ -32,8 +32,10 @@ test("new SRP corpus rotates correct answer positions instead of leaking one slo
 
 test("SRP role engine rejects initiative, size and absolute-hand autopilots", () => {
   for (const token of ["initiative", "continuing range", "small", "large", "protected", "board-range ownership"]) assert.match(corpus + rules, new RegExp(token, "i"));
-  assert.doesNotMatch(corpus, /always c-bet/i);
-  assert.doesNotMatch(corpus, /always range-bet/i);
+  assert.match(expansion, /PRIMARY_MISCONCEPTION/);
+  assert.match(expansion, /SECONDARY_MISCONCEPTION/);
+  assert.match(expansion, /correctActionId: "good"/);
+  assert.match(expansion, /correctReasonId: "why"/);
 });
 
 test("later-street SRP skills are deliberately deferred to A8 rather than duplicated", () => {

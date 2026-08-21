@@ -9,6 +9,7 @@ const corpusFiles = [
   "content/practical-mastery/decisions-w1-w3.ts",
   "content/practical-mastery/decisions-gap-fill.ts",
   "content/practical-mastery/decisions-blind-defence-expansion.ts",
+  "content/practical-mastery/decisions-executable-gate-repair.ts",
 ];
 const corpus = (await Promise.all(corpusFiles.map((file) => readFile(path.join(root, file), "utf8")))).join("\n");
 const b1 = await readFile(path.join(root, "content/practical-mastery/decisions-source-closure-b1.ts"), "utf8");
