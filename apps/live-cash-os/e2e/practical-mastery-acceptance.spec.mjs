@@ -98,10 +98,10 @@ test("BL-11 stays visibly fail-closed instead of masquerading as full mastery", 
   await expect(page.getByText(/POSITIVE_EV_SOURCE_ACCESS_REQUIRED/)).toBeVisible();
 });
 
-test("Study Loop connects to existing Real Hands rather than a duplicate capture system", async ({ page }) => {
+test("Study Loop points back to the existing Real Hands surface rather than duplicating capture", async ({ page }) => {
   test.skip(crossMatrix, "navigation contract is covered once in canonical Chromium");
   await page.goto("/mastery/study");
-  const realHands = page.getByRole("link", { name: "Real Hands", exact: true });
+  const realHands = page.getByRole("link", { name: "Real Hands · Live Cash OS", exact: true });
   await expect(realHands).toBeVisible();
-  await expect(realHands).toHaveAttribute("href", "/?section=field");
+  await expect(realHands).toHaveAttribute("href", "/");
 });
