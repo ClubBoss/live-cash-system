@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import {
   practicalAnchors,
   practicalDecisions,
-  practicalMemoryRules,
   practicalReferenceBaselines,
+  practicalRules,
   practicalStudyLoop,
   sessionPerformanceChecks,
 } from "../content/practical-mastery/index.ts";
@@ -79,7 +79,7 @@ function practicalAnchorRuStrings() {
 }
 
 function practicalRuleRuStrings() {
-  return practicalMemoryRules.flatMap((rule) => [rule.triggerRu, rule.defaultRu, rule.whyRu, ...rule.amplifiersRu, ...rule.reversalsRu, rule.transferCueRu]);
+  return practicalRules.flatMap((rule) => [rule.triggerRu, rule.defaultRu, rule.whyRu, ...rule.amplifiersRu, ...rule.reversalsRu, rule.transferCueRu]);
 }
 
 test("new Practical Mastery decision and teaching corpus keeps natural RU without product-internal jargon", () => {
