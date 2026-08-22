@@ -13,6 +13,14 @@ const crossBrowserConfig = readFileSync(
   new URL("../playwright.cross-browser.config.mjs", import.meta.url),
   "utf8",
 );
+const viteConfig = readFileSync(
+  new URL("../vite.config.ts", import.meta.url),
+  "utf8",
+);
+const e2eServer = readFileSync(
+  new URL("../scripts/e2e-server.mjs", import.meta.url),
+  "utf8",
+);
 
 test("release E2E starts the built app in the generated Cloudflare Worker runtime", () => {
   assert.match(
@@ -20,6 +28,7 @@ test("release E2E starts the built app in the generated Cloudflare Worker runtim
     /wrangler dev --config dist\/server\/wrangler\.json/,
   );
   assert.doesNotMatch(packageJson.scripts.start, /vinext start/);
+  assert.equal(packageJson.scripts["start:e2e"], "node scripts/e2e-server.mjs");
 
   for (const [name, config] of [
     ["primary", primaryConfig],
@@ -27,8 +36,13 @@ test("release E2E starts the built app in the generated Cloudflare Worker runtim
   ]) {
     assert.match(
       config,
-      /npm run start -- --ip 127\.0\.0\.1 --port 5173/,
+      /npm run start:e2e -- --ip 127\.0\.0\.1 --port 5173/,
       `${name} Playwright config must start the generated Worker runtime`,
+    );
+    assert.match(
+      config,
+      /globalSetup: "\.\/e2e\/global-setup\.mjs"/,
+      `${name} Playwright config must bootstrap the isolated test mirror when requested`,
     );
     assert.doesNotMatch(
       config,
@@ -36,4 +50,18 @@ test("release E2E starts the built app in the generated Cloudflare Worker runtim
       `${name} Playwright config must not pass Node-only host flags`,
     );
   }
+});
+
+test("normal release E2E uses canonical app D1 schema without Sites access-control state", () => {
+  assert.match(viteConfig, /deployTarget === "e2e-local"/);
+  assert.match(viteConfig, /binding: "DB"/);
+  assert.match(viteConfig, /database_name: "live-cash-os-e2e-state"/);
+  assert.match(
+    viteConfig,
+    /isTestMirrorDeploy \|\| isLocalE2ERuntime \? \[\] : \[sites\(\)\]/,
+  );
+  assert.match(e2eServer, /LIVE_CASH_DEPLOY_TARGET = "e2e-local"/);
+  assert.match(e2eServer, /drizzle\/0000_last_morph\.sql/);
+  assert.match(e2eServer, /"live-cash-os-e2e-state"/);
+  assert.doesNotMatch(e2eServer, /CREATE TABLE/i);
 });
