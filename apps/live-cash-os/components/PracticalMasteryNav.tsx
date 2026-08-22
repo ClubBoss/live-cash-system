@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-html-link-for-pages -- Full-document navigation intentionally bypasses the confirmed Vinext RSC client-transition failure exercised by release E2E. */
+
 import { usePathname } from "next/navigation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
