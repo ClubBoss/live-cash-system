@@ -4,6 +4,7 @@ const passthroughArgs = process.argv.slice(2);
 const inheritedTarget = process.env.LIVE_CASH_DEPLOY_TARGET;
 const testMirror = inheritedTarget === "test-mirror";
 const buildEnv = { ...process.env };
+const E2E_WRANGLER = "wrangler@4.125.0";
 
 if (!testMirror) {
   buildEnv.LIVE_CASH_DEPLOY_TARGET = "e2e-local";
@@ -24,7 +25,8 @@ run("npm", ["run", "build"]);
 
 if (!testMirror) {
   run("npx", [
-    "wrangler",
+    "--yes",
+    E2E_WRANGLER,
     "d1",
     "execute",
     "live-cash-os-e2e-state",
