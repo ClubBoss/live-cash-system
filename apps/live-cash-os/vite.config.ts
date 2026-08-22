@@ -37,7 +37,8 @@ const localBindingConfig = {
 
 const localE2EWorkerConfig = {
   main: "./worker/index.ts",
-  compatibility_flags: ["nodejs_compat"],
+  // Vinext's generated Worker already carries the required nodejs_compat flag.
+  // Do not repeat it in this local E2E overlay: workerd rejects duplicate flags.
   // Release E2E runs in workerd with the same production `DB` binding name,
   // but against a project-local D1 initialized from the canonical migration.
   // Sites packaging is disabled for this local harness because its external
