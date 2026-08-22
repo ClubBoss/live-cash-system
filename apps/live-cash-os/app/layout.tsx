@@ -6,6 +6,7 @@ import "./w8-premium.css";
 import "./mobile-visual-closure.css";
 import "./active-learning.css";
 import "./theme.css";
+import "./mastery-visual-convergence.css";
 
 const themeBootstrap = `(() => {
   const key = "live-cash-os:theme";
