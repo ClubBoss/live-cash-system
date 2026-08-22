@@ -8,7 +8,7 @@ type DecisionRepair = {
 
 const repairs: Record<string, DecisionRepair> = {
   "PM-BL-03-103": {
-    questionRu: "Какой вывод лучше при wide small BTN open?",
+    questionRu: "Какой вывод лучше против широкого диапазона небольшого опен-рейза BTN?",
     questionEn: "Which conclusion is better against a wide small BTN open?",
     actionOptions: {
       a: {
@@ -28,7 +28,7 @@ const repairs: Record<string, DecisionRepair> = {
     },
   },
   "PM-BL-04-104": {
-    questionRu: "Что обязательно пересчитать при large open?",
+    questionRu: "Что обязательно пересчитать при большом сайзинге опен-рейза?",
     questionEn: "What must be recomputed against a large open?",
     actionOptions: {
       a: {
@@ -36,32 +36,32 @@ const repairs: Record<string, DecisionRepair> = {
         textEn: "The incremental call price relative to the final pot",
       },
       b: {
-        textRu: "Считать только уже поставленный blind: дополнительный колл цену не меняет",
+        textRu: "Считать только уже поставленный блайнд: дополнительный колл цену не меняет",
         textEn: "Count only the posted blind: the extra call does not change the price",
         misconception: "SUNK_BLIND_OVERUSED",
       },
       c: {
-        textRu: "Сохранять прежний fringe только потому, что hand label не изменился",
+        textRu: "Сохранять прежнюю пограничную защиту только потому, что категория руки не изменилась",
         textEn: "Keep the old fringe just because the hand label is unchanged",
         misconception: "SIZE_IGNORED",
       },
     },
   },
   "PM-BL-05-105": {
-    questionRu: "Как оценить решение, если flat выглядит плохим?",
+    questionRu: "Как оценить решение, если колл выглядит плохим?",
     questionEn: "How should the decision be evaluated when flatting looks bad?",
     actionOptions: {
       a: {
-        textRu: "Проверить EV 3-bet в called branch, а не повышать агрессию автоматически",
+        textRu: "Проверить EV 3-бета в ветке, где соперник коллирует, а не повышать агрессию автоматически",
         textEn: "Check the 3-bet called-branch EV instead of escalating aggression automatically",
       },
       b: {
-        textRu: "Если flat плох, 3-bet автоматически лучше",
+        textRu: "Если колл плох, 3-бет автоматически лучше",
         textEn: "If the flat is bad, the 3-bet is automatically better",
         misconception: "THREE_BET_OR_FOLD_LITERAL",
       },
       c: {
-        textRu: "Игнорировать, какие stronger hands остаются после 3-bet",
+        textRu: "Игнорировать, какие более сильные руки остаются после 3-бета",
         textEn: "Ignore which stronger hands remain after the 3-bet",
         misconception: "FILTERING_IGNORED",
       },
