@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-html-link-for-pages -- Full-document navigation is the fail-safe transport for the confirmed Vinext RSC client-transition defect; prefetch keeps it responsive without re-enabling the broken transition path. */
-
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
 const warmed = new Set<string>();
