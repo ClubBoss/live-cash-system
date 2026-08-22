@@ -21,7 +21,7 @@ export default defineConfig({
     { name: "w8-tablet-webkit", use: { ...devices["iPad (gen 7)"] } },
   ],
   webServer: {
-    command: "npm run build && npm run start -- --hostname 127.0.0.1 --port 5173",
+    command: "npm run build && npm run start -- --ip 127.0.0.1 --port 5173",
     url: "http://127.0.0.1:5173",
     reuseExistingServer: true,
     timeout: 120_000,
