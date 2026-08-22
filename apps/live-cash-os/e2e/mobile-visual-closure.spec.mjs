@@ -15,8 +15,8 @@ test("real-device mobile closure keeps the primary learning action above the fol
   const marker = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--mobile-visual-closure").trim());
   expect(marker).toBe("closure-20260808");
 
-  const gateway = page.getByRole("region", { name: "Основной маршрут Practical Mastery" });
-  const primaryAction = gateway.getByRole("link", { name: /Продолжить Practical Mastery/ });
+  const gateway = page.getByRole("region", { name: "Основной маршрут обучения" });
+  const primaryAction = gateway.getByRole("link", { name: /Продолжить обучение/ });
   await expect(gateway).toBeVisible();
   await expect(primaryAction).toBeVisible();
   await expect(primaryAction).toBeInViewport();
@@ -44,7 +44,7 @@ test("real-device mobile closure keeps the primary learning action above the fol
   const radius = Number.parseFloat(await card.evaluate((element) => getComputedStyle(element).borderTopLeftRadius));
   expect(radius).toBeGreaterThanOrEqual(18);
 
-  // The legacy Today route remains available below the new primary Practical Mastery entry.
+  // The legacy Today route remains available below the new primary learning entry.
   const start = page.getByRole("button", { name: "Начать", exact: true });
   await expect(start).toBeVisible();
 
