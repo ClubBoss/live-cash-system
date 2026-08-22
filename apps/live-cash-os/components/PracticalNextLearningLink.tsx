@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { usePracticalLocale } from "../lib/use-practical-locale";
+import PracticalDocumentLink from "./PracticalDocumentLink";
 
 export default function PracticalNextLearningLink({
   className,
@@ -19,5 +20,5 @@ export default function PracticalNextLearningLink({
   labelEn?: string;
 }) {
   const [locale] = usePracticalLocale();
-  return <a className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</a>;
+  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</PracticalDocumentLink>;
 }
