@@ -36,10 +36,13 @@ test("perceptual and mixed practice record distinct stimulus modes",()=>{
  assert.match(mixed,/setMasteryWithPerformance/);
 });
 
-test("blind novice flow still refuses unseen concept testing",()=>{
+test("blind novice flow teaches before scoring and still refuses unseen concept testing",()=>{
  assert.match(perceptual,/conceptTaught/);
  assert.match(perceptual,/First Journey/);
- assert.match(journey,/PREDICT FIRST/);
+ assert.match(journey,/ГДЕ ЭТО НУЖНО|WHERE THIS MATTERS/);
+ assert.match(journey,/Проверить на примере|Try an example/);
+ assert.match(journey,/markPracticalConceptTaught/);
+ assert.doesNotMatch(journey,/<textarea/);
 });
 
 test("retention still requires real spacing and non-identical retrieval",()=>{

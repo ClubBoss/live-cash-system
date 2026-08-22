@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { firstJourneyStepForSkill } from "../content/practical-mastery/first-journey";
-import { practicalAnchors, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
+import { practicalAnchors, practicalDecisionById, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
 import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/practical-mastery-core";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -12,8 +12,8 @@ import { usePracticalProfileState } from "../lib/use-practical-profile-state";
 export default function PracticalFirstJourneyExperience() {
   const [locale, setLocale] = usePracticalLocale();
   const { mastery: state, setMastery, ready, recoveryBlocked } = usePracticalProfileState();
-  const [prediction, setPrediction] = useState("");
-  const [ruleRevealed, setRuleRevealed] = useState(false);
+  const [practiceStarted, setPracticeStarted] = useState(false);
+  const [answeredDecisionId, setAnsweredDecisionId] = useState<string | null>(null);
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [answerRevealed, setAnswerRevealed] = useState(false);
@@ -25,30 +25,42 @@ export default function PracticalFirstJourneyExperience() {
   const journeyStep = recommendation ? firstJourneyStepForSkill(recommendation.skillId) : null;
   const rules = journeyStep?.memoryRuleIds.map((ruleId) => practicalRuleById.get(ruleId)).filter(Boolean) ?? [];
   const rule = rules[0] ?? null;
-  const anchor = skill ? practicalAnchors.find((item) => item.skillId === skill.id) ?? null : null;
-  const decision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
+  const skillAnchors = skill ? practicalAnchors.filter((item) => item.skillId === skill.id) : [];
+  const anchor = skillAnchors[0] ?? null;
+  const contrastAnchor = skillAnchors.find((item) => item.kind === "changed" || item.kind === "boundary") ?? null;
+  const nextDecision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
+  const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
 
   useEffect(() => {
-    setPrediction("");
-    setRuleRevealed(false);
+    setPracticeStarted(false);
+    setAnsweredDecisionId(null);
     setActionId("");
     setReasonId("");
     setAnswerRevealed(false);
     setLastCorrect(null);
-  }, [recommendation?.skillId, decision?.id]);
+  }, [recommendation?.skillId]);
 
-  const revealMechanism = () => {
+  const startPractice = () => {
     if (!skill) return;
-    setRuleRevealed(true);
+    setPracticeStarted(true);
     if (!state.skills[skill.id]?.conceptTaught) setMastery(markPracticalConceptTaught(state, skill.id));
   };
 
   const submitDecision = () => {
     if (!decision || !actionId || !reasonId) return;
     const correct = actionId === decision.correctActionId && reasonId === decision.correctReasonId;
+    setAnsweredDecisionId(decision.id);
     setMastery(recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 }));
     setLastCorrect(correct);
     setAnswerRevealed(true);
+  };
+
+  const advanceDecision = () => {
+    setAnsweredDecisionId(null);
+    setActionId("");
+    setReasonId("");
+    setAnswerRevealed(false);
+    setLastCorrect(null);
   };
 
   if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
@@ -56,41 +68,61 @@ export default function PracticalFirstJourneyExperience() {
 
   if (!recommendation || !skill || !journeyStep) {
     return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
-      <p className="eyebrow">{locale === "ru" ? "ПЕРВЫЙ КРУГ" : "FIRST JOURNEY"}</p>
-      <h1>{locale === "ru" ? "Первый круг завершён" : "First loop complete"}</h1>
-      <p>{locale === "ru" ? "Ты познакомился с первым набором ключевых навыков. Это ещё не полное освоение: дальше задачи будут перемешиваться, ошибки вернутся на повторение, а позже система проверит, сохранился ли навык на новых примерах." : "The first spiral pass is complete. This is not mastery: the system now mixes skills, brings mistakes back, and later tests retention on new stimuli."}</p>
+      <p className="eyebrow">{locale === "ru" ? "БЫСТРЫЙ СТАРТ" : "QUICK START"}</p>
+      <h1>{locale === "ru" ? "Быстрый старт завершён" : "Quick start complete"}</h1>
+      <p>{locale === "ru" ? "Ты познакомился с 8 ключевыми моделями. Это не означает полное освоение: дальше система будет смешивать задачи, возвращать ошибки, менять условия и позже проверять сохранение навыка после паузы." : "You have met 8 core models. This is not full mastery: the system will now mix decisions, revisit mistakes, change conditions, and later test retention after a delay."}</p>
       <p><b>{progress.reached}/{progress.total}</b></p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Начать смешанную практику →" : "Start mixed session →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</Link></div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Продолжить обучение →" : "Continue learning →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></div>
     </main>;
   }
 
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
     <section className="hero compact-hero">
-      <p className="eyebrow">{locale === "ru" ? `ПЕРВЫЙ КРУГ · ${progress.reached}/${progress.total}` : `FIRST JOURNEY · ${progress.reached}/${progress.total}`}</p>
+      <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
       <h1>{locale === "ru" ? skill.titleRu : skill.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
 
-    <section className="today-card" style={{ marginTop: 20 }}><p className="eyebrow">{locale === "ru" ? "ПОЧЕМУ СЕЙЧАС" : "WHY NOW"}</p><p>{locale === "ru" ? recommendation.whyNowRu : recommendation.whyNowEn}</p></section>
+    {!practiceStarted ? <>
+      <section className="today-card" style={{ marginTop: 20 }}>
+        <p className="eyebrow">{locale === "ru" ? "ГДЕ ЭТО НУЖНО" : "WHERE THIS MATTERS"}</p>
+        <p>{locale === "ru" ? journeyStep.tableUseRu : journeyStep.tableUseEn}</p>
+      </section>
 
-    {!ruleRevealed ? <section className="surface" style={{ marginTop: 20 }}>
-      <p className="eyebrow">{locale === "ru" ? "СНАЧАЛА ПРОГНОЗ" : "PREDICT FIRST"}</p>
-      <h2>{locale === "ru" ? "До объяснения — что здесь должно измениться?" : "Before the explanation — what should change here?"}</h2>
-      <p>{rule ? (locale === "ru" ? rule.triggerRu : rule.triggerEn) : anchor ? (locale === "ru" ? anchor.promptRu : anchor.promptEn) : (locale === "ru" ? skill.objectiveRu : skill.titleEn)}</p>
-      <textarea aria-label={locale === "ru" ? "Твой прогноз" : "Your prediction"} value={prediction} onChange={(event) => setPrediction(event.target.value)} placeholder={locale === "ru" ? "Коротко: куда двигается решение и почему?" : "Briefly: which way does the decision move, and why?"} style={{ width: "100%", minHeight: 88, margin: "12px 0" }} />
-      <button className="primary" onClick={revealMechanism}>{locale === "ru" ? "Показать механизм" : "Reveal mechanism"} <span>→</span></button>
-    </section> : <section className="surface" style={{ marginTop: 20 }}>
-      <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
-      {rule ? <><h2>{locale === "ru" ? rule.defaultRu : rule.defaultEn}</h2><p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? rule.whyRu : rule.whyEn}</p><p><b>{locale === "ru" ? "Когда правило слабеет или ломается:" : "When it weakens/breaks:"}</b> {(locale === "ru" ? rule.reversalsRu : rule.reversalsEn).join(" · ")}</p><p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p></> : anchor ? <><h2>{locale === "ru" ? anchor.answerRu : anchor.answerEn}</h2><p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p><p className="support">{locale === "ru" ? "Источники" : "Sources"}: {anchor.sourceRefs.join(", ")}</p></> : null}
-    </section>}
+      <section className="surface" style={{ marginTop: 20 }}>
+        <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
+        {rule ? <>
+          <h2>{locale === "ru" ? rule.defaultRu : rule.defaultEn}</h2>
+          <p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? rule.whyRu : rule.whyEn}</p>
+          <p><b>{locale === "ru" ? "Когда правило меняется:" : "When it changes:"}</b> {(locale === "ru" ? rule.reversalsRu : rule.reversalsEn).join(" · ")}</p>
+        </> : anchor ? <>
+          <h2>{locale === "ru" ? anchor.promptRu : anchor.promptEn}</h2>
+          <p><b>{locale === "ru" ? "Ответ:" : "Answer:"}</b> {locale === "ru" ? anchor.answerRu : anchor.answerEn}</p>
+          <p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p>
+        </> : <p>{locale === "ru" ? skill.objectiveRu : skill.titleEn}</p>}
 
-    {ruleRevealed && decision ? <section className="today-card" style={{ marginTop: 20 }}>
-      <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "ПРОВЕРКА БЕЗ ПОДСКАЗКИ" : "РЕШЕНИЕ") : (journeyStep.requiresHiddenCue ? "HIDDEN-CUE RETRIEVAL" : decision.kind.toUpperCase())}</p>
+        {contrastAnchor && contrastAnchor.id !== anchor?.id ? <div className="today-card" style={{ marginTop: 16 }}>
+          <p className="eyebrow">{locale === "ru" ? "ИЗМЕНИ ОДНО УСЛОВИЕ" : "CHANGE ONE CONDITION"}</p>
+          <p>{locale === "ru" ? contrastAnchor.promptRu : contrastAnchor.promptEn}</p>
+          <p><b>{locale === "ru" ? "Что меняется:" : "What changes:"}</b> {locale === "ru" ? contrastAnchor.answerRu : contrastAnchor.answerEn}</p>
+        </div> : rule ? <p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p> : null}
+
+        <button className="primary" onClick={startPractice} style={{ marginTop: 16 }}>{locale === "ru" ? "Проверить на примере" : "Try an example"} <span>→</span></button>
+      </section>
+    </> : null}
+
+    {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }}>
+      <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА" : "ТЕПЕРЬ ТЫ") : (journeyStep.requiresHiddenCue ? "INDEPENDENT CHECK" : "YOUR TURN")}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div><h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3><p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p><p className="support">{locale === "ru" ? "Источники" : "Sources"}: {decision.sourceRefs.join(", ")}</p><button className="secondary" onClick={() => { setActionId(""); setReasonId(""); setAnswerRevealed(false); setLastCorrect(null); }}>{locale === "ru" ? "Следующий шаг" : "Next step"} <span>→</span></button></div>}
-    </section> : ruleRevealed ? <section className="today-card" style={{ marginTop: 20 }}><p>{locale === "ru" ? "Для этого навыка сейчас нет следующей подходящей задачи. Система не будет засчитывать прогресс без новой независимой проверки." : "There is no next honestly available scored stimulus for this node. The journey will not grant fake completion."}</p></section> : null}
+      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
+        <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
+        <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
+        <p className="support">{locale === "ru" ? "Это только первый контакт с навыком. Система вернёт его в новых ситуациях и позже проверит после паузы." : "This is only the first contact with the skill. The system will revisit it in new situations and later after a delay."}</p>
+        <button className="secondary" onClick={advanceDecision}>{locale === "ru" ? "Следующий пример" : "Next example"} <span>→</span></button>
+      </div>}
+    </section> : practiceStarted ? <section className="today-card" style={{ marginTop: 20 }}><p>{locale === "ru" ? "Для этого навыка сейчас нет следующей независимой задачи. Система не будет засчитывать прогресс без новой проверки." : "There is no next independent item for this skill right now. The system will not grant progress without another check."}</p></section> : null}
   </main>;
 }

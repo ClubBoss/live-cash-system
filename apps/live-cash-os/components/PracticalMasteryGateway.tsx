@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useState } from "react";
+import LegacyToolDeepLink from "./LegacyToolDeepLink";
+import PracticalNextLearningLink from "./PracticalNextLearningLink";
+import SupportingToolsIntro from "./SupportingToolsIntro";
 
 const LOCALE_KEY = "live-cash-os:locale";
 type Locale = "ru" | "en";
@@ -56,45 +59,49 @@ export default function PracticalMasteryGateway() {
     return () => document.removeEventListener("click", onClick, true);
   }, []);
 
-  if (activeSession) return null;
+  if (activeSession) return <LegacyToolDeepLink />;
 
-  return <section
-    aria-label={locale === "ru" ? "Основной маршрут Practical Mastery" : "Primary Practical Mastery route"}
-    className="surface practical-mastery-gateway"
-    style={{ maxWidth: 1180, margin: "18px auto 0", padding: "18px 20px" }}
-  >
-    <p className="eyebrow practical-mastery-gateway__eyebrow">PRACTICAL MASTERY</p>
-    <h2>{locale === "ru" ? "Основной маршрут: тренируй решения, а не прохождение модулей" : "Primary route: train decisions, not module completion"}</h2>
-    <p className="practical-mastery-gateway__detail">{locale === "ru"
-      ? "Карта навыков ведёт от распознавания спота к решению, переносу на новые ситуации, повторению после паузы и разбору реальных рук. Старые разделы ниже остаются полезны для диагностики, карточек, разбора рук и восстановления данных."
-      : "The skill graph moves from spot recognition to decisions, transfer, retention, and real hands. The legacy tools below remain useful for diagnostics, cards, hand review, and data."}</p>
-    <div className="practical-mastery-gateway__actions" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
-      <a className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить Practical Mastery" : "Continue Practical Mastery"} <span>→</span></a>
-      <a className="secondary practical-mastery-gateway__map" href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"}</a>
-    </div>
-    <style>{`
-      @media (max-width: 650px) {
-        .practical-mastery-gateway {
-          margin: 8px 12px 0 !important;
-          padding: 10px 12px !important;
+  return <>
+    <LegacyToolDeepLink />
+    <section
+      aria-label={locale === "ru" ? "Основной маршрут обучения" : "Primary learning route"}
+      className="surface practical-mastery-gateway"
+      style={{ maxWidth: 1180, margin: "18px auto 0", padding: "18px 20px" }}
+    >
+      <p className="eyebrow practical-mastery-gateway__eyebrow">LIVE CASH TRAINING</p>
+      <h2>{locale === "ru" ? "Один маршрут: учись, решай, применяй, повторяй" : "One route: learn, decide, apply, repeat"}</h2>
+      <p className="practical-mastery-gateway__detail">{locale === "ru"
+        ? "Нажми «Продолжить обучение». Система сама выберет следующий полезный шаг: новый механизм, решение, перенос на изменённый спот или повторение. Карта, чтение стола и разбор после игры — дополнительные инструменты, а не отдельные курсы."
+        : "Choose “Continue learning”. The system picks the next useful step: a new mechanism, a decision, changed-node transfer, or review. The map, table reading, and after-play review are supporting tools, not separate courses."}</p>
+      <div className="practical-mastery-gateway__actions" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+        <PracticalNextLearningLink className="primary" />
+        <a className="secondary practical-mastery-gateway__map" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</a>
+      </div>
+      <style>{`
+        @media (max-width: 650px) {
+          .practical-mastery-gateway {
+            margin: 8px 12px 0 !important;
+            padding: 10px 12px !important;
+          }
+          .practical-mastery-gateway h2,
+          .practical-mastery-gateway__detail,
+          .practical-mastery-gateway__map {
+            display: none !important;
+          }
+          .practical-mastery-gateway__eyebrow {
+            margin: 0 0 6px !important;
+          }
+          .practical-mastery-gateway__actions {
+            margin-top: 0 !important;
+          }
+          .practical-mastery-gateway__actions .primary {
+            min-height: 40px;
+            padding: 8px 12px;
+            font-size: 13px;
+          }
         }
-        .practical-mastery-gateway h2,
-        .practical-mastery-gateway__detail,
-        .practical-mastery-gateway__map {
-          display: none !important;
-        }
-        .practical-mastery-gateway__eyebrow {
-          margin: 0 0 6px !important;
-        }
-        .practical-mastery-gateway__actions {
-          margin-top: 0 !important;
-        }
-        .practical-mastery-gateway__actions .primary {
-          min-height: 40px;
-          padding: 8px 12px;
-          font-size: 13px;
-        }
-      }
-    `}</style>
-  </section>;
+      `}</style>
+    </section>
+    <SupportingToolsIntro />
+  </>;
 }

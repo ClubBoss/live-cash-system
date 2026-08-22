@@ -7,32 +7,43 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
 
-test("canonical product exposes Practical Mastery without removing the hardened legacy shell", async () => {
+test("canonical product exposes one Practical learning entry without removing the hardened legacy shell", async () => {
   const page = await read("app/page.tsx");
   const gateway = await read("components/PracticalMasteryGateway.tsx");
+  const nextLearning = await read("components/PracticalNextLearningLink.tsx");
+  const journey = await read("components/PracticalFirstJourneyExperience.tsx");
   assert.match(page, /PracticalMasteryGateway/);
   assert.match(page, /<PracticalMasteryGateway \/>[\s\S]*<LiveCashApp \/>/);
-  assert.match(gateway, /href="\/mastery\/journey"/);
-  assert.match(gateway, /Primary route|Основной маршрут/);
+  assert.match(gateway, /PracticalNextLearningLink/);
+  assert.match(gateway, /Один маршрут|One route/);
+  assert.match(nextLearning, /href="\/mastery\/journey"/);
+  assert.doesNotMatch(nextLearning, /usePracticalProfileState|useReliableLearnerState|firstJourneyProgress/, "shared navigation must not create another learner-state sync owner");
+  assert.match(journey, /href="\/mastery\/session"/);
+  assert.match(journey, /Быстрый старт завершён|Quick start complete/);
 });
 
-test("every Practical Mastery route inherits the same test-invite boundary and shared navigation", async () => {
+test("every Practical Mastery route inherits the invite boundary while shared navigation separates learning from tools", async () => {
   const layout = await read("app/mastery/layout.tsx");
   const nav = await read("components/PracticalMasteryNav.tsx");
+  const nextLearning = await read("components/PracticalNextLearningLink.tsx");
   assert.match(layout, /TestInviteGate/);
   assert.match(layout, /<TestInviteGate>/);
   assert.match(layout, /PracticalMasteryNav/);
-  for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
-    assert.ok(nav.includes(`href="${route}"`), `${route} must be linked from the shared mastery navigation`);
+  assert.match(nav, /PracticalNextLearningLink/);
+  assert.match(nav, /ariaCurrent=\{learningActive \? "page" : undefined\}/);
+  assert.match(nav, /aria-current=\{active \? "page" : undefined\}/);
+  for (const route of ["/mastery", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
+    assert.ok(nav.includes(`href: "${route}"`), `${route} must remain declared as a supporting tool route`);
   }
-  assert.match(nav, /Карта навыков/);
-  assert.match(nav, /Смешанная практика/);
-  assert.match(nav, /Чтение стола/);
+  assert.match(nextLearning, /href="\/mastery\/journey"/);
+  for (const label of ["Учиться", "Карта", "Чтение стола", "После игры", "Справочник"]) assert.match(nav, new RegExp(label));
+  assert.doesNotMatch(nav, /Старт обучения|Смешанная практика/);
 });
 
-test("release gate now carries dedicated Practical Mastery browser evidence", async () => {
+test("release gate carries dedicated Practical Mastery browser evidence", async () => {
   const pkg = await read("package.json");
   const acceptance = await read("e2e/practical-mastery-acceptance.spec.mjs");
+  const clarity = await read("e2e/practical-mastery-ux-clarity.spec.mjs");
   const access = await read("e2e/practical-mastery-access.spec.mjs");
   assert.match(pkg, /test:e2e:mastery-cross/);
   assert.match(pkg, /practical-mastery-access\.spec\.mjs/);
@@ -40,7 +51,9 @@ test("release gate now carries dedicated Practical Mastery browser evidence", as
   assert.match(acceptance, /390, height: 844/);
   assert.match(acceptance, /rootSchema: root\.schemaVersion/);
   assert.match(acceptance, /practicalSchema: root\._practicalProfile\?\.mastery\?\.schemaVersion/);
-  assert.match(acceptance, /ОГРАНИЧЕНИЕ ИСТОЧНИКА/);
+  assert.match(acceptance, /ПОКА ЕСТЬ ОГРАНИЧЕНИЕ/);
   assert.match(acceptance, /недостаточно, чтобы честно задавать точные частоты/i);
+  assert.match(clarity, /textarea/);
+  assert.match(clarity, /33,3%/);
   assert.match(access, /Вход для тестирования/);
 });

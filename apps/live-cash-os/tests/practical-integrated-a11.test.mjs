@@ -23,9 +23,9 @@ test("A11 supplies non-identical corpus for every integrated meta family", () =>
 test("integrated session is bounded, topic-hidden, and reveals scheduling reason only after commitment", () => {
   assert.match(engine, /INTEGRATED_SESSION_SIZE = 8/);
   assert.match(ui, /Тема скрыта до ответа|topic stays hidden/i);
-  assert.match(ui, /REVEAL AFTER COMMITMENT/);
+  assert.match(ui, /ЧТО ПРОВЕРЯЛОСЬ|WHAT THIS TESTED/);
   assert.match(ui, /whyAfterAnswer/);
-  const preReveal = ui.slice(ui.indexOf("MIXED PRACTICE"), ui.indexOf("REVEAL AFTER COMMITMENT"));
+  const preReveal = ui.slice(ui.indexOf("Прими решение до подсказки"), ui.indexOf("ЧТО ПРОВЕРЯЛОСЬ"));
   assert.doesNotMatch(preReveal, /skill\.titleRu|skill\.titleEn|item\.whyAfterAnswer/);
 });
 

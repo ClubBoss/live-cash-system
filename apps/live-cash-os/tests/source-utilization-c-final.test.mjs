@@ -80,8 +80,9 @@ test("C2 exposes a small reference layer and preserves exact visual authority bo
 });
 
 test("C1/C2 routes are discoverable from the canonical shared mastery navigation", () => {
-  assert.match(masteryNav, /href="\/mastery\/study"/);
-  assert.match(masteryNav, /href="\/mastery\/reference"/);
+  assert.match(masteryNav, /href=\{item\.href\}/, "shared mastery navigation must render its declared route inventory");
+  assert.match(masteryNav, /href: "\/mastery\/study"/);
+  assert.match(masteryNav, /href: "\/mastery\/reference"/);
   assert.match(studyPage, /PracticalStudyLoopExperience/);
   assert.match(referencePage, /PracticalReferenceExperience/);
 });

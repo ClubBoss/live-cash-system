@@ -57,20 +57,49 @@ export default function PracticalIntegratedSessionExperience() {
     setWasCorrect(correct); setRevealed(true);
   };
 
-  if (!ready || initializedRevision === null) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем сессию…" : "Loading session…"}</p></main>;
+  if (!ready || initializedRevision === null) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Подбираем следующую практику…" : "Preparing your next practice…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><Link href="/">Live Cash OS →</Link></main>;
 
-  if (completed) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}><section className="hero compact-hero"><p className="eyebrow">{locale === "ru" ? "СМЕШАННАЯ ПРАКТИКА" : "INTEGRATED SESSION"}</p><h1>{locale === "ru" ? "Сессия завершена" : "Session complete"}</h1><p>{locale === "ru" ? "Следующая сессия соберётся заново из текущих ошибок, задач на повторение, скорости решений и навыков, которым пока не хватило практики." : "The next session will be rebuilt from current mistakes, retention, automaticity, and underexposed skills."}</p><p><b>{score.correct}/{items.length}</b></p><div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}><button className="primary" onClick={() => { setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance)); setIndex(0); }}>{locale === "ru" ? "Собрать следующую сессию" : "Build next session"} <span>→</span></button><Link className="secondary" href="/mastery">{locale === "ru" ? "Изучить следующий навык" : "Learn the next skill"}</Link></div></section></main>;
+  if (completed) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}><section className="hero compact-hero">
+    <p className="eyebrow">{locale === "ru" ? "ПРАКТИКА" : "PRACTICE"}</p>
+    <h1>{locale === "ru" ? "Раунд завершён" : "Round complete"}</h1>
+    <p>{locale === "ru" ? "Система учтёт ошибки, уверенность, повторение и уже знакомые навыки. Следующий раунд снова подберёт наиболее полезные решения — тебе не нужно выбирать режим вручную." : "The system will use your mistakes, confidence, review timing, and prior exposure to choose the next useful decisions. You do not need to pick a mode manually."}</p>
+    <p><b>{score.correct}/{items.length}</b></p>
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
+      <button className="primary" onClick={() => { setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance)); setIndex(0); }}>{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></button>
+      <Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link>
+    </div>
+  </section></main>;
 
-  if (!item || !decision) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}><p className="eyebrow">{locale === "ru" ? "СМЕШАННАЯ ПРАКТИКА" : "INTEGRATED SESSION"}</p><h1>{locale === "ru" ? "Сначала нужен изученный материал" : "Learn some material first"}</h1><p>{locale === "ru" ? "Смешанная практика не проверяет незнакомые концепции. Сначала пройди первый круг." : "Mixed practice will not test an unseen concept."}</p><p><Link href="/mastery/journey">{locale === "ru" ? "Первый круг" : "First Journey"} →</Link> · <Link href="/mastery">{locale === "ru" ? "Карта навыков" : "Skill map"} →</Link></p></main>;
+  if (!item || !decision) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+    <p className="eyebrow">{locale === "ru" ? "ПРАКТИКА" : "PRACTICE"}</p>
+    <h1>{locale === "ru" ? "Сначала познакомься с ключевыми моделями" : "Learn the core models first"}</h1>
+    <p>{locale === "ru" ? "Практика не будет проверять незнакомые темы. Пройди быстрый старт, после чего система начнёт смешивать знакомые навыки и возвращать ошибки." : "Practice will not test unseen concepts. Finish Quick Start first; then the system will mix familiar skills and revisit mistakes."}</p>
+    <p><Link href="/mastery/journey">{locale === "ru" ? "Быстрый старт" : "Quick Start"} →</Link> · <Link href="/mastery">{locale === "ru" ? "Карта" : "Map"} →</Link></p>
+  </main>;
 
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
-    <section className="hero compact-hero"><p className="eyebrow">{locale === "ru" ? `СМЕШАННАЯ ПРАКТИКА · ${index + 1}/${items.length}` : `MIXED PRACTICE · ${index + 1}/${items.length}`}</p><h1>{locale === "ru" ? "Какой механизм нужен здесь?" : "Which mechanism applies here?"}</h1><p>{locale === "ru" ? "Тема скрыта до ответа — как за реальным столом." : "The topic stays hidden until you answer — like at a real table."}</p><div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div></section>
+    <section className="hero compact-hero">
+      <p className="eyebrow">{locale === "ru" ? `ПРАКТИКА · ${index + 1}/${items.length}` : `PRACTICE · ${index + 1}/${items.length}`}</p>
+      <h1>{locale === "ru" ? "Прими решение до подсказки" : "Decide before the reveal"}</h1>
+      <p>{locale === "ru" ? "Тема скрыта до ответа. Так система проверяет, узнаёшь ли ты нужный механизм без названия раздела." : "The topic stays hidden until you answer, so the system can test whether you recognize the mechanism without a topic label."}</p>
+      <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
+    </section>
     <section className="today-card" style={{ marginTop: 20 }}><h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
       <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
       <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
       <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
-      {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Зафиксировать решение" : "Lock answer"} <span>→</span></button> : <div><h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3><p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p><div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОСЛЕ ОТВЕТА" : "REVEAL AFTER COMMITMENT"}</p><p><b>{locale === "ru" ? "Навык:" : "Skill:"}</b> {skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : item.skillId}</p><p><b>{locale === "ru" ? "Почему сейчас:" : "Why now:"}</b> {locale === "ru" ? "Эта задача выбрана из текущих ошибок, повторения и недавней практики." : item.whyAfterAnswer}</p>{item.retentionTierDays ? <p><b>{locale === "ru" ? "Повторение:" : "Retention:"}</b> {item.retentionTierDays} {locale === "ru" ? "дн. · новая задача по тому же механизму" : "d · non-identical retrieval"}</p> : null}<p className="support">{locale === "ru" ? "Источники" : "Sources"}: {decision.sourceRefs.join(", ")}</p></div><button className="primary" onClick={() => setIndex((value) => value + 1)} style={{ marginTop: 14 }}>{locale === "ru" ? "Следующее решение" : "Next decision"} <span>→</span></button></div>}
+      {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
+        <h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
+        <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
+        <div className="today-card" style={{ marginTop: 14 }}>
+          <p className="eyebrow">{locale === "ru" ? "ЧТО ПРОВЕРЯЛОСЬ" : "WHAT THIS TESTED"}</p>
+          <p><b>{locale === "ru" ? "Навык:" : "Skill:"}</b> {skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : item.skillId}</p>
+          <p>{locale === "ru" ? "Эта задача попала сюда из текущих ошибок, очереди повторения или потому, что навыку нужна ещё практика." : item.whyAfterAnswer}</p>
+          {item.retentionTierDays ? <p><b>{locale === "ru" ? "Вернётся позже:" : "Returns later:"}</b> {item.retentionTierDays} {locale === "ru" ? "дн. · на новом примере" : "d · with a different item"}</p> : null}
+        </div>
+        <button className="primary" onClick={() => setIndex((value) => value + 1)} style={{ marginTop: 14 }}>{locale === "ru" ? "Следующее решение" : "Next decision"} <span>→</span></button>
+      </div>}
     </section>
   </main>;
 }

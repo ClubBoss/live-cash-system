@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "utf8");
-const experience = await readFile(path.join(root, "components/PracticalMasteryExperience.tsx"), "utf8");
+const mapExperience = await readFile(path.join(root, "components/PracticalMasteryExperience.tsx"), "utf8");
+const journeyExperience = await readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8");
 const anchors = await readFile(path.join(root, "content/practical-mastery/index.ts"), "utf8");
 
 test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
@@ -37,12 +38,14 @@ test("immediate answers cannot grant delayed or real-hand evidence", () => {
   assert.match(core, /if \(reviewed && nextProgress\.delayedRetrievalPassed\) nextProgress\.realHandTransferReviewed = true/);
 });
 
-test("concept completion is preceded by learner-facing source-backed anchors", () => {
-  assert.match(experience, /practicalAnchors/);
-  assert.match(experience, /lessonAnchors\.map/);
-  assert.match(experience, /UNDERSTAND THE MECHANISM FIRST/);
-  assert.match(experience, /markPracticalConceptTaught/);
+test("concept completion is preceded by learner-facing source-backed anchors in Quick Start", () => {
+  assert.match(journeyExperience, /practicalAnchors/);
+  assert.match(journeyExperience, /skillAnchors/);
+  assert.match(journeyExperience, /anchor\.promptRu|anchor\.promptEn/);
+  assert.match(journeyExperience, /markPracticalConceptTaught/);
+  assert.match(journeyExperience, /МЕХАНИЗМ|MECHANISM/);
   assert.match(anchors, /practicalAnchors/);
+  assert.doesNotMatch(mapExperience, /recordPracticalDecision/, "the progress map must not become a second scored-practice owner");
 });
 
 test("v3 practical evidence remains first-class while persistence moves into the reliable learner profile", () => {
@@ -51,8 +54,8 @@ test("v3 practical evidence remains first-class while persistence moves into the
   assert.match(core, /retentionDaysPassed: number\[\]/);
   assert.match(core, /retentionDaysPassed: \[\]/);
   assert.match(core, /resetFromLegacyAt/);
-  assert.match(experience, /usePracticalProfileState/);
-  assert.doesNotMatch(experience, /live-cash-os:practical-mastery:v3/);
+  assert.match(mapExperience, /usePracticalProfileState/);
+  assert.doesNotMatch(mapExperience, /live-cash-os:practical-mastery:v3/);
   assert.doesNotMatch(core, /contentCompleted/);
   assert.doesNotMatch(core, /FIELD_VALIDATED/);
 });
