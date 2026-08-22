@@ -314,8 +314,10 @@ function decisionRow(
   }
   if (decision.targetSeconds <= 0) structuralErrors.push(`${decision.id}: invalid targetSeconds`);
 
-  const wrongOptions = [...decision.actionOptions, ...decision.reasonOptions]
-    .filter((option) => option.id !== decision.correctActionId && option.id !== decision.correctReasonId);
+  const wrongOptions = [
+    ...decision.actionOptions.filter((option) => option.id !== decision.correctActionId),
+    ...decision.reasonOptions.filter((option) => option.id !== decision.correctReasonId),
+  ];
   const reviewSignals: ReviewSignals = {
     missingChangedVariables: ["changed", "boundary", "mixed"].includes(decision.kind) && (decision.changedVariables?.length ?? 0) === 0,
     wrongOptionsWithoutMisconception: wrongOptions.filter((option) => !option.misconception).map((option) => option.id),
