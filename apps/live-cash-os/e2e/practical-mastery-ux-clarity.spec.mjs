@@ -46,22 +46,58 @@ test("Quick Start teaches pot odds as a calculation and immediately contrasts a 
   await expect(page.locator("main")).not.toContainText(sourceIdPattern);
 });
 
-test("skill map reads as progress, not an internal content dashboard", async ({ page }) => {
+test("skill map is the canonical home and reads as progress, not an internal content dashboard", async ({ page }) => {
   await page.goto("/mastery");
   await expect(page.getByRole("heading", { name: /Смотри прогресс/i })).toBeVisible();
   await expect(page.locator("main .hero").getByRole("link", { name: "Продолжить обучение", exact: true })).toBeVisible();
+  const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(nav.getByRole("link", { name: "Главная", exact: true })).toHaveAttribute("href", "/mastery");
+  await expect(nav.getByRole("link", { name: "Главная", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Карта", exact: true })).toHaveCount(0);
   await expect(page.locator("main")).not.toContainText(/\bFND-01\b|\bW1_FOUNDATION\b|scored decisions|Corpus: R/i);
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
+});
+
+test("top navigation and prerequisite CTA reach deterministic learner destinations", async ({ page }) => {
+  await page.goto("/mastery");
+  const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+
+  await nav.getByRole("link", { name: "Чтение стола", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/perception$/);
+  await expect(page.getByRole("heading", { name: /Сначала познакомься с механизмами/i })).toBeVisible();
+
+  const start = page.getByRole("link", { name: /Старт обучения/i });
+  await expect(start).toBeVisible();
+  await start.click();
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
+
+  const journeyNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(journeyNav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await journeyNav.getByRole("link", { name: "После игры", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/study$/);
+  await expect(page.getByRole("heading", { name: /Играй.*разбирай.*исправляй.*проверяй снова/i })).toBeVisible();
+
+  const studyNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await studyNav.getByRole("link", { name: "Справочник", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/reference$/);
+  await expect(page.getByRole("heading", { name: /Не запоминать 980 картинок/i })).toBeVisible();
+
+  const referenceNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await referenceNav.getByRole("link", { name: "Главная", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery$/);
+  await expect(page.getByRole("heading", { name: /Смотри прогресс/i })).toBeVisible();
 });
 
 test("navigation exposes one primary learning action and keeps tools secondary", async ({ page }) => {
   await page.goto("/mastery/journey");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(nav.getByRole("link", { name: "Главная", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(nav.getByRole("link", { name: "Карта", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Чтение стола", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "После игры", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Справочник", exact: true })).toBeVisible();
+  await expect(nav).not.toContainText("Карта");
   await expect(nav).not.toContainText("Старт обучения");
   await expect(nav).not.toContainText("Смешанная практика");
   await expect(page.locator("main")).not.toContainText(/Первый круг/i);
