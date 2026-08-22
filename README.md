@@ -1,6 +1,6 @@
 # Live Cash System
 
-Private source-of-truth for Live Cash OS, an adaptive No-Limit Hold'em live-cash learning system.
+Public source-of-truth for Live Cash OS, an adaptive No-Limit Hold'em live-cash learning system.
 
 ## Entry
 
