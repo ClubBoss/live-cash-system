@@ -56,7 +56,7 @@ test("shared navigation exposes one learning entry and secondary tools", async (
   test.skip(crossMatrix, "navigation behavior is covered once in canonical Chromium");
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  await expect(nav.getByRole("link", { name: "Карта", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Главная", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Учиться", exact: true })).not.toHaveAttribute("aria-current", "page");
   await expect(nav).not.toContainText("Старт обучения");
   await expect(nav).not.toContainText("Практика");
