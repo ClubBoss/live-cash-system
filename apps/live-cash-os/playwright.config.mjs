@@ -4,6 +4,7 @@ const crossBrowserCritical = /(cross-browser-critical|real-use-continuity)\.spec
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.mjs",
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
@@ -27,7 +28,7 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 5"] } },
   ],
   webServer: {
-    command: "npm run build && npm run start -- --ip 127.0.0.1 --port 5173",
+    command: "npm run start:e2e -- --ip 127.0.0.1 --port 5173",
     url: "http://127.0.0.1:5173",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
