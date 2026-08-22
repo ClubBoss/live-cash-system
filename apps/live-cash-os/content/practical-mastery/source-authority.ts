@@ -46,6 +46,7 @@ export const practicalSourceAuthorities: PracticalSourceAuthority[] = [
   internal("LCM-01", "Legacy admitted geometry mechanism; not an external source ID."),
   internal("LCM-02", "Legacy admitted preflop mechanism; not an external source ID."),
   internal("LCM-03", "Legacy admitted blind identity mechanism; not an external source ID."),
+  internal("LCM-08", "Legacy admitted multiway mechanism; not an external source ID."),
   internal("LCM-09", "Legacy admitted river mechanism; not an external source ID."),
   internal("LCM-10", "Legacy evidence-discipline authority; not an external source ID."),
   internal("LCM-11", "Legacy transfer/retention authority; not an external source ID."),
@@ -84,5 +85,5 @@ export function isPokerStrategySourceRef(ref: string): boolean {
   const authority = practicalSourceAuthorityByRef.get(ref);
   if (!authority) return false;
   if (authority.kind === "CANONICAL_SOURCE" || authority.kind === "SOURCE_GROUP_ALIAS") return true;
-  return ["LCM-01", "LCM-02", "LCM-03", "LCM-09"].includes(ref);
+  return ["LCM-01", "LCM-02", "LCM-03", "LCM-08", "LCM-09"].includes(ref);
 }
