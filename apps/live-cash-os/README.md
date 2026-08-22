@@ -1,148 +1,117 @@
 # Live Cash OS
 
-Русскоязычная персональная система обучения live cash poker. Приложение объединяет teaching layer, changed-node drills, skill-specific repair, delayed retrieval, flashcards, cold diagnostic T1 и reviewed field notes.
+Live Cash OS is a Russian-first adaptive live-cash poker trainer with English support. Practical Mastery is the primary learning route; the legacy Diagnostic, 11-module / 55-drill curriculum, Cards, Review and Real Hands remain supported complementary surfaces.
 
-## Production identity
+## Release identity
 
-- Stable URL: `https://live-cash-os.elmarsal.chatgpt.site/`
+- App version: `1.2.0`
+- Canonical release URL: `https://live-cash-os-mobile-test.blufferus.workers.dev/`
 - Source directory: `apps/live-cash-os`
-- Hosting project: `appgprj_6a74674839c88191877199e34e21fc2c`
-- Cloud binding: D1 `DB`
-- App version: `1.0.0`
-- Learner-state schema: `2`
-- Content version: `2026.08-wave6`
+- Root learner-state schema: `2`
+- Practical Mastery nested profile schema: `3`
+- Primary learning route: Practical Mastery
+- Canonical browser/source release gate: `npm run test:release`
 
-The stable URL must not change between releases. Source changes become public only after the release branch passes all gates and is merged to `main`.
+The former GPT-site deployment and `.openai/hosting.json` are not current release authority. Exact accepted source, CI and deployment identity come from Git and GitHub Actions.
 
-## Learning contract
+## Practical Mastery contract
 
-Every normal module follows the same ten-stage contract:
+The current primary route implements:
 
-1. one cold check;
-2. plain-language theory;
-3. three compact heuristics;
-4. decision tree;
-5. worked example;
-6. numerical or contrastive lab;
-7. changed-node decisions;
-8. explain-back;
-9. table card and glossary;
-10. delayed review scheduling.
+- prediction -> mechanism -> decision learning;
+- recognition/direct/changed/boundary evidence separation;
+- topic-hidden integrated practice;
+- causal repair and adaptive guided -> reduced -> hidden scaffolding;
+- delayed non-identical `1/3/7` retention where eligible;
+- perceptual/table-state transfer;
+- reviewed real-hand application;
+- performance telemetry that remains measurement rather than automatic mastery evidence.
 
-Content completion is separate from evidence state. No single correct answer creates mastery.
+Completion is not mastery. Diagnostic routing, immediate repetition, SELF hand review and telemetry do not manufacture independent transfer, retention or field-validation evidence.
 
-Module state vocabulary:
+## Source authority
 
-- `UNEXPOSED`
-- `INTRODUCED`
-- `FRAGILE`
-- `WORKING`
-- `RETAINED`
-- `FIELD_TEST_PENDING`
-- `FIELD_VALIDATED`
-- `REPAIR_REQUIRED`
+Poker strategy is fail-closed against admitted source authority. Supporting/reference sources do not become strategy-answer authority.
 
-Nine dimensions are stored separately:
+One explicit Practical source ceiling remains:
 
-- node recognition;
-- mechanism explanation;
-- action selection;
-- boundary control;
-- speed;
-- confidence calibration;
-- variant transfer;
-- retention;
-- field transfer.
+`BL-11 = PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`
+
+Dedicated SB-vs-BB 3-bet-pot scored frequencies/branches must not be invented without inspectable solver/course authority.
 
 ## Architecture
 
 ```text
 app/                       route shell, metadata and API
 components/                learner-facing application UI
-content/types.ts           curriculum contracts
-content/modules.ts         admitted LCM-01–LCM-11 content
-content/diagnostic.ts      frozen T1 prompts
-lib/model.ts               learner state, evidence, router and scheduler
-db/                        D1 storage
-public/                     PWA manifest, service worker and brand assets
-tests/                     kernel, content and SSR gates
-e2e/                       desktop/mobile browser flows
+content/                    governed curriculum and Practical Mastery content
+lib/                        learner state, persistence, evidence, routing and scheduling
+db/                         durable cloud-state implementation
+public/                     PWA manifest, service worker and assets
+tests/                      type/content/governance/state/integration gates
+e2e/                        desktop, mobile and cross-browser release flows
+w10/                        later empirical validation workflow
 ```
 
-Do not put curriculum, scoring or scheduler logic back into `app/page.tsx`.
+Do not move curriculum, scoring, mastery, scheduler or persistence policy into route-shell presentation code.
 
-## Persistence and privacy
+## Persistence and recovery
 
-Anonymous visitors use localStorage. Signed-in visitors can also sync the same schema-valid learner state to D1. The application displays the current sync mode and provides:
+The learner uses one reliable snapshot rather than a shadow Practical store:
 
-- progress export;
-- progress import;
-- local reset;
-- cloud-state deletion.
+- local state is available before cloud completion;
+- root schema `2` contains the additive Practical profile schema `3`;
+- import/export preserves Practical state;
+- older snapshots require explicit replacement confirmation where applicable;
+- divergent local/cloud ancestry fails closed rather than silently choosing a winner;
+- lost-ack recovery preserves prior durable Practical evidence unless monotonic ancestry is established;
+- API traffic remains outside PWA caching.
 
-Raw field notes and free-text diagnostic responses are user learning data. They are never treated as mastery by storage alone.
+## Release and deployment gates
 
-## Diagnostic handoff
-
-T1 is optional personalization, not a mandatory first-use wall.
-
-```text
-raw learner responses
-→ expert A–E/U evaluation
-→ canonical diagnostic scorer
-→ evaluated result
-→ import of at most two priority repair families
-```
-
-Raw schema:
-
-`learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json`
-
-Canonical evaluated schema:
-
-`learning/diagnostics/DIAGNOSTIC_RESPONSE_SCHEMA_v0_1.json`
-
-Scorer:
-
-`scripts/score_learner_diagnostic.py`
-
-The client does not keyword-score strategic free text and does not expose T1 answer keys.
-
-## Local development
-
-Prerequisite: Node.js `>=22.13.0`.
+Canonical gate:
 
 ```bash
-npm install
-npm run dev
+npm run test:release
 ```
 
-## Release gates
+It covers static validation plus the retained browser/E2E release suites. GitHub Actions additionally verifies required PR visual evidence when the changed scope is learner-facing.
 
-```bash
-npm run typecheck
-npm run lint
-npm run test:unit
-npm run build
-npm run test:e2e
-```
+Publication requires:
 
-`npm test` executes typecheck, lint, unit tests and production build. Browser tests use Playwright across desktop and mobile fixtures.
+1. exact final PR head GREEN;
+2. merge of that exact accepted head to current `main` without unreviewed drift;
+3. exact resulting `main` GREEN;
+4. exact-SHA Cloudflare Workers deploy;
+5. generated Workers configuration containing exactly the isolated `TEST_DB` binding and no production `DB` binding;
+6. post-deploy smoke against the canonical Workers URL.
 
-## Release governance
+The main-branch workflow deploys only after `validate` succeeds. `LIVE_CASH_TEST_D1_DATABASE_ID` supplies the isolated test database; the deployment gate rejects a generated `DB` production binding.
 
-- `RELEASE_STATUS.md` contains current truth and owner decisions.
-- `ACCEPTANCE_LEDGER.md` lists controlling defects.
-- `.openai/hosting.json` is the hosting authority.
-- GitHub Actions runs the release gate for changes under this app.
-- An `accepted` label is forbidden until automated gates and the live-site smoke test pass.
+## Governance boundary
 
-## Mobile test mirror
+Current content governance remains deliberately review-pending:
 
-The ChatGPT Sites production URL remains separate from the Cloudflare Workers test mirror. On a push to `main`, the existing GitHub Actions workflow runs `npm run test:release`; only a green `validate` job may deploy the same SHA as Worker `live-cash-os-mobile-test` to its stable `workers.dev` URL.
+- strategy: `CURRICULUM_STRATEGY_REVIEW_PENDING`;
+- drills: `DRILLS_REVIEW_PENDING`;
+- RU human approval: pending;
+- EN human approval: pending;
+- final composition: `REVIEW_PENDING`;
+- `HUMAN_MASTERY_VALIDATED = FALSE`;
+- W10 empirical validation: `NOT_COMPLETED`;
+- W11 empirical/final acceptance: `NOT_COMPLETED`.
 
-The mirror intentionally has no D1 binding. Anonymous/mobile testing uses localStorage; it never reads, migrates or writes the production D1 database. The deployment job requires GitHub Secrets named `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, then logs the URL, SHA and UTC deployment time and runs the production smoke suite against that URL.
+Machine checks, source locks, synthetic audits, CI and deployment smoke are rejection/engineering evidence only. They cannot create human poker approval or empirical learning-effectiveness proof.
 
-Rollback: run the existing workflow for a previous known-good `main` commit after checking out that SHA in a temporary branch and merging the accepted rollback to `main`. The next green release gate deploys that accepted SHA to the same Worker URL. Do not use this mechanism to deploy an unaccepted commit.
+## Release authorities
 
-After the six-wave platform DoD, router thresholds and review intervals must not be tuned further without real learner, delayed-recall and field evidence.
+Read these before changing release truth:
+
+- `../../START_HERE.md`
+- `../../state/CURRENT_PROJECT_STATE.yaml`
+- `../../PROJECT_ATLAS.md`
+- `RELEASE_STATUS.md`
+- `ACCEPTANCE_LEDGER.md`
+- `.github/workflows/live-cash-os-ci.yml` at repository root for the executable release/deploy path.
+
+After this owner-authorized engineering release, broad product/curriculum changes remain feature-frozen unless new real-use evidence or a separately verified material correctness, learning-integrity, continuity, safety, source or UX defect justifies reopening them.
