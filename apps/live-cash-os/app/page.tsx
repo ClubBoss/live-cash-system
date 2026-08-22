@@ -1,6 +1,5 @@
 import LiveCashApp from "../components/LiveCashApp";
 import PracticalMasteryGateway from "../components/PracticalMasteryGateway";
-import SupportingToolsIntro from "../components/SupportingToolsIntro";
 import Wave5PracticeLayer from "../components/Wave5PracticeLayer";
 import Wave8AccessibilityLayer from "../components/Wave8AccessibilityLayer";
 import Gauntlet4LearningIntegrityLayer from "../components/Gauntlet4LearningIntegrityLayer";
@@ -11,7 +10,6 @@ import TestInviteGate from "../components/TestInviteGate";
 export default function Home() {
   return <TestInviteGate>
     <PracticalMasteryGateway />
-    <SupportingToolsIntro />
     <LiveCashApp />
     <Wave5PracticeLayer />
     <Wave8AccessibilityLayer />

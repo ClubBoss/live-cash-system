@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import LegacyToolDeepLink from "./LegacyToolDeepLink";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
+import SupportingToolsIntro from "./SupportingToolsIntro";
 
 const LOCALE_KEY = "live-cash-os:locale";
 type Locale = "ru" | "en";
@@ -101,5 +102,6 @@ export default function PracticalMasteryGateway() {
         }
       `}</style>
     </section>
+    <SupportingToolsIntro />
   </>;
 }
