@@ -7,16 +7,23 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
 
-test("Practical Mastery navigation exposes one primary learning route plus secondary tools", async () => {
+test("Practical Mastery navigation exposes one canonical home, one learning route, and reliable secondary tools", async () => {
   const nav = await read("components/PracticalMasteryNav.tsx");
-  for (const label of ["Учиться", "Карта", "Чтение стола", "После игры", "Справочник", "Реальные руки →"]) {
+  const layout = await read("app/mastery/layout.tsx");
+  const navigationGuard = await read("components/PracticalNavigationGuard.tsx");
+  for (const label of ["Главная", "Учиться", "Чтение стола", "После игры", "Справочник", "Реальные руки →"]) {
     assert.match(nav, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+  assert.match(nav, /href="\/mastery"/);
+  assert.doesNotMatch(nav, /ru: "Карта"/);
   assert.match(nav, /PracticalNextLearningLink/);
   assert.match(nav, /usePathname/);
   assert.match(nav, /ariaCurrent=\{learningActive \? "page" : undefined\}/);
   assert.match(nav, /aria-current=\{active \? "page" : undefined\}/);
   assert.match(nav, /href="\/\?tab=field"/);
+  assert.match(layout, /PracticalNavigationGuard/);
+  assert.match(navigationGuard, /window\.location\.assign/);
+  assert.match(navigationGuard, /pathname\.startsWith\("\/mastery"\)/);
   assert.doesNotMatch(nav, /Старт обучения|Смешанная практика|Первый круг/);
 });
 
