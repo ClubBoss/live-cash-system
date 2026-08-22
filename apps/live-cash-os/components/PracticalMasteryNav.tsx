@@ -46,6 +46,6 @@ export default function PracticalMasteryNav() {
         </Link>;
       })}
     </div>
-    <Link href="/?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки" : "Real hands"}</span><span aria-hidden="true">→</span></Link>
+    <Link href="/?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки →" : "Real hands →"}</span></Link>
   </nav>;
 }
