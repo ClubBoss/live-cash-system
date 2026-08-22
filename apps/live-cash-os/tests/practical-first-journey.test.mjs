@@ -32,12 +32,15 @@ test("repair is resolved by latest attempt rather than lifetime wrong count", ()
   assert.match(engine, /latest && !latest\.correct/);
 });
 
-test("first journey predicts before revealing the mechanism and then scores a decision", () => {
-  assert.match(ui, /PREDICT FIRST/);
-  assert.match(ui, /Показать механизм|Reveal mechanism/);
+test("Quick Start teaches the mechanism before a scored independent example", () => {
+  assert.match(ui, /ГДЕ ЭТО НУЖНО|WHERE THIS MATTERS/);
+  assert.match(ui, /МЕХАНИЗМ|MECHANISM/);
+  assert.match(ui, /Проверить на примере|Try an example/);
+  assert.doesNotMatch(ui, /<textarea|PREDICT FIRST|СНАЧАЛА ПРОГНОЗ/);
   assert.match(ui, /recordPracticalDecision/);
   assert.match(ui, /nextFirstJourneyDecision/);
-  assert.match(ui, /HIDDEN-CUE RETRIEVAL/);
+  assert.match(ui, /САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА|INDEPENDENT CHECK/);
+  assert.match(ui, /answeredDecisionId/);
 });
 
 test("journey is runnable on its own route and does not cut over default home", () => {
