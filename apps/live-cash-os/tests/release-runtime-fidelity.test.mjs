@@ -22,13 +22,14 @@ const e2eServer = readFileSync(
   "utf8",
 );
 
-test("release E2E starts the built app in the generated Cloudflare Worker runtime", () => {
+test("release E2E starts the built app in a current generated Cloudflare Worker runtime", () => {
   assert.match(
     packageJson.scripts.start,
-    /wrangler dev --config dist\/server\/wrangler\.json/,
+    /wrangler@4\.125\.0 dev --config dist\/server\/wrangler\.json/,
   );
   assert.doesNotMatch(packageJson.scripts.start, /vinext start/);
   assert.equal(packageJson.scripts["start:e2e"], "node scripts/e2e-server.mjs");
+  assert.match(e2eServer, /const E2E_WRANGLER = "wrangler@4\.125\.0"/);
 
   for (const [name, config] of [
     ["primary", primaryConfig],
