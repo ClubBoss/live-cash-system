@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
@@ -33,19 +32,19 @@ export default function PracticalMasteryNav() {
   return <nav aria-label="Practical Mastery navigation" className="practical-mastery-nav">
     <div className="practical-mastery-nav__brand">LIVE CASH OS</div>
     <div className="practical-mastery-nav__rail">
-      <Link href="/" className="practical-mastery-nav__item practical-mastery-nav__home">
+      <a href="/" className="practical-mastery-nav__item practical-mastery-nav__home">
         <NavIcon name="home"/><span>{locale === "ru" ? "Главная" : "Home"}</span>
-      </Link>
+      </a>
       <PracticalNextLearningLink className={`practical-mastery-nav__item ${learningActive ? "is-active" : ""}`} ariaCurrent={learningActive ? "page" : undefined}>
         <NavIcon name="learn"/><span>{locale === "ru" ? "Учиться" : "Learn"}</span>
       </PracticalNextLearningLink>
       {tools.map((item) => {
         const active = pathname === item.href;
-        return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`practical-mastery-nav__item ${active ? "is-active" : ""}`}>
+        return <a key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`practical-mastery-nav__item ${active ? "is-active" : ""}`}>
           <NavIcon name={item.icon}/><span>{locale === "ru" ? item.ru : item.en}</span>
-        </Link>;
+        </a>;
       })}
     </div>
-    <Link href="/?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки →" : "Real hands →"}</span></Link>
+    <a href="/?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки →" : "Real hands →"}</span></a>
   </nav>;
 }
