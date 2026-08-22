@@ -241,7 +241,7 @@ function anchorRow(
     skillIds,
   );
   const reviewSignals: ReviewSignals = {
-    missingChangedVariables: ["changed", "boundary", "mixed"].includes(anchor.kind) && (anchor.changedVariables?.length ?? 0) === 0,
+    missingChangedVariables: anchor.kind === "changed" && (anchor.changedVariables?.length ?? 0) === 0,
     wrongOptionsWithoutMisconception: [],
     promptLeakageCandidateOptionIds: [],
     actionCorrectOrder: null,
@@ -319,7 +319,7 @@ function decisionRow(
     ...decision.reasonOptions.filter((option) => option.id !== decision.correctReasonId),
   ];
   const reviewSignals: ReviewSignals = {
-    missingChangedVariables: ["changed", "boundary", "mixed"].includes(decision.kind) && (decision.changedVariables?.length ?? 0) === 0,
+    missingChangedVariables: decision.kind === "changed" && (decision.changedVariables?.length ?? 0) === 0,
     wrongOptionsWithoutMisconception: wrongOptions.filter((option) => !option.misconception).map((option) => option.id),
     promptLeakageCandidateOptionIds: promptLeakageCandidates(decision),
     actionCorrectOrder: decision.actionOptions.findIndex((option) => option.id === decision.correctActionId) + 1,

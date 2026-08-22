@@ -27,6 +27,7 @@ import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
+import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -98,7 +99,9 @@ export const practicalDecisions = [
   ...perceptualPracticalDecisions,
   ...integratedMasteryDecisions,
   ...integratedA11ExpansionDecisions,
-].map(applyPracticalRuCopyRepair);
+]
+  .map(applyPracticalRuCopyRepair)
+  .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
