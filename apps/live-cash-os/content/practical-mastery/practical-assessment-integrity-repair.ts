@@ -1,9 +1,12 @@
 import type { PracticalDecision, PracticalDecisionOption } from "./types";
 
+type OptionRepair = Pick<PracticalDecisionOption, "textRu" | "textEn"> & { misconception?: string };
+
 type DecisionRepair = {
   questionRu: string;
   questionEn: string;
-  actionOptions: Record<string, Pick<PracticalDecisionOption, "textRu" | "textEn"> & { misconception?: string }>;
+  actionOptions: Record<string, OptionRepair>;
+  reasonOptions?: Record<string, OptionRepair>;
 };
 
 const repairs: Record<string, DecisionRepair> = {
@@ -26,6 +29,13 @@ const repairs: Record<string, DecisionRepair> = {
         misconception: "ANY_TWO",
       },
     },
+    reasonOptions: {
+      r3: {
+        textRu: "Ширина диапазона BTN сама по себе делает любую защиту прибыльной",
+        textEn: "The width of the BTN range alone makes every defense profitable",
+        misconception: "RANGE_ABSOLUTE",
+      },
+    },
   },
   "PM-BL-04-104": {
     questionRu: "Что обязательно пересчитать при большом сайзинге опен-рейза?",
@@ -41,8 +51,8 @@ const repairs: Record<string, DecisionRepair> = {
         misconception: "SUNK_BLIND_OVERUSED",
       },
       c: {
-        textRu: "Сохранять прежнюю пограничную защиту только потому, что категория руки не изменилась",
-        textEn: "Keep the old fringe just because the hand label is unchanged",
+        textRu: "Сохранить прежнюю пограничную защиту при той же категории руки",
+        textEn: "Keep the same fringe defense when the hand category is unchanged",
         misconception: "SIZE_IGNORED",
       },
     },
@@ -52,22 +62,46 @@ const repairs: Record<string, DecisionRepair> = {
     questionEn: "How should the decision be evaluated when flatting looks bad?",
     actionOptions: {
       a: {
-        textRu: "Проверить EV 3-бета в ветке, где соперник коллирует, а не повышать агрессию автоматически",
-        textEn: "Check the 3-bet called-branch EV instead of escalating aggression automatically",
+        textRu: "Сравнить EV 3-бета при колле соперника",
+        textEn: "Compare the 3-bet called-branch EV",
       },
       b: {
-        textRu: "Если колл плох, 3-бет автоматически лучше",
-        textEn: "If the flat is bad, the 3-bet is automatically better",
+        textRu: "Считать 3-бет лучшей линией из-за слабого колла",
+        textEn: "Treat the 3-bet as better because flatting is weak",
         misconception: "THREE_BET_OR_FOLD_LITERAL",
       },
       c: {
-        textRu: "Игнорировать, какие более сильные руки остаются после 3-бета",
-        textEn: "Ignore which stronger hands remain after the 3-bet",
+        textRu: "Оценивать 3-бет без фильтрации диапазона продолжения",
+        textEn: "Evaluate the 3-bet without filtering the continuing range",
         misconception: "FILTERING_IGNORED",
+      },
+    },
+    reasonOptions: {
+      r1: {
+        textRu: "Слабый колл сам по себе не делает 3-бет прибыльным",
+        textEn: "A bad flat alone does not make the 3-bet profitable",
+      },
+      r2: {
+        textRu: "Фолд-эквити от агрессии само по себе делает 3-бет прибыльным",
+        textEn: "Fold equity from aggression alone makes the 3-bet profitable",
+        misconception: "AGGRESSION_AUTOPILOT",
+      },
+      r3: {
+        textRu: "После 3-бета диапазон продолжения становится слабее по определению",
+        textEn: "After a 3-bet the continuing range becomes weaker by definition",
+        misconception: "FILTERING_BACKWARDS",
       },
     },
   },
 };
+
+function applyOptions(options: PracticalDecisionOption[], repair?: Record<string, OptionRepair>) {
+  if (!repair) return options;
+  return options.map((option) => {
+    const next = repair[option.id];
+    return next ? { ...option, ...next } : option;
+  });
+}
 
 export function applyPracticalAssessmentIntegrityRepair(decision: PracticalDecision): PracticalDecision {
   const repair = repairs[decision.id];
@@ -76,9 +110,7 @@ export function applyPracticalAssessmentIntegrityRepair(decision: PracticalDecis
     ...decision,
     questionRu: repair.questionRu,
     questionEn: repair.questionEn,
-    actionOptions: decision.actionOptions.map((option) => {
-      const next = repair.actionOptions[option.id];
-      return next ? { ...option, ...next } : option;
-    }),
+    actionOptions: applyOptions(decision.actionOptions, repair.actionOptions),
+    reasonOptions: applyOptions(decision.reasonOptions, repair.reasonOptions),
   };
 }
