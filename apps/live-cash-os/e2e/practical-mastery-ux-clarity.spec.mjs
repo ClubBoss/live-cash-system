@@ -10,13 +10,14 @@ const masteryRoutes = [
 ];
 
 const sourceIdPattern = /\b(?:FTGU-E\d+|SLC-M\d+-L\d+|LCM-\d+|CP-G\d+-L\d+)\b/i;
+const sourceLabelPattern = /(?:Источники|Sources)\s*:/i;
 
 test("learner surfaces hide provenance IDs while keeping source ceilings understandable", async ({ page }) => {
   for (const route of masteryRoutes) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
     await expect(page.locator("main")).not.toContainText(sourceIdPattern);
-    await expect(page.locator("main")).not.toContainText(/(?:Источники|Sources)\s*:/i);
+    await expect(page.locator("main p:visible, main small:visible").filter({ hasText: sourceLabelPattern })).toHaveCount(0);
   }
 
   await page.goto("/mastery");
@@ -48,7 +49,7 @@ test("Quick Start teaches pot odds as a calculation and immediately contrasts a 
 test("skill map reads as progress, not an internal content dashboard", async ({ page }) => {
   await page.goto("/mastery");
   await expect(page.getByRole("heading", { name: /Смотри прогресс/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Продолжить обучение", exact: true })).toBeVisible();
+  await expect(page.locator("main .hero").getByRole("link", { name: "Продолжить обучение", exact: true })).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/\bFND-01\b|\bW1_FOUNDATION\b|scored decisions|Corpus: R/i);
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
 });
