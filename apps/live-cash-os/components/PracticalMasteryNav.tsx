@@ -55,6 +55,6 @@ export default function PracticalMasteryNav() {
         </PracticalDocumentLink>;
       })}
     </div>
-    <PracticalDocumentLink href="/?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки →" : "Real hands →"}</span></PracticalDocumentLink>
+    <PracticalDocumentLink href="/tools?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки →" : "Real hands →"}</span></PracticalDocumentLink>
   </nav>;
 }

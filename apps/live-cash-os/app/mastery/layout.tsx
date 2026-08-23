@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import BuildIdentityFooter from "../../components/BuildIdentityFooter";
 import PracticalLearnerPresentationGuard from "../../components/PracticalLearnerPresentationGuard";
 import PracticalMasteryNav from "../../components/PracticalMasteryNav";
 import PracticalNavigationGuard from "../../components/PracticalNavigationGuard";
@@ -12,5 +13,6 @@ export default function PracticalMasteryLayout({ children }: { children: ReactNo
     <PracticalSkillDomainOverview />
     {children}
     <PracticalLearnerPresentationGuard />
+    <BuildIdentityFooter />
   </TestInviteGate>;
 }

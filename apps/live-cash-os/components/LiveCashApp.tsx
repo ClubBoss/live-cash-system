@@ -1,12 +1,9 @@
 "use client";
 
 import { runtimeCopy } from "../content/i18n/runtime";
-import { APP_VERSION } from "../lib/model";
+import BuildIdentityFooter from "./BuildIdentityFooter";
 import FeedbackDedupGuard from "./FeedbackDedupGuard";
 import LiveCashAppCore from "./LiveCashAppCore";
-
-const rawBuildSha = (import.meta as ImportMeta & { env?: { VITE_BUILD_SHA?: string } }).env?.VITE_BUILD_SHA ?? "local";
-const buildLabel = rawBuildSha === "local" ? "local" : rawBuildSha.slice(0, 7);
 
 // Final learner-facing terminology cleanup. The canonical runtime copy is already
 // composed through Object.assign in content/i18n/runtime.ts; keep this bounded to
@@ -40,19 +37,12 @@ Object.assign(runtimeCopy.en, {
 /**
  * Runtime shell. Locale changes are rendered directly by LiveCashAppCore;
  * no DOM text replacement or post-render localisation bridge is used.
- * The accepted Wave 5 practice layer is composed once by app/page.tsx.
+ * The accepted Wave 5 practice layer is composed once by app/tools/page.tsx.
  */
 export default function LiveCashApp() {
   return <>
     <LiveCashAppCore />
     <FeedbackDedupGuard />
-    <footer
-      data-build-sha={rawBuildSha}
-      data-app-version={APP_VERSION}
-      aria-label={`Live Cash OS v${APP_VERSION} · Build ${buildLabel}`}
-      style={{ padding: "12px 24px 18px", textAlign: "right", fontSize: "12px", opacity: 0.55 }}
-    >
-      Live Cash OS v{APP_VERSION} · Build {buildLabel}
-    </footer>
+    <BuildIdentityFooter />
   </>;
 }

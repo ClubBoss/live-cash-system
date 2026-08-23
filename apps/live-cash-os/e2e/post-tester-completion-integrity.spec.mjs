@@ -74,7 +74,7 @@ test.describe("Post-tester Wave D completed lesson integrity", () => {
 
   test("learner-facing completion boundary matches canonical completion truth", async ({ page }) => {
     await page.route("**/api/state", async (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "AUTH_REQUIRED" }) }));
-    await page.goto("/");
+    await page.goto("/tools");
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     await seedLessonStep(page, 8);
     await page.reload();
@@ -100,7 +100,7 @@ test.describe("Post-tester Wave D completed lesson integrity", () => {
   test("slow pre-completion cloud ACK cannot resurrect a completed lesson", async ({ page }) => {
     const controller = stateApiController();
     await page.route("**/api/state", (route) => controller.handle(route));
-    await page.goto("/");
+    await page.goto("/tools");
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     const baseline = await localState(page);
     controller.setRemoteState(baseline);

@@ -5,7 +5,7 @@ project:
   default_branch: main
   state_authority: repository_over_chat_memory
   phase: practical_mastery_engineering_release_candidate
-  updated_at: '2026-08-22T00:25:00+04:00'
+  updated_at: '2026-08-23T15:57:00+04:00'
 mission:
   summary: Build an adaptive live-cash trainer for live 1/3 and 2/5 while preserving source and learner-evidence truth.
   final_rule_policy: minimum_complexity_subject_to_no_material_ev_loss
@@ -119,7 +119,9 @@ acceptance_truth:
 production_truth:
   canonical_release_url: https://live-cash-os-mobile-test.blufferus.workers.dev/
   former_gpt_site_is_release_authority: false
-  exact_main_deployed_to_canonical_workers: UNPROVEN
+  exact_main_deployed_to_canonical_workers_embedded_status: false
+  exact_main_deployed_to_canonical_workers_authority: git_and_github_actions
+  release_acceptance_requires_exact_main_deploy_proof: true
   production_deploy_authorized_in_this_task: true
   mobile_test_mirror_authorized_in_this_task: true
   mobile_test_mirror_uses_production_d1: false

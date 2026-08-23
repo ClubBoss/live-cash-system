@@ -6,9 +6,10 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
-  // The release matrix deliberately shares one faithful local Workerd + D1
-  // process. Keep CI browser projects serial against that singleton; this does
-  // not remove a browser, test, assertion, or retry boundary.
+  // Each CI invocation owns one faithful local Workerd + D1 process. The
+  // release scripts invoke browser projects separately so an engine-level
+  // request cancellation cannot poison the next project's certification
+  // runtime. Assertions and browser coverage remain unchanged.
   workers: process.env.CI ? 1 : undefined,
   retries: 0,
   reporter: "list",
@@ -28,7 +29,7 @@ export default defineConfig({
   webServer: {
     command: "npm run start:e2e -- --ip 127.0.0.1 --port 5173",
     url: "http://127.0.0.1:5173",
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
 });

@@ -10,6 +10,15 @@ async function localOnly(page) {
 }
 
 async function seedPreflopConcept(page, locale) {
+  await page.waitForFunction((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return false;
+    try {
+      return Boolean(JSON.parse(raw)?.modules?.geometry);
+    } catch {
+      return false;
+    }
+  }, STORAGE_KEY);
   await page.evaluate(({ storageKey, localeKey, locale }) => {
     const state = JSON.parse(localStorage.getItem(storageKey));
     const now = new Date().toISOString();
@@ -88,7 +97,7 @@ async function verifyLocaleTransfer(page, locale) {
 test("LCM-02 mobile RU/EN teaches and tests 76s family/traits without leaking the action", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.locator("main")).toBeVisible();
 
   await verifyLocaleTransfer(page, "ru");

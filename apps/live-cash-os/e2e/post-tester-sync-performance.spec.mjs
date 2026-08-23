@@ -87,7 +87,7 @@ test.describe("Post-tester Wave D authenticated bootstrap", () => {
     controller.setGetDelay(300);
     await seedStoredInvite(page, null);
     await page.route("**/api/state", (route) => controller.handle(route));
-    await page.goto("/");
+    await page.goto("/tools");
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     const local = await readLocalState(page);
     controller.setRemoteState(local);
@@ -108,7 +108,7 @@ test.describe("Post-tester Wave D local-first reconcile and cloud-save ordering"
   test("valid local state stays usable and a learner mutation during delayed GET wins safely", async ({ page }) => {
     const controller = stateApiController();
     await page.route("**/api/state", (route) => controller.handle(route));
-    await page.goto("/");
+    await page.goto("/tools");
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     const baseline = await readLocalState(page);
     expect(controller.counts().posts).toBe(0);
@@ -145,7 +145,7 @@ test.describe("Post-tester Wave D local-first reconcile and cloud-save ordering"
   test("a newer learner mutation queues behind a delayed POST and only the final state becomes synced", async ({ page }) => {
     const controller = stateApiController();
     await page.route("**/api/state", (route) => controller.handle(route));
-    await page.goto("/");
+    await page.goto("/tools");
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
     const baseline = await readLocalState(page);
     controller.setRemoteState(baseline);

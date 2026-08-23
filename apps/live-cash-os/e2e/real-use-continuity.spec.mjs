@@ -37,7 +37,7 @@ async function viewportAnchorTop(locator) {
 
 test("valid local lesson renders while cloud reconciliation is deliberately blocked", async ({ page }) => {
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await seedGeometryLesson(page, 4);
 
@@ -69,7 +69,7 @@ test("valid local lesson renders while cloud reconciliation is deliberately bloc
 
 test("previous-step recap is read-only and preserves the current lesson step", async ({ page }) => {
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await seedGeometryLesson(page, 6);
   await page.reload();
@@ -94,7 +94,7 @@ test("previous-step recap is read-only and preserves the current lesson step", a
 
 test("Cold Check reveal preserves the learner viewport on desktop and mobile", async ({ page }) => {
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 
   for (const viewport of [{ width: 1280, height: 720 }, { width: 390, height: 844 }]) {
@@ -118,7 +118,7 @@ test("Cold Check reveal preserves the learner viewport on desktop and mobile", a
 test("worked-example reveal does not reset the current viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await seedGeometryLesson(page, 4);
   await page.reload();
@@ -136,7 +136,7 @@ test("worked-example reveal does not reset the current viewport", async ({ page 
 test("SPR lab explains the calculation, normalizes input and can reset on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await seedGeometryLesson(page, 5);
   await page.reload();
@@ -174,7 +174,7 @@ test("SPR lab explains the calculation, normalizes input and can reset on mobile
 
 test("correct feedback paints one compact result and one visible Continue", async ({ page }) => {
   await localOnly(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await seedGeometryLesson(page, 0);
   await page.reload();

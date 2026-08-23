@@ -53,7 +53,7 @@ async function seedScopedLessonWithStaleLegacy(page, scopedKey, step) {
 
 test("profile-scoped lesson state drives RealUse, Gauntlet and Wave5 overlays despite stale legacy state", async ({ page }) => {
   await disableCloud(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   const scopedKey = await attachProfile(page);
   expect(scopedKey).toBeTruthy();

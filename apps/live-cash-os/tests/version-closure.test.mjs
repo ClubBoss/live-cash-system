@@ -6,6 +6,8 @@ import { APP_VERSION, CONTENT_VERSION, STATE_SCHEMA_VERSION, emptyLearnerState, 
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 const packageLock = JSON.parse(await readFile(new URL("../package-lock.json", import.meta.url), "utf8"));
 const shell = await readFile(new URL("../components/LiveCashApp.tsx", import.meta.url), "utf8");
+const masteryLayout = await readFile(new URL("../app/mastery/layout.tsx", import.meta.url), "utf8");
+const buildIdentity = await readFile(new URL("../components/BuildIdentityFooter.tsx", import.meta.url), "utf8");
 
 test("v1.2.0 version sources and visible identity stay synchronized", () => {
   assert.equal(packageJson.version, "1.2.0");
@@ -14,11 +16,15 @@ test("v1.2.0 version sources and visible identity stay synchronized", () => {
   assert.equal(APP_VERSION, packageJson.version);
   assert.equal(STATE_SCHEMA_VERSION, 2);
   assert.equal(CONTENT_VERSION, "2026.08-wave7-integrity");
-  assert.match(shell, /import \{ APP_VERSION \} from "\.\.\/lib\/model"/u);
-  assert.match(shell, /data-app-version=\{APP_VERSION\}/u);
-  assert.match(shell, /Live Cash OS v\{APP_VERSION\} · Build \{buildLabel\}/u);
-  assert.match(shell, /VITE_BUILD_SHA/u);
-  assert.match(shell, /data-build-sha=\{rawBuildSha\}/u);
+  assert.match(buildIdentity, /import \{ APP_VERSION \} from "\.\.\/lib\/model"/u);
+  assert.match(buildIdentity, /data-app-version=\{APP_VERSION\}/u);
+  assert.match(buildIdentity, /Live Cash OS v\{APP_VERSION\} · Build \{buildLabel\}/u);
+  assert.match(buildIdentity, /VITE_BUILD_SHA/u);
+  assert.match(buildIdentity, /data-build-sha=\{rawBuildSha\}/u);
+  assert.match(shell, /import BuildIdentityFooter from "\.\/BuildIdentityFooter"/u);
+  assert.match(shell, /<BuildIdentityFooter \/>/u);
+  assert.match(masteryLayout, /import BuildIdentityFooter from "\.\.\/\.\.\/components\/BuildIdentityFooter"/u);
+  assert.match(masteryLayout, /<BuildIdentityFooter \/>/u);
 });
 
 test("schema-v2 state from app 1.1.0 remains valid without evidence mutation", () => {
