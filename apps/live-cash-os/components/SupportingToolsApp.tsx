@@ -17,6 +17,8 @@ import Wave5PracticeLayer from "./Wave5PracticeLayer";
 import { Wave7FieldPanel } from "./Wave7Experience";
 import Wave8AccessibilityLayer from "./Wave8AccessibilityLayer";
 
+declare const __LIVE_CASH_LEGACY_TOOLS_MODE__: boolean;
+
 const LOCALE_KEY = "live-cash-os:locale";
 const E2E_LEGACY_TOOLS_KEY = "live-cash-os:e2e-legacy-tools";
 type SupportTab = "field" | "diagnostic" | "data";
@@ -42,7 +44,7 @@ function initialSupportTab(): SupportTab {
 
 function requestedRuntime(): "support" | "legacy" {
   const params = new URLSearchParams(window.location.search);
-  if (params.get("legacy") === "1") return "legacy";
+  if (__LIVE_CASH_LEGACY_TOOLS_MODE__ && params.get("legacy") === "1") return "legacy";
 
   const requestedTab = params.get("tab");
   if (
@@ -54,12 +56,11 @@ function requestedRuntime(): "support" | "legacy" {
     return "support";
   }
 
-  // The release suite historically exercised the complete pre-Practical shell
-  // through a direct /tools navigation. Keep that regression harness explicit
-  // and local to Playwright storage state instead of making the legacy shell a
-  // learner-facing default again. Mastery -> /tools navigations must continue
-  // to exercise the real support surface even inside that harness.
-  if (localStorage.getItem(E2E_LEGACY_TOOLS_KEY) === "1") {
+  // Historical release specs intentionally exercise the complete pre-Practical
+  // shell. Only local E2E/test-mirror builds compile that capability on, and
+  // the marker is origin-scoped Playwright storage. Production ignores both
+  // the marker and stale `?legacy=1` URLs and stays on the support surface.
+  if (__LIVE_CASH_LEGACY_TOOLS_MODE__ && localStorage.getItem(E2E_LEGACY_TOOLS_KEY) === "1") {
     try {
       const referrer = new URL(document.referrer);
       if (referrer.origin === window.location.origin && referrer.pathname.startsWith("/mastery/")) {
