@@ -10,6 +10,7 @@ async function localOnly(page) {
 }
 
 async function seedPreflopConcept(page, locale) {
+  await expect.poll(async () => page.evaluate((storageKey) => localStorage.getItem(storageKey) !== null, STORAGE_KEY)).toBe(true);
   await page.evaluate(({ storageKey, localeKey, locale }) => {
     const state = JSON.parse(localStorage.getItem(storageKey));
     const now = new Date().toISOString();
