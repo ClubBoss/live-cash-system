@@ -22,11 +22,22 @@ function requestedTargets() {
   return [...new Set(parsed)].slice(0, 2).length ? [...new Set(parsed)].slice(0, 2) : ["learn", "hands"];
 }
 
-async function openFresh(page) {
+async function installFixture(page) {
   await page.addInitScript(() => localStorage.setItem("live-cash-os:theme", "light"));
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "visual evidence fixture" }) });
   });
+}
+
+async function openCanonical(page) {
+  await installFixture(page);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+  await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
+}
+
+async function openTools(page) {
   await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 }
@@ -124,10 +135,11 @@ test("UI-relevant PR emits compact real-browser visual evidence", async ({ page 
     : [{ target: targets[0], mobile: false }, { target: targets[0], mobile: true }];
 
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await openFresh(page);
+  await openCanonical(page);
   const screenshots = [];
-  screenshots.push(await capture(page, "today-desktop-light"));
+  screenshots.push(await capture(page, "canonical-home-desktop-light"));
 
+  await openTools(page);
   for (const shot of targetShots) {
     await page.setViewportSize(shot.mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 });
     await navigateTarget(page, shot.target);
