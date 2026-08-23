@@ -6,6 +6,10 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  // The release matrix deliberately shares one faithful local Workerd + D1
+  // process. Keep CI browser projects serial against that singleton; this does
+  // not remove a browser, test, assertion, or retry boundary.
+  workers: process.env.CI ? 1 : undefined,
   retries: 0,
   reporter: "list",
   use: {
