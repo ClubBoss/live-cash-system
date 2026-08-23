@@ -22,8 +22,15 @@ test("Practical Mastery navigation exposes one canonical home, one learning rout
   assert.match(nav, /aria-current=\{active \? "page" : undefined\}/);
   assert.match(nav, /href="\/tools\?tab=field"/);
   assert.match(layout, /PracticalNavigationGuard/);
-  assert.match(navigationGuard, /window\.location\.assign/);
-  assert.match(navigationGuard, /pathname\.startsWith\("\/mastery"\)/);
+  assert.match(navigationGuard, /useRouter/);
+  assert.match(navigationGuard, /router\.push\(nextHref\)/);
+  assert.match(navigationGuard, /window\.location\.assign\(destination\.href\)/);
+  assert.match(navigationGuard, /clientMasteryRoutes\.has\(destination\.pathname\)/);
+  for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
+    assert.ok(navigationGuard.includes(`"${route}"`), `client navigation allowlist must include ${route}`);
+  }
+  assert.match(navigationGuard, /url\.pathname === "\/tools"/);
+  assert.match(navigationGuard, /url\.searchParams\.get\("tab"\) === "field"/);
   assert.doesNotMatch(nav, /Старт обучения|Смешанная практика|Первый круг/);
 });
 
