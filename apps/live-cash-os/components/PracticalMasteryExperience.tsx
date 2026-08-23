@@ -37,30 +37,46 @@ const waveLabels: Record<string, { ru: string; en: string }> = {
 
 function waveLabel(wave: string, locale: Locale): string {
   const label = waveLabels[wave];
-  return label ? (locale === "ru" ? label.ru : label.en) : wave.replaceAll("_", " ");
+  return label ? (locale === "ru" ? label.ru : label.en) : (locale === "ru" ? "Другие навыки" : "Other skills");
 }
 
 function evidenceLabel(locale: Locale, stage: string): string {
-  const ru: Record<string, string> = {
-    SOURCE_SUPPORTED: "не начато",
-    CONCEPT_TAUGHT: "механизм изучен",
-    RECOGNITION_TRAINED: "распознавание отработано",
-    DECISION_TRAINED: "решения отработаны",
-    CHANGED_NODE_TRANSFER: "перенос на новые условия",
-    BOUNDARY_TESTED: "границы правила проверены",
-    DELAYED_RETRIEVAL: "сохраняется после паузы",
-    REAL_HAND_TRANSFER: "применён в реальной руке",
+  const labels: Record<Locale, Record<string, string>> = {
+    ru: {
+      SOURCE_SUPPORTED: "не начато",
+      CONCEPT_TAUGHT: "механизм изучен",
+      RECOGNITION_TRAINED: "распознавание отработано",
+      DECISION_TRAINED: "решения отработаны",
+      CHANGED_NODE_TRANSFER: "перенос на новые условия",
+      BOUNDARY_TESTED: "границы правила проверены",
+      DELAYED_RETRIEVAL: "сохраняется после паузы",
+      REAL_HAND_TRANSFER: "применён в реальной руке",
+    },
+    en: {
+      SOURCE_SUPPORTED: "not started",
+      CONCEPT_TAUGHT: "mechanism introduced",
+      RECOGNITION_TRAINED: "spot recognition practiced",
+      DECISION_TRAINED: "decisions practiced",
+      CHANGED_NODE_TRANSFER: "works in changed conditions",
+      BOUNDARY_TESTED: "rule boundaries checked",
+      DELAYED_RETRIEVAL: "recalled after a delay",
+      REAL_HAND_TRANSFER: "applied in a reviewed real hand",
+    },
   };
-  return locale === "ru" ? ru[stage] ?? stage : stage.toLowerCase().replaceAll("_", " ");
+  return labels[locale][stage] ?? (locale === "ru" ? "статус уточняется" : "status pending");
 }
 
 function skillTitle(skill: PracticalSkillFamily, locale: Locale): string {
   return locale === "ru" ? skill.titleRu : skill.titleEn;
 }
 
+function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
+  return locale === "ru" ? skill.objectiveRu : `Use ${skill.titleEn} reliably in independent decisions and changed conditions.`;
+}
+
 export default function PracticalMasteryExperience() {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, ready, syncStatus, cloudMode, recoveryBlocked } = usePracticalProfileState();
+  const { mastery: state, ready, cloudMode, recoveryBlocked } = usePracticalProfileState();
   const [selectedSkillId, setSelectedSkillId] = useState("FND-01");
 
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
@@ -100,7 +116,7 @@ export default function PracticalMasteryExperience() {
         <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
         <PracticalNextLearningLink className="primary" />
       </div>
-      <p className="support">{locale === "ru" ? (cloudMode === "cloud" ? `Облако · ${syncStatus}` : `На устройстве · ${syncStatus}`) : (cloudMode === "cloud" ? `Cloud · ${syncStatus}` : `Local · ${syncStatus}`)}</p>
+      <p className="support">{locale === "ru" ? (cloudMode === "cloud" ? "Прогресс сохраняется в облаке" : "Прогресс сохраняется на устройстве") : (cloudMode === "cloud" ? "Progress is saved to the cloud" : "Progress is saved on this device")}</p>
     </section>
 
     <section className="metrics">
@@ -113,7 +129,7 @@ export default function PracticalMasteryExperience() {
     {recommendedSkill ? <section className="today-card" style={{ marginTop: 22 }}>
       <p className="eyebrow">{locale === "ru" ? "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" : "BEST NEXT FOCUS"}</p>
       <h2>{skillTitle(recommendedSkill, locale)}</h2>
-      <p>{locale === "ru" ? recommendedSkill.objectiveRu : recommendedSkill.titleEn}</p>
+      <p>{skillObjective(recommendedSkill, locale)}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <PracticalNextLearningLink className="primary" />
         <button className="secondary" onClick={() => setSelectedSkillId(recommendedSkill.id)}>{locale === "ru" ? "Посмотреть на карте" : "View on map"} <span>→</span></button>
@@ -143,7 +159,7 @@ export default function PracticalMasteryExperience() {
     <section className="surface" style={{ marginTop: 22 }}>
       <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ НАВЫК" : "SELECTED SKILL"}</p>
       <h1>{skillTitle(skill, locale)}</h1>
-      <p>{locale === "ru" ? skill.objectiveRu : skill.titleEn}</p>
+      <p>{skillObjective(skill, locale)}</p>
       <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
 
       {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.reasonRu : gap.reason}</p><p className="support">{locale === "ru" ? gap.nextEvidenceNeededRu : gap.nextEvidenceNeeded}</p></div> : null}
