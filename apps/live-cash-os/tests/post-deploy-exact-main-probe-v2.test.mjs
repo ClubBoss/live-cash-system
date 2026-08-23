@@ -17,8 +17,8 @@ async function fetchJson(url) {
   return JSON.parse(text);
 }
 
-async function fetchText(url) {
-  const response = await fetch(url, { redirect: "follow", cache: "no-store" });
+async function fetchText(url, options = {}) {
+  const response = await fetch(url, { redirect: "follow", cache: "no-store", ...options });
   const text = await response.text();
   return { response, text };
 }
@@ -38,6 +38,10 @@ function assetUrls(html) {
     }
   }
   return [...urls];
+}
+
+function gitShaCandidates(text) {
+  return [...new Set(text.match(/\b[a-f0-9]{40}\b/g) ?? [])];
 }
 
 test("exact merged main has GREEN push CI, exact-SHA deploy, smoke, and live build identity", async () => {
@@ -83,23 +87,50 @@ test("exact merged main has GREEN push CI, exact-SHA deploy, smoke, and live bui
     );
   }
 
+  let deployLogDiagnostic = "unavailable";
+  try {
+    const log = await fetchText(
+      `https://api.github.com/repos/${REPO}/actions/jobs/${deploy.id}/logs`,
+      { headers: API_HEADERS },
+    );
+    if (log.response.ok) {
+      const urls = [...new Set(log.text.match(/https:\/\/[^\s]+\.workers\.dev/g) ?? [])];
+      deployLogDiagnostic = urls.length ? urls.join(",") : "no-workers-url-in-log";
+    } else {
+      deployLogDiagnostic = `http-${log.response.status}`;
+    }
+  } catch (error) {
+    deployLogDiagnostic = `fetch-error:${error instanceof Error ? error.message : String(error)}`;
+  }
+
+  console.log(
+    `EXACT_MAIN_ACTIONS_GREEN sha=${EXPECTED_SHA} run_id=${run.id} validate_job=${validate.id} deploy_job=${deploy.id} deploy_urls=${deployLogDiagnostic}`,
+  );
+
   const { response, text: html } = await fetchText(LIVE_URL);
   assert.equal(response.status, 200, "canonical Workers root must return HTTP 200");
 
   let found = html.includes(EXPECTED_SHA);
   let checkedAssets = 0;
+  const candidates = new Set(gitShaCandidates(html));
   if (!found) {
     for (const url of assetUrls(html).slice(0, 80)) {
       const asset = await fetchText(url);
       if (!asset.response.ok) continue;
       checkedAssets += 1;
+      for (const candidate of gitShaCandidates(asset.text)) candidates.add(candidate);
       if (asset.text.includes(EXPECTED_SHA)) {
         found = true;
         break;
       }
     }
   }
-  assert.ok(found, `Exact build SHA ${EXPECTED_SHA} not found in root or ${checkedAssets} JS assets`);
+  assert.ok(
+    found,
+    `Exact build SHA ${EXPECTED_SHA} not found in root or ${checkedAssets} JS assets; ` +
+      `observed_sha_candidates=${[...candidates].slice(0, 20).join(",") || "none"}; ` +
+      `exact_main_run=${run.id}; deploy_job=${deploy.id}; deploy_urls=${deployLogDiagnostic}`,
+  );
 
   const unknown = await fetch(new URL("/api/state", LIVE_URL), {
     headers: { "x-live-cash-profile-code": "LCO-AAAAAAAAAAAAAAAAAAAA" },
