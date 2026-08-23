@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("normal tools is a secondary support surface, not the legacy learning shell", async ({ page }) => {
-  await page.goto("/tools");
+  await page.goto("/tools?support=1");
 
   await expect(page.getByRole("heading", { name: "Инструменты", exact: true })).toBeVisible();
   await expect(page.getByText(/Основное обучение проходит в Practical Mastery/)).toBeVisible();
@@ -51,7 +51,7 @@ test("entering and leaving support tools does not mutate learner progress", asyn
   const before = await rawLearnerState(page);
   expect(before).not.toBeNull();
 
-  await page.goto("/tools");
+  await page.goto("/tools?support=1");
   await expect(page.getByRole("heading", { name: "Инструменты", exact: true })).toBeVisible();
   expect(await rawLearnerState(page)).toBe(before);
 
@@ -62,7 +62,7 @@ test("entering and leaving support tools does not mutate learner progress", asyn
 
 test("support tools has no document-level horizontal overflow at representative mobile width", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "mobile fixture only");
-  await page.goto("/tools");
+  await page.goto("/tools?support=1");
   await expect(page.getByRole("heading", { name: "Инструменты", exact: true })).toBeVisible();
   const geometry = await page.evaluate(() => ({
     scroll: document.documentElement.scrollWidth,
