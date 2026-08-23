@@ -183,6 +183,9 @@ jobs:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: validate
     runs-on: ubuntu-latest
+    env:
+      LIVE_CASH_CANONICAL_WORKER_NAME: live-cash-os-mobile-test
+      LIVE_CASH_CANONICAL_WORKERS_URL: https://live-cash-os-mobile-test.blufferus.workers.dev
     defaults:
       run:
         working-directory: apps/live-cash-os
@@ -225,10 +228,14 @@ jobs:
             }
             console.log("Verified generated test-mirror config: dedicated TEST_DB only; production DB absent");
           '
-          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy --dry-run 2>&1 | tee deploy-dry-run.txt
-          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy 2>&1 | tee deploy-output.txt
+          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy --dry-run --name "$LIVE_CASH_CANONICAL_WORKER_NAME" 2>&1 | tee deploy-dry-run.txt
+          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy --name "$LIVE_CASH_CANONICAL_WORKER_NAME" 2>&1 | tee deploy-output.txt
           deploy_url="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' deploy-output.txt | tail -n 1)"
           test -n "$deploy_url" || { echo "Cloudflare did not report a workers.dev URL" >&2; exit 1; }
+          test "${deploy_url%/}" = "${LIVE_CASH_CANONICAL_WORKERS_URL%/}" || {
+            echo "Cloudflare deployed unexpected Worker URL: $deploy_url; expected $LIVE_CASH_CANONICAL_WORKERS_URL" >&2
+            exit 1
+          }
           echo "url=$deploy_url" >> "$GITHUB_OUTPUT"
           echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
           echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
