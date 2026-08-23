@@ -74,7 +74,8 @@ Later release audits superseded the earlier claim that run #902 had exhausted al
 
 - `RT-02 / P1`: canonical `/` now cuts over to `/mastery/journey` instead of mixing Practical Mastery with the full legacy shell; hardened legacy Diagnostic/modules/Cards/Review/Real Hands remain under `/tools`;
 - `RT-03 / P1`: Cloudflare deploy/dry-run are pinned to `live-cash-os-mobile-test`, and the reported workers.dev URL must equal the canonical release URL;
-- `RT-04 / P2`: the five-shot PR visual packet includes a real canonical `/` -> Practical Mastery frame instead of visually proving only secondary `/tools` surfaces.
+- `RT-04 / P2`: the five-shot PR visual packet includes a real canonical `/` -> Practical Mastery frame instead of visually proving only secondary `/tools` surfaces;
+- `RT-05 / P1`: exact-head run #929 exposed a stale version assertion; release-artifact audit then found production/completion smoke still treated canonical `/` as the legacy shell. Build identity is now shared across Practical Mastery and `/tools`, production smoke proves both surfaces explicitly, and legacy completion smoke is pinned to `/tools`.
 
 These repairs do not alter poker strategy, scoring, mastery thresholds, scheduler policy, retention semantics, field-evidence semantics or learner-state schema. Historical adversarial passes remain useful prior evidence, but final Gate F requires two fresh consecutive post-freeze passes on the final candidate; they are not inherited automatically from run #902.
 
@@ -111,7 +112,7 @@ The owner-authorized release can close only when:
 5. GitHub Actions is GREEN on the exact resulting `main` commit;
 6. that exact `main` SHA deploys to the canonical Workers target;
 7. generated deployment configuration contains isolated `TEST_DB` only and no production `DB`;
-8. post-deploy smoke verifies the immutable Git build identity plus learner-critical flows.
+8. post-deploy smoke verifies the immutable Git build identity on the canonical Practical surface and the explicit support-tools surface plus learner-critical flows.
 
 Exact SHA/run identities belong to immutable Git/GitHub history and the final closure report rather than this self-referential ledger.
 
