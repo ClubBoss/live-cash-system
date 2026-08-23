@@ -136,7 +136,8 @@ test("direct mastery reload remains valid while Real Hands stays a document-navi
   await expect(realHands).toHaveAttribute("href", "/tools?tab=field");
   await realHands.click();
   await expect(page).toHaveURL(/\/tools$/);
-  await expect(page.getByRole("navigation", { name: "Основная навигация" }).getByRole("button", { name: "Руки", exact: true })).toHaveAttribute("aria-current", "page");
+  const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
+  await expect(toolsNav.getByRole("button", { name: "Реальные руки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect.poll(() => page.evaluate(({ key }) => Number.parseInt(sessionStorage.getItem(key) || "0", 10), { key: unloadKey })).toBe(1);
   expect(await page.evaluate(({ markerKey }) => window[markerKey] || null, { markerKey: shellMarkerKey })).not.toBe(marker);
 });
@@ -152,11 +153,11 @@ test("every recovery-blocked Practical surface escapes to Data & Recovery withou
   }, { key: learnerStateKey, raw: futureStateRaw, languageKey: localeKey });
 
   const surfaces = [
-    { route: "/mastery/journey", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные" },
-    { route: "/mastery", locale: "en", heading: "Progress needs recovery", link: "Open Data & Recovery", data: "Data" },
-    { route: "/mastery/session", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные" },
-    { route: "/mastery/perception", locale: "en", heading: "Progress needs recovery", link: "Open Data & Recovery", data: "Data" },
-    { route: "/mastery/study", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные" },
+    { route: "/mastery/journey", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные и восстановление" },
+    { route: "/mastery", locale: "en", heading: "Progress needs recovery", link: "Open Data & Recovery", data: "Data & Recovery" },
+    { route: "/mastery/session", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные и восстановление" },
+    { route: "/mastery/perception", locale: "en", heading: "Progress needs recovery", link: "Open Data & Recovery", data: "Data & Recovery" },
+    { route: "/mastery/study", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные и восстановление" },
   ];
 
   for (const surface of surfaces) {
@@ -171,7 +172,7 @@ test("every recovery-blocked Practical surface escapes to Data & Recovery withou
 
     await recovery.click();
     await expect(page).toHaveURL(/\/tools$/);
-    await expect(page.getByRole("button", { name: surface.data, exact: true })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: surface.locale === "ru" ? "Инструменты" : "Support tools" }).getByRole("button", { name: surface.data, exact: true })).toHaveAttribute("aria-current", "page");
     expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: learnerStateKey })).toBe(futureStateRaw);
   }
 });
