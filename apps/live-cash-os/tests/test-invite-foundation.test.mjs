@@ -115,6 +115,7 @@ test("isolated TEST_DB invite sync rotates hashes without touching production", 
   assert.match(workflow, /d1\[0\]\?\.binding !== "TEST_DB"/);
   assert.match(workflow, /binding === "DB"/);
   assert.match(smoke, /Вход для тестирования/);
-  assert.match(smoke, /Test invite gate exposed primary navigation before a code was accepted/);
+  assert.match(smoke, /Test invite gate exposed legacy navigation before a code was accepted/);
+  assert.match(smoke, /Test invite gate exposed Practical Mastery navigation before a code was accepted/);
   assert.match(smoke, /live-cash-os:portable-profile-code/);
 });
