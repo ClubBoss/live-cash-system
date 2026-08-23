@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { navigatePracticalWithFallback } from "../lib/practical-navigation.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
@@ -23,7 +24,8 @@ test("Practical Mastery navigation exposes one canonical home, one learning rout
   assert.match(nav, /href="\/tools\?tab=field"/);
   assert.match(layout, /PracticalNavigationGuard/);
   assert.match(navigationGuard, /useRouter/);
-  assert.match(navigationGuard, /router\.push\(nextHref\)/);
+  assert.match(navigationGuard, /navigatePracticalWithFallback/);
+  assert.match(navigationGuard, /router\.push\(href\)/);
   assert.match(navigationGuard, /window\.location\.assign\(destination\.href\)/);
   assert.match(navigationGuard, /clientMasteryRoutes\.has\(destination\.pathname\)/);
   for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
@@ -32,6 +34,33 @@ test("Practical Mastery navigation exposes one canonical home, one learning rout
   assert.match(navigationGuard, /url\.pathname === "\/tools"/);
   assert.match(navigationGuard, /url\.searchParams\.get\("tab"\) === "field"/);
   assert.doesNotMatch(nav, /Старт обучения|Смешанная практика|Первый круг/);
+});
+
+test("Practical navigation falls back exactly once only when client routing throws synchronously", () => {
+  const clientCalls = [];
+  let hardCalls = 0;
+  let observedError = null;
+  const clientResult = navigatePracticalWithFallback(
+    "/mastery/study",
+    (href) => clientCalls.push(href),
+    () => { hardCalls += 1; },
+    (error) => { observedError = error; },
+  );
+  assert.equal(clientResult, "client");
+  assert.deepEqual(clientCalls, ["/mastery/study"]);
+  assert.equal(hardCalls, 0, "successful client routing must not trigger document navigation");
+  assert.equal(observedError, null);
+
+  const expectedError = new Error("synthetic client initiation failure");
+  const fallbackResult = navigatePracticalWithFallback(
+    "/mastery/reference",
+    () => { throw expectedError; },
+    () => { hardCalls += 1; },
+    (error) => { observedError = error; },
+  );
+  assert.equal(fallbackResult, "document");
+  assert.equal(hardCalls, 1, "failed client initiation must trigger one hard-navigation fallback");
+  assert.equal(observedError, expectedError);
 });
 
 test("Quick Start teaches pot odds as a calculation and immediately contrasts a changed price", async () => {
