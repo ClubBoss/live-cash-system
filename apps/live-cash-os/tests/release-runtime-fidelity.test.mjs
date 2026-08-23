@@ -67,7 +67,7 @@ test("normal release E2E uses canonical app D1 schema without Sites access-contr
   assert.doesNotMatch(e2eServer, /CREATE TABLE/i);
 });
 
-test("local release E2E only removes obsolete generated legacy_env when semantics are preserved", () => {
+test("all locally served release E2E targets only remove obsolete generated legacy_env when semantics are preserved", () => {
   assert.match(
     e2eServer,
     /Object\.hasOwn\(config, "legacy_env"\)/,
@@ -80,7 +80,12 @@ test("local release E2E only removes obsolete generated legacy_env when semantic
   assert.match(e2eServer, /delete config\.legacy_env/);
   assert.match(
     e2eServer,
+    /run\("npm", \["run", "build"\]\);[\s\S]*?normalizeGeneratedWranglerConfigForCurrentE2E\(\);[\s\S]*?if \(!testMirror\)/,
+    "generated config normalization must run before either E2E target starts consuming the config",
+  );
+  assert.match(
+    e2eServer,
     /normalizeGeneratedWranglerConfigForCurrentE2E\(\);[\s\S]*?"d1",\s*"execute"/,
-    "generated config normalization must happen before Wrangler consumes it",
+    "ordinary local E2E must normalize before local D1 bootstrap",
   );
 });
