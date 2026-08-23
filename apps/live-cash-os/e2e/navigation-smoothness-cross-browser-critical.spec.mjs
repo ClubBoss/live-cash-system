@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 
 const unloadKey = "__practical_nav_unload_count";
 const shellMarkerKey = "__practicalNavigationShellMarker";
+const learnerStateKey = "live-cash-os:learner-state";
+const localeKey = "live-cash-os:locale";
+const futureStateRaw = JSON.stringify({ schemaVersion: 999, sentinel: "recovery-escape-must-not-mutate" });
 
 async function installUnloadCounter(page) {
   await page.addInitScript(({ key }) => {
@@ -136,4 +139,39 @@ test("direct mastery reload remains valid while Real Hands stays a document-navi
   await expect(page.getByRole("navigation", { name: "Основная навигация" }).getByRole("button", { name: "Руки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect.poll(() => page.evaluate(({ key }) => Number.parseInt(sessionStorage.getItem(key) || "0", 10), { key: unloadKey })).toBe(1);
   expect(await page.evaluate(({ markerKey }) => window[markerKey] || null, { markerKey: shellMarkerKey })).not.toBe(marker);
+});
+
+test("every recovery-blocked Practical surface escapes to Data & Recovery without mutating learner state", async ({ page }) => {
+  await page.route("**/api/state", async (route) => {
+    await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "AUTH_REQUIRED" }) });
+  });
+  await page.addInitScript(({ key, raw, languageKey }) => {
+    if (location.origin !== "http://127.0.0.1:5173" || !location.pathname.startsWith("/mastery")) return;
+    localStorage.setItem(key, raw);
+    if (localStorage.getItem(languageKey) === null) localStorage.setItem(languageKey, "ru");
+  }, { key: learnerStateKey, raw: futureStateRaw, languageKey: localeKey });
+
+  const surfaces = [
+    { route: "/mastery/journey", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные" },
+    { route: "/mastery", locale: "en", heading: "Progress needs recovery", link: "Open Data & Recovery", data: "Data" },
+    { route: "/mastery/session", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные" },
+    { route: "/mastery/perception", locale: "en", heading: "Progress needs recovery", link: "Open Data & Recovery", data: "Data" },
+    { route: "/mastery/study", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные" },
+  ];
+
+  for (const surface of surfaces) {
+    if (page.url().startsWith("http://127.0.0.1:5173")) {
+      await page.evaluate(({ languageKey, locale }) => localStorage.setItem(languageKey, locale), { languageKey: localeKey, locale: surface.locale });
+    }
+    await page.goto(surface.route);
+    await expect(page.getByRole("heading", { name: surface.heading, exact: true })).toBeVisible();
+    const recovery = page.getByRole("link", { name: new RegExp(surface.link, "i") });
+    await expect(recovery).toHaveAttribute("href", "/tools");
+    expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: learnerStateKey })).toBe(futureStateRaw);
+
+    await recovery.click();
+    await expect(page).toHaveURL(/\/tools$/);
+    await expect(page.getByRole("button", { name: surface.data, exact: true })).toBeVisible();
+    expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: learnerStateKey })).toBe(futureStateRaw);
+  }
 });
