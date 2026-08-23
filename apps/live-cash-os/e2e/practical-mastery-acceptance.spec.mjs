@@ -136,7 +136,8 @@ test("After-play flow deep-links to Real Hands on the secondary tools route with
   await expect(realHands).toHaveAttribute("href", "/tools?tab=field");
   await realHands.click();
 
-  const legacyNav = page.getByRole("navigation", { name: "Основная навигация" });
-  await expect(legacyNav.getByRole("button", { name: "Руки", exact: true })).toHaveAttribute("aria-current", "page");
+  const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
+  await expect(toolsNav.getByRole("button", { name: "Реальные руки", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
   await expect(page).toHaveURL(/\/tools$/);
 });
