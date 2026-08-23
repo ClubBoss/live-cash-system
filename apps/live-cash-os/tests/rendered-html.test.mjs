@@ -12,20 +12,20 @@ async function render(path = "/") {
   );
 }
 
-test("server renders the Russian-first Live Cash OS shell", async () => {
+test("server redirects canonical root to Practical Mastery journey", async () => {
   const response = await render();
+  assert.equal(response.status, 307);
+  assert.equal(response.headers.get("location"), "/mastery/journey");
+});
+
+test("Practical Mastery destination renders Russian-first metadata and PWA manifest", async () => {
+  const response = await render("/mastery/journey");
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Live Cash OS<\/title>/i);
-  assert.match(html, /Загружаем (?:прогресс|learner state)/i);
-  assert.doesNotMatch(html, /accepted slice/i);
-  assert.doesNotMatch(html, /vinext-starter/i);
-});
-
-test("metadata exposes the PWA manifest and Russian document language", async () => {
-  const response = await render();
-  const html = await response.text();
   assert.match(html, /lang="ru"/i);
   assert.match(html, /manifest\.webmanifest/i);
+  assert.doesNotMatch(html, /accepted slice/i);
+  assert.doesNotMatch(html, /vinext-starter/i);
 });
