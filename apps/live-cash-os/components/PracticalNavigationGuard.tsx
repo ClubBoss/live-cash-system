@@ -22,7 +22,7 @@ function internalDestination(anchor: HTMLAnchorElement): URL | null {
   const url = new URL(raw, window.location.href);
   if (url.origin !== window.location.origin) return null;
   if (clientMasteryRoutes.has(url.pathname)) return url;
-  if (url.pathname === "/tools" && url.searchParams.get("tab") === "field") return url;
+  if (url.pathname === "/tools" && (!url.search || url.searchParams.get("tab") === "field")) return url;
   return null;
 }
 
@@ -50,8 +50,16 @@ export default function PracticalNavigationGuard() {
       const anchor = target.closest("a");
       if (!(anchor instanceof HTMLAnchorElement)) return;
       const destination = internalDestination(anchor);
-      if (!destination || !clientMasteryRoutes.has(destination.pathname)) return;
+      if (!destination) return;
 
+      if (destination.pathname === "/tools") {
+        event.preventDefault();
+        event.stopPropagation();
+        window.location.assign(destination.href);
+        return;
+      }
+
+      if (!clientMasteryRoutes.has(destination.pathname)) return;
       const nextHref = clientHref(destination);
       if (nextHref === `${window.location.pathname}${window.location.search}${window.location.hash}`) return;
 
