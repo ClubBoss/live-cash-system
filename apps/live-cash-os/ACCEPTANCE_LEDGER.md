@@ -68,6 +68,18 @@ The release must preserve:
 - API traffic outside PWA caches;
 - browser/mobile/cross-browser release evidence.
 
+## Final repair-set reconciliation
+
+Later release audits superseded the earlier claim that run #902 had exhausted all machine-actionable debt. The current frozen bounded repair set additionally closes:
+
+- `RT-02 / P1`: canonical `/` now cuts over to `/mastery/journey` instead of mixing Practical Mastery with the full legacy shell; hardened legacy Diagnostic/modules/Cards/Review/Real Hands remain under `/tools`;
+- `RT-03 / P1`: Cloudflare deploy/dry-run are pinned to `live-cash-os-mobile-test`, and the reported workers.dev URL must equal the canonical release URL;
+- `RT-04 / P2`: the five-shot PR visual packet includes a real canonical `/` -> Practical Mastery frame instead of visually proving only secondary `/tools` surfaces.
+
+These repairs do not alter poker strategy, scoring, mastery thresholds, scheduler policy, retention semantics, field-evidence semantics or learner-state schema. Historical adversarial passes remain useful prior evidence, but final Gate F requires two fresh consecutive post-freeze passes on the final candidate; they are not inherited automatically from run #902.
+
+The detailed non-authoritative defect history is kept in `analysis/NON_HUMAN_10_10_CLOSURE_V3_DEFECT_LEDGER.md`.
+
 ## Governance and editorial truth
 
 The manifest remains deliberately review-pending:
