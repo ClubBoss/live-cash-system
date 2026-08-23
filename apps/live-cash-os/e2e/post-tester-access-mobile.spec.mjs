@@ -6,7 +6,7 @@ const LEARNER_KEY = "live-cash-os:learner-state";
 const ONLINE_TEST_KEY = "wave-c:test-online";
 const TEST_CODE = "LCO-AAAAAAAAAAAAAAAAAAAA";
 const RUNTIME = {
-  appVersion: "1.1.0",
+  appVersion: "1.2.0",
   contentVersion: "2026.08-wave7-integrity",
   schemaVersion: 2,
 };
@@ -254,7 +254,9 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     await expect(page).toHaveURL(/\/mastery\/journey$/);
     await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Primary navigation" })).toHaveCount(0);
+    await expect(page.getByText(/QUICK START · STEP 1 OF 8/i)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByRole("button", { name: "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
     expect(await page.evaluate(({ localeKey }) => localStorage.getItem(localeKey), { localeKey: LOCALE_KEY })).toBe("en");
     expect(await page.evaluate(({ profileKey }) => localStorage.getItem(profileKey), { profileKey: PROFILE_KEY })).toBe(TEST_CODE);
   });
