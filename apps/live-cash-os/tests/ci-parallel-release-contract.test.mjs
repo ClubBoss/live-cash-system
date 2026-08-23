@@ -45,7 +45,7 @@ test("release CI parallelizes only through isolated jobs while preserving the co
 
   assert.match(primaryConfig, /workers: process\.env\.CI \? 1 : undefined/);
   assert.match(crossConfig, /workers: process\.env\.CI \? 1 : undefined/);
-  assert.match(workflow, /strategy:\n      fail-fast: false/);
+  assert.match(workflow, /strategy:\n\s{6}fail-fast: false/);
 });
 
 test("production builds compile the legacy tools compatibility runtime off", async () => {
