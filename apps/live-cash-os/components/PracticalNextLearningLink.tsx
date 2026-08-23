@@ -1,7 +1,9 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { recommendNextPracticalSkill } from "../lib/practical-mastery-core";
 import { usePracticalLocale } from "../lib/use-practical-locale";
+import { usePracticalProfileState } from "../lib/use-practical-profile-state";
 import PracticalDocumentLink from "./PracticalDocumentLink";
 
 export default function PracticalNextLearningLink({
@@ -20,5 +22,12 @@ export default function PracticalNextLearningLink({
   labelEn?: string;
 }) {
   const [locale] = usePracticalLocale();
-  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</PracticalDocumentLink>;
+  const { mastery, ready } = usePracticalProfileState();
+  const [onSkillMap, setOnSkillMap] = useState(false);
+
+  useEffect(() => { setOnSkillMap(window.location.pathname === "/mastery"); }, []);
+  const recommendation = useMemo(() => onSkillMap && ready ? recommendNextPracticalSkill(mastery) : null, [mastery, onSkillMap, ready]);
+  const href = recommendation ? `/mastery/session?focus=${encodeURIComponent(recommendation.skillId)}` : "/mastery/journey";
+
+  return <PracticalDocumentLink className={className} style={style} href={href} aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</PracticalDocumentLink>;
 }
