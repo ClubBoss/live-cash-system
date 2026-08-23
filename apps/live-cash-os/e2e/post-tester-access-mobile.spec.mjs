@@ -251,9 +251,11 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     await setOnlineTruth(page, true);
     controller.setMode("200");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
-    await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
+    await expect(page).toHaveURL(/\/mastery\/journey$/);
+    await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Primary navigation" })).toHaveCount(0);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByRole("button", { name: "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
+    expect(await page.evaluate(({ localeKey }) => localStorage.getItem(localeKey), { localeKey: LOCALE_KEY })).toBe("en");
     expect(await page.evaluate(({ profileKey }) => localStorage.getItem(profileKey), { profileKey: PROFILE_KEY })).toBe(TEST_CODE);
   });
 
