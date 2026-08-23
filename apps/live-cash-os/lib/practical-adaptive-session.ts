@@ -3,7 +3,12 @@ import { classifyPracticalAdaptiveNeed, decisionMatchesAdaptiveNeed, type Practi
 import { buildIntegratedSession, supportedIntegratedSkillIds, type IntegratedSessionItem } from "./practical-integrated-session";
 import type { PracticalMasteryState } from "./practical-mastery-core";
 
-export function buildAdaptiveIntegratedSession(state:PracticalMasteryState,now=new Date(),size=8,performance:PracticalPerformanceSample[]=[]):IntegratedSessionItem[]{
+export function requestedIntegratedFocusItem(state:PracticalMasteryState,skillId:string,now=new Date()):IntegratedSessionItem|null{
+  if(!supportedIntegratedSkillIds(state).includes(skillId)) return null;
+  return buildIntegratedSession(state,now,Math.max(8,practicalDecisions.length)).find((item)=>item.skillId===skillId)??null;
+}
+
+export function buildAdaptiveIntegratedSession(state:PracticalMasteryState,now=new Date(),size=8,performance:PracticalPerformanceSample[]=[],requestedSkillId?:string|null):IntegratedSessionItem[]{
   const base=buildIntegratedSession(state,now,size);
   const used=new Set<string>();
   const adaptive:IntegratedSessionItem[]=[];
@@ -29,5 +34,10 @@ export function buildAdaptiveIntegratedSession(state:PracticalMasteryState,now=n
     if(used.has(item.decisionId)) continue;
     adaptive.push(item); used.add(item.decisionId);
   }
-  return adaptive.slice(0,size);
+
+  const result=adaptive.slice(0,size);
+  if(!requestedSkillId) return result;
+  const focused=requestedIntegratedFocusItem(state,requestedSkillId,now);
+  if(!focused) return result;
+  return [focused,...result.filter((item)=>item.decisionId!==focused.decisionId)].slice(0,size);
 }
