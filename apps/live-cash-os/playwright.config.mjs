@@ -8,6 +8,12 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  // Release E2E shares one local Workerd + D1 runtime. CI must not drive that
+  // singleton with parallel Playwright workers: aborted browser requests can
+  // destroy local request IoContexts while another worker is still using the
+  // same dev runtime. Serial execution preserves every test/browser assertion
+  // while matching one deterministic local certification runtime.
+  workers: process.env.CI ? 1 : undefined,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
