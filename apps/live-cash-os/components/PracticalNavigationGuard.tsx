@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { navigatePracticalWithFallback } from "../lib/practical-navigation";
 import { warmPracticalDocument } from "./PracticalDocumentLink";
 
 const clientMasteryRoutes = new Set([
@@ -56,12 +57,12 @@ export default function PracticalNavigationGuard() {
 
       event.preventDefault();
       event.stopPropagation();
-      try {
-        router.push(nextHref);
-      } catch (error) {
-        console.error("Practical client navigation failed; falling back to document navigation.", error);
-        window.location.assign(destination.href);
-      }
+      navigatePracticalWithFallback(
+        nextHref,
+        (href) => router.push(href),
+        () => window.location.assign(destination.href),
+        (error) => console.error("Practical client navigation failed; falling back to document navigation.", error),
+      );
     };
 
     document.addEventListener("pointerover", warm, true);
