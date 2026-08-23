@@ -24,7 +24,7 @@ async function openMastery(page, route) {
   await expect(page.locator("main")).toBeVisible();
   await expect(page.locator("main h1").first()).toBeVisible();
   await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error/i);
-  await page.waitForLoadState("networkidle");
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key) !== null, LEARNER_KEY)).toBe(true);
   expect(pageErrors, `${route} emitted browser errors`).toEqual([]);
   page.off("pageerror", listener);
 }
