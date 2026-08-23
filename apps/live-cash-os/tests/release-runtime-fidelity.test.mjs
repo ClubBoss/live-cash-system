@@ -66,3 +66,21 @@ test("normal release E2E uses canonical app D1 schema without Sites access-contr
   assert.match(e2eServer, /"live-cash-os-e2e-state"/);
   assert.doesNotMatch(e2eServer, /CREATE TABLE/i);
 });
+
+test("local release E2E only removes obsolete generated legacy_env when semantics are preserved", () => {
+  assert.match(
+    e2eServer,
+    /Object\.hasOwn\(config, "legacy_env"\)/,
+  );
+  assert.match(
+    e2eServer,
+    /config\.legacy_env !== true/,
+    "unexpected legacy_env values must fail closed rather than be silently rewritten",
+  );
+  assert.match(e2eServer, /delete config\.legacy_env/);
+  assert.match(
+    e2eServer,
+    /normalizeGeneratedWranglerConfigForCurrentE2E\(\);[\s\S]*?"d1",\s*"execute"/,
+    "generated config normalization must happen before Wrangler consumes it",
+  );
+});
