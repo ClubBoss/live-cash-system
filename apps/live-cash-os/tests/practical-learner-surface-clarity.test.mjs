@@ -20,7 +20,7 @@ test("Practical Mastery navigation exposes one canonical home, one learning rout
   assert.match(nav, /usePathname/);
   assert.match(nav, /ariaCurrent=\{learningActive \? "page" : undefined\}/);
   assert.match(nav, /aria-current=\{active \? "page" : undefined\}/);
-  assert.match(nav, /href="\/\?tab=field"/);
+  assert.match(nav, /href="\/tools\?tab=field"/);
   assert.match(layout, /PracticalNavigationGuard/);
   assert.match(navigationGuard, /window\.location\.assign/);
   assert.match(navigationGuard, /pathname\.startsWith\("\/mastery"\)/);
