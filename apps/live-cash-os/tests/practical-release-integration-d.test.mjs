@@ -7,15 +7,16 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
 
-test("canonical product exposes one Practical learning entry without removing the hardened legacy shell", async () => {
+test("canonical product cuts root over to Practical learning while preserving the hardened legacy shell under secondary tools", async () => {
   const page = await read("app/page.tsx");
-  const gateway = await read("components/PracticalMasteryGateway.tsx");
+  const tools = await read("app/tools/page.tsx");
   const nextLearning = await read("components/PracticalNextLearningLink.tsx");
   const journey = await read("components/PracticalFirstJourneyExperience.tsx");
-  assert.match(page, /PracticalMasteryGateway/);
-  assert.match(page, /<PracticalMasteryGateway \/>[\s\S]*<LiveCashApp \/>/);
-  assert.match(gateway, /PracticalNextLearningLink/);
-  assert.match(gateway, /Один маршрут|One route/);
+  assert.match(page, /redirect\("\/mastery\/journey"\)/);
+  assert.doesNotMatch(page, /LiveCashApp|PracticalMasteryGateway/);
+  assert.match(tools, /<TestInviteGate>/);
+  assert.match(tools, /<LiveCashApp \/>/);
+  assert.match(tools, /<LegacyToolDeepLink \/>/);
   assert.match(nextLearning, /href="\/mastery\/journey"/);
   assert.doesNotMatch(nextLearning, /usePracticalProfileState|useReliableLearnerState|firstJourneyProgress/, "shared navigation must not create another learner-state sync owner");
   assert.match(journey, /href="\/mastery\/session"/);
@@ -34,6 +35,7 @@ test("every Practical Mastery route inherits the invite boundary while shared na
   assert.match(nav, /aria-current=\{active \? "page" : undefined\}/);
   assert.match(nav, /href="\/mastery"/);
   assert.match(nav, /homeActive = pathname === "\/mastery"/);
+  assert.match(nav, /href="\/tools\?tab=field"/);
   for (const route of ["/mastery/perception", "/mastery/study", "/mastery/reference"]) {
     assert.ok(nav.includes(`href: "${route}"`), `${route} must remain declared as a supporting tool route`);
   }
