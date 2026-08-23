@@ -24,6 +24,11 @@ async function openMastery(page, route) {
   await expect(page.locator("main")).toBeVisible();
   await expect(page.locator("main h1").first()).toBeVisible();
   await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error/i);
+  // Practical Mastery starts cloud-state reconciliation after document load.
+  // Keep the page alive until those bounded requests settle so route churn or
+  // context teardown cannot abort an in-flight Workerd response and create
+  // misleading release-gate transport errors.
+  await page.waitForLoadState("networkidle");
   expect(pageErrors, `${route} emitted browser errors`).toEqual([]);
   page.off("pageerror", listener);
 }
