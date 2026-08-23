@@ -4,6 +4,7 @@ const unloadKey = "__practical_nav_unload_count";
 const shellMarkerKey = "__practicalNavigationShellMarker";
 const learnerStateKey = "live-cash-os:learner-state";
 const localeKey = "live-cash-os:locale";
+const e2eLegacyToolsKey = "live-cash-os:e2e-legacy-tools";
 const futureStateRaw = JSON.stringify({ schemaVersion: 999, sentinel: "recovery-escape-must-not-mutate" });
 
 async function installUnloadCounter(page) {
@@ -146,11 +147,16 @@ test("every recovery-blocked Practical surface escapes to Data & Recovery withou
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "AUTH_REQUIRED" }) });
   });
-  await page.addInitScript(({ key, raw, languageKey }) => {
+  await page.addInitScript(({ key, raw, languageKey, legacyKey }) => {
     if (location.origin !== "http://127.0.0.1:5173" || !location.pathname.startsWith("/mastery")) return;
+    // This spec certifies the production/default support escape. Core E2E has a
+    // global legacy marker only so unrelated historical /tools specs can keep
+    // exercising their compatibility harness; remove it for this flow rather
+    // than depending on browser-specific referrer behavior.
+    localStorage.removeItem(legacyKey);
     localStorage.setItem(key, raw);
     if (localStorage.getItem(languageKey) === null) localStorage.setItem(languageKey, "ru");
-  }, { key: learnerStateKey, raw: futureStateRaw, languageKey: localeKey });
+  }, { key: learnerStateKey, raw: futureStateRaw, languageKey: localeKey, legacyKey: e2eLegacyToolsKey });
 
   const surfaces = [
     { route: "/mastery/journey", locale: "ru", heading: "Прогресс требует восстановления", link: "Открыть данные и восстановление", data: "Данные и восстановление" },
