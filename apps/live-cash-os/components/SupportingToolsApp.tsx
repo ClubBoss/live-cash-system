@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fieldFactLabels, fieldStatusLabel } from "../content/i18n/learner-ui";
 import { applyLocaleData } from "../content/i18n/locale-pipeline";
+import { runtimeCopy } from "../content/i18n/runtime";
 import { APP_VERSION, type LocaleCode } from "../lib/model";
 import { useReliableLearnerState } from "../lib/use-learner-state-sync";
 import DataSafetyPanel from "./DataSafetyPanel";
@@ -14,7 +16,6 @@ import ScrollContinuityGuard from "./ScrollContinuityGuard";
 import Wave5PracticeLayer from "./Wave5PracticeLayer";
 import { Wave7FieldPanel } from "./Wave7Experience";
 import Wave8AccessibilityLayer from "./Wave8AccessibilityLayer";
-import { fieldFactLabels, fieldStatusLabel } from "../content/i18n/learner-ui";
 
 const LOCALE_KEY = "live-cash-os:locale";
 type SupportTab = "field" | "diagnostic" | "data";
@@ -43,6 +44,7 @@ function SupportingToolsRuntime() {
   const [tab, setTab] = useState<SupportTab>(initialSupportTab);
   const controller = useReliableLearnerState();
   const { state, setState, ready, syncStatus, lastLocalSaveAt } = controller;
+  const t = runtimeCopy[locale];
 
   useEffect(() => {
     const storedLocale = localStorage.getItem(LOCALE_KEY);
@@ -99,7 +101,7 @@ function SupportingToolsRuntime() {
       <a className="brand" href="/mastery/journey">LIVE CASH OS</a>
       <div className="topmeta">
         <span>v{APP_VERSION}</span>
-        <span className={`sync sync-${syncStatus}`}>{syncStatus}</span>
+        <span className={`sync sync-${syncStatus}`}>{t.sync[syncStatus]}</span>
         <div className="mode-switch" aria-label={locale === "ru" ? "Язык" : "Language"}>
           <button aria-pressed={locale === "ru"} onClick={() => changeLocale("ru")}>RU</button>
           <button aria-pressed={locale === "en"} onClick={() => changeLocale("en")}>EN</button>
