@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { recommendNextPracticalSkill } from "../lib/practical-mastery-core";
+import { type CSSProperties, type ReactNode } from "react";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
 import PracticalDocumentLink from "./PracticalDocumentLink";
 
 export default function PracticalNextLearningLink({
@@ -13,6 +11,7 @@ export default function PracticalNextLearningLink({
   ariaCurrent,
   labelRu = "Продолжить обучение",
   labelEn = "Continue learning",
+  focusSkillId,
 }: {
   className?: string;
   style?: CSSProperties;
@@ -20,14 +19,14 @@ export default function PracticalNextLearningLink({
   ariaCurrent?: "page";
   labelRu?: string;
   labelEn?: string;
+  focusSkillId?: string;
 }) {
   const [locale] = usePracticalLocale();
-  const { mastery, ready } = usePracticalProfileState();
-  const [onSkillMap, setOnSkillMap] = useState(false);
+  const content = children ?? (locale === "ru" ? labelRu : labelEn);
 
-  useEffect(() => { setOnSkillMap(window.location.pathname === "/mastery"); }, []);
-  const recommendation = useMemo(() => onSkillMap && ready ? recommendNextPracticalSkill(mastery) : null, [mastery, onSkillMap, ready]);
-  const href = recommendation ? `/mastery/session?focus=${encodeURIComponent(recommendation.skillId)}` : "/mastery/journey";
+  if (focusSkillId) {
+    return <PracticalDocumentLink className={className} style={style} href={`/mastery/session?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  }
 
-  return <PracticalDocumentLink className={className} style={style} href={href} aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</PracticalDocumentLink>;
+  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
 }

@@ -131,7 +131,7 @@ export default function PracticalMasteryExperience() {
       <h2>{skillTitle(recommendedSkill, locale)}</h2>
       <p>{skillObjective(recommendedSkill, locale)}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <PracticalNextLearningLink className="primary" />
+        <PracticalNextLearningLink className="primary" focusSkillId={recommendedSkill.id} />
         <button className="secondary" onClick={() => setSelectedSkillId(recommendedSkill.id)}>{locale === "ru" ? "Посмотреть на карте" : "View on map"} <span>→</span></button>
       </div>
     </section> : null}

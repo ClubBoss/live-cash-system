@@ -63,20 +63,25 @@ test("Practical learner copy maps internal status language and keeps EN objectiv
 
 test("Reference renders human epistemic labels while provenance keys remain internal", () => {
   for (const human of ["Форма диапазона подтверждена", "Точные частоты ещё не проверены", "Range shape reviewed", "Exact frequencies not yet verified"]) assert.match(reference, new RegExp(human));
-  assert.doesNotMatch(reference, /\{item\.id\}/);
+  const withoutReactKeys = reference.replace(/key=\{item\.id\}/g, "");
+  assert.doesNotMatch(withoutReactKeys, /item\.id/);
   assert.doesNotMatch(reference, /\{item\.status\}/);
   assert.doesNotMatch(reference, /item\.sourceRefs/);
-  assert.doesNotMatch(reference, />C2</);
+  assert.doesNotMatch(reference, />\s*C2\s*</);
   assert.doesNotMatch(reference, /repository|registry/i);
 });
 
-test("named Skill Map recommendation enters the canonical scheduler with validated focus", () => {
+test("named Skill Map recommendation enters the canonical scheduler with validated focus while generic Learn stays generic", () => {
+  assert.match(nextLink, /focusSkillId\?: string/);
   assert.match(nextLink, /\/mastery\/session\?focus=/);
-  assert.match(nextLink, /recommendNextPracticalSkill/);
+  assert.match(nextLink, /href="\/mastery\/journey"/);
+  assert.doesNotMatch(nextLink, /recommendNextPracticalSkill|usePracticalProfileState/);
+  assert.match(mastery, /<PracticalNextLearningLink className="primary" focusSkillId=\{recommendedSkill\.id\} \/>/);
   assert.match(adaptive, /requestedIntegratedFocusItem/);
   assert.match(adaptive, /supportedIntegratedSkillIds\(state\)\.includes\(skillId\)/);
   assert.match(adaptive, /buildIntegratedSession/);
-  assert.match(integrated, /searchParams\)\.get\("focus"\)|searchParams\.get\("focus"\)|URLSearchParams\(window\.location\.search\)\.get\("focus"\)/);
+  assert.match(integrated, /URLSearchParams\(window\.location\.search\)\.get\("focus"\)/);
+  assert.match(integrated, /focusAvailable[\s\S]*requestedIntegratedFocusItem/);
   assert.match(integrated, /will not silently substitute a different topic/);
 });
 
