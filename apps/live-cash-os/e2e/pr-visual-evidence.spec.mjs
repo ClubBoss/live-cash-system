@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 
 const ENABLED = process.env.LIVE_CASH_VISUAL_EVIDENCE === "1";
 const OUTPUT_DIR = path.resolve("visual-evidence", "pr");
-const NAV_LABELS = ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"];
+const NAV_LABELS = ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика", "Реальные руки", "Данные и восстановление"];
 const TARGET_NAV = {
   learn: "Учиться",
   review: "Повтор",
@@ -37,8 +37,8 @@ async function openCanonical(page) {
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
 }
 
-async function openTools(page) {
-  await page.goto("/tools");
+async function openLegacyTools(page) {
+  await page.goto("/tools?legacy=1");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 }
 
@@ -139,23 +139,26 @@ test("UI-relevant PR emits compact real-browser visual evidence", async ({ page 
   const screenshots = [];
   screenshots.push(await capture(page, "canonical-home-desktop-light"));
 
-  await openTools(page);
+  await openLegacyTools(page);
   for (const shot of targetShots) {
     await page.setViewportSize(shot.mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 });
     await navigateTarget(page, shot.target);
-    screenshots.push(await capture(page, `target-${shot.target}-${shot.mobile ? "mobile" : "desktop"}-light`));
+    screenshots.push(await capture(page, `legacy-target-${shot.target}-${shot.mobile ? "mobile" : "desktop"}-light`));
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Сегодня", exact: true }).click();
-  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
-  screenshots.push(await capture(page, "today-mobile-light"));
+  await page.goto("/tools?support=1");
+  await expect(page.getByRole("heading", { name: "Инструменты", exact: true })).toBeVisible();
+  await expect(page.getByText(/Основное обучение проходит в Practical Mastery/)).toBeVisible();
+  screenshots.push(await capture(page, "tools-support-mobile-light"));
 
+  await openLegacyTools(page);
+  await page.getByRole("button", { name: "Сегодня", exact: true }).click();
   const themeToggle = page.getByRole("switch", { name: "Темная тема / Dark theme" });
   await expect(themeToggle).toBeVisible();
   await themeToggle.click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  screenshots.push(await capture(page, "today-mobile-dark"));
+  screenshots.push(await capture(page, "legacy-today-mobile-dark"));
 
   const evidence = {
     schema: "LIVE_CASH_PR_VISUAL_EVIDENCE_V2",

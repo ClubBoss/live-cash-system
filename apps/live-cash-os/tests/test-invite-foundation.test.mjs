@@ -57,7 +57,7 @@ test("recoverable private tester codes match the hash-only runtime source", asyn
 });
 
 test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", async () => {
-  const [viteConfig, stateRoute, db, gate, page, masteryLayout, toolsPage, bootstrapRoute] = await Promise.all([
+  const [viteConfig, stateRoute, db, gate, page, masteryLayout, toolsPage, supportingTools, bootstrapRoute] = await Promise.all([
     readFile(new URL("../vite.config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../db/index.ts", import.meta.url), "utf8"),
@@ -65,6 +65,7 @@ test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", a
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/mastery/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/tools/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../components/SupportingToolsApp.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/test-invite-bootstrap/route.ts", import.meta.url), "utf8"),
   ]);
   assert.match(viteConfig, /binding:\s*"TEST_DB"/);
@@ -84,7 +85,9 @@ test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", a
   assert.match(masteryLayout, /<TestInviteGate>/);
   assert.match(masteryLayout, /<\/TestInviteGate>/);
   assert.match(toolsPage, /<TestInviteGate>/);
-  assert.match(toolsPage, /<Gauntlet4LearningIntegrityLayer \/>/);
+  assert.match(toolsPage, /<SupportingToolsApp \/>/);
+  assert.match(supportingTools, /<Gauntlet4LearningIntegrityLayer \/>/);
+  assert.match(supportingTools, /<LiveCashApp \/>/);
   assert.match(toolsPage, /<\/TestInviteGate>/);
 });
 

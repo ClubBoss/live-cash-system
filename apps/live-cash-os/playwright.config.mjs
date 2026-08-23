@@ -20,6 +20,17 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:5173",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    // Historical E2E specs intentionally exercise the complete pre-Practical
+    // shell. The product keeps that shell only as an explicit compatibility
+    // runtime; this origin-scoped marker lets direct /tools test navigation use
+    // it without changing the learner-facing /tools default in real browsers.
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: "http://127.0.0.1:5173",
+        localStorage: [{ name: "live-cash-os:e2e-legacy-tools", value: "1" }],
+      }],
+    },
   },
   projects: [
     // Chromium remains the canonical full desktop regression suite.

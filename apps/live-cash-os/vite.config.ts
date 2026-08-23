@@ -87,6 +87,10 @@ export default defineConfig(async () => {
   return {
     define: {
       __LIVE_CASH_TEST_INVITE_MODE__: JSON.stringify(isTestMirrorDeploy),
+      // The pre-Practical shell is a regression/test-mirror compatibility
+      // harness only. Production builds compile this capability off so stale
+      // `?legacy=1` URLs cannot reopen a competing learner product.
+      __LIVE_CASH_LEGACY_TOOLS_MODE__: JSON.stringify(isTestMirrorDeploy || isLocalE2ERuntime),
     },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }

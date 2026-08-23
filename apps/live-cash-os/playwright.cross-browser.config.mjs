@@ -17,6 +17,17 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:5173",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    // Wave C and mastery-cross still include historical direct /tools specs.
+    // The product compiles legacy mode on only for e2e-local/test-mirror; this
+    // origin-scoped marker selects that compatibility harness for direct test
+    // navigation without reopening it in production.
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: "http://127.0.0.1:5173",
+        localStorage: [{ name: "live-cash-os:e2e-legacy-tools", value: "1" }],
+      }],
+    },
   },
   projects: [
     { name: "w8-chromium-desktop", use: { ...devices["Desktop Chrome"] } },
