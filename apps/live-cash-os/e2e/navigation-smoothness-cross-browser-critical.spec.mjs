@@ -14,6 +14,16 @@ async function installUnloadCounter(page) {
   }, { key: unloadKey });
 }
 
+async function armCurrentDocumentUnloadCounter(page) {
+  await page.evaluate(({ key }) => {
+    sessionStorage.setItem(key, "0");
+    addEventListener("beforeunload", () => {
+      const current = Number.parseInt(sessionStorage.getItem(key) || "0", 10) || 0;
+      sessionStorage.setItem(key, String(current + 1));
+    }, { once: true });
+  }, { key: unloadKey });
+}
+
 async function stampShell(page) {
   return page.evaluate(({ markerKey }) => {
     const marker = crypto.randomUUID();
@@ -117,13 +127,13 @@ test("direct mastery reload remains valid while Real Hands stays a document-navi
   await expect(page).toHaveURL(/\/mastery\/study$/);
   await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
 
-  await installUnloadCounter(page);
-  await page.evaluate(({ key }) => sessionStorage.setItem(key, "0"), { key: unloadKey });
+  await armCurrentDocumentUnloadCounter(page);
   const marker = await stampShell(page);
   const realHands = page.getByRole("navigation", { name: "Practical Mastery navigation" }).getByRole("link", { name: "Реальные руки →", exact: true });
   await expect(realHands).toHaveAttribute("href", "/tools?tab=field");
   await realHands.click();
-  await expect(page).toHaveURL(/\/tools\?tab=field$/);
+  await expect(page).toHaveURL(/\/tools$/);
+  await expect(page.getByRole("navigation", { name: "Основная навигация" }).getByRole("button", { name: "Руки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect.poll(() => page.evaluate(({ key }) => Number.parseInt(sessionStorage.getItem(key) || "0", 10), { key: unloadKey })).toBe(1);
   expect(await page.evaluate(({ markerKey }) => window[markerKey] || null, { markerKey: shellMarkerKey })).not.toBe(marker);
 });
