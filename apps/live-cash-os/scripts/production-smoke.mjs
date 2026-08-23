@@ -1,7 +1,9 @@
 import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 
-const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os.elmarsal.chatgpt.site/";
+const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os-mobile-test.blufferus.workers.dev/";
+const canonicalUrl = new URL("/", liveUrl).toString();
+const toolsUrl = new URL("/tools", liveUrl).toString();
 const deployedSha = process.env.DEPLOYED_SHA?.trim() || null;
 const testInviteCode = process.env.LIVE_CASH_TEST_SMOKE_CODE?.trim().toUpperCase() || null;
 const attempts = Number(process.env.SMOKE_ATTEMPTS ?? 4);
@@ -19,12 +21,16 @@ const forbiddenMarkers = [
   "Field validated",
 ];
 
-console.log(`production-smoke target=${liveUrl} attempts=${attempts}`);
+console.log(`production-smoke target=${canonicalUrl} attempts=${attempts}`);
 await mkdir("smoke-evidence", { recursive: true });
 let lastError = new Error("Production smoke did not start");
 
-function mainNav(page) {
+function legacyNav(page) {
   return page.getByRole("navigation", { name: /Основная навигация|Primary navigation/ });
+}
+
+function practicalNav(page) {
+  return page.getByRole("navigation", { name: "Practical Mastery navigation" });
 }
 
 async function assertNoOverflow(page, label) {
@@ -34,7 +40,7 @@ async function assertNoOverflow(page, label) {
 
 async function verifyBuildIdentity(page) {
   if (!deployedSha) return;
-  const badge = page.locator("[data-build-sha]");
+  const badge = page.locator("[data-build-sha]").first();
   await badge.waitFor({ timeout: 10_000 });
   const actual = await badge.getAttribute("data-build-sha");
   if (actual !== deployedSha) throw new Error(`Build identity mismatch: expected ${deployedSha}, got ${actual ?? "missing"}`);
@@ -51,11 +57,10 @@ async function verifyTestInviteGate(browser) {
   if (!testInviteCode) return;
   const lockedContext = await browser.newContext();
   const locked = await lockedContext.newPage();
-  await locked.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  await locked.goto(canonicalUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
   await locked.getByRole("heading", { name: "Вход для тестирования" }).waitFor({ timeout: 20_000 });
-  if (await locked.getByRole("navigation", { name: /Основная навигация|Primary navigation/ }).count()) {
-    throw new Error("Test invite gate exposed primary navigation before a code was accepted");
-  }
+  if (await legacyNav(locked).count()) throw new Error("Test invite gate exposed legacy navigation before a code was accepted");
+  if (await practicalNav(locked).count()) throw new Error("Test invite gate exposed Practical Mastery navigation before a code was accepted");
   await lockedContext.close();
 }
 
@@ -86,32 +91,44 @@ async function isolateTestMirrorState(page) {
   });
 }
 
-async function verifyHomeLocale(page, locale) {
+async function verifyCanonicalMastery(page, locale) {
+  const russian = locale === "ru";
+  await practicalNav(page).waitFor({ timeout: 20_000 });
+  await page.getByText(russian ? /БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i : /QUICK START · STEP 1 OF 8/i).waitFor({ timeout: 20_000 });
+  await practicalNav(page).getByRole("link", { name: russian ? "Учиться" : "Learn", exact: true }).waitFor({ timeout: 10_000 });
+  if (await legacyNav(page).count()) throw new Error(`${locale}: canonical home leaked legacy primary navigation`);
+  const toggle = page.getByRole("button", { name: russian ? "RU" : "EN", exact: true });
+  if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${locale}: Practical locale toggle is not active`);
+  if ((await page.locator("html").getAttribute("lang")) !== locale) throw new Error(`${locale}: Practical document lang mismatch`);
+  await assertNoOverflow(page, `${locale} Practical canonical home`);
+}
+
+async function verifyToolsLocale(page, locale) {
   const russian = locale === "ru";
   await page.getByRole("heading", { name: russian ? /Учись понемногу/i : /Learn in small blocks/i }).waitFor({ timeout: 20_000 });
   await page.getByRole("heading", { name: russian ? /Стартовая диагностика/i : /Starting Diagnostic/i }).waitFor({ timeout: 10_000 });
   await page.getByText(russian ? /Можно пропустить и сразу начать первый урок/i : /You can skip it and start lesson one/i).waitFor({ timeout: 10_000 });
   await page.getByRole("heading", { name: russian ? /Что означает путь 0.*100%/i : /What the 0.*100% route means/i }).waitFor({ timeout: 10_000 });
-  if (await page.locator(".route-grid article").count() !== 9) throw new Error(`${locale}: route does not contain nine stages`);
+  if (await page.locator(".route-grid article").count() !== 9) throw new Error(`${locale}: support route does not contain nine stages`);
   const routeText = await page.locator(".route-grid").innerText();
-  if (!routeText.includes("0%") || !routeText.includes("100%")) throw new Error(`${locale}: route endpoints are missing`);
-  if (russian && /evidence|probe|repair|retention|field validated/iu.test(routeText)) throw new Error("Russian route exposes internal terminology");
+  if (!routeText.includes("0%") || !routeText.includes("100%")) throw new Error(`${locale}: support route endpoints are missing`);
+  if (russian && /evidence|probe|repair|retention|field validated/iu.test(routeText)) throw new Error("Russian support route exposes internal terminology");
 
   const expectedNav = russian
     ? ["Сегодня", "Учиться", "Повтор", "Карточки", "Карта", "Руки", "Диагностика"]
     : ["Today", "Learn", "Review", "Cards", "Map", "Hands", "Diagnostic"];
-  const nav = mainNav(page);
-  if (await nav.getByRole("button").count() !== expectedNav.length) throw new Error(`${locale}: primary navigation does not contain seven destinations`);
+  const nav = legacyNav(page);
+  if (await nav.getByRole("button").count() !== expectedNav.length) throw new Error(`${locale}: support navigation does not contain seven destinations`);
   for (const name of expectedNav) await nav.getByRole("button", { name, exact: true }).waitFor({ timeout: 10_000 });
 
   const toggle = page.getByRole("button", { name: russian ? "RU" : "EN", exact: true });
-  if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${locale}: locale toggle is not active`);
-  if ((await page.locator("html").getAttribute("lang")) !== locale) throw new Error(`${locale}: document lang mismatch`);
+  if ((await toggle.getAttribute("aria-pressed")) !== "true") throw new Error(`${locale}: support locale toggle is not active`);
+  if ((await page.locator("html").getAttribute("lang")) !== locale) throw new Error(`${locale}: support document lang mismatch`);
 }
 
 async function openGoldLesson(page, locale) {
   const russian = locale === "ru";
-  await mainNav(page).getByRole("button", { name: russian ? "Учиться" : "Learn", exact: true }).click();
+  await legacyNav(page).getByRole("button", { name: russian ? "Учиться" : "Learn", exact: true }).click();
   await page.locator(".module-list article").first().getByRole("button", { name: russian ? /^Изучить/ : /^Study/ }).click();
   await page.getByText(russian ? "1 · РЕШИ БЕЗ ПОДСКАЗКИ" : "1 · COLD CHECK").waitFor({ timeout: 10_000 });
   await page.getByRole("heading", { name: russian ? /В каких единицах сначала оценить глубину/i : /Which unit should describe the depth first/i }).waitFor({ timeout: 10_000 });
@@ -126,16 +143,28 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     desktop = await desktopContext.newPage();
     await applyTestInvite(desktop);
     await isolateTestMirrorState(desktop);
-    const response = await desktop.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+
+    const response = await desktop.goto(canonicalUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     if (response?.status() !== 200) throw new Error(`Unexpected HTTP status: ${response?.status() ?? "none"}`);
     if ((await desktop.title()) !== "Live Cash OS") throw new Error("Unexpected document title");
-
-    await verifyHomeLocale(desktop, "ru");
+    await verifyCanonicalMastery(desktop, "ru");
     await verifyBuildIdentity(desktop);
+    const canonicalBody = await desktop.locator("body").innerText();
+    if (!canonicalBody.includes("LIVE CASH OS")) throw new Error("Canonical brand marker is missing");
+    await desktop.screenshot({ path: "smoke-evidence/desktop-practical-home-ru.png", fullPage: true });
+
+    await desktop.getByRole("button", { name: "EN", exact: true }).click();
+    await verifyCanonicalMastery(desktop, "en");
+    await desktop.screenshot({ path: "smoke-evidence/desktop-practical-home-en.png", fullPage: true });
+
+    await desktop.goto(toolsUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    await verifyToolsLocale(desktop, "en");
+    await verifyBuildIdentity(desktop);
+    await desktop.getByRole("button", { name: "RU", exact: true }).click();
+    await verifyToolsLocale(desktop, "ru");
     const body = await desktop.locator("body").innerText();
-    if (!body.includes("LIVE CASH OS")) throw new Error("Brand marker is missing");
     for (const marker of forbiddenMarkers) if (body.includes(marker)) throw new Error(`Forbidden old marker is present: ${marker}`);
-    await desktop.screenshot({ path: "smoke-evidence/desktop-home-ru.png", fullPage: true });
+    await desktop.screenshot({ path: "smoke-evidence/desktop-tools-home-ru.png", fullPage: true });
 
     await openGoldLesson(desktop, "ru");
     const russianChoice = desktop.getByRole("button", { name: "140 страддлов; отдельно отметить 280 обычных BB" });
@@ -167,27 +196,32 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     const mobile = await mobileContext.newPage();
     await applyTestInvite(mobile);
     await isolateTestMirrorState(mobile);
-    await mobile.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
-    await verifyHomeLocale(mobile, "ru");
+    await mobile.goto(canonicalUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    await verifyCanonicalMastery(mobile, "ru");
     await verifyBuildIdentity(mobile);
-    await assertNoOverflow(mobile, "Russian mobile home");
-    await mobile.screenshot({ path: "smoke-evidence/mobile-home-ru.png", fullPage: true });
+    await mobile.screenshot({ path: "smoke-evidence/mobile-practical-home-ru.png", fullPage: true });
     await mobile.getByRole("button", { name: "EN", exact: true }).click();
-    await verifyHomeLocale(mobile, "en");
-    await assertNoOverflow(mobile, "English mobile home");
-    await mobile.screenshot({ path: "smoke-evidence/mobile-home-en.png", fullPage: true });
+    await verifyCanonicalMastery(mobile, "en");
+    await mobile.screenshot({ path: "smoke-evidence/mobile-practical-home-en.png", fullPage: true });
+    await mobile.goto(toolsUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    await verifyToolsLocale(mobile, "en");
+    await verifyBuildIdentity(mobile);
+    await assertNoOverflow(mobile, "English mobile support tools");
+    await mobile.screenshot({ path: "smoke-evidence/mobile-tools-home-en.png", fullPage: true });
     await mobileContext.close();
 
     const report = {
       result: "LIVE_SMOKE_GREEN",
-      url: liveUrl,
+      url: canonicalUrl,
+      support_tools_url: toolsUrl,
       http_status: response?.status(),
       deployed_sha: deployedSha,
       build_identity_verified: Boolean(deployedSha),
+      build_identity_verified_on: ["practical_mastery", "support_tools"],
       locales: ["ru", "en"],
-      verified_routes: ["home", "primary navigation", "0-to-100 skill route", "LCM-01 cold decision"],
-      wave1_first_use_shell_contract: true,
-      diagnostic_optionality_visible: true,
+      verified_routes: ["canonical Practical Mastery", "support tools", "LCM-01 cold decision"],
+      canonical_root_has_no_legacy_primary_navigation: true,
+      diagnostic_optionality_visible_on_support_tools: true,
       superseded_wave1_shell_markers_rejected: true,
       bilingual_lcm01_smoke_passed: true,
       stable_ids_and_state_across_locale_switch: true,
@@ -199,7 +233,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       timestamp: new Date().toISOString(),
     };
     await writeFile("smoke-evidence/report.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
-    console.log(`LIVE_SMOKE_GREEN attempt=${attempt} url=${liveUrl}`);
+    console.log(`LIVE_SMOKE_GREEN attempt=${attempt} url=${canonicalUrl}`);
     await browser.close();
     process.exit(0);
   } catch (error) {
