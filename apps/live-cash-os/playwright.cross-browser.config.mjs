@@ -2,9 +2,14 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.mjs",
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  // The release matrix deliberately shares one faithful local Workerd + D1
+  // process. Keep CI browser projects serial against that singleton; this does
+  // not remove a browser, test, assertion, or retry boundary.
+  workers: process.env.CI ? 1 : undefined,
   retries: 0,
   reporter: "list",
   use: {
@@ -21,7 +26,7 @@ export default defineConfig({
     { name: "w8-tablet-webkit", use: { ...devices["iPad (gen 7)"] } },
   ],
   webServer: {
-    command: "npm run build && npm run start -- --hostname 127.0.0.1 --port 5173",
+    command: "npm run start:e2e -- --ip 127.0.0.1 --port 5173",
     url: "http://127.0.0.1:5173",
     reuseExistingServer: true,
     timeout: 120_000,
