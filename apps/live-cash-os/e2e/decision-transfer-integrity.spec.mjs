@@ -10,6 +10,15 @@ async function localOnly(page) {
 }
 
 async function seedPreflopConcept(page, locale) {
+  await page.waitForFunction((storageKey) => {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return false;
+    try {
+      return Boolean(JSON.parse(raw)?.modules?.geometry);
+    } catch {
+      return false;
+    }
+  }, STORAGE_KEY);
   await page.evaluate(({ storageKey, localeKey, locale }) => {
     const state = JSON.parse(localStorage.getItem(storageKey));
     const now = new Date().toISOString();
