@@ -44,13 +44,14 @@ function normalizeGeneratedWranglerConfigForCurrentE2E() {
 
 run("npm", ["run", "build"]);
 
-if (!testMirror) {
-  // Wrangler 4.125 removed the obsolete legacy_env key. Vinext beta.2 can
-  // still emit legacy_env=true in its generated config. Removing that exact
-  // value is explicitly semantics-preserving under Wrangler's current
-  // service-environment model; any other value fails closed above.
-  normalizeGeneratedWranglerConfigForCurrentE2E();
+// Wrangler 4.125 removed the obsolete legacy_env key. Vinext beta.2 can
+// still emit legacy_env=true in generated configs for both ordinary local E2E
+// and the locally served test-mirror target. Removing that exact value is
+// explicitly semantics-preserving under Wrangler's current service-environment
+// model; any other value fails closed above.
+normalizeGeneratedWranglerConfigForCurrentE2E();
 
+if (!testMirror) {
   run("npx", [
     "--yes",
     E2E_WRANGLER,
