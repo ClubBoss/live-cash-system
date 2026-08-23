@@ -24,28 +24,20 @@ async function openMastery(page, route) {
   await expect(page.locator("main")).toBeVisible();
   await expect(page.locator("main h1").first()).toBeVisible();
   await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error/i);
-  // Practical Mastery starts cloud-state reconciliation after document load.
-  // Keep the page alive until those bounded requests settle so route churn or
-  // context teardown cannot abort an in-flight Workerd response and create
-  // misleading release-gate transport errors.
   await page.waitForLoadState("networkidle");
   expect(pageErrors, `${route} emitted browser errors`).toEqual([]);
   page.off("pageerror", listener);
 }
 
-test("canonical home exposes one primary learning route", async ({ page }) => {
-  test.skip(crossMatrix, "canonical Chromium coverage is sufficient for the legacy-shell bridge");
+test("canonical root cuts over to the Practical Mastery learning route without rendering the legacy shell", async ({ page }) => {
+  test.skip(crossMatrix, "canonical Chromium coverage is sufficient for the root cutover");
   await page.route("**/api/state", async (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local acceptance fixture" }) }));
   await page.goto("/");
-  const gateway = page.getByRole("region", { name: "Основной маршрут обучения" });
-  await expect(gateway).toBeVisible();
-  await expect(gateway.getByRole("link", { name: /Продолжить обучение/ })).toHaveAttribute("href", "/mastery/journey");
-  await expect(gateway).toContainText("Один маршрут");
-  const legacyHeading = page.getByRole("heading", { name: /Учись понемногу/i });
-  await expect(legacyHeading).toBeVisible();
-  const gatewayBox = await gateway.boundingBox();
-  const legacyBox = await legacyHeading.boundingBox();
-  expect(gatewayBox?.y ?? 9999).toBeLessThan(legacyBox?.y ?? 0);
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+  await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toHaveCount(0);
 });
 
 test("all Practical Mastery learner routes render without runtime or horizontal-layout failure", async ({ page }) => {
@@ -136,15 +128,15 @@ test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
 });
 
-test("After-play flow deep-links to the existing Real Hands tool rather than the legacy home default", async ({ page }) => {
+test("After-play flow deep-links to Real Hands on the secondary tools route without restoring the legacy canonical home", async ({ page }) => {
   test.skip(crossMatrix, "navigation contract is covered once in canonical Chromium");
   await page.goto("/mastery/study");
   const realHands = page.getByRole("link", { name: "Реальные руки →", exact: true });
   await expect(realHands).toBeVisible();
-  await expect(realHands).toHaveAttribute("href", "/?tab=field");
+  await expect(realHands).toHaveAttribute("href", "/tools?tab=field");
   await realHands.click();
 
   const legacyNav = page.getByRole("navigation", { name: "Основная навигация" });
   await expect(legacyNav.getByRole("button", { name: "Руки", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/tools$/);
 });
