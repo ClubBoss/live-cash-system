@@ -14,6 +14,25 @@ const access = JSON.parse(readFileSync(new URL("../test-invites/tester-access.pr
 const testerCode = access.testers?.find((tester) => tester.label === "tester-01" && tester.active)?.code;
 if (!testerCode) throw new Error("Active tester-01 code is required for deployed probe");
 
+function hash32(value, seed) {
+  let hash = seed >>> 0;
+  for (const character of value) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0;
+  return hash >>> 0;
+}
+
+function profileStorageId(rawCode) {
+  const code = rawCode?.trim().toUpperCase();
+  if (!code) return null;
+  const seeds = [2166136261, 2246822519, 3266489917, 668265263];
+  return seeds
+    .map((seed, index) => hash32(`${index}:${code}`, seed).toString(16).padStart(8, "0"))
+    .join("");
+}
+
+const testerStorageId = profileStorageId(testerCode);
+if (!testerStorageId) throw new Error("tester-01 profile storage id is required for deployed probe");
+const scopedLearnerStateKey = `${learnerStateKey}:profile:${testerStorageId}`;
+
 async function applyTesterCode(page) {
   await page.addInitScript(({ key, code }) => localStorage.setItem(key, code), { key: portableCodeKey, code: testerCode });
 }
@@ -153,18 +172,18 @@ test("exact deployed PR122 build closes navigation continuity and recovery escap
   await page.evaluate(({ stateKey, raw, languageKey }) => {
     localStorage.setItem(stateKey, raw);
     localStorage.setItem(languageKey, "ru");
-  }, { stateKey: learnerStateKey, raw: futureStateRaw, languageKey: localeKey });
+  }, { stateKey: scopedLearnerStateKey, raw: futureStateRaw, languageKey: localeKey });
   await page.goto(`${liveOrigin}/mastery/journey`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   await expect(page.getByRole("heading", { name: "Прогресс требует восстановления", exact: true })).toBeVisible();
   const recovery = page.getByRole("link", { name: /Открыть данные и восстановление/i });
   await expect(recovery).toHaveAttribute("href", "/tools");
-  expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: learnerStateKey })).toBe(futureStateRaw);
+  expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: scopedLearnerStateKey })).toBe(futureStateRaw);
 
   const recoveryMarker = await armBoundaryUnload(page);
   await recovery.click();
   await expect(page).toHaveURL(`${liveOrigin}/tools`);
   await expect(page.getByRole("button", { name: "Данные", exact: true })).toBeVisible();
-  expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: learnerStateKey })).toBe(futureStateRaw);
+  expect(await page.evaluate(({ key }) => localStorage.getItem(key), { key: scopedLearnerStateKey })).toBe(futureStateRaw);
   await expect.poll(() => page.evaluate(({ key }) => Number.parseInt(sessionStorage.getItem(key) || "0", 10), { key: unloadKey })).toBe(1);
   expect(await page.evaluate(({ markerKey }) => window[markerKey] || null, { markerKey: shellMarkerKey })).not.toBe(recoveryMarker);
 
