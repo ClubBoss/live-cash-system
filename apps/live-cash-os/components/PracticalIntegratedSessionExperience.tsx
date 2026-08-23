@@ -58,6 +58,9 @@ export default function PracticalIntegratedSessionExperience() {
   const requestedSkill = requestedFocus ? practicalSkillById.get(requestedFocus) ?? null : null;
   const focusUnavailable = ready && initializedRevision !== null && Boolean(requestedFocus) && items.length === 0;
   const completed = ready && initializedRevision !== null && !focusUnavailable && (items.length === 0 || index >= items.length);
+  const schedulingReasonCopy = item?.whyAfterAnswer
+    ? reasonCopy(locale, item.reason)
+    : (locale === "ru" ? "Эта задача выбрана как следующий полезный шаг." : "This decision was selected as the next useful step.");
   const score = useMemo(() => {
     const ids = new Set(items.map((candidate) => candidate.decisionId));
     const attempts = state.attempts.filter((attempt) => ids.has(attempt.decisionId));
@@ -127,7 +130,7 @@ export default function PracticalIntegratedSessionExperience() {
         <div className="today-card" style={{ marginTop: 14 }}>
           <p className="eyebrow">{locale === "ru" ? "ЧТО ПРОВЕРЯЛОСЬ" : "WHAT THIS TESTED"}</p>
           <p><b>{locale === "ru" ? "Навык:" : "Skill:"}</b> {skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : (locale === "ru" ? "Знакомый навык" : "Known skill")}</p>
-          <p>{reasonCopy(locale, item.reason)}</p>
+          <p>{schedulingReasonCopy}</p>
           {item.retentionTierDays ? <p><b>{locale === "ru" ? "Вернётся позже:" : "Returns later:"}</b> {item.retentionTierDays} {locale === "ru" ? "дн. · на новом примере" : "d · with a different item"}</p> : null}
         </div>
         <button className="primary" onClick={() => setIndex((value) => value + 1)} style={{ marginTop: 14 }}>{locale === "ru" ? "Следующее решение" : "Next decision"} <span>→</span></button>
