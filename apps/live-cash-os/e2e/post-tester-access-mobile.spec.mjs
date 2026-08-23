@@ -121,7 +121,7 @@ async function openAppWithStoredInvite(page, controller, locale = "ru") {
   await seedStorage(page, { code: TEST_CODE, locale });
   controller.setMode("200");
   await page.route("**/api/state", (route) => controller.handle(route));
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("navigation", {
     name: locale === "ru" ? "Основная навигация" : "Primary navigation",
   })).toBeVisible();

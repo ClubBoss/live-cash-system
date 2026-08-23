@@ -7,7 +7,7 @@ test("controlled PWA can reload offline with a saved active session", async ({ p
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
   });
 
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   await page.getByRole("button", { name: "Учиться", exact: true }).click();
   await page.getByRole("button", { name: /^Изучить/ }).first().click();

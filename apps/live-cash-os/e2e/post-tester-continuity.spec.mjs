@@ -104,7 +104,7 @@ async function fillCompleteHand(page) {
 
 test.beforeEach(async ({ page }) => {
   await disableCloud(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 });
 

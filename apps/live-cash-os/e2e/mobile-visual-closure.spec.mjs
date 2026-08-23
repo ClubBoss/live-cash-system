@@ -1,25 +1,49 @@
 import { expect, test } from "@playwright/test";
 
-async function openLocal(page) {
+async function disableCloud(page) {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
   });
-  await page.goto("/");
+}
+
+async function openTools(page) {
+  await disableCloud(page);
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 }
 
-test("real-device mobile closure keeps the primary learning action above the fold at 390x844", async ({ page }, testInfo) => {
+async function expectNoDocumentOverflow(page) {
+  const dimensions = await page.evaluate(() => ({
+    scroll: document.documentElement.scrollWidth,
+    client: document.documentElement.clientWidth,
+  }));
+  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client + 1);
+}
+
+test("canonical mobile root lands in Practical Mastery without leaking the legacy shell", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openLocal(page);
+  await disableCloud(page);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+  const quickStart = page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i);
+  await expect(quickStart).toBeVisible();
+  await expect(quickStart).toBeInViewport();
+  await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toHaveCount(0);
+  await expectNoDocumentOverflow(page);
+});
+
+test("legacy support tools keep the approved mobile visual closure and primary action above the fold at 390x844", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openTools(page);
 
   const marker = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--mobile-visual-closure").trim());
   expect(marker).toBe("closure-20260808");
 
-  const gateway = page.getByRole("region", { name: "Основной маршрут обучения" });
-  const primaryAction = gateway.getByRole("link", { name: /Продолжить обучение/ });
-  await expect(gateway).toBeVisible();
-  await expect(primaryAction).toBeVisible();
-  await expect(primaryAction).toBeInViewport();
+  const start = page.getByRole("button", { name: "Начать", exact: true });
+  await expect(start).toBeVisible();
+  await expect(start).toBeInViewport();
 
   const topbar = page.locator(".topbar");
   const topbarBox = await topbar.boundingBox();
@@ -44,22 +68,14 @@ test("real-device mobile closure keeps the primary learning action above the fol
   const radius = Number.parseFloat(await card.evaluate((element) => getComputedStyle(element).borderTopLeftRadius));
   expect(radius).toBeGreaterThanOrEqual(18);
 
-  // The legacy Today route remains available below the new primary learning entry.
-  const start = page.getByRole("button", { name: "Начать", exact: true });
-  await expect(start).toBeVisible();
-
+  await expectNoDocumentOverflow(page);
   await page.screenshot({ path: testInfo.outputPath("today-390x844.png"), fullPage: true });
 });
 
-test("mobile header remains compact without horizontal document overflow at 360px", async ({ page }) => {
+test("mobile support header remains compact without horizontal document overflow at 360px", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
-  await openLocal(page);
-
-  const dimensions = await page.evaluate(() => ({
-    scroll: document.documentElement.scrollWidth,
-    client: document.documentElement.clientWidth,
-  }));
-  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client + 1);
+  await openTools(page);
+  await expectNoDocumentOverflow(page);
 
   for (const name of ["RU", "EN"]) {
     const box = await page.getByRole("button", { name, exact: true }).boundingBox();

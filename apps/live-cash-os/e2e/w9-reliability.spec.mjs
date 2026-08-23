@@ -24,7 +24,7 @@ async function bootLocalTemplate(page) {
   await page.route(API, async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
   });
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
   const state = await storedState(page);
   await page.unroute(API);
@@ -320,7 +320,7 @@ test("server runtime skew blocks cloud mutation and asks for refresh", async ({ 
 
 test("data screen explains private learning text and keeps raw debug content hidden", async ({ page }) => {
   await page.route(API, async (route) => route.fulfill({ status: 401, contentType: "application/json", body: "{}" }));
-  await page.goto("/");
+  await page.goto("/tools");
   await page.getByRole("button", { name: "Данные", exact: true }).click();
   await expect(page.getByText(/ответы T1, сохранённые объяснения и записанные реальные руки/i)).toBeVisible();
   await expect(page.getByText(/не отправляются автоматически на AI-разбор/i)).toBeVisible();

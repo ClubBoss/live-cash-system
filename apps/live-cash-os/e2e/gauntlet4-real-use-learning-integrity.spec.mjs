@@ -91,7 +91,7 @@ async function shot(page, testInfo, name) {
 
 test.beforeEach(async ({ page }) => {
   await disableCloud(page);
-  await page.goto("/");
+  await page.goto("/tools");
   await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toBeVisible();
 });
 
