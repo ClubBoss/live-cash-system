@@ -45,6 +45,11 @@ test("release E2E starts the built app in a current generated Cloudflare Worker 
       /globalSetup: "\.\/e2e\/global-setup\.mjs"/,
       `${name} Playwright config must bootstrap the isolated test mirror when requested`,
     );
+    assert.match(
+      config,
+      /workers: process\.env\.CI \? 1 : undefined/,
+      `${name} CI must serialize browser projects against the shared local Workerd runtime`,
+    );
     assert.doesNotMatch(
       config,
       /--hostname 127\.0\.0\.1/,
