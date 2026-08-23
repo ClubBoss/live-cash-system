@@ -147,7 +147,7 @@ test("UI-relevant PR emits compact real-browser visual evidence", async ({ page 
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/tools");
+  await page.goto("/tools?support=1");
   await expect(page.getByRole("heading", { name: "Инструменты", exact: true })).toBeVisible();
   await expect(page.getByText(/Основное обучение проходит в Practical Mastery/)).toBeVisible();
   screenshots.push(await capture(page, "tools-support-mobile-light"));
