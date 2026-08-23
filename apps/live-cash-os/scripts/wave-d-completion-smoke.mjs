@@ -2,6 +2,7 @@ import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 
 const liveUrl = process.env.LIVE_URL ?? "https://live-cash-os-mobile-test.blufferus.workers.dev";
+const toolsUrl = new URL("/tools", liveUrl).toString();
 const deployedSha = process.env.DEPLOYED_SHA?.trim() || null;
 const testInviteCode = process.env.LIVE_CASH_TEST_SMOKE_CODE?.trim().toUpperCase() || null;
 const LEARNER_KEY = "live-cash-os:learner-state";
@@ -37,12 +38,12 @@ try {
     });
   });
 
-  const response = await page.goto(liveUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  const response = await page.goto(toolsUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
   if (response?.status() !== 200) throw new Error(`Unexpected HTTP status: ${response?.status() ?? "none"}`);
   await page.getByRole("navigation", { name: /Основная навигация|Primary navigation/ }).waitFor({ timeout: 20_000 });
 
   if (deployedSha) {
-    const badge = page.locator("[data-build-sha]");
+    const badge = page.locator("[data-build-sha]").first();
     await badge.waitFor({ timeout: 10_000 });
     const actual = await badge.getAttribute("data-build-sha");
     if (actual !== deployedSha) throw new Error(`Build identity mismatch: expected ${deployedSha}, got ${actual ?? "missing"}`);
@@ -147,7 +148,8 @@ try {
 
   const report = {
     result: "WAVE_D_COMPLETION_SMOKE_GREEN",
-    url: liveUrl,
+    canonical_url: liveUrl,
+    support_tools_url: toolsUrl,
     deployed_sha: deployedSha,
     completed_lesson_clears_active_session: true,
     completed_lesson_has_no_fake_error: true,
