@@ -47,11 +47,21 @@ test("every Practical Mastery route inherits the invite boundary while shared na
 
 test("release gate carries dedicated Practical Mastery browser evidence", async () => {
   const pkg = await read("package.json");
+  const waveC = await read("scripts/run-wave-c-cross.mjs");
   const acceptance = await read("e2e/practical-mastery-acceptance.spec.mjs");
   const clarity = await read("e2e/practical-mastery-ux-clarity.spec.mjs");
   const access = await read("e2e/practical-mastery-access.spec.mjs");
   assert.match(pkg, /test:e2e:mastery-cross/);
-  assert.match(pkg, /practical-mastery-access\.spec\.mjs/);
+  assert.match(pkg, /node scripts\/run-wave-c-cross\.mjs/);
+  for (const project of ["w8-chromium-desktop", "w8-webkit-390", "w8-chromium-android"]) {
+    assert.ok(waveC.includes(`"${project}"`), `${project} must remain in isolated Wave C coverage`);
+  }
+  for (const spec of ["post-tester-access-mobile.spec.mjs", "post-tester-sync-performance.spec.mjs", "practical-mastery-access.spec.mjs"]) {
+    assert.ok(waveC.includes(`e2e/${spec}`), `${spec} must remain in isolated Wave C coverage`);
+  }
+  assert.match(waveC, /--config=playwright\.cross-browser\.config\.mjs/);
+  assert.match(waveC, /--project=\$\{project\}/);
+  assert.match(waveC, /if \(result\.status !== 0\) process\.exit/);
   for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) assert.ok(acceptance.includes(route), `${route} must be browser-covered`);
   assert.match(acceptance, /390, height: 844/);
   assert.match(acceptance, /rootSchema: root\.schemaVersion/);
