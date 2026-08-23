@@ -7,7 +7,7 @@ const read = (relative) => readFile(new URL(relative, root), "utf8");
 
 test("release CI parallelizes only through isolated jobs while preserving the complete certification set", async () => {
   const [workflow, primaryConfig, crossConfig] = await Promise.all([
-    read("../../../.github/workflows/live-cash-os-ci.yml"),
+    read("../../.github/workflows/live-cash-os-ci.yml"),
     read("playwright.config.mjs"),
     read("playwright.cross-browser.config.mjs"),
   ]);
