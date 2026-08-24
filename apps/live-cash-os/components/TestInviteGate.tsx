@@ -161,11 +161,8 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
     document.documentElement.lang = nextLocale;
   }
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function verify(normalized: string) {
     if (checkingRef.current) return;
-
-    const normalized = code.trim().toUpperCase();
     checkingRef.current = true;
     setStatus("CHECKING");
     try {
@@ -179,6 +176,11 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
     } finally {
       checkingRef.current = false;
     }
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await verify(code.trim().toUpperCase());
   }
 
   const alert = status === "INVALID"
