@@ -83,8 +83,12 @@ test("Skill Map keeps generic Learn distinct from named recommendation focus and
   await expect(page.getByText(/не подменит его другой темой молча/i)).toBeVisible();
 
   await page.goto("/mastery/session?focus=BL-11");
-  await expect(page.getByRole("heading", { name: "Этот навык пока недоступен", exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/mastery\/session\?focus=BL-11$/);
+  await expect(page.getByText("ВЫБРАННЫЙ ФОКУС", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "BvB 3-bet pots", exact: true })).toBeVisible();
+  await expect(page.getByText(/Сейчас этот навык нельзя честно поставить в самостоятельную практику/i)).toBeVisible();
   await expect(page.getByText(/не подменит его другой темой молча/i)).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/ПРАКТИКА · \d+\/\d+/i);
 });
 
 test("top navigation and prerequisite CTA reach deterministic learner destinations", async ({ page }) => {
