@@ -33,8 +33,8 @@ async function bindCanonicalFlopMechanism(card) {
   await card.getByTestId("real-hand-signal-automaticCbetIssue").check();
   const skill = card.getByTestId("real-hand-practical-skill");
   await expect(skill).toBeVisible();
-  await skill.selectOption("FLOP-02");
-  await expect(skill).toHaveValue("FLOP-02");
+  await skill.selectOption("W4-BOARD-01");
+  await expect(skill).toHaveValue("W4-BOARD-01");
 }
 
 test("explain-back saves durably and is visible after reload", async ({ page }) => {
@@ -109,14 +109,14 @@ test("real hand locks pre-result reasoning, SELF cannot award transfer, and HUMA
   expect(reviewed.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(reviewed.reviewOutcome).toBe("REPAIR_REQUIRED");
   expect(reviewed.status).toBe("REVIEWED_REPAIR");
-  expect(reviewed.practicalBinding.practicalSkillId).toBe("FLOP-02");
+  expect(reviewed.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
   expect(reviewed.practicalBinding.signals.automaticCbetIssue).toBe(true);
   expect(JSON.stringify(state.reviewQueue)).toBe(queueBefore);
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
 
   const focusedRepair = card.getByTestId("real-hand-practical-repair");
   await expect(focusedRepair).toBeVisible();
-  await expect(focusedRepair).toHaveAttribute("href", "/mastery/session?focus=FLOP-02");
+  await expect(focusedRepair).toHaveAttribute("href", "/mastery/session?focus=W4-BOARD-01");
 });
 
 test("structured hand capture remains usable without horizontal overflow", async ({ page }) => {
