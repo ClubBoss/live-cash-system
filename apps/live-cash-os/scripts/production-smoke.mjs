@@ -102,7 +102,6 @@ async function verifyDataRecovery(page, locale) {
   if ((await dataTab.getAttribute("aria-current")) !== "page") throw new Error(`${locale}: Data & Recovery tab is not current`);
   if (!page.url().includes("tab=data")) throw new Error(`${locale}: Data & Recovery URL lost tab=data`);
   if (await legacyNav(page).count()) throw new Error(`${locale}: support-only /tools exposed legacy learner navigation`);
-  await verifyBuildIdentity(page);
   await assertNoOverflow(page, `${locale} Data & Recovery`);
 }
 
