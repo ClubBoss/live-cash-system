@@ -83,6 +83,15 @@ export default function PracticalIntegratedSessionExperience() {
     setWasCorrect(correct); setRevealed(true);
   };
 
+  const continueWithGenericSession = () => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.delete("focus");
+    window.history.replaceState(window.history.state, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+    setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance));
+    setIndex(0);
+    setRequestedFocus(null);
+  };
+
   if (!ready || requestedFocus === undefined || initializedRevision === null) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Подбираем следующую практику…" : "Preparing your next practice…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
 
@@ -99,7 +108,7 @@ export default function PracticalIntegratedSessionExperience() {
     <p>{locale === "ru" ? "Система учтёт ошибки, уверенность, повторение и уже знакомые навыки. Следующий раунд снова подберёт наиболее полезные решения — тебе не нужно выбирать режим вручную." : "The system will use your mistakes, confidence, review timing, and prior exposure to choose the next useful decisions. You do not need to pick a mode manually."}</p>
     <p><b>{score.correct}/{items.length}</b></p>
     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
-      <button className="primary" onClick={() => { setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance)); setIndex(0); setRequestedFocus(null); }}>{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></button>
+      <button className="primary" onClick={continueWithGenericSession}>{locale === "ru" ? "Продолжить обучение" : "Continue learning"} <span>→</span></button>
       <Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link>
     </div>
   </section></main>;
