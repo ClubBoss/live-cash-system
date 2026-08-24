@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import { buildAdaptiveIntegratedSession, requestedIntegratedFocusItem } from "../lib/practical-adaptive-session";
+import { recordIntegratedAnswerContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
 import { INTEGRATED_SESSION_SIZE, recordIntegratedDecision, type IntegratedSessionItem } from "../lib/practical-integrated-session";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -27,11 +28,19 @@ function reasonCopy(locale: Locale, reason: IntegratedSessionItem["reason"]): st
 
 export default function PracticalIntegratedSessionExperience() {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, performance, setMasteryWithPerformance, ready, recoveryBlocked } = usePracticalProfileState();
+  const {
+    mastery: state,
+    performance,
+    studyWorkspace,
+    setMasteryWithPerformanceAndStudyWorkspace,
+    ready,
+    recoveryBlocked,
+  } = usePracticalProfileState();
   const [items, setItems] = useState<IntegratedSessionItem[]>([]);
   const [index, setIndex] = useState(0);
   const [initializedRevision, setInitializedRevision] = useState<number | null>(null);
   const [requestedFocus, setRequestedFocus] = useState<string | null | undefined>(undefined);
+  const [workspaceRecovery, setWorkspaceRecovery] = useState(false);
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [confidence, setConfidence] = useState(65);
@@ -40,24 +49,55 @@ export default function PracticalIntegratedSessionExperience() {
   const [startedAt, setStartedAt] = useState(() => new Date());
 
   useEffect(() => {
-    setRequestedFocus(new URLSearchParams(window.location.search).get("focus"));
+    const syncFocusFromUrl = () => setRequestedFocus(new URLSearchParams(window.location.search).get("focus"));
+    syncFocusFromUrl();
+    window.addEventListener("popstate", syncFocusFromUrl);
+    return () => window.removeEventListener("popstate", syncFocusFromUrl);
   }, []);
 
   useEffect(() => {
+    if (requestedFocus === undefined) return;
+    setInitializedRevision(null);
+    setItems([]);
+    setIndex(0);
+    setWorkspaceRecovery(false);
+  }, [requestedFocus]);
+
+  useEffect(() => {
     if (!ready || requestedFocus === undefined || initializedRevision !== null) return;
-    const now = new Date();
     const focusAvailable = !requestedFocus || Boolean(requestedIntegratedFocusItem(state, requestedFocus));
-    setItems(focusAvailable ? buildAdaptiveIntegratedSession(state, now, INTEGRATED_SESSION_SIZE, performance, requestedFocus) : []);
+    if (!focusAvailable) {
+      setItems([]);
+      setIndex(0);
+      setInitializedRevision(state.revision);
+      return;
+    }
+
+    const restored = restoreIntegratedRound(studyWorkspace, state, requestedFocus);
+    if (restored.status === "VALID") {
+      setItems(restored.items);
+      setIndex(restored.nextIndex);
+      setInitializedRevision(state.revision);
+      return;
+    }
+    if (restored.status === "STALE" || restored.status === "INVALID") {
+      setWorkspaceRecovery(true);
+      setInitializedRevision(state.revision);
+      return;
+    }
+
+    setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, requestedFocus));
+    setIndex(0);
     setInitializedRevision(state.revision);
-  }, [initializedRevision, performance, ready, requestedFocus, state]);
+  }, [initializedRevision, performance, ready, requestedFocus, state, studyWorkspace]);
 
   const item = items[index] ?? null;
   const decision = item ? practicalDecisionById.get(item.decisionId) ?? null : null;
   const skill = item ? practicalSkillById.get(item.skillId) ?? null : null;
   const tableState = item ? allPracticalTableStates.find((candidate) => candidate.decisionId === item.decisionId) ?? null : null;
   const requestedSkill = requestedFocus ? practicalSkillById.get(requestedFocus) ?? null : null;
-  const focusUnavailable = ready && initializedRevision !== null && Boolean(requestedFocus) && items.length === 0;
-  const completed = ready && initializedRevision !== null && !focusUnavailable && (items.length === 0 || index >= items.length);
+  const focusUnavailable = ready && initializedRevision !== null && Boolean(requestedFocus) && items.length === 0 && !workspaceRecovery;
+  const completed = ready && initializedRevision !== null && !focusUnavailable && !workspaceRecovery && (items.length === 0 || index >= items.length);
   const schedulingReasonCopy = item?.whyAfterAnswer
     ? reasonCopy(locale, item.reason)
     : (locale === "ru" ? "Эта задача выбрана как следующий полезный шаг." : "This decision was selected as the next useful step.");
@@ -76,24 +116,51 @@ export default function PracticalIntegratedSessionExperience() {
   const submit = () => {
     if (!item || !decision || !actionId || !reasonId) return;
     const answeredAt = new Date();
-    const correct = actionId === decision.correctActionId && reasonId === decision.correctReasonId;
     const nextState = recordIntegratedDecision(state, item, { actionId, reasonId, confidence, now: answeredAt });
+    const attempt = nextState.attempts.at(-1);
+    if (!attempt || attempt.decisionId !== decision.id) return;
+    const nextWorkspace = recordIntegratedAnswerContinuity(studyWorkspace, nextState.contentVersion, {
+      focusSkillId: requestedFocus ?? null,
+      items,
+      answeredIndex: index,
+      attemptId: attempt.id,
+    }, answeredAt);
+    if (!nextWorkspace) {
+      setWorkspaceRecovery(true);
+      return;
+    }
     const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence, startedAt, answeredAt, mode: tableState ? "PERCEPTUAL_TABLE" : "TEXT_MIXED", scaffold: tableState ? tableState.scaffold : "hidden" });
-    if (!setMasteryWithPerformance(nextState, event)) return;
-    setWasCorrect(correct); setRevealed(true);
+    if (!setMasteryWithPerformanceAndStudyWorkspace(nextState, event, nextWorkspace)) return;
+    setWasCorrect(attempt.correct);
+    setRevealed(true);
+  };
+
+  const startFreshRound = (focusSkillId: string | null) => {
+    const focusAvailable = !focusSkillId || Boolean(requestedIntegratedFocusItem(state, focusSkillId));
+    const nextItems = focusAvailable ? buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];
+    setItems(nextItems);
+    setIndex(0);
+    setWorkspaceRecovery(false);
+    setInitializedRevision(state.revision);
   };
 
   const continueWithGenericSession = () => {
     const nextUrl = new URL(window.location.href);
     nextUrl.searchParams.delete("focus");
     window.history.replaceState(window.history.state, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
-    setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance));
-    setIndex(0);
     setRequestedFocus(null);
+    startFreshRound(null);
   };
 
   if (!ready || requestedFocus === undefined || initializedRevision === null) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Подбираем следующую практику…" : "Preparing your next practice…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
+
+  if (workspaceRecovery) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+    <p className="eyebrow">{locale === "ru" ? "ВОССТАНОВЛЕНИЕ ПРАКТИКИ" : "PRACTICE RECOVERY"}</p>
+    <h1>{locale === "ru" ? "Сохранённый раунд больше нельзя продолжить точно" : "The saved round can no longer be resumed exactly"}</h1>
+    <p>{locale === "ru" ? "Прогресс и уже записанные ответы сохранены. Чтобы не повторять ответ и не смешивать старую версию заданий с новой, начни новый раунд." : "Your progress and submitted answers are preserved. To avoid repeating an answer or mixing an old item set with new content, start a fresh round."}</p>
+    <button className="primary" onClick={() => startFreshRound(requestedFocus ?? null)}>{locale === "ru" ? "Начать новый раунд" : "Start a fresh round"} <span>→</span></button>
+  </main>;
 
   if (focusUnavailable) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
     <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ ФОКУС" : "REQUESTED FOCUS"}</p>
