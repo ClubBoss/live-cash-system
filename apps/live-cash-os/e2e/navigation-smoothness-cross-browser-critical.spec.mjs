@@ -64,7 +64,7 @@ test("Practical route sequence stays in one document and preserves locale, histo
   await expect(nav.getByRole("link", { name: "После игры", exact: true })).toHaveAttribute("aria-current", "page");
   await expectContinuousShell(page, marker);
 
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await nav.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await expect(nav.getByRole("link", { name: "After play", exact: true })).toHaveAttribute("aria-current", "page");
