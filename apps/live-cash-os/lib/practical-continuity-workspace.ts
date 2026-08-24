@@ -102,9 +102,15 @@ export function recordIntegratedAnswerContinuity(
     && current.focusSkillId === input.focusSkillId
     && current.items.length === input.items.length
     && current.items.every((item, index) => item.decisionId === input.items[index]?.decisionId));
-  const submittedAttemptIds = sameRound ? [...current!.submittedAttemptIds] : [];
+  let submittedAttemptIds = sameRound ? [...current!.submittedAttemptIds] : [];
   const expectedIndex = sameRound ? current!.nextIndex : 0;
-  if (input.answeredIndex !== expectedIndex) return null;
+  if (input.answeredIndex !== expectedIndex) {
+    // A valid restored round always mounts at nextIndex, so a 0-index submit while
+    // an older same-shape cursor exists can only come from the explicit fresh-round
+    // recovery action. Replace that stale cursor atomically with the new Q1 answer.
+    if (input.answeredIndex !== 0) return null;
+    submittedAttemptIds = [];
+  }
   submittedAttemptIds.push(input.attemptId);
 
   const continuity = nextContinuity(workspace, contentVersion);
