@@ -50,8 +50,8 @@ test("release CI parallelizes only through isolated jobs while preserving the co
 
 test("every pull request to main instantiates the canonical validate gate while push scope stays unchanged", async () => {
   const workflow = await read("../../.github/workflows/live-cash-os-ci.yml");
-  const pushBlock = workflow.match(/  push:\n([\s\S]*?)  pull_request:/)?.[1] ?? "";
-  const pullRequestBlock = workflow.match(/  pull_request:\n([\s\S]*?)  workflow_dispatch:/)?.[1] ?? "";
+  const pushBlock = workflow.match(/ {2}push:\n([\s\S]*?) {2}pull_request:/)?.[1] ?? "";
+  const pullRequestBlock = workflow.match(/ {2}pull_request:\n([\s\S]*?) {2}workflow_dispatch:/)?.[1] ?? "";
 
   assert.match(pushBlock, /branches: \[main\]/);
   assert.match(pushBlock, /paths:/);
