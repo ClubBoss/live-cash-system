@@ -80,6 +80,7 @@ test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", a
   assert.match(bootstrapRoute, /TEST_INVITE_MODE/);
   assert.match(gate, /if \(!enabled\) return <>\{children\}<\/>/);
   assert.match(gate, /headers: \{ \[PROFILE_HEADER\]: code \}/);
+  assert.match(gate, /signal: controller\.signal/);
   assert.match(gate, /До подтверждения доступ к обучению и локальному прогрессу закрыт/);
   assert.match(page, /redirect\("\/mastery\/journey"\)/);
   assert.match(masteryLayout, /<TestInviteGate>/);
@@ -118,7 +119,7 @@ test("isolated TEST_DB invite sync rotates hashes without touching production", 
   assert.match(workflow, /d1\[0\]\?\.binding !== "TEST_DB"/);
   assert.match(workflow, /binding === "DB"/);
   assert.match(smoke, /Вход для тестирования/);
-  assert.match(smoke, /Test invite gate exposed legacy navigation before a code was accepted/);
-  assert.match(smoke, /Test invite gate exposed Practical Mastery navigation before a code was accepted/);
+  assert.match(smoke, /Test invite gate exposed legacy navigation before access/);
+  assert.match(smoke, /Test invite gate exposed Practical navigation before access/);
   assert.match(smoke, /live-cash-os:portable-profile-code/);
 });
