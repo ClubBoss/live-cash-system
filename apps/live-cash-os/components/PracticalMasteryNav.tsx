@@ -50,7 +50,7 @@ export default function PracticalMasteryNav() {
         <NavIcon name="home"/><span>{locale === "ru" ? "Главная" : "Home"}</span>
       </PracticalDocumentLink>
       <PracticalNextLearningLink className={`practical-mastery-nav__item ${learningActive ? "is-active" : ""}`} ariaCurrent={learningActive ? "page" : undefined}>
-        <NavIcon name="learn"/><span>{locale === "ru" ? "Учиться" : "Learn"}</span>
+        <NavIcon name="learn"/><span>{locale === "ru" ? "Продолжить обучение" : "Continue learning"}</span>
       </PracticalNextLearningLink>
       {tools.map((item) => {
         const active = pathname === item.href;
