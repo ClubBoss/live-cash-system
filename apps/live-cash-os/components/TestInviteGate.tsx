@@ -16,6 +16,7 @@ declare const __LIVE_CASH_TEST_INVITE_MODE__: boolean;
 const PROFILE_HEADER = "x-live-cash-profile-code";
 const CODE_PATTERN = /^LCO-[A-Z0-9_-]{20,80}$/;
 const LOCALE_KEY = "live-cash-os:locale";
+const INVITE_CHECK_TIMEOUT_MS = 10_000;
 const PROFILE_LOCAL_STATE_KEYS = [
   LEARNER_STORAGE_KEY,
   SYNC_META_KEY,
@@ -35,6 +36,7 @@ const GATE_COPY = {
     description: "Введите выданный вам код. До подтверждения доступ к обучению и локальному прогрессу закрыт.",
     codeLabel: "Код доступа",
     continue: "Продолжить",
+    retry: "Повторить проверку",
     checking: "Проверяем код доступа…",
     invalid: "Код не найден или отключён. Проверьте его и попробуйте ещё раз.",
     offline: "Нет подключения к интернету. Подключитесь к сети, чтобы проверить код доступа.",
@@ -46,6 +48,7 @@ const GATE_COPY = {
     description: "Enter the code you were given. Training and local progress stay locked until it is verified.",
     codeLabel: "Access code",
     continue: "Continue",
+    retry: "Retry verification",
     checking: "Checking access code…",
     invalid: "The code was not found or has been disabled. Check it and try again.",
     offline: "No internet connection. Connect to the internet to verify the access code.",
@@ -81,10 +84,13 @@ function rememberLocale(locale: GateLocale) {
 
 async function checkInvite(code: string): Promise<InviteCheckResult> {
   if (!CODE_PATTERN.test(code)) return "INVALID";
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), INVITE_CHECK_TIMEOUT_MS);
   try {
     const response = await fetch("/api/state", {
       cache: "no-store",
       headers: { [PROFILE_HEADER]: code },
+      signal: controller.signal,
     });
     if (response.ok) {
       try {
@@ -98,6 +104,8 @@ async function checkInvite(code: string): Promise<InviteCheckResult> {
     return "SERVICE_UNAVAILABLE";
   } catch {
     return navigator.onLine ? "SERVICE_UNAVAILABLE" : "OFFLINE";
+  } finally {
+    window.clearTimeout(timeout);
   }
 }
 
@@ -180,6 +188,11 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
       : status === "SERVICE_UNAVAILABLE"
         ? copy.serviceUnavailable
         : null;
+  const submitLabel = status === "CHECKING"
+    ? copy.checking
+    : status === "SERVICE_UNAVAILABLE" || status === "OFFLINE"
+      ? copy.retry
+      : copy.continue;
 
   return <main className="loading">
     <section aria-labelledby="test-access-title" style={{ maxWidth: 420, padding: 24, textAlign: "left" }}>
@@ -205,7 +218,7 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
           style={{ display: "block", width: "100%", margin: "8px 0 12px" }}
         />
         <button type="submit" disabled={status === "CHECKING"}>
-          {status === "CHECKING" ? copy.checking : copy.continue}
+          {submitLabel}
         </button>
       </form>
       {status === "CHECKING" && <p role="status">{copy.checking}</p>}

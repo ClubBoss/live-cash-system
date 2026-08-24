@@ -37,8 +37,11 @@ function apiController() {
         await route.abort("failed").catch(() => undefined);
         return;
       }
-      if (mode === "delay-401" || mode === "delay-200") {
+      if (mode === "delay-401") {
         await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+      if (mode === "delay-200") {
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
       }
 
       const status = mode === "200" || mode === "delay-200"
@@ -201,7 +204,7 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     expect(await page.evaluate(({ localeKey }) => localStorage.getItem(localeKey), { localeKey: LOCALE_KEY })).toBe("ru");
   });
 
-  test("form classification distinguishes malformed, 401, 5xx, offline, online fetch failure, and valid", async ({ page }, testInfo) => {
+  test("form classification distinguishes malformed, 401, 5xx, offline, online fetch failure, retry, and valid", async ({ page }, testInfo) => {
     await installOnlineTruth(page);
     const controller = apiController();
     await page.route("**/api/state", (route) => controller.handle(route));
@@ -227,22 +230,27 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     controller.setMode("500");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("alert")).toHaveText("The verification service is temporarily unavailable. Your code may still be valid — try again a little later.");
+    await expect(page.getByRole("button", { name: "Retry verification", exact: true })).toBeVisible();
+    expect(controller.getRequests()).toBe(2);
 
     controller.setMode("503");
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByRole("button", { name: "Retry verification", exact: true }).click();
     await expect(page.getByRole("alert")).toHaveText("The verification service is temporarily unavailable. Your code may still be valid — try again a little later.");
+    expect(controller.getRequests()).toBe(3);
     await page.screenshot({ path: testInfo.outputPath("invite-service-unavailable.png"), fullPage: true });
 
     await page.getByRole("button", { name: "RU", exact: true }).click();
     controller.setMode("abort");
     await setOnlineTruth(page, true);
-    await page.getByRole("button", { name: "Продолжить", exact: true }).click();
+    await page.getByRole("button", { name: "Повторить проверку", exact: true }).click();
     await expect(page.getByRole("alert")).toHaveText("Сервис проверки временно недоступен. Код может быть корректным — попробуйте ещё раз чуть позже.");
     await expect(page.getByRole("alert")).not.toContainText("Код не найден");
+    expect(controller.getRequests()).toBe(4);
 
     await setOnlineTruth(page, false);
-    await page.getByRole("button", { name: "Продолжить", exact: true }).click();
+    await page.getByRole("button", { name: "Повторить проверку", exact: true }).click();
     await expect(page.getByRole("alert")).toHaveText("Нет подключения к интернету. Подключитесь к сети, чтобы проверить код доступа.");
+    expect(controller.getRequests()).toBe(5);
     await page.screenshot({ path: testInfo.outputPath("invite-offline.png"), fullPage: true });
 
     await page.getByRole("button", { name: "EN", exact: true }).click();
@@ -250,7 +258,8 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
 
     await setOnlineTruth(page, true);
     controller.setMode("200");
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await page.getByRole("button", { name: "Retry verification", exact: true }).click();
+    expect(controller.getRequests()).toBe(6);
     await expect(page).toHaveURL(/\/mastery\/journey$/);
     const practicalNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
     await expect(practicalNav).toBeVisible();
@@ -260,6 +269,57 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     await expect(practicalNav.getByRole("button", { name: "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
     expect(await page.evaluate(({ localeKey }) => localStorage.getItem(localeKey), { localeKey: LOCALE_KEY })).toBe("en");
     expect(await page.evaluate(({ profileKey }) => localStorage.getItem(profileKey), { profileKey: PROFILE_KEY })).toBe(TEST_CODE);
+  });
+
+  test("hanging verification times out fail-closed and retry starts a fresh request", async ({ page }) => {
+    await installOnlineTruth(page);
+    await seedStorage(page, { code: TEST_CODE, locale: "ru" });
+    await page.addInitScript(({ runtime }) => {
+      const nativeFetch = window.fetch.bind(window);
+      let inviteAttempts = 0;
+      Object.defineProperty(window, "__waveCInviteAttempts", {
+        configurable: true,
+        get: () => inviteAttempts,
+      });
+      window.fetch = (input, init = {}) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+        if (!url.endsWith("/api/state")) return nativeFetch(input, init);
+        inviteAttempts += 1;
+        if (inviteAttempts === 1) {
+          return new Promise((_, reject) => {
+            const fail = () => reject(new DOMException("Aborted", "AbortError"));
+            if (init.signal?.aborted) fail();
+            else init.signal?.addEventListener("abort", fail, { once: true });
+          });
+        }
+        return Promise.resolve(new Response(JSON.stringify({
+          state: null,
+          cloudDeleted: false,
+          cloudToken: null,
+          runtime,
+        }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }));
+      };
+    }, { runtime: RUNTIME });
+
+    const startedAt = Date.now();
+    await page.goto("/");
+    await expect(page.getByRole("alert")).toHaveText(
+      "Сервис проверки временно недоступен. Код может быть корректным — попробуйте ещё раз чуть позже.",
+      { timeout: 12_500 },
+    );
+    expect(Date.now() - startedAt).toBeLessThan(12_500);
+    await expect(page.getByRole("button", { name: "Повторить проверку", exact: true })).toBeVisible();
+    const attemptsBeforeRetry = await page.evaluate(() => window.__waveCInviteAttempts);
+    expect(attemptsBeforeRetry).toBe(1);
+    await expectLocked(page);
+
+    await page.getByRole("button", { name: "Повторить проверку", exact: true }).click();
+    await expect(page).toHaveURL(/\/mastery\/journey$/);
+    const attemptsAfterRetry = await page.evaluate(() => window.__waveCInviteAttempts);
+    expect(attemptsAfterRetry).toBeGreaterThan(attemptsBeforeRetry);
   });
 
   test("stored invite startup retains the code across invalid, service, and offline states", async ({ page }) => {
