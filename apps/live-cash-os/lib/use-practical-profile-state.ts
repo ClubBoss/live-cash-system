@@ -3,6 +3,10 @@
 import { useCallback, useMemo } from "react";
 import type { LearnerState } from "./model";
 import {
+  reconcilePracticalFieldTransfer,
+  type PracticalFieldTransferNote,
+} from "./practical-field-transfer";
+import {
   PRACTICAL_PERFORMANCE_LIMIT,
   createPracticalProfileState,
   practicalProfileFromLearnerState,
@@ -30,9 +34,12 @@ export function usePracticalProfileState() {
 
   const commitProfile = useCallback((nextProfile: PracticalProfileState) => {
     if (profileError || controller.recoveryBlocked) return false;
+    const fieldNotes = (controller.state.fieldNotes ?? []) as PracticalFieldTransferNote[];
+    const mastery = reconcilePracticalFieldTransfer(nextProfile.mastery, fieldNotes);
+    const reconciledProfile = mastery === nextProfile.mastery ? nextProfile : { ...nextProfile, mastery };
     const nextLearner = withPracticalProfile(
       controller.state as LearnerState & LearnerStateWithPracticalProfile,
-      nextProfile,
+      reconciledProfile,
     ) as LearnerState;
     controller.setState(nextLearner);
     return true;
