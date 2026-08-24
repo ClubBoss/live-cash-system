@@ -62,7 +62,7 @@ export default function PracticalMasteryNav() {
     <div className="practical-mastery-nav__utilities" aria-label={locale === "ru" ? "Настройки обучения" : "Learning utilities"} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
       <div className="mode-switch" aria-label={locale === "ru" ? "Язык" : "Language"}><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
       <span className="support" data-testid="practical-sync-status" style={{ margin: 0 }}>{syncLabel}</span>
-      <PracticalDocumentLink href="/tools?tab=data" className="practical-mastery-nav__item" data-testid="data-recovery-entry"><NavIcon name="settings"/><span>{locale === "ru" ? "Данные" : "Data"}</span></PracticalDocumentLink>
+      <PracticalDocumentLink href="/tools?tab=data" className="practical-mastery-nav__item" data-testid="data-recovery-entry" style={{ minHeight: 40, padding: "7px 10px", flex: "0 1 auto", flexDirection: "row", border: "1px solid var(--line)", borderRadius: 12 }}><NavIcon name="settings"/><span>{locale === "ru" ? "Данные" : "Data"}</span></PracticalDocumentLink>
     </div>
     <PracticalDocumentLink href="/tools?tab=field" className="practical-mastery-nav__hands"><NavIcon name="hands"/><span>{locale === "ru" ? "Реальные руки →" : "Real hands →"}</span></PracticalDocumentLink>
   </nav>;
