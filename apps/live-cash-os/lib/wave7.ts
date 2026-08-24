@@ -2,8 +2,6 @@ import {
   APP_VERSION,
   CONTENT_VERSION,
   MODULE_IDS,
-  deriveModuleState,
-  routeDiagnosticPriorities,
   type DiagnosticState,
   type FieldNote,
   type LearnerState,
@@ -11,6 +9,17 @@ import {
   type ModuleId,
   type ResponseClass,
 } from "./model-core";
+import {
+  reconcilePracticalFieldTransfer,
+  resolvePracticalFieldBinding,
+  type PracticalFieldBinding,
+  type PracticalFieldBindingInput,
+} from "./practical-field-transfer";
+import {
+  practicalProfileFromLearnerState,
+  withPracticalProfile,
+  type LearnerStateWithPracticalProfile,
+} from "./practical-profile-state";
 
 export type ReviewedResponseClass = Exclude<ResponseClass, "E">;
 export type ExplainBackReviewStatus = "PENDING_REVIEW" | "REVIEWED_OK" | "REVIEWED_REPAIR" | "INSUFFICIENT";
@@ -59,6 +68,7 @@ export type StructuredFieldNote = FieldNote & {
   reviewOutcome?: FieldReviewOutcome;
   reviewerKind?: FieldReviewerKind;
   reviewedAt?: string;
+  practicalBinding?: PracticalFieldBinding;
 };
 
 export type FieldHandInput = {
@@ -103,31 +113,33 @@ function asWave7(state: LearnerState): Wave7State {
   return next;
 }
 
-function addFieldEvidence(state: Wave7State, note: StructuredFieldNote) {
-  const progress = state.modules[note.moduleId];
-  const cell = progress.evidence.field_transfer;
-  const nodeKey = `field:${note.id}`;
-  if (cell.distinctNodes.includes(nodeKey)) return;
-  cell.exposures += 1;
-  cell.successes += 1;
-  cell.distinctNodes = [...cell.distinctNodes, nodeKey].slice(-12);
-  cell.lastAt = nowIso();
-  progress.state = deriveModuleState(progress);
-}
-
-function queueReviewedRepair(state: Wave7State, moduleId: ModuleId, sourceId: string, kind: "field" | "explain") {
-  const sourceDrillId = `${kind}:${sourceId}`;
+function queueReviewedRepair(state: Wave7State, moduleId: ModuleId, sourceId: string) {
+  const sourceDrillId = `explain:${sourceId}`;
   if (state.reviewQueue.some((item) => item.kind === "repair" && item.sourceDrillId === sourceDrillId)) return;
   state.reviewQueue.push({
     id: id("review"),
     moduleId,
     sourceDrillId,
-    variantGroup: `${kind}-${moduleId}`,
+    variantGroup: `explain-${moduleId}`,
     kind: "repair",
     dueAt: nowIso(),
     attempts: 0,
     sourceInteractionId: sourceId,
   });
+}
+
+function persistReviewedFieldHand(next: Wave7State): LearnerState {
+  try {
+    const profile = practicalProfileFromLearnerState(next);
+    const mastery = reconcilePracticalFieldTransfer(profile.mastery, next.fieldNotes);
+    if (mastery === profile.mastery) return touch(next);
+    const touched = touch(next) as LearnerState & LearnerStateWithPracticalProfile;
+    return withPracticalProfile(touched, { ...profile, mastery });
+  } catch {
+    // A damaged Practical slice is recovery-owned. Preserve the field review
+    // without replacing or guessing at the unreadable canonical profile.
+    return touch(next);
+  }
 }
 
 export function explainBackRecords(state: LearnerState, moduleId?: ModuleId): ExplainBackRecord[] {
@@ -170,7 +182,7 @@ export function reviewExplainBack(
   record.status = status;
   record.reviewerNote = note;
   record.reviewedAt = nowIso();
-  if (status === "REVIEWED_REPAIR") queueReviewedRepair(next, record.moduleId, record.id, "explain");
+  if (status === "REVIEWED_REPAIR") queueReviewedRepair(next, record.moduleId, record.id);
   return touch(next);
 }
 
@@ -248,6 +260,7 @@ export function reviewFieldHand(
   outcome: FieldReviewOutcome,
   reviewerNote: string,
   reviewerKind: FieldReviewerKind = "SELF",
+  bindingInput?: PracticalFieldBindingInput,
 ): LearnerState {
   const next = asWave7(state);
   const note = next.fieldNotes.find((row) => row.id === noteId) as StructuredFieldNote | undefined;
@@ -255,35 +268,34 @@ export function reviewFieldHand(
   if (!note || note.status !== "PENDING_REVIEW" || !reviewText) return state;
 
   const hasIndependentReviewer = reviewerKind === "HUMAN" || reviewerKind === "HUMAN_ASSISTED";
+  const binding = hasIndependentReviewer && bindingInput
+    ? resolvePracticalFieldBinding(note.id, reviewerKind, bindingInput)
+    : null;
+  if (hasIndependentReviewer && bindingInput && !binding) return state;
+
   const hasLockedPreResultDecision = Boolean(note.decisionLockedAt && note.cueBeforeAction);
-  const canSupportTransfer = hasIndependentReviewer && hasLockedPreResultDecision;
-  const effectiveOutcome = outcome === "SUPPORTS_TRANSFER" && !canSupportTransfer ? "REVIEWED_OK" : outcome;
-  note.reviewOutcome = effectiveOutcome;
+  if (outcome === "SUPPORTS_TRANSFER" && (!hasIndependentReviewer || !hasLockedPreResultDecision || !binding)) return state;
+  if (outcome === "REPAIR_REQUIRED" && hasIndependentReviewer && !binding) return state;
+
+  note.reviewOutcome = outcome;
   note.reviewerKind = reviewerKind;
   note.evaluatorNote = reviewText;
   note.reviewedAt = nowIso();
+  if (binding) note.practicalBinding = binding;
 
-  // Self-review is deliberately non-terminal. It can identify a repair and
-  // preserve the learner's note, but the same locked hand remains available
-  // for a later, genuinely separate human/human-assisted review. Only that
-  // independent review may close the field-review lifecycle or add evidence.
+  // Self-review remains non-terminal and cannot establish canonical Practical
+  // identity or enqueue a second learning scheduler. A later independent
+  // review must supply a fresh note and an explicit structured binding.
   if (reviewerKind === "SELF") {
-    if (effectiveOutcome === "REPAIR_REQUIRED") queueReviewedRepair(next, note.moduleId, note.id, "field");
     note.status = "PENDING_REVIEW";
     return touch(next);
   }
 
-  if (effectiveOutcome === "INSUFFICIENT") note.status = "INSUFFICIENT";
-  if (effectiveOutcome === "REVIEWED_OK") note.status = "REVIEWED_VALID";
-  if (effectiveOutcome === "REPAIR_REQUIRED") {
-    note.status = "REVIEWED_REPAIR";
-    queueReviewedRepair(next, note.moduleId, note.id, "field");
-  }
-  if (effectiveOutcome === "SUPPORTS_TRANSFER") {
-    note.status = "REVIEWED_VALID";
-    addFieldEvidence(next, note);
-  }
-  return touch(next);
+  if (outcome === "INSUFFICIENT") note.status = "INSUFFICIENT";
+  if (outcome === "REVIEWED_OK") note.status = "REVIEWED_VALID";
+  if (outcome === "REPAIR_REQUIRED") note.status = "REVIEWED_REPAIR";
+  if (outcome === "SUPPORTS_TRANSFER") note.status = "REVIEWED_VALID";
+  return persistReviewedFieldHand(next);
 }
 
 export function applyReviewedDiagnostic(
@@ -291,12 +303,15 @@ export function applyReviewedDiagnostic(
   priorityModules: ModuleId[],
   review?: DiagnosticReviewSummary,
 ): LearnerState {
-  const routed = routeDiagnosticPriorities(state, priorityModules);
-  if (!review) return routed;
-  const ids = new Set(review.itemReviews.map((item) => item.itemId));
-  if (review.itemReviews.length !== 10 || ids.size !== 10) return routed;
-  const next = asWave7(routed);
-  next.diagnostic.review = clone(review);
+  const next = asWave7(state);
+  next.diagnostic.status = "SCORED";
+  next.diagnostic.priorityModules = [...new Set(priorityModules.filter((moduleId) => MODULE_IDS.includes(moduleId)))].slice(0, 2);
+  next.diagnostic.importedAt = nowIso();
+  if (review) {
+    const ids = new Set(review.itemReviews.map((item) => item.itemId));
+    if (review.itemReviews.length !== 10 || ids.size !== 10) return state;
+    next.diagnostic.review = clone(review);
+  }
   return touch(next);
 }
 
@@ -316,7 +331,10 @@ export function deriveProgressExplanation(state: LearnerState, moduleId: ModuleI
   pendingRepairs: number;
 } {
   const progress = state.modules[moduleId];
-  const fieldSupports = progress.evidence.field_transfer.successes;
+  const fieldSupports = (state.fieldNotes as StructuredFieldNote[]).filter((note) => note.moduleId === moduleId
+    && note.reviewOutcome === "SUPPORTS_TRANSFER"
+    && (note.reviewerKind === "HUMAN" || note.reviewerKind === "HUMAN_ASSISTED")
+    && Boolean(note.practicalBinding)).length;
   const delayedSuccesses = progress.evidence.retention.successes;
   const variantSuccesses = progress.evidence.variant_transfer.successes;
   const pendingRepairs = state.reviewQueue.filter((item) => item.moduleId === moduleId && item.kind === "repair").length;
