@@ -17,7 +17,7 @@ test("Practical locale reactively synchronizes lesson and shared navigation on t
   await expect(nav.getByRole("link", { name: "Справочник", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Реальные руки →", exact: true })).toHaveAttribute("href", "/tools?tab=field");
 
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await nav.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page).toHaveURL(canonicalUrl);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByText(/QUICK START · STEP 1 OF 8/i)).toBeVisible();
@@ -29,7 +29,7 @@ test("Practical locale reactively synchronizes lesson and shared navigation on t
   await expect(nav.getByRole("link", { name: "Real hands →", exact: true })).toHaveAttribute("href", "/tools?tab=field");
   await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "RU", exact: true }).click();
+  await nav.getByRole("button", { name: "RU", exact: true }).click();
   await expect(page).toHaveURL(canonicalUrl);
   await expect(page.locator("html")).toHaveAttribute("lang", "ru");
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
