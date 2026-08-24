@@ -83,10 +83,9 @@ test("support tabs keep URL, history, refresh, params and hash coherent", async 
   await expectTab(page, "data", "Данные и восстановление", "ДАННЫЕ И ВОССТАНОВЛЕНИЕ");
 
   await page.goBack();
-  await expectTab(page, "diagnostic", "Диагностика", "СТАРТОВАЯ ДИАГНОСТИКА").catch(async () => {
-    await expect(page.getByText(/Диагностика · 1\/10/)).toBeVisible();
-    await expect(page).toHaveURL(/[?&]tab=diagnostic(?:&|$|#)/);
-  });
+  await expect(page).toHaveURL(/[?&]tab=diagnostic(?:&|$|#)/);
+  await expect(page.getByText(/Диагностика · 1\/10/)).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Инструменты" }).getByRole("button", { name: "Диагностика", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
 test("stale support tab aliases fail closed to Data without opening a legacy learning surface", async ({ page }) => {
