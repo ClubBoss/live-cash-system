@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import { moduleById, modules } from "../content/modules";
 import type { LearnerState, LocaleCode, ModuleId } from "../lib/model";
 import {
+  practicalRepairFocusHref,
+  resolvePracticalFieldBinding,
+  type PracticalFieldBindingInput,
+} from "../lib/practical-field-transfer";
+import {
   REAL_HAND_DRAFT_KEY,
   clearUiStorage,
   readProfileScopedUiValue,
@@ -23,6 +28,7 @@ import {
   type FieldReviewOutcome,
   type StructuredFieldNote,
 } from "../lib/wave7";
+import RealHandCanonicalReview from "./RealHandCanonicalReview";
 
 const REAL_HAND_DRAFT_TTL_MS = 30 * 24 * 60 * 60 * 1_000;
 const MAX_DRAFT_TEXT = 5_000;
@@ -148,8 +154,8 @@ function persistRealHandDraft(hand: FieldHandInput): boolean {
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
     captureTitle: "После игры: сначала сохрани 1–3 руки",
-    captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если разбор выявил конкретную ошибку, добавляй работу над ошибкой; обычный Review после этого остаётся отдельным и необязательным. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
-    workflow: "Порядок: 1) выбрать связанную тему и сохранить 1–3 руки → 2) разобрать одну → 3) при необходимости назначить практику; отдельный разбор с человеком можно сделать позже.",
+    captureBody: "Сначала быстро зафиксируй 1–3 решения до результата. Затем выбери одну руку и сделай самопроверку. Только если отдельный разбор с человеком установил конкретный механизм, его можно связать с точным навыком Practical. Одна раздача — наблюдение, а не доказательство частоты или общего типа игрока.",
+    workflow: "Порядок: 1) выбрать связанную тему и сохранить 1–3 руки → 2) разобрать одну → 3) при human review явно классифицировать механизм; Practical остаётся единственным маршрутом обучения.",
     draftLocalOnly: "Черновик хранится только на этом устройстве. Он не считается прогрессом, доказательством навыка или разбором.",
     clearDraft: "Очистить черновик и поля",
     exampleSummary: "Показать пример хорошо записанной руки",
@@ -183,7 +189,7 @@ function copy(locale: LocaleCode) {
     populationConfidence: "Уверенность в риде",
     module: "Связанная тема",
     chooseModule: "Выбери тему, к которой относится это решение…",
-    moduleRequired: "Связанная тема не выбрана. Выбери её явно: именно сюда попадёт будущая история и, после отдельного разбора с человеком, возможная поддержка переноса.",
+    moduleRequired: "Связанная тема не выбрана. Выбери её явно для истории записи. Эта широкая тема сама по себе никогда не выбирает canonical Practical skill.",
     lock: "Зафиксировать решение",
     locked: "Решение зафиксировано до результата",
     requiredProgress: "обязательных полей заполнено",
@@ -198,8 +204,8 @@ function copy(locale: LocaleCode) {
     review: "Разбор",
     reviewPlaceholder: "Коротко: что в решении было рабочим или что нужно исправить…",
     reviewRequired: "Добавь короткую заметку разбора — без неё эти действия недоступны.",
-    selfReviewTitle: "Самопроверка не подтверждает перенос в реальную игру",
-    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить собственный разбор или назначить практику. Она не закрывает запись для будущего отдельного разбора с человеком. Подтвердить перенос в реальную игру можно только после такого отдельного разбора — с инструментом или без.",
+    selfReviewTitle: "Самопроверка не подтверждает перенос и не назначает canonical repair",
+    selfReviewBody: "Самопроверка может отметить нехватку данных, закончить собственный разбор или зафиксировать, что видишь проблему. Focused Practical repair и transfer требуют отдельного HUMAN / HUMAN_ASSISTED разбора с явной структурной классификацией механизма.",
     selfReviewSaved: "Самопроверка сохранена. Эта рука остаётся открытой для отдельного разбора с человеком. Чтобы провести его, выбери соответствующий источник ниже и добавь новую заметку разбора.",
     reviewerSource: "Как выполнен разбор",
     reviewerSourceHelp: "Самопроверка — твой собственный разбор. Другие варианты выбирай только после реального отдельного разбора с человеком. Приложение не проверяет, кто проводил разбор.",
@@ -207,11 +213,13 @@ function copy(locale: LocaleCode) {
     reviewerHuman: "Разбор с человеком",
     reviewerAssisted: "Разбор с человеком и инструментом",
     supportTransfer: "Подтверждает перенос в реальную игру",
-    supportTransferHelp: "Нужен отдельный разбор с человеком, непустая новая заметка и решение, зафиксированное до результата.",
+    supportTransferHelp: "Нужны human review, решение до результата, cue-before-action и валидная structured canonical binding. Одна рука transfer не подтверждает.",
     legacyTransferBlocked: "Эту старую запись нельзя засчитать как поддержку переноса: в ней нет зафиксированного решения до результата.",
     insufficient: "Недостаточно данных",
     reviewedOk: "Разбор закончен",
-    repair: "Назначить практику",
+    repair: "Нужна практика",
+    openRepair: "Открыть точный repair в Practical",
+    canonicalSkill: "Canonical Practical skill",
     explainInbox: "Объяснения для самопроверки",
     noInbox: "Новых объяснений для самопроверки нет.",
     earlier: "Раннее объяснение",
@@ -226,14 +234,14 @@ function copy(locale: LocaleCode) {
     fieldSupports: "разобранных с человеком рук в поддержку",
     delayed: "успешных повторов после паузы",
     variants: "успешных изменённых ситуаций",
-    pendingRepair: "заданий на работу над ошибкой",
+    pendingRepair: "legacy-заданий на работу над ошибкой",
     reviewedBySelf: "самопроверка",
     reviewedByHuman: "разбор с человеком",
     reviewedByAssisted: "разбор с человеком и инструментом",
   } : {
     captureTitle: "After play: save 1–3 hands first",
-    captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then choose one hand and self-review it. Add mistake practice only if that review finds a concrete issue; normal Review remains a separate, optional step afterward. One hand is an observation, not proof of a frequency or a global player type.",
-    workflow: "Order: 1) choose the linked topic and save 1–3 hands → 2) review one → 3) assign mistake practice if needed; a separate human review can happen later.",
+    captureBody: "First capture 1–3 decisions quickly before the result can bias them. Then review one hand. Only a separate human review that establishes a concrete mechanism may bind it to an exact Practical skill. One hand is an observation, not proof of a frequency or a global player type.",
+    workflow: "Order: 1) choose the linked topic and save 1–3 hands → 2) review one → 3) during human review explicitly classify the mechanism; Practical remains the only learning route.",
     draftLocalOnly: "This draft is stored only on this device. It is not progress, skill evidence, or a review.",
     clearDraft: "Clear draft and fields",
     exampleSummary: "Show an example of a well-recorded hand",
@@ -267,7 +275,7 @@ function copy(locale: LocaleCode) {
     populationConfidence: "Confidence in the read",
     module: "Linked topic",
     chooseModule: "Choose the topic this decision belongs to…",
-    moduleRequired: "No linked topic is selected. Choose it explicitly: future history and, after a separate human review, any transfer support will be attributed there.",
+    moduleRequired: "No linked topic is selected. Choose one explicitly for note history. This broad topic never selects a canonical Practical skill by itself.",
     lock: "Lock the decision",
     locked: "Decision locked before the result",
     requiredProgress: "required fields complete",
@@ -282,8 +290,8 @@ function copy(locale: LocaleCode) {
     review: "Review",
     reviewPlaceholder: "Briefly: what worked in the decision or what needs repair…",
     reviewRequired: "Add a short review note before choosing an outcome.",
-    selfReviewTitle: "Self-review does not confirm real-table transfer",
-    selfReviewBody: "Self-review can mark missing information, finish your own review, or assign mistake practice. It does not close the hand to a later separate human review. Real-table transfer can be supported only after that separate human review, with or without a tool.",
+    selfReviewTitle: "Self-review does not confirm transfer or assign canonical repair",
+    selfReviewBody: "Self-review can mark missing information, finish your own review, or record that you see a problem. Focused Practical repair and transfer require a separate HUMAN / HUMAN_ASSISTED review with explicit structured causal classification.",
     selfReviewSaved: "Self-review is saved. This hand remains open for a separate human review. To do that, choose the appropriate review source below and add a new review note.",
     reviewerSource: "How this was reviewed",
     reviewerSourceHelp: "Self-review is your own review. Choose the other options only after a real separate human review. The app does not verify who performed it.",
@@ -291,11 +299,13 @@ function copy(locale: LocaleCode) {
     reviewerHuman: "Human review",
     reviewerAssisted: "Human review with a tool",
     supportTransfer: "Supports real-table transfer",
-    supportTransferHelp: "Requires a separate human review, a new non-empty review note, and a decision locked before the result.",
+    supportTransferHelp: "Requires human review, a pre-result lock, cue-before-action, and a valid structured canonical binding. One hand never proves transfer.",
     legacyTransferBlocked: "This legacy note cannot support transfer because it has no decision locked before the result.",
     insufficient: "Not enough information",
     reviewedOk: "Finish review",
-    repair: "Assign practice",
+    repair: "Needs practice",
+    openRepair: "Open exact repair in Practical",
+    canonicalSkill: "Canonical Practical skill",
     explainInbox: "Explanations for self-review",
     noInbox: "No new explanation is waiting for self-review.",
     earlier: "Earlier explanation",
@@ -310,7 +320,7 @@ function copy(locale: LocaleCode) {
     fieldSupports: "human-reviewed supporting hands",
     delayed: "successful reviews after a delay",
     variants: "successful changed spots",
-    pendingRepair: "mistake-practice tasks queued",
+    pendingRepair: "legacy mistake-practice tasks queued",
     reviewedBySelf: "self-review",
     reviewedByHuman: "human review",
     reviewedByAssisted: "human review with a tool",
@@ -322,15 +332,15 @@ function fieldStatus(locale: LocaleCode, note: StructuredFieldNote, baseStatusLa
   const selfReviewedPending = note.status === "PENDING_REVIEW" && note.reviewerKind === "SELF" && Boolean(note.reviewedAt);
   if (locale === "ru") {
     if (selfReviewedPending) return "самопроверка сохранена · разбор с человеком ещё возможен";
-    if (outcome === "SUPPORTS_TRANSFER") return "разобрано: подтверждает перенос в реальную игру";
-    if (outcome === "REPAIR_REQUIRED") return "разобрано: нужна практика";
+    if (outcome === "SUPPORTS_TRANSFER") return "разобрано: поддерживает transfer evidence";
+    if (outcome === "REPAIR_REQUIRED") return "разобрано: нужен точный Practical repair";
     if (outcome === "REVIEWED_OK") return "разобрано: дополнительная практика не нужна";
     if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "недостаточно данных";
     return baseStatusLabel(locale, note.status);
   }
   if (selfReviewedPending) return "self-review saved · human review still available";
-  if (outcome === "SUPPORTS_TRANSFER") return "reviewed: supports real-table transfer";
-  if (outcome === "REPAIR_REQUIRED") return "reviewed: needs practice";
+  if (outcome === "SUPPORTS_TRANSFER") return "reviewed: supports transfer evidence";
+  if (outcome === "REPAIR_REQUIRED") return "reviewed: exact Practical repair needed";
   if (outcome === "REVIEWED_OK") return "reviewed: no extra practice";
   if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "not enough information";
   return baseStatusLabel(locale, note.status);
@@ -369,6 +379,7 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
   const [pendingSave, setPendingSave] = useState<PendingFieldSave | null>(null);
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
   const [reviewerKinds, setReviewerKinds] = useState<Record<string, FieldReviewerKind>>({});
+  const [bindingInputs, setBindingInputs] = useState<Record<string, PracticalFieldBindingInput>>({});
   const [resultDrafts, setResultDrafts] = useState<Record<string, string>>({});
   const [showdownDrafts, setShowdownDrafts] = useState<Record<string, string>>({});
   const [explainNotes, setExplainNotes] = useState<Record<string, string>>({});
@@ -435,10 +446,11 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
     const text = reviewNotes[noteId] ?? "";
     const reviewerKind = reviewerKinds[noteId] ?? "SELF";
     if (!text.trim()) return;
-    setState(reviewFieldHand(state, noteId, outcome, text, reviewerKind));
+    const input = bindingInputs[noteId];
+    const resolved = reviewerKind === "SELF" ? null : resolvePracticalFieldBinding(noteId, reviewerKind, input);
+    if ((outcome === "REPAIR_REQUIRED" || outcome === "SUPPORTS_TRANSFER") && reviewerKind !== "SELF" && !resolved) return;
+    setState(reviewFieldHand(state, noteId, outcome, text, reviewerKind, resolved ? input : undefined));
     if (reviewerKind === "SELF") {
-      // A later independent review must provide its own new note instead of
-      // silently reusing the learner's self-review text.
       setReviewNotes((current) => ({ ...current, [noteId]: "" }));
     }
   }
@@ -509,10 +521,14 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
         const reviewText = reviewNotes[note.id] ?? "";
         const selfReviewed = note.status === "PENDING_REVIEW" && note.reviewerKind === "SELF" && Boolean(note.reviewedAt);
         const reviewerKind = reviewerKinds[note.id] ?? "SELF";
+        const bindingInput = bindingInputs[note.id] ?? { signals: {} };
+        const resolvedBinding = reviewerKind === "SELF" ? null : resolvePracticalFieldBinding(note.id, reviewerKind, bindingInput);
         const resultText = resultDrafts[note.id] ?? "";
         const showdownText = showdownDrafts[note.id] ?? "";
-        const canSupportTransfer = reviewerKind !== "SELF" && Boolean(note.decisionLockedAt) && Boolean(reviewText.trim());
+        const canSupportTransfer = reviewerKind !== "SELF" && Boolean(note.decisionLockedAt) && Boolean(reviewText.trim()) && Boolean(resolvedBinding);
+        const canAssignRepair = Boolean(reviewText.trim()) && (reviewerKind === "SELF" || Boolean(resolvedBinding));
         const selfActionsLocked = selfReviewed && reviewerKind === "SELF";
+        const repairHref = practicalRepairFocusHref(note);
         return <article key={note.id}>
           <span className={`kind kind-${note.status.toLowerCase()}`}>{fieldStatus(locale, note, fieldStatusLabel)}</span>
           <h3>{moduleById[note.moduleId].shortTitle}</h3>
@@ -530,6 +546,7 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
           <p><b>{facts.reason}:</b> {note.reason}</p>
           {typeof note.confidence === "number" && <p><b>{c.confidence}:</b> {locale === "ru" ? "примерно" : "roughly"} {note.confidence}%</p>}
           {note.populationRead && <p><b>{c.populationRead}:</b> {note.populationRead} ({locale === "ru" ? "примерно" : "roughly"} {note.populationReadConfidence ?? "—"}%)</p>}
+          {note.practicalBinding && <p className="assumption-strip"><b>{c.canonicalSkill}:</b> {note.practicalBinding.practicalSkillId}</p>}
 
           <div className="w7-result">
             <p className="eyebrow">{c.resultTitle}</p>
@@ -546,6 +563,7 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
             {selfReviewed && <div className="counterexample"><b>{c.review} ({c.reviewedBySelf})</b><p>{note.evaluatorNote}</p><p>{c.selfReviewSaved}</p></div>}
             <label>{c.reviewerSource}<select aria-label={`${c.reviewerSource} ${note.id}`} value={reviewerKind} onChange={(event) => setReviewerKinds((current) => ({ ...current, [note.id]: event.target.value as FieldReviewerKind }))}><option value="SELF">{c.reviewerSelf}</option><option value="HUMAN">{c.reviewerHuman}</option><option value="HUMAN_ASSISTED">{c.reviewerAssisted}</option></select></label>
             <p className="support">{c.reviewerSourceHelp}</p>
+            {reviewerKind !== "SELF" && <RealHandCanonicalReview locale={locale} value={bindingInput} onChange={(value) => setBindingInputs((current) => ({ ...current, [note.id]: value }))} />}
             <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setReviewNotes((current) => ({ ...current, [note.id]: event.target.value }))} />
             {!reviewText.trim() && <p className="support">{selfActionsLocked ? c.selfReviewSaved : c.reviewRequired}</p>}
             {!note.decisionLockedAt && <p className="support">{c.legacyTransferBlocked}</p>}
@@ -553,10 +571,13 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
             <div className="review-actions">
               <button disabled={!reviewText.trim() || selfActionsLocked} onClick={() => reviewHand(note.id, "INSUFFICIENT")}>{c.insufficient}</button>
               <button disabled={!reviewText.trim() || selfActionsLocked} onClick={() => reviewHand(note.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
-              <button disabled={!reviewText.trim() || selfActionsLocked} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
+              <button disabled={!canAssignRepair || selfActionsLocked} onClick={() => reviewHand(note.id, "REPAIR_REQUIRED")}>{c.repair}</button>
               <button className="primary" disabled={!canSupportTransfer} onClick={() => reviewHand(note.id, "SUPPORTS_TRANSFER")}>{c.supportTransfer}</button>
             </div>
-          </> : <p className="support"><b>{c.review} ({reviewerLabel(note)}):</b> {note.evaluatorNote || "—"}</p>}
+          </> : <>
+            <p className="support"><b>{c.review} ({reviewerLabel(note)}):</b> {note.evaluatorNote || "—"}</p>
+            {repairHref && <p><a className="primary" data-testid="real-hand-practical-repair" href={repairHref}>{c.openRepair} →</a></p>}
+          </>}
         </article>;
       })}</div>
     </div>
