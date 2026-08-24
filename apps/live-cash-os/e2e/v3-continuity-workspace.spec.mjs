@@ -70,7 +70,7 @@ test("V3-06b scored Quick Start feedback survives hard refresh without duplicate
   await expect(restored.locator('input[type="radio"]:enabled')).toHaveCount(0);
   expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
 
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByLabel("Язык").getByRole("button", { name: "EN", exact: true }).click();
   await expect(restored.getByRole("heading", { name: /Correct|Repair needed/ })).toBeVisible();
   await page.reload();
   const restoredEnglish = await quickStartCardForDecision(page, decisionId);
