@@ -103,8 +103,9 @@ export default function PracticalFirstJourneyExperience() {
     setLastCorrect(null);
   };
 
-  if (!ready || !continuityChecked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
+  if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Ничего не будет перезаписано. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Nothing will be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
+  if (!continuityChecked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Восстанавливаем текущий шаг…" : "Restoring your current step…"}</p></main>;
 
   if (!answeredDecisionId && (!recommendation || !skill || !journeyStep)) {
     return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
