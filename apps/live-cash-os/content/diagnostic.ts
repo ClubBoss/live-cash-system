@@ -25,7 +25,22 @@ export const diagnosticT1: DiagnosticItem[] = [
   { id: "LD-010", title: "", prompt: "", targetSeconds: 55, drillId: "riv-04" },
 ];
 
+function applyDiagnosticConstructParity(locale: LocaleCode) {
+  const drill = drillById["mul-04"];
+  if (!drill) throw new Error("Missing Diagnostic drill mul-04");
+  drill.question = locale === "ru"
+    ? "Какой фактор проверить первым перед решением о частой ставке CO?"
+    : "Which factor should be checked first before deciding on a CO range-bet?";
+  const optionText = locale === "ru"
+    ? ["Преимущество диапазона BB на низкой доске", "Префлоп-инициатива CO", "Сам факт игры втроём"]
+    : ["BB low-board ownership", "CO preflop initiative", "Multiway status by itself"];
+  drill.actionOptions.forEach((option, index) => {
+    if (optionText[index]) option.text = optionText[index];
+  });
+}
+
 export function syncDiagnosticCompatibility(locale: LocaleCode) {
+  applyDiagnosticConstructParity(locale);
   diagnosticT1.forEach((entry, index) => {
     const drill = drillById[entry.drillId];
     if (!drill) throw new Error(`Missing Diagnostic drill ${entry.drillId}`);
