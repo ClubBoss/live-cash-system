@@ -10,12 +10,41 @@ export const PRACTICAL_PROFILE_ANCHOR_CARD_ID = "__system:practical-profile:v1" 
 export const PRACTICAL_PROFILE_LINEAGE_CARD_PREFIX = "__system:practical-profile-lineage:v1:" as const;
 export const PRACTICAL_PROFILE_LINEAGE_LIMIT = 256;
 
+export type PracticalContinuityIntegratedItem = {
+  decisionId: string;
+  skillId: string;
+  priority: number;
+  reason: "REPAIR" | "RETENTION" | "TRANSFER" | "REINFORCE" | "RECOGNITION";
+  whyAfterAnswer: string;
+  retentionTierDays: number | null;
+};
+
+export type PracticalContinuityWorkspace = {
+  version: 1;
+  contentVersion: string;
+  quickStart: {
+    skillId: string;
+    decisionId: string;
+    attemptId: string;
+    phase: "POST_ANSWER";
+    updatedAt: string;
+  } | null;
+  integrated: {
+    focusSkillId: string | null;
+    items: PracticalContinuityIntegratedItem[];
+    nextIndex: number;
+    submittedAttemptIds: string[];
+    updatedAt: string;
+  } | null;
+};
+
 export type PracticalStudyWorkspace = {
   version: 1;
   focus: string;
   repairRule: string;
   performanceFlags: string[];
   updatedAt: string;
+  continuity?: PracticalContinuityWorkspace;
 };
 
 export type PracticalProfileState = {
@@ -67,6 +96,43 @@ function validPerformanceEvent(value: unknown): value is PracticalPerformanceEve
     && typeof value.kind === "string";
 }
 
+function validContinuityIntegratedItem(value: unknown): value is PracticalContinuityIntegratedItem {
+  if (!isRecord(value)) return false;
+  return typeof value.decisionId === "string"
+    && typeof value.skillId === "string"
+    && typeof value.priority === "number"
+    && ["REPAIR", "RETENTION", "TRANSFER", "REINFORCE", "RECOGNITION"].includes(String(value.reason))
+    && typeof value.whyAfterAnswer === "string"
+    && (value.retentionTierDays === null || typeof value.retentionTierDays === "number");
+}
+
+function validContinuityWorkspace(value: unknown): value is PracticalContinuityWorkspace {
+  if (!isRecord(value) || value.version !== 1 || typeof value.contentVersion !== "string") return false;
+  if (value.quickStart !== null) {
+    if (!isRecord(value.quickStart)
+      || typeof value.quickStart.skillId !== "string"
+      || typeof value.quickStart.decisionId !== "string"
+      || typeof value.quickStart.attemptId !== "string"
+      || value.quickStart.phase !== "POST_ANSWER"
+      || typeof value.quickStart.updatedAt !== "string") return false;
+  }
+  if (value.integrated !== null) {
+    if (!isRecord(value.integrated)
+      || !(value.integrated.focusSkillId === null || typeof value.integrated.focusSkillId === "string")
+      || !Array.isArray(value.integrated.items)
+      || value.integrated.items.length > 8
+      || !value.integrated.items.every(validContinuityIntegratedItem)
+      || !Number.isInteger(value.integrated.nextIndex)
+      || value.integrated.nextIndex < 0
+      || value.integrated.nextIndex > value.integrated.items.length
+      || !Array.isArray(value.integrated.submittedAttemptIds)
+      || value.integrated.submittedAttemptIds.length !== value.integrated.nextIndex
+      || !value.integrated.submittedAttemptIds.every((id) => typeof id === "string")
+      || typeof value.integrated.updatedAt !== "string") return false;
+  }
+  return true;
+}
+
 function validStudyWorkspace(value: unknown): value is PracticalStudyWorkspace {
   return isRecord(value)
     && value.version === 1
@@ -74,7 +140,8 @@ function validStudyWorkspace(value: unknown): value is PracticalStudyWorkspace {
     && typeof value.repairRule === "string"
     && Array.isArray(value.performanceFlags)
     && value.performanceFlags.every((flag) => typeof flag === "string")
-    && typeof value.updatedAt === "string";
+    && typeof value.updatedAt === "string"
+    && (value.continuity === undefined || validContinuityWorkspace(value.continuity));
 }
 
 export function validatePracticalProfileState(value: unknown): value is PracticalProfileState {
@@ -135,8 +202,8 @@ export function practicalProfileSafeSuccessor(candidateState: unknown, baseState
   if (JSON.stringify(candidate) === JSON.stringify(base)) return true;
   if (!masteryPreserved(candidate.mastery, base.mastery)) return false;
   if (!performancePreserved(candidate.performance, base.performance)) return false;
-  // Free-form study notes are mutable rather than append-only. Without the exact
-  // cloud CAS token, changing them cannot prove ancestry safely.
+  // Study workspace remains mutable rather than evidence-bearing. Without the exact
+  // cloud CAS token, changing it cannot prove ancestry safely, so divergence fails closed.
   if (JSON.stringify(candidate.studyWorkspace) !== JSON.stringify(base.studyWorkspace)) return false;
   return true;
 }
