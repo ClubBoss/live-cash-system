@@ -32,29 +32,31 @@ const BOOLEAN_SIGNALS: Array<{
 
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
-    title: "Причина ошибки / переноса — структурно",
-    help: "Выбери только то, что явно установлено разбором с человеком. Текст руки, результат и showdown не создают эти сигналы автоматически.",
+    title: "Причина ошибки / разбора",
+    help: "Отметь только то, что явно установлено разбором с человеком. Текст руки, результат и шоудаун сами по себе не определяют причину.",
     street: "Улица",
     potType: "Тип банка",
     role: "Роль",
     none: "не указано",
-    candidates: "Canonical Practical кандидаты",
-    selectSkill: "Выбери точный навык, подтверждённый разбором",
-    noCandidate: "Пока нет authoritative Practical кандидата. Такой разбор не может назначить focused repair или подтвердить transfer.",
-    exact: "Точный canonical навык",
-    multiple: "Сигналы дают несколько допустимых навыков — автоматический выбор запрещён.",
+    candidates: "Подходящие темы",
+    selectSkill: "Выбери тему, которую подтвердил разбор",
+    noCandidate: "Пока разбор не определил подходящую тему для тренировки.",
+    exact: "Тема для тренировки",
+    multiple: "Подходят несколько тем — выбери ту, которую подтвердил разбор.",
+    fallbackSkill: "Тема тренировки",
   } : {
-    title: "Causal repair / transfer classification",
-    help: "Select only what the human review explicitly established. Hand text, result, and showdown never generate these signals automatically.",
+    title: "Reason identified in the review",
+    help: "Select only what the human review explicitly established. Hand text, result, and showdown do not identify the reason on their own.",
     street: "Street",
     potType: "Pot type",
     role: "Role",
     none: "not specified",
-    candidates: "Canonical Practical candidates",
-    selectSkill: "Select the exact skill established by the review",
-    noCandidate: "There is no authoritative Practical candidate yet. This review cannot create focused repair or transfer evidence.",
-    exact: "Exact canonical skill",
-    multiple: "These signals leave multiple valid skills, so automatic selection is forbidden.",
+    candidates: "Relevant topics",
+    selectSkill: "Select the topic established by the review",
+    noCandidate: "The review has not established a practice topic yet.",
+    exact: "Practice topic",
+    multiple: "Several topics fit — select the one established by the review.",
+    fallbackSkill: "Practice topic",
   };
 }
 
@@ -63,6 +65,10 @@ export default function RealHandCanonicalReview({ locale, value, onChange }: Pro
   const signals = value.signals ?? {};
   const candidates = routeRealHandToRepairs(signals);
   const selectedStillValid = Boolean(value.practicalSkillId && candidates.some((candidate) => candidate.skillId === value.practicalSkillId));
+  const learnerSkillTitle = (skillId: string) => {
+    const skill = practicalSkillById.get(skillId);
+    return skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : c.fallbackSkill;
+  };
 
   const replaceSignals = (nextSignals: RealHandRepairSignals) => {
     const nextCandidates = routeRealHandToRepairs(nextSignals);
@@ -117,8 +123,8 @@ export default function RealHandCanonicalReview({ locale, value, onChange }: Pro
       </label>)}
     </div>
     {candidates.length === 0 ? <p className="counterexample">{c.noCandidate}</p> : <>
-      <p className="support"><b>{c.candidates}:</b> {candidates.map((candidate) => candidate.skillId).join(", ")}</p>
-      {candidates.length === 1 ? <p className="assumption-strip"><b>{c.exact}:</b> {candidates[0].skillId} · {locale === "ru" ? practicalSkillById.get(candidates[0].skillId)?.titleRu : practicalSkillById.get(candidates[0].skillId)?.titleEn}</p> : <>
+      <p className="support"><b>{c.candidates}:</b> {candidates.map((candidate) => learnerSkillTitle(candidate.skillId)).join(", ")}</p>
+      {candidates.length === 1 ? <p className="assumption-strip"><b>{c.exact}:</b> {learnerSkillTitle(candidates[0].skillId)}</p> : <>
         <p className="counterexample">{c.multiple}</p>
         <label>{c.selectSkill}
           <select
@@ -127,7 +133,7 @@ export default function RealHandCanonicalReview({ locale, value, onChange }: Pro
             onChange={(event) => onChange({ signals, practicalSkillId: event.target.value || undefined })}
           >
             <option value="">{c.none}</option>
-            {candidates.map((candidate) => <option key={candidate.skillId} value={candidate.skillId}>{candidate.skillId} · {locale === "ru" ? practicalSkillById.get(candidate.skillId)?.titleRu : practicalSkillById.get(candidate.skillId)?.titleEn}</option>)}
+            {candidates.map((candidate) => <option key={candidate.skillId} value={candidate.skillId}>{learnerSkillTitle(candidate.skillId)}</option>)}
           </select>
         </label>
       </>}
