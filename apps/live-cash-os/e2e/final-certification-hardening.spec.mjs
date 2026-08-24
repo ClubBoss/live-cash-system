@@ -81,7 +81,7 @@ test("A01 pre-submit DOM and persisted learner state expose no keyed answer auth
   expect(persistedBeforeSubmit).not.toContain("correctReasonId");
 });
 
-test("A05 combined navigation preserves submitted evidence, Real Hands binding, and Diagnostic generic continuation", async ({ page }) => {
+test("A05-P Practical continuity preserves one submitted attempt across reload and re-entry", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.getByRole("button", { name: /Проверить на примере/ }).click();
   await page.goto("/mastery/session");
@@ -100,9 +100,12 @@ test("A05 combined navigation preserves submitted evidence, Real Hands binding, 
   await page.goto("/mastery");
   await page.goto("/mastery/session");
   expect(await masterySnapshot(page)).toEqual(afterSubmit);
+});
 
+test("A05-F Real Hands binding survives reload without duplicate evidence or a second queue", async ({ page }) => {
   await page.goto("/tools?tab=field");
   await expect(page.getByText("РЕАЛЬНЫЕ РАЗДАЧИ", { exact: true })).toBeVisible();
+  const masteryBefore = await masterySnapshot(page);
   await fillSupportHand(page);
   await page.getByRole("button", { name: "Зафиксировать решение" }).click();
 
@@ -110,6 +113,7 @@ test("A05 combined navigation preserves submitted evidence, Real Hands binding, 
   const note = root.fieldNotes.at(-1);
   expect(note).toBeTruthy();
   const noteId = note.id;
+  const reviewQueueBefore = JSON.stringify(root.reviewQueue ?? []);
   const card = page.locator(".field-list article").filter({ hasText: "I noticed an automatic continuation-bet assumption" }).first();
   await card.getByLabel(`Как выполнен разбор ${noteId}`).selectOption("HUMAN_ASSISTED");
 
@@ -129,11 +133,21 @@ test("A05 combined navigation preserves submitted evidence, Real Hands binding, 
   let reviewed = root.fieldNotes.find((item) => item.id === noteId);
   expect(reviewed.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
   expect(reviewed.practicalBinding.signals.automaticCbetIssue).toBe(true);
+  expect(JSON.stringify(root.reviewQueue ?? [])).toBe(reviewQueueBefore);
+  expect(await masterySnapshot(page)).toEqual(masteryBefore);
+
   await page.reload();
   root = await learnerState(page);
   reviewed = root.fieldNotes.find((item) => item.id === noteId);
   expect(reviewed.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
   expect(reviewed.practicalBinding.signals.automaticCbetIssue).toBe(true);
+  expect(JSON.stringify(root.reviewQueue ?? [])).toBe(reviewQueueBefore);
+  expect(await masterySnapshot(page)).toEqual(masteryBefore);
+});
+
+test("A05-D support history and Diagnostic generic continuation preserve Practical mastery", async ({ page }) => {
+  await page.goto("/tools?tab=field");
+  await expect(page.getByText("РЕАЛЬНЫЕ РАЗДАЧИ", { exact: true })).toBeVisible();
 
   const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
   await toolsNav.getByRole("button", { name: "Диагностика", exact: true }).click();
