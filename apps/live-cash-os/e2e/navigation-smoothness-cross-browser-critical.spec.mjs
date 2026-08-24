@@ -136,7 +136,7 @@ test("direct mastery reload remains valid while Real Hands stays a document-navi
   const realHands = page.getByRole("navigation", { name: "Practical Mastery navigation" }).getByRole("link", { name: "Реальные руки →", exact: true });
   await expect(realHands).toHaveAttribute("href", "/tools?tab=field");
   await realHands.click();
-  await expect(page).toHaveURL(/\/tools$/);
+  await expect(page).toHaveURL(/\/tools\?tab=field$/);
   const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
   await expect(toolsNav.getByRole("button", { name: "Реальные руки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect.poll(() => page.evaluate(({ key }) => Number.parseInt(sessionStorage.getItem(key) || "0", 10), { key: unloadKey })).toBe(1);
