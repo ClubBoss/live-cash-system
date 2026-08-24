@@ -122,6 +122,7 @@ function validContinuityWorkspace(value: unknown): value is PracticalContinuityW
       || !Array.isArray(value.integrated.items)
       || value.integrated.items.length > 8
       || !value.integrated.items.every(validContinuityIntegratedItem)
+      || typeof value.integrated.nextIndex !== "number"
       || !Number.isInteger(value.integrated.nextIndex)
       || value.integrated.nextIndex < 0
       || value.integrated.nextIndex > value.integrated.items.length
