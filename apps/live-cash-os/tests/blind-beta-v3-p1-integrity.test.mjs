@@ -3,9 +3,11 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { allPracticalTableStates } from "../content/practical-mastery/index.ts";
 import { buildAdaptiveIntegratedSession, isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session.ts";
 import { firstJourneyPresentationState } from "../lib/practical-first-journey-authority.ts";
 import { createPracticalMasteryState, markPracticalConceptTaught } from "../lib/practical-mastery-core.ts";
+import { arrangeSixMaxSeatRows } from "../lib/practical-table-geometry.ts";
 import { decisionHasAuthoritativeVisibleChange, visibleComparisonForDecision } from "../lib/practical-visible-scenario.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,6 +51,17 @@ test("V3-03/V3-02 changed perceptual items carry explicit before/now stimulus an
   assert.match(tableStimulus, /BEFORE/);
   assert.match(tableStimulus, /NOW/);
   assert.match(tableStimulus, /visibleComparisonForDecision/);
+});
+
+test("six-max table rows preserve canonical clockwise position order", () => {
+  const representative = allPracticalTableStates.find((state) => state.decisionId === "PM-PERC-BL04-2");
+  assert.ok(representative, "representative six-max table state must exist");
+  const rows = arrangeSixMaxSeatRows(representative.seats);
+  assert.deepEqual(rows.top.map((seat) => seat.position), ["UTG", "HJ", "CO"]);
+  assert.deepEqual(rows.bottom.map((seat) => seat.position), ["BB", "SB", "BTN"]);
+  const clockwise = [...rows.top, ...[...rows.bottom].reverse()].map((seat) => seat.position);
+  assert.deepEqual(clockwise, ["UTG", "HJ", "CO", "BTN", "SB", "BB"]);
+  assert.match(tableStimulus, /arrangeSixMaxSeatRows/);
 });
 
 test("V3-05 Quick Start presentation has one canonical completion authority", () => {

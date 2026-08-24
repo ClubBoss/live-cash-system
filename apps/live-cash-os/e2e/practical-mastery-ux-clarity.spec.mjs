@@ -60,22 +60,32 @@ test("skill map is the canonical home and reads as progress, not an internal con
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
 });
 
-test("Skill Map keeps generic Learn distinct from named recommendation focus and rejects invalid or locked focus", async ({ page }) => {
+test("Skill Map keeps generic Learn distinct from focus-admissible recommendations and rejects invalid or locked focus", async ({ page }) => {
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   const generic = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
   await expect(generic).toHaveAttribute("href", "/mastery/journey");
   await expect(page.locator("main .hero").getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("href", "/mastery/journey");
+
+  let recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
+  await expect(recommendation).toBeVisible();
+  const unavailable = recommendation.locator("[data-focus-unavailable]");
+  await expect(unavailable).toHaveAttribute("aria-disabled", "true");
+  await expect(unavailable).toHaveText("Продолжить обучение");
+  await expect(recommendation.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveCount(0);
+
   await generic.click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await page.getByRole("button", { name: /Проверить на примере/i }).click();
+  await expect(page.getByText("ТЕПЕРЬ ТЫ", { exact: true })).toBeVisible();
   await page.goto("/mastery");
 
-  const recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
+  recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
   await expect(recommendation).toBeVisible();
   const focused = recommendation.getByRole("link", { name: "Продолжить обучение", exact: true });
-  await expect(focused).toHaveAttribute("href", /\/mastery\/session\?focus=[A-Z0-9-]+$/);
+  await expect(focused).toHaveAttribute("href", "/mastery/session?focus=FND-01");
   await focused.click();
-  await expect(page).toHaveURL(/\/mastery\/session\?focus=[A-Z0-9-]+$/);
+  await expect(page).toHaveURL(/\/mastery\/session\?focus=FND-01$/);
   await expect(page.locator("main")).toContainText(/ПРАКТИКА|ВЫБРАННЫЙ ФОКУС/);
 
   await page.goto("/mastery/session?focus=NOT-A-SKILL");
