@@ -18,16 +18,23 @@ async function latestAttempt(page) {
   }, LEARNER_KEY);
 }
 
+async function quickStartCardForDecision(page, decisionId) {
+  const action = page.locator(`input[name="${decisionId}-a"]`).first();
+  await expect(action).toBeVisible();
+  return action.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+}
+
 async function answerQuickStartCard(page) {
   const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
   await expect(answer).toBeVisible();
-  const card = answer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
-  await card.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
-  await card.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
+  const preAnswerCard = answer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+  await preAnswerCard.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
+  await preAnswerCard.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
   await answer.click();
-  await expect(card.getByRole("heading", { name: /Верно|Нужно исправить|Correct|Repair needed/ })).toBeVisible();
   const attempt = await latestAttempt(page);
   expect(attempt).toBeTruthy();
+  const card = await quickStartCardForDecision(page, attempt.decisionId);
+  await expect(card.getByRole("heading", { name: /Верно|Нужно исправить|Correct|Repair needed/ })).toBeVisible();
   return { card, decisionId: attempt.decisionId };
 }
 
@@ -56,8 +63,7 @@ test("V3-06b scored Quick Start feedback survives hard refresh without duplicate
   expect(attemptsAfterAnswer).toBeGreaterThan(0);
 
   await page.reload();
-  const restoredAction = page.locator(`input[name="${decisionId}-a"]`).first();
-  const restored = restoredAction.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+  const restored = await quickStartCardForDecision(page, decisionId);
   await expect(restored).toBeVisible();
   await expect(restored.getByRole("heading", { name: /Верно|Нужно исправить/ })).toBeVisible();
   await expect(restored.locator('input[type="radio"]:checked')).toHaveCount(2);
@@ -67,7 +73,7 @@ test("V3-06b scored Quick Start feedback survives hard refresh without duplicate
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(restored.getByRole("heading", { name: /Correct|Repair needed/ })).toBeVisible();
   await page.reload();
-  const restoredEnglish = page.locator(`input[name="${decisionId}-a"]`).first().locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+  const restoredEnglish = await quickStartCardForDecision(page, decisionId);
   await expect(restoredEnglish.getByRole("heading", { name: /Correct|Repair needed/ })).toBeVisible();
   expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
 });
