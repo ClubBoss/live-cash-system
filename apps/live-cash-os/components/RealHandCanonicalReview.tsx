@@ -19,15 +19,15 @@ const BOOLEAN_SIGNALS: Array<{
   ru: string;
   en: string;
 }> = [
-  { key: "blindIssue", ru: "Цена / closing action в блайндах", en: "Blind price / closing action" },
+  { key: "blindIssue", ru: "Цена колла / завершает ли колл круг торговли", en: "Blind price / closing action" },
   { key: "openSizeIssue", ru: "Размер открытия меняет защиту", en: "Open-size sensitivity" },
-  { key: "boardOwnershipIssue", ru: "Владение бордом / arriving ranges", en: "Board / arriving-range ownership" },
+  { key: "boardOwnershipIssue", ru: "Владение бордом / диапазоны на этой улице", en: "Board / arriving-range ownership" },
   { key: "automaticCbetIssue", ru: "Автоматический c-bet", en: "Automatic c-bet" },
-  { key: "probeIssue", ru: "Turn probe / ancestry", en: "Turn probe / ancestry" },
-  { key: "bluffCatchIssue", ru: "Bluff-catch / цена и bluff supply", en: "Bluff-catch / price and bluff supply" },
-  { key: "multiwayThresholdIssue", ru: "Порог value в multiway", en: "Multiway value threshold" },
+  { key: "probeIssue", ru: "Пробная ставка тёрна / происхождение линии", en: "Turn probe / ancestry" },
+  { key: "bluffCatchIssue", ru: "Блаф-кэтч / цена и доступные блефы", en: "Bluff-catch / price and bluff supply" },
+  { key: "multiwayThresholdIssue", ru: "Порог вэлью в мультивее", en: "Multiway value threshold" },
   { key: "straddleGeometryIssue", ru: "Страддл меняет геометрию", en: "Straddle changes geometry" },
-  { key: "evidenceGeneralizationIssue", ru: "Обобщение рида за пределы evidence", en: "Evidence over-generalization" },
+  { key: "evidenceGeneralizationIssue", ru: "Обобщение рида за пределы подтверждённых данных", en: "Evidence over-generalization" },
 ];
 
 function copy(locale: LocaleCode) {
