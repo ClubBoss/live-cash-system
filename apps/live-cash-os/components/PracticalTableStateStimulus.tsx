@@ -1,10 +1,29 @@
 import type { PracticalTableState } from "../content/practical-mastery";
+import { visibleComparisonForDecision } from "../lib/practical-visible-scenario";
 
 type Locale = "ru" | "en";
 
 export default function PracticalTableStateStimulus({ state, locale }: { state: PracticalTableState; locale: Locale }) {
+  const comparison = visibleComparisonForDecision(state.decisionId);
+  if (!comparison) return <TableSnapshot state={state} locale={locale} />;
+
+  return <div aria-label="poker table comparison" style={{ margin: "18px auto", maxWidth: 760 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 14 }}>
+      <section aria-label={locale === "ru" ? "До изменения" : "Before change"}>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>{locale === "ru" ? "ДО" : "BEFORE"}</p>
+        <TableSnapshot state={comparison.before} locale={locale} />
+      </section>
+      <section aria-label={locale === "ru" ? "После изменения" : "After change"}>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>{locale === "ru" ? "СЕЙЧАС" : "NOW"}</p>
+        <TableSnapshot state={state} locale={locale} />
+      </section>
+    </div>
+  </div>;
+}
+
+function TableSnapshot({ state, locale }: { state: PracticalTableState; locale: Locale }) {
   const heroSeat = state.seats.find((seat) => seat.position === state.hero);
-  return <div aria-label="poker table state" style={{ margin: "18px auto", maxWidth: 720 }}>
+  return <div aria-label="poker table state" style={{ margin: "8px auto 18px", maxWidth: 720 }}>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginBottom: 8 }}>
       {state.seats.slice(0, 3).map((seat) => <Seat key={seat.position} seat={seat} hero={seat.position === state.hero} />)}
     </div>

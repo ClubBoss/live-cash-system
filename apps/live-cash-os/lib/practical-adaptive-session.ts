@@ -1,14 +1,23 @@
-import { allPracticalTableStates, practicalDecisions } from "../content/practical-mastery";
+import { allPracticalTableStates, practicalDecisionById, practicalDecisions } from "../content/practical-mastery";
 import { classifyPracticalAdaptiveNeed, decisionMatchesAdaptiveNeed, type PracticalPerformanceSample } from "./practical-adaptive-repair";
 import { buildIntegratedSession, supportedIntegratedSkillIds, type IntegratedSessionItem } from "./practical-integrated-session";
 import type { PracticalMasteryState } from "./practical-mastery-core";
+import { decisionHasAuthoritativeVisibleChange } from "./practical-visible-scenario";
 
-export function requestedIntegratedFocusItem(state:PracticalMasteryState,skillId:string,now=new Date()):IntegratedSessionItem|null{
-  if(!supportedIntegratedSkillIds(state).includes(skillId)) return null;
-  return buildIntegratedSession(state,now,Math.max(8,practicalDecisions.length)).find((item)=>item.skillId===skillId)??null;
+function normalizeTransferLabel(item: IntegratedSessionItem): IntegratedSessionItem {
+  if (item.reason !== "TRANSFER" || decisionHasAuthoritativeVisibleChange(item.decisionId)) return item;
+  return {
+    ...item,
+    reason: "REINFORCE",
+    whyAfterAnswer: "REINFORCE: no authoritative learner-visible changed condition is represented for this item.",
+  };
 }
 
-export function buildAdaptiveIntegratedSession(state:PracticalMasteryState,now=new Date(),size=8,performance:PracticalPerformanceSample[]=[],requestedSkillId?:string|null):IntegratedSessionItem[]{
+export function isIntegratedFocusAdmissible(state: PracticalMasteryState, skillId: string): boolean {
+  return supportedIntegratedSkillIds(state).includes(skillId) && practicalDecisions.some((decision) => decision.skillId === skillId);
+}
+
+function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:number,performance:PracticalPerformanceSample[]):IntegratedSessionItem[]{
   const base=buildIntegratedSession(state,now,size);
   const used=new Set<string>();
   const adaptive:IntegratedSessionItem[]=[];
@@ -24,20 +33,58 @@ export function buildAdaptiveIntegratedSession(state:PracticalMasteryState,now=n
     const pool=practicalDecisions.filter((decision)=>decision.skillId===need.skillId&&decisionMatchesAdaptiveNeed(decision,need)&&decision.id!==latest?.decisionId);
     const decision=(need.preferPerceptual?pool.find((candidate)=>perceptualIds.has(candidate.id)):undefined)??pool[0];
     if(!decision||used.has(decision.id)) continue;
-    const reason:IntegratedSessionItem["reason"]=need.need==="RECOGNITION"||need.need==="AUTOMATICITY"?"RECOGNITION":need.need==="TRANSFER"||need.need==="BOUNDARY"?"TRANSFER":need.need==="UNDEREXPOSED"?"REINFORCE":"REPAIR";
-    adaptive.push({decisionId:decision.id,skillId:decision.skillId,priority:150+need.priority,reason,whyAfterAnswer:`${need.need}: ${need.reason}`,retentionTierDays:null});
+    const transferLike=need.need==="TRANSFER"||need.need==="BOUNDARY";
+    const reason:IntegratedSessionItem["reason"]=need.need==="RECOGNITION"||need.need==="AUTOMATICITY"?"RECOGNITION":transferLike&&decisionHasAuthoritativeVisibleChange(decision.id)?"TRANSFER":need.need==="UNDEREXPOSED"||transferLike?"REINFORCE":"REPAIR";
+    adaptive.push(normalizeTransferLabel({decisionId:decision.id,skillId:decision.skillId,priority:150+need.priority,reason,whyAfterAnswer:`${need.need}: ${need.reason}`,retentionTierDays:null}));
     used.add(decision.id);
   }
 
   for(const item of base){
     if(adaptive.length>=size) break;
     if(used.has(item.decisionId)) continue;
-    adaptive.push(item); used.add(item.decisionId);
+    adaptive.push(normalizeTransferLabel(item)); used.add(item.decisionId);
   }
 
-  const result=adaptive.slice(0,size);
-  if(!requestedSkillId) return result;
-  const focused=requestedIntegratedFocusItem(state,requestedSkillId,now);
-  if(!focused) return result;
-  return [focused,...result.filter((item)=>item.decisionId!==focused.decisionId)].slice(0,size);
+  return adaptive.slice(0,size);
+}
+
+function focusItemForDecision(decisionId:string,skillId:string,index:number):IntegratedSessionItem{
+  const decision=practicalDecisionById.get(decisionId);
+  const reason:IntegratedSessionItem["reason"]=decision?.kind==="recognition"?"RECOGNITION":decisionHasAuthoritativeVisibleChange(decisionId)?"TRANSFER":"REINFORCE";
+  return normalizeTransferLabel({
+    decisionId,
+    skillId,
+    priority:140-index,
+    reason,
+    whyAfterAnswer:"FOCUSED: authoritative same-skill practice selected by the canonical focus-admissibility contract.",
+    retentionTierDays:null,
+  });
+}
+
+function buildFocusedIntegratedSession(state:PracticalMasteryState,now:Date,size:number,performance:PracticalPerformanceSample[],skillId:string):IntegratedSessionItem[]{
+  if(!isIntegratedFocusAdmissible(state,skillId)) return [];
+  const seeded=buildGenericAdaptiveSession(state,now,size,performance).filter((item)=>item.skillId===skillId);
+  const used=new Set(seeded.map((item)=>item.decisionId));
+  const attempted=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId).map((attempt)=>attempt.decisionId));
+  const pool=practicalDecisions.filter((decision)=>decision.skillId===skillId);
+  const ordered=[...pool.filter((decision)=>!attempted.has(decision.id)),...pool.filter((decision)=>attempted.has(decision.id))];
+  const focused=[...seeded];
+  for(const decision of ordered){
+    if(focused.length>=size) break;
+    if(used.has(decision.id)) continue;
+    focused.push(focusItemForDecision(decision.id,skillId,focused.length));
+    used.add(decision.id);
+  }
+  return focused.slice(0,size);
+}
+
+export function requestedIntegratedFocusItem(state:PracticalMasteryState,skillId:string,now=new Date()):IntegratedSessionItem|null{
+  if(!isIntegratedFocusAdmissible(state,skillId)) return null;
+  const decision=practicalDecisions.find((candidate)=>candidate.skillId===skillId);
+  return decision?focusItemForDecision(decision.id,skillId,0):null;
+}
+
+export function buildAdaptiveIntegratedSession(state:PracticalMasteryState,now=new Date(),size=8,performance:PracticalPerformanceSample[]=[],requestedSkillId?:string|null):IntegratedSessionItem[]{
+  if(requestedSkillId) return buildFocusedIntegratedSession(state,now,size,performance,requestedSkillId);
+  return buildGenericAdaptiveSession(state,now,size,performance);
 }

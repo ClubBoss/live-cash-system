@@ -8,14 +8,20 @@ async function learnerSnapshot(page) {
 }
 
 async function finishCurrentRound(page) {
+  const skillLabels = [];
+  let scored = 0;
   for (let step = 0; step < 12; step += 1) {
-    if (await page.getByRole("heading", { name: "Раунд завершён", exact: true }).isVisible().catch(() => false)) return;
+    if (await page.getByRole("heading", { name: "Раунд завершён", exact: true }).isVisible().catch(() => false)) return { scored, skillLabels };
 
     const card = page.locator("section.today-card[data-practical-decision-id]");
     await expect(card).toBeVisible();
     await card.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
     await card.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
     await card.getByRole("button", { name: /Ответить/ }).click();
+    const skillLine = card.locator(".today-card").filter({ hasText: "Навык:" }).locator("p").filter({ hasText: "Навык:" }).first();
+    await expect(skillLine).toBeVisible();
+    skillLabels.push((await skillLine.innerText()).replace(/^Навык:\s*/u, "").trim());
+    scored += 1;
     await card.getByRole("button", { name: /Следующее решение/ }).click();
   }
 
@@ -39,7 +45,9 @@ test("explicit generic continuation removes stale focus without learner-state mu
   await expect(page).toHaveURL(new RegExp(`/mastery/session\\?focus=${FOCUS_ID}&source=url-regression#focused-session$`));
   await expect(page.locator("section.today-card[data-practical-decision-id]")).toBeVisible();
 
-  await finishCurrentRound(page);
+  const focusedRound = await finishCurrentRound(page);
+  expect(focusedRound.scored).toBe(8);
+  expect(new Set(focusedRound.skillLabels).size).toBe(1);
   const beforeCleanup = await learnerSnapshot(page);
   expect(beforeCleanup).not.toBeNull();
 

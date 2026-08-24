@@ -8,6 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const journey = await readFile(path.join(root, "content/practical-mastery/first-journey.ts"), "utf8");
 const engine = await readFile(path.join(root, "lib/practical-first-journey.ts"), "utf8");
 const ui = await readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8");
+const authority = await readFile(path.join(root, "components/PracticalFirstJourneyAuthority.tsx"), "utf8");
 const page = await readFile(path.join(root, "app/mastery/journey/page.tsx"), "utf8");
 
 test("first journey is a spiral across multiple capability families", () => {
@@ -43,7 +44,10 @@ test("Quick Start teaches the mechanism before a scored independent example", ()
   assert.match(ui, /answeredDecisionId/);
 });
 
-test("journey is runnable on its own route and does not cut over default home", () => {
-  assert.match(page, /PracticalFirstJourneyExperience/);
+test("journey route gates completion with canonical progress before rendering the active experience", () => {
+  assert.match(page, /PracticalFirstJourneyAuthority/);
+  assert.match(authority, /firstJourneyProgress/);
+  assert.match(authority, /firstJourneyPresentationState/);
+  assert.match(authority, /PracticalFirstJourneyExperience/);
   assert.doesNotMatch(page, /LiveCashApp/);
 });
