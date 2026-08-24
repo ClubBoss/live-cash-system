@@ -332,7 +332,7 @@ function fieldStatus(locale: LocaleCode, note: StructuredFieldNote, baseStatusLa
   const selfReviewedPending = note.status === "PENDING_REVIEW" && note.reviewerKind === "SELF" && Boolean(note.reviewedAt);
   if (locale === "ru") {
     if (selfReviewedPending) return "самопроверка сохранена · разбор с человеком ещё возможен";
-    if (outcome === "SUPPORTS_TRANSFER") return "разобрано: поддерживает transfer evidence";
+    if (outcome === "SUPPORTS_TRANSFER") return "разобрано: подтверждает перенос навыка";
     if (outcome === "REPAIR_REQUIRED") return "разобрано: нужен точный Practical repair";
     if (outcome === "REVIEWED_OK") return "разобрано: дополнительная практика не нужна";
     if (outcome === "INSUFFICIENT" || note.status === "INSUFFICIENT") return "недостаточно данных";
