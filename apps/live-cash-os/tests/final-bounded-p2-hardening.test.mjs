@@ -67,5 +67,5 @@ test("support UI uses History API and one navigation path including Diagnostic e
   assert.match(source, /onExit=\{\(\) => navigateSupportTab\("data"\)\}/);
   assert.match(source, /url\.searchParams\.set\("tab", nextTab\)/);
   assert.doesNotMatch(source, /searchParams\.delete\("tab"\)/);
-  assert.doesNotMatch(source, /setTab\("field"\)\}\>\{copy\.field/);
+  assert.doesNotMatch(source, /setTab\("field"\)\}>\{copy\.field/);
 });
