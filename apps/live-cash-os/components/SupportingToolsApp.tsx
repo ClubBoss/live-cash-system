@@ -5,6 +5,7 @@ import { fieldFactLabels, fieldStatusLabel } from "../content/i18n/learner-ui";
 import { applyLocaleData } from "../content/i18n/locale-pipeline";
 import { runtimeCopy } from "../content/i18n/runtime";
 import { APP_VERSION, type LocaleCode } from "../lib/model";
+import { resolveToolsRuntime, supportTabFromSearch, type SupportTab } from "../lib/support-tools-routing";
 import { useReliableLearnerState } from "../lib/use-learner-state-sync";
 import DataSafetyPanel from "./DataSafetyPanel";
 import DiagnosticExperience from "./DiagnosticExperience";
@@ -21,7 +22,6 @@ declare const __LIVE_CASH_LEGACY_TOOLS_MODE__: boolean;
 
 const LOCALE_KEY = "live-cash-os:locale";
 const E2E_LEGACY_TOOLS_KEY = "live-cash-os:e2e-legacy-tools";
-type SupportTab = "field" | "diagnostic" | "data";
 
 function LegacyToolsRuntime() {
   return <>
@@ -35,54 +35,9 @@ function LegacyToolsRuntime() {
   </>;
 }
 
-function supportTabFromSearch(search: string): SupportTab {
-  const requested = new URLSearchParams(search).get("tab");
-  if (requested === "field" || requested === "diagnostic" || requested === "data") return requested;
-  return "data";
-}
-
 function initialSupportTab(): SupportTab {
   if (typeof window === "undefined") return "data";
   return supportTabFromSearch(window.location.search);
-}
-
-export function resolveToolsRuntime(input: {
-  legacyToolsMode: boolean;
-  search: string;
-  legacyMarker: string | null;
-  referrer: string;
-  origin: string;
-}): "support" | "legacy" {
-  const params = new URLSearchParams(input.search);
-  if (input.legacyToolsMode && params.get("legacy") === "1") return "legacy";
-
-  const requestedTab = params.get("tab");
-  if (
-    params.get("support") === "1" ||
-    requestedTab === "field" ||
-    requestedTab === "diagnostic" ||
-    requestedTab === "data"
-  ) {
-    return "support";
-  }
-
-  // Historical release specs intentionally exercise the complete pre-Practical
-  // shell. Only local E2E/test-mirror builds compile that capability on, and
-  // the marker is origin-scoped Playwright storage. Production ignores both
-  // the marker and stale `?legacy=1`/legacy-tab URLs and stays on support.
-  if (input.legacyToolsMode && input.legacyMarker === "1") {
-    try {
-      const referrer = new URL(input.referrer);
-      if (referrer.origin === input.origin && referrer.pathname.startsWith("/mastery/")) {
-        return "support";
-      }
-    } catch {
-      // Direct E2E navigation has no referrer and intentionally uses legacy.
-    }
-    return "legacy";
-  }
-
-  return "support";
 }
 
 function requestedRuntime(): "support" | "legacy" {
