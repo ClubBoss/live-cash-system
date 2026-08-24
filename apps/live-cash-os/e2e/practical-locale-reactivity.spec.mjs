@@ -10,7 +10,7 @@ test("Practical locale reactively synchronizes lesson and shared navigation on t
   const canonicalUrl = page.url();
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
 
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Главная", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Чтение стола", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "После игры", exact: true })).toBeVisible();
@@ -21,23 +21,23 @@ test("Practical locale reactively synchronizes lesson and shared navigation on t
   await expect(page).toHaveURL(canonicalUrl);
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByText(/QUICK START · STEP 1 OF 8/i)).toBeVisible();
-  await expect(nav.getByRole("link", { name: "Learn", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Continue learning", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Home", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Table reading", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "After play", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Reference", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Real hands →", exact: true })).toHaveAttribute("href", "/tools?tab=field");
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveCount(0);
 
   await page.getByRole("button", { name: "RU", exact: true }).click();
   await expect(page).toHaveURL(canonicalUrl);
   await expect(page.locator("html")).toHaveAttribute("lang", "ru");
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Главная", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Чтение стола", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "После игры", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Справочник", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Реальные руки →", exact: true })).toHaveAttribute("href", "/tools?tab=field");
-  await expect(nav.getByRole("link", { name: "Learn", exact: true })).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: "Continue learning", exact: true })).toHaveCount(0);
 });
