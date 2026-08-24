@@ -78,7 +78,7 @@ function buildFocusedIntegratedSession(state:PracticalMasteryState,now:Date,size
   return focused.slice(0,size);
 }
 
-export function requestedIntegratedFocusItem(state:PracticalMasteryState,skillId:string,now=new Date()):IntegratedSessionItem|null{
+export function requestedIntegratedFocusItem(state:PracticalMasteryState,skillId:string):IntegratedSessionItem|null{
   if(!isIntegratedFocusAdmissible(state,skillId)) return null;
   const decision=practicalDecisions.find((candidate)=>candidate.skillId===skillId);
   return decision?focusItemForDecision(decision.id,skillId,0):null;
