@@ -25,7 +25,9 @@ test("canonical product cuts root over to Practical learning while preserving th
   assert.match(supportingTools, /<Wave7FieldPanel/);
   assert.match(supportingTools, /<DataSafetyPanel/);
   assert.match(nextLearning, /href="\/mastery\/journey"/);
-  assert.doesNotMatch(nextLearning, /usePracticalProfileState|useReliableLearnerState|firstJourneyProgress/, "shared navigation must not create another learner-state sync owner");
+  assert.match(nextLearning, /isIntegratedFocusAdmissible/);
+  assert.match(nextLearning, /usePracticalProfileState/);
+  assert.doesNotMatch(nextLearning, /recommendNextPracticalSkill|useReliableLearnerState|firstJourneyProgress|localStorage|setMasteryWithPerformance|setMastery\(/, "shared navigation may read canonical mastery for admissibility but must not create another recommendation, persistence, or mutation authority");
   assert.match(journey, /href="\/mastery\/session"/);
   assert.match(journey, /Быстрый старт завершён|Quick start complete/);
 });
