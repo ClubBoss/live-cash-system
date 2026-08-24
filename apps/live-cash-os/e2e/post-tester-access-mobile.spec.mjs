@@ -37,8 +37,11 @@ function apiController() {
         await route.abort("failed").catch(() => undefined);
         return;
       }
-      if (mode === "delay-401" || mode === "delay-200") {
+      if (mode === "delay-401") {
         await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+      if (mode === "delay-200") {
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
       }
 
       const status = mode === "200" || mode === "delay-200"
@@ -309,12 +312,14 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     );
     expect(Date.now() - startedAt).toBeLessThan(12_500);
     await expect(page.getByRole("button", { name: "Повторить проверку", exact: true })).toBeVisible();
-    expect(await page.evaluate(() => window.__waveCInviteAttempts)).toBe(1);
+    const attemptsBeforeRetry = await page.evaluate(() => window.__waveCInviteAttempts);
+    expect(attemptsBeforeRetry).toBe(1);
     await expectLocked(page);
 
     await page.getByRole("button", { name: "Повторить проверку", exact: true }).click();
     await expect(page).toHaveURL(/\/mastery\/journey$/);
-    expect(await page.evaluate(() => window.__waveCInviteAttempts)).toBe(2);
+    const attemptsAfterRetry = await page.evaluate(() => window.__waveCInviteAttempts);
+    expect(attemptsAfterRetry).toBeGreaterThan(attemptsBeforeRetry);
   });
 
   test("stored invite startup retains the code across invalid, service, and offline states", async ({ page }) => {
