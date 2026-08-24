@@ -43,7 +43,7 @@ test("explicit generic continuation removes stale focus without learner-state mu
   const beforeCleanup = await learnerSnapshot(page);
   expect(beforeCleanup).not.toBeNull();
 
-  await page.getByRole("button", { name: "Продолжить обучение", exact: true }).click();
+  await page.getByRole("button", { name: /^Продолжить обучение/ }).click();
   await expect(page).toHaveURL(/\/mastery\/session\?source=url-regression#focused-session$/);
   expect(new URL(page.url()).searchParams.has("focus")).toBe(false);
   await expect(page.locator("section.today-card[data-practical-decision-id]")).toBeVisible();
