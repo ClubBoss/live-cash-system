@@ -50,7 +50,7 @@ test("Practical route sequence stays in one document and preserves locale, histo
 
   const marker = await stampShell(page);
   let nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
 
   await nav.getByRole("link", { name: "Чтение стола", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/perception$/);
@@ -73,13 +73,13 @@ test("Practical route sequence stays in one document and preserves locale, histo
   await expect(page).toHaveURL(/\/mastery\/reference$/);
   nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await expect(nav.getByRole("link", { name: "Reference", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(nav.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Continue learning", exact: true })).toBeVisible();
   await expectContinuousShell(page, marker);
 
-  await nav.getByRole("link", { name: "Learn", exact: true }).click();
+  await nav.getByRole("link", { name: "Continue learning", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);
   nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  await expect(nav.getByRole("link", { name: "Learn", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Continue learning", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expectContinuousShell(page, marker);
 
@@ -90,7 +90,7 @@ test("Practical route sequence stays in one document and preserves locale, histo
 
   await page.goForward();
   await expect(page).toHaveURL(/\/mastery\/journey$/);
-  await expect(page.getByRole("link", { name: "Learn", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Continue learning", exact: true })).toHaveAttribute("aria-current", "page");
   await expectContinuousShell(page, marker);
 });
 
@@ -99,7 +99,7 @@ test("keyboard navigation and the historical prerequisite CTA use the reliable c
   await page.goto("/mastery");
   const marker = await stampShell(page);
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  const learn = nav.getByRole("link", { name: "Учиться", exact: true });
+  const learn = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
 
   let reachedLearn = false;
   for (let step = 0; step < 20; step += 1) {
@@ -110,7 +110,7 @@ test("keyboard navigation and the historical prerequisite CTA use the reliable c
   expect(reachedLearn, "Tab order must reach the primary Learn link").toBe(true);
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/mastery\/journey$/);
-  await expect(page.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
   await expectContinuousShell(page, marker);
 
   await page.getByRole("link", { name: "Чтение стола", exact: true }).click();
@@ -149,10 +149,6 @@ test("every recovery-blocked Practical surface escapes to Data & Recovery withou
   });
   await page.addInitScript(({ key, raw, languageKey, legacyKey }) => {
     if (location.origin !== "http://127.0.0.1:5173" || !location.pathname.startsWith("/mastery")) return;
-    // This spec certifies the production/default support escape. Core E2E has a
-    // global legacy marker only so unrelated historical /tools specs can keep
-    // exercising their compatibility harness; remove it for this flow rather
-    // than depending on browser-specific referrer behavior.
     localStorage.removeItem(legacyKey);
     localStorage.setItem(key, raw);
     if (localStorage.getItem(languageKey) === null) localStorage.setItem(languageKey, "ru");
