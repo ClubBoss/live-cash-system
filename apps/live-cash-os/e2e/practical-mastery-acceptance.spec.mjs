@@ -139,5 +139,5 @@ test("After-play flow deep-links to Real Hands on the secondary tools route with
   const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
   await expect(toolsNav.getByRole("button", { name: "Реальные руки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
-  await expect(page).toHaveURL(/\/tools$/);
+  await expect(page).toHaveURL(/\/tools\?tab=field$/);
 });
