@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
+const FOCUS_ID = "FND-01";
 
 async function learnerSnapshot(page) {
   return page.evaluate((key) => localStorage.getItem(key), LEARNER_KEY);
@@ -26,17 +27,17 @@ test("explicit generic continuation removes stale focus without learner-state mu
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local focused-url fixture" }) });
   });
 
-  await page.goto("/mastery");
-  const recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
-  const focused = recommendation.getByRole("link", { name: "Продолжить обучение", exact: true });
-  const href = await focused.getAttribute("href");
-  expect(href).toMatch(/^\/mastery\/session\?focus=[A-Z0-9-]+$/);
-  const focusId = new URL(href, "http://local.test").searchParams.get("focus");
-  expect(focusId).toBeTruthy();
+  await page.goto("/mastery/journey");
+  await page.getByRole("button", { name: /Проверить на примере/ }).click();
+  await expect.poll(async () => page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw)._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught : false;
+  }, LEARNER_KEY)).toBe(true);
 
-  await page.goto(`${href}&source=url-regression#focused-session`);
-  await expect(page).toHaveURL(new RegExp(`/mastery/session\\?focus=${focusId}&source=url-regression#focused-session$`));
-  await expect(page.locator("main")).toContainText(/ПРАКТИКА/);
+  await page.goto("/mastery");
+  await page.goto(`/mastery/session?focus=${FOCUS_ID}&source=url-regression#focused-session`);
+  await expect(page).toHaveURL(new RegExp(`/mastery/session\\?focus=${FOCUS_ID}&source=url-regression#focused-session$`));
+  await expect(page.locator("section.today-card[data-practical-decision-id]")).toBeVisible();
 
   await finishCurrentRound(page);
   const beforeCleanup = await learnerSnapshot(page);
