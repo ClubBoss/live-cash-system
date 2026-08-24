@@ -29,6 +29,14 @@ async function fillHand(page) {
   await page.getByLabel("Почему — до результата").fill("Keep weaker hands in and avoid turning the hand into a raise without enough reason.");
 }
 
+async function bindCanonicalFlopMechanism(card) {
+  await card.getByTestId("real-hand-signal-automaticCbetIssue").check();
+  const skill = card.getByTestId("real-hand-practical-skill");
+  await expect(skill).toBeVisible();
+  await skill.selectOption("FLOP-02");
+  await expect(skill).toHaveValue("FLOP-02");
+}
+
 test("explain-back saves durably and is visible after reload", async ({ page }) => {
   await openLocal(page);
   const seeded = await localState(page);
@@ -63,7 +71,7 @@ test("explain-back saves durably and is visible after reload", async ({ page }) 
   expect(state.explainBackRecords[0].status).toBe("PENDING_REVIEW");
 });
 
-test("real hand locks pre-result reasoning, self-review cannot award transfer, and field repair reaches W6", async ({ page }) => {
+test("real hand locks pre-result reasoning, SELF cannot award transfer, and HUMAN_ASSISTED repair routes to exact Practical focus", async ({ page }) => {
   await openLocal(page);
   await fillHand(page);
   const reason = "Keep weaker hands in and avoid turning the hand into a raise without enough reason.";
@@ -76,6 +84,7 @@ test("real hand locks pre-result reasoning, self-review cannot award transfer, a
   const lockedReason = state.fieldNotes[0].reason;
   expect(lockedReason).toBe(reason);
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
+  const queueBefore = JSON.stringify(state.reviewQueue);
 
   const card = page.locator(".field-list article").filter({ hasText: reason }).first();
   await card.getByLabel("Результат").fill("Villain showed AQ and won");
@@ -85,25 +94,29 @@ test("real hand locks pre-result reasoning, self-review cannot award transfer, a
   expect(state.fieldNotes[0].reason).toBe(lockedReason);
   expect(state.fieldNotes[0].result).toBe("Villain showed AQ and won");
 
-  await expect(card.getByText(/Самопроверка не подтверждает перенос в реальную игру/i)).toBeVisible();
-  await expect(card.getByLabel(`Как выполнен разбор ${noteId}`)).toHaveValue("SELF");
+  const reviewer = card.getByLabel(`Как выполнен разбор ${noteId}`);
+  await expect(card.getByText(/Самопроверка не подтверждает перенос и не назначает canonical repair/i)).toBeVisible();
+  await expect(reviewer).toHaveValue("SELF");
   await expect(card.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true })).toBeDisabled();
-  await card.getByLabel(new RegExp(`Разбор ${noteId}`)).fill("Причина игнорирует важную часть диапазона и требует отдельной changed-node практики.");
-  await expect(card.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true })).toBeDisabled();
-  await card.getByRole("button", { name: "Назначить практику" }).click();
+
+  await reviewer.selectOption("HUMAN_ASSISTED");
+  await bindCanonicalFlopMechanism(card);
+  await card.getByLabel(new RegExp(`Разбор ${noteId}`)).fill("Отдельный разбор с человеком установил автоматический c-bet как точный механизм ошибки.");
+  await card.getByRole("button", { name: "Нужна практика", exact: true }).click();
+
   state = await localState(page);
-  const repair = state.reviewQueue.find((item) => item.sourceDrillId === `field:${noteId}` && item.kind === "repair");
-  expect(repair).toBeTruthy();
-  expect(state.fieldNotes[0].reviewerKind).toBe("SELF");
-  expect(state.fieldNotes[0].status).toBe("PENDING_REVIEW");
+  const reviewed = state.fieldNotes.find((note) => note.id === noteId);
+  expect(reviewed.reviewerKind).toBe("HUMAN_ASSISTED");
+  expect(reviewed.reviewOutcome).toBe("REPAIR_REQUIRED");
+  expect(reviewed.status).toBe("REVIEWED_REPAIR");
+  expect(reviewed.practicalBinding.practicalSkillId).toBe("FLOP-02");
+  expect(reviewed.practicalBinding.signals.automaticCbetIssue).toBe(true);
+  expect(JSON.stringify(state.reviewQueue)).toBe(queueBefore);
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
 
-  await page.getByRole("button", { name: "Сегодня", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Исправить конкретную ошибку" })).toBeVisible();
-  await page.getByRole("button", { name: "Начать", exact: true }).click();
-  state = await localState(page);
-  expect(state.activeSession.mode).toBe("repair");
-  expect(state.activeSession.sourceReviewId).toBe(repair.id);
+  const focusedRepair = card.getByTestId("real-hand-practical-repair");
+  await expect(focusedRepair).toBeVisible();
+  await expect(focusedRepair).toHaveAttribute("href", "/mastery/session?focus=FLOP-02");
 });
 
 test("structured hand capture remains usable without horizontal overflow", async ({ page }) => {
