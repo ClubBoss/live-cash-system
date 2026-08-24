@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { firstJourneyStepForSkill } from "../content/practical-mastery/first-journey";
 import { practicalSkillById } from "../content/practical-mastery";
+import { restoreQuickStartPostAnswer } from "../lib/practical-continuity-workspace";
 import { firstJourneyPresentationState } from "../lib/practical-first-journey-authority";
 import { firstJourneyProgress, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -11,8 +12,11 @@ import PracticalFirstJourneyExperience from "./PracticalFirstJourneyExperience";
 
 export default function PracticalFirstJourneyAuthority() {
   const [locale] = usePracticalLocale();
-  const { mastery: state, ready, recoveryBlocked } = usePracticalProfileState();
+  const { mastery: state, studyWorkspace, ready, recoveryBlocked } = usePracticalProfileState();
   if (!ready || recoveryBlocked) return <PracticalFirstJourneyExperience />;
+
+  const continuity = restoreQuickStartPostAnswer(studyWorkspace, state);
+  if (continuity.status === "VALID") return <PracticalFirstJourneyExperience />;
 
   const progress = firstJourneyProgress(state);
   const recommendation = recommendFirstJourneyStep(state);

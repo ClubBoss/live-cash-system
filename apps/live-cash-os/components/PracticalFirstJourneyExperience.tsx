@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { firstJourneyStepForSkill } from "../content/practical-mastery/first-journey";
 import { practicalAnchors, practicalDecisionById, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
+import { clearQuickStartContinuity, restoreQuickStartPostAnswer, withQuickStartPostAnswer } from "../lib/practical-continuity-workspace";
 import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/practical-mastery-core";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -12,18 +13,29 @@ import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
 
 export default function PracticalFirstJourneyExperience() {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, setMastery, ready, recoveryBlocked } = usePracticalProfileState();
+  const {
+    mastery: state,
+    studyWorkspace,
+    setMastery,
+    setMasteryWithStudyWorkspace,
+    setStudyWorkspace,
+    ready,
+    recoveryBlocked,
+  } = usePracticalProfileState();
   const [practiceStarted, setPracticeStarted] = useState(false);
   const [answeredDecisionId, setAnsweredDecisionId] = useState<string | null>(null);
+  const [answeredSkillId, setAnsweredSkillId] = useState<string | null>(null);
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [answerRevealed, setAnswerRevealed] = useState(false);
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
+  const [continuityChecked, setContinuityChecked] = useState(false);
 
   const recommendation = useMemo(() => recommendFirstJourneyStep(state), [state]);
   const progress = useMemo(() => firstJourneyProgress(state), [state]);
-  const skill = recommendation ? practicalSkillById.get(recommendation.skillId) ?? null : null;
-  const journeyStep = recommendation ? firstJourneyStepForSkill(recommendation.skillId) : null;
+  const presentationSkillId = answeredDecisionId && answeredSkillId ? answeredSkillId : recommendation?.skillId ?? null;
+  const skill = presentationSkillId ? practicalSkillById.get(presentationSkillId) ?? null : null;
+  const journeyStep = presentationSkillId ? firstJourneyStepForSkill(presentationSkillId) : null;
   const rules = journeyStep?.memoryRuleIds.map((ruleId) => practicalRuleById.get(ruleId)).filter(Boolean) ?? [];
   const rule = rules[0] ?? null;
   const skillAnchors = skill ? practicalAnchors.filter((item) => item.skillId === skill.id) : [];
@@ -33,13 +45,29 @@ export default function PracticalFirstJourneyExperience() {
   const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
 
   useEffect(() => {
+    if (!ready || recoveryBlocked || continuityChecked) return;
+    const restored = restoreQuickStartPostAnswer(studyWorkspace, state);
+    if (restored.status === "VALID") {
+      setPracticeStarted(true);
+      setAnsweredDecisionId(restored.decisionId);
+      setAnsweredSkillId(restored.skillId);
+      setActionId(restored.attempt.actionId);
+      setReasonId(restored.attempt.reasonId);
+      setAnswerRevealed(true);
+      setLastCorrect(restored.attempt.correct);
+    }
+    setContinuityChecked(true);
+  }, [continuityChecked, ready, recoveryBlocked, state, studyWorkspace]);
+
+  useEffect(() => {
+    if (!continuityChecked || answeredDecisionId) return;
     setPracticeStarted(false);
-    setAnsweredDecisionId(null);
+    setAnsweredSkillId(null);
     setActionId("");
     setReasonId("");
     setAnswerRevealed(false);
     setLastCorrect(null);
-  }, [recommendation?.skillId]);
+  }, [answeredDecisionId, continuityChecked, recommendation?.skillId]);
 
   const startPractice = () => {
     if (!skill) return;
@@ -48,16 +76,27 @@ export default function PracticalFirstJourneyExperience() {
   };
 
   const submitDecision = () => {
-    if (!decision || !actionId || !reasonId) return;
-    const correct = actionId === decision.correctActionId && reasonId === decision.correctReasonId;
+    if (!decision || !skill || !actionId || !reasonId) return;
+    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 });
+    const attempt = nextState.attempts.at(-1);
+    if (!attempt || attempt.decisionId !== decision.id) return;
+    const nextWorkspace = withQuickStartPostAnswer(studyWorkspace, nextState.contentVersion, {
+      skillId: skill.id,
+      decisionId: decision.id,
+      attemptId: attempt.id,
+    });
+    if (!setMasteryWithStudyWorkspace(nextState, nextWorkspace)) return;
     setAnsweredDecisionId(decision.id);
-    setMastery(recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 }));
-    setLastCorrect(correct);
+    setAnsweredSkillId(skill.id);
+    setLastCorrect(attempt.correct);
     setAnswerRevealed(true);
   };
 
   const advanceDecision = () => {
+    const nextWorkspace = clearQuickStartContinuity(studyWorkspace, state.contentVersion);
+    if (nextWorkspace !== studyWorkspace && !setStudyWorkspace(nextWorkspace)) return;
     setAnsweredDecisionId(null);
+    setAnsweredSkillId(null);
     setActionId("");
     setReasonId("");
     setAnswerRevealed(false);
@@ -66,8 +105,9 @@ export default function PracticalFirstJourneyExperience() {
 
   if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Ничего не будет перезаписано. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Nothing will be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
+  if (!continuityChecked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Восстанавливаем текущий шаг…" : "Restoring your current step…"}</p></main>;
 
-  if (!recommendation || !skill || !journeyStep) {
+  if (!answeredDecisionId && (!recommendation || !skill || !journeyStep)) {
     return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
       <p className="eyebrow">{locale === "ru" ? "БЫСТРЫЙ СТАРТ" : "QUICK START"}</p>
       <h1>{locale === "ru" ? "Быстрый старт завершён" : "Quick start complete"}</h1>
@@ -76,6 +116,8 @@ export default function PracticalFirstJourneyExperience() {
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Продолжить обучение →" : "Continue learning →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></div>
     </main>;
   }
+
+  if (!skill || !journeyStep) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Сохранённый шаг больше недоступен. Вернись к карте обучения." : "The saved step is no longer available. Return to the learning map."}</p><Link href="/mastery">{locale === "ru" ? "Карта обучения" : "Learning map"} →</Link></main>;
 
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
     <section className="hero compact-hero">

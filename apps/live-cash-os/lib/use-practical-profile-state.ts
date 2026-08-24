@@ -57,6 +57,23 @@ export function usePracticalProfileState() {
     });
   }, [commitProfile, profile]);
 
+  const setMasteryWithStudyWorkspace = useCallback((mastery: PracticalMasteryState, studyWorkspace: PracticalStudyWorkspace) => {
+    return commitProfile({ ...profile, mastery, studyWorkspace });
+  }, [commitProfile, profile]);
+
+  const setMasteryWithPerformanceAndStudyWorkspace = useCallback((
+    mastery: PracticalMasteryState,
+    event: PracticalPerformanceEvent,
+    studyWorkspace: PracticalStudyWorkspace,
+  ) => {
+    return commitProfile({
+      ...profile,
+      mastery,
+      performance: [...profile.performance, event].slice(-PRACTICAL_PERFORMANCE_LIMIT),
+      studyWorkspace,
+    });
+  }, [commitProfile, profile]);
+
   const setStudyWorkspace = useCallback((studyWorkspace: PracticalStudyWorkspace) => {
     return commitProfile({ ...profile, studyWorkspace });
   }, [commitProfile, profile]);
@@ -67,6 +84,8 @@ export function usePracticalProfileState() {
     studyWorkspace: profile.studyWorkspace,
     setMastery,
     setMasteryWithPerformance,
+    setMasteryWithStudyWorkspace,
+    setMasteryWithPerformanceAndStudyWorkspace,
     setStudyWorkspace,
     ready: controller.ready,
     syncStatus: controller.syncStatus,
