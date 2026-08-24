@@ -32,9 +32,11 @@ test("unseen concepts cannot earn hidden cue through fading",()=>{
 test("perceptual UI uses evidence-derived scaffold and hidden mode reveals no skill before commitment",()=>{
  assert.match(ui,/effectivePracticalScaffold/);
  assert.match(ui,/practicalScaffoldCue/);
- assert.match(ui,/REVEAL AFTER COMMITMENT/);
- const before=ui.slice(ui.indexOf("PERCEPTUAL PRACTICE"),ui.indexOf("REVEAL AFTER COMMITMENT"));
+ const revealBoundary=ui.indexOf("!revealed ? <button");
+ assert.ok(revealBoundary>ui.indexOf("PERCEPTUAL PRACTICE"),"feedback must remain after the committed-answer branch");
+ const before=ui.slice(ui.indexOf("PERCEPTUAL PRACTICE"),revealBoundary);
  assert.doesNotMatch(before,/skill\.titleRu|skill\.titleEn/);
+ assert.match(ui.slice(revealBoundary),/skill\.titleRu|skill\.titleEn/);
 });
 
 test("guided cue is a signal family, not a mandatory ordered checklist",()=>{

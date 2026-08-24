@@ -75,8 +75,11 @@ test("C2 exposes a small reference layer and preserves exact visual authority bo
   assert.match(referenceModel, /REF-PF-REACH/);
   assert.match(referenceModel, /REF-PF-SQUEEZE-PACK/);
   assert.match(referenceModel, /EXACT_VISUAL_AUTHORITY_PENDING/);
-  assert.match(referenceUi, /980/);
-  assert.match(referenceUi, /no invented A5s=37%/i);
+  assert.match(referenceUi, /Форма диапазона подтверждена/);
+  assert.match(referenceUi, /Точные частоты ещё не проверены/);
+  assert.match(referenceUi, /Exact frequencies not yet verified/);
+  assert.doesNotMatch(referenceUi, /item\.sourceRefs|>\s*C2\s*</i);
+  assert.doesNotMatch(referenceUi, /A5s\s*=\s*\d+(?:[.,]\d+)?%/i);
 });
 
 test("C1/C2 routes are discoverable from the canonical shared mastery navigation", () => {

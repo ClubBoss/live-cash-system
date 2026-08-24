@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import PracticalDocumentLink from "./PracticalDocumentLink";
 
@@ -11,6 +11,7 @@ export default function PracticalNextLearningLink({
   ariaCurrent,
   labelRu = "Продолжить обучение",
   labelEn = "Continue learning",
+  focusSkillId,
 }: {
   className?: string;
   style?: CSSProperties;
@@ -18,7 +19,14 @@ export default function PracticalNextLearningLink({
   ariaCurrent?: "page";
   labelRu?: string;
   labelEn?: string;
+  focusSkillId?: string;
 }) {
   const [locale] = usePracticalLocale();
-  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{children ?? (locale === "ru" ? labelRu : labelEn)}</PracticalDocumentLink>;
+  const content = children ?? (locale === "ru" ? labelRu : labelEn);
+
+  if (focusSkillId) {
+    return <PracticalDocumentLink className={className} style={style} href={`/mastery/session?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  }
+
+  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
 }

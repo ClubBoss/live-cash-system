@@ -8,6 +8,7 @@ import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/prac
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
 
 export default function PracticalFirstJourneyExperience() {
   const [locale, setLocale] = usePracticalLocale();
@@ -100,7 +101,7 @@ export default function PracticalFirstJourneyExperience() {
           <h2>{locale === "ru" ? anchor.promptRu : anchor.promptEn}</h2>
           <p><b>{locale === "ru" ? "Ответ:" : "Answer:"}</b> {locale === "ru" ? anchor.answerRu : anchor.answerEn}</p>
           <p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p>
-        </> : <p>{locale === "ru" ? skill.objectiveRu : skill.titleEn}</p>}
+        </> : <p>{locale === "ru" ? skill.objectiveRu : `Use ${skill.titleEn} reliably in independent decisions and changed conditions.`}</p>}
 
         {contrastAnchor && contrastAnchor.id !== anchor?.id ? <div className="today-card" style={{ marginTop: 16 }}>
           <p className="eyebrow">{locale === "ru" ? "ИЗМЕНИ ОДНО УСЛОВИЕ" : "CHANGE ONE CONDITION"}</p>
@@ -119,7 +120,7 @@ export default function PracticalFirstJourneyExperience() {
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
         <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
-        <p>{locale === "ru" ? decision.explanationRu : decision.explanationEn}</p>
+        <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} />
         <p className="support">{locale === "ru" ? "Это только первый контакт с навыком. Система вернёт его в новых ситуациях и позже проверит после паузы." : "This is only the first contact with the skill. The system will revisit it in new situations and later after a delay."}</p>
         <button className="secondary" onClick={advanceDecision}>{locale === "ru" ? "Следующий пример" : "Next example"} <span>→</span></button>
       </div>}

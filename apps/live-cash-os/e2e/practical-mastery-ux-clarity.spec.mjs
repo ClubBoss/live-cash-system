@@ -9,7 +9,8 @@ const masteryRoutes = [
   "/mastery/reference",
 ];
 
-const sourceIdPattern = /\b(?:FTGU-E\d+|SLC-M\d+-L\d+|LCM-\d+|CP-G\d+-L\d+)\b/i;
+const sourceIdPattern = /\b(?:FTGU-E\d+|SLC-[A-Z0-9-]+|LCM-\d+|CP-G\d+-L\d+|REF-[A-Z0-9-]+)\b/i;
+const internalReferencePattern = /SOURCE_SUPPORTED_SHAPE|EXACT_VISUAL_AUTHORITY_PENDING|sourceRefs|repository|registry/i;
 const sourceLabelPattern = /(?:Источники|Sources)\s*:/i;
 
 test("learner surfaces hide provenance IDs while keeping source ceilings understandable", async ({ page }) => {
@@ -17,6 +18,7 @@ test("learner surfaces hide provenance IDs while keeping source ceilings underst
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
     await expect(page.locator("main")).not.toContainText(sourceIdPattern);
+    await expect(page.locator("main")).not.toContainText(internalReferencePattern);
     await expect(page.locator("main p:visible, main small:visible").filter({ hasText: sourceLabelPattern })).toHaveCount(0);
   }
 
@@ -58,6 +60,25 @@ test("skill map is the canonical home and reads as progress, not an internal con
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
 });
 
+test("Skill Map keeps generic Learn distinct from named recommendation focus and rejects invalid focus", async ({ page }) => {
+  await page.goto("/mastery");
+  const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("href", "/mastery/journey");
+  await expect(page.locator("main .hero").getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("href", "/mastery/journey");
+
+  const recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
+  await expect(recommendation).toBeVisible();
+  const focused = recommendation.getByRole("link", { name: "Продолжить обучение", exact: true });
+  await expect(focused).toHaveAttribute("href", /\/mastery\/session\?focus=[A-Z0-9-]+$/);
+  await focused.click();
+  await expect(page).toHaveURL(/\/mastery\/session\?focus=[A-Z0-9-]+$/);
+  await expect(page.locator("main")).toContainText(/ПРАКТИКА|ВЫБРАННЫЙ ФОКУС/);
+
+  await page.goto("/mastery/session?focus=NOT-A-SKILL");
+  await expect(page.getByRole("heading", { name: "Этот навык пока недоступен", exact: true })).toBeVisible();
+  await expect(page.getByText(/не подменит его другой темой молча/i)).toBeVisible();
+});
+
 test("top navigation and prerequisite CTA reach deterministic learner destinations", async ({ page }) => {
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
@@ -81,7 +102,12 @@ test("top navigation and prerequisite CTA reach deterministic learner destinatio
   const studyNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await studyNav.getByRole("link", { name: "Справочник", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/reference$/);
-  await expect(page.getByRole("heading", { name: /Не запоминать 980 картинок/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Не запоминать сотни картинок/i })).toBeVisible();
+  await expect(page.getByText("Форма диапазона подтверждена", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("Точные частоты ещё не проверены", { exact: true }).first()).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(sourceIdPattern);
+  await expect(page.locator("main")).not.toContainText(internalReferencePattern);
+  await expect(page.locator("main")).not.toContainText(/A5s\s*=\s*\d+(?:[.,]\d+)?%/i);
 
   const referenceNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await referenceNav.getByRole("link", { name: "Главная", exact: true }).click();
