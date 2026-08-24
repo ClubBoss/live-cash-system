@@ -48,6 +48,29 @@ test("release CI parallelizes only through isolated jobs while preserving the co
   assert.match(workflow, /strategy:\n\s{6}fail-fast: false/);
 });
 
+test("every pull request to main instantiates the canonical validate gate while push scope stays unchanged", async () => {
+  const workflow = await read("../../.github/workflows/live-cash-os-ci.yml");
+  const pushBlock = workflow.match(/  push:\n([\s\S]*?)  pull_request:/)?.[1] ?? "";
+  const pullRequestBlock = workflow.match(/  pull_request:\n([\s\S]*?)  workflow_dispatch:/)?.[1] ?? "";
+
+  assert.match(pushBlock, /branches: \[main\]/);
+  assert.match(pushBlock, /paths:/);
+  assert.match(pullRequestBlock, /branches: \[main\]/);
+  assert.doesNotMatch(pullRequestBlock, /paths:/);
+
+  const validateStart = workflow.indexOf("  validate:\n");
+  const deployStart = workflow.indexOf("  deploy-test-mirror:\n");
+  assert.ok(validateStart >= 0 && deployStart > validateStart, "validate block must precede deploy-test-mirror");
+  const validate = workflow.slice(validateStart, deployStart);
+  for (const dependency of ["scope", "static", "e2e-core", "wave-c", "mastery-cross", "visual-evidence"]) {
+    assert.match(validate, new RegExp(`- ${dependency.replaceAll("-", "\\-")}`));
+  }
+  for (const mandatoryResult of ["SCOPE_RESULT", "STATIC_RESULT", "CORE_RESULT", "WAVE_C_RESULT", "MASTERY_CROSS_RESULT"]) {
+    assert.match(validate, new RegExp(`test "\\$${mandatoryResult}" = "success"`));
+  }
+  assert.match(validate, /if \[\[ "\$VISUAL_REQUIRED" == "1" \]\]; then[\s\S]*?test "\$VISUAL_RESULT" = "success"/);
+});
+
 test("production builds compile the legacy tools compatibility runtime off", async () => {
   const [viteConfig, supportingTools] = await Promise.all([
     read("vite.config.ts"),
@@ -59,13 +82,6 @@ test("production builds compile the legacy tools compatibility runtime off", asy
     /__LIVE_CASH_LEGACY_TOOLS_MODE__:\s*JSON\.stringify\(isTestMirrorDeploy \|\| isLocalE2ERuntime\)/,
   );
   assert.match(supportingTools, /declare const __LIVE_CASH_LEGACY_TOOLS_MODE__: boolean/);
-  assert.match(
-    supportingTools,
-    /__LIVE_CASH_LEGACY_TOOLS_MODE__ && params\.get\("legacy"\) === "1"/,
-  );
-  assert.match(
-    supportingTools,
-    /__LIVE_CASH_LEGACY_TOOLS_MODE__ && localStorage\.getItem\(E2E_LEGACY_TOOLS_KEY\) === "1"/,
-  );
-  assert.match(supportingTools, /return "support";\n}/);
+  assert.match(supportingTools, /legacyToolsMode: __LIVE_CASH_LEGACY_TOOLS_MODE__/);
+  assert.match(supportingTools, /resolveToolsRuntime\(/);
 });
