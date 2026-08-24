@@ -10,11 +10,11 @@ import {
 } from "../lib/diagnostic-feedback";
 import {
   recordDiagnosticResponse,
-  routeDiagnosticPriorities,
   startDiagnosticRun,
   type LearnerState,
   type LocaleCode,
 } from "../lib/model";
+import { applyReviewedDiagnostic } from "../lib/wave7";
 
 const T1_IDS = diagnosticT1.map((item) => item.id);
 
@@ -57,7 +57,6 @@ export default function DiagnosticExperience({
   state,
   setState,
   onExit,
-  onRouted,
 }: {
   locale: LocaleCode;
   state: LearnerState;
@@ -80,8 +79,8 @@ export default function DiagnosticExperience({
   const ru = locale === "ru";
 
   const role = ru
-    ? "Диагностика — необязательная проверка текущего хода решения. Выбери действие, причину и примерную уверенность. Ответы скрыты до конца всех 10 ситуаций. Результат помогает выбрать, что изучать дальше, но сам по себе не подтверждает навык."
-    : "Diagnostic is an optional check of how you currently make decisions. Choose an action, a reason, and rough confidence. Answers stay hidden until all 10 spots are complete. The result helps choose what to study next, but does not prove a skill by itself.";
+    ? "Диагностика — необязательная проверка текущего хода решения. Выбери действие, причину и примерную уверенность. Ответы скрыты до конца всех 10 ситуаций. Результат показывает рекомендуемые темы для старта, но не выбирает точный навык и сам по себе не подтверждает освоение."
+    : "Diagnostic is an optional check of how you currently make decisions. Choose an action, a reason, and rough confidence. Answers stay hidden until all 10 spots are complete. The result suggests topics to start from, but it does not choose an exact skill or prove mastery by itself.";
 
   function begin() {
     setSelectedActionId(null);
@@ -146,15 +145,14 @@ export default function DiagnosticExperience({
       result[item.level] = (result[item.level] ?? 0) + 1;
       return result;
     }, {} as Record<string, number>);
-    const usePriorities = () => {
-      setState(routeDiagnosticPriorities(state, assessment.priorityModules));
-      if (onRouted) onRouted();
-      else onExit();
+    const continueToPractical = () => {
+      setState(applyReviewedDiagnostic(state, assessment.priorityModules));
+      window.location.assign("/mastery/journey");
     };
     return <section className="surface">
       <div className="section-head">
         <p className="eyebrow">{ru ? "ДИАГНОСТИКА · ФИДБЕК" : "DIAGNOSTIC · FEEDBACK"}</p>
-        <h1>{ru ? "Теперь видно, где стоит начать." : "Now you can see where to start."}</h1>
+        <h1>{ru ? "Теперь видно, с каких тем разумно начать." : "Now you can see which topics are reasonable starting areas."}</h1>
         <p>{role}</p>
         <div className="metrics">
           <div><b>{counts.STRONG ?? 0}</b><span>{diagnosticFeedbackLevelLabel("STRONG", locale)}</span></div>
@@ -162,9 +160,9 @@ export default function DiagnosticExperience({
           <div><b>{counts.NEEDS_WORK ?? 0}</b><span>{diagnosticFeedbackLevelLabel("NEEDS_WORK", locale)}</span></div>
           <div><b>{counts.UNCERTAIN ?? 0}</b><span>{diagnosticFeedbackLevelLabel("UNCERTAIN", locale)}</span></div>
         </div>
-        <p className="assumption-strip">{ru ? "Это ориентир для старта, а не статус навыка. Ответы Диагностики сами по себе не засчитывают освоение." : "This is a starting-point signal, not a skill status. Diagnostic answers do not count as learning progress by themselves."}</p>
-        {assessment.priorityModules.length > 0 && <><h2>{ru ? "Рекомендуемый старт" : "Recommended starting point"}</h2>{assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}</>}
-        <button className="primary" onClick={usePriorities}>{assessment.priorityModules.length > 0 ? (ru ? "Использовать эти приоритеты в Today" : "Use these priorities in Today") : (ru ? "Вернуться в Today" : "Return to Today")} <span aria-hidden="true">→</span></button>
+        <p className="assumption-strip">{ru ? "Это рекомендации по темам, а не точный маршрут Practical. Диагностика не повышает mastery, не обходит предпосылки и не угадывает один canonical skill из широкой темы." : "These are topic recommendations, not an exact Practical route. Diagnostic does not advance mastery, bypass prerequisites, or guess one canonical skill from a broad topic."}</p>
+        {assessment.priorityModules.length > 0 && <><h2>{ru ? "Рекомендуемые темы для старта" : "Recommended starting areas"}</h2>{assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}</>}
+        <button className="primary" onClick={continueToPractical}>{ru ? "Перейти в Practical" : "Continue in Practical"} <span aria-hidden="true">→</span></button>
         <button className="textbutton" onClick={exportRun}>{ru ? "Скачать ответы" : "Download responses"}</button>
       </div>
       <div className="queue">{assessment.items.map((item, index) => {
