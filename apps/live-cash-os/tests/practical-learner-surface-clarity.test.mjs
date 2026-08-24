@@ -12,7 +12,7 @@ test("Practical Mastery navigation exposes one canonical home, one learning rout
   const nav = await read("components/PracticalMasteryNav.tsx");
   const layout = await read("app/mastery/layout.tsx");
   const navigationGuard = await read("components/PracticalNavigationGuard.tsx");
-  for (const label of ["Главная", "Учиться", "Чтение стола", "После игры", "Справочник", "Реальные руки →"]) {
+  for (const label of ["Главная", "Продолжить обучение", "Чтение стола", "После игры", "Справочник", "Реальные руки →"]) {
     assert.match(nav, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
   assert.match(nav, /href="\/mastery"/);

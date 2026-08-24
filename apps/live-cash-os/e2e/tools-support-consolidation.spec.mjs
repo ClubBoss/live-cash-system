@@ -4,6 +4,13 @@ async function rawLearnerState(page) {
   return page.evaluate(() => localStorage.getItem("live-cash-os:learner-state"));
 }
 
+async function expectTab(page, tab, label, marker) {
+  const nav = page.getByRole("navigation", { name: /Инструменты|Support tools/ });
+  await expect(nav.getByRole("button", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByText(marker, { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`[?&]tab=${tab}(?:&|$|#)`));
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local test" }) });
@@ -28,9 +35,9 @@ test("normal tools is a secondary support surface, not the legacy learning shell
   }
 });
 
-test("Real Hands deep link remains compatible and support utilities work in both locales", async ({ page }) => {
+test("Real Hands deep link remains explicit and support utilities work in both locales", async ({ page }) => {
   await page.goto("/tools?tab=field");
-  await expect(page).toHaveURL(/\/tools$/);
+  await expect(page).toHaveURL(/\/tools\?tab=field$/);
 
   const ruNav = page.getByRole("navigation", { name: "Инструменты" });
   await expect(ruNav.getByRole("button", { name: "Реальные руки", exact: true })).toHaveAttribute("aria-current", "page");
@@ -42,7 +49,52 @@ test("Real Hands deep link remains compatible and support utilities work in both
   const enNav = page.getByRole("navigation", { name: "Support tools" });
   await expect(enNav.getByRole("button", { name: "Real Hands", exact: true })).toHaveAttribute("aria-current", "page");
   await enNav.getByRole("button", { name: "Data & Recovery", exact: true }).click();
+  await expect(page).toHaveURL(/\/tools\?tab=data$/);
   await expect(page.getByText("DATA & RECOVERY", { exact: true })).toBeVisible();
+});
+
+test("support tabs keep URL, history, refresh, params and hash coherent", async ({ page }) => {
+  await page.goto("/tools?support=1&keep=1&tab=data#support-anchor");
+  await expectTab(page, "data", "Данные и восстановление", "ДАННЫЕ И ВОССТАНОВЛЕНИЕ");
+
+  const nav = page.getByRole("navigation", { name: "Инструменты" });
+  await nav.getByRole("button", { name: "Диагностика", exact: true }).click();
+  await expectTab(page, "diagnostic", "Диагностика", "СТАРТОВАЯ ДИАГНОСТИКА");
+  await expect(page).toHaveURL(/keep=1/);
+  await expect(page).toHaveURL(/#support-anchor$/);
+
+  await nav.getByRole("button", { name: "Реальные руки", exact: true }).click();
+  await expectTab(page, "field", "Реальные руки", "РЕАЛЬНЫЕ РАЗДАЧИ");
+
+  await page.goBack();
+  await expectTab(page, "diagnostic", "Диагностика", "СТАРТОВАЯ ДИАГНОСТИКА");
+  await page.goBack();
+  await expectTab(page, "data", "Данные и восстановление", "ДАННЫЕ И ВОССТАНОВЛЕНИЕ");
+  await page.goForward();
+  await expectTab(page, "diagnostic", "Диагностика", "СТАРТОВАЯ ДИАГНОСТИКА");
+
+  await page.reload();
+  await expectTab(page, "diagnostic", "Диагностика", "СТАРТОВАЯ ДИАГНОСТИКА");
+  await expect(page).toHaveURL(/keep=1/);
+  await expect(page).toHaveURL(/#support-anchor$/);
+
+  await page.getByRole("button", { name: "Начать диагностику" }).click();
+  await page.getByRole("button", { name: "Сохранить и выйти" }).click();
+  await expectTab(page, "data", "Данные и восстановление", "ДАННЫЕ И ВОССТАНОВЛЕНИЕ");
+
+  await page.goBack();
+  await expect(page).toHaveURL(/[?&]tab=diagnostic(?:&|$|#)/);
+  await expect(page.getByText(/Диагностика · 1\/10/)).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Инструменты" }).getByRole("button", { name: "Диагностика", exact: true })).toHaveAttribute("aria-current", "page");
+});
+
+test("stale support tab aliases fail closed to Data without opening a legacy learning surface", async ({ page }) => {
+  await page.goto("/tools?support=1&keep=1&tab=review");
+  await expect(page).toHaveURL(/tab=data/);
+  await expect(page).toHaveURL(/keep=1/);
+  await expect(page.getByText("ДАННЫЕ И ВОССТАНОВЛЕНИЕ", { exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: /Учись понемногу/i })).toHaveCount(0);
 });
 
 test("entering and leaving support tools does not mutate learner progress", async ({ page }) => {

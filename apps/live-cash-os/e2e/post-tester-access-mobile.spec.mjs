@@ -252,11 +252,12 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     controller.setMode("200");
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page).toHaveURL(/\/mastery\/journey$/);
-    await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+    const practicalNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+    await expect(practicalNav).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Primary navigation" })).toHaveCount(0);
     await expect(page.getByText(/QUICK START · STEP 1 OF 8/i)).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
-    await expect(page.getByRole("button", { name: "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(practicalNav.getByRole("button", { name: "EN", exact: true })).toHaveAttribute("aria-pressed", "true");
     expect(await page.evaluate(({ localeKey }) => localStorage.getItem(localeKey), { localeKey: LOCALE_KEY })).toBe("en");
     expect(await page.evaluate(({ profileKey }) => localStorage.getItem(profileKey), { profileKey: PROFILE_KEY })).toBe(TEST_CODE);
   });

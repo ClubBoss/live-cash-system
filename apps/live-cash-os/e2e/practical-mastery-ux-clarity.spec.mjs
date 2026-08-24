@@ -60,11 +60,15 @@ test("skill map is the canonical home and reads as progress, not an internal con
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
 });
 
-test("Skill Map keeps generic Learn distinct from named recommendation focus and rejects invalid focus", async ({ page }) => {
+test("Skill Map keeps generic Learn distinct from named recommendation focus and rejects invalid or locked focus", async ({ page }) => {
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("href", "/mastery/journey");
+  const generic = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
+  await expect(generic).toHaveAttribute("href", "/mastery/journey");
   await expect(page.locator("main .hero").getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("href", "/mastery/journey");
+  await generic.click();
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await page.goto("/mastery");
 
   const recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
   await expect(recommendation).toBeVisible();
@@ -77,6 +81,14 @@ test("Skill Map keeps generic Learn distinct from named recommendation focus and
   await page.goto("/mastery/session?focus=NOT-A-SKILL");
   await expect(page.getByRole("heading", { name: "Этот навык пока недоступен", exact: true })).toBeVisible();
   await expect(page.getByText(/не подменит его другой темой молча/i)).toBeVisible();
+
+  await page.goto("/mastery/session?focus=BL-11");
+  await expect(page).toHaveURL(/\/mastery\/session\?focus=BL-11$/);
+  await expect(page.getByText("ВЫБРАННЫЙ ФОКУС", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "BvB 3-bet pots", exact: true })).toBeVisible();
+  await expect(page.getByText(/Сейчас этот навык нельзя честно поставить в самостоятельную практику/i)).toBeVisible();
+  await expect(page.getByText(/не подменит его другой темой молча/i)).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/ПРАКТИКА · \d+\/\d+/i);
 });
 
 test("top navigation and prerequisite CTA reach deterministic learner destinations", async ({ page }) => {
@@ -94,7 +106,7 @@ test("top navigation and prerequisite CTA reach deterministic learner destinatio
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
 
   const journeyNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
-  await expect(journeyNav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(journeyNav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
   await journeyNav.getByRole("link", { name: "После игры", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/study$/);
   await expect(page.getByRole("heading", { name: /Играй.*разбирай.*исправляй.*проверяй снова/i })).toBeVisible();
@@ -119,7 +131,7 @@ test("navigation exposes one primary learning action and keeps tools secondary",
   await page.goto("/mastery/journey");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await expect(nav.getByRole("link", { name: "Главная", exact: true })).toBeVisible();
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Чтение стола", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "После игры", exact: true })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Справочник", exact: true })).toBeVisible();

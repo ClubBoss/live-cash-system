@@ -12,13 +12,6 @@ on:
       - ".github/workflows/live-cash-os-ci.yml"
   pull_request:
     branches: [main]
-    paths:
-      - "apps/live-cash-os/**"
-      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
-      - "state/CURRENT_PROJECT_STATE.yaml"
-      - "START_HERE.md"
-      - "PROJECT_ATLAS.md"
-      - ".github/workflows/live-cash-os-ci.yml"
   workflow_dispatch:
 
 permissions:

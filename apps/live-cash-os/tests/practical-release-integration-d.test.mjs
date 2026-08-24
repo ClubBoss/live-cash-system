@@ -11,13 +11,15 @@ test("canonical product cuts root over to Practical learning while preserving th
   const page = await read("app/page.tsx");
   const tools = await read("app/tools/page.tsx");
   const supportingTools = await read("components/SupportingToolsApp.tsx");
+  const supportRouting = await read("lib/support-tools-routing.ts");
   const nextLearning = await read("components/PracticalNextLearningLink.tsx");
   const journey = await read("components/PracticalFirstJourneyExperience.tsx");
   assert.match(page, /redirect\("\/mastery\/journey"\)/);
   assert.doesNotMatch(page, /LiveCashApp|PracticalMasteryGateway/);
   assert.match(tools, /<TestInviteGate>/);
   assert.match(tools, /<SupportingToolsApp \/>/);
-  assert.match(supportingTools, /params\.get\("legacy"\) === "1"/);
+  assert.match(supportingTools, /resolveToolsRuntime\(/);
+  assert.match(supportRouting, /input\.legacyToolsMode && params\.get\("legacy"\) === "1"/);
   assert.match(supportingTools, /<LiveCashApp \/>/);
   assert.match(supportingTools, /<LegacyToolDeepLink \/>/);
   assert.match(supportingTools, /<Wave7FieldPanel/);
@@ -45,7 +47,7 @@ test("every Practical Mastery route inherits the invite boundary while shared na
     assert.ok(nav.includes(`href: "${route}"`), `${route} must remain declared as a supporting tool route`);
   }
   assert.match(nextLearning, /href="\/mastery\/journey"/);
-  for (const label of ["Главная", "Учиться", "Чтение стола", "После игры", "Справочник"]) assert.match(nav, new RegExp(label));
+  for (const label of ["Главная", "Продолжить обучение", "Чтение стола", "После игры", "Справочник"]) assert.match(nav, new RegExp(label));
   assert.doesNotMatch(nav, />Карта</);
   assert.doesNotMatch(nav, /Старт обучения|Смешанная практика/);
 });

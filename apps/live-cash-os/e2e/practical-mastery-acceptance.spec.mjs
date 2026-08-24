@@ -54,13 +54,13 @@ test("shared navigation exposes one learning entry and secondary tools", async (
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await expect(nav.getByRole("link", { name: "Главная", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).not.toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).not.toHaveAttribute("aria-current", "page");
   await expect(nav).not.toContainText("Старт обучения");
   await expect(nav).not.toContainText("Практика");
 
-  await nav.getByRole("link", { name: "Учиться", exact: true }).click();
+  await nav.getByRole("link", { name: "Продолжить обучение", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);
-  await expect(nav.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
 
   await nav.getByRole("link", { name: "Чтение стола", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/perception$/);
@@ -105,14 +105,17 @@ test("Quick Start teaches the mechanism before scored practice and writes schema
 test("mastery locale persists across route changes and localizes shared navigation", async ({ page }) => {
   test.skip(crossMatrix, "locale persistence is covered once in canonical Chromium");
   await page.goto("/mastery");
-  await expect(page.getByRole("link", { name: "Учиться", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  let nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(nav.getByRole("link", { name: "Продолжить обучение", exact: true })).toBeVisible();
+  await nav.getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(nav.getByRole("link", { name: "Continue learning", exact: true })).toBeVisible();
   await page.goto("/mastery/study");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { name: /Play → review → repair → retest/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "After play", exact: true })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByRole("link", { name: "Learn", exact: true })).toBeVisible();
+  nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await expect(nav.getByRole("link", { name: "After play", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(nav.getByRole("link", { name: "Continue learning", exact: true })).toBeVisible();
 });
 
 test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
@@ -139,5 +142,5 @@ test("After-play flow deep-links to Real Hands on the secondary tools route with
   const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
   await expect(toolsNav.getByRole("button", { name: "Реальные руки", exact: true })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
-  await expect(page).toHaveURL(/\/tools$/);
+  await expect(page).toHaveURL(/\/tools\?tab=field$/);
 });
