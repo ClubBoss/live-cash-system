@@ -36,8 +36,8 @@ async function bindCanonicalFlopMechanism(card) {
   await card.getByTestId("real-hand-signal-automaticCbetIssue").check();
   const skill = card.getByTestId("real-hand-practical-skill");
   await expect(skill).toBeVisible();
-  await skill.selectOption("FLOP-02");
-  await expect(skill).toHaveValue("FLOP-02");
+  await skill.selectOption("W4-BOARD-01");
+  await expect(skill).toHaveValue("W4-BOARD-01");
 }
 
 test.beforeEach(async ({ page }) => {
@@ -79,7 +79,7 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one canonical
   const assistedNote = state.fieldNotes.find((note) => note.id === assistedId);
   expect(assistedNote.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(assistedNote.reviewOutcome).toBe("SUPPORTS_TRANSFER");
-  expect(assistedNote.practicalBinding.practicalSkillId).toBe("FLOP-02");
+  expect(assistedNote.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
   expect(assistedNote.practicalBinding.signals.automaticCbetIssue).toBe(true);
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
   expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
@@ -90,7 +90,7 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one canonical
   const persisted = state.fieldNotes.find((note) => note.id === assistedId);
   expect(persisted.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(persisted.reviewOutcome).toBe("SUPPORTS_TRANSFER");
-  expect(persisted.practicalBinding.practicalSkillId).toBe("FLOP-02");
+  expect(persisted.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
   expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
   expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
 });
@@ -130,6 +130,6 @@ test("the same locked hand can move from SELF review to a later canonically boun
   expect(note.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(note.reviewOutcome).toBe("SUPPORTS_TRANSFER");
   expect(note.evaluatorNote).toMatch(/Separate human-assisted review/);
-  expect(note.practicalBinding.practicalSkillId).toBe("FLOP-02");
+  expect(note.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
   expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
 });
