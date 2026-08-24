@@ -47,7 +47,7 @@ test("every Practical Mastery route inherits the invite boundary while shared na
     assert.ok(nav.includes(`href: "${route}"`), `${route} must remain declared as a supporting tool route`);
   }
   assert.match(nextLearning, /href="\/mastery\/journey"/);
-  for (const label of ["Главная", "Учиться", "Чтение стола", "После игры", "Справочник"]) assert.match(nav, new RegExp(label));
+  for (const label of ["Главная", "Продолжить обучение", "Чтение стола", "После игры", "Справочник"]) assert.match(nav, new RegExp(label));
   assert.doesNotMatch(nav, />Карта</);
   assert.doesNotMatch(nav, /Старт обучения|Смешанная практика/);
 });
