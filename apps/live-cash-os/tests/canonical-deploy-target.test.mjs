@@ -14,11 +14,13 @@ test("release deploy is pinned to the canonical Workers target and verifies the 
   assert.ok(workflow.includes('test "${deploy_url%/}" = "${LIVE_CASH_CANONICAL_WORKERS_URL%/}"'));
 });
 
-test("release smoke proves canonical Practical Mastery and keeps legacy completion checks on explicit support tools", () => {
-  assert.ok(productionSmoke.includes('const canonicalUrl = new URL("/", liveUrl).toString()'));
-  assert.ok(productionSmoke.includes('const toolsUrl = new URL("/tools", liveUrl).toString()'));
+test("release smoke proves canonical Practical Mastery plus authenticated Data & Recovery", () => {
+  assert.ok(productionSmoke.includes('const canonicalUrl = new URL("/mastery/journey", liveUrl).toString()'));
+  assert.ok(productionSmoke.includes('const dataUrl = new URL("/tools?tab=data", liveUrl).toString()'));
   assert.ok(productionSmoke.includes('canonical_root_has_no_legacy_primary_navigation: true'));
-  assert.ok(productionSmoke.includes('build_identity_verified_on: ["practical_mastery", "support_tools"]'));
+  assert.ok(productionSmoke.includes('generic_continue_target: "/mastery/journey"'));
+  assert.ok(productionSmoke.includes('support_data_recovery_verified: true'));
+  assert.ok(productionSmoke.includes('mobile_viewport: "390x844"'));
   assert.ok(completionSmoke.includes('const toolsUrl = new URL("/tools", liveUrl).toString()'));
   assert.ok(completionSmoke.includes('support_tools_url: toolsUrl'));
 });
