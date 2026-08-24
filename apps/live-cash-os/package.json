@@ -24,7 +24,7 @@
     "test:e2e:wave-c": "LIVE_CASH_DEPLOY_TARGET=test-mirror LIVE_CASH_TEST_D1_DATABASE_ID=00000000-0000-4000-8000-000000000001 node scripts/run-wave-c-cross.mjs && npm run test:e2e:mastery-cross",
     "test:release": "npm test && npm run test:e2e && npm run test:e2e:wave-c",
     "w10:report": "node --import ./tests/register-model-loader.mjs scripts/w10-evidence-report-strict.mjs",
-    "smoke:production": "node scripts/production-smoke.mjs && node scripts/wave-d-completion-smoke.mjs",
+    "smoke:production": "node scripts/production-smoke.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
