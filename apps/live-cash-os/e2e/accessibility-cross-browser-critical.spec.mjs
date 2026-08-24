@@ -4,7 +4,7 @@ test("Practical Mastery primary navigation is keyboard reachable with visible fo
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await expect(nav).toBeVisible();
-  const learn = nav.getByRole("link", { name: "Учиться", exact: true });
+  const learn = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
   await expect(learn).toBeVisible();
 
   let reachedLearn = false;
@@ -24,5 +24,5 @@ test("Practical Mastery primary navigation is keyboard reachable with visible fo
 
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/mastery\/journey$/);
-  await expect(page.getByRole("link", { name: "Учиться", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveAttribute("aria-current", "page");
 });
