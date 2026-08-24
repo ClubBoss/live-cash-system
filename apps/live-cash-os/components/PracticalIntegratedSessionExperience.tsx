@@ -46,7 +46,7 @@ export default function PracticalIntegratedSessionExperience() {
   useEffect(() => {
     if (!ready || requestedFocus === undefined || initializedRevision !== null) return;
     const now = new Date();
-    const focusAvailable = !requestedFocus || Boolean(requestedIntegratedFocusItem(state, requestedFocus, now));
+    const focusAvailable = !requestedFocus || Boolean(requestedIntegratedFocusItem(state, requestedFocus));
     setItems(focusAvailable ? buildAdaptiveIntegratedSession(state, now, INTEGRATED_SESSION_SIZE, performance, requestedFocus) : []);
     setInitializedRevision(state.revision);
   }, [initializedRevision, performance, ready, requestedFocus, state]);

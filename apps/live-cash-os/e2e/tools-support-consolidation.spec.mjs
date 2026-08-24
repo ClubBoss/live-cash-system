@@ -84,7 +84,7 @@ test("support tabs keep URL, history, refresh, params and hash coherent", async 
 
   await page.goBack();
   await expect(page).toHaveURL(/[?&]tab=diagnostic(?:&|$|#)/);
-  await expect(page.getByText(/Диагностика · 1\/10/)).toBeVisible();
+  await expect(page.getByText("Ситуация 1", { exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Инструменты" }).getByRole("button", { name: "Диагностика", exact: true })).toHaveAttribute("aria-current", "page");
 });
 

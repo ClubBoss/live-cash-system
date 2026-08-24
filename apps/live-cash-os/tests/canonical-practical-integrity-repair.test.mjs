@@ -75,7 +75,10 @@ test("named Skill Map recommendation enters the canonical scheduler with validat
   assert.match(nextLink, /focusSkillId\?: string/);
   assert.match(nextLink, /\/mastery\/session\?focus=/);
   assert.match(nextLink, /href="\/mastery\/journey"/);
-  assert.doesNotMatch(nextLink, /recommendNextPracticalSkill|usePracticalProfileState/);
+  assert.match(nextLink, /isIntegratedFocusAdmissible/);
+  assert.match(nextLink, /usePracticalProfileState/);
+  assert.doesNotMatch(nextLink, /recommendNextPracticalSkill/);
+  assert.match(nextLink, /aria-disabled="true"/);
   assert.match(mastery, /<PracticalNextLearningLink className="primary" focusSkillId=\{recommendedSkill\.id\} \/>/);
   assert.match(adaptive, /requestedIntegratedFocusItem/);
   assert.match(adaptive, /supportedIntegratedSkillIds\(state\)\.includes\(skillId\)/);

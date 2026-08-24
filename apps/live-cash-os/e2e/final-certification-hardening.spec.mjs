@@ -47,7 +47,7 @@ async function fillSupportHand(page) {
 async function completeDiagnostic(page) {
   await page.getByRole("button", { name: "Начать диагностику" }).click();
   for (let spot = 1; spot <= 10; spot += 1) {
-    await expect(page.getByText(new RegExp(`Диагностика · ${spot}/10`))).toBeVisible();
+    await expect(page.getByText(`Ситуация ${spot}`, { exact: true })).toBeVisible();
     const sets = page.locator("fieldset.answer-set");
     await sets.nth(0).getByRole("button").first().click();
     await sets.nth(1).getByRole("button").first().click();

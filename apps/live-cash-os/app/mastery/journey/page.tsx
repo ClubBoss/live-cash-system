@@ -1,5 +1,5 @@
-import PracticalFirstJourneyExperience from "../../../components/PracticalFirstJourneyExperience";
+import PracticalFirstJourneyAuthority from "../../../components/PracticalFirstJourneyAuthority";
 
 export default function PracticalFirstJourneyPage() {
-  return <PracticalFirstJourneyExperience />;
+  return <PracticalFirstJourneyAuthority />;
 }

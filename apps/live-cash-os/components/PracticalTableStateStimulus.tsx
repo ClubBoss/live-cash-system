@@ -1,12 +1,33 @@
 import type { PracticalTableState } from "../content/practical-mastery";
+import { arrangeSixMaxSeatRows } from "../lib/practical-table-geometry";
+import { visibleComparisonForDecision } from "../lib/practical-visible-scenario";
 
 type Locale = "ru" | "en";
 
 export default function PracticalTableStateStimulus({ state, locale }: { state: PracticalTableState; locale: Locale }) {
+  const comparison = visibleComparisonForDecision(state.decisionId);
+  if (!comparison) return <TableSnapshot state={state} locale={locale} />;
+
+  return <div aria-label="poker table comparison" style={{ margin: "18px auto", maxWidth: 760 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 14 }}>
+      <section aria-label={locale === "ru" ? "До изменения" : "Before change"}>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>{locale === "ru" ? "ДО" : "BEFORE"}</p>
+        <TableSnapshot state={comparison.before} locale={locale} />
+      </section>
+      <section aria-label={locale === "ru" ? "После изменения" : "After change"}>
+        <p className="eyebrow" style={{ marginBottom: 6 }}>{locale === "ru" ? "СЕЙЧАС" : "NOW"}</p>
+        <TableSnapshot state={state} locale={locale} />
+      </section>
+    </div>
+  </div>;
+}
+
+function TableSnapshot({ state, locale }: { state: PracticalTableState; locale: Locale }) {
   const heroSeat = state.seats.find((seat) => seat.position === state.hero);
-  return <div aria-label="poker table state" style={{ margin: "18px auto", maxWidth: 720 }}>
+  const rows = arrangeSixMaxSeatRows(state.seats);
+  return <div aria-label="poker table state" style={{ margin: "8px auto 18px", maxWidth: 720 }}>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginBottom: 8 }}>
-      {state.seats.slice(0, 3).map((seat) => <Seat key={seat.position} seat={seat} hero={seat.position === state.hero} />)}
+      {rows.top.map((seat) => <Seat key={seat.position} seat={seat} hero={seat.position === state.hero} />)}
     </div>
     <div style={{ border: "2px solid currentColor", borderRadius: "44%", minHeight: 220, padding: 22, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>{state.board?.map((card) => <Card key={card} card={card} />)}</div>
@@ -17,7 +38,7 @@ export default function PracticalTableStateStimulus({ state, locale }: { state: 
       {heroSeat && state.heroCards ? <div style={{ marginTop: 14 }}><b>Hero {state.hero}</b><div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 5 }}>{state.heroCards.map((card) => <Card key={card} card={card} />)}</div></div> : null}
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginTop: 8 }}>
-      {state.seats.slice(3).map((seat) => <Seat key={seat.position} seat={seat} hero={seat.position === state.hero} />)}
+      {rows.bottom.map((seat) => <Seat key={seat.position} seat={seat} hero={seat.position === state.hero} />)}
     </div>
   </div>;
 }
