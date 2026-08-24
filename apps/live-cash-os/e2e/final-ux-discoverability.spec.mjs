@@ -73,6 +73,6 @@ test("P2-04 Data utility reaches existing Data & Recovery without learner-state 
   await page.getByRole("navigation", { name: "Practical Mastery navigation" }).getByTestId("data-recovery-entry").click();
   await expect(page).toHaveURL(/\/tools\?tab=data$/);
   const toolsNav = page.getByRole("navigation", { name: "Инструменты" });
-  await expect(toolsNav.getByRole("button", { name: "Данные", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(toolsNav.getByRole("button", { name: "Данные и восстановление", exact: true })).toHaveAttribute("aria-current", "page");
   expect(await learnerSnapshot(page)).toBe(before);
 });
