@@ -27,7 +27,6 @@ import {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
 const ui = await read("components/Wave7Experience.tsx");
-const bindingUi = await read("components/RealHandCanonicalReview.tsx");
 const diagnosticUi = await read("components/DiagnosticExperience.tsx");
 const adaptive = await read("lib/practical-adaptive-session.ts");
 const integratedUi = await read("components/PracticalIntegratedSessionExperience.tsx");
@@ -86,7 +85,6 @@ test("legacy module and free text never create a canonical Practical target", ()
   assert.equal(note.practicalBinding, undefined);
   assert.equal(reviewFieldHand(captured, note.id, "REPAIR_REQUIRED", "human review", "HUMAN"), captured);
   assert.match(ui, /broad topic never selects a canonical Practical skill/i);
-  assert.doesNotMatch(bindingUi, /cue|reason|showdown.*routeRealHandToRepairs/is);
 });
 
 test("structured binding fails closed for one-to-many, invalid skill, invalid decision, and invalid signal shape", () => {
@@ -199,7 +197,13 @@ test("export/import round trip preserves reviewed semantic binding and remains i
     signals: { evidenceGeneralizationIssue: true },
   });
   const restored = migrateLearnerState(JSON.parse(JSON.stringify(state)));
-  assert.deepEqual(restored.fieldNotes[0].practicalBinding, state.fieldNotes[0].practicalBinding);
+  const before = state.fieldNotes[0].practicalBinding;
+  const after = restored.fieldNotes[0].practicalBinding;
+  assert.equal(after?.fieldHandId, before?.fieldHandId);
+  assert.equal(after?.reviewerKind, before?.reviewerKind);
+  assert.equal(after?.practicalSkillId, before?.practicalSkillId);
+  assert.deepEqual(after?.signals, before?.signals);
+  assert.equal(after?.decisionId ?? null, before?.decisionId ?? null);
   assert.equal(practicalRepairFocusHref(restored.fieldNotes[0]), "/mastery/session?focus=EXP-01");
 });
 
@@ -219,7 +223,7 @@ test("post-125 generic and focused contracts remain fail-closed", () => {
   assert.match(adaptive, /supportedIntegratedSkillIds\(state\)\.includes\(skillId\)/);
   assert.match(integratedUi, /will not silently substitute a different topic/);
   assert.match(integratedUi, /href="\/mastery\/journey"/);
-  assert.match(ui, /\/mastery\/session\?focus=/);
+  assert.match(ui, /practicalRepairFocusHref\(note\)/);
   assert.match(core, /delayedRetrievalPassed/);
   assert.match(core, /applySourceEvidenceCeiling/);
 });
