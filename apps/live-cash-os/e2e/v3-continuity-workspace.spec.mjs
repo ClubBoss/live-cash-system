@@ -10,7 +10,28 @@ async function masteryAttempts(page) {
   }, LEARNER_KEY);
 }
 
-async function answerCurrentCard(page) {
+async function latestAttempt(page) {
+  return page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    const attempts = raw ? JSON.parse(raw)._practicalProfile?.mastery?.attempts ?? [] : [];
+    return attempts.at(-1) ?? null;
+  }, LEARNER_KEY);
+}
+
+async function answerQuickStartCard(page) {
+  const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
+  await expect(answer).toBeVisible();
+  const card = answer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+  await card.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
+  await card.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
+  await answer.click();
+  await expect(card.getByRole("heading", { name: /Верно|Нужно исправить|Correct|Repair needed/ })).toBeVisible();
+  const attempt = await latestAttempt(page);
+  expect(attempt).toBeTruthy();
+  return { card, decisionId: attempt.decisionId };
+}
+
+async function answerIntegratedCard(page) {
   const card = page.locator("section.today-card[data-practical-decision-id]").first();
   await expect(card).toBeVisible();
   const decisionId = await card.getAttribute("data-practical-decision-id");
@@ -30,12 +51,13 @@ test.beforeEach(async ({ page }) => {
 test("V3-06b scored Quick Start feedback survives hard refresh without duplicate evidence", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
-  const { decisionId } = await answerCurrentCard(page);
+  const { decisionId } = await answerQuickStartCard(page);
   const attemptsAfterAnswer = await masteryAttempts(page);
   expect(attemptsAfterAnswer).toBeGreaterThan(0);
 
   await page.reload();
-  const restored = page.locator(`section.today-card[data-practical-decision-id="${decisionId}"]`);
+  const restoredAction = page.locator(`input[name="${decisionId}-a"]`).first();
+  const restored = restoredAction.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
   await expect(restored).toBeVisible();
   await expect(restored.getByRole("heading", { name: /Верно|Нужно исправить/ })).toBeVisible();
   await expect(restored.locator('input[type="radio"]:checked')).toHaveCount(2);
@@ -45,7 +67,8 @@ test("V3-06b scored Quick Start feedback survives hard refresh without duplicate
   await page.getByRole("button", { name: "EN", exact: true }).click();
   await expect(restored.getByRole("heading", { name: /Correct|Repair needed/ })).toBeVisible();
   await page.reload();
-  await expect(page.locator(`section.today-card[data-practical-decision-id="${decisionId}"]`).getByRole("heading", { name: /Correct|Repair needed/ })).toBeVisible();
+  const restoredEnglish = page.locator(`input[name="${decisionId}-a"]`).first().locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+  await expect(restoredEnglish.getByRole("heading", { name: /Correct|Repair needed/ })).toBeVisible();
   expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
 });
 
@@ -59,7 +82,7 @@ test("V3-06c submitted Q1 resumes at Q2 across leave/re-entry, reload, Back and 
 
   await page.goto(`/mastery/session?focus=${FOCUS_ID}&source=v3-06#continuity`);
   await expect(page.getByText(/ПРАКТИКА · 1\/8|PRACTICE · 1\/8/)).toBeVisible();
-  const first = await answerCurrentCard(page);
+  const first = await answerIntegratedCard(page);
   const attemptsAfterQ1 = await masteryAttempts(page);
 
   await page.goto("/mastery");
