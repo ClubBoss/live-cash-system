@@ -32,11 +32,19 @@ async function captureHand(page, cue, actionSequence) {
   return state.fieldNotes.at(-1).id;
 }
 
+async function bindCanonicalFlopMechanism(card) {
+  await card.getByTestId("real-hand-signal-automaticCbetIssue").check();
+  const skill = card.getByTestId("real-hand-practical-skill");
+  await expect(skill).toBeVisible();
+  await skill.selectOption("W4-BOARD-01");
+  await expect(skill).toHaveValue("W4-BOARD-01");
+}
+
 test.beforeEach(async ({ page }) => {
   await openLocal(page);
 });
 
-test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimate support", async ({ page }) => {
+test("SELF cannot add field evidence and HUMAN_ASSISTED can record one canonical support without legacy evidence", async ({ page }) => {
   const selfCue = "SELF authority check: small wide flop bet";
   const selfId = await captureHand(page, selfCue, "BTN opens 3bb, BB calls; flop BTN bets 25%");
   const selfCard = page.locator(".field-list article").filter({ hasText: selfCue }).first();
@@ -61,7 +69,8 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   await assistedSource.selectOption("HUMAN_ASSISTED");
   await expect(assistedCard.getByText(/только после реального отдельного разбора с человеком/i)).toBeVisible();
   await expect(assistedCard.getByText(/приложение не проверяет, кто проводил разбор/i)).toBeVisible();
-  await assistedCard.getByRole("textbox", { name: `Разбор ${assistedId}`, exact: true }).fill("A real separate human-assisted review confirmed the locked cue, action, and reason support transfer.");
+  await bindCanonicalFlopMechanism(assistedCard);
+  await assistedCard.getByRole("textbox", { name: `Разбор ${assistedId}`, exact: true }).fill("A real separate human-assisted review confirmed this exact canonical mechanism supports transfer.");
   const support = assistedCard.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true });
   await expect(support).toBeEnabled();
   await support.click();
@@ -70,9 +79,10 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   const assistedNote = state.fieldNotes.find((note) => note.id === assistedId);
   expect(assistedNote.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(assistedNote.reviewOutcome).toBe("SUPPORTS_TRANSFER");
-  expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(1);
-  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(1);
-  expect(state.modules.geometry.evidence.field_transfer.distinctNodes).toEqual([`field:${assistedId}`]);
+  expect(assistedNote.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
+  expect(assistedNote.practicalBinding.signals.automaticCbetIssue).toBe(true);
+  expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
+  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
   expect(state.modules.geometry.state).not.toBe("FIELD_VALIDATED");
 
   await page.reload();
@@ -80,11 +90,12 @@ test("SELF cannot add field evidence and HUMAN_ASSISTED can record one legitimat
   const persisted = state.fieldNotes.find((note) => note.id === assistedId);
   expect(persisted.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(persisted.reviewOutcome).toBe("SUPPORTS_TRANSFER");
-  expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(1);
-  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(1);
+  expect(persisted.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
+  expect(state.modules.geometry.evidence.field_transfer.exposures).toBe(0);
+  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
 });
 
-test("the same locked hand can move from SELF review to a later HUMAN_ASSISTED review", async ({ page }) => {
+test("the same locked hand can move from SELF review to a later canonically bound HUMAN_ASSISTED review", async ({ page }) => {
   const cue = "same-hand review lifecycle: wide small flop bet";
   const id = await captureHand(page, cue, "BTN opens 3bb, BB calls; flop BTN bets 25%");
   const card = page.locator(".field-list article").filter({ hasText: cue }).first();
@@ -104,7 +115,8 @@ test("the same locked hand can move from SELF review to a later HUMAN_ASSISTED r
   expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
 
   await source.selectOption("HUMAN_ASSISTED");
-  await review.fill("Separate human-assisted review: the locked cue, action and reason support transfer in this hand.");
+  await bindCanonicalFlopMechanism(card);
+  await review.fill("Separate human-assisted review: the exact canonical mechanism supports transfer in this hand.");
   const support = card.getByRole("button", { name: "Подтверждает перенос в реальную игру", exact: true });
   await expect(support).toBeEnabled();
   await support.click();
@@ -118,6 +130,6 @@ test("the same locked hand can move from SELF review to a later HUMAN_ASSISTED r
   expect(note.reviewerKind).toBe("HUMAN_ASSISTED");
   expect(note.reviewOutcome).toBe("SUPPORTS_TRANSFER");
   expect(note.evaluatorNote).toMatch(/Separate human-assisted review/);
-  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(1);
-  expect(state.modules.geometry.evidence.field_transfer.distinctNodes).toContain(`field:${id}`);
+  expect(note.practicalBinding.practicalSkillId).toBe("W4-BOARD-01");
+  expect(state.modules.geometry.evidence.field_transfer.successes).toBe(0);
 });

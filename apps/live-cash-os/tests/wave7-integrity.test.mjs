@@ -45,6 +45,11 @@ function hand(overrides = {}) {
   };
 }
 
+const canonicalBinding = () => ({
+  practicalSkillId: "EXP-01",
+  signals: { evidenceGeneralizationIssue: true },
+});
+
 function validScore() {
   return {
     schema_version: "score-0.2",
@@ -174,41 +179,43 @@ test("self-review cannot create field-transfer evidence", async () => {
   const captured = await capturedHand();
   const note = captured.fieldNotes[0];
   const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "My own review thinks this matches the mechanism.", "SELF");
+  assert.equal(reviewed, captured);
   assert.equal(reviewed.fieldNotes[0].status, "PENDING_REVIEW");
-  assert.equal(reviewed.fieldNotes[0].reviewerKind, "SELF");
-  assert.equal(reviewed.fieldNotes[0].reviewOutcome, "REVIEWED_OK");
+  assert.equal(reviewed.fieldNotes[0].reviewerKind, undefined);
+  assert.equal(reviewed.fieldNotes[0].reviewOutcome, undefined);
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.successes, 0);
   assert.notEqual(reviewed.modules.geometry.state, "FIELD_VALIDATED");
 });
 
-test("raw captured hand and one human-reviewed supporting hand cannot create FIELD_VALIDATED", async () => {
+test("one canonical human support cannot create legacy FIELD_VALIDATED", async () => {
   const wave7 = await wave7Promise;
   const captured = await capturedHand();
   assert.equal(captured.modules.geometry.evidence.field_transfer.exposures, 0);
   const note = captured.fieldNotes[0];
-  const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "The cue and reason match the reviewed mechanism.", "HUMAN");
+  const reviewed = wave7.reviewFieldHand(captured, note.id, "SUPPORTS_TRANSFER", "The cue and reason match the reviewed mechanism.", "HUMAN", canonicalBinding());
   assert.equal(reviewed.fieldNotes[0].reviewerKind, "HUMAN");
-  assert.equal(reviewed.modules.geometry.evidence.field_transfer.successes, 1);
+  assert.equal(reviewed.fieldNotes[0].practicalBinding?.practicalSkillId, "EXP-01");
+  assert.equal(reviewed.modules.geometry.evidence.field_transfer.successes, 0);
   assert.notEqual(reviewed.modules.geometry.state, "FIELD_VALIDATED");
 });
 
-test("two human-reviewed supporting hands alone cannot bypass retention and variant requirements", async () => {
+test("two canonical human supports cannot mutate legacy module evidence", async () => {
   const wave7 = await wave7Promise;
   const model = await modelPromise;
   let state = model.emptyLearnerState();
   state.modules.geometry.contentCompleted = true;
   state = wave7.captureFieldHand(state, hand({ cue: "cue one" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First independent reviewed hand.", "HUMAN");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First independent reviewed hand.", "HUMAN", canonicalBinding());
   state = wave7.captureFieldHand(state, hand({ cue: "cue two", actionSequence: "BTN opens, BB calls; different hand" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second independent reviewed hand.", "HUMAN_ASSISTED");
-  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 2);
+  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second independent reviewed hand.", "HUMAN_ASSISTED", canonicalBinding());
+  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 0);
   assert.notEqual(state.modules.geometry.state, "FIELD_VALIDATED");
   assert.equal(state.modules.geometry.evidence.retention.successes, 0);
   assert.equal(state.modules.geometry.evidence.variant_transfer.successes, 0);
 });
 
-test("full field evidence combination can produce FIELD_VALIDATED", async () => {
+test("canonical field reviews cannot promote legacy FIELD_VALIDATED even with old retention and variant evidence", async () => {
   const wave7 = await wave7Promise;
   const model = await modelPromise;
   let state = model.emptyLearnerState();
@@ -216,53 +223,30 @@ test("full field evidence combination can produce FIELD_VALIDATED", async () => 
   state.modules.geometry.evidence.retention = { exposures: 1, successes: 1, distinctNodes: ["retained-node"], lastAt: "2026-08-07T09:00:00.000Z" };
   state.modules.geometry.evidence.variant_transfer = { exposures: 1, successes: 1, distinctNodes: ["changed-node:MEDIUM"], lastAt: "2026-08-07T09:00:00.000Z" };
   state = wave7.captureFieldHand(state, hand({ cue: "first support" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First reviewed transfer hand.", "HUMAN");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First reviewed transfer hand.", "HUMAN", canonicalBinding());
   state = wave7.captureFieldHand(state, hand({ cue: "second support", board: "8s 7s 6d" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second reviewed transfer hand.", "HUMAN_ASSISTED");
-  assert.equal(state.modules.geometry.state, "FIELD_VALIDATED");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second reviewed transfer hand.", "HUMAN_ASSISTED", canonicalBinding());
+  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 0);
+  assert.notEqual(state.modules.geometry.state, "FIELD_VALIDATED");
 });
 
-test("field repair preserves W6 sourceReviewId lifecycle", async () => {
+test("canonical field repair never enters the legacy W6 repair queue", async () => {
   const wave7 = await wave7Promise;
-  const model = await modelPromise;
   let state = await capturedHand();
   const note = state.fieldNotes[0];
-  state = wave7.reviewFieldHand(state, note.id, "REPAIR_REQUIRED", "The action was plausible, but the stated reason ignores the relevant stack geometry.");
-  const repair = state.reviewQueue.find((item) => item.sourceDrillId === `field:${note.id}`);
-  assert.ok(repair);
-  state.activeSession = {
-    mode: "repair",
-    moduleId: "geometry",
-    step: 0,
-    drillIds: ["geo-04"],
-    currentIndex: 0,
-    selectedActionId: "geo-04-a1",
-    selectedReasonId: "geo-04-r1",
-    confidence: 70,
-    startedAt: "2026-08-07T12:00:00.000Z",
-    itemStartedAt: "2026-08-07T12:00:00.000Z",
-    explainBack: "",
-    sourceReviewId: repair.id,
-  };
-  const repaired = model.recordDecision(state, {
-    moduleId: "geometry",
-    drillId: "geo-04",
-    nodeKey: "nominal-100bb",
-    variantGroup: "future-spr",
-    mode: "repair",
-    actionOk: true,
-    reasonOk: true,
-    confidence: 70,
-    elapsedSeconds: 12,
-    targetSeconds: 30,
-    isBoundary: true,
-    selectedActionOptionId: "geo-04-a1",
-    selectedReasonOptionId: "geo-04-r1",
-    sourceReviewId: repair.id,
-  });
-  assert.equal(repaired.reviewQueue.some((item) => item.id === repair.id), false);
-  assert.equal(repaired.reviewQueue.some((item) => item.kind === "retention"), true);
-  assert.equal(repaired.modules.geometry.evidence.retention.exposures, 0);
+  const beforeQueue = structuredClone(state.reviewQueue);
+  state = wave7.reviewFieldHand(
+    state,
+    note.id,
+    "REPAIR_REQUIRED",
+    "The action was plausible, but the stated reason ignores the reviewed mechanism.",
+    "HUMAN",
+    canonicalBinding(),
+  );
+  assert.deepEqual(state.reviewQueue, beforeQueue);
+  assert.equal(state.fieldNotes[0].status, "REVIEWED_REPAIR");
+  assert.equal(state.fieldNotes[0].practicalBinding?.practicalSkillId, "EXP-01");
+  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 0);
 });
 
 test("activeSession and old schema-2 progress survive Wave 7 optional data", async () => {
@@ -292,9 +276,9 @@ test("activeSession and old schema-2 progress survive Wave 7 optional data", asy
   assert.equal(wave7.explainBackRecords(migrated).length, 1);
 });
 
-test("Wave 7 does not introduce a scheduler or shadow learner store", async () => {
+test("Wave 7 Real Hands does not introduce a shadow learner store", async () => {
   const source = await readFile(new URL("../lib/wave7.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(source, /scheduler|localStorage|sessionStorage|indexedDB|fetch\(/u);
+  assert.doesNotMatch(source, /localStorage|sessionStorage|indexedDB|fetch\(/u);
 });
 
 test("reviewed T1 accepts A/B/C/D/U and rejects legacy E as semantic review class", async () => {

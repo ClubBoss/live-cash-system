@@ -12,6 +12,8 @@ const SESSION_CLARITY_URL = new URL("../lib/session-clarity.ts", import.meta.url
 const RETRIEVAL_INTEGRITY_URL = new URL("../lib/retrieval-integrity.ts", import.meta.url).href;
 const PROFILE_STORAGE_URL = new URL("../lib/profile-storage.ts", import.meta.url).href;
 const PRACTICAL_PROFILE_CONTRACT_URL = new URL("../lib/practical-profile-contract.ts", import.meta.url).href;
+const PRACTICAL_FIELD_TRANSFER_URL = new URL("../lib/practical-field-transfer.ts", import.meta.url).href;
+const PRACTICAL_PROFILE_STATE_URL = new URL("../lib/practical-profile-state.ts", import.meta.url).href;
 const TRANSPILED_URLS = new Set([
   CORE_URL,
   MODEL_URL,
@@ -65,6 +67,8 @@ export async function resolve(specifier, context, nextResolve) {
     if (specifier === "./scheduler") return { url: SCHEDULER_URL, shortCircuit: true };
     if (specifier === "./profile-storage") return { url: PROFILE_STORAGE_URL, shortCircuit: true };
     if (specifier === "./practical-profile-contract") return { url: PRACTICAL_PROFILE_CONTRACT_URL, shortCircuit: true };
+    if (specifier === "./practical-field-transfer") return { url: PRACTICAL_FIELD_TRANSFER_URL, shortCircuit: true };
+    if (specifier === "./practical-profile-state") return { url: PRACTICAL_PROFILE_STATE_URL, shortCircuit: true };
   }
   if (context.parentURL?.startsWith(APP_ROOT_URL) && specifier.startsWith(".") && !hasExplicitExtension(specifier)) {
     return { url: await resolveAppTypeScript(specifier, context.parentURL), shortCircuit: true };

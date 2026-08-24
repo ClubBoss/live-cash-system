@@ -42,6 +42,11 @@ function hand(overrides = {}) {
   };
 }
 
+const canonicalBinding = () => ({
+  practicalSkillId: "EXP-01",
+  signals: { evidenceGeneralizationIssue: true },
+});
+
 function extractFunction(source, name) {
   const sourceFile = ts.createSourceFile(
     "LiveCashAppCore.tsx",
@@ -85,7 +90,7 @@ ${selectReview}
   return import(`${new URL(`file://${output}`).href}?${Date.now()}-${Math.random()}`);
 }
 
-test("HUMAN_ASSISTED review can record one legitimate field support and persists reviewer kind", async () => {
+test("HUMAN_ASSISTED canonical field review persists binding without legacy field evidence", async () => {
   const wave7 = await wave7Promise;
   const model = await modelPromise;
   let state = wave7.captureFieldHand(model.emptyLearnerState(), hand());
@@ -97,13 +102,14 @@ test("HUMAN_ASSISTED review can record one legitimate field support and persists
     "SUPPORTS_TRANSFER",
     "A separate human-assisted review confirmed the locked cue, action, and reason fit the mechanism.",
     "HUMAN_ASSISTED",
+    canonicalBinding(),
   );
 
   assert.equal(state.fieldNotes[0].reviewerKind, "HUMAN_ASSISTED");
   assert.equal(state.fieldNotes[0].reviewOutcome, "SUPPORTS_TRANSFER");
-  assert.equal(state.modules.geometry.evidence.field_transfer.exposures, 1);
-  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 1);
-  assert.deepEqual(state.modules.geometry.evidence.field_transfer.distinctNodes, [`field:${noteId}`]);
+  assert.equal(state.fieldNotes[0].practicalBinding?.practicalSkillId, "EXP-01");
+  assert.equal(state.modules.geometry.evidence.field_transfer.exposures, 0);
+  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 0);
   assert.notEqual(state.modules.geometry.state, "FIELD_VALIDATED");
 
   const repeated = wave7.reviewFieldHand(
@@ -112,9 +118,10 @@ test("HUMAN_ASSISTED review can record one legitimate field support and persists
     "SUPPORTS_TRANSFER",
     "A duplicate submission must not add evidence again.",
     "HUMAN_ASSISTED",
+    canonicalBinding(),
   );
-  assert.equal(repeated.modules.geometry.evidence.field_transfer.exposures, 1);
-  assert.equal(repeated.modules.geometry.evidence.field_transfer.successes, 1);
+  assert.equal(repeated, state);
+  assert.equal(repeated.modules.geometry.evidence.field_transfer.successes, 0);
 });
 
 test("SUPPORTS_TRANSFER fails closed without a locked pre-result decision even for HUMAN_ASSISTED", async () => {
@@ -131,11 +138,13 @@ test("SUPPORTS_TRANSFER fails closed without a locked pre-result decision even f
     "SUPPORTS_TRANSFER",
     "A human-assisted review occurred, but this legacy record has no pre-result lock.",
     "HUMAN_ASSISTED",
+    canonicalBinding(),
   );
 
-  assert.equal(reviewed.fieldNotes[0].reviewerKind, "HUMAN_ASSISTED");
-  assert.equal(reviewed.fieldNotes[0].reviewOutcome, "REVIEWED_OK");
-  assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
+  assert.equal(reviewed, legacy);
+  assert.equal(reviewed.fieldNotes[0].reviewerKind, undefined);
+  assert.equal(reviewed.fieldNotes[0].reviewOutcome, undefined);
+  assert.equal(reviewed.fieldNotes[0].practicalBinding, undefined);
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.successes, 0);
 });
 
@@ -146,23 +155,25 @@ test("SELF remains unable to award SUPPORTS_TRANSFER", async () => {
   const noteId = captured.fieldNotes[0].id;
   const reviewed = wave7.reviewFieldHand(captured, noteId, "SUPPORTS_TRANSFER", "Self review only.", "SELF");
 
-  assert.equal(reviewed.fieldNotes[0].reviewerKind, "SELF");
-  assert.equal(reviewed.fieldNotes[0].reviewOutcome, "REVIEWED_OK");
+  assert.equal(reviewed, captured);
+  assert.equal(reviewed.fieldNotes[0].status, "PENDING_REVIEW");
+  assert.equal(reviewed.fieldNotes[0].reviewerKind, undefined);
+  assert.equal(reviewed.fieldNotes[0].reviewOutcome, undefined);
   assert.equal(reviewed.modules.geometry.evidence.field_transfer.exposures, 0);
   assert.notEqual(reviewed.modules.geometry.state, "FIELD_VALIDATED");
 });
 
-test("field validation still requires the existing retention and variant contract", async () => {
+test("canonical field reviews cannot promote the legacy module mastery model", async () => {
   const wave7 = await wave7Promise;
   const model = await modelPromise;
   let state = model.emptyLearnerState();
   state.modules.geometry.contentCompleted = true;
   state = wave7.captureFieldHand(state, hand({ cue: "first independent support" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First separate review.", "HUMAN");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[0].id, "SUPPORTS_TRANSFER", "First separate review.", "HUMAN", canonicalBinding());
   state = wave7.captureFieldHand(state, hand({ cue: "second independent support", board: "8s 7s 6d" }));
-  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second separate assisted review.", "HUMAN_ASSISTED");
+  state = wave7.reviewFieldHand(state, state.fieldNotes[1].id, "SUPPORTS_TRANSFER", "Second separate assisted review.", "HUMAN_ASSISTED", canonicalBinding());
 
-  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 2);
+  assert.equal(state.modules.geometry.evidence.field_transfer.successes, 0);
   assert.equal(state.modules.geometry.evidence.retention.successes, 0);
   assert.equal(state.modules.geometry.evidence.variant_transfer.successes, 0);
   assert.notEqual(state.modules.geometry.state, "FIELD_VALIDATED");
