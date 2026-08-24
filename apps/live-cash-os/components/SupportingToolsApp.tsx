@@ -35,16 +35,26 @@ function LegacyToolsRuntime() {
   </>;
 }
 
-function initialSupportTab(): SupportTab {
-  if (typeof window === "undefined") return "data";
-  const requested = new URLSearchParams(window.location.search).get("tab");
+function supportTabFromSearch(search: string): SupportTab {
+  const requested = new URLSearchParams(search).get("tab");
   if (requested === "field" || requested === "diagnostic" || requested === "data") return requested;
   return "data";
 }
 
-function requestedRuntime(): "support" | "legacy" {
-  const params = new URLSearchParams(window.location.search);
-  if (__LIVE_CASH_LEGACY_TOOLS_MODE__ && params.get("legacy") === "1") return "legacy";
+function initialSupportTab(): SupportTab {
+  if (typeof window === "undefined") return "data";
+  return supportTabFromSearch(window.location.search);
+}
+
+export function resolveToolsRuntime(input: {
+  legacyToolsMode: boolean;
+  search: string;
+  legacyMarker: string | null;
+  referrer: string;
+  origin: string;
+}): "support" | "legacy" {
+  const params = new URLSearchParams(input.search);
+  if (input.legacyToolsMode && params.get("legacy") === "1") return "legacy";
 
   const requestedTab = params.get("tab");
   if (
@@ -59,11 +69,11 @@ function requestedRuntime(): "support" | "legacy" {
   // Historical release specs intentionally exercise the complete pre-Practical
   // shell. Only local E2E/test-mirror builds compile that capability on, and
   // the marker is origin-scoped Playwright storage. Production ignores both
-  // the marker and stale `?legacy=1` URLs and stays on the support surface.
-  if (__LIVE_CASH_LEGACY_TOOLS_MODE__ && localStorage.getItem(E2E_LEGACY_TOOLS_KEY) === "1") {
+  // the marker and stale `?legacy=1`/legacy-tab URLs and stays on support.
+  if (input.legacyToolsMode && input.legacyMarker === "1") {
     try {
-      const referrer = new URL(document.referrer);
-      if (referrer.origin === window.location.origin && referrer.pathname.startsWith("/mastery/")) {
+      const referrer = new URL(input.referrer);
+      if (referrer.origin === input.origin && referrer.pathname.startsWith("/mastery/")) {
         return "support";
       }
     } catch {
@@ -73,6 +83,16 @@ function requestedRuntime(): "support" | "legacy" {
   }
 
   return "support";
+}
+
+function requestedRuntime(): "support" | "legacy" {
+  return resolveToolsRuntime({
+    legacyToolsMode: __LIVE_CASH_LEGACY_TOOLS_MODE__,
+    search: window.location.search,
+    legacyMarker: localStorage.getItem(E2E_LEGACY_TOOLS_KEY),
+    referrer: document.referrer,
+    origin: window.location.origin,
+  });
 }
 
 function SupportingToolsRuntime() {
@@ -97,11 +117,29 @@ function SupportingToolsRuntime() {
   }, [locale, ready]);
 
   useEffect(() => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("tab") !== "field") return;
-    url.searchParams.delete("tab");
-    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    const syncTabFromHistory = () => {
+      const nextTab = supportTabFromSearch(window.location.search);
+      const requested = new URLSearchParams(window.location.search).get("tab");
+      setTab(nextTab);
+      if (requested && requested !== "field" && requested !== "diagnostic" && requested !== "data") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", nextTab);
+        window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      }
+    };
+    window.addEventListener("popstate", syncTabFromHistory);
+    syncTabFromHistory();
+    return () => window.removeEventListener("popstate", syncTabFromHistory);
   }, []);
+
+  function navigateSupportTab(nextTab: SupportTab) {
+    const url = new URL(window.location.href);
+    const currentTab = supportTabFromSearch(url.search);
+    if (currentTab === nextTab && tab === nextTab && url.searchParams.get("tab") === nextTab) return;
+    url.searchParams.set("tab", nextTab);
+    window.history.pushState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    setTab(nextTab);
+  }
 
   function changeLocale(nextLocale: LocaleCode) {
     applyLocaleData(nextLocale);
@@ -153,9 +191,9 @@ function SupportingToolsRuntime() {
     </section>
 
     <nav className="tabs" aria-label={copy.nav}>
-      <button aria-current={tab === "field" ? "page" : undefined} onClick={() => setTab("field")}>{copy.field}</button>
-      <button aria-current={tab === "diagnostic" ? "page" : undefined} onClick={() => setTab("diagnostic")}>{copy.diagnostic}</button>
-      <button aria-current={tab === "data" ? "page" : undefined} onClick={() => setTab("data")}>{copy.data}</button>
+      <button aria-current={tab === "field" ? "page" : undefined} onClick={() => navigateSupportTab("field")}>{copy.field}</button>
+      <button aria-current={tab === "diagnostic" ? "page" : undefined} onClick={() => navigateSupportTab("diagnostic")}>{copy.diagnostic}</button>
+      <button aria-current={tab === "data" ? "page" : undefined} onClick={() => navigateSupportTab("data")}>{copy.data}</button>
     </nav>
 
     {tab === "field" && <Wave7FieldPanel locale={locale} state={state} setState={setState} lastLocalSaveAt={lastLocalSaveAt} fieldStatusLabel={fieldStatusLabel} fieldFactLabels={fieldFactLabels} />}
@@ -165,7 +203,7 @@ function SupportingToolsRuntime() {
         locale={locale}
         state={state}
         setState={setState}
-        onExit={() => setTab("data")}
+        onExit={() => navigateSupportTab("data")}
         onRouted={() => window.location.assign("/mastery/journey")}
       />
     </>}
