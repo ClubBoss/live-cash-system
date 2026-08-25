@@ -120,8 +120,8 @@ jobs:
 
           let authority = fs.readFileSync(authorityPath, 'utf8');
           const digestOccurrences = authority.split(oldDigest).length - 1;
-          if (digestOccurrences !== 1) throw new Error(`expected one authority digest occurrence, found ${digestOccurrences}`);
-          authority = authority.replace(oldDigest, fingerprint);
+          if (digestOccurrences !== 2) throw new Error(`expected two authority digest occurrences, found ${digestOccurrences}`);
+          authority = authority.split(oldDigest).join(fingerprint);
           fs.writeFileSync(authorityPath, authority);
 
           console.log(`RELOCK_DIGEST=${fingerprint}`);
