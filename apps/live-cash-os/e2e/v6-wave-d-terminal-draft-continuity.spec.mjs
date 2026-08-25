@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
-const QUICK_START_SKILLS = ["FND-01", "FND-02", "PF-01", "PF-04", "W4-BOARD-01", "IP-01", "BL-04", "W4-RUNOUT-01"];
 const COMPLETE_HEADING = /Быстрый старт завершён|Quick start complete/;
 const FEEDBACK_HEADING = /Верно|Correct/;
 const STALE_COPY = /Сохранённый шаг больше недоступен|The saved step is no longer available/;
@@ -11,26 +10,6 @@ async function ensurePracticalProfile(page) {
   if (hasProfile) return;
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
-  await page.reload();
-  await expect(page.locator("main")).toBeVisible();
-}
-
-async function setReached(page, reached) {
-  await page.evaluate(({ key, ids, count }) => {
-    const raw = localStorage.getItem(key);
-    if (!raw) throw new Error("missing learner state");
-    const root = JSON.parse(raw);
-    const mastery = root._practicalProfile?.mastery;
-    if (!mastery?.skills) throw new Error("missing practical mastery state");
-    ids.forEach((skillId, index) => {
-      const skill = mastery.skills[skillId];
-      if (!skill) throw new Error(`missing Quick Start skill ${skillId}`);
-      skill.evidenceStage = index < count ? "RECOGNITION_TRAINED" : "SOURCE_SUPPORTED";
-      skill.conceptTaught = index < count;
-    });
-    root._practicalProfile.studyWorkspace.continuity = undefined;
-    localStorage.setItem(key, JSON.stringify(root));
-  }, { key: LEARNER_KEY, ids: QUICK_START_SKILLS, count: reached });
   await page.reload();
   await expect(page.locator("main")).toBeVisible();
 }
@@ -52,6 +31,15 @@ async function practiceCard(page) {
   return answer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
 }
 
+async function answerCurrentQuickStartDecision(page) {
+  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  const card = await practiceCard(page);
+  await card.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
+  await card.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
+  await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
+  await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "V6 Wave D local continuity fixture" }) });
@@ -63,7 +51,6 @@ test("V6-D unsubmitted Quick Start draft survives reload, re-entry and history w
   await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
   await page.reload();
   await ensurePracticalProfile(page);
-  await setReached(page, 0);
 
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   const card = await practiceCard(page);
@@ -112,33 +99,41 @@ test("V6-D unsubmitted Quick Start draft survives reload, re-entry and history w
   expect(await attemptCount(page)).toBe(attemptsBeforeDraft);
 });
 
-test("V6-D final accepted Quick Start answer hands off directly from feedback to canonical COMPLETE and stays complete", async ({ page }) => {
+test("V6-D fresh Quick Start advances 1 through 8 and final accepted item hands off directly to canonical COMPLETE", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
   await page.reload();
   await ensurePracticalProfile(page);
 
-  for (let reached = 0; reached < QUICK_START_SKILLS.length; reached += 1) {
-    await setReached(page, reached);
-    await expect(page.locator("main")).toContainText(new RegExp(`(?:ШАГ ${reached + 1} ИЗ 8|STEP ${reached + 1} OF 8)`));
+  let expectedAttempts = await attemptCount(page);
+  expect(expectedAttempts).toBe(0);
+
+  for (let step = 1; step <= 8; step += 1) {
+    await expect(page.locator("main")).toContainText(new RegExp(`(?:ШАГ ${step} ИЗ 8|STEP ${step} OF 8)`));
+
+    for (let recognitionRep = 0; recognitionRep < 2; recognitionRep += 1) {
+      await answerCurrentQuickStartDecision(page);
+      expectedAttempts += 1;
+      expect(await attemptCount(page)).toBe(expectedAttempts);
+      await expect(page.locator("main")).not.toContainText(STALE_COPY);
+
+      await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+      expect(await attemptCount(page)).toBe(expectedAttempts);
+      await expect(page.locator("main")).not.toContainText(STALE_COPY);
+
+      if (recognitionRep === 0) {
+        await expect(page.locator("main")).toContainText(new RegExp(`(?:ШАГ ${step} ИЗ 8|STEP ${step} OF 8)`));
+      } else if (step < 8) {
+        await expect(page.locator("main")).toContainText(new RegExp(`(?:ШАГ ${step + 1} ИЗ 8|STEP ${step + 1} OF 8)`));
+      }
+    }
   }
 
-  await setReached(page, 7);
-  const attemptsBeforeFinal = await attemptCount(page);
-  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
-  const card = await practiceCard(page);
-  await card.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
-  await card.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
-  await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
-  await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
-  expect(await attemptCount(page)).toBe(attemptsBeforeFinal + 1);
-
-  await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toBeVisible();
   await expect(page.locator("main")).toContainText("8/8");
   await expect(page.locator("main")).not.toContainText(STALE_COPY);
   const attemptsAtComplete = await attemptCount(page);
-  expect(attemptsAtComplete).toBe(attemptsBeforeFinal + 1);
+  expect(attemptsAtComplete).toBe(expectedAttempts);
 
   await page.reload();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toBeVisible();
