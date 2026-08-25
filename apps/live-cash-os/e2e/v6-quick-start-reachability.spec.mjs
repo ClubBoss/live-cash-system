@@ -4,16 +4,22 @@ const LEARNER_KEY = "live-cash-os:learner-state";
 const COMPLETE_HEADING = /Быстрый старт завершён|Quick start complete/;
 const CORRECT_HEADING = /Верно|Correct/;
 const REPAIR_HEADING = /Нужно исправить|Repair needed/;
+const START_EXAMPLE = /Проверить на примере|Try an example/;
+const NEXT_EXAMPLE = /Следующий пример|Next example/;
 
 async function openCurrentDecision(page) {
-  const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
-  if (await answer.isVisible()) return answer;
-
-  const start = page.getByRole("button", { name: /Проверить на примере|Try an example/ });
+  const start = page.getByRole("button", { name: START_EXAMPLE });
   await expect(start).toBeVisible();
   await start.click();
+
+  const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
   await expect(answer).toBeVisible();
   return answer;
+}
+
+async function returnToMechanism(page) {
+  await page.getByRole("button", { name: NEXT_EXAMPLE }).click();
+  await expect(page.getByRole("button", { name: START_EXAMPLE })).toBeVisible();
 }
 
 async function answerCurrentDecisionCorrectly(page) {
@@ -24,12 +30,14 @@ async function answerCurrentDecisionCorrectly(page) {
   const actionTexts = (await actionLabels.allTextContents()).map((text) => text.trim());
   const reasonTexts = (await reasonLabels.allTextContents()).map((text) => text.trim());
 
+  await expect(actionLabels.first()).toBeVisible();
+  await expect(reasonLabels.first()).toBeVisible();
   await actionLabels.first().locator('input[type="radio"]').check();
   await reasonLabels.first().locator('input[type="radio"]').check();
   await answer.click();
 
   if (await page.getByRole("heading", { name: CORRECT_HEADING }).isVisible()) {
-    await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+    await returnToMechanism(page);
     return;
   }
 
@@ -40,14 +48,14 @@ async function answerCurrentDecisionCorrectly(page) {
   expect(actionIndex).toBeGreaterThanOrEqual(0);
   expect(reasonIndex).toBeGreaterThanOrEqual(0);
 
-  await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+  await returnToMechanism(page);
   const retryAnswer = await openCurrentDecision(page);
   const retryCard = retryAnswer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
   await retryCard.locator("fieldset").nth(0).locator("label").nth(actionIndex).locator('input[type="radio"]').check();
   await retryCard.locator("fieldset").nth(1).locator("label").nth(reasonIndex).locator('input[type="radio"]').check();
   await retryAnswer.click();
   await expect(page.getByRole("heading", { name: CORRECT_HEADING })).toBeVisible();
-  await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+  await returnToMechanism(page);
 }
 
 test.beforeEach(async ({ page }) => {
