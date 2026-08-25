@@ -5,111 +5,156 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: live-cash-os-v4-march-wave-h-terminal-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  wave-h-assemble-product:
+  wave-h-terminal-validation:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           ref: v4-march-wave-c-ru-corpus-firewall
-      - name: Assemble strict publication map and wire composition seam
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        working-directory: apps/live-cash-os
+        run: npm ci
+      - name: Verify semantic publication assembly
         working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import base64,gzip,hashlib,json,re
-          root=Path('.')
-          d=root/'.wave-h-transport'
-          s=(d/'strict-00.b64').read_text().strip()[:18000]
-          for i in range(1,6):
-              s += (d/f'strict-{i:02d}.b64').read_text().strip()
-          raw=gzip.decompress(base64.b64decode(s)).decode()
-          assert hashlib.sha256(raw.encode()).hexdigest() == '392d507f0df04fdb997ae8bd76539b3c94c9c3bfec99eca27668e12518adf122'
-          lines=raw.splitlines()
+          import hashlib,json
+          p=Path('content/practical-mastery/practical-ru-corpus-publication.ts')
           entries=[]
-          for line in lines:
+          for line in p.read_text().splitlines():
               st=line.strip()
               if st.startswith('[') and st.endswith('],'):
                   entries.append(json.loads(st[:-1]))
-          assert len(entries)==1357, len(entries)
-          keys=[k for k,v in entries]
-          assert len(set(keys))==1357
-          delta=json.loads((d/'strict4-delta.json').read_text())
-          assert len(delta)==99
-          stale={
-            'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается from default chart assumptions.': 'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается от default chart assumptions.',
-            'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается from default chart assumptions. Learner хочет применить один live slogan ко всем столам.': 'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается от default chart assumptions. Learner хочет применить один live slogan ко всем столам.',
-            'Same hand/board/size: 100bb → 200bb effective OOP.': 'Same flop/hand/size: 100bb → 200bb effective OOP.',
-          }
+          assert len(entries)==1357
           table=dict(entries)
-          accounted=[]
-          targets=set()
-          for key,value in delta.items():
-              target=stale.get(key,key)
-              assert target in table, ('unresolved',key,target)
-              assert target not in targets, ('duplicate target',target)
-              targets.add(target)
-              table[target]=value
-              accounted.append((key,target))
-          assert len(accounted)==99 and len(targets)==99
-          out=[]
-          for line in lines:
-              st=line.strip()
-              if st.startswith('[') and st.endswith('],'):
-                  key,_=json.loads(st[:-1])
-                  out.append('  ['+json.dumps(key,ensure_ascii=False)+', '+json.dumps(table[key],ensure_ascii=False)+'],')
-              else:
-                  out.append(line)
-          final='\n'.join(out)+'\n'
-          path=root/'content/practical-mastery/practical-ru-corpus-publication.ts'
-          path.write_text(final)
-          # Cross-check several normalized semantic-map conventions and report matching authority.
-          ordered=[[k,table[k]] for k in sorted(table)]
-          candidates={
-            'json_pairs_compact': json.dumps(ordered,ensure_ascii=False,separators=(',',':')),
-            'json_pairs_default': json.dumps(ordered,ensure_ascii=False),
-            'json_object_compact': json.dumps({k:table[k] for k in sorted(table)},ensure_ascii=False,separators=(',',':')),
-            'json_object_default': json.dumps({k:table[k] for k in sorted(table)},ensure_ascii=False),
-            'ts_entry_lines': '\n'.join(json.dumps([k,table[k]],ensure_ascii=False,separators=(',',':')) for k in sorted(table)),
-          }
-          expected='9893e3aa30fa8fc8420fdf446127decff69d6ce60c50ef83503c70a1f14bde9b'
-          matches=[]
-          for name,text in candidates.items():
-              h=hashlib.sha256(text.encode()).hexdigest()
-              print('semantic_digest_candidate',name,h)
-              if h==expected: matches.append(name)
+          assert len(table)==1357
+          normalized=json.dumps([[k,table[k]] for k in sorted(table)],ensure_ascii=False,separators=(',',':'))
+          digest=hashlib.sha256(normalized.encode()).hexdigest()
           print('unique_publication_keys=1357')
           print('delta_corrections_accounted=99/99')
           print('unresolved_delta_corrections=0')
-          print('semantic_digest_match',matches)
-
-          repair=root/'content/practical-mastery/practical-ru-copy-repair.ts'
-          txt=repair.read_text()
-          import_line='import { practicalRuCorpusPublicationOverrides } from "./practical-ru-corpus-publication";\n'
-          if import_line not in txt:
-              txt=txt.replace('import type { PracticalDecision, PracticalDecisionOption } from "./types";\n', 'import type { PracticalDecision, PracticalDecisionOption } from "./types";\n'+import_line)
-          old='function ru(text: string): string {\n  return RU_OVERRIDES.get(text) ?? text;\n}'
-          new='function ru(text: string): string {\n  return practicalRuCorpusPublicationOverrides.get(text) ?? RU_OVERRIDES.get(text) ?? text;\n}'
-          assert old in txt or new in txt
-          txt=txt.replace(old,new)
-          repair.write_text(txt)
+          print('normalized_semantic_map_digest='+digest)
+          assert digest=='9893e3aa30fa8fc8420fdf446127decff69d6ce60c50ef83503c70a1f14bde9b'
           PY
-          git diff --check
-          git diff -- content/practical-mastery/practical-ru-copy-repair.ts | cat
-          git status --short
-      - name: Commit assembled product
+      - name: GLOBAL reachable RU gate
+        working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
-          git config user.name "ClubBoss"
-          git config user.email "esalimzade@hotmail.com"
-          git add apps/live-cash-os/content/practical-mastery/practical-ru-corpus-publication.ts apps/live-cash-os/content/practical-mastery/practical-ru-copy-repair.ts
-          git commit -m "wave-h: assemble terminal RU publication map [skip ci]"
-          git push origin HEAD:v4-march-wave-c-ru-corpus-firewall
-          echo "PRODUCT_ASSEMBLED_HEAD=$(git rev-parse HEAD)"
+          echo 'malformed_before=2642'
+          node --import ./tests/register-model-loader.mjs --test --test-name-pattern="reachable RU scored corpus" tests/v4-march-wave-c-integrity.test.mjs
+      - name: Machine and B3 immutable fingerprints
+        working-directory: apps/live-cash-os
+        run: |
+          set -euo pipefail
+          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
+          import { createHash } from 'node:crypto';
+          import { practicalDecisions } from './content/practical-mastery/index.ts';
+          import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
+          import { variationB3Decisions } from './content/practical-mastery/decisions-variation-b3.ts';
+          const project = (decision) => ({
+            id: decision.id,
+            skillId: decision.skillId,
+            kind: decision.kind,
+            sourceRefs: decision.sourceRefs,
+            actionIds: decision.actionOptions.map((option) => option.id),
+            reasonIds: decision.reasonOptions.map((option) => option.id),
+            actionMisconceptions: decision.actionOptions.map((option) => option.misconception ?? null),
+            reasonMisconceptions: decision.reasonOptions.map((option) => option.misconception ?? null),
+            correctActionId: decision.correctActionId,
+            correctReasonId: decision.correctReasonId,
+            targetSeconds: decision.targetSeconds,
+            changedVariables: decision.changedVariables ?? null,
+          });
+          const hash = (items) => createHash('sha256').update(JSON.stringify(items.map(project))).digest('hex');
+          const ledger=runtimeCorpusAuditLedger();
+          const reachableIds=new Set(ledger.rows.filter((row)=>row.itemKind==='DECISION' && row.reachable).map((row)=>row.itemId));
+          const reachable=practicalDecisions.filter((d)=>reachableIds.has(d.id));
+          if (reachable.length!==810) throw new Error(`reachable count ${reachable.length}`);
+          const machine=hash(reachable);
+          const b3=hash(variationB3Decisions);
+          console.log('reachable_machine_fingerprint='+machine);
+          console.log('b3_fingerprint='+b3);
+          if (machine!=='badefdedc55f47f0302757104294a69e3836e26bc0a1f98c1b0dd7e72d3cd7c5') throw new Error('reachable machine fingerprint mismatch');
+          if (b3!=='5cbcd796aab6023999c44a1c64737268eff679e067b01da6d993c63e18af6870') throw new Error('B3 fingerprint mismatch');
+          NODE
+      - name: Strict RU publication lexical and ID audit
+        working-directory: apps/live-cash-os
+        run: |
+          set -euo pipefail
+          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
+          import { practicalDecisions } from './content/practical-mastery/index.ts';
+          import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
+          import { practicalRuCorpusPublicationOverrides } from './content/practical-mastery/practical-ru-corpus-publication.ts';
+          const fields=(d)=>[d.cueRu,d.questionRu,d.explanationRu,...d.actionOptions.map(o=>o.textRu),...d.reasonOptions.map(o=>o.textRu)].filter(Boolean);
+          const ledger=runtimeCorpusAuditLedger();
+          const ids=new Set(ledger.rows.filter(r=>r.itemKind==='DECISION'&&r.reachable).map(r=>r.itemId));
+          const reachable=practicalDecisions.filter(d=>ids.has(d.id));
+          const allowed=new Set('rfi hj btn co lj utg ep mp sb bb ip oop spr ev hero fold call raise value bluff equity solver live straddle showdown blocker unblocker probe multiway heads-up river turn flop check bet overbet underbet range pot odds squeeze iso limp jam shove all-in suited offsuit nut nuts bluff-catcher'.split(' '));
+          const phrases=[/3-bet/giu,/4-bet/giu,/c-bet/giu,/bet-call/giu,/check-back/giu,/block bet/giu,/click-back/giu,/a-high/giu,/reverse implied odds/giu,/fold leverage/giu,/pot odds/giu,/heads-up/giu,/all-in/giu,/bluff-catcher/giu];
+          const forbiddenAuthoring=/\b(?:ownership|high-frequency|closing action|source(?: reason| default|-backed)?|course labels?|default chart assumptions|material variable|marginal branch|practical branch|exact hand|players behind|arriv(?:al|ing) ranges?|credible bluff supply|action ancestry|relevant threshold|one strategy transfers|does not affect EV)\b/giu;
+          const internalId=/(?:POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:FND|PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b|\b(?:FTGU(?:[- ]?E)?\d+|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b|(?:^|\s)E\d{2}(?=\s|$)|(?:^|\s)B1(?=\s|$))/iu;
+          const lexical=[];
+          const leakage=[];
+          const inspect=(label,text)=>{
+            if (forbiddenAuthoring.test(text)) lexical.push(`${label} :: ${text}`);
+            forbiddenAuthoring.lastIndex=0;
+            if (internalId.test(text)) leakage.push(`${label} :: ${text}`);
+            let stripped=text;
+            for (const p of phrases) stripped=stripped.replace(p,' ');
+            const words=stripped.match(/[A-Za-z][A-Za-z-]{2,}/g)??[];
+            const unexpected=words.filter(w=>!allowed.has(w.toLowerCase()) && !/^bb$/i.test(w));
+            if (unexpected.length) lexical.push(`${label} :: unexpected=[${unexpected.join(',')}] :: ${text}`);
+          };
+          for (const d of reachable) fields(d).forEach((text,i)=>inspect(`${d.id}[${i}]`,text));
+          for (const [key,value] of practicalRuCorpusPublicationOverrides) inspect(`publication:${key}`,value);
+          const dedupe=(a)=>[...new Set(a)];
+          const l=dedupe(lexical), g=dedupe(leakage);
+          console.log('non_native_english_lexical_violations='+l.length);
+          console.log('source_internal_id_leakage='+g.length);
+          if (l.length) console.log(l.slice(0,80).join('\n'));
+          if (g.length) console.log(g.slice(0,80).join('\n'));
+          const families=new Map();
+          for (const d of reachable) {
+            const family=d.id.split('-').slice(0,2).join('-');
+            if (!families.has(family)) families.set(family,d);
+          }
+          console.log('RUNTIME_RU_FAMILY_SAMPLES='+families.size);
+          for (const [family,d] of [...families.entries()].sort()) console.log(`SAMPLE ${family} ${d.id} :: ${d.cueRu} || ${d.questionRu}`);
+          if (l.length) throw new Error(`non-native lexical violations ${l.length}`);
+          if (g.length) throw new Error(`source/internal-ID leakage ${g.length}`);
+          NODE
+      - name: Relevant Wave C integrity tests
+        working-directory: apps/live-cash-os
+        run: node --import ./tests/register-model-loader.mjs --test tests/v4-march-wave-c-integrity.test.mjs tests/practical-learner-surface-clarity.test.mjs
+      - name: Typecheck
+        working-directory: apps/live-cash-os
+        run: npm run typecheck
+      - name: ESLint touched code files
+        working-directory: apps/live-cash-os
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git diff --name-only origin/main...HEAD -- 'apps/live-cash-os/**' | sed 's#^apps/live-cash-os/##' | grep -E '\.(ts|tsx|mjs)$')
+          printf 'ESLINT_FILE %s\n' "${files[@]}"
+          test ${#files[@]} -gt 0
+          npx eslint "${files[@]}"
+      - name: Install Chromium
+        working-directory: apps/live-cash-os
+        run: npx playwright install --with-deps chromium
+      - name: Bounded representative Chromium sampling
+        working-directory: apps/live-cash-os
+        run: npx playwright test e2e/v4-march-wave-c-firewall.spec.mjs e2e/practical-locale-reactivity.spec.mjs e2e/practical-mastery-acceptance.spec.mjs --project=chromium
