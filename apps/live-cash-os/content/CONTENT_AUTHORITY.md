@@ -120,7 +120,7 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`a0c4d452dcf1854e6c860d8f0ba480f2822db708874c2e22e3c26007d4ade2d0`
+`d03be24d0f8a18f6a89266b8072aa02e101eb7d8bfac2422d5b55e740511c4c8`
 
 Current status:
 
@@ -190,7 +190,7 @@ Human poker review must cover:
 
 Separate human language review must cover:
 
-- exact final RU composition at digest `a0c4d452dcf1854e6c860d8f0ba480f2822db708874c2e22e3c26007d4ade2d0`;
+- exact final RU composition at digest `d03be24d0f8a18f6a89266b8072aa02e101eb7d8bfac2422d5b55e740511c4c8`;
 - exact final EN composition at the same digest;
 - the 55/55 drill and 10/10 Diagnostic decision surfaces affected by the comprehension closure;
 - the generated Practical Mastery RU decision and anchor surfaces affected by `applyPracticalRuCopyRepair`, `applyPracticalAnchorRuCopyRepair`, and `applyPracticalRuFinalPolish`, plus the three bilingual assessment surfaces affected by `applyPracticalAssessmentIntegrityRepair`.
