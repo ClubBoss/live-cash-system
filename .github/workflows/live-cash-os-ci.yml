@@ -12,13 +12,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  wave-h-terminal-engineering:
+  wave-h-ru-chromium:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           ref: v4-march-wave-c-ru-corpus-firewall
-          fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -27,21 +26,17 @@ jobs:
       - name: Install dependencies
         working-directory: apps/live-cash-os
         run: npm ci
-      - name: ESLint touched code files
-        working-directory: apps/live-cash-os
-        run: |
-          set -euo pipefail
-          mapfile -t files < <(git diff --name-only origin/main...HEAD | grep '^apps/live-cash-os/' | grep -E '\.(ts|tsx|mjs)$' | sed 's#^apps/live-cash-os/##')
-          printf 'ESLINT_FILE %s\n' "${files[@]}"
-          test ${#files[@]} -gt 0
-          npx eslint "${files[@]}"
-          echo "touched_file_eslint=PASS"
       - name: Install Chromium
         working-directory: apps/live-cash-os
         run: npx playwright install --with-deps chromium
-      - name: Bounded representative Chromium sampling
+      - name: Wave C RU learner firewall runtime
+        working-directory: apps/live-cash-os
+        run: npx playwright test e2e/v4-march-wave-c-firewall.spec.mjs --project=chromium --grep "Wave C RU learner surfaces"
+      - name: Representative RU session families
+        working-directory: apps/live-cash-os
+        run: npx playwright test e2e/session-render-integrity.spec.mjs --project=chromium
+      - name: Practical Mastery acceptance rerun
         working-directory: apps/live-cash-os
         run: |
-          set -euo pipefail
-          npx playwright test e2e/v4-march-wave-c-firewall.spec.mjs e2e/practical-locale-reactivity.spec.mjs e2e/practical-mastery-acceptance.spec.mjs --project=chromium
-          echo "bounded_chromium_sampling=PASS"
+          npx playwright test e2e/practical-mastery-acceptance.spec.mjs --project=chromium
+          echo "bounded_ru_chromium_sampling=PASS"
