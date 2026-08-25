@@ -1,0 +1,88 @@
+name: V4 Final Integration Targeted
+
+on:
+  push:
+    branches:
+      - integration/v4-final-fast-prep-20260825
+
+permissions:
+  contents: write
+
+jobs:
+  combined-targeted:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Reconcile terminal C with D semantic Skill Map continuity
+        run: |
+          git show 7550d148572c29f0221220ac9f9f14a34f9ba8bc:apps/live-cash-os/components/PracticalMasteryExperience.tsx > /tmp/PracticalMasteryExperience.tsx
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('/tmp/PracticalMasteryExperience.tsx')
+          target = Path('components/PracticalMasteryExperience.tsx')
+          text = source.read_text()
+          replacements = [
+              ('locale === "ru" ? gap.reasonRu : gap.reason', 'locale === "ru" ? gap.learnerReasonRu : gap.learnerReason'),
+              ('locale === "ru" ? gap.nextEvidenceNeededRu : gap.nextEvidenceNeeded', 'locale === "ru" ? gap.learnerNextEvidenceNeededRu : gap.learnerNextEvidenceNeeded'),
+          ]
+          for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'expected exactly one C/D seam occurrence for {old!r}, found {count}')
+              text = text.replace(old, new, 1)
+          forbidden = ('LearnerSafeGapProjection', 'cLearnerSafeGapFallback', 'learnerSafeGapCopy')
+          for token in forbidden:
+              if token in text:
+                  raise SystemExit(f'obsolete C fallback survived reconciliation: {token}')
+          for token in ('restoreSkillMapCursor', 'withSkillMapCursor', 'learnerReasonRu', 'learnerNextEvidenceNeededRu'):
+              if token not in text:
+                  raise SystemExit(f'required combined seam missing: {token}')
+          target.write_text(text)
+          PY
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add components/PracticalMasteryExperience.tsx
+          git commit -m "integrate: reconcile C/D mastery continuity [skip ci]"
+          git push origin HEAD:integration/v4-final-fast-prep-20260825
+          echo "INTEGRATION_VALIDATED_SHA=$(git rev-parse HEAD)"
+          echo "INTEGRATION_VALIDATED_TREE=$(git rev-parse HEAD^{tree})"
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Combined A+B+C+D targeted unit and static
+        run: >-
+          node --import ./tests/register-model-loader.mjs --test
+          tests/practical-first-journey-authority.test.mjs
+          tests/practical-visible-change-integrity.test.mjs
+          tests/v3-continuity-workspace.test.mjs
+          tests/practical-learner-surface-clarity.test.mjs
+          tests/v4-march-wave-c-integrity.test.mjs
+      - name: Touched-file ESLint
+        run: |
+          git -C ../.. diff --name-only 6b2cf227073b9a711f8e97099bf5bf39008f379b HEAD -- apps/live-cash-os \
+            | grep -E '\.(ts|tsx|mjs)$' \
+            | sed 's#^apps/live-cash-os/##' \
+            | xargs npx eslint
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Combined A+B+C+D targeted Chromium
+        run: >-
+          npx playwright test
+          e2e/v4-wave-a-quick-start-authority.spec.mjs
+          e2e/practical-visible-change-integrity.spec.mjs
+          e2e/v4-march-wave-c-firewall.spec.mjs
+          e2e/v4-wave-d-continuity-focus.spec.mjs
+          e2e/v4-wave-d-skill-map-continuity.spec.mjs
+          --project=chromium
