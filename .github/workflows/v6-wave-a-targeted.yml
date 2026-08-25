@@ -1,4 +1,5 @@
 name: V6 Wave A targeted validation
+run-name: V6 Wave A target ${{ github.sha }}
 
 on:
   push:
