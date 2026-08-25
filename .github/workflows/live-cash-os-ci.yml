@@ -8,47 +8,38 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-v4-march-wave-h-export-${{ github.ref }}
+  group: live-cash-os-v4-march-wave-h-terminal-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  wave-h-export:
-    name: Wave H bilingual field export
+  wave-h-assemble-inspect:
+    name: Wave H strict assembly inspection
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22.13.0
-          cache: npm
-          cache-dependency-path: apps/live-cash-os/package-lock.json
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Export reachable scored bilingual fields
+      - name: Assemble latest strict transport
         run: |
-          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
-          import { writeFileSync } from 'node:fs';
-          import { practicalDecisions } from './content/practical-mastery/index.ts';
-          import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
-          const reachableIds = new Set(runtimeCorpusAuditLedger().rows.filter((row) => row.itemKind === 'DECISION' && row.reachable).map((row) => row.itemId));
-          const rows = [];
-          for (const d of practicalDecisions.filter((d) => reachableIds.has(d.id))) {
-            rows.push({id:d.id, skillId:d.skillId, kind:d.kind, field:'cue', ru:d.cueRu, en:d.cueEn});
-            rows.push({id:d.id, skillId:d.skillId, kind:d.kind, field:'question', ru:d.questionRu, en:d.questionEn});
-            rows.push({id:d.id, skillId:d.skillId, kind:d.kind, field:'explanation', ru:d.explanationRu, en:d.explanationEn});
-            for (const [i,o] of d.actionOptions.entries()) rows.push({id:d.id, skillId:d.skillId, kind:d.kind, field:`action:${i}:${o.id}`, ru:o.textRu, en:o.textEn});
-            for (const [i,o] of d.reasonOptions.entries()) rows.push({id:d.id, skillId:d.skillId, kind:d.kind, field:`reason:${i}:${o.id}`, ru:o.textRu, en:o.textEn});
-          }
-          writeFileSync('wave-h-bilingual-fields.json', JSON.stringify(rows, null, 2));
-          console.log(`WAVE_H_EXPORT decisions=${reachableIds.size} fields=${rows.length}`);
-          NODE
-      - name: Upload export
+          set -euo pipefail
+          cat .wave-h-transport/strict-00.b64 \
+              .wave-h-transport/strict-01.b64 \
+              .wave-h-transport/strict-02.b64 \
+              .wave-h-transport/strict-03.b64 \
+              .wave-h-transport/strict-04.b64 \
+              .wave-h-transport/strict-05.b64 \
+            | base64 --decode | gzip -dc > wave-h-strict-assembled.ts
+          echo "STRICT_ASSEMBLED_SHA256=$(sha256sum wave-h-strict-assembled.ts | awk '{print $1}')"
+          echo "STRICT_ASSEMBLED_BYTES=$(wc -c < wave-h-strict-assembled.ts)"
+          echo '--- HEAD ---'
+          sed -n '1,40p' wave-h-strict-assembled.ts
+          echo '--- TAIL ---'
+          tail -40 wave-h-strict-assembled.ts
+      - name: Upload assembled strict source
         uses: actions/upload-artifact@v7
         with:
-          name: v4-march-wave-h-bilingual-fields
-          path: apps/live-cash-os/wave-h-bilingual-fields.json
+          name: v4-march-wave-h-strict-assembled
+          path: apps/live-cash-os/wave-h-strict-assembled.ts
           if-no-files-found: error
           retention-days: 3
