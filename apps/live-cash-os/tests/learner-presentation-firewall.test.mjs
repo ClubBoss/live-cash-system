@@ -24,6 +24,7 @@ const REQUIRED_CLASSES = [
   "SOURCE_GOVERNANCE",
   "VALIDATION_PIPELINE",
   "CORPUS_METADATA",
+  "MIGRATION_HISTORY",
 ];
 
 const representativeLeaks = {
@@ -35,6 +36,7 @@ const representativeLeaks = {
     "source-backed source mechanism from underlying material",
     "structured canonical binding and targeted visual extraction",
     "The 980 indexed scenarios are a routing inventory for the corpus.",
+    "legacy mistake-practice tasks queued",
   ],
   ru: [
     "FTGU-E02 и LCM-01 sourceRefs",
@@ -44,6 +46,7 @@ const representativeLeaks = {
     "Источник подтверждает; исходные материалы; более подробный источник",
     "structured canonical binding и visual claim review",
     "980 проиндексированных сценариев — внутренний corpus.",
+    "legacy-заданий на работу над ошибкой",
   ],
 };
 
@@ -86,7 +89,7 @@ function canonicalLearnerStrings(locale) {
 }
 
 for (const locale of ["ru", "en"]) {
-  test(`${locale}: all seven V6 metadata leak classes are detected before and absent after learner sanitization`, () => {
+  test(`${locale}: all eight V6 metadata leak classes are detected before and absent after learner sanitization`, () => {
     const beforeClasses = new Set(representativeLeaks[locale].flatMap(learnerPresentationLeakClasses));
     assert.deepEqual([...beforeClasses].sort(), [...REQUIRED_CLASSES].sort());
 
@@ -106,6 +109,36 @@ for (const locale of ["ru", "en"]) {
     assert.deepEqual(residual, []);
   });
 }
+
+test("Real Hands raw migration copy remains internally intact but learner presentation closes legacy vocabulary in RU and EN", async () => {
+  const wave7 = await readFile(path.join(root, "components/Wave7Experience.tsx"), "utf8");
+  const rawLegacyLiterals = [...wave7.matchAll(/"([^"\n]*\blegacy\b[^"\n]*)"/giu)].map((match) => match[1]);
+  assert.ok(rawLegacyLiterals.length >= 3, "the invariant must exercise actual Real Hands legacy publication strings");
+
+  for (const raw of rawLegacyLiterals) {
+    assert.ok(learnerPresentationLeakClasses(raw).includes("MIGRATION_HISTORY"), raw);
+    const locale = /[А-Яа-яЁё]/u.test(raw) ? "ru" : "en";
+    const safe = sanitizeLearnerPresentationText(raw, locale);
+    assert.ok(!learnerPresentationLeakClasses(safe).includes("MIGRATION_HISTORY"), safe);
+    assert.doesNotMatch(safe, /\blegacy\b/iu);
+  }
+
+  assert.equal(
+    sanitizeLearnerPresentationText("legacy-заданий на работу над ошибкой", "ru"),
+    "заданий на работу над ошибкой",
+  );
+  assert.equal(
+    sanitizeLearnerPresentationText("legacy mistake-practice tasks queued", "en"),
+    "mistake-practice tasks to complete",
+  );
+  assert.equal(
+    sanitizeLearnerPresentationText(
+      "This legacy note cannot support transfer because it has no decision locked before the result.",
+      "en",
+    ),
+    "This note cannot support real-table transfer because the decision was not recorded before the result.",
+  );
+});
 
 test("learner-safe replacements retain poker meaning and uncertainty instead of deleting the explanation", () => {
   const sourceExplanation = "CINJ-E05 extends FTGU-E22: the price sets the threshold while later filtering determines plausible bluff supply.";
@@ -159,10 +192,14 @@ test("all normal learner and support routes are behind the firewall while Data &
 test("internal authority and reviewer machinery remain intact outside learner presentation", async () => {
   const fieldTransfer = await readFile(path.join(root, "lib/practical-field-transfer.ts"), "utf8");
   const sourceGaps = await readFile(path.join(root, "content/practical-mastery/source-gaps.ts"), "utf8");
+  const wave7 = await readFile(path.join(root, "components/Wave7Experience.tsx"), "utf8");
 
   assert.match(fieldTransfer, /PracticalFieldReviewerKind = "HUMAN" \| "HUMAN_ASSISTED"/);
   assert.match(fieldTransfer, /binding\.reviewerKind !== reviewerKind/);
   assert.match(fieldTransfer, /practicalSkillId/);
   assert.match(sourceGaps, /POSITIVE_EV_SOURCE_ACCESS_REQUIRED/);
   assert.match(sourceGaps, /learnerReason/);
+  assert.match(wave7, /legacy mistake-practice tasks queued/);
+  assert.match(wave7, /This legacy note cannot support transfer/);
+  assert.match(wave7, /legacy-заданий на работу над ошибкой/);
 });
