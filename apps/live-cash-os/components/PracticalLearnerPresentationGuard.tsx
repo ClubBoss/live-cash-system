@@ -1,16 +1,11 @@
 "use client";
 
 import { useLayoutEffect } from "react";
-
-const sourceLinePattern = /^(?:Источники|Sources)\s*:/iu;
-const machineMetadataPatterns = [
-  /\bPOSITIVE_EV_SOURCE_ACCESS_REQUIRED\b/u,
-  /\bsourceRefs\b/iu,
-  /\b(?:FND|PF|BL|W4(?:-BOARD|-HAND|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b/u,
-  /\b(?:FTGU(?:[- ]?E)?\d+(?:\/E\d+)?|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b/iu,
-  /(?:^|[\s(])E\d{2}(?:\s*\/\s*E\d{2})?(?=$|[\s),.;:])/u,
-  /(?:^|[\s(])B1(?=$|[\s),.;:])/u,
-];
+import {
+  isLearnerMetadataOnlyLine,
+  sanitizeLearnerPresentationText,
+  type LearnerPresentationLocale,
+} from "../lib/learner-presentation-firewall";
 
 // Retained only as a bounded compatibility fallback for the already-published
 // Quick Start pot-odds cards. New publication fixes belong in source fields.
@@ -63,8 +58,8 @@ const legacyExactFallbacks = new Map<string, string>([
   ],
 ]);
 
-function containsMachineMetadata(value: string): boolean {
-  return machineMetadataPatterns.some((pattern) => pattern.test(value));
+function currentLocale(): LearnerPresentationLocale {
+  return document.documentElement.lang === "en" ? "en" : "ru";
 }
 
 function applyLegacyExactFallbacks(root: HTMLElement) {
@@ -78,18 +73,41 @@ function applyLegacyExactFallbacks(root: HTMLElement) {
   }
 }
 
-function applyMetadataFirewall(root: HTMLElement) {
-  for (const element of Array.from(root.querySelectorAll<HTMLElement>("p, small, span, b, h1, h2, h3, h4, li, summary"))) {
-    const text = element.textContent?.trim() ?? "";
-    if (!text || (!sourceLinePattern.test(text) && !containsMachineMetadata(text))) continue;
-    element.hidden = true;
-    element.setAttribute("aria-hidden", "true");
+function applyMetadataLineFirewall(root: HTMLElement) {
+  const candidates = root.querySelectorAll<HTMLElement>("p, small, span, li, summary");
+  for (const element of Array.from(candidates)) {
+    const metadataOnly = isLearnerMetadataOnlyLine(element.textContent?.trim() ?? "");
+    const hiddenByFirewall = element.dataset.learnerMetadataHidden === "true";
+    if (metadataOnly) {
+      element.hidden = true;
+      element.setAttribute("aria-hidden", "true");
+      element.dataset.learnerMetadataHidden = "true";
+    } else if (hiddenByFirewall) {
+      element.hidden = false;
+      element.removeAttribute("aria-hidden");
+      delete element.dataset.learnerMetadataHidden;
+    }
+  }
+}
+
+function applyTextFirewall(root: HTMLElement) {
+  const locale = currentLocale();
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+  for (const node of nodes) {
+    const parent = node.parentElement;
+    if (parent?.closest("[data-learner-metadata-hidden='true']")) continue;
+    const current = node.nodeValue ?? "";
+    const next = sanitizeLearnerPresentationText(current, locale);
+    if (next !== current) node.nodeValue = next;
   }
 }
 
 function applyPresentation(root: HTMLElement) {
   applyLegacyExactFallbacks(root);
-  applyMetadataFirewall(root);
+  applyMetadataLineFirewall(root);
+  applyTextFirewall(root);
 }
 
 export default function PracticalLearnerPresentationGuard() {
