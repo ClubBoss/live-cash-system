@@ -78,13 +78,18 @@ test("learner presentation keeps provenance internal while preserving the source
   const guard = await read("components/PracticalLearnerPresentationGuard.tsx");
   const layout = await read("app/mastery/layout.tsx");
   const mastery = await read("components/PracticalMasteryExperience.tsx");
+  const study = await read("components/PracticalStudyLoopExperience.tsx");
   assert.match(layout, /PracticalLearnerPresentationGuard/);
   assert.match(guard, /sourceLinePattern/);
-  assert.match(guard, /sourceIdPattern/);
-  assert.match(guard, /polishRussianLearnerText/);
+  assert.match(guard, /machineMetadataPatterns/);
+  assert.match(guard, /legacyExactFallbacks/);
+  assert.doesNotMatch(guard, /polishRussianLearnerText|cleanupSourceLanguage/);
   assert.match(guard, /element\.hidden = true/);
   assert.match(mastery, /ПОКА ЕСТЬ ОГРАНИЧЕНИЕ/);
-  assert.doesNotMatch(mastery, /sourceRefs\.join/);
+  assert.match(mastery, /learnerReason/);
+  assert.doesNotMatch(mastery, /gap\.reasonRu : gap\.reason/);
+  assert.doesNotMatch(study, /sourceRefs\.join/);
+  assert.doesNotMatch(study, /recommendedSkill\.id\}\s*·/);
 });
 
 test("skill map presents poker domains and progress instead of internal graph IDs and corpus counts", async () => {
@@ -99,13 +104,18 @@ test("skill map presents poker domains and progress instead of internal graph ID
   assert.doesNotMatch(mastery, />\{item\.id\}/);
 });
 
-test("clarity guard covers the full practical graph with generic source-language cleanup rather than one-card patches", async () => {
+test("clarity contract keeps source content clean and uses the post-render guard only as fallback defense", async () => {
   const registry = await read("content/practical-mastery/registry.ts");
   const guard = await read("components/PracticalLearnerPresentationGuard.tsx");
+  const study = await read("components/PracticalStudyLoopExperience.tsx");
+  const mastery = await read("components/PracticalMasteryExperience.tsx");
   const skillIds = [...registry.matchAll(/\bf\("([A-Z0-9-]+)"/g)].map((match) => match[1]);
   assert.ok(skillIds.length >= 80, `expected the full Practical graph, found only ${skillIds.length} skills`);
   assert.equal(new Set(skillIds).size, skillIds.length, "skill IDs must remain unique");
-  assert.match(guard, /sourceIdPattern/);
-  assert.match(guard, /polishRussianLearnerText/);
-  for (const token of ["FTGU", "source", "ranges?", "OOP"]) assert.ok(guard.includes(token), `generic cleanup must cover ${token}`);
+  assert.match(guard, /machineMetadataPatterns/);
+  assert.match(guard, /New publication fixes belong in source fields/);
+  assert.doesNotMatch(guard, /polishRussianLearnerText|cleanupSourceLanguage/);
+  assert.doesNotMatch(study, /sourceRefs\.join|skill\?\.id|FTGU E30/);
+  assert.match(study, /recommendedSkill\.titleRu/);
+  assert.match(mastery, /gap\.learnerReasonRu/);
 });
