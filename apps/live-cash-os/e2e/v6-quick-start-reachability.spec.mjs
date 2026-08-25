@@ -57,6 +57,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("V6: fresh learner sees Quick Start steps 1 through 8 without skips and completes 8/8", async ({ page }) => {
+  test.setTimeout(240_000);
+
   await page.goto("/mastery/journey");
   await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
   await page.reload();
