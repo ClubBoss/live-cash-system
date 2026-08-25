@@ -15,6 +15,11 @@ const SOURCE_ID_SOURCE = String.raw`(?:FTGU(?:[- ]?E)?\d+(?:/E\d+)?|SLC-[A-Z0-9-
 const MODULE_ID_SOURCE = String.raw`(?:LCM-\d+|LD-\d+)`;
 const SKILL_ID_SOURCE = String.raw`(?:FND|PF|BL|W4(?:-BOARD|-HAND|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?`;
 const DECISION_ID_SOURCE = String.raw`PM-(?:[A-Z0-9]+-)+[A-Z0-9]+`;
+const RU_LETTERS = String.raw`\p{L}*`;
+
+const RU_CANONICAL_SOURCE = String.raw`(?:точн${RU_LETTERS}\s+навык${RU_LETTERS}\s+Practical|Practical\s+оста[её]тся\s+единственн${RU_LETTERS}\s+маршрут${RU_LETTERS}\s+обучения)`;
+const RU_SOURCE_GOVERNANCE_SOURCE = String.raw`(?:источник\s+подтверждает|исходн${RU_LETTERS}\s+(?:материал|чарт)${RU_LETTERS}|доступн${RU_LETTERS}\s+материал${RU_LETTERS}|более\s+подробн${RU_LETTERS}\s+источник${RU_LETTERS}|(?:solver-\s*или\s*)?course-источник${RU_LETTERS}|solver-источник${RU_LETTERS})`;
+const RU_CORPUS_SOURCE = String.raw`\d+\s+проиндексированн${RU_LETTERS}\s+сценари${RU_LETTERS}`;
 
 const leakPatterns: ReadonlyArray<{
   leakClass: LearnerPresentationLeakClass;
@@ -34,11 +39,17 @@ const leakPatterns: ReadonlyArray<{
   },
   {
     leakClass: "CANONICAL_IMPLEMENTATION",
-    pattern: /\b(?:canonical\s+(?:Practical\s+)?(?:skill|repair|binding|route)|exact\s+Practical\s+skill|Focused\s+Practical\s+repair|exact\s+repair\s+in\s+Practical|Practical\s+remains\s+the\s+only\s+learning\s+route)\b|точн\w*\s+навык\w*\s+Practical|Practical\s+оста[её]тся\s+единственн\w*\s+маршрут\w*\s+обучения/iu,
+    pattern: new RegExp(
+      String.raw`\b(?:canonical\s+(?:Practical\s+)?(?:skill|repair|binding|route)|exact\s+Practical\s+skill|Focused\s+Practical\s+repair|exact\s+repair\s+in\s+Practical|Practical\s+remains\s+the\s+only\s+learning\s+route)\b|${RU_CANONICAL_SOURCE}`,
+      "iu",
+    ),
   },
   {
     leakClass: "SOURCE_GOVERNANCE",
-    pattern: /\b(?:POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|source[- ]backed|source[- ]supported|source\s+integrity|source\s+mechanism|source\s+scope|source\s+examples?|field[- ]gated|inspectable\s+source|underlying\s+material|source\s+material|chart\s+inventory|original\s+charts?|unverified\s+charts?)\b|(?:источник\s+подтверждает|исходн\w*\s+материал\w*|доступн\w*\s+материал\w*|более\s+подробн\w*\s+источник\w*|исходн\w*\s+чарт\w*|(?:solver|course)-источник\w*)/iu,
+    pattern: new RegExp(
+      String.raw`\b(?:POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|source[- ]backed|source[- ]supported|source\s+integrity|source\s+mechanism|source\s+scope|source\s+examples?|field[- ]gated|inspectable\s+source|underlying\s+material|source\s+material|chart\s+inventory|original\s+charts?|unverified\s+charts?)\b|${RU_SOURCE_GOVERNANCE_SOURCE}`,
+      "iu",
+    ),
   },
   {
     leakClass: "VALIDATION_PIPELINE",
@@ -46,7 +57,10 @@ const leakPatterns: ReadonlyArray<{
   },
   {
     leakClass: "CORPUS_METADATA",
-    pattern: /\b\d+\s+indexed\s+scenarios?\b|\bindexed[- ]scenario\b|\bcorpus\b|\d+\s+проиндексированн\w*\s+сценари\w*/iu,
+    pattern: new RegExp(
+      String.raw`\b\d+\s+indexed\s+scenarios?\b|\bindexed[- ]scenario\b|\bcorpus\b|${RU_CORPUS_SOURCE}`,
+      "iu",
+    ),
   },
 ];
 
@@ -60,103 +74,100 @@ export function isLearnerMetadataOnlyLine(value: string): boolean {
   return /^\s*(?:Источники|Sources)\s*:/iu.test(value);
 }
 
-function replacePhrases(value: string, locale: LearnerPresentationLocale): string {
-  const replacements: Array<[RegExp, string]> = locale === "ru"
-    ? [
-        [/\bHUMAN\s*\/\s*HUMAN_ASSISTED\b/gu, "разбор с человеком"],
-        [/\bHUMAN_ASSISTED\b/gu, "разбор с человеком и инструментом"],
-        [/\bHUMAN\b/gu, "разбор с человеком"],
-        [/\bstructured\s+canonical\s+binding\b/giu, "явно установленный механизм"],
-        [/\bstructured\s+causal\s+classification\b/giu, "явно установленный механизм"],
-        [/\bFocused\s+Practical\s+repair\b/giu, "целевая практика"],
-        [/\bcanonical\s+Practical\s+skill\b/giu, "точная тема для тренировки"],
-        [/\bexact\s+Practical\s+skill\b/giu, "точная тема для тренировки"],
-        [/точн\w*\s+навык\w*\s+Practical/giu, "точная тема для тренировки"],
-        [/\bcanonical\s+skill\b/giu, "точная тема для тренировки"],
-        [/\bcanonical\s+repair\b/giu, "работа над ошибкой"],
-        [/\bexact\s+repair\s+in\s+Practical\b/giu, "целевая практика"],
-        [/\bPractical\s+remains\s+the\s+only\s+learning\s+route\b/giu, "основной учебный путь остается местом для системной тренировки"],
-        [/Practical\s+оста[её]тся\s+единственн\w*\s+маршрут\w*\s+обучения/giu, "основной учебный путь остается местом для системной тренировки"],
-        [/\bhuman\s+review\b/giu, "разбор с человеком"],
-        [/\bcue-before-action\b/giu, "сигнал, отмеченный до решения"],
-        [/\bvalid\s+structured\b/giu, "явный"],
-        [/\bsource[- ]backed\b/giu, "подтвержденный"],
-        [/\bsource[- ]supported\b/giu, "подтвержденный"],
-        [/\bsource\s+integrity\b/giu, "граница доказательств"],
-        [/\bsource\s+mechanism\b/giu, "подтвержденный механизм"],
-        [/\bsource\s+scope\b/giu, "граница доказательств"],
-        [/\bsource\s+examples?\b/giu, "примеры"],
-        [/\bfield[- ]gated\b/giu, "требует подтверждения в реальной игре"],
-        [/\bunderlying\s+material\b/giu, "текущая доказательная база"],
-        [/\bsource\s+materials?\b/giu, "текущая доказательная база"],
-        [/\ba\s+more\s+inspectable\s+source\b/giu, "более сильные данные именно для этого спота"],
-        [/\binspectable\s+(?:solver\s+or\s+course\s+)?source\b/giu, "более сильные данные именно для этого спота"],
-        [/\bavailable\s+material\b/giu, "текущие данные"],
-        [/\bchart\s+inventory\b/giu, "набор разных конфигураций"],
-        [/\bhave\s+not\s+yet\s+been\s+verified\s+against\s+the\s+original\s+charts\b/giu, "пока не установлены для точной конфигурации"],
-        [/\boriginal\s+charts?\b/giu, "условия конкретного чарта"],
-        [/\bunverified\s+charts?\b/giu, "чарты без установленных здесь точных частот"],
-        [/\bvisual\s+claim\s+review\b/giu, "проверка совпадающих условий"],
-        [/\bvisual[- ]dependent\b/giu, "зависят от точной конфигурации"],
-        [/\btargeted\s+visual\s+extraction\b/giu, "точная проверка этого спота"],
-        [/\brouting\s+inventory\b/giu, "набор разных конфигураций"],
-        [/\bExact\s+frequencies\s+not\s+yet\s+verified\b/giu, "Точные частоты здесь пока не установлены"],
-        [/\bunverified\s+(?:exact\s+)?frequencies\b/giu, "частоты, которые здесь пока не установлены"],
-        [/источник\s+подтверждает/giu, "доступные данные подтверждают"],
-        [/исходн\w*\s+материал\w*/giu, "текущая доказательная база"],
-        [/доступн\w*\s+материал\w*/giu, "текущие данные"],
-        [/более\s+подробн\w*\s+источник\w*/giu, "более сильная доказательная база именно для этого спота"],
-        [/(?:solver-\s*или\s*course-источник\w*)/giu, "более сильные данные именно для этого спота"],
-        [/(?:solver|course)-источник\w*/giu, "более сильные данные именно для этого спота"],
-        [/ещ[её]\s+не\s+проверен\w*\s+по\s+исходн\w*\s+чарт\w*/giu, "пока не установлены для точной конфигурации"],
-        [/ещ[её]\s+не\s+проверенн\w*\s+чарт\w*/giu, "чарты без установленных здесь точных частот"],
-        [/В\s+исходн\w*\s+чартах\s+отдельно\s+разобран\w*/giu, "Отдельно рассматриваются"],
-        [/исходн\w*\s+чарт\w*/giu, "условия конкретного чарта"],
-        [/Точные\s+частоты\s+еще\s+не\s+проверены/giu, "Точные частоты здесь пока не установлены"],
-        [/Точные\s+частоты\s+ещё\s+не\s+проверены/giu, "Точные частоты здесь пока не установлены"],
-      ]
-    : [
-        [/\bHUMAN\s*\/\s*HUMAN_ASSISTED\b/gu, "review with a person"],
-        [/\bHUMAN_ASSISTED\b/gu, "review with a person and a tool"],
-        [/\bHUMAN\b/gu, "review with a person"],
-        [/\bstructured\s+canonical\s+binding\b/giu, "explicitly identified mechanism"],
-        [/\bstructured\s+causal\s+classification\b/giu, "explicitly identified mechanism"],
-        [/\bFocused\s+Practical\s+repair\b/giu, "focused practice"],
-        [/\bcanonical\s+Practical\s+skill\b/giu, "practice topic"],
-        [/\bexact\s+Practical\s+skill\b/giu, "practice topic"],
-        [/точн\w*\s+навык\w*\s+Practical/giu, "practice topic"],
-        [/\bcanonical\s+skill\b/giu, "practice topic"],
-        [/\bcanonical\s+repair\b/giu, "focused practice"],
-        [/\bexact\s+repair\s+in\s+Practical\b/giu, "focused practice"],
-        [/\bPractical\s+remains\s+the\s+only\s+learning\s+route\b/giu, "the main learning path remains the place for structured training"],
-        [/Practical\s+оста[её]тся\s+единственн\w*\s+маршрут\w*\s+обучения/giu, "the main learning path remains the place for structured training"],
-        [/\bcue-before-action\b/giu, "cue recorded before the decision"],
-        [/\bvalid\s+structured\b/giu, "explicit"],
-        [/\bsource[- ]backed\b/giu, "reviewed"],
-        [/\bsource[- ]supported\b/giu, "supported"],
-        [/\bsource\s+integrity\b/giu, "evidence boundary"],
-        [/\bsource\s+mechanism\b/giu, "supported mechanism"],
-        [/\bsource\s+scope\b/giu, "evidence scope"],
-        [/\bsource\s+examples?\b/giu, "examples"],
-        [/\bfield[- ]gated\b/giu, "requires real-table evidence"],
-        [/\bunderlying\s+material\b/giu, "current evidence"],
-        [/\bsource\s+materials?\b/giu, "current evidence"],
-        [/\ba\s+more\s+inspectable\s+source\b/giu, "stronger spot-specific evidence"],
-        [/\binspectable\s+(?:solver\s+or\s+course\s+)?source\b/giu, "stronger spot-specific evidence"],
-        [/\bavailable\s+material\b/giu, "current evidence"],
-        [/\bchart\s+inventory\b/giu, "set of distinct configurations"],
-        [/\bhave\s+not\s+yet\s+been\s+verified\s+against\s+the\s+original\s+charts\b/giu, "are not yet established for the exact configuration"],
-        [/\boriginal\s+charts?\b/giu, "matching chart assumptions"],
-        [/\bunverified\s+charts?\b/giu, "charts without established exact frequencies"],
-        [/\bvisual\s+claim\s+review\b/giu, "matching-assumption check"],
-        [/\bvisual[- ]dependent\b/giu, "dependent on the exact configuration"],
-        [/\btargeted\s+visual\s+extraction\b/giu, "direct spot-specific checking"],
-        [/\brouting\s+inventory\b/giu, "set of distinct configurations"],
-        [/\bExact\s+frequencies\s+not\s+yet\s+verified\b/giu, "Exact frequencies are not established here yet"],
-        [/\bunverified\s+(?:exact\s+)?frequencies\b/giu, "frequencies not established here"],
-      ];
+function replaceRuPhrases(value: string): string {
+  return value
+    .replace(/\bHUMAN\s*\/\s*HUMAN_ASSISTED\b/gu, "разбор с человеком")
+    .replace(/\bHUMAN_ASSISTED\b/gu, "разбор с человеком и инструментом")
+    .replace(/\bHUMAN\b/gu, "разбор с человеком")
+    .replace(/\bstructured\s+canonical\s+binding\b/giu, "явно установленный механизм")
+    .replace(/\bstructured\s+causal\s+classification\b/giu, "явно установленный механизм")
+    .replace(/\bFocused\s+Practical\s+repair\b/giu, "целевая практика")
+    .replace(/\bcanonical\s+Practical\s+skill\b/giu, "точная тема для тренировки")
+    .replace(/\bexact\s+Practical\s+skill\b/giu, "точная тема для тренировки")
+    .replace(/точн\p{L}*\s+навык\p{L}*\s+Practical/giu, "точная тема для тренировки")
+    .replace(/\bcanonical\s+skill\b/giu, "точная тема для тренировки")
+    .replace(/\bcanonical\s+repair\b/giu, "работа над ошибкой")
+    .replace(/\bexact\s+repair\s+in\s+Practical\b/giu, "целевая практика")
+    .replace(/\bPractical\s+remains\s+the\s+only\s+learning\s+route\b/giu, "основной учебный путь остается местом для системной тренировки")
+    .replace(/Practical\s+оста[её]тся\s+единственн\p{L}*\s+маршрут\p{L}*\s+обучения/giu, "основной учебный путь остается местом для системной тренировки")
+    .replace(/\bhuman\s+review\b/giu, "разбор с человеком")
+    .replace(/\bcue-before-action\b/giu, "сигнал, отмеченный до решения")
+    .replace(/\bvalid\s+structured\b/giu, "явный")
+    .replace(/\bsource[- ]backed\b/giu, "подтвержденный")
+    .replace(/\bsource[- ]supported\b/giu, "подтвержденный")
+    .replace(/\bsource\s+integrity\b/giu, "граница доказательств")
+    .replace(/\bsource\s+mechanism\b/giu, "подтвержденный механизм")
+    .replace(/\bsource\s+scope\b/giu, "граница доказательств")
+    .replace(/\bsource\s+examples?\b/giu, "примеры")
+    .replace(/\bfield[- ]gated\b/giu, "требует подтверждения в реальной игре")
+    .replace(/\bunderlying\s+material\b/giu, "текущая доказательная база")
+    .replace(/\bsource\s+materials?\b/giu, "текущая доказательная база")
+    .replace(/\ba\s+more\s+inspectable\s+source\b/giu, "более сильные данные именно для этого спота")
+    .replace(/\binspectable\s+(?:solver\s+or\s+course\s+)?source\b/giu, "более сильные данные именно для этого спота")
+    .replace(/\bavailable\s+material\b/giu, "текущие данные")
+    .replace(/\bchart\s+inventory\b/giu, "набор разных конфигураций")
+    .replace(/\bhave\s+not\s+yet\s+been\s+verified\s+against\s+the\s+original\s+charts\b/giu, "пока не установлены для точной конфигурации")
+    .replace(/\boriginal\s+charts?\b/giu, "условия конкретного чарта")
+    .replace(/\bunverified\s+charts?\b/giu, "чарты без установленных здесь точных частот")
+    .replace(/\bvisual\s+claim\s+review\b/giu, "проверка совпадающих условий")
+    .replace(/\bvisual[- ]dependent\b/giu, "зависят от точной конфигурации")
+    .replace(/\btargeted\s+visual\s+extraction\b/giu, "точная проверка этого спота")
+    .replace(/\brouting\s+inventory\b/giu, "набор разных конфигураций")
+    .replace(/\bExact\s+frequencies\s+not\s+yet\s+verified\b/giu, "Точные частоты здесь пока не установлены")
+    .replace(/\bunverified\s+(?:exact\s+)?frequencies\b/giu, "частоты, которые здесь пока не установлены")
+    .replace(/источник\s+подтверждает/giu, "доступные данные подтверждают")
+    .replace(/исходн\p{L}*\s+материал\p{L}*/giu, "текущая доказательная база")
+    .replace(/доступн\p{L}*\s+материал\p{L}*/giu, "текущие данные")
+    .replace(/более\s+подробн\p{L}*\s+источник\p{L}*/giu, "более сильная доказательная база именно для этого спота")
+    .replace(/solver-\s*или\s*course-источник\p{L}*/giu, "более сильные данные именно для этого спота")
+    .replace(/(?:solver|course)-источник\p{L}*/giu, "более сильные данные именно для этого спота")
+    .replace(/ещ[её]\s+не\s+проверен\p{L}*\s+по\s+исходн\p{L}*\s+чарт\p{L}*/giu, "пока не установлены для точной конфигурации")
+    .replace(/ещ[её]\s+не\s+проверенн\p{L}*\s+чарт\p{L}*/giu, "чарты без установленных здесь точных частот")
+    .replace(/В\s+исходн\p{L}*\s+чартах\s+отдельно\s+разобран\p{L}*/giu, "Отдельно рассматриваются")
+    .replace(/исходн\p{L}*\s+чарт\p{L}*/giu, "условия конкретного чарта")
+    .replace(/Точные\s+частоты\s+ещ?[её]?\s+не\s+проверены/giu, "Точные частоты здесь пока не установлены");
+}
 
-  return replacements.reduce((next, [pattern, replacement]) => next.replace(pattern, replacement), value);
+function replaceEnPhrases(value: string): string {
+  return value
+    .replace(/\bHUMAN\s*\/\s*HUMAN_ASSISTED\b/gu, "review with a person")
+    .replace(/\bHUMAN_ASSISTED\b/gu, "review with a person and a tool")
+    .replace(/\bHUMAN\b/gu, "review with a person")
+    .replace(/\bstructured\s+canonical\s+binding\b/giu, "explicitly identified mechanism")
+    .replace(/\bstructured\s+causal\s+classification\b/giu, "explicitly identified mechanism")
+    .replace(/\bFocused\s+Practical\s+repair\b/giu, "focused practice")
+    .replace(/\bcanonical\s+Practical\s+skill\b/giu, "practice topic")
+    .replace(/\bexact\s+Practical\s+skill\b/giu, "practice topic")
+    .replace(/точн\p{L}*\s+навык\p{L}*\s+Practical/giu, "practice topic")
+    .replace(/\bcanonical\s+skill\b/giu, "practice topic")
+    .replace(/\bcanonical\s+repair\b/giu, "focused practice")
+    .replace(/\bexact\s+repair\s+in\s+Practical\b/giu, "focused practice")
+    .replace(/\bPractical\s+remains\s+the\s+only\s+learning\s+route\b/giu, "the main learning path remains the place for structured training")
+    .replace(/Practical\s+оста[её]тся\s+единственн\p{L}*\s+маршрут\p{L}*\s+обучения/giu, "the main learning path remains the place for structured training")
+    .replace(/\bcue-before-action\b/giu, "cue recorded before the decision")
+    .replace(/\bvalid\s+structured\b/giu, "explicit")
+    .replace(/\bsource[- ]backed\b/giu, "reviewed")
+    .replace(/\bsource[- ]supported\b/giu, "supported")
+    .replace(/\bsource\s+integrity\b/giu, "evidence boundary")
+    .replace(/\bsource\s+mechanism\b/giu, "supported mechanism")
+    .replace(/\bsource\s+scope\b/giu, "evidence scope")
+    .replace(/\bsource\s+examples?\b/giu, "examples")
+    .replace(/\bfield[- ]gated\b/giu, "requires real-table evidence")
+    .replace(/\bunderlying\s+material\b/giu, "current evidence")
+    .replace(/\bsource\s+materials?\b/giu, "current evidence")
+    .replace(/\ba\s+more\s+inspectable\s+source\b/giu, "stronger spot-specific evidence")
+    .replace(/\binspectable\s+(?:solver\s+or\s+course\s+)?source\b/giu, "stronger spot-specific evidence")
+    .replace(/\bavailable\s+material\b/giu, "current evidence")
+    .replace(/\bchart\s+inventory\b/giu, "set of distinct configurations")
+    .replace(/\bhave\s+not\s+yet\s+been\s+verified\s+against\s+the\s+original\s+charts\b/giu, "are not yet established for the exact configuration")
+    .replace(/\boriginal\s+charts?\b/giu, "matching chart assumptions")
+    .replace(/\bunverified\s+charts?\b/giu, "charts without established exact frequencies")
+    .replace(/\bvisual\s+claim\s+review\b/giu, "matching-assumption check")
+    .replace(/\bvisual[- ]dependent\b/giu, "dependent on the exact configuration")
+    .replace(/\btargeted\s+visual\s+extraction\b/giu, "direct spot-specific checking")
+    .replace(/\brouting\s+inventory\b/giu, "set of distinct configurations")
+    .replace(/\bExact\s+frequencies\s+not\s+yet\s+verified\b/giu, "Exact frequencies are not established here yet")
+    .replace(/\bunverified\s+(?:exact\s+)?frequencies\b/giu, "frequencies not established here");
 }
 
 function replaceIndexedScenarioSentence(value: string, locale: LearnerPresentationLocale): string {
@@ -165,7 +176,7 @@ function replaceIndexedScenarioSentence(value: string, locale: LearnerPresentati
     : "This reference family contains many distinct configurations; use the one that matches the actual positions, depth, rake, and caller count.";
   return value
     .replace(/(?:The\s+)?\d+\s+indexed\s+scenarios?[^.!?]*(?:[.!?]|$)/giu, replacement)
-    .replace(/\d+\s+проиндексированн\w*\s+сценари\w*[^.!?]*(?:[.!?]|$)/giu, replacement);
+    .replace(/\d+\s+проиндексированн\p{L}*\s+сценари\p{L}*[^.!?]*(?:[.!?]|$)/giu, replacement);
 }
 
 function skillTitle(id: string, locale: LearnerPresentationLocale): string {
@@ -182,7 +193,7 @@ export function sanitizeLearnerPresentationText(
   if (isLearnerMetadataOnlyLine(value)) return "";
 
   let next = replaceIndexedScenarioSentence(value, locale);
-  next = replacePhrases(next, locale);
+  next = locale === "ru" ? replaceRuPhrases(next) : replaceEnPhrases(next);
 
   next = next.replace(
     new RegExp(`\\b${MODULE_ID_SOURCE}\\b(?:\\s*[.:\u00b7\u2014-]\\s*)?`, "giu"),
