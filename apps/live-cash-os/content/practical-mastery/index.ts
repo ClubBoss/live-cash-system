@@ -26,6 +26,7 @@ import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
+import { applyPracticalRuFinalPolish } from "./practical-ru-final-polish";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
@@ -101,6 +102,7 @@ export const practicalDecisions = [
   ...integratedA11ExpansionDecisions,
 ]
   .map(applyPracticalRuCopyRepair)
+  .map(applyPracticalRuFinalPolish)
   .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
