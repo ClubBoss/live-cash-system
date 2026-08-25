@@ -69,6 +69,12 @@ test("every pull request to main instantiates the canonical validate gate while 
     assert.match(validate, new RegExp(`test "\\$${mandatoryResult}" = "success"`));
   }
   assert.match(validate, /if \[\[ "\$VISUAL_REQUIRED" == "1" \]\]; then[\s\S]*?test "\$VISUAL_RESULT" = "success"/);
+
+  const deploy = workflow.slice(deployStart);
+  assert.match(
+    deploy,
+    /if: always\(\) && needs\.validate\.result == 'success' && github\.ref == 'refs\/heads\/main' && \(github\.event_name == 'push' \|\| github\.event_name == 'workflow_dispatch'\)/,
+  );
 });
 
 test("production builds compile the legacy tools compatibility runtime off", async () => {
