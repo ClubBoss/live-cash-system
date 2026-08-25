@@ -35,48 +35,49 @@ jobs:
 
           root = Path('.')
 
-          def replace_once(path, old, new):
+          def replace_count(path, old, new, expected=1):
               p = root / path
               text = p.read_text()
               count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f"{path}: expected one occurrence, found {count}: {old!r}")
-              p.write_text(text.replace(old, new, 1))
+              if count != expected:
+                  raise SystemExit(f"{path}: expected {expected} occurrences, found {count}: {old!r}")
+              p.write_text(text.replace(old, new))
 
-          replace_once(
+          replace_count(
               'tests/practical-variation-b3.test.mjs',
               'new RegExp(`skillId:"${skill}"`)',
               r'new RegExp(`skillId:\\s*"${skill}"`)',
           )
-          for kind in ('recognition', 'decision', 'changed'):
-              replace_once(
+          for kind, expected in (('recognition', 1), ('decision', 1), ('changed', 2)):
+              replace_count(
                   'tests/practical-variation-b3.test.mjs',
                   f'/kind:"{kind}"/g',
                   f'/kind:\\s*"{kind}"/g',
+                  expected,
               )
-          replace_once(
+          replace_count(
               'tests/practical-variation-b3.test.mjs',
               r'/changedVariables:r\.changed/',
               r'/changedVariables:\s*r\.changed/',
           )
-          replace_once(
+          replace_count(
               'tests/practical-variation-b3.test.mjs',
               r'/skillId:"BL-03"[\s\S]*?prefix:"PM-B3-BL03"[\s\S]*?vars1:\["open_size"\][\s\S]*?vars2:\["realisation","rake"\]/',
               r'/skillId:\s*"BL-03"[\s\S]*?prefix:\s*"PM-B3-BL03"[\s\S]*?vars1:\s*\["open_size"\][\s\S]*?vars2:\s*\["realisation",\s*"rake"\]/',
           )
 
-          replace_once(
+          replace_count(
               'tests/source-utilization-c-final.test.mjs',
               '/high-confidence wrong/i',
               '/answers you felt confident about/i',
           )
-          replace_once(
+          replace_count(
               'tests/source-utilization-c-final.test.mjs',
               '/not psychological diagnosis/i',
               '/not a psychological diagnosis/i',
           )
 
-          replace_once(
+          replace_count(
               'tests/version-closure.test.mjs',
               '  assert.match(buildIdentity, /Live Cash OS v\\{APP_VERSION\\} · Build \\{buildLabel\\}/u);',
               '  assert.match(buildIdentity, /Live Cash OS v\\{APP_VERSION\\}/u);\n  assert.doesNotMatch(buildIdentity, /Build \\{buildLabel\\}/u);',
@@ -123,7 +124,7 @@ jobs:
           authority = authority.replace(oldDigest, fingerprint);
           fs.writeFileSync(authorityPath, authority);
 
-          console.log(`REL0CK_DIGEST=${fingerprint}`);
+          console.log(`RELOCK_DIGEST=${fingerprint}`);
           console.log(`RU_REPAIR_BLOB=${manifest.source_blobs[repairPath]}`);
           console.log(`RU_PUBLICATION_BLOB=${manifest.source_blobs[publicationPath]}`);
           NODE
