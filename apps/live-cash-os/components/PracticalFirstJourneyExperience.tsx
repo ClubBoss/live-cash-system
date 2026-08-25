@@ -61,17 +61,15 @@ export default function PracticalFirstJourneyExperience({
 
   useEffect(() => {
     if (!ready || recoveryBlocked || continuityChecked || presentation === null) return;
-    if (presentation === "ACTIVE") {
-      const restored = restoreQuickStartPostAnswer(studyWorkspace, state);
-      if (restored.status === "VALID") {
-        setPracticeStarted(true);
-        setAnsweredDecisionId(restored.decisionId);
-        setAnsweredSkillId(restored.skillId);
-        setActionId(restored.attempt.actionId);
-        setReasonId(restored.attempt.reasonId);
-        setAnswerRevealed(true);
-        setLastCorrect(restored.attempt.correct);
-      }
+    const restored = restoreQuickStartPostAnswer(studyWorkspace, state);
+    if (restored.status === "VALID") {
+      setPracticeStarted(true);
+      setAnsweredDecisionId(restored.decisionId);
+      setAnsweredSkillId(restored.skillId);
+      setActionId(restored.attempt.actionId);
+      setReasonId(restored.attempt.reasonId);
+      setAnswerRevealed(true);
+      setLastCorrect(restored.attempt.correct);
     }
     setContinuityChecked(true);
   }, [continuityChecked, presentation, ready, recoveryBlocked, state, studyWorkspace]);
@@ -90,7 +88,7 @@ export default function PracticalFirstJourneyExperience({
     setAnsweredSkillId(null);
     setAnswerRevealed(false);
     setLastCorrect(null);
-  }, [answeredDecisionId, continuityChecked, decision?.id, presentation, skill?.id]);
+  }, [answeredDecisionId, continuityChecked, decision, presentation, skill, state, studyWorkspace]);
 
   const startPractice = () => {
     if (!skill) return;
