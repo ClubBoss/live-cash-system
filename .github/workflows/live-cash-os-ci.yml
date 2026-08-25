@@ -12,55 +12,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  wave-h-transport-inspect:
-    name: Wave H strict transport corruption localization
+  wave-h-export-transport:
+    name: Export staged Wave H strict transport
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v7
-      - name: Localize strict-00 corruption
+        with:
+          ref: v4-march-wave-c-ru-corpus-firewall
+      - name: Verify strict transport inventory
+        working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          import base64, gzip, hashlib, zlib
-          root=Path('.wave-h-transport')
-          s=(root/'strict-00.b64').read_text().strip()
-          raw=base64.b64decode(s, validate=False)
-          d=zlib.decompressobj(16+zlib.MAX_WBITS)
-          fail=None
-          out=bytearray()
-          for i,b in enumerate(raw):
-              try:
-                  out.extend(d.decompress(bytes([b])))
-              except zlib.error as e:
-                  fail=(i,repr(e))
-                  break
-          print('permissive_decoded_bytes=',len(raw),'zlib_fail=',fail,'out_before_fail=',len(out))
-          approx=0 if fail is None else max(0,(fail[0]*4)//3)
-          print('approx_base64_index=',approx)
-          # Try deletion candidates around the first compressed failure, then across all positions if needed.
-          tail=b''.join(base64.b64decode((root/f'strict-{i:02d}.b64').read_text().strip(), validate=True) for i in range(1,6))
-          def test(idx):
-              c=s[:idx]+s[idx+1:]
-              try: first=base64.b64decode(c, validate=True)
-              except Exception: return None
-              stream=first+tail
-              try: data=gzip.decompress(stream)
-              except Exception: return None
-              return hashlib.sha256(data).hexdigest(),len(data)
-          found=[]
-          lo=max(0,approx-64); hi=min(len(s),approx+65)
-          for idx in range(lo,hi):
-              r=test(idx)
-              if r: found.append((idx,s[idx],r))
-          print('local_candidates=',found)
-          if not found:
-              for idx in range(len(s)):
-                  r=test(idx)
-                  if r:
-                      found.append((idx,s[idx],r))
-              print('global_candidates=',found)
-          PY
+          sha256sum .wave-h-transport/strict-*.b64 .wave-h-transport/strict4-delta.json
+          wc -c .wave-h-transport/strict-*.b64 .wave-h-transport/strict4-delta.json
+      - name: Upload strict transport
+        uses: actions/upload-artifact@v7
+        with:
+          name: v4-march-wave-h-strict-transport-terminal
+          path: |
+            apps/live-cash-os/.wave-h-transport/strict-00.b64
+            apps/live-cash-os/.wave-h-transport/strict-01.b64
+            apps/live-cash-os/.wave-h-transport/strict-02.b64
+            apps/live-cash-os/.wave-h-transport/strict-03.b64
+            apps/live-cash-os/.wave-h-transport/strict-04.b64
+            apps/live-cash-os/.wave-h-transport/strict-05.b64
+            apps/live-cash-os/.wave-h-transport/strict4-delta.json
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 3
