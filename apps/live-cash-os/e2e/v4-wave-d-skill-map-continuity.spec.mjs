@@ -25,6 +25,13 @@ async function selectedSkillTitle(page) {
   return surface.locator("h1").first().innerText();
 }
 
+async function chooseSkill(page, name) {
+  const button = page.locator("button").filter({ hasText: name }).first();
+  const details = button.locator("xpath=ancestor::details[1]");
+  if (!(await details.getAttribute("open"))) await details.locator("summary").click();
+  await button.click();
+}
+
 async function currentSkillMapCursor(page) {
   return page.evaluate((key) => {
     const raw = localStorage.getItem(key);
@@ -58,7 +65,7 @@ test("V4-D E-02 Skill Map selection survives ordinary continuity, fails closed, 
   const masteryBefore = await masterySnapshot(page);
   const attemptsBefore = await attemptCount(page);
 
-  await page.getByRole("button", { name: /^RFI по позиции ·/ }).click();
+  await chooseSkill(page, /RFI по позиции/);
   await expect(selectedSkillSurface(page).getByRole("heading", { name: "RFI по позиции", exact: true })).toBeVisible();
   await expect.poll(() => currentSkillMapCursor(page)).toBe("PF-01");
 
@@ -82,10 +89,7 @@ test("V4-D E-02 Skill Map selection survives ordinary continuity, fails closed, 
   await expect(selectedSkillSurface(page).getByRole("heading", { name: "RFI по позиции", exact: true })).toBeVisible();
   expect(await attemptCount(page)).toBe(attemptsBefore);
 
-  const bvbButton = page.locator("button").filter({ hasText: /BvB 3-bet pots/ }).first();
-  const bvbDetails = bvbButton.locator("xpath=ancestor::details[1]");
-  if (!(await bvbDetails.getAttribute("open"))) await bvbDetails.locator("summary").click();
-  await bvbButton.click();
+  await chooseSkill(page, /BvB 3-bet pots/);
   const main = page.getByRole("main");
   await main.getByRole("button", { name: "EN", exact: true }).click();
   await expect(main).not.toContainText("POSITIVE_EV_SOURCE_ACCESS_REQUIRED");
