@@ -82,7 +82,10 @@ test("V4-D E-02 Skill Map selection survives ordinary continuity, fails closed, 
   await expect(selectedSkillSurface(page).getByRole("heading", { name: "RFI по позиции", exact: true })).toBeVisible();
   expect(await attemptCount(page)).toBe(attemptsBefore);
 
-  await page.getByRole("button", { name: /BvB 3-bet pots/ }).first().click();
+  const bvbButton = page.locator("button").filter({ hasText: /BvB 3-bet pots/ }).first();
+  const bvbDetails = bvbButton.locator("xpath=ancestor::details[1]");
+  if (!(await bvbDetails.getAttribute("open"))) await bvbDetails.locator("summary").click();
+  await bvbButton.click();
   const main = page.getByRole("main");
   await main.getByRole("button", { name: "EN", exact: true }).click();
   await expect(main).not.toContainText("POSITIVE_EV_SOURCE_ACCESS_REQUIRED");
@@ -90,6 +93,7 @@ test("V4-D E-02 Skill Map selection survives ordinary continuity, fails closed, 
   await expect(main).toContainText(/Dedicated SB-vs-BB 3-bet-pot strategy needs a more inspectable source/i);
   expect(await masterySnapshot(page)).toBe(masteryBefore);
   expect(await attemptCount(page)).toBe(attemptsBefore);
+  await main.getByRole("button", { name: "RU", exact: true }).click();
 
   await page.evaluate(({ key }) => {
     const learner = JSON.parse(localStorage.getItem(key));
