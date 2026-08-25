@@ -4,15 +4,29 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { firstJourneyStepForSkill } from "../content/practical-mastery/first-journey";
 import { practicalAnchors, practicalDecisionById, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
-import { clearQuickStartContinuity, restoreQuickStartPostAnswer, withQuickStartPostAnswer } from "../lib/practical-continuity-workspace";
+import {
+  clearQuickStartContinuity,
+  restoreQuickStartDraft,
+  restoreQuickStartPostAnswer,
+  withQuickStartDraft,
+  withQuickStartPostAnswer,
+} from "../lib/practical-continuity-workspace";
 import type { FirstJourneyPresentationState } from "../lib/practical-first-journey-authority";
 import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/practical-mastery-core";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import type { usePracticalProfileState } from "../lib/use-practical-profile-state";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
 
-export default function PracticalFirstJourneyExperience({ presentation }: { presentation: FirstJourneyPresentationState | null }) {
+type PracticalFirstJourneyProfileController = ReturnType<typeof usePracticalProfileState>;
+
+export default function PracticalFirstJourneyExperience({
+  presentation,
+  profile,
+}: {
+  presentation: FirstJourneyPresentationState | null;
+  profile: PracticalFirstJourneyProfileController;
+}) {
   const [locale, setLocale] = usePracticalLocale();
   const {
     mastery: state,
@@ -22,7 +36,7 @@ export default function PracticalFirstJourneyExperience({ presentation }: { pres
     setStudyWorkspace,
     ready,
     recoveryBlocked,
-  } = usePracticalProfileState();
+  } = profile;
   const [practiceStarted, setPracticeStarted] = useState(false);
   const [answeredDecisionId, setAnsweredDecisionId] = useState<string | null>(null);
   const [answeredSkillId, setAnsweredSkillId] = useState<string | null>(null);
@@ -46,7 +60,7 @@ export default function PracticalFirstJourneyExperience({ presentation }: { pres
   const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
 
   useEffect(() => {
-    if (!ready || recoveryBlocked || continuityChecked) return;
+    if (!ready || recoveryBlocked || continuityChecked || presentation === null) return;
     const restored = restoreQuickStartPostAnswer(studyWorkspace, state);
     if (restored.status === "VALID") {
       setPracticeStarted(true);
@@ -58,22 +72,48 @@ export default function PracticalFirstJourneyExperience({ presentation }: { pres
       setLastCorrect(restored.attempt.correct);
     }
     setContinuityChecked(true);
-  }, [continuityChecked, ready, recoveryBlocked, state, studyWorkspace]);
+  }, [continuityChecked, presentation, ready, recoveryBlocked, state, studyWorkspace]);
 
   useEffect(() => {
-    if (!continuityChecked || answeredDecisionId) return;
-    setPracticeStarted(false);
+    if (!continuityChecked || answeredDecisionId || presentation !== "ACTIVE" || !skill || !decision) return;
+    const restored = restoreQuickStartDraft(studyWorkspace, state, skill.id, decision.id);
+    if (restored.status === "VALID") {
+      setPracticeStarted(true);
+      setActionId(restored.selectedActionId ?? "");
+      setReasonId(restored.selectedReasonId ?? "");
+    } else {
+      setActionId("");
+      setReasonId("");
+    }
     setAnsweredSkillId(null);
-    setActionId("");
-    setReasonId("");
     setAnswerRevealed(false);
     setLastCorrect(null);
-  }, [answeredDecisionId, continuityChecked, recommendation?.skillId]);
+  }, [answeredDecisionId, continuityChecked, decision, presentation, skill, state, studyWorkspace]);
 
   const startPractice = () => {
     if (!skill) return;
     setPracticeStarted(true);
     if (!state.skills[skill.id]?.conceptTaught) setMastery(markPracticalConceptTaught(state, skill.id));
+  };
+
+  const persistDraft = (selectedActionId: string | null, selectedReasonId: string | null) => {
+    if (!decision || !skill || answerRevealed) return false;
+    const nextWorkspace = withQuickStartDraft(studyWorkspace, state.contentVersion, {
+      skillId: skill.id,
+      decisionId: decision.id,
+      selectedActionId,
+      selectedReasonId,
+    });
+    if (nextWorkspace === studyWorkspace) return false;
+    return setStudyWorkspace(nextWorkspace);
+  };
+
+  const selectAction = (nextActionId: string) => {
+    if (persistDraft(nextActionId, reasonId || null)) setActionId(nextActionId);
+  };
+
+  const selectReason = (nextReasonId: string) => {
+    if (persistDraft(actionId || null, nextReasonId)) setReasonId(nextReasonId);
   };
 
   const submitDecision = () => {
@@ -96,6 +136,7 @@ export default function PracticalFirstJourneyExperience({ presentation }: { pres
   const advanceDecision = () => {
     const nextWorkspace = clearQuickStartContinuity(studyWorkspace, state.contentVersion);
     if (nextWorkspace !== studyWorkspace && !setStudyWorkspace(nextWorkspace)) return;
+    setPracticeStarted(false);
     setAnsweredDecisionId(null);
     setAnsweredSkillId(null);
     setActionId("");
@@ -169,8 +210,8 @@ export default function PracticalFirstJourneyExperience({ presentation }: { pres
     {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }}>
       <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА" : "ТЕПЕРЬ ТЫ") : (journeyStep.requiresHiddenCue ? "INDEPENDENT CHECK" : "YOUR TURN")}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
         <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
         <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} />

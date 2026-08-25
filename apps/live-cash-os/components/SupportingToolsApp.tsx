@@ -12,6 +12,7 @@ import DiagnosticExperience from "./DiagnosticExperience";
 import Gauntlet4LearningIntegrityLayer from "./Gauntlet4LearningIntegrityLayer";
 import LegacyToolDeepLink from "./LegacyToolDeepLink";
 import LiveCashApp from "./LiveCashApp";
+import PracticalLearnerPresentationGuard from "./PracticalLearnerPresentationGuard";
 import RealUseLessonAssist from "./RealUseLessonAssist";
 import ScrollContinuityGuard from "./ScrollContinuityGuard";
 import Wave5PracticeLayer from "./Wave5PracticeLayer";
@@ -163,6 +164,7 @@ function SupportingToolsRuntime() {
       />
     </>}
     {tab === "data" && <DataSafetyPanel locale={locale} controller={controller} route="tools:data" />}
+    {tab !== "data" ? <PracticalLearnerPresentationGuard /> : null}
   </main>;
 }
 
