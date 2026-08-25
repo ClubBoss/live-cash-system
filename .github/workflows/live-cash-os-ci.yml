@@ -23,19 +23,24 @@ jobs:
       - name: Assemble latest strict transport
         run: |
           set -euo pipefail
-          {
-            for f in \
-              .wave-h-transport/strict-00.b64 \
-              .wave-h-transport/strict-01.b64 \
-              .wave-h-transport/strict-02.b64 \
-              .wave-h-transport/strict-03.b64 \
-              .wave-h-transport/strict-04.b64 \
-              .wave-h-transport/strict-05.b64; do
-              base64 --decode "$f"
-            done
-          } | gzip -dc > wave-h-strict-assembled.ts
-          echo "STRICT_ASSEMBLED_SHA256=$(sha256sum wave-h-strict-assembled.ts | awk '{print $1}')"
-          echo "STRICT_ASSEMBLED_BYTES=$(wc -c < wave-h-strict-assembled.ts)"
+          python - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib, re
+          files=[Path('.wave-h-transport')/f'strict-{i:02d}.b64' for i in range(6)]
+          for f in files:
+              s=f.read_text()
+              bad=re.findall(r'[^A-Za-z0-9+/=\r\n\t ]', s)
+              print(f'{f.name}: chars={len(s)} compact={len("".join(s.split()))} bad={len(bad)} tail={repr(s[-16:])}')
+          compact=''.join(''.join(f.read_text().split()) for f in files)
+          print('joined_mod4=', len(compact)%4, 'joined_chars=', len(compact))
+          compact += '=' * ((4-len(compact)%4)%4)
+          raw=base64.b64decode(compact, validate=False)
+          print('decoded_bytes=',len(raw),'prefix=',raw[:8].hex())
+          out=gzip.decompress(raw)
+          Path('wave-h-strict-assembled.ts').write_bytes(out)
+          print('STRICT_ASSEMBLED_SHA256='+hashlib.sha256(out).hexdigest())
+          print('STRICT_ASSEMBLED_BYTES='+str(len(out)))
+          PY
           echo '--- HEAD ---'
           sed -n '1,40p' wave-h-strict-assembled.ts
           echo '--- TAIL ---'
