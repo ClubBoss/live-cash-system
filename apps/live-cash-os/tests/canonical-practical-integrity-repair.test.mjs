@@ -10,6 +10,7 @@ const read = (relative) => readFile(path.join(root, relative), "utf8");
 const perception = await read("components/PracticalPerceptualExperience.tsx");
 const integrated = await read("components/PracticalIntegratedSessionExperience.tsx");
 const feedback = await read("components/PracticalDecisionFeedback.tsx");
+const feedbackCopy = await read("content/practical-mastery/practical-decision-feedback-copy.ts");
 const reference = await read("components/PracticalReferenceExperience.tsx");
 const mastery = await read("components/PracticalMasteryExperience.tsx");
 const journey = await read("components/PracticalFirstJourneyExperience.tsx");
@@ -46,7 +47,10 @@ test("incorrect practical feedback names canonical action and reason without cha
   assert.match(feedback, /Правильная причина:/);
   assert.match(feedback, /Correct action:/);
   assert.match(feedback, /Correct reason:/);
-  assert.match(feedback, /decision\.explanationRu/);
+  assert.match(feedback, /practicalDecisionFeedbackCopy\(decision\)/);
+  assert.match(feedback, /data-practical-feedback-mechanism/);
+  assert.match(feedbackCopy, /mechanismRu: decision\.explanationRu/);
+  assert.match(feedbackCopy, /mechanismEn: decision\.explanationEn/);
   for (const source of [perception, integrated, journey]) assert.match(source, /<PracticalDecisionFeedback/);
 });
 
