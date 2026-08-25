@@ -24,7 +24,7 @@ test("build identity is present without affecting the learner flow", async ({ pa
   await expect(build).toBeVisible();
   await expect(build).toHaveAttribute("data-build-sha", /.+/);
   await expect(build).toHaveAttribute("data-app-version", /^\d+\.\d+\.\d+$/);
-  await expect(build).toContainText(/^Live Cash OS v\d+\.\d+\.\d+ · Build /);
+  await expect(build).toHaveText(/^Live Cash OS v\d+\.\d+\.\d+$/);
 });
 
 test("English shell keeps the same terminology and warm-up contract", async ({ page }) => {
