@@ -25,6 +25,13 @@ export type PracticalContinuityWorkspace = {
   quickStart: {
     skillId: string;
     decisionId: string;
+    selectedActionId: string | null;
+    selectedReasonId: string | null;
+    phase: "IN_PROGRESS";
+    updatedAt: string;
+  } | {
+    skillId: string;
+    decisionId: string;
     attemptId: string;
     phase: "POST_ANSWER";
     updatedAt: string;
@@ -120,9 +127,13 @@ function validContinuityWorkspace(value: unknown): value is PracticalContinuityW
     if (!isRecord(value.quickStart)
       || typeof value.quickStart.skillId !== "string"
       || typeof value.quickStart.decisionId !== "string"
-      || typeof value.quickStart.attemptId !== "string"
-      || value.quickStart.phase !== "POST_ANSWER"
       || typeof value.quickStart.updatedAt !== "string") return false;
+    if (value.quickStart.phase === "POST_ANSWER") {
+      if (typeof value.quickStart.attemptId !== "string") return false;
+    } else if (value.quickStart.phase === "IN_PROGRESS") {
+      if (!(value.quickStart.selectedActionId === null || typeof value.quickStart.selectedActionId === "string")
+        || !(value.quickStart.selectedReasonId === null || typeof value.quickStart.selectedReasonId === "string")) return false;
+    } else return false;
   }
   if (value.integrated !== null) {
     if (!isRecord(value.integrated)
