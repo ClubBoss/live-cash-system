@@ -10,6 +10,10 @@ async function useLocalWaveDFixture(page) {
 
 async function patchPracticalSkills(page, patches) {
   await page.goto("/mastery/journey");
+  const hasProfile = await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY);
+  if (!hasProfile) {
+    await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  }
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
   await page.evaluate(({ key, patches: skillPatches }) => {
     const raw = localStorage.getItem(key);
