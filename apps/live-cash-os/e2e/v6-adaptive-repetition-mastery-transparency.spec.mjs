@@ -26,7 +26,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("V6 learner can see partial evidence behind a still-low Skill Map percentage", async ({ page }) => {
+test("V6 learner can see domain and selected-skill progress requirements without inflated mastery", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   await answerVisibleQuickStartCard(page);
@@ -37,4 +37,17 @@ test("V6 learner can see partial evidence behind a still-low Skill Map percentag
   await expect(page.getByText(/The percentage moves only after enough distinct independent decisions/)).toBeVisible();
   await expect(page.getByText(/skills are building evidence\. An exact repeat of an already-correct example counts once\./)).toBeVisible();
   await expect(page.getByText(/Recent practice: [01]\/1 correct · [01] distinct correct examples · latest confidence 65%\. Confidence alone does not raise mastery\./)).toBeVisible();
+
+  const selectedSkill = page.getByText("HOW THIS SKILL ADVANCES", { exact: true }).locator("xpath=ancestor::div[contains(@class,'today-card')][1]");
+  await expect(selectedSkill).toBeVisible();
+  await expect(selectedSkill.getByText(/next required step/)).toBeVisible();
+  await expect(selectedSkill.getByText(/Still needed:/)).toBeVisible();
+  await expect(selectedSkill.getByText(/More practice is required for a new kind of check/)).toBeVisible();
+  await expect(selectedSkill.getByText(/Recent practice: [01]\/1 correct · [01] distinct correct examples · latest confidence 65%\./)).toBeVisible();
+
+  await page.getByRole("button", { name: "RU", exact: true }).click();
+  await expect(page.getByText("КАК РАСТЁТ ЭТОТ НАВЫК", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Ещё нужно:/)).toBeVisible();
+  await expect(page.getByText(/Дополнительная практика нужна для нового типа проверки/)).toBeVisible();
+  await expect(page.locator("body")).not.toContainText(/Частичное evidence|набирают evidence|накапливают evidence|повышает mastery/);
 });
