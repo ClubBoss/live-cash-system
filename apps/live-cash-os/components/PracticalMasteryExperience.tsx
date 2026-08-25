@@ -162,7 +162,7 @@ export default function PracticalMasteryExperience() {
       <p>{skillObjective(skill, locale)}</p>
       <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
 
-      {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.reasonRu : gap.reason}</p><p className="support">{locale === "ru" ? gap.nextEvidenceNeededRu : gap.nextEvidenceNeeded}</p></div> : null}
+      {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.learnerReasonRu : gap.learnerReason}</p><p className="support">{locale === "ru" ? gap.learnerNextEvidenceNeededRu : gap.learnerNextEvidenceNeeded}</p></div> : null}
       {!availableIds.has(skill.id) ? <p className="support">{locale === "ru" ? `Сначала нужны: ${hardPrerequisiteTitles.join(", ") || "предыдущие базовые навыки"}.` : `First complete: ${hardPrerequisiteTitles.join(", ") || "the required foundations"}.`}</p> : null}
 
       <div className="today-card" style={{ marginTop: 18 }}>

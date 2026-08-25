@@ -19,6 +19,8 @@ export type StudyLoopStep = {
   instructionEn: string;
   evidenceRuleRu: string;
   evidenceRule: string;
+  learnerEvidenceRuleRu: string;
+  learnerEvidenceRule: string;
   sourceRefs: readonly string[];
 };
 
@@ -31,6 +33,8 @@ export const practicalStudyLoop: StudyLoopStep[] = [
     instructionEn: "Choose one current mechanism/repair cue. Do not try to hold the whole course in working memory.",
     evidenceRuleRu: "Фокус бери из текущих ошибок и рекомендаций. Одна заметка сама по себе не доказывает навык.",
     evidenceRule: "Use current scheduler/repair truth; a focus note is not mastery evidence.",
+    learnerEvidenceRuleRu: "Выбирай фокус из ошибок, которые ещё повторяются, или из предложенного следующего навыка. Сам факт записи ещё не означает, что навык усвоен.",
+    learnerEvidenceRule: "Choose the focus from mistakes that are still showing up or from the suggested next skill. Writing it down does not prove the skill is learned.",
     sourceRefs: STUDY_LOOP_SOURCE_REFS,
   },
   {
@@ -41,6 +45,8 @@ export const practicalStudyLoop: StudyLoopStep[] = [
     instructionEn: "After play, save 1–3 decisions where reasoning was uncertain or conflicted with the current model. Winning or losing the pot does not itself make the decision good or bad.",
     evidenceRuleRu: "Сохранённая рука — материал для разбора, а не автоматический прогресс навыка.",
     evidenceRule: "Capture is an input to review; it does not advance mastery on its own.",
+    learnerEvidenceRuleRu: "Сохранённая рука — материал для разбора. Она сама по себе ещё не показывает, что решение уже стало надёжным.",
+    learnerEvidenceRule: "A saved hand is material for review. By itself, it does not show that the decision process is already reliable.",
     sourceRefs: STUDY_LOOP_SOURCE_REFS,
   },
   {
@@ -51,6 +57,8 @@ export const practicalStudyLoop: StudyLoopStep[] = [
     instructionEn: "Review one hand through the decision state: what was known, which trigger was missed, which mechanism was misapplied and which rule boundary failed.",
     evidenceRuleRu: "Исправляй причину: распознавание, объяснение, перенос или границу правила — а не просто повторяй ту же тему.",
     evidenceRule: "Prefer the existing recognition/reasoning/transfer/boundary repair taxonomy over topic repetition.",
+    learnerEvidenceRuleRu: "Исправляй конкретную причину: пропущенный сигнал, ошибочную логику, плохой перенос или границу правила — а не просто повторяй название темы.",
+    learnerEvidenceRule: "Fix the specific failure: a missed cue, wrong reasoning, poor transfer, or a rule boundary. Do not just repeat the topic name.",
     sourceRefs: STUDY_LOOP_SOURCE_REFS,
   },
   {
@@ -61,6 +69,8 @@ export const practicalStudyLoop: StudyLoopStep[] = [
     instructionEn: "Write Trigger → Meaning → Action plus reversal/boundary. Do not save a solver action without its assumptions.",
     evidenceRuleRu: "Записанное правило помогает учиться, но ещё не доказывает, что ты применишь его за столом.",
     evidenceRule: "A written rule is a study artifact, not proof of decision competence.",
+    learnerEvidenceRuleRu: "Записанное правило помогает учиться, но его ещё нужно проверить в новых решениях без подсказки.",
+    learnerEvidenceRule: "A written rule is a study aid. It still has to work in fresh decisions without a hint.",
     sourceRefs: STUDY_LOOP_SOURCE_REFS,
   },
   {
@@ -71,6 +81,8 @@ export const practicalStudyLoop: StudyLoopStep[] = [
     instructionEn: "Test the rule on a changed-node or topic-hidden rep. If the conclusion stays fixed when a causal variable changes, the repair is not learned.",
     evidenceRuleRu: "Используй обычные задачи Practical Mastery; отдельной оценки за работу над игрой нет.",
     evidenceRule: "Use ordinary Practical Mastery scored evidence; do not create a parallel study score.",
+    learnerEvidenceRuleRu: "Проверь тот же механизм в новой задаче с изменёнными условиями. Отдельного балла за эту страницу работы над игрой нет.",
+    learnerEvidenceRule: "Retest the same mechanism in a fresh spot with changed conditions. This study page does not create a separate score.",
     sourceRefs: STUDY_LOOP_SOURCE_REFS,
   },
   {
@@ -81,6 +93,8 @@ export const practicalStudyLoop: StudyLoopStep[] = [
     instructionEn: "After a successful repair, return the mechanism to delayed/hidden practice. One correct answer immediately after review is not mastery.",
     evidenceRuleRu: "Проверка через 1/3/7 дней остаётся на новых, не идентичных задачах.",
     evidenceRule: "Existing 1/3/7-day non-identical retention remains the authority.",
+    learnerEvidenceRuleRu: "Вернись через 1, 3 или 7 дней и реши другую, не идентичную задачу без подсказки.",
+    learnerEvidenceRule: "Come back after 1, 3, or 7 days and use a different, non-identical spot without the cue.",
     sourceRefs: STUDY_LOOP_SOURCE_REFS,
   },
 ];
