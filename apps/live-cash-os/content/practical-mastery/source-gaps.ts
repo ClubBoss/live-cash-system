@@ -7,6 +7,10 @@ export type PracticalSourceGap = {
   nextEvidenceNeeded: string;
   reasonRu: string;
   nextEvidenceNeededRu: string;
+  learnerReason: string;
+  learnerNextEvidenceNeeded: string;
+  learnerReasonRu: string;
+  learnerNextEvidenceNeededRu: string;
 };
 
 export const practicalSourceGaps: PracticalSourceGap[] = [
@@ -17,6 +21,10 @@ export const practicalSourceGaps: PracticalSourceGap[] = [
     nextEvidenceNeeded: "POSITIVE_EV_SOURCE_ACCESS_REQUIRED: review an inspectable SB-vs-BB 3BP solver/source package (or owner-provided course material) before admitting dedicated scored BvB 3BP frequencies/hand branches. Until then, route BvB 3BP learners through generic 3BP role mechanics plus BvB range identity without claiming a distinct solved tree.",
     reasonRu: "Для отдельной игры SB против BB в 3-бет-банке нужен более подробный источник. Общие принципы игры из блайндов и 3-бет-банков подтверждены, но доступных материалов пока недостаточно, чтобы честно задавать точные частоты и границы рук именно для этого спота.",
     nextEvidenceNeededRu: "Пока используй общие принципы 3-бет-банков и учитывай особенности диапазонов SB и BB. Отдельные точные решения для этого спота появятся только после проверки подходящего solver- или course-источника.",
+    learnerReason: "Dedicated SB-vs-BB 3-bet-pot strategy needs a more inspectable source. General blind and 3-bet-pot principles are supported, but the available material is not sufficient to present exact frequencies or hand boundaries for this spot.",
+    learnerNextEvidenceNeeded: "For now, use general 3-bet-pot mechanics together with the specific SB and BB ranges. Exact spot-specific branches will be added only after an inspectable solver or course source is reviewed.",
+    learnerReasonRu: "Для отдельной игры SB против BB в 3-бет-банке нужен более подробный источник. Общие принципы игры из блайндов и 3-бет-банков подтверждены, но доступных материалов пока недостаточно, чтобы честно задавать точные частоты и границы рук именно для этого спота.",
+    learnerNextEvidenceNeededRu: "Пока используй общие принципы 3-бет-банков и учитывай особенности диапазонов SB и BB. Отдельные точные решения для этого спота появятся только после проверки подходящего solver- или course-источника.",
   },
 ];
 
