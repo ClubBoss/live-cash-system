@@ -8,12 +8,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-wave-h-map-${{ github.ref }}
+  group: live-cash-os-wave-h-baseline-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  wave-h-map:
-    name: Wave H failure-map snapshot
+  wave-h-baseline:
+    name: Wave H immutable baseline
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,16 +27,42 @@ jobs:
           cache-dependency-path: apps/live-cash-os/package-lock.json
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-      - name: Capture baseline reachable RU gate
+      - name: Capture reachable machine fingerprint
+        run: |
+          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE' > wave-h-fingerprint.log
+          import { createHash } from "node:crypto";
+          import { practicalDecisions } from "./content/practical-mastery/index.ts";
+          import { runtimeCorpusAuditLedger } from "./content/practical-mastery/audit-surface.ts";
+          const ledger = runtimeCorpusAuditLedger();
+          const reachableIds = new Set(ledger.rows.filter((row) => row.itemKind === "DECISION" && row.reachable).map((row) => row.itemId));
+          const reachable = practicalDecisions.filter((decision) => reachableIds.has(decision.id));
+          const projection = (decision) => ({
+            id: decision.id,
+            skillId: decision.skillId,
+            kind: decision.kind,
+            sourceRefs: decision.sourceRefs,
+            actionIds: decision.actionOptions.map((option) => option.id),
+            reasonIds: decision.reasonOptions.map((option) => option.id),
+            actionMisconceptions: decision.actionOptions.map((option) => option.misconception ?? null),
+            reasonMisconceptions: decision.reasonOptions.map((option) => option.misconception ?? null),
+            correctActionId: decision.correctActionId,
+            correctReasonId: decision.correctReasonId,
+            targetSeconds: decision.targetSeconds,
+            changedVariables: decision.changedVariables ?? null,
+          });
+          const fingerprint = createHash("sha256").update(JSON.stringify(reachable.map(projection))).digest("hex");
+          const fields = reachable.flatMap((decision) => [decision.cueRu, decision.questionRu, decision.explanationRu, ...decision.actionOptions.map((option) => option.textRu), ...decision.reasonOptions.map((option) => option.textRu)]).filter(Boolean);
+          console.log(`WAVE_H_MACHINE_BASELINE reachable_decisions=${reachable.length} reachable_fields=${fields.length} fingerprint=${fingerprint}`);
+          NODE
+          cat wave-h-fingerprint.log
+      - name: Capture reachable RU baseline
         run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="reachable RU scored corpus" tests/v4-march-wave-c-integrity.test.mjs > wave-h-baseline.log 2>&1 || true
-      - name: Archive canonical content snapshot
-        run: tar -czf wave-h-source.tgz content/practical-mastery tests/v4-march-wave-c-integrity.test.mjs package.json package-lock.json
-      - name: Upload Wave H map packet
+      - name: Upload Wave H baseline packet
         uses: actions/upload-artifact@v4
         with:
-          name: v4-march-wave-h-map
+          name: v4-march-wave-h-baseline
           path: |
+            apps/live-cash-os/wave-h-fingerprint.log
             apps/live-cash-os/wave-h-baseline.log
-            apps/live-cash-os/wave-h-source.tgz
           if-no-files-found: error
           retention-days: 3
