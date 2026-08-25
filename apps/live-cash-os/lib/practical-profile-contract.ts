@@ -36,6 +36,10 @@ export type PracticalContinuityWorkspace = {
     submittedAttemptIds: string[];
     updatedAt: string;
   } | null;
+  perceptual?: {
+    decisionId: string;
+    updatedAt: string;
+  } | null;
 };
 
 export type PracticalStudyWorkspace = {
@@ -130,6 +134,11 @@ function validContinuityWorkspace(value: unknown): value is PracticalContinuityW
       || value.integrated.submittedAttemptIds.length !== value.integrated.nextIndex
       || !value.integrated.submittedAttemptIds.every((id) => typeof id === "string")
       || typeof value.integrated.updatedAt !== "string") return false;
+  }
+  if (value.perceptual !== undefined && value.perceptual !== null) {
+    if (!isRecord(value.perceptual)
+      || typeof value.perceptual.decisionId !== "string"
+      || typeof value.perceptual.updatedAt !== "string") return false;
   }
   return true;
 }
