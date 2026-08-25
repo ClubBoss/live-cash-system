@@ -6,9 +6,12 @@ const CORRECT_HEADING = /Верно|Correct/;
 const REPAIR_HEADING = /Нужно исправить|Repair needed/;
 
 async function openCurrentDecision(page) {
-  const start = page.getByRole("button", { name: /Проверить на примере|Try an example/ });
-  if (await start.isVisible()) await start.click();
   const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
+  if (await answer.isVisible()) return answer;
+
+  const start = page.getByRole("button", { name: /Проверить на примере|Try an example/ });
+  await expect(start).toBeVisible();
+  await start.click();
   await expect(answer).toBeVisible();
   return answer;
 }
