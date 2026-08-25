@@ -19,13 +19,6 @@ import PracticalNextLearningLink from "./PracticalNextLearningLink";
 
 type Locale = "ru" | "en";
 
-type LearnerSafeGapProjection = {
-  learnerReason?: string;
-  learnerNextEvidenceNeeded?: string;
-  learnerReasonRu?: string;
-  learnerNextEvidenceNeededRu?: string;
-};
-
 const waveLabels: Record<string, { ru: string; en: string }> = {
   W1_FOUNDATION: { ru: "База решений", en: "Decision foundations" },
   W2_PREFLOP: { ru: "Префлоп", en: "Preflop" },
@@ -41,11 +34,6 @@ const waveLabels: Record<string, { ru: string; en: string }> = {
   W12_DEEP_STRADDLE: { ru: "Глубокие стеки и страддлы", en: "Deep stacks and straddles" },
   W13_EXPLOIT_LIVE: { ru: "Эксплойт и live-наблюдения", en: "Exploit and live reads" },
   W14_INTEGRATED: { ru: "Интеграция", en: "Integration" },
-};
-
-const cLearnerSafeGapFallback = {
-  learnerReason: "Dedicated SB-vs-BB 3-bet-pot strategy needs a more inspectable source. General blind and 3-bet-pot principles are supported, but the available material is not sufficient to present exact frequencies or hand boundaries for this spot.",
-  learnerNextEvidenceNeeded: "For now, use general 3-bet-pot mechanics together with the specific SB and BB ranges. Exact spot-specific branches will be added only after an inspectable solver or course source is reviewed.",
 };
 
 function waveLabel(wave: string, locale: Locale): string {
@@ -87,23 +75,6 @@ function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
   return locale === "ru" ? skill.objectiveRu : `Use ${skill.titleEn} reliably in independent decisions and changed conditions.`;
 }
 
-function learnerSafeGapCopy(
-  gap: NonNullable<ReturnType<typeof practicalSourceGapBySkillId.get>>,
-  locale: Locale,
-): { reason: string; nextEvidenceNeeded: string } {
-  const projected = gap as typeof gap & LearnerSafeGapProjection;
-  if (locale === "ru") {
-    return {
-      reason: projected.learnerReasonRu ?? gap.reasonRu,
-      nextEvidenceNeeded: projected.learnerNextEvidenceNeededRu ?? gap.nextEvidenceNeededRu,
-    };
-  }
-  return {
-    reason: projected.learnerReason ?? cLearnerSafeGapFallback.learnerReason,
-    nextEvidenceNeeded: projected.learnerNextEvidenceNeeded ?? cLearnerSafeGapFallback.learnerNextEvidenceNeeded,
-  };
-}
-
 export default function PracticalMasteryExperience() {
   const [locale, setLocale] = usePracticalLocale();
   const {
@@ -136,7 +107,6 @@ export default function PracticalMasteryExperience() {
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
   const progress = state.skills[skill.id];
   const gap = practicalSourceGapBySkillId.get(skill.id);
-  const gapCopy = gap ? learnerSafeGapCopy(gap, locale) : null;
   const hardPrerequisiteIds = hardDependenciesFor(skill.id).map((dependency) => dependency.fromSkillId);
   const hardPrerequisiteTitles = hardPrerequisiteIds
     .map((id) => practicalSkillFamilies.find((candidate) => candidate.id === id))
@@ -217,7 +187,7 @@ export default function PracticalMasteryExperience() {
       <p>{skillObjective(skill, locale)}</p>
       <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
 
-      {gapCopy ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{gapCopy.reason}</p><p className="support">{gapCopy.nextEvidenceNeeded}</p></div> : null}
+      {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.learnerReasonRu : gap.learnerReason}</p><p className="support">{locale === "ru" ? gap.learnerNextEvidenceNeededRu : gap.learnerNextEvidenceNeeded}</p></div> : null}
       {!availableIds.has(skill.id) ? <p className="support">{locale === "ru" ? `Сначала нужны: ${hardPrerequisiteTitles.join(", ") || "предыдущие базовые навыки"}.` : `First complete: ${hardPrerequisiteTitles.join(", ") || "the required foundations"}.`}</p> : null}
 
       <div className="today-card" style={{ marginTop: 18 }}>
