@@ -82,7 +82,6 @@ function applyMetadataFirewall(root: HTMLElement) {
   for (const element of Array.from(root.querySelectorAll<HTMLElement>("p, small, span, b, h1, h2, h3, h4, li, summary"))) {
     const text = element.textContent?.trim() ?? "";
     if (!text || (!sourceLinePattern.test(text) && !containsMachineMetadata(text))) continue;
-    if (element.children.length > 0) continue;
     element.hidden = true;
     element.setAttribute("aria-hidden", "true");
   }
