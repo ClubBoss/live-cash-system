@@ -50,11 +50,15 @@ jobs:
           target.write_text(text)
           PY
           git diff --check
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add components/PracticalMasteryExperience.tsx
-          git commit -m "integrate: reconcile C/D mastery continuity [skip ci]"
-          git push origin HEAD:integration/v4-final-fast-prep-20260825
+          if git diff --cached --quiet; then
+            echo "C/D seam already reconciled at current head"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "integrate: reconcile C/D mastery continuity [skip ci]"
+            git push origin HEAD:integration/v4-final-fast-prep-20260825
+          fi
           echo "INTEGRATION_VALIDATED_SHA=$(git rev-parse HEAD)"
           echo "INTEGRATION_VALIDATED_TREE=$(git rev-parse HEAD^{tree})"
       - name: Install dependencies
