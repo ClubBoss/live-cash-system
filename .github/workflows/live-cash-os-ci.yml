@@ -421,7 +421,7 @@ jobs:
           echo "Complete release gate GREEN: static + 4 core projects + 9 Wave C cases + 3 mastery-cross projects + visual policy."
 
   deploy-test-mirror:
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: always() && needs.validate.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: validate
     runs-on: ubuntu-latest
     env:
