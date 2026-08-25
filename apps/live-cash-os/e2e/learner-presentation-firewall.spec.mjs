@@ -22,25 +22,27 @@ test("Reference and Real Hands keep internal metadata behind the learner present
   await localOnly(page);
 
   await page.goto("/mastery/reference");
+  const referenceMain = page.locator("main");
   await expectLearnerSafe(page);
-  await expect(page.locator("main")).toContainText("Точные частоты здесь пока не установлены");
-  await expect(page.locator("main")).toContainText("В этой группе много разных конфигураций");
-  await expect(page.locator("main")).not.toContainText("980 проиндексированных сценариев");
+  await expect(referenceMain).toContainText("Точные частоты здесь пока не установлены");
+  await expect(referenceMain).toContainText("В этой группе много разных конфигураций");
+  await expect(referenceMain).not.toContainText("980 проиндексированных сценариев");
 
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await referenceMain.getByRole("button", { name: "EN", exact: true }).click();
   await expectLearnerSafe(page);
-  await expect(page.locator("main")).toContainText("Exact frequencies are not established here yet");
-  await expect(page.locator("main")).toContainText("This reference family contains many distinct configurations");
-  await expect(page.locator("main")).not.toContainText("980 indexed scenarios");
+  await expect(referenceMain).toContainText("Exact frequencies are not established here yet");
+  await expect(referenceMain).toContainText("This reference family contains many distinct configurations");
+  await expect(referenceMain).not.toContainText("980 indexed scenarios");
 
   await page.goto("/tools?tab=field");
+  const toolsMain = page.locator("main");
   await expect(page.getByRole("navigation", { name: "Support tools" })).toBeVisible();
   await expectLearnerSafe(page);
-  await expect(page.locator("main")).toContainText("practice topic");
-  await expect(page.locator("main")).not.toContainText("exact Practical skill");
+  await expect(toolsMain).toContainText("practice topic");
+  await expect(toolsMain).not.toContainText("exact Practical skill");
 
-  await page.getByRole("button", { name: "RU", exact: true }).click();
+  await toolsMain.getByRole("button", { name: "RU", exact: true }).click();
   await expectLearnerSafe(page);
-  await expect(page.locator("main")).toContainText("точная тема для тренировки");
-  await expect(page.locator("main")).not.toContainText("точным навыком Practical");
+  await expect(toolsMain).toContainText("точная тема для тренировки");
+  await expect(toolsMain).not.toContainText("точным навыком Practical");
 });
