@@ -40,6 +40,10 @@ export type PracticalContinuityWorkspace = {
     decisionId: string;
     updatedAt: string;
   } | null;
+  skillMap?: {
+    skillId: string;
+    updatedAt: string;
+  } | null;
 };
 
 export type PracticalStudyWorkspace = {
@@ -139,6 +143,11 @@ function validContinuityWorkspace(value: unknown): value is PracticalContinuityW
     if (!isRecord(value.perceptual)
       || typeof value.perceptual.decisionId !== "string"
       || typeof value.perceptual.updatedAt !== "string") return false;
+  }
+  if (value.skillMap !== undefined && value.skillMap !== null) {
+    if (!isRecord(value.skillMap)
+      || typeof value.skillMap.skillId !== "string"
+      || typeof value.skillMap.updatedAt !== "string") return false;
   }
   return true;
 }
