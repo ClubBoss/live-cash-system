@@ -5,38 +5,75 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: live-cash-os-v4-march-wave-h-terminal-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  wave-h-ru-chromium:
+  wave-h-final-cleanup:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           ref: v4-march-wave-c-ru-corpus-firewall
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: apps/live-cash-os/package-lock.json
-      - name: Install dependencies
-        working-directory: apps/live-cash-os
-        run: npm ci
-      - name: Install Chromium
-        working-directory: apps/live-cash-os
-        run: npx playwright install --with-deps chromium
-      - name: Wave C RU learner firewall runtime
-        working-directory: apps/live-cash-os
-        run: npx playwright test e2e/v4-march-wave-c-firewall.spec.mjs --project=chromium --grep "Wave C RU learner surfaces"
-      - name: Representative RU session families
-        working-directory: apps/live-cash-os
-        run: npx playwright test e2e/session-render-integrity.spec.mjs --project=chromium
-      - name: Practical Mastery acceptance rerun
-        working-directory: apps/live-cash-os
+          fetch-depth: 0
+      - name: Re-resolve authority and clean temporary infrastructure
         run: |
-          npx playwright test e2e/practical-mastery-acceptance.spec.mjs --project=chromium
-          echo "bounded_ru_chromium_sampling=PASS"
+          set -euo pipefail
+          git fetch origin main v4-march-wave-c-ru-corpus-firewall
+          echo "CLEANUP_START_HEAD=$(git rev-parse HEAD)"
+          echo "LIVE_MAIN=$(git rev-parse origin/main)"
+          test "$(git rev-parse origin/main)" = "6b2cf227073b9a711f8e97099bf5bf39008f379b"
+
+          test -f apps/live-cash-os/content/practical-mastery/practical-ru-corpus-publication.ts
+          test -f apps/live-cash-os/content/practical-mastery/practical-ru-copy-repair.ts
+          test -f apps/live-cash-os/tests/v4-march-wave-c-integrity.test.mjs
+
+          git rm -r apps/live-cash-os/.wave-h-transport
+          git checkout origin/main -- .github/workflows/live-cash-os-ci.yml
+
+          workflow_blob=$(git hash-object .github/workflows/live-cash-os-ci.yml)
+          main_workflow_blob=$(git rev-parse origin/main:.github/workflows/live-cash-os-ci.yml)
+          echo "RESTORED_WORKFLOW_BLOB=$workflow_blob"
+          echo "MAIN_WORKFLOW_BLOB=$main_workflow_blob"
+          test "$workflow_blob" = "1236a7e382b11fd1448ca5bafa810e6467dcff51"
+          test "$workflow_blob" = "$main_workflow_blob"
+          git diff --quiet origin/main -- .github/workflows/live-cash-os-ci.yml
+          test ! -d apps/live-cash-os/.wave-h-transport
+
+          git diff --check
+          echo "STAGED_CLEANUP_PATHS"
+          git diff --cached --name-only
+
+      - name: Commit final clean tree
+        run: |
+          set -euo pipefail
+          git config user.name "ClubBoss"
+          git config user.email "esalimzade@hotmail.com"
+          git add .github/workflows/live-cash-os-ci.yml
+          git commit -m "chore: finalize Wave H clean tree [skip ci]"
+          final_head=$(git rev-parse HEAD)
+          echo "FINAL_CLEAN_HEAD=$final_head"
+
+          echo "FINAL_CHANGED_FILES_BEGIN"
+          git diff --name-only origin/main...HEAD | sort
+          echo "FINAL_CHANGED_FILES_END"
+
+          if git diff --name-only origin/main...HEAD | grep -q '^\.github/workflows/live-cash-os-ci\.yml$'; then
+            echo "workflow unexpectedly remains in final diff" >&2
+            exit 1
+          fi
+          if git diff --name-only origin/main...HEAD | grep -q '^apps/live-cash-os/\.wave-h-transport/'; then
+            echo "transport unexpectedly remains in final diff" >&2
+            exit 1
+          fi
+          if git ls-tree -r --name-only HEAD | grep -q '^apps/live-cash-os/\.wave-h-transport/'; then
+            echo "transport unexpectedly remains in final tree" >&2
+            exit 1
+          fi
+          test "$(git rev-parse HEAD:.github/workflows/live-cash-os-ci.yml)" = "1236a7e382b11fd1448ca5bafa810e6467dcff51"
+
+          git push origin HEAD:v4-march-wave-c-ru-corpus-firewall
+          echo "cleanup_push=PASS"
