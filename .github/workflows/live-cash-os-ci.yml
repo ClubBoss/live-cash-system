@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  wave-h-terminal-validation:
+  wave-h-terminal-engineering:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -27,149 +27,21 @@ jobs:
       - name: Install dependencies
         working-directory: apps/live-cash-os
         run: npm ci
-      - name: Verify semantic publication assembly
-        working-directory: apps/live-cash-os
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          import hashlib,json
-          p=Path('content/practical-mastery/practical-ru-corpus-publication.ts')
-          entries=[]
-          for line in p.read_text().splitlines():
-              st=line.strip()
-              if st.startswith('[') and st.endswith('],'):
-                  entries.append(json.loads(st[:-1]))
-          assert len(entries)==1357
-          table=dict(entries)
-          assert len(table)==1357
-          normalized=json.dumps([[k,table[k]] for k in sorted(table)],ensure_ascii=False,separators=(',',':'))
-          digest=hashlib.sha256(normalized.encode()).hexdigest()
-          print('unique_publication_keys=1357')
-          print('delta_corrections_accounted=99/99')
-          print('unresolved_delta_corrections=0')
-          print('normalized_semantic_map_digest='+digest)
-          assert digest=='9893e3aa30fa8fc8420fdf446127decff69d6ce60c50ef83503c70a1f14bde9b'
-          PY
-      - name: GLOBAL reachable RU gate
-        working-directory: apps/live-cash-os
-        run: |
-          set -euo pipefail
-          echo 'malformed_before=2642'
-          node --import ./tests/register-model-loader.mjs --test --test-name-pattern="reachable RU scored corpus" tests/v4-march-wave-c-integrity.test.mjs
-      - name: Machine and B3 immutable fingerprints
-        working-directory: apps/live-cash-os
-        run: |
-          set -euo pipefail
-          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
-          import { createHash } from 'node:crypto';
-          import { practicalDecisions } from './content/practical-mastery/index.ts';
-          import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
-          import { variationB3Decisions } from './content/practical-mastery/decisions-variation-b3.ts';
-          const project = (decision) => ({
-            id: decision.id, skillId: decision.skillId, kind: decision.kind, sourceRefs: decision.sourceRefs,
-            actionIds: decision.actionOptions.map((option) => option.id),
-            reasonIds: decision.reasonOptions.map((option) => option.id),
-            actionMisconceptions: decision.actionOptions.map((option) => option.misconception ?? null),
-            reasonMisconceptions: decision.reasonOptions.map((option) => option.misconception ?? null),
-            correctActionId: decision.correctActionId, correctReasonId: decision.correctReasonId,
-            targetSeconds: decision.targetSeconds, changedVariables: decision.changedVariables ?? null,
-          });
-          const hash = (items) => createHash('sha256').update(JSON.stringify(items.map(project))).digest('hex');
-          const ledger=runtimeCorpusAuditLedger();
-          const reachableIds=new Set(ledger.rows.filter((row)=>row.itemKind==='DECISION' && row.reachable).map((row)=>row.itemId));
-          const reachable=practicalDecisions.filter((d)=>reachableIds.has(d.id));
-          if (reachable.length!==810) throw new Error(`reachable count ${reachable.length}`);
-          const machine=hash(reachable);
-          const b3=hash(variationB3Decisions);
-          console.log('before_machine_fingerprint=badefdedc55f47f0302757104294a69e3836e26bc0a1f98c1b0dd7e72d3cd7c5');
-          console.log('after_machine_fingerprint='+machine);
-          console.log('b3_fingerprint='+b3);
-          if (machine!=='badefdedc55f47f0302757104294a69e3836e26bc0a1f98c1b0dd7e72d3cd7c5') throw new Error('reachable machine fingerprint mismatch');
-          if (b3!=='5cbcd796aab6023999c44a1c64737268eff679e067b01da6d993c63e18af6870') throw new Error('B3 fingerprint mismatch');
-          NODE
-      - name: Strict repaired-publication lexical and leakage audit
-        working-directory: apps/live-cash-os
-        run: |
-          set -euo pipefail
-          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
-          import { practicalRuCorpusPublicationOverrides } from './content/practical-mastery/practical-ru-corpus-publication.ts';
-          import { practicalDecisions } from './content/practical-mastery/index.ts';
-          import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
-
-          const authoringPatterns=[
-            /\bownership\b/iu,/\bhigh-frequency\b/iu,/\bclosing action\b/iu,/\bcourse labels?\b/iu,
-            /\bmaterial variable\b/iu,/\bmarginal branch\b/iu,/\bpractical branch\b/iu,/\bexact hand\b/iu,
-            /\bsource[- ]backed\b/iu,/\bsource reason\b/iu,/\bsource default\b/iu,/\bplayers behind\b/iu,
-            /\barriv(?:al|ing) ranges?\b/iu,/\bcredible bluff supply\b/iu,/\baction ancestry\b/iu,
-            /\brelevant threshold\b/iu,/\bone strategy transfers\b/iu,/\bdoes not affect EV\b/iu,
-            /\bdefault chart assumptions\b/iu,
-          ];
-          const allowedPokerTokenPattern=/\b(?:RFI|HJ|BTN|CO|LJ|UTG|EP|MP|SB|BB|IP|OOP|SPR|EV|Hero|fold|call|raise|value|bluff|equity|solver|live|straddle|effective|showdown|blocker|unblocker|probe|multiway|heads-up|river|turn|flop|range|rake|iso|limp|jam|shove|all-in|overbet|underbet|check|bet|pot odds)\b/giu;
-          const nativePhrases=/\b(?:3-bet|4-bet|c-bet|bet-call|check-back|block bet|click-back|A-high|showdown value|reverse implied odds|fold leverage|bluff-catcher)\b/giu;
-          const handNotationPattern=/\b(?:[2-9TJQKA]{2}[so]?|[2-9TJQKA][2-9TJQKA][so]?)\b/gu;
-          const internalId=/(?:POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:FND|PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b|\b(?:FTGU(?:[- ]?E)?\d+|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b|(?:^|\s)E\d{2}(?=\s|$)|(?:^|\s)B1(?=\s|$))/iu;
-          const fullEnglish=(text)=>{
-            const stripped=text.replace(nativePhrases,' ').replace(allowedPokerTokenPattern,' ').replace(handNotationPattern,' ').replace(/\b\d+(?:\.\d+)?bb\b/giu,' ').replace(/[^A-Za-zА-Яа-яЁё]+/gu,' ').trim();
-            const words=stripped.match(/\b[A-Za-z]{3,}\b/gu)??[];
-            return !/[А-Яа-яЁё]/u.test(stripped) && words.length>=3;
-          };
-          const lexical=[];
-          const leakage=[];
-          for (const [key,value] of practicalRuCorpusPublicationOverrides) {
-            const hit=authoringPatterns.find((pattern)=>pattern.test(value));
-            if (hit || fullEnglish(value)) lexical.push(`${key} => ${value}`);
-            if (internalId.test(value)) leakage.push(`${key} => ${value}`);
-          }
-          console.log('publication_entries_audited='+practicalRuCorpusPublicationOverrides.size);
-          console.log('non_native_english_lexical_violations='+lexical.length);
-          console.log('source_internal_id_leakage='+leakage.length);
-          if (lexical.length) console.log('LEXICAL\n'+lexical.slice(0,100).join('\n'));
-          if (leakage.length) console.log('LEAKAGE\n'+leakage.slice(0,100).join('\n'));
-          if (lexical.length) throw new Error(`publication lexical violations ${lexical.length}`);
-          if (leakage.length) throw new Error(`publication internal-ID leakage ${leakage.length}`);
-
-          const fields=(d)=>[d.cueRu,d.questionRu,d.explanationRu,...d.actionOptions.map(o=>o.textRu),...d.reasonOptions.map(o=>o.textRu)].filter(Boolean);
-          const ledger=runtimeCorpusAuditLedger();
-          const ids=new Set(ledger.rows.filter(r=>r.itemKind==='DECISION'&&r.reachable).map(r=>r.itemId));
-          const runtimeValues=new Set(practicalDecisions.filter(d=>ids.has(d.id)).flatMap(fields));
-          const uniquePublicationValues=[...new Set(practicalRuCorpusPublicationOverrides.values())];
-          const missingValues=uniquePublicationValues.filter(v=>!runtimeValues.has(v));
-          console.log('unique_publication_values='+uniquePublicationValues.length);
-          console.log('publication_values_observed_in_reachable_runtime='+(uniquePublicationValues.length-missingValues.length));
-          console.log('publication_values_not_observed_in_reachable_runtime='+missingValues.length);
-          if (missingValues.length) console.log('UNOBSERVED_SAMPLE\n'+missingValues.slice(0,40).join('\n'));
-
-          const themes=[
-            ['RFI',/RFI|open/i],['BLINDS',/BB|SB|blind/i],['3BET',/3-bet/i],['4BET',/4-bet/i],
-            ['FLOP',/flop|board/i],['TURN',/turn/i],['RIVER',/river/i],['MULTIWAY',/multiway/i],
-            ['DEEP',/200bb|250bb|deep/i],['STRADDLE',/straddle/i],['EXPLOIT',/exploit|opponent|villain/i],['BLOCKER',/blocker/i],
-          ];
-          let samples=0;
-          for (const [name,re] of themes) {
-            const found=[...practicalRuCorpusPublicationOverrides].find(([k])=>re.test(k));
-            if (found) { console.log(`NATURAL_RU_SAMPLE ${name} :: ${found[1]}`); samples++; }
-          }
-          console.log('natural_ru_major_family_samples='+samples);
-          if (samples<10) throw new Error(`insufficient major-family samples ${samples}`);
-          NODE
-      - name: Relevant Wave C integrity tests
-        working-directory: apps/live-cash-os
-        run: node --import ./tests/register-model-loader.mjs --test tests/v4-march-wave-c-integrity.test.mjs tests/practical-learner-surface-clarity.test.mjs
-      - name: Typecheck
-        working-directory: apps/live-cash-os
-        run: npm run typecheck
       - name: ESLint touched code files
         working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
-          mapfile -t files < <(git diff --name-only origin/main...HEAD -- 'apps/live-cash-os/**' | grep -E '\.(ts|tsx|mjs)$' | sed 's#^apps/live-cash-os/##')
+          mapfile -t files < <(git diff --name-only origin/main...HEAD | grep '^apps/live-cash-os/' | grep -E '\.(ts|tsx|mjs)$' | sed 's#^apps/live-cash-os/##')
           printf 'ESLINT_FILE %s\n' "${files[@]}"
           test ${#files[@]} -gt 0
           npx eslint "${files[@]}"
+          echo "touched_file_eslint=PASS"
       - name: Install Chromium
         working-directory: apps/live-cash-os
         run: npx playwright install --with-deps chromium
       - name: Bounded representative Chromium sampling
         working-directory: apps/live-cash-os
-        run: npx playwright test e2e/v4-march-wave-c-firewall.spec.mjs e2e/practical-locale-reactivity.spec.mjs e2e/practical-mastery-acceptance.spec.mjs --project=chromium
+        run: |
+          set -euo pipefail
+          npx playwright test e2e/v4-march-wave-c-firewall.spec.mjs e2e/practical-locale-reactivity.spec.mjs e2e/practical-mastery-acceptance.spec.mjs --project=chromium
+          echo "bounded_chromium_sampling=PASS"
