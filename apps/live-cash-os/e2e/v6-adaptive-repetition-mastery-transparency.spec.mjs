@@ -32,7 +32,8 @@ test("V6 learner can see domain and selected-skill progress requirements without
   await answerVisibleQuickStartCard(page);
 
   await page.goto("/mastery");
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  const main = page.getByRole("main");
+  await main.getByRole("button", { name: "EN", exact: true }).click();
 
   await expect(page.getByText(/The percentage moves only after enough distinct independent decisions/)).toBeVisible();
   await expect(page.getByText(/skills are building evidence\. An exact repeat of an already-correct example counts once\./)).toBeVisible();
@@ -45,7 +46,7 @@ test("V6 learner can see domain and selected-skill progress requirements without
   await expect(selectedSkill.getByText(/More practice is required for a new kind of check/)).toBeVisible();
   await expect(selectedSkill.getByText(/Recent practice: [01]\/1 correct · [01] distinct correct examples · latest confidence 65%\./)).toBeVisible();
 
-  await page.getByRole("button", { name: "RU", exact: true }).click();
+  await main.getByRole("button", { name: "RU", exact: true }).click();
   await expect(page.getByText("КАК РАСТЁТ ЭТОТ НАВЫК", { exact: true })).toBeVisible();
   await expect(page.getByText(/Ещё нужно:/)).toBeVisible();
   await expect(page.getByText(/Дополнительная практика нужна для нового типа проверки/)).toBeVisible();
