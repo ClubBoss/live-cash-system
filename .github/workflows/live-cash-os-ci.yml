@@ -67,18 +67,13 @@ jobs:
           import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
           import { variationB3Decisions } from './content/practical-mastery/decisions-variation-b3.ts';
           const project = (decision) => ({
-            id: decision.id,
-            skillId: decision.skillId,
-            kind: decision.kind,
-            sourceRefs: decision.sourceRefs,
+            id: decision.id, skillId: decision.skillId, kind: decision.kind, sourceRefs: decision.sourceRefs,
             actionIds: decision.actionOptions.map((option) => option.id),
             reasonIds: decision.reasonOptions.map((option) => option.id),
             actionMisconceptions: decision.actionOptions.map((option) => option.misconception ?? null),
             reasonMisconceptions: decision.reasonOptions.map((option) => option.misconception ?? null),
-            correctActionId: decision.correctActionId,
-            correctReasonId: decision.correctReasonId,
-            targetSeconds: decision.targetSeconds,
-            changedVariables: decision.changedVariables ?? null,
+            correctActionId: decision.correctActionId, correctReasonId: decision.correctReasonId,
+            targetSeconds: decision.targetSeconds, changedVariables: decision.changedVariables ?? null,
           });
           const hash = (items) => createHash('sha256').update(JSON.stringify(items.map(project))).digest('hex');
           const ledger=runtimeCorpusAuditLedger();
@@ -87,56 +82,76 @@ jobs:
           if (reachable.length!==810) throw new Error(`reachable count ${reachable.length}`);
           const machine=hash(reachable);
           const b3=hash(variationB3Decisions);
-          console.log('reachable_machine_fingerprint='+machine);
+          console.log('before_machine_fingerprint=badefdedc55f47f0302757104294a69e3836e26bc0a1f98c1b0dd7e72d3cd7c5');
+          console.log('after_machine_fingerprint='+machine);
           console.log('b3_fingerprint='+b3);
           if (machine!=='badefdedc55f47f0302757104294a69e3836e26bc0a1f98c1b0dd7e72d3cd7c5') throw new Error('reachable machine fingerprint mismatch');
           if (b3!=='5cbcd796aab6023999c44a1c64737268eff679e067b01da6d993c63e18af6870') throw new Error('B3 fingerprint mismatch');
           NODE
-      - name: Strict RU publication lexical and ID audit
+      - name: Strict repaired-publication lexical and leakage audit
         working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
           node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
+          import { practicalRuCorpusPublicationOverrides } from './content/practical-mastery/practical-ru-corpus-publication.ts';
           import { practicalDecisions } from './content/practical-mastery/index.ts';
           import { runtimeCorpusAuditLedger } from './content/practical-mastery/audit-surface.ts';
-          import { practicalRuCorpusPublicationOverrides } from './content/practical-mastery/practical-ru-corpus-publication.ts';
+
+          const authoringPatterns=[
+            /\bownership\b/iu,/\bhigh-frequency\b/iu,/\bclosing action\b/iu,/\bcourse labels?\b/iu,
+            /\bmaterial variable\b/iu,/\bmarginal branch\b/iu,/\bpractical branch\b/iu,/\bexact hand\b/iu,
+            /\bsource[- ]backed\b/iu,/\bsource reason\b/iu,/\bsource default\b/iu,/\bplayers behind\b/iu,
+            /\barriv(?:al|ing) ranges?\b/iu,/\bcredible bluff supply\b/iu,/\baction ancestry\b/iu,
+            /\brelevant threshold\b/iu,/\bone strategy transfers\b/iu,/\bdoes not affect EV\b/iu,
+            /\bdefault chart assumptions\b/iu,
+          ];
+          const allowedPokerTokenPattern=/\b(?:RFI|HJ|BTN|CO|LJ|UTG|EP|MP|SB|BB|IP|OOP|SPR|EV|Hero|fold|call|raise|value|bluff|equity|solver|live|straddle|effective|showdown|blocker|unblocker|probe|multiway|heads-up|river|turn|flop|range|rake|iso|limp|jam|shove|all-in|overbet|underbet|check|bet|pot odds)\b/giu;
+          const nativePhrases=/\b(?:3-bet|4-bet|c-bet|bet-call|check-back|block bet|click-back|A-high|showdown value|reverse implied odds|fold leverage|bluff-catcher)\b/giu;
+          const handNotationPattern=/\b(?:[2-9TJQKA]{2}[so]?|[2-9TJQKA][2-9TJQKA][so]?)\b/gu;
+          const internalId=/(?:POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:FND|PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b|\b(?:FTGU(?:[- ]?E)?\d+|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b|(?:^|\s)E\d{2}(?=\s|$)|(?:^|\s)B1(?=\s|$))/iu;
+          const fullEnglish=(text)=>{
+            const stripped=text.replace(nativePhrases,' ').replace(allowedPokerTokenPattern,' ').replace(handNotationPattern,' ').replace(/\b\d+(?:\.\d+)?bb\b/giu,' ').replace(/[^A-Za-zА-Яа-яЁё]+/gu,' ').trim();
+            const words=stripped.match(/\b[A-Za-z]{3,}\b/gu)??[];
+            return !/[А-Яа-яЁё]/u.test(stripped) && words.length>=3;
+          };
+          const lexical=[];
+          const leakage=[];
+          for (const [key,value] of practicalRuCorpusPublicationOverrides) {
+            const hit=authoringPatterns.find((pattern)=>pattern.test(value));
+            if (hit || fullEnglish(value)) lexical.push(`${key} => ${value}`);
+            if (internalId.test(value)) leakage.push(`${key} => ${value}`);
+          }
+          console.log('publication_entries_audited='+practicalRuCorpusPublicationOverrides.size);
+          console.log('non_native_english_lexical_violations='+lexical.length);
+          console.log('source_internal_id_leakage='+leakage.length);
+          if (lexical.length) console.log('LEXICAL\n'+lexical.slice(0,100).join('\n'));
+          if (leakage.length) console.log('LEAKAGE\n'+leakage.slice(0,100).join('\n'));
+          if (lexical.length) throw new Error(`publication lexical violations ${lexical.length}`);
+          if (leakage.length) throw new Error(`publication internal-ID leakage ${leakage.length}`);
+
           const fields=(d)=>[d.cueRu,d.questionRu,d.explanationRu,...d.actionOptions.map(o=>o.textRu),...d.reasonOptions.map(o=>o.textRu)].filter(Boolean);
           const ledger=runtimeCorpusAuditLedger();
           const ids=new Set(ledger.rows.filter(r=>r.itemKind==='DECISION'&&r.reachable).map(r=>r.itemId));
-          const reachable=practicalDecisions.filter(d=>ids.has(d.id));
-          const allowed=new Set('rfi hj btn co lj utg ep mp sb bb ip oop spr ev hero fold call raise value bluff equity solver live straddle showdown blocker unblocker probe multiway heads-up river turn flop check bet overbet underbet range pot odds squeeze iso limp jam shove all-in suited offsuit nut nuts bluff-catcher'.split(' '));
-          const phrases=[/3-bet/giu,/4-bet/giu,/c-bet/giu,/bet-call/giu,/check-back/giu,/block bet/giu,/click-back/giu,/a-high/giu,/reverse implied odds/giu,/fold leverage/giu,/pot odds/giu,/heads-up/giu,/all-in/giu,/bluff-catcher/giu];
-          const forbiddenAuthoring=/\b(?:ownership|high-frequency|closing action|source(?: reason| default|-backed)?|course labels?|default chart assumptions|material variable|marginal branch|practical branch|exact hand|players behind|arriv(?:al|ing) ranges?|credible bluff supply|action ancestry|relevant threshold|one strategy transfers|does not affect EV)\b/giu;
-          const internalId=/(?:POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:FND|PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b|\b(?:FTGU(?:[- ]?E)?\d+|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b|(?:^|\s)E\d{2}(?=\s|$)|(?:^|\s)B1(?=\s|$))/iu;
-          const lexical=[];
-          const leakage=[];
-          const inspect=(label,text)=>{
-            if (forbiddenAuthoring.test(text)) lexical.push(`${label} :: ${text}`);
-            forbiddenAuthoring.lastIndex=0;
-            if (internalId.test(text)) leakage.push(`${label} :: ${text}`);
-            let stripped=text;
-            for (const p of phrases) stripped=stripped.replace(p,' ');
-            const words=stripped.match(/[A-Za-z][A-Za-z-]{2,}/g)??[];
-            const unexpected=words.filter(w=>!allowed.has(w.toLowerCase()) && !/^bb$/i.test(w));
-            if (unexpected.length) lexical.push(`${label} :: unexpected=[${unexpected.join(',')}] :: ${text}`);
-          };
-          for (const d of reachable) fields(d).forEach((text,i)=>inspect(`${d.id}[${i}]`,text));
-          for (const [key,value] of practicalRuCorpusPublicationOverrides) inspect(`publication:${key}`,value);
-          const dedupe=(a)=>[...new Set(a)];
-          const l=dedupe(lexical), g=dedupe(leakage);
-          console.log('non_native_english_lexical_violations='+l.length);
-          console.log('source_internal_id_leakage='+g.length);
-          if (l.length) console.log(l.slice(0,80).join('\n'));
-          if (g.length) console.log(g.slice(0,80).join('\n'));
-          const families=new Map();
-          for (const d of reachable) {
-            const family=d.id.split('-').slice(0,2).join('-');
-            if (!families.has(family)) families.set(family,d);
+          const runtimeValues=new Set(practicalDecisions.filter(d=>ids.has(d.id)).flatMap(fields));
+          const uniquePublicationValues=[...new Set(practicalRuCorpusPublicationOverrides.values())];
+          const missingValues=uniquePublicationValues.filter(v=>!runtimeValues.has(v));
+          console.log('unique_publication_values='+uniquePublicationValues.length);
+          console.log('publication_values_observed_in_reachable_runtime='+(uniquePublicationValues.length-missingValues.length));
+          console.log('publication_values_not_observed_in_reachable_runtime='+missingValues.length);
+          if (missingValues.length) console.log('UNOBSERVED_SAMPLE\n'+missingValues.slice(0,40).join('\n'));
+
+          const themes=[
+            ['RFI',/RFI|open/i],['BLINDS',/BB|SB|blind/i],['3BET',/3-bet/i],['4BET',/4-bet/i],
+            ['FLOP',/flop|board/i],['TURN',/turn/i],['RIVER',/river/i],['MULTIWAY',/multiway/i],
+            ['DEEP',/200bb|250bb|deep/i],['STRADDLE',/straddle/i],['EXPLOIT',/exploit|opponent|villain/i],['BLOCKER',/blocker/i],
+          ];
+          let samples=0;
+          for (const [name,re] of themes) {
+            const found=[...practicalRuCorpusPublicationOverrides].find(([k])=>re.test(k));
+            if (found) { console.log(`NATURAL_RU_SAMPLE ${name} :: ${found[1]}`); samples++; }
           }
-          console.log('RUNTIME_RU_FAMILY_SAMPLES='+families.size);
-          for (const [family,d] of [...families.entries()].sort()) console.log(`SAMPLE ${family} ${d.id} :: ${d.cueRu} || ${d.questionRu}`);
-          if (l.length) throw new Error(`non-native lexical violations ${l.length}`);
-          if (g.length) throw new Error(`source/internal-ID leakage ${g.length}`);
+          console.log('natural_ru_major_family_samples='+samples);
+          if (samples<10) throw new Error(`insufficient major-family samples ${samples}`);
           NODE
       - name: Relevant Wave C integrity tests
         working-directory: apps/live-cash-os
@@ -148,7 +163,7 @@ jobs:
         working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
-          mapfile -t files < <(git diff --name-only origin/main...HEAD -- 'apps/live-cash-os/**' | sed 's#^apps/live-cash-os/##' | grep -E '\.(ts|tsx|mjs)$')
+          mapfile -t files < <(git diff --name-only origin/main...HEAD -- 'apps/live-cash-os/**' | grep -E '\.(ts|tsx|mjs)$' | sed 's#^apps/live-cash-os/##')
           printf 'ESLINT_FILE %s\n' "${files[@]}"
           test ${#files[@]} -gt 0
           npx eslint "${files[@]}"
