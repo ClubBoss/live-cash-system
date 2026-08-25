@@ -26,17 +26,28 @@ export default function PracticalSkillDomainOverview() {
         <p className="eyebrow">{locale === "ru" ? "НАВЫКИ" : "SKILLS"}</p>
         <h2>{locale === "ru" ? "Прогресс по игровым направлениям" : "Progress by poker domain"}</h2>
       </div>
-      <p>{locale === "ru" ? "Процент показывает навыки, где уже отработаны самостоятельные решения. Это не глобальный «процент освоения покера»." : "The percentage shows skills with independent decision practice. It is not a global poker-mastery score."}</p>
+      <p>{locale === "ru" ? "Процент растёт только после достаточного количества разных самостоятельных решений. Частичное evidence и уверенность видны ниже, но не завышают mastery." : "The percentage moves only after enough distinct independent decisions. Partial evidence and confidence stay visible below, but do not inflate mastery."}</p>
     </div>
     <div className="practical-domain-overview__grid">
       {domains.map((domain) => {
         const skills = practicalSkillFamilies.filter((skill) => domain.waves.includes(skill.wave as never));
+        const skillIds = new Set(skills.map((skill) => skill.id));
         const trained = skills.filter((skill) => stageAtLeast(mastery.skills[skill.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
+        const building = skills.filter((skill) => {
+          const progress = mastery.skills[skill.id];
+          return Boolean(progress?.conceptTaught) && !stageAtLeast(progress?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED");
+        }).length;
+        const recent = mastery.attempts.filter((attempt) => skillIds.has(attempt.skillId)).slice(-8);
+        const recentCorrect = recent.filter((attempt) => attempt.correct);
+        const distinctCorrect = new Set(recentCorrect.map((attempt) => attempt.decisionId)).size;
+        const lastConfidence = recent.at(-1)?.confidence ?? null;
         const pct = skills.length ? Math.round((trained / skills.length) * 100) : 0;
         return <article className={`practical-domain-card practical-domain-card--${domain.key}`} key={domain.key}>
           <div className="practical-domain-card__top"><span className="practical-domain-card__icon" aria-hidden="true">{domain.icon}</span><div><h3>{locale === "ru" ? domain.ru : domain.en}</h3><span>{domain.range}</span></div></div>
           <div className="practical-domain-card__bar" aria-label={`${pct}%`}><span style={{ width: `${pct}%` }} /></div>
           <div className="practical-domain-card__meta"><b>{pct}%</b><span>{trained} / {skills.length} {locale === "ru" ? "навыков" : "skills"}</span></div>
+          {building > 0 ? <p className="support">{locale === "ru" ? `${building} навыков сейчас набирают evidence. Точный повтор уже правильно решённого примера считается один раз.` : `${building} skills are building evidence. An exact repeat of an already-correct example counts once.`}</p> : null}
+          {recent.length > 0 ? <p className="support">{locale === "ru" ? `Недавняя практика: ${recentCorrect.length}/${recent.length} верно · ${distinctCorrect} разных правильно решённых примеров${lastConfidence === null ? "" : ` · последняя уверенность ${lastConfidence}%`}. Уверенность сама по себе не повышает mastery.` : `Recent practice: ${recentCorrect.length}/${recent.length} correct · ${distinctCorrect} distinct correct examples${lastConfidence === null ? "" : ` · latest confidence ${lastConfidence}%`}. Confidence alone does not raise mastery.`}</p> : null}
         </article>;
       })}
     </div>
