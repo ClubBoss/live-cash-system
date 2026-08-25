@@ -7,6 +7,7 @@ export type PracticalSourceGap = {
   nextEvidenceNeeded: string;
   reasonRu: string;
   nextEvidenceNeededRu: string;
+  // Normal learner surfaces render only these publication-safe fields.
   learnerReason: string;
   learnerNextEvidenceNeeded: string;
   learnerReasonRu: string;
