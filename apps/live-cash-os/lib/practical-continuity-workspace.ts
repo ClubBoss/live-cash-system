@@ -10,6 +10,16 @@ export type QuickStartContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
   | { status: "VALID"; skillId: string; decisionId: string; attempt: PracticalAttempt };
 
+export type QuickStartDraftRestore =
+  | { status: "NONE" | "STALE" | "INVALID" }
+  | {
+    status: "VALID";
+    skillId: string;
+    decisionId: string;
+    selectedActionId: string | null;
+    selectedReasonId: string | null;
+  };
+
 export type IntegratedContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
   | { status: "VALID"; items: IntegratedSessionItem[]; nextIndex: number };
@@ -110,6 +120,58 @@ export function restoreSkillMapCursor(
   return { status: "VALID", skillId: saved.skillId };
 }
 
+export function withQuickStartDraft(
+  workspace: PracticalStudyWorkspace,
+  contentVersion: string,
+  input: {
+    skillId: string;
+    decisionId: string;
+    selectedActionId: string | null;
+    selectedReasonId: string | null;
+  },
+  now = new Date(),
+): PracticalStudyWorkspace {
+  const decision = practicalDecisionById.get(input.decisionId);
+  if (!decision || decision.skillId !== input.skillId || !practicalSkillById.has(input.skillId)) return workspace;
+  if (input.selectedActionId !== null && !decision.actionOptions.some((option) => option.id === input.selectedActionId)) return workspace;
+  if (input.selectedReasonId !== null && !decision.reasonOptions.some((option) => option.id === input.selectedReasonId)) return workspace;
+  if (input.selectedActionId === null && input.selectedReasonId === null) return clearQuickStartContinuity(workspace, contentVersion, now);
+
+  const continuity = nextContinuity(workspace, contentVersion);
+  return withContinuity(workspace, {
+    ...continuity,
+    quickStart: {
+      ...input,
+      phase: "IN_PROGRESS",
+      updatedAt: now.toISOString(),
+    },
+  }, now);
+}
+
+export function restoreQuickStartDraft(
+  workspace: PracticalStudyWorkspace,
+  mastery: PracticalMasteryState,
+  expectedSkillId: string,
+  expectedDecisionId: string,
+): QuickStartDraftRestore {
+  const saved = workspace.continuity?.quickStart;
+  if (!saved || saved.phase !== "IN_PROGRESS") return { status: "NONE" };
+  if (workspace.continuity?.contentVersion !== mastery.contentVersion) return { status: "STALE" };
+  if (saved.skillId !== expectedSkillId || saved.decisionId !== expectedDecisionId) return { status: "INVALID" };
+  const decision = practicalDecisionById.get(saved.decisionId);
+  if (!decision || decision.skillId !== saved.skillId || !practicalSkillById.has(saved.skillId)) return { status: "INVALID" };
+  if (saved.selectedActionId === null && saved.selectedReasonId === null) return { status: "INVALID" };
+  if (saved.selectedActionId !== null && !decision.actionOptions.some((option) => option.id === saved.selectedActionId)) return { status: "INVALID" };
+  if (saved.selectedReasonId !== null && !decision.reasonOptions.some((option) => option.id === saved.selectedReasonId)) return { status: "INVALID" };
+  return {
+    status: "VALID",
+    skillId: saved.skillId,
+    decisionId: saved.decisionId,
+    selectedActionId: saved.selectedActionId,
+    selectedReasonId: saved.selectedReasonId,
+  };
+}
+
 export function withQuickStartPostAnswer(
   workspace: PracticalStudyWorkspace,
   contentVersion: string,
@@ -141,7 +203,7 @@ export function restoreQuickStartPostAnswer(
   workspace: PracticalStudyWorkspace,
   mastery: PracticalMasteryState,
 ): QuickStartContinuityRestore {
-  if (!workspace.continuity?.quickStart) return { status: "NONE" };
+  if (!workspace.continuity?.quickStart || workspace.continuity.quickStart.phase !== "POST_ANSWER") return { status: "NONE" };
   if (workspace.continuity.contentVersion !== mastery.contentVersion) return { status: "STALE" };
   const saved = workspace.continuity.quickStart;
   const decision = practicalDecisionById.get(saved.decisionId);
