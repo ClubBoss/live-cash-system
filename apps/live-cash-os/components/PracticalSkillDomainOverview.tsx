@@ -26,7 +26,7 @@ export default function PracticalSkillDomainOverview() {
         <p className="eyebrow">{locale === "ru" ? "НАВЫКИ" : "SKILLS"}</p>
         <h2>{locale === "ru" ? "Прогресс по игровым направлениям" : "Progress by poker domain"}</h2>
       </div>
-      <p>{locale === "ru" ? "Процент растёт только после достаточного количества разных самостоятельных решений. Частичное evidence и уверенность видны ниже, но не завышают mastery." : "The percentage moves only after enough distinct independent decisions. Partial evidence and confidence stay visible below, but do not inflate mastery."}</p>
+      <p>{locale === "ru" ? "Процент растёт только после достаточного количества разных самостоятельных решений. Промежуточный прогресс и уверенность видны ниже, но не завышают уровень навыка." : "The percentage moves only after enough distinct independent decisions. Partial evidence and confidence stay visible below, but do not inflate mastery."}</p>
     </div>
     <div className="practical-domain-overview__grid">
       {domains.map((domain) => {
@@ -46,8 +46,8 @@ export default function PracticalSkillDomainOverview() {
           <div className="practical-domain-card__top"><span className="practical-domain-card__icon" aria-hidden="true">{domain.icon}</span><div><h3>{locale === "ru" ? domain.ru : domain.en}</h3><span>{domain.range}</span></div></div>
           <div className="practical-domain-card__bar" aria-label={`${pct}%`}><span style={{ width: `${pct}%` }} /></div>
           <div className="practical-domain-card__meta"><b>{pct}%</b><span>{trained} / {skills.length} {locale === "ru" ? "навыков" : "skills"}</span></div>
-          {building > 0 ? <p className="support">{locale === "ru" ? `${building} навыков сейчас набирают evidence. Точный повтор уже правильно решённого примера считается один раз.` : `${building} skills are building evidence. An exact repeat of an already-correct example counts once.`}</p> : null}
-          {recent.length > 0 ? <p className="support">{locale === "ru" ? `Недавняя практика: ${recentCorrect.length}/${recent.length} верно · ${distinctCorrect} разных правильно решённых примеров${lastConfidence === null ? "" : ` · последняя уверенность ${lastConfidence}%`}. Уверенность сама по себе не повышает mastery.` : `Recent practice: ${recentCorrect.length}/${recent.length} correct · ${distinctCorrect} distinct correct examples${lastConfidence === null ? "" : ` · latest confidence ${lastConfidence}%`}. Confidence alone does not raise mastery.`}</p> : null}
+          {building > 0 ? <p className="support">{locale === "ru" ? `${building} навыков сейчас накапливают подтверждённую практику. Точный повтор уже правильно решённого примера считается один раз.` : `${building} skills are building evidence. An exact repeat of an already-correct example counts once.`}</p> : null}
+          {recent.length > 0 ? <p className="support">{locale === "ru" ? `Недавняя практика: ${recentCorrect.length}/${recent.length} верно · ${distinctCorrect} разных правильно решённых примеров${lastConfidence === null ? "" : ` · последняя уверенность ${lastConfidence}%`}. Уверенность сама по себе не повышает уровень навыка.` : `Recent practice: ${recentCorrect.length}/${recent.length} correct · ${distinctCorrect} distinct correct examples${lastConfidence === null ? "" : ` · latest confidence ${lastConfidence}%`}. Confidence alone does not raise mastery.`}</p> : null}
         </article>;
       })}
     </div>
