@@ -1,6 +1,7 @@
 import { firstJourneySteps } from "../content/practical-mastery/first-journey";
+import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
-import { availablePracticalSkills, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
+import { practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type FirstJourneyRecommendation = {
   skillId: string;
@@ -26,6 +27,18 @@ function unresolvedWrongCount(state: PracticalMasteryState, skillId: string): nu
   return unresolvedWrongDecisionIds(state, skillId).length;
 }
 
+function quickStartPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean {
+  return hardDependenciesFor(skillId).every((dependency) => {
+    const prerequisite = state.skills[dependency.fromSkillId];
+    return prerequisite ? stageAtLeast(prerequisite.evidenceStage, "RECOGNITION_TRAINED") : false;
+  });
+}
+
+function quickStartRecognitionReady(state: PracticalMasteryState, skillId: string): boolean {
+  return quickStartPrerequisitesMet(state, skillId)
+    && practicalSkillCorpusCanReach(skillId, "RECOGNITION_TRAINED");
+}
+
 export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId);
   const unresolved = unresolvedWrongDecisionIds(state, skillId);
@@ -42,9 +55,9 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
 
 export function recommendFirstJourneyStep(state: PracticalMasteryState): FirstJourneyRecommendation | null {
   const recognitionReadyIds = new Set(
-    availablePracticalSkills(state)
-      .filter((skill) => practicalSkillCorpusCanReach(skill.id, "RECOGNITION_TRAINED"))
-      .map((skill) => skill.id),
+    firstJourneySteps
+      .filter((step) => quickStartRecognitionReady(state, step.skillId))
+      .map((step) => step.skillId),
   );
 
   const repair = firstJourneySteps
