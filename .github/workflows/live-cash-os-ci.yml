@@ -35,9 +35,21 @@ jobs:
       - name: B visible-change unit/static
         if: ${{ always() }}
         run: node --import ./tests/register-model-loader.mjs --test tests/practical-visible-change-integrity.test.mjs
-      - name: C corpus integrity unit/static
+      - name: C1 reachable RU corpus
         if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test tests/v4-march-wave-c-integrity.test.mjs
+        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="reachable RU scored corpus" tests/v4-march-wave-c-integrity.test.mjs
+      - name: C2 B3 publication identity
+        if: ${{ always() }}
+        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="B3 publication repair" tests/v4-march-wave-c-integrity.test.mjs
+      - name: C3 source-gap authority
+        if: ${{ always() }}
+        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="source-gap machine truth" tests/v4-march-wave-c-integrity.test.mjs
+      - name: C4 study-loop authority
+        if: ${{ always() }}
+        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="study-loop machine authority" tests/v4-march-wave-c-integrity.test.mjs
+      - name: C5 normal learner component presentation
+        if: ${{ always() }}
+        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="normal learner components" tests/v4-march-wave-c-integrity.test.mjs
       - name: C learner-surface unit/static
         if: ${{ always() }}
         run: node --import ./tests/register-model-loader.mjs --test tests/practical-learner-surface-clarity.test.mjs
