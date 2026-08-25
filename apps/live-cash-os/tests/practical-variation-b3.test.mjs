@@ -22,12 +22,12 @@ test("B3 makes depth proportional rather than changing the universal mastery flo
 });
 
 test("every intensive family receives explicit non-identical causal variation",()=>{
-  for(const skill of intensive) assert.match(variation,new RegExp(`skillId:"${skill}"`),skill);
+  for(const skill of intensive) assert.match(variation,new RegExp(`skillId:\\s*"${skill}"`),skill);
   const ladder=variation.slice(variation.indexOf("const rows"),variation.indexOf("return rows.map"));
-  assert.equal((ladder.match(/kind:"recognition"/g)??[]).length,1);
-  assert.equal((ladder.match(/kind:"decision"/g)??[]).length,1);
-  assert.equal((ladder.match(/kind:"changed"/g)??[]).length,2);
-  assert.match(variation,/changedVariables:r\.changed/);
+  assert.equal((ladder.match(/kind:\s*"recognition"/g)??[]).length,1);
+  assert.equal((ladder.match(/kind:\s*"decision"/g)??[]).length,1);
+  assert.equal((ladder.match(/kind:\s*"changed"/g)??[]).length,2);
+  assert.match(variation,/changedVariables:\s*r\.changed/);
 });
 
 test("every intensive family has at least two table-state perceptual reps across B2/B3",()=>{
@@ -47,8 +47,8 @@ test("every intensive family has at least two table-state perceptual reps across
 
 test("BL-03 transfer under-depth is explicitly over-repaired by the shared B3 generator",()=>{
   const ladder=variation.slice(variation.indexOf("const rows"),variation.indexOf("return rows.map"));
-  assert.equal((ladder.match(/kind:"changed"/g)??[]).length,2);
-  assert.match(variation,/skillId:"BL-03"[\s\S]*?prefix:"PM-B3-BL03"[\s\S]*?vars1:\["open_size"\][\s\S]*?vars2:\["realisation","rake"\]/);
+  assert.equal((ladder.match(/kind:\s*"changed"/g)??[]).length,2);
+  assert.match(variation,/skillId:\s*"BL-03"[\s\S]*?prefix:\s*"PM-B3-BL03"[\s\S]*?vars1:\s*\["open_size"\][\s\S]*?vars2:\s*\["realisation",\s*"rake"\]/);
 });
 
 test("B3 adds no invented exact-frequency memory target",()=>{
