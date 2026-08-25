@@ -5,35 +5,111 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: live-cash-os-v4-march-wave-h-terminal-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  wave-h-inspect-source:
+  wave-h-assemble-product:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Reconstruct and inspect strict publication source
+        with:
+          ref: v4-march-wave-c-ru-corpus-firewall
+      - name: Assemble strict publication map and wire composition seam
         working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import base64,gzip,hashlib,json
-          d=Path('.wave-h-transport')
-          s=d.joinpath('strict-00.b64').read_text().strip()[:18000]
-          for i in range(1,6): s += d.joinpath(f'strict-{i:02d}.b64').read_text().strip()
+          import base64,gzip,hashlib,json,re
+          root=Path('.')
+          d=root/'.wave-h-transport'
+          s=(d/'strict-00.b64').read_text().strip()[:18000]
+          for i in range(1,6):
+              s += (d/f'strict-{i:02d}.b64').read_text().strip()
           raw=gzip.decompress(base64.b64decode(s)).decode()
-          print('bytes',len(raw.encode()))
-          print('sha256',hashlib.sha256(raw.encode()).hexdigest())
-          print('---HEAD---')
-          print('\n'.join(raw.splitlines()[:12]))
-          print('---TAIL---')
-          print('\n'.join(raw.splitlines()[-12:]))
-          delta=json.loads(d.joinpath('strict4-delta.json').read_text())
-          print('delta_type',type(delta).__name__,'delta_len',len(delta))
-          print('delta_sample',list(delta.items())[:2] if isinstance(delta,dict) else delta[:2])
+          assert hashlib.sha256(raw.encode()).hexdigest() == '392d507f0df04fdb997ae8bd76539b3c94c9c3bfec99eca27668e12518adf122'
+          lines=raw.splitlines()
+          entries=[]
+          for line in lines:
+              st=line.strip()
+              if st.startswith('[') and st.endswith('],'):
+                  entries.append(json.loads(st[:-1]))
+          assert len(entries)==1357, len(entries)
+          keys=[k for k,v in entries]
+          assert len(set(keys))==1357
+          delta=json.loads((d/'strict4-delta.json').read_text())
+          assert len(delta)==99
+          stale={
+            'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается from default chart assumptions.': 'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается от default chart assumptions.',
+            'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается from default chart assumptions. Learner хочет применить один live slogan ко всем столам.': 'Live RFI spot: stacks 250bb+, players behind sticky, opening environment отличается от default chart assumptions. Learner хочет применить один live slogan ко всем столам.',
+            'Same hand/board/size: 100bb → 200bb effective OOP.': 'Same flop/hand/size: 100bb → 200bb effective OOP.',
+          }
+          table=dict(entries)
+          accounted=[]
+          targets=set()
+          for key,value in delta.items():
+              target=stale.get(key,key)
+              assert target in table, ('unresolved',key,target)
+              assert target not in targets, ('duplicate target',target)
+              targets.add(target)
+              table[target]=value
+              accounted.append((key,target))
+          assert len(accounted)==99 and len(targets)==99
+          out=[]
+          for line in lines:
+              st=line.strip()
+              if st.startswith('[') and st.endswith('],'):
+                  key,_=json.loads(st[:-1])
+                  out.append('  ['+json.dumps(key,ensure_ascii=False)+', '+json.dumps(table[key],ensure_ascii=False)+'],')
+              else:
+                  out.append(line)
+          final='\n'.join(out)+'\n'
+          path=root/'content/practical-mastery/practical-ru-corpus-publication.ts'
+          path.write_text(final)
+          # Cross-check several normalized semantic-map conventions and report matching authority.
+          ordered=[[k,table[k]] for k in sorted(table)]
+          candidates={
+            'json_pairs_compact': json.dumps(ordered,ensure_ascii=False,separators=(',',':')),
+            'json_pairs_default': json.dumps(ordered,ensure_ascii=False),
+            'json_object_compact': json.dumps({k:table[k] for k in sorted(table)},ensure_ascii=False,separators=(',',':')),
+            'json_object_default': json.dumps({k:table[k] for k in sorted(table)},ensure_ascii=False),
+            'ts_entry_lines': '\n'.join(json.dumps([k,table[k]],ensure_ascii=False,separators=(',',':')) for k in sorted(table)),
+          }
+          expected='9893e3aa30fa8fc8420fdf446127decff69d6ce60c50ef83503c70a1f14bde9b'
+          matches=[]
+          for name,text in candidates.items():
+              h=hashlib.sha256(text.encode()).hexdigest()
+              print('semantic_digest_candidate',name,h)
+              if h==expected: matches.append(name)
+          print('unique_publication_keys=1357')
+          print('delta_corrections_accounted=99/99')
+          print('unresolved_delta_corrections=0')
+          print('semantic_digest_match',matches)
+
+          repair=root/'content/practical-mastery/practical-ru-copy-repair.ts'
+          txt=repair.read_text()
+          import_line='import { practicalRuCorpusPublicationOverrides } from "./practical-ru-corpus-publication";\n'
+          if import_line not in txt:
+              txt=txt.replace('import type { PracticalDecision, PracticalDecisionOption } from "./types";\n', 'import type { PracticalDecision, PracticalDecisionOption } from "./types";\n'+import_line)
+          old='function ru(text: string): string {\n  return RU_OVERRIDES.get(text) ?? text;\n}'
+          new='function ru(text: string): string {\n  return practicalRuCorpusPublicationOverrides.get(text) ?? RU_OVERRIDES.get(text) ?? text;\n}'
+          assert old in txt or new in txt
+          txt=txt.replace(old,new)
+          repair.write_text(txt)
           PY
+          git diff --check
+          git diff -- content/practical-mastery/practical-ru-copy-repair.ts | cat
+          git status --short
+      - name: Commit assembled product
+        run: |
+          set -euo pipefail
+          git config user.name "ClubBoss"
+          git config user.email "esalimzade@hotmail.com"
+          git add apps/live-cash-os/content/practical-mastery/practical-ru-corpus-publication.ts apps/live-cash-os/content/practical-mastery/practical-ru-copy-repair.ts
+          git commit -m "wave-h: assemble terminal RU publication map [skip ci]"
+          git push origin HEAD:v4-march-wave-c-ru-corpus-firewall
+          echo "PRODUCT_ASSEMBLED_HEAD=$(git rev-parse HEAD)"
