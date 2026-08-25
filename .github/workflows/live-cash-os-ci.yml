@@ -12,67 +12,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  wave-h-assemble-inspect:
-    name: Wave H strict assembly inspection
+  wave-h-transport-inspect:
+    name: Wave H strict transport padding inspection
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v7
-      - name: Recover strict transport assembly deterministically
+      - name: Inspect padding and candidate streams
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import base64, gzip, hashlib
+          import base64, gzip, hashlib, re
           root=Path('.wave-h-transport')
-          parts=[(root/f'strict-{i:02d}.b64').read_text().strip() for i in range(6)]
-          print('lengths=', [len(x) for x in parts])
-          tails=[x[-8:] for x in parts]
-          print('tails=', tails)
-          decoded_tail=[]
-          for i,s in enumerate(parts[1:],1):
+          for i in range(6):
+              s=(root/f'strict-{i:02d}.b64').read_text().strip()
+              eq=[j for j,c in enumerate(s) if c=='=']
+              print(f'strict-{i:02d}: len={len(s)} mod4={len(s)%4} eq_count={len(eq)} eq_first={eq[:12]} eq_last={eq[-12:]} prefix={s[:16]!r} suffix={s[-16:]!r}')
+          s=(root/'strict-00.b64').read_text().strip()
+          # Locate every segment terminated by base64 padding and test it independently.
+          starts=[0]
+          for m in re.finditer(r'=+',s):
+              end=m.end()
+              seg=s[starts[-1]:end]
+              compact=''.join(seg.split())
+              print('SEGMENT', starts[-1], end, 'len', len(compact), 'mod4', len(compact)%4, 'prefix', compact[:12], 'suffix', compact[-12:])
               try:
-                  b=base64.b64decode(s, validate=True)
+                  raw=base64.b64decode(compact, validate=True)
+                  print('  decoded',len(raw),'raw_prefix',raw[:8].hex())
+                  if raw[:2]==b'\x1f\x8b':
+                      try:
+                          out=gzip.decompress(raw)
+                          print('  gzip_ok bytes='+str(len(out))+' sha256='+hashlib.sha256(out).hexdigest())
+                      except Exception as e:
+                          print('  gzip_fail',repr(e))
               except Exception as e:
-                  raise SystemExit(f'strict-{i:02d} invalid independently: {e}')
-              decoded_tail.append(b)
-          tail=b''.join(decoded_tail)
-          s0=parts[0]
-          successes=[]
-          for idx in range(len(s0)):
-              candidate=s0[:idx]+s0[idx+1:]
-              try:
-                  first=base64.b64decode(candidate, validate=True)
-              except Exception:
-                  continue
-              raw=first+tail
-              if raw[:2] != b'\x1f\x8b':
-                  continue
-              try:
-                  out=gzip.decompress(raw)
-              except Exception:
-                  continue
-              successes.append((idx,s0[idx],out))
-              print('RECOVERY_CANDIDATE', idx, repr(s0[idx]), 'sha256='+hashlib.sha256(out).hexdigest(), 'bytes='+str(len(out)))
-          if len(successes)!=1:
-              raise SystemExit(f'expected exactly one valid gzip recovery, got {len(successes)}')
-          idx,ch,out=successes[0]
-          Path('wave-h-strict-assembled.ts').write_bytes(out)
-          print('STRICT_RECOVERY_INDEX='+str(idx))
-          print('STRICT_RECOVERY_CHAR='+repr(ch))
-          print('STRICT_ASSEMBLED_SHA256='+hashlib.sha256(out).hexdigest())
-          print('STRICT_ASSEMBLED_BYTES='+str(len(out)))
+                  print('  b64_fail',repr(e))
+              starts.append(end)
+          if starts[-1] < len(s):
+              print('TRAILING',starts[-1],len(s),'len',len(s)-starts[-1],s[starts[-1]:starts[-1]+16],s[-16:])
           PY
-          echo '--- HEAD ---'
-          sed -n '1,35p' wave-h-strict-assembled.ts
-          echo '--- TAIL ---'
-          tail -35 wave-h-strict-assembled.ts
-      - name: Upload assembled strict source
-        uses: actions/upload-artifact@v7
-        with:
-          name: v4-march-wave-h-strict-assembled
-          path: apps/live-cash-os/wave-h-strict-assembled.ts
-          if-no-files-found: error
-          retention-days: 3
