@@ -3,6 +3,7 @@ export type PracticalSourceGapStatus = "SUPPORTED" | "PARTIAL" | "SOURCE_BLOCKED
 export type PracticalSourceGap = {
   skillId: string;
   status: PracticalSourceGapStatus;
+  // Raw governance/source authority stays available to machine and diagnostic paths.
   reason: string;
   nextEvidenceNeeded: string;
   reasonRu: string;
