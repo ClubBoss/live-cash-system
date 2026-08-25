@@ -18,13 +18,14 @@ test("first journey is a spiral across multiple capability families", () => {
   assert.match(journey, /includesChangedBlindNode/);
 });
 
-test("first exposure advances on recognition rather than requiring transfer mastery", () => {
-  assert.match(engine, /RECOGNITION_TRAINED/);
-  assert.match(engine, /practicalSkillCorpusCanReach\(skill\.id, "RECOGNITION_TRAINED"\)/);
-  assert.match(engine, /availablePracticalSkills/);
-  assert.doesNotMatch(engine, /trainablePracticalSkills/);
+test("first exposure advances on recognition with Quick Start-specific hard-prerequisite readiness", () => {
+  assert.match(engine, /quickStartPrerequisitesMet/);
+  assert.match(engine, /hardDependenciesFor\(skillId\)/);
+  assert.match(engine, /stageAtLeast\(prerequisite\.evidenceStage, "RECOGNITION_TRAINED"\)/);
+  assert.match(engine, /practicalSkillCorpusCanReach\(skillId, "RECOGNITION_TRAINED"\)/);
+  assert.doesNotMatch(engine, /availablePracticalSkills|trainablePracticalSkills/);
   const recommendationSection = engine.slice(engine.indexOf("export function recommendFirstJourneyStep"), engine.indexOf("export function firstJourneyProgress"));
-  assert.doesNotMatch(recommendationSection, /CHANGED_NODE_TRANSFER/);
+  assert.doesNotMatch(recommendationSection, /CHANGED_NODE_TRANSFER|DECISION_TRAINED/);
 });
 
 test("repair is resolved by latest attempt rather than lifetime wrong count", () => {
