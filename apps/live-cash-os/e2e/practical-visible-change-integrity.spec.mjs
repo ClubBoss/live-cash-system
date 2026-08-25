@@ -48,8 +48,8 @@ test("PF-01 changed learner stimulus visibly carries BTN -> HJ and players-behin
   const comparison = changed.getByLabel("poker table comparison");
   await expect(comparison).toBeVisible();
 
-  const before = comparison.getByLabel("Before change");
-  const now = comparison.getByLabel("After change");
+  const before = comparison.locator('section[aria-label="Before change"]');
+  const now = comparison.locator('section[aria-label="After change"]');
   await expect(before).toContainText("BTN · HERO");
   await expect(before).toContainText("Folds to BTN");
   await expect(now).toContainText("HJ · HERO");
