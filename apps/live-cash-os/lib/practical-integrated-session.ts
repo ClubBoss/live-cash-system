@@ -16,6 +16,7 @@ import {
   type PracticalAttempt,
   type PracticalMasteryState,
 } from "./practical-mastery-core";
+import { recentSuccessfulDecisionIds } from "./practical-repeat-window";
 
 export const INTEGRATED_SESSION_SIZE = 8;
 export const RETENTION_INTERVAL_DAYS = [1, 3, 7] as const;
@@ -50,10 +51,17 @@ export function retentionTierDue(state: PracticalMasteryState, skillId: string, 
   for (const tier of RETENTION_INTERVAL_DAYS) if (elapsed >= tier && !passed.has(tier)) return tier; return null;
 }
 
-function candidateDecisionForSkill(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][], excludedDecisionIds: Set<string>, requireNonIdenticalToLatest = false): PracticalDecision | null {
+function candidateDecisionForSkill(
+  state: PracticalMasteryState,
+  skillId: string,
+  kinds: PracticalDecision["kind"][],
+  excludedDecisionIds: Set<string>,
+  requireNonIdenticalToLatest = false,
+  avoidDecisionIds: ReadonlySet<string> = new Set<string>(),
+): PracticalDecision | null {
   const latest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
   const attempted = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
-  const pool = practicalDecisions.filter((decision) => decision.skillId === skillId && kinds.includes(decision.kind) && !excludedDecisionIds.has(decision.id));
+  const pool = practicalDecisions.filter((decision) => decision.skillId === skillId && kinds.includes(decision.kind) && !excludedDecisionIds.has(decision.id) && !avoidDecisionIds.has(decision.id));
   return pool.find((decision) => !attempted.has(decision.id) && (!requireNonIdenticalToLatest || decision.id !== latest?.decisionId)) ?? pool.find((decision) => !requireNonIdenticalToLatest || decision.id !== latest?.decisionId) ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
@@ -80,6 +88,7 @@ export function supportedIntegratedSkillIds(state: PracticalMasteryState): strin
 
 export function buildIntegratedSession(state: PracticalMasteryState, now = new Date(), size = INTEGRATED_SESSION_SIZE): IntegratedSessionItem[] {
   const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
+  const recentSuccessful = recentSuccessfulDecisionIds(state);
   const push = (decision: PracticalDecision, reason: IntegratedSessionItem["reason"], priority: number, why: string, retentionTierDays: number | null = null) => {
     if (items.length >= size || excluded.has(decision.id) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
     items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
@@ -104,7 +113,7 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
   for (const item of rankedSkills) {
     if (items.length >= size) break; const transferReady = stageAtLeast(item.stage, "DECISION_TRAINED");
     const kinds: PracticalDecision["kind"][] = transferReady ? ["changed", "mixed", "boundary", "decision"] : stageAtLeast(item.stage, "RECOGNITION_TRAINED") ? ["decision", "changed", "mixed"] : ["recognition", "decision"];
-    const decision = candidateDecisionForSkill(state, item.skillId, kinds, excluded, false); if (!decision) continue;
+    const decision = candidateDecisionForSkill(state, item.skillId, kinds, excluded, false, recentSuccessful); if (!decision) continue;
     const reason: IntegratedSessionItem["reason"] = transferReady ? "TRANSFER" : stageAtLeast(item.stage, "RECOGNITION_TRAINED") ? "REINFORCE" : "RECOGNITION";
     push(decision, reason, 40 + item.score, item.why);
   }
