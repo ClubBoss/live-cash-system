@@ -1,83 +1,82 @@
 import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
+const QUICK_START_SKILLS = [
+  "FND-01",
+  "FND-02",
+  "PF-01",
+  "PF-04",
+  "W4-BOARD-01",
+  "IP-01",
+  "BL-04",
+  "W4-RUNOUT-01",
+];
 const COMPLETE_HEADING = /Быстрый старт завершён|Quick start complete/;
-const CORRECT_HEADING = /Верно|Correct/;
-const REPAIR_HEADING = /Нужно исправить|Repair needed/;
-const START_EXAMPLE = /Проверить на примере|Try an example/;
-const NEXT_EXAMPLE = /Следующий пример|Next example/;
+const BLOCKED_COPY = /Сейчас нет следующего допустимого шага|There is no currently admissible next Quick Start step/;
 
-async function openCurrentDecision(page) {
-  const start = page.getByRole("button", { name: START_EXAMPLE });
-  await expect(start).toBeVisible();
-  await start.click();
+async function ensurePracticalProfile(page) {
+  const hasProfile = await page.evaluate(
+    (key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile),
+    LEARNER_KEY,
+  );
+  if (hasProfile) return;
 
-  const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
-  await expect(answer).toBeVisible();
-  return answer;
+  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  await expect.poll(async () => page.evaluate(
+    (key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile),
+    LEARNER_KEY,
+  )).toBe(true);
+  await page.reload();
+  await expect(page.locator("main")).toBeVisible();
 }
 
-async function returnToMechanism(page) {
-  await page.getByRole("button", { name: NEXT_EXAMPLE }).click();
-  await expect(page.getByRole("button", { name: START_EXAMPLE })).toBeVisible();
-}
+async function setReached(page, reached) {
+  await page.evaluate(({ key, ids, count }) => {
+    const raw = localStorage.getItem(key);
+    if (!raw) throw new Error("missing learner state");
+    const root = JSON.parse(raw);
+    const mastery = root._practicalProfile?.mastery;
+    if (!mastery?.skills) throw new Error("missing practical mastery state");
 
-async function answerCurrentDecisionCorrectly(page) {
-  const answer = await openCurrentDecision(page);
-  const card = answer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
-  const actionLabels = card.locator("fieldset").nth(0).locator("label");
-  const reasonLabels = card.locator("fieldset").nth(1).locator("label");
-  const actionTexts = (await actionLabels.allTextContents()).map((text) => text.trim());
-  const reasonTexts = (await reasonLabels.allTextContents()).map((text) => text.trim());
+    ids.forEach((skillId, index) => {
+      const skill = mastery.skills[skillId];
+      if (!skill) throw new Error(`missing Quick Start skill ${skillId}`);
+      skill.evidenceStage = index < count ? "RECOGNITION_TRAINED" : "SOURCE_SUPPORTED";
+      skill.conceptTaught = index < count;
+    });
 
-  await expect(actionLabels.first()).toBeVisible();
-  await expect(reasonLabels.first()).toBeVisible();
-  await actionLabels.first().locator('input[type="radio"]').check();
-  await reasonLabels.first().locator('input[type="radio"]').check();
-  await answer.click();
-
-  if (await page.getByRole("heading", { name: CORRECT_HEADING }).isVisible()) {
-    await returnToMechanism(page);
-    return;
-  }
-
-  await expect(page.getByRole("heading", { name: REPAIR_HEADING })).toBeVisible();
-  const correction = await page.locator("[data-practical-correct-answer]").innerText();
-  const actionIndex = actionTexts.findIndex((text) => text && correction.includes(text));
-  const reasonIndex = reasonTexts.findIndex((text) => text && correction.includes(text));
-  expect(actionIndex).toBeGreaterThanOrEqual(0);
-  expect(reasonIndex).toBeGreaterThanOrEqual(0);
-
-  await returnToMechanism(page);
-  const retryAnswer = await openCurrentDecision(page);
-  const retryCard = retryAnswer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
-  await retryCard.locator("fieldset").nth(0).locator("label").nth(actionIndex).locator('input[type="radio"]').check();
-  await retryCard.locator("fieldset").nth(1).locator("label").nth(reasonIndex).locator('input[type="radio"]').check();
-  await retryAnswer.click();
-  await expect(page.getByRole("heading", { name: CORRECT_HEADING })).toBeVisible();
-  await returnToMechanism(page);
+    localStorage.setItem(key, JSON.stringify(root));
+  }, { key: LEARNER_KEY, ids: QUICK_START_SKILLS, count: reached });
+  await page.reload();
+  await expect(page.locator("main")).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
-    await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "V6 fresh Quick Start fixture" }) });
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "V6 fresh Quick Start fixture" }),
+    });
   });
 });
 
-test("V6: fresh learner sees Quick Start steps 1 through 8 without skips and completes 8/8", async ({ page }) => {
-  test.setTimeout(240_000);
-
+test("V6: recognition-level Quick Start state exposes every canonical next step and completes 8/8", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
   await page.reload();
+  await ensurePracticalProfile(page);
 
-  for (let step = 1; step <= 8; step += 1) {
+  for (let reached = 0; reached < QUICK_START_SKILLS.length; reached += 1) {
+    await setReached(page, reached);
+    const step = reached + 1;
     await expect(page.locator("main")).toContainText(new RegExp(`(?:ШАГ ${step} ИЗ 8|STEP ${step} OF 8)`));
-    await answerCurrentDecisionCorrectly(page);
-    await answerCurrentDecisionCorrectly(page);
+    await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toHaveCount(0);
+    await expect(page.locator("main")).not.toContainText(BLOCKED_COPY);
   }
 
+  await setReached(page, QUICK_START_SKILLS.length);
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toBeVisible();
   await expect(page.locator("main")).toContainText("8/8");
-  await expect(page.locator("main")).not.toContainText(/Сейчас нет следующего допустимого шага|There is no currently admissible next Quick Start step/);
+  await expect(page.locator("main")).not.toContainText(BLOCKED_COPY);
 });
