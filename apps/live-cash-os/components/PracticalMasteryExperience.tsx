@@ -13,6 +13,7 @@ import {
   recommendNextPracticalSkill,
   stageAtLeast,
 } from "../lib/practical-mastery-core";
+import { practicalSkillProgressTransparency, type PracticalSkillProgressCategoryKey } from "../lib/practical-skill-transparency";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
@@ -34,6 +35,27 @@ const waveLabels: Record<string, { ru: string; en: string }> = {
   W12_DEEP_STRADDLE: { ru: "Глубокие стеки и страддлы", en: "Deep stacks and straddles" },
   W13_EXPLOIT_LIVE: { ru: "Эксплойт и live-наблюдения", en: "Exploit and live reads" },
   W14_INTEGRATED: { ru: "Интеграция", en: "Integration" },
+};
+
+const progressCategoryLabels: Record<Locale, Record<PracticalSkillProgressCategoryKey, string>> = {
+  ru: {
+    CONCEPT: "понять механизм",
+    RECOGNITION: "распознавать разные ситуации",
+    INDEPENDENT_DECISION: "принимать разные самостоятельные решения",
+    CHANGED_CONDITIONS: "переносить решение на изменённые условия",
+    BOUNDARY: "проверить границы правила",
+    DELAYED_RECALL: "вернуться к навыку после паузы",
+    REAL_HAND: "разобрать применение в реальной руке",
+  },
+  en: {
+    CONCEPT: "understand the mechanism",
+    RECOGNITION: "recognize distinct situations",
+    INDEPENDENT_DECISION: "make distinct independent decisions",
+    CHANGED_CONDITIONS: "transfer the decision to changed conditions",
+    BOUNDARY: "test the rule boundary",
+    DELAYED_RECALL: "retrieve the skill after a delay",
+    REAL_HAND: "review application in a real hand",
+  },
 };
 
 function waveLabel(wave: string, locale: Locale): string {
@@ -106,6 +128,7 @@ export default function PracticalMasteryExperience() {
 
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
   const progress = state.skills[skill.id];
+  const transparency = practicalSkillProgressTransparency(state, skill.id, skill.targetEvidenceStage);
   const gap = practicalSourceGapBySkillId.get(skill.id);
   const hardPrerequisiteIds = hardDependenciesFor(skill.id).map((dependency) => dependency.fromSkillId);
   const hardPrerequisiteTitles = hardPrerequisiteIds
@@ -186,6 +209,23 @@ export default function PracticalMasteryExperience() {
       <h1>{skillTitle(skill, locale)}</h1>
       <p>{skillObjective(skill, locale)}</p>
       <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
+
+      <div className="today-card" style={{ marginTop: 14 }}>
+        <p className="eyebrow">{locale === "ru" ? "КАК РАСТЁТ ЭТОТ НАВЫК" : "HOW THIS SKILL ADVANCES"}</p>
+        <ul style={{ margin: "10px 0 0", paddingLeft: 20 }}>
+          {transparency.categories.map((category) => <li key={category.key} style={{ marginTop: 6 }}>
+            <b>{category.satisfied ? "✓" : "○"} {progressCategoryLabels[locale][category.key]}</b>
+            {!category.satisfied && transparency.nextCategory?.key === category.key ? <span> — {locale === "ru" ? "следующий необходимый шаг" : "next required step"}</span> : null}
+          </li>)}
+        </ul>
+        {transparency.nextCategory ? <p style={{ marginTop: 12 }}>{locale === "ru"
+          ? <>Ещё нужно: <b>{progressCategoryLabels.ru[transparency.nextCategory.key]}</b>. Дополнительная практика нужна для нового типа проверки; высокая уверенность или точный повтор уже правильно решённого примера не заменяют этот шаг.</>
+          : <>Still needed: <b>{progressCategoryLabels.en[transparency.nextCategory.key]}</b>. More practice is required for a new kind of check; high confidence or an exact repeat of an already-correct example does not replace it.</>}</p>
+          : <p style={{ marginTop: 12 }}>{locale === "ru" ? "Все категории до целевого уровня этого навыка уже подтверждены." : "All categories through this skill’s target level are already satisfied."}</p>}
+        {transparency.recentAttemptCount > 0 ? <p className="support">{locale === "ru"
+          ? `Недавняя практика: ${transparency.recentCorrectCount}/${transparency.recentAttemptCount} верно · ${transparency.recentDistinctCorrectCount} разных правильно решённых примеров${transparency.latestConfidence === null ? "" : ` · последняя уверенность ${transparency.latestConfidence}%`}.`
+          : `Recent practice: ${transparency.recentCorrectCount}/${transparency.recentAttemptCount} correct · ${transparency.recentDistinctCorrectCount} distinct correct examples${transparency.latestConfidence === null ? "" : ` · latest confidence ${transparency.latestConfidence}%`}.`}</p> : null}
+      </div>
 
       {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.learnerReasonRu : gap.learnerReason}</p><p className="support">{locale === "ru" ? gap.learnerNextEvidenceNeededRu : gap.learnerNextEvidenceNeeded}</p></div> : null}
       {!availableIds.has(skill.id) ? <p className="support">{locale === "ru" ? `Сначала нужны: ${hardPrerequisiteTitles.join(", ") || "предыдущие базовые навыки"}.` : `First complete: ${hardPrerequisiteTitles.join(", ") || "the required foundations"}.`}</p> : null}
