@@ -13,30 +13,24 @@ concurrency:
 
 jobs:
   wave-h-export-transport:
-    name: Export staged Wave H strict transport
+    name: Export Wave H transport for generator verification
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           ref: v4-march-wave-c-ru-corpus-firewall
-      - name: Verify strict transport inventory
+      - name: Verify transport inventory
         working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
-          sha256sum .wave-h-transport/strict-*.b64 .wave-h-transport/strict4-delta.json
-          wc -c .wave-h-transport/strict-*.b64 .wave-h-transport/strict4-delta.json
-      - name: Upload strict transport
+          find .wave-h-transport -maxdepth 1 -type f -print | sort
+          sha256sum .wave-h-transport/*
+          wc -c .wave-h-transport/*
+      - name: Upload full Wave H transport
         uses: actions/upload-artifact@v7
         with:
-          name: v4-march-wave-h-strict-transport-terminal
-          path: |
-            apps/live-cash-os/.wave-h-transport/strict-00.b64
-            apps/live-cash-os/.wave-h-transport/strict-01.b64
-            apps/live-cash-os/.wave-h-transport/strict-02.b64
-            apps/live-cash-os/.wave-h-transport/strict-03.b64
-            apps/live-cash-os/.wave-h-transport/strict-04.b64
-            apps/live-cash-os/.wave-h-transport/strict-05.b64
-            apps/live-cash-os/.wave-h-transport/strict4-delta.json
+          name: v4-march-wave-h-full-transport-terminal
+          path: apps/live-cash-os/.wave-h-transport
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 3
