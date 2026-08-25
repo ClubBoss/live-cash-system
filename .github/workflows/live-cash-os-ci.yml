@@ -20,31 +20,55 @@ jobs:
         working-directory: apps/live-cash-os
     steps:
       - uses: actions/checkout@v7
-      - name: Assemble latest strict transport
+      - name: Recover strict transport assembly deterministically
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import base64, gzip, hashlib, re
-          files=[Path('.wave-h-transport')/f'strict-{i:02d}.b64' for i in range(6)]
-          for f in files:
-              s=f.read_text()
-              bad=re.findall(r'[^A-Za-z0-9+/=\r\n\t ]', s)
-              print(f'{f.name}: chars={len(s)} compact={len("".join(s.split()))} bad={len(bad)} tail={repr(s[-16:])}')
-          compact=''.join(''.join(f.read_text().split()) for f in files)
-          print('joined_mod4=', len(compact)%4, 'joined_chars=', len(compact))
-          compact += '=' * ((4-len(compact)%4)%4)
-          raw=base64.b64decode(compact, validate=False)
-          print('decoded_bytes=',len(raw),'prefix=',raw[:8].hex())
-          out=gzip.decompress(raw)
+          import base64, gzip, hashlib
+          root=Path('.wave-h-transport')
+          parts=[(root/f'strict-{i:02d}.b64').read_text().strip() for i in range(6)]
+          print('lengths=', [len(x) for x in parts])
+          tails=[x[-8:] for x in parts]
+          print('tails=', tails)
+          decoded_tail=[]
+          for i,s in enumerate(parts[1:],1):
+              try:
+                  b=base64.b64decode(s, validate=True)
+              except Exception as e:
+                  raise SystemExit(f'strict-{i:02d} invalid independently: {e}')
+              decoded_tail.append(b)
+          tail=b''.join(decoded_tail)
+          s0=parts[0]
+          successes=[]
+          for idx in range(len(s0)):
+              candidate=s0[:idx]+s0[idx+1:]
+              try:
+                  first=base64.b64decode(candidate, validate=True)
+              except Exception:
+                  continue
+              raw=first+tail
+              if raw[:2] != b'\x1f\x8b':
+                  continue
+              try:
+                  out=gzip.decompress(raw)
+              except Exception:
+                  continue
+              successes.append((idx,s0[idx],out))
+              print('RECOVERY_CANDIDATE', idx, repr(s0[idx]), 'sha256='+hashlib.sha256(out).hexdigest(), 'bytes='+str(len(out)))
+          if len(successes)!=1:
+              raise SystemExit(f'expected exactly one valid gzip recovery, got {len(successes)}')
+          idx,ch,out=successes[0]
           Path('wave-h-strict-assembled.ts').write_bytes(out)
+          print('STRICT_RECOVERY_INDEX='+str(idx))
+          print('STRICT_RECOVERY_CHAR='+repr(ch))
           print('STRICT_ASSEMBLED_SHA256='+hashlib.sha256(out).hexdigest())
           print('STRICT_ASSEMBLED_BYTES='+str(len(out)))
           PY
           echo '--- HEAD ---'
-          sed -n '1,40p' wave-h-strict-assembled.ts
+          sed -n '1,35p' wave-h-strict-assembled.ts
           echo '--- TAIL ---'
-          tail -40 wave-h-strict-assembled.ts
+          tail -35 wave-h-strict-assembled.ts
       - name: Upload assembled strict source
         uses: actions/upload-artifact@v7
         with:
