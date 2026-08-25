@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const internalMetadata = /POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|TURN|RIV|MW|DEEP|EXP)-\d{2}\b|\bFTGU(?:[- ]?E)?\d+\b|(?:^|\s)B1(?:\s|$)/i;
+const internalMetadata = /POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:FND|PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b|\b(?:FTGU(?:[- ]?E)?\d+|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b|(?:^|\s)E\d{2}(?=\s|$)|(?:^|\s)B1(?=\s|$)/i;
 
 async function openBvBSourceLimit(page) {
   await page.goto("/mastery");
