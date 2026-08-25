@@ -56,13 +56,13 @@ test("C1 is a player-development loop, not a second mastery system", () => {
   assert.match(studyUi, /usePracticalProfileState/);
   assert.match(studyUi, /practicalRepairQueue/);
   assert.match(studyUi, /recommendNextPracticalSkill/);
-  assert.match(studyUi, /high-confidence wrong/i);
+  assert.match(studyUi, /answers you felt confident about/i);
   assert.doesNotMatch(studyUi, /markPracticalConceptTaught|recordPracticalDecision/);
 });
 
 test("C1 performance layer stays bounded and does not claim psychological authority", () => {
   for (const token of ["AUTOPILOT", "RESULT_ORIENTATION", "OVERLOAD"]) assert.match(studyModel, new RegExp(token));
-  assert.match(studyUi, /not psychological diagnosis/i);
+  assert.match(studyUi, /not a psychological diagnosis/i);
   assert.doesNotMatch(studyModel, /stop-loss|breathing exercise|sleep prescription|tilt diagnosis/i);
 });
 

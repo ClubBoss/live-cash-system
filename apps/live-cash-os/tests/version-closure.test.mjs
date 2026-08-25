@@ -18,7 +18,8 @@ test("v1.2.0 version sources and visible identity stay synchronized", () => {
   assert.equal(CONTENT_VERSION, "2026.08-wave7-integrity");
   assert.match(buildIdentity, /import \{ APP_VERSION \} from "\.\.\/lib\/model"/u);
   assert.match(buildIdentity, /data-app-version=\{APP_VERSION\}/u);
-  assert.match(buildIdentity, /Live Cash OS v\{APP_VERSION\} · Build \{buildLabel\}/u);
+  assert.match(buildIdentity, /Live Cash OS v\{APP_VERSION\}/u);
+  assert.doesNotMatch(buildIdentity, /Build \{buildLabel\}/u);
   assert.match(buildIdentity, /VITE_BUILD_SHA/u);
   assert.match(buildIdentity, /data-build-sha=\{rawBuildSha\}/u);
   assert.match(shell, /import BuildIdentityFooter from "\.\/BuildIdentityFooter"/u);
