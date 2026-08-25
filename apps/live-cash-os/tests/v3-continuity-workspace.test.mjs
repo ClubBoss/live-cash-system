@@ -1,14 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { allPracticalTableStates, practicalDecisions } from "../content/practical-mastery/index.ts";
+import { allPracticalTableStates, practicalDecisions, practicalSkillById } from "../content/practical-mastery/index.ts";
 import {
   clearQuickStartContinuity,
   recordIntegratedAnswerContinuity,
   restoreIntegratedRound,
   restorePerceptualCursor,
   restoreQuickStartPostAnswer,
+  restoreSkillMapCursor,
   withPerceptualCursor,
   withQuickStartPostAnswer,
+  withSkillMapCursor,
 } from "../lib/practical-continuity-workspace.ts";
 import { createPracticalMasteryState, recordPracticalDecision } from "../lib/practical-mastery-core.ts";
 import { createPracticalStudyWorkspace } from "../lib/practical-profile-state.ts";
@@ -152,6 +154,52 @@ test("V4-D Table Reading continuity fails closed for stale or ineligible cursors
     continuity: { ...workspace.continuity, contentVersion: "old-content" },
   };
   assert.equal(restorePerceptualCursor(stale, state, [first.decisionId, second.decisionId]).status, "STALE");
+  assert.equal(state.attempts.length, 0);
+  assert.equal(state.revision, 0);
+});
+
+test("V4-D E-02 Skill Map continuity restores a semantic eligible skill without mastery or evidence mutation", () => {
+  const [defaultSkillId, selectedSkillId] = [...practicalSkillById.keys()].slice(0, 2);
+  assert.ok(defaultSkillId && selectedSkillId && defaultSkillId !== selectedSkillId);
+  const state = createPracticalMasteryState(new Date("2026-08-25T00:00:00Z"), true);
+  const masteryBefore = JSON.stringify(state);
+  const workspace = withSkillMapCursor(
+    createPracticalStudyWorkspace(),
+    state.contentVersion,
+    selectedSkillId,
+    new Date("2026-08-25T00:03:00Z"),
+  );
+
+  const restored = restoreSkillMapCursor(workspace, state, [defaultSkillId, selectedSkillId]);
+  assert.deepEqual(restored, { status: "VALID", skillId: selectedSkillId });
+  assert.equal(JSON.stringify(state), masteryBefore, "saving/restoring a Skill Map cursor must not mutate mastery");
+  assert.equal(state.attempts.length, 0, "Skill Map cursor must not create attempts");
+  assert.equal(state.revision, 0, "Skill Map cursor must not increment mastery revision");
+  assert.equal(workspace.continuity?.quickStart, null);
+  assert.equal(workspace.continuity?.integrated, null);
+  assert.equal(workspace.continuity?.perceptual, null);
+});
+
+test("V4-D E-02 Skill Map continuity rejects stale, unknown, and currently ineligible semantic identities", () => {
+  const [defaultSkillId, selectedSkillId] = [...practicalSkillById.keys()].slice(0, 2);
+  assert.ok(defaultSkillId && selectedSkillId && defaultSkillId !== selectedSkillId);
+  const state = createPracticalMasteryState(new Date("2026-08-25T00:00:00Z"), true);
+  const workspace = withSkillMapCursor(createPracticalStudyWorkspace(), state.contentVersion, selectedSkillId);
+  const masteryBefore = JSON.stringify(state);
+
+  assert.equal(restoreSkillMapCursor(workspace, state, [defaultSkillId]).status, "INVALID");
+  assert.equal(restoreSkillMapCursor({
+    ...workspace,
+    continuity: { ...workspace.continuity, contentVersion: "old-content" },
+  }, state, [defaultSkillId, selectedSkillId]).status, "STALE");
+  assert.equal(restoreSkillMapCursor({
+    ...workspace,
+    continuity: {
+      ...workspace.continuity,
+      skillMap: { skillId: "UNKNOWN-SKILL", updatedAt: new Date().toISOString() },
+    },
+  }, state, [defaultSkillId, selectedSkillId]).status, "INVALID");
+  assert.equal(JSON.stringify(state), masteryBefore, "failed restore paths must remain read-only for mastery");
   assert.equal(state.attempts.length, 0);
   assert.equal(state.revision, 0);
 });
