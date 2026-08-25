@@ -5,8 +5,10 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { practicalDecisions } from "../content/practical-mastery/index.ts";
+import { runtimeCorpusAuditLedger } from "../content/practical-mastery/audit-surface.ts";
 import { variationB3Decisions } from "../content/practical-mastery/decisions-variation-b3.ts";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps.ts";
+import { practicalStudyLoop } from "../content/practical-mastery/study-loop-c1.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
@@ -90,10 +92,18 @@ function fingerprint(decisions) {
 }
 
 test("reachable RU scored corpus rejects full-English sentences and mixed authoring phrases", () => {
-  const allFields = practicalDecisions.flatMap(scoredRuFields).filter(Boolean);
-  const failures = malformedRuFields(practicalDecisions);
+  const ledger = runtimeCorpusAuditLedger();
+  const reachableIds = new Set(
+    ledger.rows
+      .filter((row) => row.itemKind === "DECISION" && row.reachable)
+      .map((row) => row.itemId),
+  );
+  const reachableDecisions = practicalDecisions.filter((decision) => reachableIds.has(decision.id));
+  assert.equal(reachableDecisions.length, reachableIds.size, "every reachable audited decision must resolve to runtime content");
+  const allFields = reachableDecisions.flatMap(scoredRuFields).filter(Boolean);
+  const failures = malformedRuFields(reachableDecisions);
   assert.deepEqual(failures, [], `reachable RU scored corpus contains malformed publication copy:\n${failures.join("\n")}`);
-  console.log(`WAVE_C_RU_CORPUS reachable_fields=${allFields.length} malformed_after=${failures.length}`);
+  console.log(`WAVE_C_RU_CORPUS reachable_decisions=${reachableDecisions.length} reachable_fields=${allFields.length} malformed_after=${failures.length}`);
 });
 
 test("B3 publication repair covers all 80 decisions without changing machine/scoring identity", () => {
@@ -117,6 +127,23 @@ test("source-gap machine truth remains raw while learner presentation is natural
   }
 });
 
+test("study-loop machine authority remains intact while learner evidence copy stays natural", () => {
+  const focus = practicalStudyLoop.find((step) => step.id === "FOCUS");
+  const transfer = practicalStudyLoop.find((step) => step.id === "TRANSFER_TEST");
+  const delayed = practicalStudyLoop.find((step) => step.id === "DELAYED_RETEST");
+  assert.ok(focus && transfer && delayed);
+  assert.match(focus.evidenceRule, /scheduler\/repair truth/u);
+  assert.deepEqual(focus.sourceRefs, ["FTGU-E30", "SLC-M07-L63"]);
+  assert.match(transfer.evidenceRule, /Practical Mastery scored evidence/u);
+  assert.match(delayed.evidenceRule, /retention remains the authority/u);
+  for (const step of practicalStudyLoop) {
+    assert.ok(step.learnerEvidenceRuleRu.trim());
+    assert.ok(step.learnerEvidenceRule.trim());
+    assert.doesNotMatch(step.learnerEvidenceRule, /\b(?:scheduler|scored evidence|authority|sourceRefs|FTGU-E30)\b/iu);
+    assert.doesNotMatch(step.learnerEvidenceRuleRu, /\b(?:scheduler|scored evidence|authority|sourceRefs|FTGU-E30)\b/iu);
+  }
+});
+
 test("normal learner components render titles and learner-safe copy instead of machine identifiers", async () => {
   const study = await read("components/PracticalStudyLoopExperience.tsx");
   const mastery = await read("components/PracticalMasteryExperience.tsx");
@@ -129,9 +156,15 @@ test("normal learner components render titles and learner-safe copy instead of m
     /FTGU E30/u,
     /PLAYER DEVELOPMENT · C1/u,
     /SOURCE-BACKED LOOP/u,
+    /\$\{row\.wrong\}/u,
+    /\$\{row\.highConfidenceWrong\}/u,
+    /step\.evidenceRuleRu/u,
+    /step\.evidenceRule\}/u,
   ];
   for (const pattern of forbiddenStudySites) assert.doesNotMatch(study, pattern);
   assert.match(study, /recommendedSkill\.titleRu/);
+  assert.match(study, /step\.learnerEvidenceRuleRu/);
+  assert.match(study, /step\.learnerEvidenceRule/);
   assert.match(study, /Your saved session note/);
   assert.match(study, /field neither replaces it nor updates automatically/);
 
