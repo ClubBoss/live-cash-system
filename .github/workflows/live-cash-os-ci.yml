@@ -12,26 +12,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  wave-h-export-checkout:
-    name: Export Wave H branch checkout
+  wave-h-inspect-source:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          ref: v4-march-wave-c-ru-corpus-firewall
-          fetch-depth: 0
-      - name: Record branch truth
+      - name: Reconstruct and inspect strict publication source
+        working-directory: apps/live-cash-os
         run: |
           set -euo pipefail
-          git rev-parse HEAD
-          git rev-parse origin/main
-          git log --oneline -30
-      - name: Pack checkout
-        run: tar --exclude=.git -czf /tmp/live-cash-wave-h-checkout.tgz .
-      - name: Upload checkout
-        uses: actions/upload-artifact@v7
-        with:
-          name: v4-march-wave-h-checkout-terminal
-          path: /tmp/live-cash-wave-h-checkout.tgz
-          if-no-files-found: error
-          retention-days: 3
+          python - <<'PY'
+          from pathlib import Path
+          import base64,gzip,hashlib,json
+          d=Path('.wave-h-transport')
+          s=d.joinpath('strict-00.b64').read_text().strip()[:18000]
+          for i in range(1,6): s += d.joinpath(f'strict-{i:02d}.b64').read_text().strip()
+          raw=gzip.decompress(base64.b64decode(s)).decode()
+          print('bytes',len(raw.encode()))
+          print('sha256',hashlib.sha256(raw.encode()).hexdigest())
+          print('---HEAD---')
+          print('\n'.join(raw.splitlines()[:12]))
+          print('---TAIL---')
+          print('\n'.join(raw.splitlines()[-12:]))
+          delta=json.loads(d.joinpath('strict4-delta.json').read_text())
+          print('delta_type',type(delta).__name__,'delta_len',len(delta))
+          print('delta_sample',list(delta.items())[:2] if isinstance(delta,dict) else delta[:2])
+          PY
