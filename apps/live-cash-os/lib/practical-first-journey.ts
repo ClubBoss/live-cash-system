@@ -41,12 +41,26 @@ function quickStartRecognitionReady(state: PracticalMasteryState, skillId: strin
 
 export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId);
-  const unresolved = unresolvedWrongDecisionIds(state, skillId);
-  if (unresolved.length) return skillDecisions.find((decision) => decision.id === unresolved[0]) ?? null;
-
   const successfulIds = new Set(
     state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct).map((attempt) => attempt.decisionId),
   );
+  const unresolved = unresolvedWrongDecisionIds(state, skillId);
+  if (unresolved.length) {
+    const repair = skillDecisions.find((decision) => decision.id === unresolved[0]) ?? null;
+    const latestSkillAttempt = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
+    const isImmediateExactRetry = Boolean(repair && latestSkillAttempt && !latestSkillAttempt.correct && latestSkillAttempt.decisionId === repair.id);
+    if (!isImmediateExactRetry) return repair;
+
+    const sameKindSibling = repair
+      ? skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && !successfulIds.has(decision.id)) ?? null
+      : null;
+    if (sameKindSibling) return sameKindSibling;
+
+    const supportedSibling = repair
+      ? skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id)) ?? null
+      : null;
+    return supportedSibling;
+  }
 
   return skillDecisions.find((decision) => decision.kind === "recognition" && !successfulIds.has(decision.id))
     ?? skillDecisions.find((decision) => (decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id))
