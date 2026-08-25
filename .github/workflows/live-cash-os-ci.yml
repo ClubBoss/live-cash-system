@@ -12,25 +12,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  wave-h-export-transport:
-    name: Export Wave H transport for generator verification
+  wave-h-export-checkout:
+    name: Export Wave H branch checkout
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           ref: v4-march-wave-c-ru-corpus-firewall
-      - name: Verify transport inventory
-        working-directory: apps/live-cash-os
+          fetch-depth: 0
+      - name: Record branch truth
         run: |
           set -euo pipefail
-          find .wave-h-transport -maxdepth 1 -type f -print | sort
-          sha256sum .wave-h-transport/*
-          wc -c .wave-h-transport/*
-      - name: Upload full Wave H transport
+          git rev-parse HEAD
+          git rev-parse origin/main
+          git log --oneline -30
+      - name: Pack checkout
+        run: tar --exclude=.git -czf /tmp/live-cash-wave-h-checkout.tgz .
+      - name: Upload checkout
         uses: actions/upload-artifact@v7
         with:
-          name: v4-march-wave-h-full-transport-terminal
-          path: apps/live-cash-os/.wave-h-transport
+          name: v4-march-wave-h-checkout-terminal
+          path: /tmp/live-cash-wave-h-checkout.tgz
           if-no-files-found: error
-          include-hidden-files: true
           retention-days: 3
