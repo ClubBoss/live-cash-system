@@ -1,4 +1,4 @@
-import { practicalDecisionById } from "../content/practical-mastery";
+import { practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import type { IntegratedSessionItem } from "./practical-integrated-session";
 import type { PracticalAttempt, PracticalMasteryState } from "./practical-mastery-core";
 import type {
@@ -14,6 +14,14 @@ export type IntegratedContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
   | { status: "VALID"; items: IntegratedSessionItem[]; nextIndex: number };
 
+export type PerceptualContinuityRestore =
+  | { status: "NONE" | "STALE" | "INVALID" }
+  | { status: "VALID"; decisionId: string };
+
+export type SkillMapContinuityRestore =
+  | { status: "NONE" | "STALE" | "INVALID" }
+  | { status: "VALID"; skillId: string };
+
 function continuityFor(workspace: PracticalStudyWorkspace, contentVersion: string): PracticalContinuityWorkspace | null {
   const continuity = workspace.continuity;
   if (!continuity || continuity.version !== 1 || continuity.contentVersion !== contentVersion) return null;
@@ -27,6 +35,8 @@ function nextContinuity(workspace: PracticalStudyWorkspace, contentVersion: stri
     contentVersion,
     quickStart: null,
     integrated: null,
+    perceptual: null,
+    skillMap: null,
   };
 }
 
@@ -40,6 +50,64 @@ function withContinuity(
     continuity,
     updatedAt: now.toISOString(),
   };
+}
+
+export function withPerceptualCursor(
+  workspace: PracticalStudyWorkspace,
+  contentVersion: string,
+  decisionId: string,
+  now = new Date(),
+): PracticalStudyWorkspace {
+  if (!practicalDecisionById.has(decisionId)) return workspace;
+  const continuity = nextContinuity(workspace, contentVersion);
+  return withContinuity(workspace, {
+    ...continuity,
+    perceptual: {
+      decisionId,
+      updatedAt: now.toISOString(),
+    },
+  }, now);
+}
+
+export function restorePerceptualCursor(
+  workspace: PracticalStudyWorkspace,
+  mastery: PracticalMasteryState,
+  eligibleDecisionIds: readonly string[],
+): PerceptualContinuityRestore {
+  const saved = workspace.continuity?.perceptual;
+  if (!saved) return { status: "NONE" };
+  if (workspace.continuity?.contentVersion !== mastery.contentVersion) return { status: "STALE" };
+  if (!practicalDecisionById.has(saved.decisionId) || !eligibleDecisionIds.includes(saved.decisionId)) return { status: "INVALID" };
+  return { status: "VALID", decisionId: saved.decisionId };
+}
+
+export function withSkillMapCursor(
+  workspace: PracticalStudyWorkspace,
+  contentVersion: string,
+  skillId: string,
+  now = new Date(),
+): PracticalStudyWorkspace {
+  if (!practicalSkillById.has(skillId)) return workspace;
+  const continuity = nextContinuity(workspace, contentVersion);
+  return withContinuity(workspace, {
+    ...continuity,
+    skillMap: {
+      skillId,
+      updatedAt: now.toISOString(),
+    },
+  }, now);
+}
+
+export function restoreSkillMapCursor(
+  workspace: PracticalStudyWorkspace,
+  mastery: PracticalMasteryState,
+  eligibleSkillIds: readonly string[],
+): SkillMapContinuityRestore {
+  const saved = workspace.continuity?.skillMap;
+  if (!saved) return { status: "NONE" };
+  if (workspace.continuity?.contentVersion !== mastery.contentVersion) return { status: "STALE" };
+  if (!practicalSkillById.has(saved.skillId) || !eligibleSkillIds.includes(saved.skillId)) return { status: "INVALID" };
+  return { status: "VALID", skillId: saved.skillId };
 }
 
 export function withQuickStartPostAnswer(

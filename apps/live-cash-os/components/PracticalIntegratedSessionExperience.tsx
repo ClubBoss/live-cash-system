@@ -187,11 +187,17 @@ export default function PracticalIntegratedSessionExperience() {
     <p><Link href="/mastery/journey">{locale === "ru" ? "Быстрый старт" : "Quick Start"} →</Link> · <Link href="/mastery">{locale === "ru" ? "Карта" : "Map"} →</Link></p>
   </main>;
 
+  const focusedTitle = requestedFocus && requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : null;
+
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
     <section className="hero compact-hero">
-      <p className="eyebrow">{locale === "ru" ? `ПРАКТИКА · ${index + 1}/${items.length}` : `PRACTICE · ${index + 1}/${items.length}`}</p>
+      <p className="eyebrow">{focusedTitle
+        ? (locale === "ru" ? `ПРАКТИКА · ${focusedTitle} · ${index + 1}/${items.length}` : `PRACTICE · ${focusedTitle} · ${index + 1}/${items.length}`)
+        : (locale === "ru" ? `ПРАКТИКА · ${index + 1}/${items.length}` : `PRACTICE · ${index + 1}/${items.length}`)}</p>
       <h1>{locale === "ru" ? "Прими решение до подсказки" : "Decide before the reveal"}</h1>
-      <p>{locale === "ru" ? "Тема скрыта до ответа. Так система проверяет, узнаёшь ли ты нужный механизм без названия раздела." : "The topic stays hidden until you answer, so the system can test whether you recognize the mechanism without a topic label."}</p>
+      <p>{focusedTitle
+        ? (locale === "ru" ? "Фокус раунда задан заранее; каждое решение всё равно принимай до разбора ответа." : "This round has a fixed focus; still make each decision before the answer is revealed.")
+        : (locale === "ru" ? "Тема скрыта до ответа. Так система проверяет, узнаёшь ли ты нужный механизм без названия раздела." : "The topic stays hidden until you answer, so the system can test whether you recognize the mechanism without a topic label.")}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
     <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
