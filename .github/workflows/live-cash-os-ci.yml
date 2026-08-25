@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   targeted-integration:
-    name: V4 March targeted integration
+    name: V4 March C1 diagnostic
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,74 +27,13 @@ jobs:
           cache-dependency-path: apps/live-cash-os/package-lock.json
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-      - name: TypeScript
-        run: npm run typecheck
-      - name: A authority unit/static
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test tests/practical-first-journey-authority.test.mjs
-      - name: B visible-change unit/static
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test tests/practical-visible-change-integrity.test.mjs
-      - name: C1 reachable RU corpus
-        if: ${{ always() }}
+      - name: Capture exact C1 TAP output
+        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="reachable RU scored corpus" tests/v4-march-wave-c-integrity.test.mjs > c1-diagnostic.log 2>&1 || true
+      - name: Upload C1 diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-march-c1-diagnostic
+          path: apps/live-cash-os/c1-diagnostic.log
+          if-no-files-found: error
+      - name: Preserve C1 gate conclusion
         run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="reachable RU scored corpus" tests/v4-march-wave-c-integrity.test.mjs
-      - name: C2 B3 publication identity
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="B3 publication repair" tests/v4-march-wave-c-integrity.test.mjs
-      - name: C3 source-gap authority
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="source-gap machine truth" tests/v4-march-wave-c-integrity.test.mjs
-      - name: C4 study-loop authority
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="study-loop machine authority" tests/v4-march-wave-c-integrity.test.mjs
-      - name: C5 normal learner component presentation
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test --test-name-pattern="normal learner components" tests/v4-march-wave-c-integrity.test.mjs
-      - name: C learner-surface unit/static
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test tests/practical-learner-surface-clarity.test.mjs
-      - name: D continuity unit/static
-        if: ${{ always() }}
-        run: node --import ./tests/register-model-loader.mjs --test tests/v3-continuity-workspace.test.mjs
-      - name: ESLint touched March seams
-        run: >-
-          npx eslint
-          components/PracticalFirstJourneyAuthority.tsx
-          components/PracticalFirstJourneyExperience.tsx
-          components/BuildIdentityFooter.tsx
-          components/PracticalLearnerPresentationGuard.tsx
-          components/PracticalMasteryExperience.tsx
-          components/PracticalStudyLoopExperience.tsx
-          components/PracticalIntegratedSessionExperience.tsx
-          components/PracticalPerceptualExperience.tsx
-          content/practical-mastery/decisions-variation-b3.ts
-          content/practical-mastery/source-gaps.ts
-          content/practical-mastery/study-loop-c1.ts
-          lib/practical-visible-scenario.ts
-          lib/practical-continuity-workspace.ts
-          lib/practical-profile-contract.ts
-          tests/practical-first-journey-authority.test.mjs
-          tests/practical-visible-change-integrity.test.mjs
-          tests/v4-march-wave-c-integrity.test.mjs
-          tests/practical-learner-surface-clarity.test.mjs
-          tests/v3-continuity-workspace.test.mjs
-          e2e/v4-wave-a-quick-start-authority.spec.mjs
-          e2e/practical-visible-change-integrity.spec.mjs
-          e2e/v4-march-wave-c-firewall.spec.mjs
-          e2e/v4-wave-d-continuity-focus.spec.mjs
-          e2e/v4-wave-d-skill-map-continuity.spec.mjs
-          e2e/v3-continuity-workspace.spec.mjs
-          e2e/practical-mastery-acceptance.spec.mjs
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Targeted Chromium integration
-        run: >-
-          npx playwright test
-          e2e/v4-wave-a-quick-start-authority.spec.mjs
-          e2e/practical-visible-change-integrity.spec.mjs
-          e2e/v4-march-wave-c-firewall.spec.mjs
-          e2e/v4-wave-d-continuity-focus.spec.mjs
-          e2e/v4-wave-d-skill-map-continuity.spec.mjs
-          e2e/v3-continuity-workspace.spec.mjs
-          e2e/practical-mastery-acceptance.spec.mjs
-          --project=chromium
