@@ -144,7 +144,3 @@ test("After-play flow deep-links to Real Hands on the secondary tools route with
   await expect(page.getByRole("navigation", { name: "Основная навигация" })).toHaveCount(0);
   await expect(page).toHaveURL(/\/tools\?tab=field$/);
 });
-
-if (crossMatrix) {
-  await import("./v4-wave-d-continuity-focus.spec.mjs");
-}
