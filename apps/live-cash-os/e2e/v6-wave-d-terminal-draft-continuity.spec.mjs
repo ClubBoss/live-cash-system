@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey.ts";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 const COMPLETE_HEADING = /Быстрый старт завершён|Quick start complete/;
@@ -21,6 +22,15 @@ async function masterySnapshot(page) {
   }, LEARNER_KEY);
 }
 
+async function currentMastery(page) {
+  return page.evaluate((key) => {
+    const root = JSON.parse(localStorage.getItem(key) ?? "null");
+    const mastery = root?._practicalProfile?.mastery;
+    if (!mastery) throw new Error("missing practical mastery state");
+    return mastery;
+  }, LEARNER_KEY);
+}
+
 async function attemptCount(page) {
   return page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile?.mastery?.attempts?.length ?? 0, LEARNER_KEY);
 }
@@ -34,8 +44,17 @@ async function practiceCard(page) {
 async function answerCurrentQuickStartDecision(page) {
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   const card = await practiceCard(page);
-  await card.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
-  await card.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
+  const mastery = await currentMastery(page);
+  const recommendation = recommendFirstJourneyStep(mastery);
+  if (!recommendation) throw new Error("missing canonical Quick Start recommendation");
+  const decision = nextFirstJourneyDecision(mastery, recommendation.skillId);
+  if (!decision) throw new Error(`missing canonical Quick Start decision for ${recommendation.skillId}`);
+  const actionIndex = decision.actionOptions.findIndex((option) => option.id === decision.correctActionId);
+  const reasonIndex = decision.reasonOptions.findIndex((option) => option.id === decision.correctReasonId);
+  if (actionIndex < 0 || reasonIndex < 0) throw new Error(`invalid canonical answer options for ${decision.id}`);
+
+  await card.locator("fieldset").nth(0).locator('input[type="radio"]').nth(actionIndex).check();
+  await card.locator("fieldset").nth(1).locator('input[type="radio"]').nth(reasonIndex).check();
   await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
 }
