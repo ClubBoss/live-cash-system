@@ -9,7 +9,8 @@ export type LearnerPresentationLeakClass =
   | "CANONICAL_IMPLEMENTATION"
   | "SOURCE_GOVERNANCE"
   | "VALIDATION_PIPELINE"
-  | "CORPUS_METADATA";
+  | "CORPUS_METADATA"
+  | "MIGRATION_HISTORY";
 
 const SOURCE_ID_SOURCE = String.raw`(?:FTGU(?:[- ]?E)?\d+(?:/E\d+)?|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+)`;
 const MODULE_ID_SOURCE = String.raw`(?:LCM-\d+|LD-\d+)`;
@@ -61,6 +62,10 @@ const leakPatterns: ReadonlyArray<{
       String.raw`\b\d+\s+indexed\s+scenarios?\b|\bindexed[- ]scenario\b|\bcorpus\b|${RU_CORPUS_SOURCE}`,
       "iu",
     ),
+  },
+  {
+    leakClass: "MIGRATION_HISTORY",
+    pattern: /\blegacy\b/iu,
   },
 ];
 
@@ -170,6 +175,18 @@ function replaceEnPhrases(value: string): string {
     .replace(/\bunverified\s+(?:exact\s+)?frequencies\b/giu, "frequencies not established here");
 }
 
+function replaceMigrationHistory(value: string, locale: LearnerPresentationLocale): string {
+  if (locale === "ru") {
+    return value
+      .replace(/\blegacy-заданий\s+на\s+работу\s+над\s+ошибкой\b/giu, "заданий на работу над ошибкой")
+      .replace(/\blegacy\b[- ]?/giu, "");
+  }
+  return value
+    .replace(/\bThis\s+legacy\s+note\s+cannot\s+support\s+transfer\s+because\s+it\s+has\s+no\s+decision\s+locked\s+before\s+the\s+result\./giu, "This note cannot support real-table transfer because the decision was not recorded before the result.")
+    .replace(/\blegacy\s+mistake-practice\s+tasks\s+queued\b/giu, "mistake-practice tasks to complete")
+    .replace(/\blegacy\b[- ]?/giu, "");
+}
+
 function replaceIndexedScenarioSentence(value: string, locale: LearnerPresentationLocale): string {
   const replacement = locale === "ru"
     ? "В этой группе много разных конфигураций; используй ориентир, который совпадает с реальными позициями, глубиной, рейком и числом коллеров."
@@ -192,7 +209,8 @@ export function sanitizeLearnerPresentationText(
   if (!value) return value;
   if (isLearnerMetadataOnlyLine(value)) return "";
 
-  let next = replaceIndexedScenarioSentence(value, locale);
+  let next = replaceMigrationHistory(value, locale);
+  next = replaceIndexedScenarioSentence(next, locale);
   next = locale === "ru" ? replaceRuPhrases(next) : replaceEnPhrases(next);
 
   next = next.replace(
