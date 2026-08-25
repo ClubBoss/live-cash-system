@@ -87,14 +87,14 @@ test("V3-06c submitted Q1 resumes at Q2 across leave/re-entry, reload, Back and 
   }, LEARNER_KEY)).toBe(true);
 
   await page.goto(`/mastery/session?focus=${FOCUS_ID}&source=v3-06#continuity`);
-  await expect(page.getByText(/ПРАКТИКА · 1\/8|PRACTICE · 1\/8/)).toBeVisible();
+  await expect(page.getByText(/ПРАКТИКА · .+ · 1\/8|PRACTICE · .+ · 1\/8/)).toBeVisible();
   const first = await answerIntegratedCard(page);
   const attemptsAfterQ1 = await masteryAttempts(page);
 
   await page.goto("/mastery");
   await page.goto(`/mastery/session?focus=${FOCUS_ID}&source=v3-06#continuity`);
   await expect(page).toHaveURL(new RegExp(`/mastery/session\\?focus=${FOCUS_ID}&source=v3-06#continuity$`));
-  await expect(page.getByText(/ПРАКТИКА · 2\/8|PRACTICE · 2\/8/)).toBeVisible();
+  await expect(page.getByText(/ПРАКТИКА · .+ · 2\/8|PRACTICE · .+ · 2\/8/)).toBeVisible();
   const q2 = page.locator("section.today-card[data-practical-decision-id]").first();
   await expect(q2).toBeVisible();
   expect(await q2.getAttribute("data-practical-decision-id")).not.toBe(first.decisionId);
@@ -102,14 +102,14 @@ test("V3-06c submitted Q1 resumes at Q2 across leave/re-entry, reload, Back and 
 
   const q2Id = await q2.getAttribute("data-practical-decision-id");
   await page.reload();
-  await expect(page.getByText(/ПРАКТИКА · 2\/8|PRACTICE · 2\/8/)).toBeVisible();
+  await expect(page.getByText(/ПРАКТИКА · .+ · 2\/8|PRACTICE · .+ · 2\/8/)).toBeVisible();
   expect(await page.locator("section.today-card[data-practical-decision-id]").first().getAttribute("data-practical-decision-id")).toBe(q2Id);
   expect(await masteryAttempts(page)).toBe(attemptsAfterQ1);
 
   await page.goBack();
   await expect(page).toHaveURL(/\/mastery$/);
   await page.goForward();
-  await expect(page.getByText(/ПРАКТИКА · 2\/8|PRACTICE · 2\/8/)).toBeVisible();
+  await expect(page.getByText(/ПРАКТИКА · .+ · 2\/8|PRACTICE · .+ · 2\/8/)).toBeVisible();
   expect(await masteryAttempts(page)).toBe(attemptsAfterQ1);
 
   await page.goto("/mastery/session");

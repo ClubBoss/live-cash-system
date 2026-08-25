@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
+import { restorePerceptualCursor, withPerceptualCursor } from "../lib/practical-continuity-workspace";
 import { recordPracticalDecision } from "../lib/practical-mastery-core";
 import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
@@ -13,8 +14,16 @@ import PracticalTableStateStimulus from "./PracticalTableStateStimulus";
 
 export default function PracticalPerceptualExperience() {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, setMasteryWithPerformance, ready, recoveryBlocked } = usePracticalProfileState();
+  const {
+    mastery: state,
+    studyWorkspace,
+    setMasteryWithPerformance,
+    setStudyWorkspace,
+    ready,
+    recoveryBlocked,
+  } = usePracticalProfileState();
   const [index, setIndex] = useState(0);
+  const [cursorContentVersion, setCursorContentVersion] = useState<string | null>(null);
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [revealed, setRevealed] = useState(false);
@@ -38,6 +47,23 @@ export default function PracticalPerceptualExperience() {
   const liveScaffold = table && skill ? effectivePracticalScaffold(state, skill.id, table.scaffold) : "guided";
   const scaffold = submittedScaffold ?? liveScaffold;
   const supportCue = practicalScaffoldCue(scaffold, locale);
+
+  useEffect(() => {
+    if (!ready || cursorContentVersion === state.contentVersion) return;
+    const restored = restorePerceptualCursor(studyWorkspace, state, eligible.map((candidate) => candidate.decisionId));
+    const restoredIndex = restored.status === "VALID"
+      ? eligible.findIndex((candidate) => candidate.decisionId === restored.decisionId)
+      : 0;
+    setIndex(restoredIndex >= 0 ? restoredIndex : 0);
+    setCursorContentVersion(state.contentVersion);
+  }, [cursorContentVersion, eligible, ready, state, studyWorkspace]);
+
+  useEffect(() => {
+    if (!ready || cursorContentVersion !== state.contentVersion || !queuedTable) return;
+    const continuity = studyWorkspace.continuity;
+    if (continuity?.contentVersion === state.contentVersion && continuity.perceptual?.decisionId === queuedTable.decisionId) return;
+    setStudyWorkspace(withPerceptualCursor(studyWorkspace, state.contentVersion, queuedTable.decisionId));
+  }, [cursorContentVersion, queuedTable, ready, setStudyWorkspace, state.contentVersion, studyWorkspace]);
 
   useEffect(() => { setStartedAt(new Date()); }, [table?.decisionId]);
 
@@ -66,7 +92,7 @@ export default function PracticalPerceptualExperience() {
     setLastCorrect(null);
   };
 
-  if (!ready) return <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
+  if (!ready || cursorContentVersion !== state.contentVersion) return <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
   if (!table || !decision || !skill) return <main style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px 64px" }}><p className="eyebrow">{locale === "ru" ? "ЧТЕНИЕ СТОЛА" : "PERCEPTUAL PRACTICE"}</p><h1>{locale === "ru" ? "Сначала познакомься с механизмами" : "Learn the mechanisms first"}</h1><p>{locale === "ru" ? "Этот режим не проверяет незнакомые темы. Сначала пройди первый круг, а затем изученные навыки появятся здесь уже как реальные состояния стола." : "This mode does not test unseen topics. Complete First Journey first; learned skills will then appear here as table states."}</p><Link className="primary" href="/mastery/journey">{locale === "ru" ? "Первый круг" : "First Journey"} →</Link></main>;
 

@@ -2,11 +2,19 @@
 
 import { useLayoutEffect } from "react";
 
-const sourceIdPattern = /\b(?:FTGU-E\d+(?:\/E\d+)?|SLC-M\d+-L\d+|LCM-\d+|CP-G\d+-L\d+)\b/giu;
-const sourceIdTestPattern = /\b(?:FTGU-E\d+(?:\/E\d+)?|SLC-M\d+-L\d+|LCM-\d+|CP-G\d+-L\d+)\b/iu;
 const sourceLinePattern = /^(?:Источники|Sources)\s*:/iu;
+const machineMetadataPatterns = [
+  /\bPOSITIVE_EV_SOURCE_ACCESS_REQUIRED\b/u,
+  /\bsourceRefs\b/iu,
+  /\b(?:FND|PF|BL|W4(?:-BOARD|-HAND|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b/u,
+  /\b(?:FTGU(?:[- ]?E)?\d+(?:\/E\d+)?|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b/iu,
+  /(?:^|[\s(])E\d{2}(?:\s*\/\s*E\d{2})?(?=$|[\s),.;:])/u,
+  /(?:^|[\s(])B1(?=$|[\s),.;:])/u,
+];
 
-const exactReplacements = new Map<string, string>([
+// Retained only as a bounded compatibility fallback for the already-published
+// Quick Start pot-odds cards. New publication fixes belong in source fields.
+const legacyExactFallbacks = new Map<string, string>([
   ["Первый круг", "Старт обучения"],
   ["First Journey", "Start learning"],
   [
@@ -55,62 +63,33 @@ const exactReplacements = new Map<string, string>([
   ],
 ]);
 
-function polishRussianLearnerText(value: string): string {
-  let next = value;
-  next = next.replace(/Какие две основные причины\s+FTGU\s+даёт для\s+IP cold-call\?/giu, "Какие две основные причины могут сделать cold-call в позиции прибыльным?");
-  next = next.replace(/Какой simplified flop plan source поддерживает при большом concentrated advantage\?/giu, "Какой упрощённый план на флопе уместен при большом преимуществе диапазона?");
-  next = next.replace(/Какой practical simplification source предлагает для многих favourable\/neutral low-SPR 4-bet flops\?/giu, "Какое практическое упрощение уместно на многих благоприятных или нейтральных флопах 4-бет-банка с низким SPR?");
-  next = next.replace(/Нет автоматически; source сдвигается к более value-heavy\/linear response и tighter stack-offs\./giu, "Нет автоматически; против диапазона с недостатком блефов ответ становится более ориентированным на вэлью, а выставления — более тайтовыми.");
-  next = next.replace(/Нет\. Source поддерживает exploitative overfold против реально underbluffed branch\./giu, "Нет. Против линии, в которой действительно не хватает блефов, эксплойтный оверфолд может быть правильным.");
-  next = next.replace(/\bconcentrated early-position ranges?\b/giu, "узкого диапазона ранней позиции");
-  next = next.replace(/\bconcentrated range advantage\b/giu, "сильного преимущества диапазона");
-  next = next.replace(/\bopening range\b/giu, "диапазона открытия");
-  next = next.replace(/\bunderbluffing range\b/giu, "диапазона с недостатком блефов");
-  next = next.replace(/\bOOP\b/gu, "вне позиции");
-  next = next.replace(/\branges?\b(?!-bet)/giu, "диапазон");
-  next = next.replace(/\bbranches?\b/giu, "ветка решения");
-  next = next.replace(/\bsource\b/giu, "логика");
-  next = next.replace(/\bFTGU\b/gu, "материал");
-  next = next.replace(/\s{2,}/gu, " ").trim();
-  return next;
+function containsMachineMetadata(value: string): boolean {
+  return machineMetadataPatterns.some((pattern) => pattern.test(value));
 }
 
-function cleanupSourceLanguage(value: string): string {
-  let next = value.replace(sourceIdPattern, "");
-  next = next.replace(/\s+([,.;:])/gu, "$1").replace(/\(\s+/gu, "(").replace(/\s+\)/gu, ")").replace(/\s{2,}/gu, " ").trim();
-  next = next.replace(/^[/,;:\-–—\s]+/u, "").trim();
-  if (/^(?:прямо\s+)?(?:показывает|описывает|подчёркивает|требует|выделяет|связывает|перечисляет|использует|называет|отделяет|добавляет|предупреждает|отвергает)\b/iu.test(next)) {
-    next = `Практическая логика ${next.charAt(0).toLowerCase()}${next.slice(1)}`;
-  }
-  if (/^(?:explicitly\s+)?(?:shows|describes|highlights|requires|identifies|links|lists|uses|calls|separates|adds|warns|rejects)\b/iu.test(next)) {
-    next = `The practical logic ${next.charAt(0).toLowerCase()}${next.slice(1)}`;
-  }
-  return next;
-}
-
-function transformText(value: string): string {
-  const exact = exactReplacements.get(value.trim());
-  const transformed = exact ?? (sourceIdTestPattern.test(value) ? cleanupSourceLanguage(value) : value);
-  return /[А-Яа-яЁё]/u.test(transformed) ? polishRussianLearnerText(transformed) : transformed;
-}
-
-function applyPresentation(root: HTMLElement) {
-  for (const element of Array.from(root.querySelectorAll<HTMLElement>("p, small"))) {
-    const text = element.textContent?.trim() ?? "";
-    if (sourceLinePattern.test(text)) {
-      element.hidden = true;
-      element.setAttribute("aria-hidden", "true");
-    }
-  }
-
+function applyLegacyExactFallbacks(root: HTMLElement) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const nodes: Text[] = [];
   while (walker.nextNode()) nodes.push(walker.currentNode as Text);
   for (const node of nodes) {
     const current = node.nodeValue ?? "";
-    const transformed = transformText(current);
-    if (transformed !== current) node.nodeValue = transformed;
+    const replacement = legacyExactFallbacks.get(current.trim());
+    if (replacement && replacement !== current) node.nodeValue = replacement;
   }
+}
+
+function applyMetadataFirewall(root: HTMLElement) {
+  for (const element of Array.from(root.querySelectorAll<HTMLElement>("p, small, span, b, h1, h2, h3, h4, li, summary"))) {
+    const text = element.textContent?.trim() ?? "";
+    if (!text || (!sourceLinePattern.test(text) && !containsMachineMetadata(text))) continue;
+    element.hidden = true;
+    element.setAttribute("aria-hidden", "true");
+  }
+}
+
+function applyPresentation(root: HTMLElement) {
+  applyLegacyExactFallbacks(root);
+  applyMetadataFirewall(root);
 }
 
 export default function PracticalLearnerPresentationGuard() {

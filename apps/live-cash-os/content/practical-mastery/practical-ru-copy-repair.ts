@@ -1,4 +1,5 @@
 import type { PracticalDecision, PracticalDecisionOption } from "./types";
+import { practicalRuCorpusPublicationOverrides } from "./practical-ru-corpus-publication";
 
 // Final learner-facing RU composition for the generated Practical Mastery corpus.
 // This layer is deliberately presentation-only: IDs, correct answers, source refs,
@@ -113,7 +114,7 @@ const RU_OVERRIDES = new Map<string, string>([
 ]);
 
 function ru(text: string): string {
-  return RU_OVERRIDES.get(text) ?? text;
+  return practicalRuCorpusPublicationOverrides.get(text) ?? RU_OVERRIDES.get(text) ?? text;
 }
 
 function optionRu(option: PracticalDecisionOption): PracticalDecisionOption {

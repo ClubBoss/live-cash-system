@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { practicalSkillFamilies } from "../content/practical-mastery";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalSkillFamily } from "../content/practical-mastery";
+import { restoreSkillMapCursor, withSkillMapCursor } from "../lib/practical-continuity-workspace";
 import {
   availablePracticalSkills,
   practicalRepairQueue,
@@ -76,8 +77,32 @@ function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
 
 export default function PracticalMasteryExperience() {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, ready, cloudMode, recoveryBlocked } = usePracticalProfileState();
-  const [selectedSkillId, setSelectedSkillId] = useState("FND-01");
+  const {
+    mastery: state,
+    studyWorkspace,
+    setStudyWorkspace,
+    ready,
+    cloudMode,
+    recoveryBlocked,
+  } = usePracticalProfileState();
+  const defaultSkillId = practicalSkillFamilies[0]?.id ?? "FND-01";
+  const skillMapSkillIds = useMemo(() => practicalSkillFamilies.map((candidate) => candidate.id), []);
+  const [selectedSkillId, setSelectedSkillId] = useState(defaultSkillId);
+  const [skillMapContentVersion, setSkillMapContentVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ready || skillMapContentVersion === state.contentVersion) return;
+    const restored = restoreSkillMapCursor(studyWorkspace, state, skillMapSkillIds);
+    setSelectedSkillId(restored.status === "VALID" ? restored.skillId : defaultSkillId);
+    setSkillMapContentVersion(state.contentVersion);
+  }, [defaultSkillId, ready, skillMapContentVersion, skillMapSkillIds, state, studyWorkspace]);
+
+  useEffect(() => {
+    if (!ready || skillMapContentVersion !== state.contentVersion) return;
+    const continuity = studyWorkspace.continuity;
+    if (continuity?.contentVersion === state.contentVersion && continuity.skillMap?.skillId === selectedSkillId) return;
+    setStudyWorkspace(withSkillMapCursor(studyWorkspace, state.contentVersion, selectedSkillId));
+  }, [ready, selectedSkillId, setStudyWorkspace, skillMapContentVersion, state.contentVersion, studyWorkspace]);
 
   const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
   const progress = state.skills[skill.id];
@@ -104,7 +129,7 @@ export default function PracticalMasteryExperience() {
   const recommendation = useMemo(() => recommendNextPracticalSkill(state), [state]);
   const recommendedSkill = recommendation ? practicalSkillFamilies.find((item) => item.id === recommendation.skillId) ?? null : null;
 
-  if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
+  if (!ready || skillMapContentVersion !== state.contentVersion) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
 
   return <main style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 20px 60px" }}>
@@ -162,7 +187,7 @@ export default function PracticalMasteryExperience() {
       <p>{skillObjective(skill, locale)}</p>
       <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
 
-      {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.reasonRu : gap.reason}</p><p className="support">{locale === "ru" ? gap.nextEvidenceNeededRu : gap.nextEvidenceNeeded}</p></div> : null}
+      {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.learnerReasonRu : gap.learnerReason}</p><p className="support">{locale === "ru" ? gap.learnerNextEvidenceNeededRu : gap.learnerNextEvidenceNeeded}</p></div> : null}
       {!availableIds.has(skill.id) ? <p className="support">{locale === "ru" ? `Сначала нужны: ${hardPrerequisiteTitles.join(", ") || "предыдущие базовые навыки"}.` : `First complete: ${hardPrerequisiteTitles.join(", ") || "the required foundations"}.`}</p> : null}
 
       <div className="today-card" style={{ marginTop: 18 }}>
