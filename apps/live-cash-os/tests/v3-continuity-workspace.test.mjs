@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { practicalDecisions } from "../content/practical-mastery/index.ts";
+import { allPracticalTableStates, practicalDecisions } from "../content/practical-mastery/index.ts";
 import {
   clearQuickStartContinuity,
   recordIntegratedAnswerContinuity,
   restoreIntegratedRound,
+  restorePerceptualCursor,
   restoreQuickStartPostAnswer,
+  withPerceptualCursor,
   withQuickStartPostAnswer,
 } from "../lib/practical-continuity-workspace.ts";
 import { createPracticalMasteryState, recordPracticalDecision } from "../lib/practical-mastery-core.ts";
@@ -115,4 +117,41 @@ test("V3-06c integrated workspace fails closed on stale content or broken submit
   const broken = { ...base, continuity };
   assert.equal(restoreIntegratedRound(broken, state, first.skillId).status, "INVALID");
   assert.equal(restoreIntegratedRound({ ...broken, continuity: { ...continuity, contentVersion: "old-content" } }, state, first.skillId).status, "STALE");
+});
+
+test("V4-D Table Reading continuity restores only an eligible decision cursor and never creates evidence", () => {
+  const [first, second] = allPracticalTableStates.slice(0, 2);
+  assert.ok(first && second);
+  const state = createPracticalMasteryState(new Date("2026-08-25T00:00:00Z"), true);
+  const beforeAttempts = state.attempts.length;
+  const beforeRevision = state.revision;
+  const workspace = withPerceptualCursor(
+    createPracticalStudyWorkspace(),
+    state.contentVersion,
+    second.decisionId,
+    new Date("2026-08-25T00:01:00Z"),
+  );
+
+  const restored = restorePerceptualCursor(workspace, state, [first.decisionId, second.decisionId]);
+  assert.deepEqual(restored, { status: "VALID", decisionId: second.decisionId });
+  assert.equal(state.attempts.length, beforeAttempts, "cursor restore must not create attempts");
+  assert.equal(state.revision, beforeRevision, "cursor restore must not mutate mastery revision");
+  assert.equal(workspace.continuity?.quickStart, null);
+  assert.equal(workspace.continuity?.integrated, null);
+});
+
+test("V4-D Table Reading continuity fails closed for stale or ineligible cursors", () => {
+  const [first, second] = allPracticalTableStates.slice(0, 2);
+  assert.ok(first && second);
+  const state = createPracticalMasteryState(new Date("2026-08-25T00:00:00Z"), true);
+  const workspace = withPerceptualCursor(createPracticalStudyWorkspace(), state.contentVersion, second.decisionId);
+
+  assert.equal(restorePerceptualCursor(workspace, state, [first.decisionId]).status, "INVALID");
+  const stale = {
+    ...workspace,
+    continuity: { ...workspace.continuity, contentVersion: "old-content" },
+  };
+  assert.equal(restorePerceptualCursor(stale, state, [first.decisionId, second.decisionId]).status, "STALE");
+  assert.equal(state.attempts.length, 0);
+  assert.equal(state.revision, 0);
 });
