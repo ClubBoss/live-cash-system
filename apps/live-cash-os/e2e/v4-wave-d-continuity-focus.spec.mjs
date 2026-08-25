@@ -2,6 +2,12 @@ import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 
+async function useLocalWaveDFixture(page) {
+  await page.route("**/api/state", async (route) => {
+    await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local V4 Wave D fixture" }) });
+  });
+}
+
 async function patchPracticalSkills(page, patches) {
   await page.goto("/mastery/journey");
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
@@ -73,13 +79,8 @@ async function answerIntegratedCard(page) {
   return card;
 }
 
-test.beforeEach(async ({ page }) => {
-  await page.route("**/api/state", async (route) => {
-    await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local V4 Wave D fixture" }) });
-  });
-});
-
 test("V4-D Table Reading keeps the same active item across reload, focused-Practical history, and stale cursor recovery without duplicate evidence", async ({ page }) => {
+  await useLocalWaveDFixture(page);
   await patchPracticalSkills(page, {
     "FND-06": { conceptTaught: true, evidenceStage: "CONCEPT_TAUGHT" },
   });
@@ -131,6 +132,7 @@ test("V4-D Table Reading keeps the same active item across reload, focused-Pract
 });
 
 test("V4-D focused PF-01 session shows canonical RU/EN learner title while all eight scored items stay PF-01 and generic presentation stays generic", async ({ page }) => {
+  await useLocalWaveDFixture(page);
   await patchPracticalSkills(page, {
     "FND-06": { conceptTaught: true, evidenceStage: "DECISION_TRAINED" },
     "PF-01": { conceptTaught: true, evidenceStage: "CONCEPT_TAUGHT" },
