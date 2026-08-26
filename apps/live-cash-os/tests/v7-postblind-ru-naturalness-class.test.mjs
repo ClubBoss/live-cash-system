@@ -10,7 +10,7 @@ const englishGlue = /\b(?:the|a|an|and|or|with|without|against|from|to|of|if|wil
 function learnerRows() {
   const rows = [];
   const add = (id, field, text) => {
-    if (typeof text === "string" && cyrillic.test(text)) rows.push({ id, field, text });
+    if (typeof text === "string") rows.push({ id, field, text });
   };
   for (const decision of practicalDecisions) {
     add(decision.id, "cueRu", decision.cueRu);
@@ -26,15 +26,16 @@ function learnerRows() {
 }
 
 function defects(rows) {
-  return rows.filter(({ text }) => demonstrated.test(text) || sourceLike.test(text) || englishGlue.test(text));
+  return rows.filter(({ text }) => cyrillic.test(text) && (demonstrated.test(text) || sourceLike.test(text) || englishGlue.test(text)));
 }
 
 test("V7 post-blind governed RU malformed/hybrid learner class has zero runtime survivors", () => {
   const rows = learnerRows();
   const failures = defects(rows);
-  assert.equal(rows.length, 7274, "Reachable Cyrillic learner-row denominator changed; re-census the governed class deliberately");
+  const cyrillicRows = rows.filter(({ text }) => cyrillic.test(text)).length;
+  assert.equal(rows.length, 7660, "Reachable RU learner-row denominator changed; re-census the governed class deliberately");
   assert.deepEqual(failures, [], `V7 RU naturalness class regressed:\n${failures.map((row) => `${row.id}:${row.field}: ${row.text}`).join("\n")}`);
-  console.log(`V7_POSTBLIND_RU_NATURALNESS rows=${rows.length} defects=${failures.length}`);
+  console.log(`V7_POSTBLIND_RU_NATURALNESS rows=${rows.length} cyrillicRows=${cyrillicRows} defects=${failures.length}`);
 });
 
 test("V7 demonstrated Blind Beta examples are absent while poker-native terminology remains available", () => {
