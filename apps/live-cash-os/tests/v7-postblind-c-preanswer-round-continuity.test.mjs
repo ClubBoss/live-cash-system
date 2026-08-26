@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { practicalDecisions } from "../content/practical-mastery/index.ts";
 import {
+  advanceIntegratedContinuity,
   recordIntegratedAnswerContinuity,
   recordIntegratedRoundStartContinuity,
   restoreIntegratedRound,
@@ -50,13 +51,14 @@ test("V7 Post-Blind C replaces a stale COMPLETE cursor with an explicitly starte
   const restored = restoreIntegratedRound(started, mastery, skillId);
   assert.equal(restored.status, "VALID");
   assert.equal(restored.nextIndex, 0);
+  assert.equal(restored.postAnswerAttempt, null);
   assert.equal(restored.items[0].decisionId, items[0].decisionId);
   assert.equal(JSON.stringify(mastery), beforeMastery, "starting a round must not mutate mastery");
   assert.equal(mastery.attempts.length, 0, "starting a round must create zero attempts/evidence");
   assert.equal(mastery.revision, 0, "starting a round must create zero mastery/progress revision");
 });
 
-test("V7 Post-Blind C keeps the existing Q1-submit -> Q2 restore contract", () => {
+test("V7 Post-Blind C keeps Q1 feedback durable until explicit Next advances to Q2", () => {
   const initial = createPracticalMasteryState(new Date("2026-08-26T00:00:00Z"), true);
   const skillId = practicalDecisions[0].skillId;
   const items = itemsFor(skillId);
@@ -80,11 +82,26 @@ test("V7 Post-Blind C keeps the existing Q1-submit -> Q2 restore contract", () =
     attemptId: attempt.id,
   }, new Date("2026-08-26T00:02:01Z"));
   assert.ok(afterSubmit);
-  const restored = restoreIntegratedRound(afterSubmit, afterFirst, skillId);
-  assert.equal(restored.status, "VALID");
-  assert.equal(restored.nextIndex, 1);
-  assert.equal(restored.items[1].decisionId, items[1].decisionId);
+  const restoredFeedback = restoreIntegratedRound(afterSubmit, afterFirst, skillId);
+  assert.equal(restoredFeedback.status, "VALID");
+  assert.equal(restoredFeedback.nextIndex, 0);
+  assert.equal(restoredFeedback.postAnswerAttempt?.id, attempt.id);
+  assert.equal(restoredFeedback.items[0].decisionId, items[0].decisionId);
   assert.equal(afterFirst.attempts.length, 1);
+
+  const afterNext = advanceIntegratedContinuity(afterSubmit, afterFirst.contentVersion, {
+    focusSkillId: skillId,
+    items,
+    answeredIndex: 0,
+    attemptId: attempt.id,
+  }, new Date("2026-08-26T00:02:02Z"));
+  assert.ok(afterNext);
+  const restoredQ2 = restoreIntegratedRound(afterNext, afterFirst, skillId);
+  assert.equal(restoredQ2.status, "VALID");
+  assert.equal(restoredQ2.nextIndex, 1);
+  assert.equal(restoredQ2.postAnswerAttempt, null);
+  assert.equal(restoredQ2.items[1].decisionId, items[1].decisionId);
+  assert.equal(afterFirst.attempts.length, 1, "Next must not create a second attempt");
 });
 
 test("V7 Post-Blind C rejects empty or oversized round-start checkpoints", () => {

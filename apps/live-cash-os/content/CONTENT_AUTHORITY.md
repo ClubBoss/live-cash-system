@@ -73,6 +73,8 @@ The canonical locale pipeline order is:
 
 The generated Practical Mastery decision and anchor corpora retain `applyPracticalRuCopyRepair` and `applyPracticalAnchorRuCopyRepair` as RU presentation-only composition steps after source-governed content is assembled. The bounded `applyPracticalRuFinalPolish` then repairs only the bounded malformed RU learner phrase and morphology families observed during Blind Beta V5/V6 verification; it may change wording only and may not change decision/anchor IDs, option IDs, correct-action or correct-reason IDs, source references, poker strategy, scoring, mastery, scheduler, retention, transfer, field evidence, learner state or source authority. The bounded `applyPracticalAssessmentIntegrityRepair` repairs only three already-governed Practical Mastery assessment surfaces whose negative-polarity question framing, missing misconception tags, or residual answer-length/lexical imbalance created machine-detectable test-taking shortcuts. It may change learner-facing RU/EN question, action-option, and reason-option wording and add explicit misconception tags to pre-existing wrong options, but it may not change decision/anchor IDs, option IDs, correct-action or correct-reason IDs, source references, poker strategy, scoring, mastery, scheduler, retention, transfer, field evidence, learner state or source authority. All four Practical composition repairs are source-locked together with `content/practical-mastery/index.ts`; their machine checks are rejection evidence only and do not create human approval.
 
+The pre-blind B3 assessment-integrity composition reorders only the existing three action/reason options deterministically across the 80 B3 decisions so rung/template identity cannot predict the correct slot. It preserves decision and option IDs, correct-answer IDs, RU/EN text and semantics, changed-node identity, scoring, mastery thresholds, scheduler and evidence semantics. `content/practical-mastery/b3-assessment-integrity.ts` and the resulting canonical `content/practical-mastery/index.ts` composition are source-locked in the current review candidate; this machine closure does not create human approval.
+
 Diagnostic `LD-*` identities remain stable. `content/diagnostic.ts` keeps `title` and `prompt` only as compatibility fields for the exported `LegacyDiagnostic`; those fields are intentionally empty at source and are derived after final locale composition from the same mapped drill used by the current structured Diagnostic. They therefore cannot carry an independently authored or stale second learner-facing Diagnostic truth. English legacy compatibility copy is synchronized from those same derived values.
 
 The bounded EN answer-length parity repair remains inside the existing `applyWave5PracticeCopy(locale)` owner and may shorten wording only; it may not change which option is correct or any semantic identity. `wave4r-poker-native.ts` is not part of the active canonical pipeline, and the integrated `applyWave5PracticeCopy()` does not reactivate it transitively.
@@ -120,7 +122,7 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`a462a606532d165583ede1d01d00cb91f586a8cba2b470d50cad30142f25907b`
+`51ac1811dfca2ff7983c2fd60205e2898c6bfb3deac7a838bf1db5fd667e9ee3`
 
 Current status:
 
@@ -190,7 +192,7 @@ Human poker review must cover:
 
 Separate human language review must cover:
 
-- exact final RU composition at digest `a462a606532d165583ede1d01d00cb91f586a8cba2b470d50cad30142f25907b`;
+- exact final RU composition at digest `51ac1811dfca2ff7983c2fd60205e2898c6bfb3deac7a838bf1db5fd667e9ee3`;
 - exact final EN composition at the same digest;
 - the 55/55 drill and 10/10 Diagnostic decision surfaces affected by the comprehension closure;
 - the generated Practical Mastery RU decision and anchor surfaces affected by `applyPracticalRuCopyRepair`, `applyPracticalAnchorRuCopyRepair`, and `applyPracticalRuFinalPolish`, plus the three bilingual assessment surfaces affected by `applyPracticalAssessmentIntegrityRepair`.
