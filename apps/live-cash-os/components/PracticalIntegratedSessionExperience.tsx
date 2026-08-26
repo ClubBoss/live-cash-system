@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import { buildAdaptiveIntegratedSession, isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
-import { recordIntegratedAnswerContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
+import { recordIntegratedAnswerContinuity, recordIntegratedRoundStartContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
 import { INTEGRATED_SESSION_SIZE, recordIntegratedDecision, type IntegratedSessionItem } from "../lib/practical-integrated-session";
 import { classifyPracticalIntegratedSessionState } from "../lib/practical-integrated-session-state";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
@@ -34,6 +34,7 @@ export default function PracticalIntegratedSessionExperience() {
     performance,
     studyWorkspace,
     setMasteryWithPerformanceAndStudyWorkspace,
+    setStudyWorkspace,
     ready,
     recoveryBlocked,
   } = usePracticalProfileState();
@@ -144,8 +145,19 @@ export default function PracticalIntegratedSessionExperience() {
   };
 
   const startFreshRound = (focusSkillId: string | null) => {
+    const startedAt = new Date();
     const focusAdmissible = !focusSkillId || isIntegratedFocusAdmissible(state, focusSkillId);
-    const nextItems = focusAdmissible ? buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];
+    const nextItems = focusAdmissible ? buildAdaptiveIntegratedSession(state, startedAt, INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];
+    if (nextItems.length > 0) {
+      const nextWorkspace = recordIntegratedRoundStartContinuity(studyWorkspace, state.contentVersion, {
+        focusSkillId,
+        items: nextItems,
+      }, startedAt);
+      if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) {
+        setWorkspaceRecovery(true);
+        return;
+      }
+    }
     setItems(nextItems);
     setIndex(0);
     setWorkspaceRecovery(false);
