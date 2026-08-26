@@ -19,142 +19,77 @@ jobs:
         shell: bash
         run: |
           git diff --exit-code c992558d770be6527de983c1e0622d14508be770 -- apps/live-cash-os
-      - name: Persist deterministic BEFORE census
+      - name: Persist compact deterministic BEFORE census
         shell: bash
         run: |
           mkdir -p .github/census
           python3 - <<'PY'
-          import hashlib
-          import json
-          import re
+          import hashlib, json, re
           from collections import Counter, defaultdict
           from pathlib import Path
 
-          BASE = 'c992558d770be6527de983c1e0622d14508be770'
-          root = Path('apps/live-cash-os')
-          roots = [
-              root / 'content' / 'practical-mastery',
-              root / 'components',
-              root / 'lib',
-              root / 'app',
-          ]
-          exts = {'.ts', '.tsx', '.js', '.jsx'}
-          skip_parts = {'tests', 'e2e', 'node_modules'}
-          paths = []
-          for base in roots:
-              if not base.exists():
-                  continue
-              for p in base.rglob('*'):
-                  if not p.is_file() or p.suffix not in exts:
-                      continue
-                  rel_parts = p.relative_to(root).parts
-                  if any(part in skip_parts for part in rel_parts):
-                      continue
-                  paths.append(p)
-          paths = sorted(set(paths), key=lambda p: str(p))
-
-          string_re = re.compile(r"(['\"])(.*?)(?<!\\)\1")
-          cyr_re = re.compile(r'[А-Яа-яЁё]')
-          lat_re = re.compile(r'[A-Za-z]')
-          token_re = re.compile(r"[A-Za-z][A-Za-z'_-]*")
-          observed = {'marginal', 'hand', 'assumptions', 'viable', 'future', 'action'}
-          sourceish = {
-              'evidence', 'mastery', 'source', 'supported', 'decisionid', 'skillid',
-              'learner', 'authoring', 'governance', 'fingerprint', 'viable', 'assumptions'
-          }
-          allow_noise = {'ru', 'en', 'id', 'url', 'http', 'https'}
-
-          def surface(path: Path):
-              s = str(path.relative_to(root)).lower()
-              if 'quick' in s or 'onboarding' in s or 'placement' in s:
-                  return 'QUICK_START'
-              if 'real-hand' in s or 'realhand' in s:
-                  return 'REAL_HANDS'
-              if 'table' in s and ('read' in s or 'math' in s):
-                  return 'TABLE_READING'
-              if 'mastery' in s or 'progress' in s or 'retention' in s:
-                  return 'MASTERY'
-              if 'feedback' in s or 'practical' in s or 'decision' in s:
-                  return 'FEEDBACK'
-              if 'adaptive' in s:
-                  return 'ADAPTIVE'
+          BASE='c992558d770be6527de983c1e0622d14508be770'
+          root=Path('apps/live-cash-os')
+          roots=[root/'content'/'practical-mastery', root/'components', root/'lib', root/'app']
+          exts={'.ts','.tsx','.js','.jsx'}; skip={'tests','e2e','node_modules'}
+          paths=sorted({p for b in roots if b.exists() for p in b.rglob('*') if p.is_file() and p.suffix in exts and not any(x in skip for x in p.relative_to(root).parts)}, key=str)
+          string_re=re.compile(r"(['\"])(.*?)(?<!\\)\1"); cyr=re.compile(r'[А-Яа-яЁё]'); lat=re.compile(r'[A-Za-z]'); tok=re.compile(r"[A-Za-z][A-Za-z'_-]*")
+          observed={'marginal','hand','assumptions','viable','future','action'}
+          sourceish={'evidence','mastery','source','supported','decisionid','skillid','learner','authoring','governance','fingerprint','viable','assumptions'}
+          noise={'ru','en','id','url','http','https'}
+          def surface(p):
+              s=str(p.relative_to(root)).lower()
+              if 'quick' in s or 'onboarding' in s or 'placement' in s: return 'QUICK_START'
+              if 'real-hand' in s or 'realhand' in s: return 'REAL_HANDS'
+              if 'table' in s and ('read' in s or 'math' in s): return 'TABLE_READING'
+              if 'mastery' in s or 'progress' in s or 'retention' in s: return 'MASTERY'
+              if 'feedback' in s or 'practical' in s or 'decision' in s: return 'FEEDBACK'
+              if 'adaptive' in s: return 'ADAPTIVE'
               return 'OTHER'
-
-          ru_rows = []
-          en_literals = []
+          ru=[]; en=[]
           for p in paths:
-              rel = str(p.relative_to(root))
-              text = p.read_text(encoding='utf-8')
-              for ln, line in enumerate(text.splitlines(), 1):
+              rel=str(p.relative_to(root))
+              for ln,line in enumerate(p.read_text(encoding='utf-8').splitlines(),1):
                   for m in string_re.finditer(line):
-                      val = m.group(2)
-                      if cyr_re.search(val):
-                          toks = [t.lower() for t in token_re.findall(val)]
-                          ru_rows.append({
-                              'file': rel, 'line': ln, 'surface': surface(p), 'text': val,
-                              'latin': bool(lat_re.search(val)), 'latinTokens': toks,
-                          })
-                      elif lat_re.search(val):
-                          en_literals.append((rel, ln, val))
-
-          ru_with_latin = [r for r in ru_rows if r['latin']]
-          demonstrated = [r for r in ru_with_latin if any(t in observed for t in r['latinTokens'])]
-          sourceish_rows = [r for r in ru_with_latin if any(t in sourceish for t in r['latinTokens'])]
-          by_surface = defaultdict(lambda: {'ru': 0, 'ruLatin': 0, 'demonstrated': 0, 'sourceish': 0})
-          for r in ru_rows:
-              by_surface[r['surface']]['ru'] += 1
-              if r['latin']:
-                  by_surface[r['surface']]['ruLatin'] += 1
-          for r in demonstrated:
-              by_surface[r['surface']]['demonstrated'] += 1
-          for r in sourceish_rows:
-              by_surface[r['surface']]['sourceish'] += 1
-
-          latin_counts = Counter(t for r in ru_with_latin for t in r['latinTokens'] if t not in allow_noise)
-          en_digest = hashlib.sha256(
-              '\n'.join(f'{f}:{ln}:{v}' for f, ln, v in sorted(en_literals)).encode()
-          ).hexdigest()
-          union = {(r['file'], r['line'], r['text']): r for r in demonstrated + sourceish_rows}
-          report = {
-              'baseSha': BASE,
-              'productTreeMatchesBase': True,
-              'definition': {
-                  'roots': [str(x.relative_to(root)) for x in roots],
-                  'extensions': sorted(exts),
-                  'excludedPathParts': sorted(skip_parts),
-                  'observedTokens': sorted(observed),
-                  'sourceishTokens': sorted(sourceish),
-                  'scope': 'single/double-quoted JS/TS/TSX/JSX string literals containing Cyrillic on canonical source roots',
-              },
-              'filesScanned': len(paths),
-              'ruStringLiterals': len(ru_rows),
-              'ruWithLatin': len(ru_with_latin),
-              'demonstratedClassMembers': len(demonstrated),
-              'sourceishClassMembers': len(sourceish_rows),
-              'surfaceCounts': dict(sorted(by_surface.items())),
-              'enLiteralDigest': en_digest,
-              'latinTokenCounts': latin_counts.most_common(200),
-              'observedDemonstrated': demonstrated,
-              'sourceishOrObserved': [union[k] for k in sorted(union)],
-              'allRuWithLatin': ru_with_latin,
+                      v=m.group(2)
+                      if cyr.search(v): ru.append({'file':rel,'line':ln,'surface':surface(p),'text':v,'latin':bool(lat.search(v)),'latinTokens':[t.lower() for t in tok.findall(v)]})
+                      elif lat.search(v): en.append((rel,ln,v))
+          mix=[r for r in ru if r['latin']]
+          demo=[r for r in mix if any(t in observed for t in r['latinTokens'])]
+          src=[r for r in mix if any(t in sourceish for t in r['latinTokens'])]
+          by=defaultdict(lambda:{'ru':0,'ruLatin':0,'demonstrated':0,'sourceish':0})
+          for r in ru:
+              by[r['surface']]['ru']+=1
+              if r['latin']: by[r['surface']]['ruLatin']+=1
+          for r in demo: by[r['surface']]['demonstrated']+=1
+          for r in src: by[r['surface']]['sourceish']+=1
+          counts=Counter(t for r in mix for t in r['latinTokens'] if t not in noise)
+          samples=defaultdict(list)
+          for r in mix:
+              for t in r['latinTokens']:
+                  if t in noise or len(samples[t])>=3: continue
+                  samples[t].append({'file':r['file'],'line':r['line'],'surface':r['surface'],'text':r['text']})
+          union={(r['file'],r['line'],r['text']):r for r in demo+src}
+          report={
+            'baseSha':BASE,'productTreeMatchesBase':True,
+            'definition':{'roots':[str(x.relative_to(root)) for x in roots],'extensions':sorted(exts),'excludedPathParts':sorted(skip),'observedTokens':sorted(observed),'sourceishTokens':sorted(sourceish),'scope':'single/double-quoted JS/TS/TSX/JSX string literals containing Cyrillic on canonical source roots'},
+            'filesScanned':len(paths),'ruStringLiterals':len(ru),'ruWithLatin':len(mix),'demonstratedClassMembers':len(demo),'sourceishClassMembers':len(src),
+            'surfaceCounts':dict(sorted(by.items())),
+            'enLiteralDigest':hashlib.sha256('\n'.join(f'{f}:{ln}:{v}' for f,ln,v in sorted(en)).encode()).hexdigest(),
+            'latinTokenCounts':counts.most_common(200),
+            'latinTokenSamples':{k:samples[k] for k,_ in counts.most_common(200)},
+            'observedDemonstrated':demo,
+            'sourceishOrObserved':[union[k] for k in sorted(union)]
           }
-          Path('.github/census/v7-postblind-ru-before-census.json').write_text(
-              json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8'
-          )
-          print(json.dumps({k: report[k] for k in [
-              'baseSha','productTreeMatchesBase','filesScanned','ruStringLiterals','ruWithLatin',
-              'demonstratedClassMembers','sourceishClassMembers','surfaceCounts','enLiteralDigest'
-          ]}, ensure_ascii=False, sort_keys=True))
+          Path('.github/census/v7-postblind-ru-before-census-compact.json').write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print(json.dumps({k:report[k] for k in ['baseSha','productTreeMatchesBase','filesScanned','ruStringLiterals','ruWithLatin','demonstratedClassMembers','sourceishClassMembers','surfaceCounts','enLiteralDigest']},ensure_ascii=False,sort_keys=True))
           PY
-      - name: Commit exact BEFORE census
+      - name: Commit compact exact BEFORE census
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/census/v7-postblind-ru-before-census.json
-          if git diff --cached --quiet; then
-            echo "CENSUS_UNCHANGED=TRUE"
-            exit 0
-          fi
-          git commit -m "chore: persist V7 RU BEFORE census [skip ci]"
+          git add .github/census/v7-postblind-ru-before-census-compact.json
+          if git diff --cached --quiet; then echo CENSUS_UNCHANGED=TRUE; exit 0; fi
+          git commit -m "chore: persist compact V7 RU BEFORE census [skip ci]"
           git push
