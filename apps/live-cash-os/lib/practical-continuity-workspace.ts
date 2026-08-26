@@ -22,7 +22,7 @@ export type QuickStartDraftRestore =
 
 export type IntegratedContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
-  | { status: "VALID"; items: IntegratedSessionItem[]; nextIndex: number };
+  | { status: "VALID"; items: IntegratedSessionItem[]; nextIndex: number; postAnswerAttempt: PracticalAttempt | null };
 
 export type PerceptualContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
@@ -258,6 +258,8 @@ export function recordIntegratedAnswerContinuity(
     && current.items.every((item, index) => item.decisionId === input.items[index]?.decisionId));
   let submittedAttemptIds = sameRound ? [...current!.submittedAttemptIds] : [];
   const expectedIndex = sameRound ? current!.nextIndex : 0;
+  const postAnswerPending = Boolean(sameRound && current!.submittedAttemptIds.length === current!.nextIndex + 1);
+  if (postAnswerPending) return null;
   if (input.answeredIndex !== expectedIndex) {
     // A valid restored round always mounts at nextIndex, so a 0-index submit while
     // an older same-shape cursor exists can only come from the explicit fresh-round
@@ -273,8 +275,37 @@ export function recordIntegratedAnswerContinuity(
     integrated: {
       focusSkillId: input.focusSkillId,
       items: input.items.map((item) => ({ ...item })),
-      nextIndex: input.answeredIndex + 1,
+      nextIndex: input.answeredIndex,
       submittedAttemptIds,
+      updatedAt: now.toISOString(),
+    },
+  }, now);
+}
+
+export function advanceIntegratedContinuity(
+  workspace: PracticalStudyWorkspace,
+  contentVersion: string,
+  input: {
+    focusSkillId: string | null;
+    items: IntegratedSessionItem[];
+    answeredIndex: number;
+    attemptId: string;
+  },
+  now = new Date(),
+): PracticalStudyWorkspace | null {
+  const current = continuityFor(workspace, contentVersion)?.integrated;
+  if (!current || input.items.length === 0 || input.items.length > 8) return null;
+  if (current.focusSkillId !== input.focusSkillId || current.nextIndex !== input.answeredIndex) return null;
+  if (current.items.length !== input.items.length || !current.items.every((item, index) => item.decisionId === input.items[index]?.decisionId)) return null;
+  if (current.submittedAttemptIds.length !== current.nextIndex + 1) return null;
+  if (current.submittedAttemptIds.at(-1) !== input.attemptId) return null;
+
+  const continuity = nextContinuity(workspace, contentVersion);
+  return withContinuity(workspace, {
+    ...continuity,
+    integrated: {
+      ...current,
+      nextIndex: input.answeredIndex + 1,
       updatedAt: now.toISOString(),
     },
   }, now);
@@ -290,21 +321,29 @@ export function restoreIntegratedRound(
   if (workspace.continuity?.contentVersion !== mastery.contentVersion) return { status: "STALE" };
   if (saved.focusSkillId !== requestedFocus) return { status: "NONE" };
   if (saved.items.length === 0 || saved.items.length > 8 || saved.nextIndex > saved.items.length) return { status: "INVALID" };
-  if (saved.submittedAttemptIds.length !== saved.nextIndex) return { status: "INVALID" };
+  const postAnswerPending = saved.submittedAttemptIds.length === saved.nextIndex + 1;
+  if (!postAnswerPending && saved.submittedAttemptIds.length !== saved.nextIndex) return { status: "INVALID" };
+  if (saved.submittedAttemptIds.length > saved.items.length) return { status: "INVALID" };
 
   for (const [index, item] of saved.items.entries()) {
     const decision = practicalDecisionById.get(item.decisionId);
     if (!decision || decision.skillId !== item.skillId) return { status: "INVALID" };
     if (requestedFocus && item.skillId !== requestedFocus) return { status: "INVALID" };
-    if (index >= saved.nextIndex) continue;
+    if (index >= saved.submittedAttemptIds.length) continue;
     const attemptId = saved.submittedAttemptIds[index];
     const attempt = mastery.attempts.find((candidate) => candidate.id === attemptId);
     if (!attempt || attempt.decisionId !== item.decisionId || attempt.skillId !== item.skillId) return { status: "INVALID" };
   }
 
+  const postAnswerAttempt = postAnswerPending
+    ? mastery.attempts.find((candidate) => candidate.id === saved.submittedAttemptIds[saved.nextIndex]) ?? null
+    : null;
+  if (postAnswerPending && !postAnswerAttempt) return { status: "INVALID" };
+
   return {
     status: "VALID",
     items: saved.items.map((item) => ({ ...item })),
     nextIndex: saved.nextIndex,
+    postAnswerAttempt,
   };
 }

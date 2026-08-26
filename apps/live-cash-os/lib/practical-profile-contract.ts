@@ -146,7 +146,8 @@ function validContinuityWorkspace(value: unknown): value is PracticalContinuityW
       || value.integrated.nextIndex < 0
       || value.integrated.nextIndex > value.integrated.items.length
       || !Array.isArray(value.integrated.submittedAttemptIds)
-      || value.integrated.submittedAttemptIds.length !== value.integrated.nextIndex
+      || ![value.integrated.nextIndex, value.integrated.nextIndex + 1].includes(value.integrated.submittedAttemptIds.length)
+      || value.integrated.submittedAttemptIds.length > value.integrated.items.length
       || !value.integrated.submittedAttemptIds.every((id) => typeof id === "string")
       || typeof value.integrated.updatedAt !== "string") return false;
   }
