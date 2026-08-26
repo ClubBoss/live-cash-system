@@ -115,7 +115,7 @@ test("A05-F Real Hands binding survives reload without duplicate evidence or a s
   const noteId = note.id;
   const reviewQueueBefore = JSON.stringify(root.reviewQueue ?? []);
   const card = page.locator(".field-list article").filter({ hasText: "I noticed an automatic continuation-bet assumption" }).first();
-  await card.getByLabel(`Как выполнен разбор ${noteId}`).selectOption("HUMAN_ASSISTED");
+  await card.getByRole("combobox", { name: "Как выполнен разбор", exact: true }).selectOption("HUMAN_ASSISTED");
 
   const binding = card.getByTestId("real-hand-canonical-binding");
   await binding.getByTestId("real-hand-signal-automaticCbetIssue").check();
@@ -126,7 +126,7 @@ test("A05-F Real Hands binding survives reload without duplicate evidence or a s
   await expect(binding).not.toContainText(/Canonical Practical|authoritative Practical|focused repair|transfer evidence|exact canonical skill/i);
   await expect(binding).not.toContainText(/W4-BOARD-01|OOP-01/);
   await topicSelect.selectOption("W4-BOARD-01");
-  await card.getByLabel(new RegExp(`Разбор ${noteId}`)).fill("Разбор подтвердил автоматический c-bet как конкретную причину ошибки.");
+  await card.getByRole("textbox", { name: "Разбор", exact: true }).fill("Разбор подтвердил автоматический c-bet как конкретную причину ошибки.");
   await card.getByRole("button", { name: "Нужна практика", exact: true }).click();
 
   root = await learnerState(page);
