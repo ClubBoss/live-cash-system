@@ -6,14 +6,20 @@ import type { LearnerState, LocaleCode, ModuleId } from "../lib/model";
 import {
   practicalRepairFocusHref,
   resolvePracticalFieldBinding,
-  type PracticalFieldBindingInput,
 } from "../lib/practical-field-transfer";
 import {
-  REAL_HAND_DRAFT_KEY,
-  clearUiStorage,
-  readProfileScopedUiValue,
-  writeProfileScopedUiValue,
-} from "../lib/ui-session-storage";
+  clearAcknowledgedRealHandPostCaptureDraft,
+  clearRealHandCapture,
+  isRealHandDraftMutationAcknowledged,
+  patchRealHandBindingInput,
+  patchRealHandCapture,
+  patchRealHandPostCaptureText,
+  patchRealHandReviewerKind,
+  persistRealHandDraftWorkspace,
+  readRealHandDraftWorkspace,
+  type PendingRealHandDraftMutation,
+  type RealHandDraftWorkspace,
+} from "../lib/real-hand-draft-continuity";
 import {
   addFieldResult,
   captureFieldHand,
@@ -30,28 +36,6 @@ import {
 } from "../lib/wave7";
 import RealHandCanonicalReview from "./RealHandCanonicalReview";
 
-const REAL_HAND_DRAFT_TTL_MS = 30 * 24 * 60 * 60 * 1_000;
-const MAX_DRAFT_TEXT = 5_000;
-
-const emptyHand = (): FieldHandInput => ({
-  // Deliberately blank: field evidence must never inherit a silent module.
-  moduleId: "" as ModuleId,
-  stakes: "",
-  heroPosition: "",
-  villainPositions: "",
-  effectiveStacks: "",
-  straddle: "",
-  actionSequence: "",
-  board: "",
-  sizings: "",
-  cue: "",
-  action: "",
-  reason: "",
-  confidence: 65,
-  populationRead: "",
-  populationReadConfidence: 50,
-});
-
 const REQUIRED_HAND_FIELDS = [
   "stakes",
   "heroPosition",
@@ -66,90 +50,12 @@ const REQUIRED_HAND_FIELDS = [
   "reason",
 ] as const satisfies readonly (keyof FieldHandInput)[];
 
-const DRAFT_STRING_FIELDS = [
-  "stakes",
-  "heroPosition",
-  "villainPositions",
-  "effectiveStacks",
-  "straddle",
-  "actionSequence",
-  "board",
-  "sizings",
-  "cue",
-  "action",
-  "reason",
-  "populationRead",
-] as const satisfies readonly (keyof FieldHandInput)[];
-
 type PendingFieldSave = {
   revision: number;
   updatedAt: string;
   noteId: string;
   previousLocalSaveAt: string | null;
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function boundedText(value: unknown): string | null {
-  return typeof value === "string" && value.length <= MAX_DRAFT_TEXT ? value : null;
-}
-
-function validPercent(value: unknown): number | null {
-  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 100 ? value : null;
-}
-
-function parseRealHandDraft(value: unknown): FieldHandInput | null {
-  if (!isRecord(value)) return null;
-  const moduleId = boundedText(value.moduleId);
-  if (moduleId === null || (moduleId !== "" && !(moduleId in moduleById))) return null;
-  const strings = Object.fromEntries(DRAFT_STRING_FIELDS.map((key) => [key, boundedText(value[key])])) as Record<(typeof DRAFT_STRING_FIELDS)[number], string | null>;
-  if (DRAFT_STRING_FIELDS.some((key) => strings[key] === null)) return null;
-  const confidence = validPercent(value.confidence);
-  const populationReadConfidence = validPercent(value.populationReadConfidence);
-  if (confidence === null || populationReadConfidence === null) return null;
-  return {
-    moduleId: moduleId as ModuleId,
-    stakes: strings.stakes!,
-    heroPosition: strings.heroPosition!,
-    villainPositions: strings.villainPositions!,
-    effectiveStacks: strings.effectiveStacks!,
-    straddle: strings.straddle!,
-    actionSequence: strings.actionSequence!,
-    board: strings.board!,
-    sizings: strings.sizings!,
-    cue: strings.cue!,
-    action: strings.action!,
-    reason: strings.reason!,
-    confidence,
-    populationRead: strings.populationRead!,
-    populationReadConfidence,
-  };
-}
-
-function hasDraftContent(hand: FieldHandInput): boolean {
-  return String(hand.moduleId).trim() !== ""
-    || DRAFT_STRING_FIELDS.some((key) => String(hand[key] ?? "").trim() !== "")
-    || hand.confidence !== 65
-    || (hand.populationReadConfidence ?? 50) !== 50;
-}
-
-function readRealHandDraft(): FieldHandInput {
-  return readProfileScopedUiValue(REAL_HAND_DRAFT_KEY, REAL_HAND_DRAFT_TTL_MS, parseRealHandDraft) ?? emptyHand();
-}
-
-function persistRealHandDraft(hand: FieldHandInput): boolean {
-  if (!hasDraftContent(hand)) {
-    clearUiStorage(REAL_HAND_DRAFT_KEY);
-    return true;
-  }
-  return writeProfileScopedUiValue(REAL_HAND_DRAFT_KEY, {
-    ...hand,
-    populationRead: hand.populationRead ?? "",
-    populationReadConfidence: hand.populationReadConfidence ?? 50,
-  });
-}
 
 function copy(locale: LocaleCode) {
   return locale === "ru" ? {
@@ -375,14 +281,16 @@ export function Wave7ProgressDetails({ locale, state, moduleId }: { locale: Loca
 export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fieldStatusLabel, fieldFactLabels }: { locale: LocaleCode; state: LearnerState; setState: (value: LearnerState) => void; lastLocalSaveAt: string | null; fieldStatusLabel: (locale: LocaleCode, status: string) => string; fieldFactLabels: (locale: LocaleCode) => { cue: string; action: string; reason: string } }) {
   const c = copy(locale);
   const facts = fieldFactLabels(locale);
-  const [hand, setHand] = useState<FieldHandInput>(() => readRealHandDraft());
+  const [draftWorkspace, setDraftWorkspace] = useState<RealHandDraftWorkspace>(() => readRealHandDraftWorkspace(state));
+  const hand = draftWorkspace.capture;
+  const reviewNotes = draftWorkspace.postCapture.reviewNoteByNoteId;
+  const reviewerKinds = draftWorkspace.postCapture.reviewerKindByNoteId;
+  const bindingInputs = draftWorkspace.postCapture.practicalBindingByNoteId;
+  const resultDrafts = draftWorkspace.postCapture.resultByNoteId;
+  const showdownDrafts = draftWorkspace.postCapture.showdownByNoteId;
+  const explainNotes = draftWorkspace.postCapture.explainReviewByRecordId;
   const [pendingSave, setPendingSave] = useState<PendingFieldSave | null>(null);
-  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
-  const [reviewerKinds, setReviewerKinds] = useState<Record<string, FieldReviewerKind>>({});
-  const [bindingInputs, setBindingInputs] = useState<Record<string, PracticalFieldBindingInput>>({});
-  const [resultDrafts, setResultDrafts] = useState<Record<string, string>>({});
-  const [showdownDrafts, setShowdownDrafts] = useState<Record<string, string>>({});
-  const [explainNotes, setExplainNotes] = useState<Record<string, string>>({});
+  const [pendingDraftSaves, setPendingDraftSaves] = useState<PendingRealHandDraftMutation[]>([]);
   const explainPending = explainBackRecords(state).filter((row) => row.status === "PENDING_REVIEW");
   const errors = validateFieldHandInput(hand);
   const moduleMissing = errors.includes("moduleId");
@@ -409,26 +317,48 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
     const notePersistedInController = state.revision >= pendingSave.revision
       && (state.fieldNotes as StructuredFieldNote[]).some((note) => note.id === pendingSave.noteId);
     if (!Number.isFinite(acknowledgement) || !Number.isFinite(target) || acknowledgement < target || !notePersistedInController) return;
-    clearUiStorage(REAL_HAND_DRAFT_KEY);
-    setHand(emptyHand());
+    setDraftWorkspace((current) => {
+      const next = clearRealHandCapture(current);
+      persistRealHandDraftWorkspace(next);
+      return next;
+    });
     setPendingSave(null);
   }, [lastLocalSaveAt, pendingSave, state.fieldNotes, state.revision]);
 
+  useEffect(() => {
+    if (!pendingDraftSaves.length || !lastLocalSaveAt) return;
+    const acknowledged = pendingDraftSaves.filter((pending) => isRealHandDraftMutationAcknowledged(state, pending, lastLocalSaveAt));
+    if (!acknowledged.length) return;
+    const keys = new Set(acknowledged.map((pending) => `${pending.kind}:${pending.identity}:${pending.revision}`));
+    setDraftWorkspace((current) => {
+      let next = current;
+      for (const pending of acknowledged) next = clearAcknowledgedRealHandPostCaptureDraft(next, pending);
+      persistRealHandDraftWorkspace(next);
+      return next;
+    });
+    setPendingDraftSaves((current) => current.filter((pending) => !keys.has(`${pending.kind}:${pending.identity}:${pending.revision}`)));
+  }, [lastLocalSaveAt, pendingDraftSaves, state]);
+
+  function updateDraftWorkspace(transform: (current: RealHandDraftWorkspace) => RealHandDraftWorkspace) {
+    setDraftWorkspace((current) => {
+      const next = transform(current);
+      persistRealHandDraftWorkspace(next);
+      return next;
+    });
+  }
+
   function patch<K extends keyof FieldHandInput>(key: K, value: FieldHandInput[K]) {
-    const next = { ...hand, [key]: value };
-    setHand(next);
-    persistRealHandDraft(next);
+    updateDraftWorkspace((current) => patchRealHandCapture(current, { [key]: value } as Partial<FieldHandInput>));
   }
 
   function clearDraft() {
     if (pendingSave) return;
-    clearUiStorage(REAL_HAND_DRAFT_KEY);
-    setHand(emptyHand());
+    updateDraftWorkspace(clearRealHandCapture);
   }
 
   function save() {
     if (errors.length || pendingSave) return;
-    if (!persistRealHandDraft(hand)) return;
+    if (!persistRealHandDraftWorkspace(draftWorkspace)) return;
     const next = captureFieldHand(state, hand);
     const previousIds = new Set((state.fieldNotes as StructuredFieldNote[]).map((note) => note.id));
     const created = (next.fieldNotes as StructuredFieldNote[]).find((note) => !previousIds.has(note.id));
@@ -442,17 +372,76 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
     setState(next);
   }
 
+  function queuePendingDraftSave(pending: PendingRealHandDraftMutation) {
+    setPendingDraftSaves((current) => [
+      ...current.filter((item) => !(item.kind === pending.kind && item.identity === pending.identity)),
+      pending,
+    ]);
+  }
+
+  function addResultForNote(noteId: string) {
+    const result = resultDrafts[noteId] ?? "";
+    const showdown = showdownDrafts[noteId] ?? "";
+    if (!result.trim() || !persistRealHandDraftWorkspace(draftWorkspace)) return;
+    const next = addFieldResult(state, noteId, result, showdown);
+    if (next === state) return;
+    const nextNote = (next.fieldNotes as StructuredFieldNote[]).find((note) => note.id === noteId);
+    if (!nextNote?.resultAddedAt) return;
+    queuePendingDraftSave({
+      kind: "RESULT",
+      identity: noteId,
+      revision: next.revision,
+      updatedAt: next.updatedAt,
+      previousLocalSaveAt: lastLocalSaveAt,
+      result,
+      showdown,
+    });
+    setState(next);
+  }
+
   function reviewHand(noteId: string, outcome: FieldReviewOutcome) {
-    const text = reviewNotes[noteId] ?? "";
+    const reviewText = reviewNotes[noteId] ?? "";
     const reviewerKind = reviewerKinds[noteId] ?? "SELF";
-    if (!text.trim()) return;
+    if (!reviewText.trim()) return;
     const input = bindingInputs[noteId];
     const resolved = reviewerKind === "SELF" ? null : resolvePracticalFieldBinding(noteId, reviewerKind, input);
     if ((outcome === "REPAIR_REQUIRED" || outcome === "SUPPORTS_TRANSFER") && reviewerKind !== "SELF" && !resolved) return;
-    setState(reviewFieldHand(state, noteId, outcome, text, reviewerKind, resolved ? input : undefined));
-    if (reviewerKind === "SELF") {
-      setReviewNotes((current) => ({ ...current, [noteId]: "" }));
-    }
+    if (!persistRealHandDraftWorkspace(draftWorkspace)) return;
+    const next = reviewFieldHand(state, noteId, outcome, reviewText, reviewerKind, resolved ? input : undefined);
+    if (next === state) return;
+    const nextNote = (next.fieldNotes as StructuredFieldNote[]).find((note) => note.id === noteId);
+    if (!nextNote?.reviewedAt) return;
+    queuePendingDraftSave({
+      kind: "REVIEW",
+      identity: noteId,
+      revision: next.revision,
+      updatedAt: next.updatedAt,
+      previousLocalSaveAt: lastLocalSaveAt,
+      reviewerKind,
+      reviewerNote: reviewText,
+      reviewedAt: nextNote.reviewedAt,
+    });
+    setState(next);
+  }
+
+  function reviewExplainRecord(recordId: string, status: "REVIEWED_OK" | "REVIEWED_REPAIR" | "INSUFFICIENT") {
+    const reviewText = explainNotes[recordId] ?? "";
+    if (!reviewText.trim() || !persistRealHandDraftWorkspace(draftWorkspace)) return;
+    const next = reviewExplainBack(state, recordId, status, reviewText);
+    if (next === state) return;
+    const record = explainBackRecords(next).find((row) => row.id === recordId);
+    if (!record?.reviewedAt) return;
+    queuePendingDraftSave({
+      kind: "EXPLAIN_REVIEW",
+      identity: recordId,
+      revision: next.revision,
+      updatedAt: next.updatedAt,
+      previousLocalSaveAt: lastLocalSaveAt,
+      status,
+      reviewerNote: reviewText,
+      reviewedAt: record.reviewedAt,
+    });
+    setState(next);
   }
 
   function reviewerLabel(note: StructuredFieldNote): string {
@@ -474,12 +463,12 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
           <span className="kind">{locale === "ru" ? "ждёт самопроверки" : "awaiting self-review"}</span>
           <h3>{moduleById[record.moduleId].shortTitle}</h3>
           <p>{record.text}</p>
-          <textarea aria-label={`${c.review} ${record.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setExplainNotes((current) => ({ ...current, [record.id]: event.target.value }))} />
+          <textarea aria-label={`${c.review} ${record.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => updateDraftWorkspace((current) => patchRealHandPostCaptureText(current, "explainReviewByRecordId", record.id, event.target.value))} />
           {!reviewText.trim() && <p className="support">{c.reviewRequired}</p>}
           <div className="review-actions">
-            <button disabled={!reviewText.trim()} onClick={() => setState(reviewExplainBack(state, record.id, "INSUFFICIENT", reviewText))}>{c.insufficient}</button>
-            <button disabled={!reviewText.trim()} onClick={() => setState(reviewExplainBack(state, record.id, "REVIEWED_REPAIR", reviewText))}>{c.repair}</button>
-            <button className="primary" disabled={!reviewText.trim()} onClick={() => setState(reviewExplainBack(state, record.id, "REVIEWED_OK", reviewText))}>{c.reviewedOk}</button>
+            <button disabled={!reviewText.trim()} onClick={() => reviewExplainRecord(record.id, "INSUFFICIENT")}>{c.insufficient}</button>
+            <button disabled={!reviewText.trim()} onClick={() => reviewExplainRecord(record.id, "REVIEWED_REPAIR")}>{c.repair}</button>
+            <button className="primary" disabled={!reviewText.trim()} onClick={() => reviewExplainRecord(record.id, "REVIEWED_OK")}>{c.reviewedOk}</button>
           </div>
         </article>;
       })}</div>
@@ -551,20 +540,20 @@ export function Wave7FieldPanel({ locale, state, setState, lastLocalSaveAt, fiel
           <div className="w7-result">
             <p className="eyebrow">{c.resultTitle}</p>
             {note.result ? <><p><b>{c.result}:</b> {note.result}</p>{note.showdown && <p><b>{c.showdown}:</b> {note.showdown}</p>}</> : note.decisionLockedAt ? <>
-              <label>{c.result}<textarea value={resultText} onChange={(event) => setResultDrafts((current) => ({ ...current, [note.id]: event.target.value }))} /></label>
-              <label>{c.showdown}<textarea value={showdownText} onChange={(event) => setShowdownDrafts((current) => ({ ...current, [note.id]: event.target.value }))} /></label>
+              <label>{c.result}<textarea value={resultText} onChange={(event) => updateDraftWorkspace((current) => patchRealHandPostCaptureText(current, "resultByNoteId", note.id, event.target.value))} /></label>
+              <label>{c.showdown}<textarea value={showdownText} onChange={(event) => updateDraftWorkspace((current) => patchRealHandPostCaptureText(current, "showdownByNoteId", note.id, event.target.value))} /></label>
               {!resultText.trim() && <p className="support">{c.resultRequired}</p>}
-              <button className="secondary" disabled={!resultText.trim()} onClick={() => setState(addFieldResult(state, note.id, resultText, showdownText))}>{c.addResult}</button>
+              <button className="secondary" disabled={!resultText.trim()} onClick={() => addResultForNote(note.id)}>{c.addResult}</button>
             </> : <p className="support">{locale === "ru" ? "Старая запись: фиксации до результата ещё не было." : "Legacy note: the pre-result lock did not exist yet."}</p>}
           </div>
 
           {note.status === "PENDING_REVIEW" ? <>
             <div className="answer-panel"><b>{c.selfReviewTitle}</b><p>{c.selfReviewBody}</p></div>
             {selfReviewed && <div className="counterexample"><b>{c.review} ({c.reviewedBySelf})</b><p>{note.evaluatorNote}</p><p>{c.selfReviewSaved}</p></div>}
-            <label>{c.reviewerSource}<select aria-label={`${c.reviewerSource} ${note.id}`} value={reviewerKind} onChange={(event) => setReviewerKinds((current) => ({ ...current, [note.id]: event.target.value as FieldReviewerKind }))}><option value="SELF">{c.reviewerSelf}</option><option value="HUMAN">{c.reviewerHuman}</option><option value="HUMAN_ASSISTED">{c.reviewerAssisted}</option></select></label>
+            <label>{c.reviewerSource}<select aria-label={`${c.reviewerSource} ${note.id}`} value={reviewerKind} onChange={(event) => updateDraftWorkspace((current) => patchRealHandReviewerKind(current, note.id, event.target.value as FieldReviewerKind))}><option value="SELF">{c.reviewerSelf}</option><option value="HUMAN">{c.reviewerHuman}</option><option value="HUMAN_ASSISTED">{c.reviewerAssisted}</option></select></label>
             <p className="support">{c.reviewerSourceHelp}</p>
-            {reviewerKind !== "SELF" && <RealHandCanonicalReview locale={locale} value={bindingInput} onChange={(value) => setBindingInputs((current) => ({ ...current, [note.id]: value }))} />}
-            <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => setReviewNotes((current) => ({ ...current, [note.id]: event.target.value }))} />
+            {reviewerKind !== "SELF" && <RealHandCanonicalReview locale={locale} value={bindingInput} onChange={(value) => updateDraftWorkspace((current) => patchRealHandBindingInput(current, note.id, value))} />}
+            <textarea aria-label={`${c.review} ${note.id}`} placeholder={c.reviewPlaceholder} value={reviewText} onChange={(event) => updateDraftWorkspace((current) => patchRealHandPostCaptureText(current, "reviewNoteByNoteId", note.id, event.target.value))} />
             {!reviewText.trim() && <p className="support">{selfActionsLocked ? c.selfReviewSaved : c.reviewRequired}</p>}
             {!note.decisionLockedAt && <p className="support">{c.legacyTransferBlocked}</p>}
             {!canSupportTransfer && reviewerKind !== "SELF" && <p className="support">{c.supportTransferHelp}</p>}
