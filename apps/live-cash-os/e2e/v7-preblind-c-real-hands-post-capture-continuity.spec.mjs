@@ -169,7 +169,7 @@ test("V7-C preserves explain-back review notes and isolates post-capture workspa
   state.explainBackRecords = [{
     id: "explain-v7-c-semantic-record",
     at: now,
-    moduleId: "LCM-01",
+    moduleId: "geometry",
     promptKey: "v7-c-fixture",
     text: "I would explain the decision from the cue before the result.",
     status: "PENDING_REVIEW",
