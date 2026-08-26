@@ -1,6 +1,16 @@
 import { expect, test } from "@playwright/test";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
+const QUICK_START_SKILLS = [
+  "FND-01",
+  "FND-02",
+  "PF-01",
+  "PF-04",
+  "W4-BOARD-01",
+  "IP-01",
+  "BL-04",
+  "W4-RUNOUT-01",
+];
 
 async function practicalMasterySnapshot(page) {
   return page.evaluate((key) => {
@@ -17,24 +27,25 @@ async function attemptCount(page) {
   }, LEARNER_KEY);
 }
 
-async function seedBroadPracticeReadiness(page) {
-  return page.evaluate((key) => {
+async function seedQuickStartReadiness(page) {
+  await page.evaluate(({ key, ids }) => {
     const raw = localStorage.getItem(key);
-    if (!raw) return 0;
+    if (!raw) throw new Error("missing learner state");
     const root = JSON.parse(raw);
     const mastery = root._practicalProfile?.mastery;
-    if (!mastery?.skills) return 0;
-    const now = new Date().toISOString();
-    for (const progress of Object.values(mastery.skills)) {
-      progress.conceptTaught = true;
-      progress.conceptTaughtAt ??= now;
-      if (["SOURCE_SUPPORTED", "CONCEPT_TAUGHT", "RECOGNITION_TRAINED"].includes(progress.evidenceStage)) {
-        progress.evidenceStage = "DECISION_TRAINED";
-      }
+    if (!mastery?.skills) throw new Error("missing practical mastery state");
+
+    for (const skillId of ids) {
+      const skill = mastery.skills[skillId];
+      if (!skill) throw new Error(`missing Quick Start skill ${skillId}`);
+      skill.evidenceStage = "RECOGNITION_TRAINED";
+      skill.conceptTaught = true;
     }
+
     localStorage.setItem(key, JSON.stringify(root));
-    return Object.keys(mastery.skills).length;
-  }, LEARNER_KEY);
+  }, { key: LEARNER_KEY, ids: QUICK_START_SKILLS });
+  await page.reload();
+  await expect(page.locator("main")).toBeVisible();
 }
 
 async function activeDecisionId(page, index, total = 8) {
@@ -62,11 +73,11 @@ test.beforeEach(async ({ page }) => {
 test("V7-C active Q1 replaces stale COMPLETE across two leave routes and reload without evidence inflation", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
-  await expect.poll(async () => page.evaluate((key) => Boolean(localStorage.getItem(key)), LEARNER_KEY)).toBe(true);
-  expect(await seedBroadPracticeReadiness(page)).toBeGreaterThan(8);
+  await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
+  await seedQuickStartReadiness(page);
 
-  // Match the Blind V7 precondition: a mature learner can complete one generic
-  // round and the scheduler still has a truthful next generic round to start.
+  // Match the Blind V7 precondition: a mature learner completes one generic
+  // round and has a truthful next generic round available to start.
   await page.goto("/mastery/session");
   await activeDecisionId(page, 1);
   for (let index = 1; index <= 8; index += 1) {
