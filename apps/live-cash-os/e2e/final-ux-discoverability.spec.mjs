@@ -10,6 +10,18 @@ async function expectLearnerStateReady(page) {
   await expect.poll(() => learnerSnapshot(page)).not.toBeNull();
 }
 
+async function expectPracticalProfileReady(page) {
+  await expect.poll(() => page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    if (!raw) return false;
+    try {
+      return Boolean(JSON.parse(raw)?._practicalProfile);
+    } catch {
+      return false;
+    }
+  }, LEARNER_KEY)).toBe(true);
+}
+
 async function expectAboveFold(locator, viewport) {
   await expect(locator).toBeVisible();
   const box = await locator.boundingBox();
@@ -50,6 +62,7 @@ for (const viewport of [
     await expect(syncStatus).toHaveText(/Облако|На устройстве/);
 
     await expectLearnerStateReady(page);
+    await expectPracticalProfileReady(page);
     const beforeUtilityUse = await learnerSnapshot(page);
     await en.click();
     await expect(en).toHaveAttribute("aria-pressed", "true");
@@ -75,6 +88,7 @@ for (const viewport of [
 test("P2-04 Data utility reaches existing Data & Recovery without learner-state mutation", async ({ page }) => {
   await page.goto("/mastery");
   await expectLearnerStateReady(page);
+  await expectPracticalProfileReady(page);
   const before = await learnerSnapshot(page);
   await page.getByRole("navigation", { name: "Practical Mastery navigation" }).getByTestId("data-recovery-entry").click();
   await expect(page).toHaveURL(/\/tools\?tab=data$/);
