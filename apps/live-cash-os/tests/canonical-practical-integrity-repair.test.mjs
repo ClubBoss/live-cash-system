@@ -88,7 +88,7 @@ test("named Skill Map recommendation enters the canonical scheduler with validat
   assert.match(adaptive, /supportedIntegratedSkillIds\(state\)\.includes\(skillId\)/);
   assert.match(adaptive, /buildIntegratedSession/);
   assert.match(integrated, /URLSearchParams\(window\.location\.search\)\.get\("focus"\)/);
-  assert.match(integrated, /focusAvailable[\s\S]*requestedIntegratedFocusItem/);
+  assert.match(integrated, /focusAdmissible[\s\S]*isIntegratedFocusAdmissible/);
   assert.match(integrated, /will not silently substitute a different topic/);
 });
 
