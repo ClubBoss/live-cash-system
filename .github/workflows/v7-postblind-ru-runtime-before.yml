@@ -1,0 +1,78 @@
+name: v7-postblind-ru-runtime-before
+
+on:
+  push:
+    branches:
+      - openai/v7-postblind-ru-census-base
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-census:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Assert exact product base
+        run: git diff --exit-code c992558d770be6527de983c1e0622d14508be770 -- apps/live-cash-os
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install
+        working-directory: apps/live-cash-os
+        run: npm ci --ignore-scripts
+      - name: Runtime learner RU census
+        working-directory: apps/live-cash-os
+        shell: bash
+        run: |
+          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
+          import { practicalDecisions, practicalAnchors, practicalRules, practicalStudyLoop, practicalReferenceBaselines, sessionPerformanceChecks } from './content/practical-mastery/index.ts';
+
+          const cyr=/[А-Яа-яЁё]/u;
+          const latinToken=/[A-Za-z][A-Za-z'-]*/g;
+          const observed=[/\bmarginal hand\b/iu,/\bassumptions?\b/iu,/\bviable\b/iu,/\bfuture action\b/iu];
+          const sourceish=[/\bevidence\b/iu,/\bsource\b/iu,/\bsupported\b/iu,/\blearner\b/iu,/\bauthoring\b/iu,/\bgovernance\b/iu,/\bfingerprint\b/iu,/\bdecisionId\b/u,/\bskillId\b/u];
+          const morphology=[
+            /небольшой открытие/iu,/преимущество диапазона сконцентрирован(?![А-Яа-яЁё])/iu,/концентрированный преимущество/iu,
+            /расширение диапазон(?![А-Яа-яЁё])/iu,/визуальный упрощённое правило/iu,/обычного холодный коллер/iu,/часть коллы/iu,
+            /лишение эквити equity BB/iu,/с избыточный фолд/iu,/больший стек-к-банк отношение/iu,/реализаци(?:и|ю) одномастный коннекторы/iu,
+            /позиция рейзер(?![А-Яа-яЁё])/iu,/(?:больше|меньше)\s+[А-Яа-яЁё-]+ых\s+сохранившиеся\s+комбинации/iu,/избирательный\s+доски\s+требуют/iu,
+            /убира(?:ют|ет)\s+[А-Яа-яЁё-]*ые\s+кандидаты(?![А-Яа-яЁё])/iu,/конкретными\s+ран-ауты(?![А-Яа-яЁё])/iu,
+          ];
+          const allowedPoker=new Set([
+            'bb','sb','btn','co','hj','utg','mp','ip','oop','ev','spr','gto','vpip','pfr','mdf','rfi',
+            'range','ranges','range-bet','equity','hero','call','calls','bet','bets','fold','folds','raise','raises','open','opens',
+            'bluff','bluffs','c-bet','preflop','postflop','flop','turn','river','stack','pot','board','boards','sizing','size','rake',
+            'squeeze','check','check-back','flat','iso','multiway','showdown','blocker','blockers','straddle','overlimp','overfold',
+            'probe','polar','value','air','draw','caller','opener','aggressor','nutted','nut','heads-up','cold-call','3-bet','4-bet',
+            '3bet','4bet','bvb'
+          ]);
+          const rows=[];
+          const add=(surface,id,field,text)=>{ if(typeof text==='string'&&cyr.test(text)) rows.push({surface,id,field,text,tokens:(text.match(latinToken)||[]).map(x=>x.toLowerCase())}); };
+          for(const d of practicalDecisions){
+            add('PRACTICAL',d.id,'cueRu',d.cueRu); add('PRACTICAL',d.id,'questionRu',d.questionRu); add('PRACTICAL',d.id,'explanationRu',d.explanationRu);
+            for(const o of d.actionOptions) add('PRACTICAL',d.id,`action:${o.id}`,o.textRu);
+            for(const o of d.reasonOptions) add('PRACTICAL',d.id,`reason:${o.id}`,o.textRu);
+          }
+          for(const a of practicalAnchors||[]) for(const f of ['titleRu','bodyRu','promptRu','answerRu','rationaleRu']) add('ANCHOR',a.id,f,a[f]);
+          for(const r of practicalRules||[]) { for(const f of ['triggerRu','defaultRu','whyRu','transferCueRu']) add('RULE',r.id,f,r[f]); for(const x of r.amplifiersRu||[]) add('RULE',r.id,'amplifier',x); for(const x of r.reversalsRu||[]) add('RULE',r.id,'reversal',x); }
+          for(const s of practicalStudyLoop||[]) for(const f of ['titleRu','instructionRu','evidenceRuleRu']) add('STUDY',s.id||s.titleRu,f,s[f]);
+          for(const r of practicalReferenceBaselines||[]) for(const f of ['titleRu','triggerRu','baselineRu','deltaRu','boundaryRu']) add('REFERENCE',r.id||r.titleRu,f,r[f]);
+          for(const s of sessionPerformanceChecks||[]) for(const f of ['promptRu','responseRu']) add('CHECK',s.id||s.promptRu,f,s[f]);
+
+          const observedRows=rows.filter(r=>observed.some(p=>p.test(r.text)));
+          const sourceRows=rows.filter(r=>sourceish.some(p=>p.test(r.text)));
+          const morphRows=rows.filter(r=>morphology.some(p=>p.test(r.text)));
+          const nonPokerLatin=rows.filter(r=>r.tokens.some(t=>!allowedPoker.has(t) && !/^ftgu-[a-z0-9-]+$/i.test(t) && !/^slc-[a-z0-9-]+$/i.test(t) && !/^lcm-[a-z0-9-]+$/i.test(t)));
+          const defects=new Map();
+          for(const r of [...observedRows,...sourceRows,...morphRows]) defects.set(`${r.surface}|${r.id}|${r.field}|${r.text}`,r);
+          const tokenCounts={}; for(const r of nonPokerLatin) for(const t of r.tokens) if(!allowedPoker.has(t)) tokenCounts[t]=(tokenCounts[t]||0)+1;
+          console.log('V7_RU_RUNTIME_BEFORE_COUNTS='+JSON.stringify({rows:rows.length,observed:observedRows.length,sourceish:sourceRows.length,morphology:morphRows.length,governedDefects:defects.size,nonPokerLatinRows:nonPokerLatin.length}));
+          console.log('V7_RU_RUNTIME_BEFORE_TOKENS='+JSON.stringify(Object.entries(tokenCounts).sort((a,b)=>b[1]-a[1]).slice(0,150)));
+          for(const r of [...defects.values()]) console.log('V7_RU_RUNTIME_DEFECT='+JSON.stringify(r));
+          for(const r of nonPokerLatin.slice(0,300)) console.log('V7_RU_RUNTIME_NONPOKER='+JSON.stringify(r));
+          NODE
