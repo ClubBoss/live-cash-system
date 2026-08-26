@@ -7,7 +7,8 @@ import {
 } from "../content/practical-mastery/index.ts";
 import { practicalSourceGaps } from "../content/practical-mastery/source-gaps.ts";
 
-const BARE_EVIDENCE_ID = /\bE\d{2,}\b/gu;
+const hasBareEvidenceId = (value) => /\bE\d{2,}\b/u.test(value);
+const bareEvidenceMatches = (value) => [...value.matchAll(/\bE\d{2,}\b/gu)].map((match) => match[0]);
 
 function canonicalLearnerStrings(locale) {
   const ru = locale === "ru";
@@ -50,8 +51,8 @@ function canonicalLearnerStrings(locale) {
 for (const locale of ["ru", "en"]) {
   test(`${locale}: BEFORE census for bare evidence-ID namespace on canonical learner strings`, () => {
     const values = canonicalLearnerStrings(locale);
-    const leaking = values.filter((value) => BARE_EVIDENCE_ID.test(value));
-    const matches = leaking.flatMap((value) => [...value.matchAll(BARE_EVIDENCE_ID)].map((match) => match[0]));
+    const leaking = values.filter(hasBareEvidenceId);
+    const matches = leaking.flatMap(bareEvidenceMatches);
     const counts = Object.fromEntries([...new Set(matches)].sort().map((id) => [id, matches.filter((match) => match === id).length]));
 
     console.log(`V7_POSTBLIND_B_BEFORE locale=${locale} learner_strings=${values.length} leaking_strings=${leaking.length} occurrences=${matches.length} ids=${JSON.stringify(counts)}`);
