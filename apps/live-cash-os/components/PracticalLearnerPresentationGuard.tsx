@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect } from "react";
+import { sanitizeLearnerAccessibilityAttribute } from "../lib/learner-accessibility-attribute-firewall";
 import {
   isLearnerMetadataOnlyLine,
   sanitizeLearnerPresentationText,
@@ -57,6 +58,8 @@ const legacyExactFallbacks = new Map<string, string>([
     "After the call the final pot is 4 units. Hero contributes 2 of those 4, so required equity = 2 / (2 + 2) = 50%. Only the price changed, so the threshold rose from 33.3% to 50%.",
   ],
 ]);
+
+const learnerAccessibilityAttributes = ["aria-label", "aria-description", "title", "alt"] as const;
 
 function currentLocale(): LearnerPresentationLocale {
   return document.documentElement.lang === "en" ? "en" : "ru";
@@ -127,10 +130,28 @@ function applyTextFirewall(root: HTMLElement) {
   }
 }
 
+function applyAccessibilityAttributeFirewall(root: HTMLElement) {
+  const locale = currentLocale();
+  const selector = learnerAccessibilityAttributes.map((attribute) => `[${attribute}]`).join(",");
+  const candidates: Element[] = [root, ...Array.from(root.querySelectorAll(selector))];
+  for (const element of candidates) {
+    for (const attribute of learnerAccessibilityAttributes) {
+      const current = element.getAttribute(attribute);
+      if (current === null) continue;
+      const sanitized = sanitizeLearnerAccessibilityAttribute(current, locale);
+      const next = normalizeLearnerSafeCopy(sanitized, locale);
+      if (next === current) continue;
+      if (!next && attribute !== "alt") element.removeAttribute(attribute);
+      else element.setAttribute(attribute, next);
+    }
+  }
+}
+
 function applyPresentation(root: HTMLElement) {
   applyLegacyExactFallbacks(root);
   applyMetadataLineFirewall(root);
   applyTextFirewall(root);
+  applyAccessibilityAttributeFirewall(root);
 }
 
 export default function PracticalLearnerPresentationGuard() {
@@ -149,7 +170,13 @@ export default function PracticalLearnerPresentationGuard() {
 
     run();
     const observer = new MutationObserver(run);
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: [...learnerAccessibilityAttributes],
+    });
     return () => observer.disconnect();
   }, []);
   return null;
