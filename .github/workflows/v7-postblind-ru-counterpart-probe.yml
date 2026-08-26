@@ -1,0 +1,43 @@
+name: v7-postblind-ru-counterpart-probe
+on:
+  push:
+    branches: [openai/v7-postblind-ru-census-base]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - run: git diff --exit-code c992558d770be6527de983c1e0622d14508be770 -- apps/live-cash-os
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - working-directory: apps/live-cash-os
+        run: npm ci --ignore-scripts
+      - working-directory: apps/live-cash-os
+        shell: bash
+        run: |
+          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
+          import { practicalDecisions, practicalAnchors } from './content/practical-mastery/index.ts';
+          import { practicalRuCorpusPublicationOverrides } from './content/practical-mastery/practical-ru-corpus-publication.ts';
+          const bad=[/\bmarginal hand\b/iu,/\bassumptions?\b/iu,/\bviable\b/iu,/\bfuture action\b/iu,/\bevidence\b/iu,/\bsource\b/iu,/\bsupported\b/iu,/\blearner\b/iu,/\bauthoring\b/iu,/\bgovernance\b/iu,/\bfingerprint\b/iu,/\bdecisionId\b/u,/\bskillId\b/u,/\b(?:the|a|an|and|or|with|without|against|from|to|of|if|will|have|has|is|are|does|not|than|when|where|while|because|but|by|for|into|after|before|same|more|less|only|can|must|should|be|becomes|remain|remains|changes|change|increases|decreases)\b/iu];
+          const rows=[];
+          const add=(kind,id,field,ru,en)=>{if(typeof ru==='string'&&typeof en==='string')rows.push({kind,id,field,ru,en});};
+          for(const d of practicalDecisions){
+            add('D',d.id,'cue',d.cueRu,d.cueEn); add('D',d.id,'question',d.questionRu,d.questionEn); add('D',d.id,'explanation',d.explanationRu,d.explanationEn);
+            for(const o of d.actionOptions)add('D',d.id,`a:${o.id}`,o.textRu,o.textEn);
+            for(const o of d.reasonOptions)add('D',d.id,`r:${o.id}`,o.textRu,o.textEn);
+          }
+          for(const a of practicalAnchors){ add('A',a.id,'prompt',a.promptRu,a.promptEn); add('A',a.id,'answer',a.answerRu,a.answerEn); add('A',a.id,'rationale',a.rationaleRu,a.rationaleEn); }
+          const initial=rows.filter(r=>bad.some(p=>p.test(r.ru)));
+          const projected=rows.map(r=>({...r, projected: practicalRuCorpusPublicationOverrides.get(r.en) ?? r.ru, mapped: practicalRuCorpusPublicationOverrides.has(r.en)}));
+          const residual=projected.filter(r=>bad.some(p=>p.test(r.projected)));
+          const initialBadKeys=new Set(initial.map(r=>`${r.kind}|${r.id}|${r.field}`));
+          const mappedInitial=projected.filter(r=>initialBadKeys.has(`${r.kind}|${r.id}|${r.field}`)&&r.mapped);
+          console.log('V7_COUNTERPART_PROBE='+JSON.stringify({rows:rows.length,initialBad:initial.length,mappedAll:projected.filter(r=>r.mapped).length,mappedInitial: mappedInitial.length,residualBad:residual.length,closed:initial.length-residual.length}));
+          for(const r of residual.slice(0,300)) console.log('V7_COUNTERPART_RESIDUAL='+JSON.stringify({id:r.id,field:r.field,ru:r.ru,en:r.en,mapped:r.mapped,projected:r.projected}));
+          NODE
