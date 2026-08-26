@@ -44,7 +44,7 @@ jobs:
         run: |
           git config user.name "ClubBoss"
           git config user.email "esalimzade@hotmail.com"
-          git add apps/live-cash-os/components/PracticalIntegratedSessionExperience.tsx apps/live-cash-os/lib/practical-continuity-workspace.ts
+          git add components/PracticalIntegratedSessionExperience.tsx lib/practical-continuity-workspace.ts
           if ! git diff --cached --quiet; then
             git commit -m "V7 Post-Blind C: persist active round before first answer [skip ci]"
             git push origin HEAD:v7-postblind-c-preanswer-round-continuity
