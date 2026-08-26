@@ -88,7 +88,7 @@ test("V7-D Real Hands exposes semantic RU and EN accessibility labels with zero 
   await expectZeroLearnerAttributeLeaks(page);
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
-  const enReviewer = page.getByRole("combobox", { name: "How the review was done", exact: true });
+  const enReviewer = page.getByRole("combobox", { name: "How this was reviewed", exact: true });
   const enReview = page.getByRole("textbox", { name: "Review", exact: true });
   await expect(enReviewer).toBeVisible();
   await expect(enReview).toBeVisible();
