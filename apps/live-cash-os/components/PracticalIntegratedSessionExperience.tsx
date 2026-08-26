@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
-import { buildAdaptiveIntegratedSession, requestedIntegratedFocusItem } from "../lib/practical-adaptive-session";
+import { buildAdaptiveIntegratedSession, isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
 import { recordIntegratedAnswerContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
 import { INTEGRATED_SESSION_SIZE, recordIntegratedDecision, type IntegratedSessionItem } from "../lib/practical-integrated-session";
+import { classifyPracticalIntegratedSessionState } from "../lib/practical-integrated-session-state";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
@@ -65,8 +66,8 @@ export default function PracticalIntegratedSessionExperience() {
 
   useEffect(() => {
     if (!ready || requestedFocus === undefined || initializedRevision !== null) return;
-    const focusAvailable = !requestedFocus || Boolean(requestedIntegratedFocusItem(state, requestedFocus));
-    if (!focusAvailable) {
+    const focusAdmissible = !requestedFocus || isIntegratedFocusAdmissible(state, requestedFocus);
+    if (!focusAdmissible) {
       setItems([]);
       setIndex(0);
       setInitializedRevision(state.revision);
@@ -96,8 +97,15 @@ export default function PracticalIntegratedSessionExperience() {
   const skill = item ? practicalSkillById.get(item.skillId) ?? null : null;
   const tableState = item ? allPracticalTableStates.find((candidate) => candidate.decisionId === item.decisionId) ?? null : null;
   const requestedSkill = requestedFocus ? practicalSkillById.get(requestedFocus) ?? null : null;
-  const focusUnavailable = ready && initializedRevision !== null && Boolean(requestedFocus) && items.length === 0 && !workspaceRecovery;
-  const completed = ready && initializedRevision !== null && !focusUnavailable && !workspaceRecovery && (items.length === 0 || index >= items.length);
+  const resolvedFocus = requestedFocus ?? null;
+  const focusAdmissible = !resolvedFocus || isIntegratedFocusAdmissible(state, resolvedFocus);
+  const presentationState = classifyPracticalIntegratedSessionState({
+    workspaceRecovery,
+    requestedFocus: resolvedFocus,
+    focusAdmissible,
+    itemCount: items.length,
+    index,
+  });
   const schedulingReasonCopy = item?.whyAfterAnswer
     ? reasonCopy(locale, item.reason)
     : (locale === "ru" ? "Эта задача выбрана как следующий полезный шаг." : "This decision was selected as the next useful step.");
@@ -136,8 +144,8 @@ export default function PracticalIntegratedSessionExperience() {
   };
 
   const startFreshRound = (focusSkillId: string | null) => {
-    const focusAvailable = !focusSkillId || Boolean(requestedIntegratedFocusItem(state, focusSkillId));
-    const nextItems = focusAvailable ? buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];
+    const focusAdmissible = !focusSkillId || isIntegratedFocusAdmissible(state, focusSkillId);
+    const nextItems = focusAdmissible ? buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];
     setItems(nextItems);
     setIndex(0);
     setWorkspaceRecovery(false);
@@ -155,21 +163,35 @@ export default function PracticalIntegratedSessionExperience() {
   if (!ready || requestedFocus === undefined || initializedRevision === null) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Подбираем следующую практику…" : "Preparing your next practice…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
 
-  if (workspaceRecovery) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+  if (presentationState === "RECOVERY") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
     <p className="eyebrow">{locale === "ru" ? "ВОССТАНОВЛЕНИЕ ПРАКТИКИ" : "PRACTICE RECOVERY"}</p>
     <h1>{locale === "ru" ? "Сохранённый раунд больше нельзя продолжить точно" : "The saved round can no longer be resumed exactly"}</h1>
     <p>{locale === "ru" ? "Прогресс и уже записанные ответы сохранены. Чтобы не повторять ответ и не смешивать старую версию заданий с новой, начни новый раунд." : "Your progress and submitted answers are preserved. To avoid repeating an answer or mixing an old item set with new content, start a fresh round."}</p>
     <button className="primary" onClick={() => startFreshRound(requestedFocus ?? null)}>{locale === "ru" ? "Начать новый раунд" : "Start a fresh round"} <span>→</span></button>
   </main>;
 
-  if (focusUnavailable) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+  if (presentationState === "FOCUS_UNAVAILABLE") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
     <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ ФОКУС" : "REQUESTED FOCUS"}</p>
     <h1>{requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : (locale === "ru" ? "Этот навык пока недоступен" : "This skill is not available yet")}</h1>
     <p>{locale === "ru" ? "Сейчас этот навык нельзя честно поставить в самостоятельную практику: сначала нужны его обязательные предпосылки, знакомство с механизмом или достаточная проверенная база задач. Система не подменит его другой темой молча." : "This skill cannot be placed into independent practice yet: it first needs its required prerequisites, concept exposure, or enough supported practice material. The system will not silently substitute a different topic."}</p>
     <p><Link className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить основной маршрут" : "Continue the primary route"} →</Link> · <Link className="secondary" href="/mastery">{locale === "ru" ? "Вернуться к карте" : "Back to map"}</Link></p>
   </main>;
 
-  if (completed) return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}><section className="hero compact-hero">
+  if (presentationState === "GENERIC_EMPTY") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+    <p className="eyebrow">{locale === "ru" ? "ПРАКТИКА" : "PRACTICE"}</p>
+    <h1>{locale === "ru" ? "Сейчас нет подходящих задач для общей практики" : "No eligible mixed practice right now"}</h1>
+    <p>{locale === "ru" ? "Это не завершённый раунд: при текущем прогрессе система не может честно подобрать самостоятельную задачу. Продолжи основной маршрут, чтобы открыть следующий допустимый материал, или проверь карту навыков." : "This is not a completed round: with your current progress, the system cannot truthfully schedule an independent item. Continue the primary route to unlock the next admissible material, or review the skill map."}</p>
+    <p><Link className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить основной маршрут" : "Continue the primary route"} →</Link> · <Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></p>
+  </main>;
+
+  if (presentationState === "FOCUSED_EMPTY") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+    <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ ФОКУС" : "REQUESTED FOCUS"}</p>
+    <h1>{requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : (locale === "ru" ? "Для этого фокуса сейчас нет полезной задачи" : "No useful item for this focus right now")}</h1>
+    <p>{locale === "ru" ? "Этот навык доступен, но сейчас для него нет полезного нового задания: допустимые примеры либо были недавно решены, либо пока не дают новой самостоятельной проверки. Система не будет заполнять раунд точным повтором. Это не завершённый раунд." : "This skill is available, but there is no useful new item for it right now: admissible examples were either solved recently or do not currently add a new independent check. The system will not fill the round with an exact repeat. This is not a completed round."}</p>
+    <p><Link className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить основной маршрут" : "Continue the primary route"} →</Link> · <Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></p>
+  </main>;
+
+  if (presentationState === "COMPLETE") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}><section className="hero compact-hero">
     <p className="eyebrow">{locale === "ru" ? "ПРАКТИКА" : "PRACTICE"}</p>
     <h1>{locale === "ru" ? "Раунд завершён" : "Round complete"}</h1>
     <p>{locale === "ru" ? "Система учтёт ошибки, уверенность, повторение и уже знакомые навыки. Следующий раунд снова подберёт наиболее полезные решения — тебе не нужно выбирать режим вручную." : "The system will use your mistakes, confidence, review timing, and prior exposure to choose the next useful decisions. You do not need to pick a mode manually."}</p>
