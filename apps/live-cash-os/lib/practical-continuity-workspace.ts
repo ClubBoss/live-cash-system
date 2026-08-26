@@ -213,6 +213,30 @@ export function restoreQuickStartPostAnswer(
   return { status: "VALID", skillId: saved.skillId, decisionId: saved.decisionId, attempt };
 }
 
+export function recordIntegratedRoundStartContinuity(
+  workspace: PracticalStudyWorkspace,
+  contentVersion: string,
+  input: {
+    focusSkillId: string | null;
+    items: IntegratedSessionItem[];
+  },
+  now = new Date(),
+): PracticalStudyWorkspace | null {
+  if (input.items.length === 0 || input.items.length > 8) return null;
+
+  const continuity = nextContinuity(workspace, contentVersion);
+  return withContinuity(workspace, {
+    ...continuity,
+    integrated: {
+      focusSkillId: input.focusSkillId,
+      items: input.items.map((item) => ({ ...item })),
+      nextIndex: 0,
+      submittedAttemptIds: [],
+      updatedAt: now.toISOString(),
+    },
+  }, now);
+}
+
 export function recordIntegratedAnswerContinuity(
   workspace: PracticalStudyWorkspace,
   contentVersion: string,
