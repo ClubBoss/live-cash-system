@@ -192,7 +192,7 @@ test("partial Real Hand draft survives tab navigation and reload", async ({ page
 
   await expect.poll(async () => page.evaluate((key) => {
     const draft = JSON.parse(localStorage.getItem(key) ?? "null");
-    return draft?.value?.stakes;
+    return draft?.value?.capture?.stakes;
   }, DRAFT_KEY)).toBe("2/5");
 
   await page.getByRole("button", { name: "Сегодня", exact: true }).click();
@@ -345,7 +345,7 @@ test("Real Hand draft is isolated from a different portable profile", async ({ p
   await draftField(page, "moduleId").selectOption("geometry");
   await draftField(page, "stakes").fill("5/10");
   await draftField(page, "reason").fill("Profile A draft only.");
-  await expect.poll(async () => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null")?.value?.stakes, DRAFT_KEY)).toBe("5/10");
+  await expect.poll(async () => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null")?.value?.capture?.stakes, DRAFT_KEY)).toBe("5/10");
 
   const storedA = await page.evaluate(({ draftKey, profile }) => {
     const raw = localStorage.getItem(draftKey) ?? "";
