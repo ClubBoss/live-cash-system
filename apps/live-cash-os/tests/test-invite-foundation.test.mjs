@@ -114,7 +114,7 @@ test("isolated TEST_DB invite sync rotates hashes without touching production", 
   assert.doesNotMatch(workflow, /secrets\.LIVE_CASH_TEST_SMOKE_CODE/);
   assert.match(workflow, /test-invites\/tester-access\.private\.json/);
   assert.match(workflow, /api\/test-invite-bootstrap/);
-  assert.match(workflow, /Recoverable tester-01 invite expected 200/);
+  assert.match(workflow, /Recoverable tester-05 invite expected 200/);
   assert.match(workflow, /x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA/);
   assert.match(workflow, /d1\[0\]\?\.binding !== "TEST_DB"/);
   assert.match(workflow, /binding === "DB"/);
