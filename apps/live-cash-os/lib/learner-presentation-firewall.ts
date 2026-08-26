@@ -29,11 +29,11 @@ const leakPatterns: ReadonlyArray<{
 }> = [
   {
     leakClass: "SOURCE_OR_MODULE_ID",
-    pattern: new RegExp(`\b(?:${SOURCE_ID_SOURCE}|${BARE_EVIDENCE_ID_SOURCE}|${MODULE_ID_SOURCE})\b`, "iu"),
+    pattern: new RegExp(`\\b(?:${SOURCE_ID_SOURCE}|${BARE_EVIDENCE_ID_SOURCE}|${MODULE_ID_SOURCE})\\b`, "iu"),
   },
   {
     leakClass: "SKILL_OR_DECISION_ID",
-    pattern: new RegExp(`\b(?:${SKILL_ID_SOURCE}|${DECISION_ID_SOURCE})\b`, "u"),
+    pattern: new RegExp(`\\b(?:${SKILL_ID_SOURCE}|${DECISION_ID_SOURCE})\\b`, "u"),
   },
   {
     leakClass: "REVIEWER_ENUM",
@@ -215,20 +215,20 @@ export function sanitizeLearnerPresentationText(
   next = locale === "ru" ? replaceRuPhrases(next) : replaceEnPhrases(next);
 
   next = next.replace(
-    new RegExp(`\b${MODULE_ID_SOURCE}\b(?:\s*[.:·—-]\s*)?`, "giu"),
+    new RegExp(`\\b${MODULE_ID_SOURCE}\\b(?:\\s*[.:\u00b7\u2014-]\\s*)?`, "giu"),
     "",
   );
 
   const evidence = locale === "ru" ? "проверенные данные" : "reviewed evidence";
-  next = next.replace(new RegExp(`\b(?:${SOURCE_ID_SOURCE}|${BARE_EVIDENCE_ID_SOURCE})\b`, "giu"), evidence);
+  next = next.replace(new RegExp(`\\b(?:${SOURCE_ID_SOURCE}|${BARE_EVIDENCE_ID_SOURCE})\\b`, "giu"), evidence);
   next = next.replace(
     /reviewed evidence\s+extends\s+reviewed evidence/giu,
     "reviewed evidence supports the same mechanism",
   );
 
-  next = next.replace(new RegExp(`\b${SKILL_ID_SOURCE}\b`, "gu"), (id) => skillTitle(id, locale));
+  next = next.replace(new RegExp(`\\b${SKILL_ID_SOURCE}\\b`, "gu"), (id) => skillTitle(id, locale));
   next = next.replace(
-    new RegExp(`\b${DECISION_ID_SOURCE}\b`, "gu"),
+    new RegExp(`\\b${DECISION_ID_SOURCE}\\b`, "gu"),
     locale === "ru" ? "это решение" : "this decision",
   );
   next = next
