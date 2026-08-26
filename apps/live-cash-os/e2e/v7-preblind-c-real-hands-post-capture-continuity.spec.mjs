@@ -76,6 +76,14 @@ function showdownDraftBox(page) {
   return page.locator(".w7-result textarea").nth(1);
 }
 
+function reviewerSourceSelect(page) {
+  return page.locator('select[aria-label^="How this was reviewed"]').first();
+}
+
+function reviewDraftBox(page) {
+  return page.locator('textarea[aria-label^="Review"]').first();
+}
+
 async function createOneRealHand(page) {
   await page.getByTestId("real-hand-moduleId").selectOption({ index: 1 });
   await page.getByTestId("real-hand-stakes").fill("2/5");
@@ -117,10 +125,8 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   await resultDraftBox(page).fill("Won $240");
   await showdownDraftBox(page).fill("AhKh");
 
-  const reviewer = page.locator(`select[aria-label="How this was reviewed ${noteId}"]`);
-  const reviewBox = page.locator(`textarea[aria-label="Review ${noteId}"]`);
-  await reviewer.selectOption("HUMAN");
-  await reviewBox.fill("Human review draft: verify blind-price mechanism.");
+  await reviewerSourceSelect(page).selectOption("HUMAN");
+  await reviewDraftBox(page).fill("Human review draft: verify blind-price mechanism.");
   await page.getByTestId("real-hand-signal-street").selectOption("preflop");
   await page.getByTestId("real-hand-signal-blindIssue").check();
 
@@ -143,14 +149,14 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   await expect(page.getByText("Decision locked before the result", { exact: false })).toBeVisible();
   await expect(resultDraftBox(page)).toHaveValue("Won $240");
   await expect(showdownDraftBox(page)).toHaveValue("AhKh");
-  await expect(page.locator(`textarea[aria-label="Review ${noteId}"]`)).toHaveValue(/Human review draft/);
-  await expect(page.locator(`select[aria-label="How this was reviewed ${noteId}"]`)).toHaveValue("HUMAN");
+  await expect(reviewDraftBox(page)).toHaveValue(/Human review draft/);
+  await expect(reviewerSourceSelect(page)).toHaveValue("HUMAN");
   await expect(page.getByTestId("real-hand-signal-blindIssue")).toBeChecked();
 
   await page.reload();
   await expect(resultDraftBox(page)).toHaveValue("Won $240");
   await expect(showdownDraftBox(page)).toHaveValue("AhKh");
-  await expect(page.locator(`textarea[aria-label="Review ${noteId}"]`)).toHaveValue(/Human review draft/);
+  await expect(reviewDraftBox(page)).toHaveValue(/Human review draft/);
 
   await page.evaluate((learnerKey) => {
     const nativeSetItem = Storage.prototype.setItem;
@@ -181,7 +187,7 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   expect(reviewWorkspace.postCapture.reviewerKindByNoteId[noteId]).toBe("HUMAN");
   expect(reviewWorkspace.postCapture.practicalBindingByNoteId[noteId].signals.blindIssue).toBe(true);
 
-  await expect(page.locator(`textarea[aria-label="Review ${noteId}"]`)).toHaveValue(/Human review draft/);
+  await expect(reviewDraftBox(page)).toHaveValue(/Human review draft/);
   await page.getByRole("button", { name: "Finish review", exact: true }).click();
   await waitForLocalCanonical(page, (state) => {
     const note = state.fieldNotes.find((row) => row.id === noteId);
@@ -230,18 +236,17 @@ test("V7-C preserves explain-back review notes and fails stale, incompatible, an
   await page.evaluate(({ key, value }) => localStorage.setItem(key, JSON.stringify(value)), { key: LEARNER_KEY, value: state });
   await page.reload();
 
-  const explainBox = page.locator('textarea[aria-label="Review explain-v7-c-semantic-record"]');
-  await explainBox.fill("Explain-back review draft survives navigation.");
+  await reviewDraftBox(page).fill("Explain-back review draft survives navigation.");
   const rawBeforeSubmit = await learnerRaw(page);
   expect((await draftValue(page)).postCapture.explainReviewByRecordId["explain-v7-c-semantic-record"]).toContain("survives navigation");
 
   await page.goto("/tools?tab=data");
   await page.goto("/tools?tab=field");
-  await expect(page.locator('textarea[aria-label="Review explain-v7-c-semantic-record"]')).toHaveValue(/survives navigation/);
+  await expect(reviewDraftBox(page)).toHaveValue(/survives navigation/);
   expect(await learnerRaw(page)).toBe(rawBeforeSubmit);
 
   await page.reload();
-  await expect(page.locator('textarea[aria-label="Review explain-v7-c-semantic-record"]')).toHaveValue(/survives navigation/);
+  await expect(reviewDraftBox(page)).toHaveValue(/survives navigation/);
   await page.getByRole("button", { name: "Finish review", exact: true }).click();
   await waitForLocalCanonical(page, (next) => next.explainBackRecords?.[0]?.status === "REVIEWED_OK");
   await expect.poll(async () => {
