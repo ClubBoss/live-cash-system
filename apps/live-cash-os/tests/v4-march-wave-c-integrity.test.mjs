@@ -148,6 +148,7 @@ test("normal learner components render titles and learner-safe copy instead of m
   const study = await read("components/PracticalStudyLoopExperience.tsx");
   const mastery = await read("components/PracticalMasteryExperience.tsx");
   const guard = await read("components/PracticalLearnerPresentationGuard.tsx");
+  const firewall = await read("lib/learner-presentation-firewall.ts");
 
   const forbiddenStudySites = [
     /recommendedSkill\.id\}\s*·/u,
@@ -173,7 +174,10 @@ test("normal learner components render titles and learner-safe copy instead of m
   assert.doesNotMatch(mastery, /gap\.reasonRu : gap\.reason/);
   assert.doesNotMatch(mastery, /gap\.nextEvidenceNeededRu : gap\.nextEvidenceNeeded/);
 
-  assert.match(guard, /machineMetadataPatterns/);
+  assert.match(guard, /isLearnerMetadataOnlyLine/);
+  assert.match(guard, /sanitizeLearnerPresentationText/);
+  assert.match(firewall, /learnerPresentationLeakClasses/);
+  assert.match(firewall, /MIGRATION_HISTORY/);
   assert.match(guard, /legacyExactFallbacks/);
   assert.match(guard, /element\.hidden = true/);
   assert.doesNotMatch(guard, /polishRussianLearnerText|cleanupSourceLanguage/);
