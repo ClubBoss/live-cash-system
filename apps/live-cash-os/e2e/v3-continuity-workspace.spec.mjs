@@ -49,6 +49,17 @@ async function answerIntegratedCard(page) {
   return { card, decisionId };
 }
 
+async function expectRestoredFeedback(page, decisionId, attemptsAfterQ1) {
+  await expect(page.getByText(/ПРАКТИКА · .+ · 1\/8|PRACTICE · .+ · 1\/8/)).toBeVisible();
+  const restored = page.locator("section.today-card[data-practical-decision-id]").first();
+  await expect(restored).toHaveAttribute("data-practical-decision-id", decisionId);
+  await expect(restored.getByRole("heading", { name: /Верно|Нужно исправить|Correct|Repair needed/ })).toBeVisible();
+  await expect(restored.locator('input[type="radio"]:checked')).toHaveCount(2);
+  await expect(restored.locator('input[type="radio"]:enabled')).toHaveCount(0);
+  expect(await masteryAttempts(page)).toBe(attemptsAfterQ1);
+  return restored;
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "local V3-06 continuity fixture" }) });
@@ -78,7 +89,7 @@ test("V3-06b scored Quick Start feedback survives hard refresh without duplicate
   expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
 });
 
-test("V3-06c submitted Q1 resumes at Q2 across leave/re-entry, reload, Back and Forward", async ({ page }) => {
+test("V3-06c submitted Q1 keeps feedback across leave/re-entry, reload, Back and Forward until explicit Next", async ({ page }) => {
   await page.goto("/mastery/journey");
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   await expect.poll(async () => page.evaluate((key) => {
@@ -94,6 +105,17 @@ test("V3-06c submitted Q1 resumes at Q2 across leave/re-entry, reload, Back and 
   await page.goto("/mastery");
   await page.goto(`/mastery/session?focus=${FOCUS_ID}&source=v3-06#continuity`);
   await expect(page).toHaveURL(new RegExp(`/mastery/session\\?focus=${FOCUS_ID}&source=v3-06#continuity$`));
+  let restored = await expectRestoredFeedback(page, first.decisionId, attemptsAfterQ1);
+
+  await page.reload();
+  restored = await expectRestoredFeedback(page, first.decisionId, attemptsAfterQ1);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/mastery$/);
+  await page.goForward();
+  restored = await expectRestoredFeedback(page, first.decisionId, attemptsAfterQ1);
+
+  await restored.getByRole("button", { name: /Следующее решение|Next decision/ }).click();
   await expect(page.getByText(/ПРАКТИКА · .+ · 2\/8|PRACTICE · .+ · 2\/8/)).toBeVisible();
   const q2 = page.locator("section.today-card[data-practical-decision-id]").first();
   await expect(q2).toBeVisible();
@@ -104,12 +126,6 @@ test("V3-06c submitted Q1 resumes at Q2 across leave/re-entry, reload, Back and 
   await page.reload();
   await expect(page.getByText(/ПРАКТИКА · .+ · 2\/8|PRACTICE · .+ · 2\/8/)).toBeVisible();
   expect(await page.locator("section.today-card[data-practical-decision-id]").first().getAttribute("data-practical-decision-id")).toBe(q2Id);
-  expect(await masteryAttempts(page)).toBe(attemptsAfterQ1);
-
-  await page.goBack();
-  await expect(page).toHaveURL(/\/mastery$/);
-  await page.goForward();
-  await expect(page.getByText(/ПРАКТИКА · .+ · 2\/8|PRACTICE · .+ · 2\/8/)).toBeVisible();
   expect(await masteryAttempts(page)).toBe(attemptsAfterQ1);
 
   await page.goto("/mastery/session");

@@ -22,6 +22,7 @@ import { sourceClosureB1Decisions } from "./decisions-source-closure-b1";
 import { sourceUtilizationC0Decisions } from "./decisions-source-utilization-c0";
 import { perceptualPracticalDecisions, practicalTableStates } from "./perceptual-table-states";
 import { variationB3Decisions } from "./decisions-variation-b3";
+import { balanceB3AssessmentOptions } from "./b3-assessment-integrity";
 import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
@@ -94,7 +95,7 @@ export const practicalDecisions = [
   ...exploitA10ExpansionDecisions,
   ...sourceClosureB1Decisions,
   ...sourceUtilizationC0Decisions,
-  ...variationB3Decisions,
+  ...balanceB3AssessmentOptions(variationB3Decisions),
   ...liveEdgeB4Decisions,
   ...executableGateRepairDecisions,
   ...perceptualPracticalDecisions,

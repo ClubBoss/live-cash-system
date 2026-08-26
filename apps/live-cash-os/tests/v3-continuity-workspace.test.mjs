@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { allPracticalTableStates, practicalDecisions, practicalSkillById } from "../content/practical-mastery/index.ts";
 import {
+  advanceIntegratedContinuity,
   clearQuickStartContinuity,
   recordIntegratedAnswerContinuity,
   restoreIntegratedRound,
@@ -60,7 +61,7 @@ test("V3-06b stale content and missing attempt ancestry fail closed", () => {
   assert.equal(restoreQuickStartPostAnswer({ ...workspace, continuity: { ...workspace.continuity, contentVersion: "old-content" } }, state).status, "STALE");
 });
 
-test("V3-06c integrated continuity resumes the next unanswered item without duplicating evidence", () => {
+test("V3-06c integrated continuity restores submitted feedback and advances only on explicit Next", () => {
   const [first, second] = practicalDecisions.filter((decision) => decision.skillId === practicalDecisions[0].skillId).slice(0, 2);
   assert.ok(first && second);
   const initial = createPracticalMasteryState(new Date("2026-08-24T00:00:00Z"), true);
@@ -83,12 +84,27 @@ test("V3-06c integrated continuity resumes the next unanswered item without dupl
     attemptId: attempt.id,
   }, new Date("2026-08-24T00:01:01Z"));
   assert.ok(workspace);
-  const restored = restoreIntegratedRound(workspace, afterFirst, first.skillId);
-  assert.equal(restored.status, "VALID");
-  assert.equal(restored.nextIndex, 1);
-  assert.equal(restored.items[1].decisionId, second.id);
-  assert.equal(afterFirst.attempts.length, 1, "restoring the cursor must not resubmit Q1");
+  const restoredFeedback = restoreIntegratedRound(workspace, afterFirst, first.skillId);
+  assert.equal(restoredFeedback.status, "VALID");
+  assert.equal(restoredFeedback.nextIndex, 0);
+  assert.equal(restoredFeedback.items[0].decisionId, first.id);
+  assert.equal(restoredFeedback.postAnswerAttempt?.id, attempt.id);
+  assert.equal(afterFirst.attempts.length, 1, "restoring feedback must not resubmit Q1");
   assert.equal(restoreIntegratedRound(workspace, afterFirst, null).status, "NONE", "focused workspace cannot leak into generic routing");
+
+  const advanced = advanceIntegratedContinuity(workspace, afterFirst.contentVersion, {
+    focusSkillId: first.skillId,
+    items,
+    answeredIndex: 0,
+    attemptId: attempt.id,
+  }, new Date("2026-08-24T00:01:02Z"));
+  assert.ok(advanced);
+  const restoredQ2 = restoreIntegratedRound(advanced, afterFirst, first.skillId);
+  assert.equal(restoredQ2.status, "VALID");
+  assert.equal(restoredQ2.nextIndex, 1);
+  assert.equal(restoredQ2.postAnswerAttempt, null);
+  assert.equal(restoredQ2.items[1].decisionId, second.id);
+  assert.equal(afterFirst.attempts.length, 1, "advancing the cursor must not create evidence");
 });
 
 test("V3-06c integrated workspace fails closed on stale content or broken submitted-attempt prefix", () => {
@@ -147,7 +163,6 @@ test("V4-D Table Reading continuity fails closed for stale or ineligible cursors
   assert.ok(first && second);
   const state = createPracticalMasteryState(new Date("2026-08-25T00:00:00Z"), true);
   const workspace = withPerceptualCursor(createPracticalStudyWorkspace(), state.contentVersion, second.decisionId);
-
   assert.equal(restorePerceptualCursor(workspace, state, [first.decisionId]).status, "INVALID");
   const stale = {
     ...workspace,
