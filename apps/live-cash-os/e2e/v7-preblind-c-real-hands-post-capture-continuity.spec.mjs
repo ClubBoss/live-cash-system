@@ -16,7 +16,10 @@ async function localOnly(page) {
 }
 
 async function learnerState(page) {
-  return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), LEARNER_KEY);
+  return page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  }, LEARNER_KEY);
 }
 
 async function learnerRaw(page) {
@@ -28,6 +31,10 @@ async function draftValue(page) {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw).value : null;
   }, DRAFT_KEY);
+}
+
+async function waitForLearnerBootstrap(page) {
+  await expect.poll(async () => learnerRaw(page)).not.toBeNull();
 }
 
 async function waitForLocalCanonical(page, predicate) {
@@ -93,7 +100,14 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   expect(await learnerRaw(page)).toBe(rawBeforeDrafts);
 
   await page.goto("/tools?tab=data");
+  await waitForLocalCanonical(page, (state) => state?.fieldNotes?.some((note) => note.id === noteId) === true);
+  expect((await draftValue(page))?.postCapture?.resultByNoteId?.[noteId]).toBe("Won $240");
+
   await page.goto("/tools?tab=field");
+  await expect(page).toHaveURL(/tab=field/);
+  await waitForLocalCanonical(page, (state) => state?.fieldNotes?.some((note) => note.id === noteId) === true);
+  expect((await draftValue(page))?.postCapture?.resultByNoteId?.[noteId]).toBe("Won $240");
+  await expect(page.getByText("Decision locked before the result", { exact: false })).toBeVisible();
   await expect(page.getByLabel("Result", { exact: true })).toHaveValue("Won $240");
   await expect(page.getByLabel("Showdown (if any)", { exact: true })).toHaveValue("AhKh");
   await expect(page.locator(`textarea[aria-label="Review ${noteId}"]`)).toHaveValue(/Human review draft/);
@@ -164,6 +178,7 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
 
 test("V7-C preserves explain-back review notes and isolates post-capture workspace by profile", async ({ page }) => {
   await page.goto("/tools?tab=field");
+  await waitForLearnerBootstrap(page);
   const state = await learnerState(page);
   const now = new Date().toISOString();
   state.explainBackRecords = [{
