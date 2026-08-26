@@ -49,14 +49,17 @@ test("Quick Start 0..8 presentation matrix can complete only from progress.compl
   assert.equal(firstJourneyPresentationState(complete, false), "COMPLETE");
 });
 
-test("route authority owns presentation state while Experience only renders the supplied authority verdict", async () => {
+test("route authority owns presentation state and the single Practical profile controller supplied to Experience", async () => {
   const authority = await readFile(path.join(root, "components/PracticalFirstJourneyAuthority.tsx"), "utf8");
   const experience = await readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8");
 
+  assert.match(authority, /const profile = usePracticalProfileState\(\)/);
   assert.match(authority, /firstJourneyPresentationState\(progress, Boolean\(recommendation && skill && journeyStep\)\)/);
-  assert.match(authority, /<PracticalFirstJourneyExperience presentation=\{presentation\} \/>/);
+  assert.match(authority, /<PracticalFirstJourneyExperience presentation=\{presentation\} profile=\{profile\} \/>/);
   assert.doesNotMatch(authority, /restoreQuickStartPostAnswer/);
   assert.match(experience, /presentation: FirstJourneyPresentationState \| null/);
+  assert.match(experience, /profile:/);
+  assert.doesNotMatch(experience, /const profile = usePracticalProfileState\(\)/);
   assert.match(experience, /!answeredDecisionId && presentation === "COMPLETE"/);
   assert.match(experience, /!answeredDecisionId && presentation === "BLOCKED"/);
   assert.doesNotMatch(experience, /!recommendation \|\| !skill \|\| !journeyStep/);
