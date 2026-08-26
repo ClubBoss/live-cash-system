@@ -1,0 +1,40 @@
+name: v7-postblind-ru-substring-probe
+on:
+  push:
+    branches: [openai/v7-postblind-ru-census-base]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - run: git diff --exit-code c992558d770be6527de983c1e0622d14508be770 -- apps/live-cash-os
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - working-directory: apps/live-cash-os
+        run: npm ci --ignore-scripts
+      - working-directory: apps/live-cash-os
+        shell: bash
+        run: |
+          node --import ./tests/register-model-loader.mjs --input-type=module <<'NODE'
+          import { practicalDecisions, practicalAnchors } from './content/practical-mastery/index.ts';
+          import { practicalRuCorpusPublicationOverrides } from './content/practical-mastery/practical-ru-corpus-publication.ts';
+          const observed=[/\bmarginal hand\b/iu,/\bassumptions?\b/iu,/\bviable\b/iu,/\bfuture action\b/iu];
+          const sourceish=[/\bevidence\b/iu,/\bsource\b/iu,/\bsupported\b/iu,/\blearner\b/iu,/\bauthoring\b/iu,/\bgovernance\b/iu,/\bfingerprint\b/iu,/\bdecisionId\b/u,/\bskillId\b/u];
+          const englishGlue=/\b(?:the|a|an|and|or|with|without|against|from|to|of|if|will|have|has|is|are|does|not|than|when|where|while|because|but|by|for|into|after|before|same|more|less|only|can|must|should|be|becomes|remain|remains|changes|change|increases|decreases)\b/iu;
+          const cyr=/[А-Яа-яЁё]/u;
+          const entries=[...practicalRuCorpusPublicationOverrides.entries()].filter(([k,v])=>k!==v).sort((a,b)=>b[0].length-a[0].length);
+          function repair(text){ let out=text; for(const [from,to] of entries){ if(out.includes(from)) out=out.split(from).join(to); } return out; }
+          const rows=[]; const add=(id,field,text)=>{if(typeof text==='string'&&cyr.test(text)) rows.push({id,field,text});};
+          for(const d of practicalDecisions){ add(d.id,'cueRu',d.cueRu); add(d.id,'questionRu',d.questionRu); add(d.id,'explanationRu',d.explanationRu); for(const o of d.actionOptions)add(d.id,`a:${o.id}`,o.textRu); for(const o of d.reasonOptions)add(d.id,`r:${o.id}`,o.textRu); }
+          for(const a of practicalAnchors){for(const f of ['titleRu','bodyRu','promptRu','answerRu','rationaleRu'])add(a.id,f,a[f]);}
+          const before=rows.filter(r=>[...observed,...sourceish].some(p=>p.test(r.text))||englishGlue.test(r.text));
+          const after=rows.map(r=>({...r,text:repair(r.text)})).filter(r=>[...observed,...sourceish].some(p=>p.test(r.text))||englishGlue.test(r.text));
+          console.log('V7_SUBSTRING_PROBE='+JSON.stringify({rows:rows.length,before:before.length,after:after.length,repaired:before.length-after.length,mapEntries:entries.length}));
+          for(const r of after.slice(0,250)) console.log('V7_SUBSTRING_RESIDUAL='+JSON.stringify(r));
+          NODE
