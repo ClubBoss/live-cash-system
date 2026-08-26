@@ -1,3 +1,4 @@
+import { variationB3Decisions } from "./decisions-variation-b3";
 import type { PracticalDecision } from "./types";
 
 export type PracticalDecisionFeedbackCopy = {
@@ -43,6 +44,21 @@ function correctActionText(decision: PracticalDecision, locale: "ru" | "en"): st
   return locale === "ru" ? correctAction.textRu : correctAction.textEn;
 }
 
+function b3FamilyKey(id: string): string {
+  return id.replace(/-\d+$/, "");
+}
+
+const b3DirectDecisionByFamily = new Map(
+  variationB3Decisions
+    .filter((decision) => decision.kind === "decision")
+    .map((decision) => [b3FamilyKey(decision.id), decision] as const),
+);
+
+function b3DirectionalActionText(decision: PracticalDecision, locale: "ru" | "en"): string {
+  const directDecision = b3DirectDecisionByFamily.get(b3FamilyKey(decision.id));
+  return directDecision ? correctActionText(directDecision, locale) : correctActionText(decision, locale);
+}
+
 function b3Feedback(decision: PracticalDecision): PracticalDecisionFeedbackCopy | null {
   if (!decision.id.startsWith("PM-B3-")) return null;
 
@@ -55,6 +71,18 @@ function b3Feedback(decision: PracticalDecision): PracticalDecisionFeedbackCopy 
       mechanismEn: `Key signal: ${actionEn}. Extract that factor first, then transfer the baseline only to a matching context.`,
       boundaryRu: "Если ключевой сигнал меняется, прежний ориентир нужно пересчитать, а не переносить как универсальное правило.",
       boundaryEn: "If the key signal changes, recompute the baseline instead of transferring it as a universal rule.",
+      curated: true,
+    };
+  }
+
+  if (decision.kind === "changed" && decision.changedVariables?.length) {
+    const directionalRu = b3DirectionalActionText(decision, "ru");
+    const directionalEn = b3DirectionalActionText(decision, "en");
+    return {
+      mechanismRu: `Что изменилось: ${decision.cueRu} Стратегическое следствие: ${directionalRu}. Почему действие меняется или сохраняется: ${decision.explanationRu} Применяй этот вывод к новой конфигурации, а не копируй прежнюю ветку.`,
+      mechanismEn: `What changed: ${decision.cueEn} Strategic consequence: ${directionalEn}. Why the action changes or stays: ${decision.explanationEn} Apply that consequence to the new configuration instead of copying the previous branch.`,
+      boundaryRu: "Если указанный сдвиг не меняет EV-драйвер этой ветки, направление может сохраниться; если меняет — пересчитай действие для новой конфигурации.",
+      boundaryEn: "If the stated shift leaves this branch's EV driver unchanged, the direction may stay; if it changes that driver, recompute the action for the new configuration.",
       curated: true,
     };
   }
