@@ -72,13 +72,13 @@ test("V7 post-blind RU publication is natural across the five canonical learner 
   await page.goto("/mastery/journey");
   await assertNaturalRussian(page.locator("main"), "Quick Start");
 
-  // Practical feedback.
-  await (await quickStartExampleButton(page)).click();
+  // Practical feedback through the canonical focused-session route.
+  await enablePracticalSkills(page);
+  await page.goto("/mastery/session?focus=BL-02");
   const feedbackCard = await answerCurrentPractical(page);
   await assertNaturalRussian(feedbackCard, "Practical feedback");
 
   // Focused Table Reading.
-  await enablePracticalSkills(page);
   await page.goto("/mastery/perception");
   await assertNaturalRussian(page.locator("main"), "Table Reading");
   await expect(page.locator("section.surface[data-practical-decision-id]").first()).toBeVisible();
