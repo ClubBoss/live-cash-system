@@ -496,12 +496,12 @@ jobs:
           LIVE_CASH_TEST_SMOKE_CODE="$(node --input-type=module -e '
             import { readFileSync } from "node:fs";
             const access = JSON.parse(readFileSync("test-invites/tester-access.private.json", "utf8"));
-            const code = access.testers?.find((tester) => tester.label === "tester-01" && tester.active)?.code;
+            const code = access.testers?.find((tester) => tester.label === "tester-05" && tester.active)?.code;
             if (!code) process.exit(1);
             process.stdout.write(code);
           ')"
           export LIVE_CASH_TEST_SMOKE_CODE
-          test -n "$LIVE_CASH_TEST_SMOKE_CODE" || { echo "Recoverable tester-01 access code is missing" >&2; exit 1; }
+          test -n "$LIVE_CASH_TEST_SMOKE_CODE" || { echo "Recoverable tester-05 access code is missing" >&2; exit 1; }
 
           api_status="$(curl --show-error --silent -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
           test "$api_status" = "401" || { echo "TEST_DB invite lookup expected 401, got $api_status" >&2; cat test-db-bootstrap.json >&2; exit 1; }
@@ -512,7 +512,7 @@ jobs:
             console.log("Verified TEST_DB invite lookup rejects an unknown code");
           '
           test_api_status="$(curl --show-error --silent -o test-invite-authorized.json -w '%{http_code}' -H "x-live-cash-profile-code: $LIVE_CASH_TEST_SMOKE_CODE" "$LIVE_URL/api/state")"
-          test "$test_api_status" = "200" || { echo "Recoverable tester-01 invite expected 200, got $test_api_status" >&2; cat test-invite-authorized.json >&2; exit 1; }
+          test "$test_api_status" = "200" || { echo "Recoverable tester-05 invite expected 200, got $test_api_status" >&2; cat test-invite-authorized.json >&2; exit 1; }
           npm run smoke:production
       - name: Upload test-mirror smoke evidence
         if: always()
