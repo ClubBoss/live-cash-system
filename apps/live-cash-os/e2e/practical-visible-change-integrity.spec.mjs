@@ -13,15 +13,21 @@ async function localOnly(page) {
 }
 
 async function exposePf01(page) {
-  await page.goto("/mastery");
-  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key) !== null, LEARNER_KEY)).toBe(true);
+  await page.goto("/mastery/journey");
+  let hasProfile = await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY);
+  if (!hasProfile) {
+    await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+    await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
+    hasProfile = true;
+  }
+  expect(hasProfile).toBe(true);
   await page.evaluate((key) => {
     const raw = localStorage.getItem(key);
     if (!raw) throw new Error("learner state missing");
     const root = JSON.parse(raw);
     const mastery = root._practicalProfile?.mastery;
     const skill = mastery?.skills?.["PF-01"];
-    if (!mastery || !skill) throw new Error("PF-01 practical profile missing");
+    if (!mastery || !skill) throw new Error("PF-01 practical profile missing after canonical profile initialization");
     skill.conceptTaught = true;
     mastery.revision += 1;
     mastery.updatedAt = new Date().toISOString();
