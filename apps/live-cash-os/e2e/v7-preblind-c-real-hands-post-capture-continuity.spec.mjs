@@ -15,23 +15,6 @@ async function localOnly(page) {
   });
 }
 
-async function createOneRealHand(page) {
-  await page.getByTestId("real-hand-moduleId").selectOption({ index: 1 });
-  await page.getByTestId("real-hand-stakes").fill("2/5");
-  await page.getByTestId("real-hand-heroPosition").fill("BTN");
-  await page.getByTestId("real-hand-villainPositions").fill("BB");
-  await page.getByTestId("real-hand-effectiveStacks").fill("150bb");
-  await page.getByTestId("real-hand-straddle").fill("none");
-  await page.getByTestId("real-hand-actionSequence").fill("BTN opens, BB calls");
-  await page.getByTestId("real-hand-board").fill("Qh 7d 4c");
-  await page.getByTestId("real-hand-sizings").fill("3bb");
-  await page.getByTestId("real-hand-cue").fill("BB called preflop");
-  await page.getByTestId("real-hand-action").fill("check back");
-  await page.getByTestId("real-hand-reason").fill("preserve showdown value");
-  await page.getByRole("button", { name: "Lock the decision", exact: false }).click();
-  await expect(page.getByText("Decision locked before the result", { exact: false })).toBeVisible();
-}
-
 async function learnerState(page) {
   return page.evaluate((key) => JSON.parse(localStorage.getItem(key)), LEARNER_KEY);
 }
@@ -51,13 +34,33 @@ async function waitForLocalCanonical(page, predicate) {
   await expect.poll(async () => predicate(await learnerState(page))).toBe(true);
 }
 
+async function createOneRealHand(page) {
+  await page.getByTestId("real-hand-moduleId").selectOption({ index: 1 });
+  await page.getByTestId("real-hand-stakes").fill("2/5");
+  await page.getByTestId("real-hand-heroPosition").fill("BTN");
+  await page.getByTestId("real-hand-villainPositions").fill("BB");
+  await page.getByTestId("real-hand-effectiveStacks").fill("150bb");
+  await page.getByTestId("real-hand-straddle").fill("none");
+  await page.getByTestId("real-hand-actionSequence").fill("BTN opens, BB calls");
+  await page.getByTestId("real-hand-board").fill("Qh 7d 4c");
+  await page.getByTestId("real-hand-sizings").fill("3bb");
+  await page.getByTestId("real-hand-cue").fill("BB called preflop");
+  await page.getByTestId("real-hand-action").fill("check back");
+  await page.getByTestId("real-hand-reason").fill("preserve showdown value");
+  await page.getByRole("button", { name: "Lock the decision", exact: false }).click();
+  await expect(page.getByText("Decision locked before the result", { exact: false })).toBeVisible();
+  await waitForLocalCanonical(page, (state) => Array.isArray(state?.fieldNotes) && state.fieldNotes.length === 1);
+}
+
 test.beforeEach(async ({ page }) => {
   await localOnly(page);
   await page.addInitScript(({ learnerKey, draftKey, profileKey, localeKey }) => {
+    if (sessionStorage.getItem("v7-c-fixture-initialized") === "1") return;
     localStorage.removeItem(learnerKey);
     localStorage.removeItem(draftKey);
     localStorage.removeItem(profileKey);
     localStorage.setItem(localeKey, "en");
+    sessionStorage.setItem("v7-c-fixture-initialized", "1");
   }, { learnerKey: LEARNER_KEY, draftKey: DRAFT_KEY, profileKey: PROFILE_KEY, localeKey: LOCALE_KEY });
 });
 
