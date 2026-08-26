@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import { buildAdaptiveIntegratedSession, isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
-import { recordIntegratedAnswerContinuity, recordIntegratedRoundStartContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
+import { advanceIntegratedContinuity, recordIntegratedAnswerContinuity, recordIntegratedRoundStartContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
 import { INTEGRATED_SESSION_SIZE, recordIntegratedDecision, type IntegratedSessionItem } from "../lib/practical-integrated-session";
 import { classifyPracticalIntegratedSessionState } from "../lib/practical-integrated-session-state";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
@@ -14,6 +14,14 @@ import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
 import PracticalTableStateStimulus from "./PracticalTableStateStimulus";
 
 type Locale = "ru" | "en";
+type RestoredPostAnswer = {
+  decisionId: string;
+  attemptId: string;
+  actionId: string;
+  reasonId: string;
+  confidence: number;
+  correct: boolean;
+};
 function optionText(option: { textRu: string; textEn: string }, locale: Locale) { return locale === "ru" ? option.textRu : option.textEn; }
 
 function reasonCopy(locale: Locale, reason: IntegratedSessionItem["reason"]): string {
@@ -48,6 +56,8 @@ export default function PracticalIntegratedSessionExperience() {
   const [confidence, setConfidence] = useState(65);
   const [revealed, setRevealed] = useState(false);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
+  const [restoredPostAnswer, setRestoredPostAnswer] = useState<RestoredPostAnswer | null>(null);
+  const [advancing, setAdvancing] = useState(false);
   const [startedAt, setStartedAt] = useState(() => new Date());
 
   useEffect(() => {
@@ -62,6 +72,7 @@ export default function PracticalIntegratedSessionExperience() {
     setInitializedRevision(null);
     setItems([]);
     setIndex(0);
+    setRestoredPostAnswer(null);
     setWorkspaceRecovery(false);
   }, [requestedFocus]);
 
@@ -71,6 +82,7 @@ export default function PracticalIntegratedSessionExperience() {
     if (!focusAdmissible) {
       setItems([]);
       setIndex(0);
+      setRestoredPostAnswer(null);
       setInitializedRevision(state.revision);
       return;
     }
@@ -79,6 +91,14 @@ export default function PracticalIntegratedSessionExperience() {
     if (restored.status === "VALID") {
       setItems(restored.items);
       setIndex(restored.nextIndex);
+      setRestoredPostAnswer(restored.postAnswerAttempt ? {
+        decisionId: restored.postAnswerAttempt.decisionId,
+        attemptId: restored.postAnswerAttempt.id,
+        actionId: restored.postAnswerAttempt.actionId,
+        reasonId: restored.postAnswerAttempt.reasonId,
+        confidence: restored.postAnswerAttempt.confidence,
+        correct: restored.postAnswerAttempt.correct,
+      } : null);
       setInitializedRevision(state.revision);
       return;
     }
@@ -90,6 +110,7 @@ export default function PracticalIntegratedSessionExperience() {
 
     setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, requestedFocus));
     setIndex(0);
+    setRestoredPostAnswer(null);
     setInitializedRevision(state.revision);
   }, [initializedRevision, performance, ready, requestedFocus, state, studyWorkspace]);
 
@@ -119,8 +140,15 @@ export default function PracticalIntegratedSessionExperience() {
   }, [state, items, index, revealed]);
 
   useEffect(() => {
-    setActionId(""); setReasonId(""); setConfidence(65); setRevealed(false); setWasCorrect(null); setStartedAt(new Date());
-  }, [item?.decisionId]);
+    const restored = restoredPostAnswer?.decisionId === item?.decisionId ? restoredPostAnswer : null;
+    setActionId(restored?.actionId ?? "");
+    setReasonId(restored?.reasonId ?? "");
+    setConfidence(restored?.confidence ?? 65);
+    setRevealed(Boolean(restored));
+    setWasCorrect(restored?.correct ?? null);
+    setAdvancing(false);
+    setStartedAt(new Date());
+  }, [item?.decisionId, restoredPostAnswer]);
 
   const submit = () => {
     if (!item || !decision || !actionId || !reasonId) return;
@@ -140,8 +168,34 @@ export default function PracticalIntegratedSessionExperience() {
     }
     const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence, startedAt, answeredAt, mode: tableState ? "PERCEPTUAL_TABLE" : "TEXT_MIXED", scaffold: tableState ? tableState.scaffold : "hidden" });
     if (!setMasteryWithPerformanceAndStudyWorkspace(nextState, event, nextWorkspace)) return;
+    setRestoredPostAnswer({
+      decisionId: attempt.decisionId,
+      attemptId: attempt.id,
+      actionId: attempt.actionId,
+      reasonId: attempt.reasonId,
+      confidence: attempt.confidence,
+      correct: attempt.correct,
+    });
     setWasCorrect(attempt.correct);
     setRevealed(true);
+  };
+
+  const advance = () => {
+    if (advancing || !item || !restoredPostAnswer || restoredPostAnswer.decisionId !== item.decisionId) return;
+    setAdvancing(true);
+    const nextWorkspace = advanceIntegratedContinuity(studyWorkspace, state.contentVersion, {
+      focusSkillId: requestedFocus ?? null,
+      items,
+      answeredIndex: index,
+      attemptId: restoredPostAnswer.attemptId,
+    }, new Date());
+    if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) {
+      setAdvancing(false);
+      setWorkspaceRecovery(true);
+      return;
+    }
+    setRestoredPostAnswer(null);
+    setIndex((value) => value + 1);
   };
 
   const startFreshRound = (focusSkillId: string | null) => {
@@ -160,6 +214,7 @@ export default function PracticalIntegratedSessionExperience() {
     }
     setItems(nextItems);
     setIndex(0);
+    setRestoredPostAnswer(null);
     setWorkspaceRecovery(false);
     setInitializedRevision(state.revision);
   };
@@ -249,7 +304,7 @@ export default function PracticalIntegratedSessionExperience() {
           <p>{schedulingReasonCopy}</p>
           {item.retentionTierDays ? <p><b>{locale === "ru" ? "Вернётся позже:" : "Returns later:"}</b> {item.retentionTierDays} {locale === "ru" ? "дн. · на новом примере" : "d · with a different item"}</p> : null}
         </div>
-        <button className="primary" onClick={() => setIndex((value) => value + 1)} style={{ marginTop: 14 }}>{locale === "ru" ? "Следующее решение" : "Next decision"} <span>→</span></button>
+        <button className="primary" disabled={advancing} onClick={advance} style={{ marginTop: 14 }}>{locale === "ru" ? "Следующее решение" : "Next decision"} <span>→</span></button>
       </div>}
     </section>
   </main>;
