@@ -89,6 +89,6 @@ test("V7 post-blind RU publication is natural across the five canonical learner 
 
   // Real Hands.
   await page.goto("/tools?tab=field");
-  await assertNaturalRussian(page.locator("main"), "Real Hands");
   await expect(page.getByTestId("real-hand-moduleId")).toBeVisible();
+  await assertNaturalRussian(page.locator("main"), "Real Hands");
 });
