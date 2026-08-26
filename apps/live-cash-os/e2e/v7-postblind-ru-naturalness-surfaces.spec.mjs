@@ -17,11 +17,16 @@ async function assertNaturalRussian(locator, surface) {
   expect(text, `${surface} must not render the governed malformed/hybrid class`).not.toMatch(governedDefect);
 }
 
+async function quickStartExampleButton(page) {
+  const button = page.getByRole("button", { name: /Проверить на примере|Try an example/ }).first();
+  await expect(button).toBeVisible();
+  return button;
+}
+
 async function ensurePracticalProfile(page) {
   const hasProfile = await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY);
   if (!hasProfile) {
-    const tryExample = page.getByRole("button", { name: /Проверить на примере|Try an example/ }).first();
-    if (await tryExample.count()) await tryExample.click();
+    await (await quickStartExampleButton(page)).click();
   }
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
 }
@@ -68,8 +73,7 @@ test("V7 post-blind RU publication is natural across the five canonical learner 
   await assertNaturalRussian(page.locator("main"), "Quick Start");
 
   // Practical feedback.
-  const tryExample = page.getByRole("button", { name: /Проверить на примере|Try an example/ }).first();
-  if (await tryExample.count()) await tryExample.click();
+  await (await quickStartExampleButton(page)).click();
   const feedbackCard = await answerCurrentPractical(page);
   await assertNaturalRussian(feedbackCard, "Practical feedback");
 
