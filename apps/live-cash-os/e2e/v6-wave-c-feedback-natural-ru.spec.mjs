@@ -49,6 +49,7 @@ async function revealTarget(page, focusSkillId, targetDecisionId) {
     await reasonInputs.first().check();
     await card.getByRole("button", { name: /Ответить|Answer/ }).click();
     await card.getByRole("button", { name: /Следующее решение|Next decision/ }).click();
+    await expect.poll(() => card.getAttribute("data-practical-decision-id")).not.toBe(decisionId);
   }
   throw new Error(`Target decision ${targetDecisionId} was not reached in the bounded focused round`);
 }
