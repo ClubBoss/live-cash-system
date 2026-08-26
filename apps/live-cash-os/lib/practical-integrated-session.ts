@@ -96,7 +96,9 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
 
   for (const family of unresolvedMistakeFamilies(state)) {
     if (items.length >= size) break; if (!eligibleIds.has(family.skillId)) continue;
-    const decision = candidateDecisionForSkill(state, family.skillId, ["changed", "boundary", "decision", "mixed", "recognition"], excluded, true);
+    const kinds: PracticalDecision["kind"][] = ["changed", "boundary", "decision", "mixed", "recognition"];
+    const decision = candidateDecisionForSkill(state, family.skillId, kinds, excluded, true, recentSuccessful)
+      ?? candidateDecisionForSkill(state, family.skillId, kinds, excluded, true);
     if (decision) push(decision, "REPAIR", 120 + family.priority, `Repair ${family.key}: repeated or high-confidence miss in ${family.skillId}.`);
   }
   for (const skillId of eligibleIds) {
