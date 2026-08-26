@@ -24,21 +24,9 @@ replace_once(
 )
 replace_once(
     component,
-    '''    setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, requestedFocus));\n    setIndex(0);\n    setInitializedRevision(state.revision);\n  }, [initializedRevision, performance, ready, requestedFocus, state, studyWorkspace]);''',
-    '''    const startedAt = new Date();\n    const nextItems = buildAdaptiveIntegratedSession(state, startedAt, INTEGRATED_SESSION_SIZE, performance, requestedFocus);\n    if (nextItems.length > 0) {\n      const nextWorkspace = recordIntegratedRoundStartContinuity(studyWorkspace, state.contentVersion, {\n        focusSkillId: requestedFocus,\n        items: nextItems,\n      }, startedAt);\n      if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) {\n        setWorkspaceRecovery(true);\n        setInitializedRevision(state.revision);\n        return;\n      }\n    }\n    setItems(nextItems);\n    setIndex(0);\n    setInitializedRevision(state.revision);\n  }, [initializedRevision, performance, ready, requestedFocus, setStudyWorkspace, state, studyWorkspace]);''',
-    "initial fresh round persistence",
-)
-replace_once(
-    component,
     '''  const startFreshRound = (focusSkillId: string | null) => {\n    const focusAdmissible = !focusSkillId || isIntegratedFocusAdmissible(state, focusSkillId);\n    const nextItems = focusAdmissible ? buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];\n    setItems(nextItems);\n    setIndex(0);\n    setWorkspaceRecovery(false);\n    setInitializedRevision(state.revision);\n  };''',
     '''  const startFreshRound = (focusSkillId: string | null) => {\n    const startedAt = new Date();\n    const focusAdmissible = !focusSkillId || isIntegratedFocusAdmissible(state, focusSkillId);\n    const nextItems = focusAdmissible ? buildAdaptiveIntegratedSession(state, startedAt, INTEGRATED_SESSION_SIZE, performance, focusSkillId) : [];\n    if (nextItems.length > 0) {\n      const nextWorkspace = recordIntegratedRoundStartContinuity(studyWorkspace, state.contentVersion, {\n        focusSkillId,\n        items: nextItems,\n      }, startedAt);\n      if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) {\n        setWorkspaceRecovery(true);\n        return;\n      }\n    }\n    setItems(nextItems);\n    setIndex(0);\n    setWorkspaceRecovery(false);\n    setInitializedRevision(state.revision);\n  };''',
     "fresh round persistence",
-)
-replace_once(
-    component,
-    '''  const continueWithGenericSession = () => {\n    const nextUrl = new URL(window.location.href);\n    nextUrl.searchParams.delete("focus");\n    window.history.replaceState(window.history.state, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);\n    setRequestedFocus(null);\n    startFreshRound(null);\n  };''',
-    '''  const continueWithGenericSession = () => {\n    const nextUrl = new URL(window.location.href);\n    nextUrl.searchParams.delete("focus");\n    window.history.replaceState(window.history.state, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);\n    if (requestedFocus === null) {\n      startFreshRound(null);\n      return;\n    }\n    setRequestedFocus(null);\n  };''',
-    "generic continue lifecycle",
 )
 
 continuity = Path("lib/practical-continuity-workspace.ts")
