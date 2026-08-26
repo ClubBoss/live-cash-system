@@ -48,9 +48,9 @@ test("Quick Start and adaptive practice publish causal feedback without bare evi
   await expectNoOpaqueEvidenceId(page, "quick-start-pre-answer", "en");
 
   await page.getByRole("button", { name: "Try an example" }).click();
-  const quickAnswer = page.getByRole("button", { name: "Answer", exact: true }).last();
-  await expect(quickAnswer).toBeVisible();
-  const quickCard = quickAnswer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");
+  const quickCard = page.getByText("YOUR TURN", { exact: true }).locator("xpath=ancestor::section[1]");
+  await expect(quickCard).toBeVisible();
+  await expect(quickCard.getByRole("button", { name: "Answer" })).toBeVisible();
   await expectNoOpaqueEvidenceId(page, "quick-start-pre-answer", "en");
   await chooseFirstPairAndAnswer(quickCard, "Answer");
   await expectCausalFeedbackPreserved(page, "quick-start", "en");
