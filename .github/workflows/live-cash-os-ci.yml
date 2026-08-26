@@ -30,8 +30,14 @@ jobs:
           cache-dependency-path: apps/live-cash-os/package-lock.json
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-      - name: Materialize bounded Wave7 wiring
-        run: python scripts/v7-c-materialize-wave7.py
+      - name: Commit real Wave7 product wiring
+        run: |
+          python scripts/v7-c-materialize-wave7.py
+          git config user.name "ClubBoss"
+          git config user.email "esalimzade@hotmail.com"
+          git add components/Wave7Experience.tsx
+          git commit -m "V7 C: persist Real Hands post-capture drafts [skip ci]"
+          git push origin HEAD:v7-preblind-c-real-hands-post-capture-continuity
       - name: Typecheck
         run: npm run typecheck
       - name: Bounded static and unit contracts
@@ -44,12 +50,3 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Bounded Chromium
         run: npx playwright test e2e/v7-preblind-c-real-hands-post-capture-continuity.spec.mjs --project=chromium
-      - name: Commit validated product wiring
-        run: |
-          git config user.name "ClubBoss"
-          git config user.email "esalimzade@hotmail.com"
-          git add apps/live-cash-os/components/Wave7Experience.tsx
-          if ! git diff --cached --quiet; then
-            git commit -m "V7 C: persist Real Hands post-capture drafts [skip ci]"
-            git push origin HEAD:v7-preblind-c-real-hands-post-capture-continuity
-          fi
