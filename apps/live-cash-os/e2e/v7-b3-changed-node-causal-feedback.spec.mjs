@@ -70,13 +70,12 @@ test("PF-01 changed node explains actual change -> strategic direction -> variab
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Correct action:");
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Correct reason:");
 
-  await page.evaluate((localeKey) => localStorage.setItem(localeKey, "ru"), LOCALE_KEY);
-  await page.reload();
+  const masteryNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await masteryNav.getByRole("button", { name: "RU", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "ru");
+  await expect(changed).toBeVisible();
 
-  const changedRu = page.locator("[data-practical-decision-id='PM-B3-PF01-103']");
-  await expect(changedRu).toBeVisible();
-  const mechanismRu = changedRu.locator("[data-practical-feedback-mechanism]");
+  const mechanismRu = changed.locator("[data-practical-feedback-mechanism]");
   await expect(mechanismRu).toContainText("Что изменилось:");
   await expect(mechanismRu).toContainText("Та же рука переходит с BTN на HJ, и позади остаётся больше игроков.");
   await expect(mechanismRu).toContainText("Стратегическое следствие:");
@@ -84,6 +83,6 @@ test("PF-01 changed node explains actual change -> strategic direction -> variab
   await expect(mechanismRu).toContainText("Почему это меняет или сохраняет действие:");
   await expect(mechanismRu).toContainText("Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию equity");
   await expect(mechanismRu).toContainText("сдвигают EV пограничных продолжений и давления");
-  await expect(changedRu.locator("[data-practical-correct-answer]")).toContainText("Правильное действие:");
-  await expect(changedRu.locator("[data-practical-correct-answer]")).toContainText("Правильная причина:");
+  await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Правильное действие:");
+  await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Правильная причина:");
 });
