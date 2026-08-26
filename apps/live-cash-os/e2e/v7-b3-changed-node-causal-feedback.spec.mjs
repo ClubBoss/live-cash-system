@@ -45,7 +45,7 @@ async function chooseFirstPairAndCommit(card, buttonName) {
   await card.getByRole("button", { name: buttonName }).click();
 }
 
-test("PF-01 changed node explains actual change -> strategic direction -> why in EN and RU", async ({ page }) => {
+test("PF-01 changed node explains actual change -> strategic direction -> variable-causal why in EN and RU", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await localOnly(page);
   await exposePf01(page);
@@ -64,8 +64,9 @@ test("PF-01 changed node explains actual change -> strategic direction -> why in
   await expect(mechanismEn).toContainText("Same hand moves BTN → HJ with more players behind.");
   await expect(mechanismEn).toContainText("Strategic consequence:");
   await expect(mechanismEn).toContainText("tighten/loosen only where context changes fringe EV");
-  await expect(mechanismEn).toContainText("Why the action changes or stays:");
-  await expect(mechanismEn).toContainText("opening charts as defaults whose fringe changes with position, players behind, rake and realization");
+  await expect(mechanismEn).toContainText("Why this changes or preserves the action:");
+  await expect(mechanismEn).toContainText("Position, action order, and ranges still left to act change equity realization");
+  await expect(mechanismEn).toContainText("moving the EV of fringe continues and pressure");
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Correct action:");
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Correct reason:");
 
@@ -80,8 +81,9 @@ test("PF-01 changed node explains actual change -> strategic direction -> why in
   await expect(mechanismRu).toContainText("Та же рука переходит с BTN на HJ, и позади остаётся больше игроков.");
   await expect(mechanismRu).toContainText("Стратегическое следствие:");
   await expect(mechanismRu).toContainText("меняй пограничные руки только там, где контекст действительно меняет их EV");
-  await expect(mechanismRu).toContainText("Почему действие меняется или сохраняется:");
-  await expect(mechanismRu).toContainText("пограничные руки меняются из-за позиции, игроков позади, рейка и реализации equity");
+  await expect(mechanismRu).toContainText("Почему это меняет или сохраняет действие:");
+  await expect(mechanismRu).toContainText("Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию equity");
+  await expect(mechanismRu).toContainText("сдвигают EV пограничных продолжений и давления");
   await expect(changedRu.locator("[data-practical-correct-answer]")).toContainText("Правильное действие:");
   await expect(changedRu.locator("[data-practical-correct-answer]")).toContainText("Правильная причина:");
 });
