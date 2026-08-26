@@ -5,6 +5,33 @@ const DRAFT_KEY = "live-cash-os:real-hand-draft:v1";
 const PROFILE_KEY = "live-cash-os:portable-profile-code";
 const LOCALE_KEY = "live-cash-os:locale";
 
+const emptyCapture = () => ({
+  moduleId: "",
+  stakes: "",
+  heroPosition: "",
+  villainPositions: "",
+  effectiveStacks: "",
+  straddle: "",
+  actionSequence: "",
+  board: "",
+  sizings: "",
+  cue: "",
+  action: "",
+  reason: "",
+  confidence: 65,
+  populationRead: "",
+  populationReadConfidence: 50,
+});
+
+const emptyPostCapture = () => ({
+  resultByNoteId: {},
+  showdownByNoteId: {},
+  reviewNoteByNoteId: {},
+  reviewerKindByNoteId: {},
+  practicalBindingByNoteId: {},
+  explainReviewByRecordId: {},
+});
+
 async function localOnly(page) {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({
@@ -39,6 +66,14 @@ async function waitForLearnerBootstrap(page) {
 
 async function waitForLocalCanonical(page, predicate) {
   await expect.poll(async () => predicate(await learnerState(page))).toBe(true);
+}
+
+function resultDraftBox(page) {
+  return page.locator(".w7-result textarea").nth(0);
+}
+
+function showdownDraftBox(page) {
+  return page.locator(".w7-result textarea").nth(1);
 }
 
 async function createOneRealHand(page) {
@@ -79,10 +114,8 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   const noteId = captured.fieldNotes.at(-1).id;
   const rawBeforeDrafts = await learnerRaw(page);
 
-  const resultBox = page.getByLabel("Result", { exact: true });
-  const showdownBox = page.getByLabel("Showdown (if any)", { exact: true });
-  await resultBox.fill("Won $240");
-  await showdownBox.fill("AhKh");
+  await resultDraftBox(page).fill("Won $240");
+  await showdownDraftBox(page).fill("AhKh");
 
   const reviewer = page.locator(`select[aria-label="How this was reviewed ${noteId}"]`);
   const reviewBox = page.locator(`textarea[aria-label="Review ${noteId}"]`);
@@ -108,15 +141,15 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   await waitForLocalCanonical(page, (state) => state?.fieldNotes?.some((note) => note.id === noteId) === true);
   expect((await draftValue(page))?.postCapture?.resultByNoteId?.[noteId]).toBe("Won $240");
   await expect(page.getByText("Decision locked before the result", { exact: false })).toBeVisible();
-  await expect(page.getByLabel("Result", { exact: true })).toHaveValue("Won $240");
-  await expect(page.getByLabel("Showdown (if any)", { exact: true })).toHaveValue("AhKh");
+  await expect(resultDraftBox(page)).toHaveValue("Won $240");
+  await expect(showdownDraftBox(page)).toHaveValue("AhKh");
   await expect(page.locator(`textarea[aria-label="Review ${noteId}"]`)).toHaveValue(/Human review draft/);
   await expect(page.locator(`select[aria-label="How this was reviewed ${noteId}"]`)).toHaveValue("HUMAN");
   await expect(page.getByTestId("real-hand-signal-blindIssue")).toBeChecked();
 
   await page.reload();
-  await expect(page.getByLabel("Result", { exact: true })).toHaveValue("Won $240");
-  await expect(page.getByLabel("Showdown (if any)", { exact: true })).toHaveValue("AhKh");
+  await expect(resultDraftBox(page)).toHaveValue("Won $240");
+  await expect(showdownDraftBox(page)).toHaveValue("AhKh");
   await expect(page.locator(`textarea[aria-label="Review ${noteId}"]`)).toHaveValue(/Human review draft/);
 
   await page.evaluate((learnerKey) => {
@@ -133,8 +166,8 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   expect(failedCanonical.fieldNotes.find((note) => note.id === noteId).result).toBeUndefined();
 
   await page.reload();
-  await expect(page.getByLabel("Result", { exact: true })).toHaveValue("Won $240");
-  await expect(page.getByLabel("Showdown (if any)", { exact: true })).toHaveValue("AhKh");
+  await expect(resultDraftBox(page)).toHaveValue("Won $240");
+  await expect(showdownDraftBox(page)).toHaveValue("AhKh");
   expect((await draftValue(page)).postCapture.resultByNoteId[noteId]).toBe("Won $240");
 
   await page.getByRole("button", { name: "Add result", exact: true }).click();
@@ -160,6 +193,7 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   }).toBe(null);
 
   const reviewed = await learnerState(page);
+  expect(reviewed.fieldNotes.filter((note) => note.id === noteId)).toHaveLength(1);
   const evidenceSnapshot = JSON.stringify({
     fieldNotes: reviewed.fieldNotes,
     interactions: reviewed.interactions,
@@ -168,6 +202,7 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   });
   await page.reload();
   const afterReload = await learnerState(page);
+  expect(afterReload.fieldNotes.filter((note) => note.id === noteId)).toHaveLength(1);
   expect(JSON.stringify({
     fieldNotes: afterReload.fieldNotes,
     interactions: afterReload.interactions,
@@ -176,7 +211,7 @@ test("V7-C preserves all post-capture drafts, survives a failed save, and clears
   })).toBe(evidenceSnapshot);
 });
 
-test("V7-C preserves explain-back review notes and isolates post-capture workspace by profile", async ({ page }) => {
+test("V7-C preserves explain-back review notes and fails stale, incompatible, and cross-profile drafts closed", async ({ page }) => {
   await page.goto("/tools?tab=field");
   await waitForLearnerBootstrap(page);
   const state = await learnerState(page);
@@ -214,19 +249,39 @@ test("V7-C preserves explain-back review notes and isolates post-capture workspa
     return workspace?.postCapture?.explainReviewByRecordId?.["explain-v7-c-semantic-record"] ?? null;
   }).toBe(null);
 
-  await page.evaluate(({ profileKey, draftKey }) => {
+  await page.evaluate(({ draftKey, capture, postCapture }) => {
+    postCapture.resultByNoteId["field-stale-v7-c"] = "stale result";
+    localStorage.setItem(draftKey, JSON.stringify({
+      version: 1,
+      profileMarker: "local",
+      updatedAt: Date.now(),
+      value: { version: 2, capture, postCapture },
+    }));
+  }, { draftKey: DRAFT_KEY, capture: emptyCapture(), postCapture: emptyPostCapture() });
+  await page.reload();
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBe(null);
+
+  await page.evaluate(({ draftKey }) => {
+    localStorage.setItem(draftKey, JSON.stringify({
+      version: 1,
+      profileMarker: "local",
+      updatedAt: Date.now(),
+      value: { version: 999, capture: {}, postCapture: {} },
+    }));
+  }, { draftKey: DRAFT_KEY });
+  await page.reload();
+  await expect.poll(async () => page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBe(null);
+
+  await page.evaluate(({ profileKey, draftKey, capture, postCapture }) => {
     localStorage.setItem(profileKey, "LCO-AAAAAAAAAAAAAAAAAAAA");
+    capture.stakes = "secret-A";
     localStorage.setItem(draftKey, JSON.stringify({
       version: 1,
       profileMarker: "p-deadbeefdeadbeef",
       updatedAt: Date.now(),
-      value: {
-        version: 2,
-        capture: { moduleId: "", stakes: "secret-A", heroPosition: "", villainPositions: "", effectiveStacks: "", straddle: "", actionSequence: "", board: "", sizings: "", cue: "", action: "", reason: "", confidence: 65, populationRead: "", populationReadConfidence: 50 },
-        postCapture: { resultByNoteId: {}, showdownByNoteId: {}, reviewNoteByNoteId: {}, reviewerKindByNoteId: {}, practicalBindingByNoteId: {}, explainReviewByRecordId: {} },
-      },
+      value: { version: 2, capture, postCapture },
     }));
-  }, { profileKey: PROFILE_KEY, draftKey: DRAFT_KEY });
+  }, { profileKey: PROFILE_KEY, draftKey: DRAFT_KEY, capture: emptyCapture(), postCapture: emptyPostCapture() });
   await page.reload();
   await expect(page.getByTestId("real-hand-stakes")).toHaveValue("");
   expect(await page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY)).toBe(null);
