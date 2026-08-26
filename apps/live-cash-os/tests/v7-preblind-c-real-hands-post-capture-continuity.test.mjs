@@ -37,7 +37,7 @@ const minimalState = (overrides = {}) => ({
 
 function populatedWorkspace() {
   let workspace = emptyRealHandDraftWorkspace();
-  workspace = patchRealHandCapture(workspace, { moduleId: "LCM-01", stakes: "2/5" });
+  workspace = patchRealHandCapture(workspace, { moduleId: "geometry", stakes: "2/5" });
   workspace = patchRealHandPostCaptureText(workspace, "resultByNoteId", "field-1", "+$240");
   workspace = patchRealHandPostCaptureText(workspace, "showdownByNoteId", "field-1", "AhKh");
   workspace = patchRealHandPostCaptureText(workspace, "reviewNoteByNoteId", "field-1", "Check whether turn pressure was real.");
@@ -53,7 +53,7 @@ function populatedWorkspace() {
 
 test("V7 C workspace accepts legacy capture and rejects incompatible schema", () => {
   const legacy = emptyRealHandDraftWorkspace().capture;
-  const migrated = parseRealHandDraftWorkspace({ ...legacy, moduleId: "LCM-01", stakes: "1/3" });
+  const migrated = parseRealHandDraftWorkspace({ ...legacy, moduleId: "geometry", stakes: "1/3" });
   assert.equal(migrated?.version, REAL_HAND_DRAFT_WORKSPACE_VERSION);
   assert.equal(migrated?.capture.stakes, "1/3");
   assert.deepEqual(migrated?.postCapture.resultByNoteId, {});
