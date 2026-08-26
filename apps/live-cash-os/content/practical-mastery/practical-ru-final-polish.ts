@@ -59,6 +59,7 @@ const FINAL_RU_PHRASE_POLISH: ReadonlyArray<readonly [RegExp, string]> = [
   [/убирают слабые кандидаты(?![А-Яа-яЁё])/giu, "убирают слабых кандидатов"],
   [/конкретными ран-ауты(?![А-Яа-яЁё])/giu, "конкретными ран-аутами"],
 
+  [/\bmarginal hands\b/giu, "пограничные руки"],
   [/\bmarginal hand\b/giu, "пограничная рука"],
   [/\bfuture action\b/giu, "будущие решения"],
   [/\bsource assumptions\b/giu, "исходные допущения"],
