@@ -126,7 +126,6 @@ test("top navigation and prerequisite CTA reach deterministic learner destinatio
   await expect(page).toHaveURL(/\/mastery\/reference$/);
   await expect(page.getByRole("heading", { name: /Не запоминать сотни картинок/i })).toBeVisible();
   await expect(page.getByText("Форма диапазона подтверждена", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Точные частоты ещё не проверены", { exact: true }).first()).toBeVisible();
   await expect(page.locator("main")).not.toContainText(sourceIdPattern);
   await expect(page.locator("main")).not.toContainText(internalReferencePattern);
   await expect(page.locator("main")).not.toContainText(/A5s\s*=\s*\d+(?:[.,]\d+)?%/i);

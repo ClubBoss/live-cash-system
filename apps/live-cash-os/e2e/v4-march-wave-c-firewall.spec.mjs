@@ -62,7 +62,7 @@ test("Wave C EN learner surfaces expose natural copy without governance sentinel
 
   await openBvBSourceLimit(page);
   await expect(page.getByText("CURRENT LIMIT", { exact: true })).toBeVisible();
-  await expect(page.locator("main")).toContainText(/available material is not sufficient to present exact frequencies/i);
+  await expect(page.locator("main")).toContainText(/current evidence is not sufficient to present exact frequencies/i);
   await expect(page.locator("main")).not.toContainText(internalMetadata);
   await expectBuildIdentityHidden(page);
 });
