@@ -16,13 +16,13 @@ const fixtures = {
     "aria-label": "Разбор field-1787715078123-a1b2c3d",
     "aria-description": "Решение PM-B3-PF01-103 · explain-1787715078123-z9y8x7w",
     title: "HUMAN_ASSISTED review-1787715078123-k4m5n6p",
-    alt: "LCM-01 explain-1787715078123-r2s3t4u",
+    alt: "Схема LCM-01 explain-1787715078123-r2s3t4u",
   },
   en: {
     "aria-label": "Review field-1787715078123-a1b2c3d",
     "aria-description": "Decision PM-B3-PF01-103 · explain-1787715078123-z9y8x7w",
     title: "HUMAN_ASSISTED review-1787715078123-k4m5n6p",
-    alt: "LCM-01 explain-1787715078123-r2s3t4u",
+    alt: "Training diagram LCM-01 explain-1787715078123-r2s3t4u",
   },
 };
 
