@@ -84,7 +84,7 @@ test("V7-D Real Hands exposes semantic RU and EN accessibility labels with zero 
     main.append(probe, image);
   });
 
-  await expect(page.getByRole("button", { name: "Открыть", exact: true })).toBeVisible();
+  await expect(page.getByTestId("v7-d-attribute-probe")).toHaveAttribute("aria-label", "Открыть");
   await expectZeroLearnerAttributeLeaks(page);
 
   await page.getByRole("button", { name: "EN", exact: true }).click();
