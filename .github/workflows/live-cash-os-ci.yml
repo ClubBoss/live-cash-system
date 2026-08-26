@@ -1,6 +1,15 @@
 name: Live Cash OS CI
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/live-cash-os/**"
+      - "learning/diagnostics/DIAGNOSTIC_RAW_RESPONSE_SCHEMA_v0_1.json"
+      - "state/CURRENT_PROJECT_STATE.yaml"
+      - "START_HERE.md"
+      - "PROJECT_ATLAS.md"
+      - ".github/workflows/live-cash-os-ci.yml"
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -9,12 +18,76 @@ permissions:
   contents: read
 
 concurrency:
-  group: live-cash-os-v7-d-${{ github.ref }}
+  group: live-cash-os-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  targeted-v7-d:
-    name: V7 D accessibility attribute gate
+  scope:
+    name: Detect visual evidence scope
+    runs-on: ubuntu-latest
+    outputs:
+      visual_enabled: ${{ steps.scope.outputs.enabled }}
+      visual_reason: ${{ steps.scope.outputs.reason }}
+      visual_targets: ${{ steps.scope.outputs.targets }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: scope
+        name: Detect PR visual evidence scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          enabled=0
+          reason=not-requested
+          changed_files=""
+          targets=()
+
+          add_target() {
+            local candidate="$1"
+            local existing
+            for existing in "${targets[@]:-}"; do
+              [[ "$existing" == "$candidate" ]] && return 0
+            done
+            if [[ "${#targets[@]}" -lt 2 ]]; then
+              targets+=("$candidate")
+            fi
+          }
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            enabled=1
+            reason=manual-dispatch
+          elif [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null || git fetch --no-tags --depth=1 origin "$BASE_SHA"
+            git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null || git fetch --no-tags --depth=1 origin "$HEAD_SHA"
+            changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+            printf '%s\n' "$changed_files"
+
+            if printf '%s\n' "$changed_files" | grep -Eq '^(apps/live-cash-os/(app|components|public)/.*|apps/live-cash-os/content/(i18n/.*|modules\.ts|diagnostic\.ts)|apps/live-cash-os/.*\.(css|tsx|jsx)|apps/live-cash-os/e2e/pr-visual-evidence\.spec\.mjs|\.github/workflows/live-cash-os-ci\.yml)$'; then
+              enabled=1
+              reason=ui-relevant-pr
+            fi
+
+            if printf '%s\n' "$changed_files" | grep -Eq 'DiagnosticExperience|diagnostic-feedback|content/diagnostic'; then add_target diagnostic; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'ExplainBackSelfCheck|RealUseLessonAssist|LearningRoute|content/modules|content/i18n'; then add_target learn; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'Review|review|scheduler'; then add_target review; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'RealHand|Wave7Field|field|hands'; then add_target hands; fi
+            if printf '%s\n' "$changed_files" | grep -Eq 'Card|cards'; then add_target cards; fi
+          fi
+
+          if [[ "${#targets[@]}" -eq 0 ]]; then
+            targets=(learn hands)
+          fi
+          targets_csv="$(IFS=,; echo "${targets[*]}")"
+
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+          echo "targets=$targets_csv" >> "$GITHUB_OUTPUT"
+          echo "visual evidence: enabled=$enabled reason=$reason targets=$targets_csv"
+
+  static:
+    name: Static release gate
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,13 +101,428 @@ jobs:
           cache-dependency-path: apps/live-cash-os/package-lock.json
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Presentation firewall units
-        run: node --import ./tests/register-model-loader.mjs --test tests/learner-presentation-firewall.test.mjs tests/v7-accessibility-attribute-firewall.test.mjs
-      - name: Lint touched product seams
-        run: npx eslint components/PracticalLearnerPresentationGuard.tsx lib/learner-accessibility-attribute-firewall.ts
+      - name: Static release gate
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee static-release-gate.log
+      - name: Upload static release gate log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-static-release-gate-log
+          path: apps/live-cash-os/static-release-gate.log
+          if-no-files-found: error
+          retention-days: 7
+
+  e2e-core:
+    name: Core E2E · ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: chromium
+            browser: chromium
+          - project: mobile
+            browser: chromium
+          - project: firefox
+            browser: firefox
+          - project: webkit
+            browser: webkit
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run canonical ${{ matrix.project }} project
+        run: |
+          set -o pipefail
+          npx playwright test --project="${{ matrix.project }}" 2>&1 | tee "core-${{ matrix.project }}.log"
+      - name: Upload core log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-core-${{ matrix.project }}-log
+          path: apps/live-cash-os/core-${{ matrix.project }}.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload Wave A screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-wave-a-evidence-${{ matrix.project }}
+          path: apps/live-cash-os/test-results/post-tester-wave-a
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-core-${{ matrix.project }}-failure-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  wave-c:
+    name: Wave C · ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: chromium-access
+            project: w8-chromium-desktop
+            browser: chromium
+            spec: e2e/post-tester-access-mobile.spec.mjs
+          - id: chromium-sync
+            project: w8-chromium-desktop
+            browser: chromium
+            spec: e2e/post-tester-sync-performance.spec.mjs
+          - id: chromium-mastery-access
+            project: w8-chromium-desktop
+            browser: chromium
+            spec: e2e/practical-mastery-access.spec.mjs
+          - id: webkit390-access
+            project: w8-webkit-390
+            browser: webkit
+            spec: e2e/post-tester-access-mobile.spec.mjs
+          - id: webkit390-sync
+            project: w8-webkit-390
+            browser: webkit
+            spec: e2e/post-tester-sync-performance.spec.mjs
+          - id: webkit390-mastery-access
+            project: w8-webkit-390
+            browser: webkit
+            spec: e2e/practical-mastery-access.spec.mjs
+          - id: android-access
+            project: w8-chromium-android
+            browser: chromium
+            spec: e2e/post-tester-access-mobile.spec.mjs
+          - id: android-sync
+            project: w8-chromium-android
+            browser: chromium
+            spec: e2e/post-tester-sync-performance.spec.mjs
+          - id: android-mastery-access
+            project: w8-chromium-android
+            browser: chromium
+            spec: e2e/practical-mastery-access.spec.mjs
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run isolated Wave C case
+        env:
+          LIVE_CASH_DEPLOY_TARGET: test-mirror
+          LIVE_CASH_TEST_D1_DATABASE_ID: 00000000-0000-4000-8000-000000000001
+        run: |
+          set -o pipefail
+          npx playwright test "${{ matrix.spec }}" --config=playwright.cross-browser.config.mjs --project="${{ matrix.project }}" 2>&1 | tee "wave-c-${{ matrix.id }}.log"
+      - name: Upload Wave C log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-wave-c-${{ matrix.id }}-log
+          path: apps/live-cash-os/wave-c-${{ matrix.id }}.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload Wave C failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-wave-c-${{ matrix.id }}-failure-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  mastery-cross:
+    name: Mastery cross-browser · ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: firefox-desktop
+            project: w8-firefox-desktop
+            browser: firefox
+          - id: webkit-390
+            project: w8-webkit-390
+            browser: webkit
+          - id: chromium-android
+            project: w8-chromium-android
+            browser: chromium
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Run Practical Mastery acceptance
+        env:
+          LIVE_CASH_MASTERY_CROSS: "1"
+        run: |
+          set -o pipefail
+          npx playwright test e2e/practical-mastery-acceptance.spec.mjs --config=playwright.cross-browser.config.mjs --project="${{ matrix.project }}" 2>&1 | tee "mastery-cross-${{ matrix.id }}.log"
+      - name: Upload mastery cross-browser log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-mastery-cross-${{ matrix.id }}-log
+          path: apps/live-cash-os/mastery-cross-${{ matrix.id }}.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload mastery cross-browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-mastery-cross-${{ matrix.id }}-failure-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  visual-evidence:
+    name: PR visual evidence
+    needs: scope
+    if: needs.scope.outputs.visual_enabled == '1'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Learner accessibility Chromium acceptance
-        run: npx playwright test e2e/learner-presentation-firewall.spec.mjs e2e/v7-accessibility-attribute-firewall.spec.mjs --project=chromium
+      - name: Capture PR visual evidence
+        env:
+          LIVE_CASH_VISUAL_EVIDENCE: "1"
+          LIVE_CASH_VISUAL_EVIDENCE_REASON: ${{ needs.scope.outputs.visual_reason }}
+          LIVE_CASH_VISUAL_TARGETS: ${{ needs.scope.outputs.visual_targets }}
+          LIVE_CASH_VISUAL_SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          npx playwright test e2e/pr-visual-evidence.spec.mjs --project=chromium 2>&1 | tee visual-evidence.log
+      - name: Verify PR visual evidence packet
+        run: |
+          set -euo pipefail
+          test -f visual-evidence/pr/evidence.json
+          screenshot_count="$(find visual-evidence/pr -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')"
+          test "$screenshot_count" = "5" || { echo "Expected 5 visual evidence screenshots, got $screenshot_count" >&2; exit 1; }
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const evidence = JSON.parse(readFileSync("visual-evidence/pr/evidence.json", "utf8"));
+            if (evidence.schema !== "LIVE_CASH_PR_VISUAL_EVIDENCE_V2") throw new Error("Unexpected visual evidence schema");
+            if (evidence.screenshotCount !== 5 || evidence.screenshots?.length !== 5) throw new Error("Visual evidence packet is incomplete");
+            if (!Array.isArray(evidence.requestedTargets) || evidence.requestedTargets.length < 1) throw new Error("Visual evidence targets are missing");
+            if ((evidence.browserErrors?.length ?? 0) !== 0) throw new Error(`Visual evidence captured browser errors: ${evidence.browserErrors.join(" | ")}`);
+            for (const shot of evidence.screenshots) {
+              if (!/^[a-f0-9]{64}$/.test(shot.sha256 ?? "")) throw new Error(`Missing screenshot sha256 for ${shot.name}`);
+            }
+            console.log(`Verified ${evidence.screenshotCount} PR visual evidence screenshots for source ${evidence.sourceHeadSha}; targets=${evidence.requestedTargets.join(",")}`);
+          '
+      - name: Upload PR visual evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-pr-visual-evidence
+          path: apps/live-cash-os/visual-evidence/pr
+          if-no-files-found: error
+          retention-days: 3
+      - name: Upload visual evidence log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-pr-visual-evidence-log
+          path: apps/live-cash-os/visual-evidence.log
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload visual browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-pr-visual-failure-evidence
+          path: |
+            apps/live-cash-os/playwright-report
+            apps/live-cash-os/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  validate:
+    name: validate
+    if: always()
+    needs:
+      - scope
+      - static
+      - e2e-core
+      - wave-c
+      - mastery-cross
+      - visual-evidence
+    runs-on: ubuntu-latest
+    steps:
+      - name: Certify complete release gate
+        env:
+          SCOPE_RESULT: ${{ needs.scope.result }}
+          STATIC_RESULT: ${{ needs.static.result }}
+          CORE_RESULT: ${{ needs.e2e-core.result }}
+          WAVE_C_RESULT: ${{ needs.wave-c.result }}
+          MASTERY_CROSS_RESULT: ${{ needs.mastery-cross.result }}
+          VISUAL_RESULT: ${{ needs.visual-evidence.result }}
+          VISUAL_REQUIRED: ${{ needs.scope.outputs.visual_enabled }}
+        run: |
+          set -euo pipefail
+          test "$SCOPE_RESULT" = "success"
+          test "$STATIC_RESULT" = "success"
+          test "$CORE_RESULT" = "success"
+          test "$WAVE_C_RESULT" = "success"
+          test "$MASTERY_CROSS_RESULT" = "success"
+          if [[ "$VISUAL_REQUIRED" == "1" ]]; then
+            test "$VISUAL_RESULT" = "success"
+          else
+            [[ "$VISUAL_RESULT" == "skipped" || "$VISUAL_RESULT" == "success" ]]
+          fi
+          echo "Complete release gate GREEN: static + 4 core projects + 9 Wave C cases + 3 mastery-cross projects + visual policy."
+
+  deploy-test-mirror:
+    if: always() && needs.validate.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      LIVE_CASH_CANONICAL_WORKER_NAME: live-cash-os-mobile-test
+      LIVE_CASH_CANONICAL_WORKERS_URL: https://live-cash-os-mobile-test.blufferus.workers.dev
+    defaults:
+      run:
+        working-directory: apps/live-cash-os
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: apps/live-cash-os/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Deploy exact accepted SHA to Cloudflare Workers
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          LIVE_CASH_TEST_D1_DATABASE_ID: ${{ secrets.LIVE_CASH_TEST_D1_DATABASE_ID }}
+          LIVE_CASH_DEPLOY_TARGET: test-mirror
+          VITE_BUILD_SHA: ${{ github.sha }}
+        run: |
+          set -o pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "Missing CLOUDFLARE_API_TOKEN secret" >&2; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "Missing CLOUDFLARE_ACCOUNT_ID secret" >&2; exit 1; }
+          test -n "$LIVE_CASH_TEST_D1_DATABASE_ID" || { echo "Missing LIVE_CASH_TEST_D1_DATABASE_ID secret" >&2; exit 1; }
+          npm run build
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const config = JSON.parse(readFileSync("dist/server/wrangler.json", "utf8"));
+            const d1 = config.d1_databases ?? [];
+            if (d1.length !== 1 || d1[0]?.binding !== "TEST_DB" || d1[0]?.database_id !== process.env.LIVE_CASH_TEST_D1_DATABASE_ID) {
+              throw new Error("Test-mirror generated config must contain exactly the dedicated TEST_DB binding");
+            }
+            if (d1.some((binding) => binding.binding === "DB")) {
+              throw new Error("Test-mirror generated config must never contain the production DB binding");
+            }
+            console.log("Verified generated test-mirror config: dedicated TEST_DB only; production DB absent");
+          '
+          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy --dry-run --name "$LIVE_CASH_CANONICAL_WORKER_NAME" 2>&1 | tee deploy-dry-run.txt
+          npx --yes @vinext/cloudflare@1.0.0-beta.2 deploy --name "$LIVE_CASH_CANONICAL_WORKER_NAME" 2>&1 | tee deploy-output.txt
+          deploy_url="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' deploy-output.txt | tail -n 1)"
+          test -n "$deploy_url" || { echo "Cloudflare did not report a workers.dev URL" >&2; exit 1; }
+          test "${deploy_url%/}" = "${LIVE_CASH_CANONICAL_WORKERS_URL%/}" || {
+            echo "Cloudflare deployed unexpected Worker URL: $deploy_url; expected $LIVE_CASH_CANONICAL_WORKERS_URL" >&2
+            exit 1
+          }
+          echo "url=$deploy_url" >> "$GITHUB_OUTPUT"
+          echo "sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+      - name: Smoke the deployed test mirror
+        env:
+          LIVE_URL: ${{ steps.deploy.outputs.url }}
+          DEPLOYED_SHA: ${{ steps.deploy.outputs.sha }}
+          DEPLOYED_AT: ${{ steps.deploy.outputs.timestamp }}
+        run: |
+          set -o pipefail
+          echo "test-mirror url=$LIVE_URL sha=$DEPLOYED_SHA deployed_at=$DEPLOYED_AT"
+          curl --fail --show-error --silent --retry 5 --retry-all-errors "$LIVE_URL/" > /dev/null
+
+          bootstrap_status="$(curl --show-error --silent --retry 5 --retry-all-errors -X POST -o test-invite-bootstrap.json -w '%{http_code}' "$LIVE_URL/api/test-invite-bootstrap")"
+          test "$bootstrap_status" = "200" || { echo "Test invite sync expected 200, got $bootstrap_status" >&2; cat test-invite-bootstrap.json >&2; exit 1; }
+
+          LIVE_CASH_TEST_SMOKE_CODE="$(node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const access = JSON.parse(readFileSync("test-invites/tester-access.private.json", "utf8"));
+            const code = access.testers?.find((tester) => tester.label === "tester-01" && tester.active)?.code;
+            if (!code) process.exit(1);
+            process.stdout.write(code);
+          ')"
+          export LIVE_CASH_TEST_SMOKE_CODE
+          test -n "$LIVE_CASH_TEST_SMOKE_CODE" || { echo "Recoverable tester-01 access code is missing" >&2; exit 1; }
+
+          api_status="$(curl --show-error --silent -o test-db-bootstrap.json -w '%{http_code}' -H 'x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA' "$LIVE_URL/api/state")"
+          test "$api_status" = "401" || { echo "TEST_DB invite lookup expected 401, got $api_status" >&2; cat test-db-bootstrap.json >&2; exit 1; }
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const body = JSON.parse(readFileSync("test-db-bootstrap.json", "utf8"));
+            if (body.code !== "AUTH_REQUIRED") throw new Error(`Unexpected TEST_DB response: ${JSON.stringify(body)}`);
+            console.log("Verified TEST_DB invite lookup rejects an unknown code");
+          '
+          test_api_status="$(curl --show-error --silent -o test-invite-authorized.json -w '%{http_code}' -H "x-live-cash-profile-code: $LIVE_CASH_TEST_SMOKE_CODE" "$LIVE_URL/api/state")"
+          test "$test_api_status" = "200" || { echo "Recoverable tester-01 invite expected 200, got $test_api_status" >&2; cat test-invite-authorized.json >&2; exit 1; }
+          npm run smoke:production
+      - name: Upload test-mirror smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: live-cash-os-test-mirror-smoke
+          path: |
+            apps/live-cash-os/smoke-evidence
+            apps/live-cash-os/test-invite-bootstrap.json
+            apps/live-cash-os/test-db-bootstrap.json
+            apps/live-cash-os/test-invite-authorized.json
+          if-no-files-found: ignore
+          retention-days: 7
