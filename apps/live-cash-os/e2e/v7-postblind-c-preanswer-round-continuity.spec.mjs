@@ -56,7 +56,8 @@ test("V7-C active Q1 replaces stale COMPLETE across two leave routes and reload 
     if (index < 8) await activeDecisionId(page, index + 1);
   }
   await expect(page.getByRole("heading", { name: /Раунд завершён|Round complete/ })).toBeVisible();
-  await expect(page.getByText(/8\/8/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Продолжить обучение|Continue learning/ })).toBeVisible();
+  await expect(page.locator("section.today-card[data-practical-decision-id]")).toHaveCount(0);
 
   const masteryBeforeNewRound = await practicalMasterySnapshot(page);
   const attemptsBeforeNewRound = await attemptCount(page);
