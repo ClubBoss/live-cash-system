@@ -1,0 +1,79 @@
+name: V7 Post-Blind RU base census
+on:
+  push:
+    branches: [openai/v7-postblind-ru-census-base]
+permissions:
+  contents: read
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Deterministic RU source census
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, pathlib, collections, hashlib, json
+          root = pathlib.Path('apps/live-cash-os')
+          roots = [root/'content'/'practical-mastery', root/'components', root/'lib', root/'app']
+          files=[]
+          for base in roots:
+              if not base.exists(): continue
+              for p in base.rglob('*'):
+                  if p.suffix in {'.ts','.tsx','.js','.jsx','.mjs'} and not any(x in p.parts for x in ('tests','e2e','node_modules')):
+                      files.append(p)
+          files=sorted(set(files))
+          lit_re=re.compile(r'(?P<q>[\"\'`])(?P<s>(?:\\.|(?!\1).)*?)(?P=q)', re.S)
+          cyr=re.compile(r'[А-Яа-яЁё]')
+          latin=re.compile(r'(?<![А-Яа-яЁё])[A-Za-z][A-Za-z-]*(?:\s+[A-Za-z][A-Za-z-]*)*')
+          token=re.compile(r'[A-Za-z][A-Za-z-]*')
+          observed={'marginal','hand','assumptions','viable','future','action'}
+          sourceish={'evidence','mastery','source','supported','decisionid','skillid','learner','authoring','governance','fingerprint','viable','assumptions'}
+          allow={'bb','sb','btn','co','hj','utg','ip','oop','spr','srp','rfi','ev','nl','bbq','c-bet','cbet','3-bet','4-bet','5-bet','all-in','allin','check','call','fold','raise','bet','flop','turn','river','preflop','board','range','runout','blocker','value','bluff','pot','stack','deep','limp','limper','straddle','overbet','donk','probe','showdown','draw','flush','straight','backdoor','kicker','iso','hero','villain','live','cash','poker','gto','icm','ante','heads-up','hu','multiway','squeeze','cold','open','jam','solver','node','combo','combos','air','nuts','nut','equity','outs','out','semi-bluff','check-raise','check-call','check-fold','bet-fold','bet-call','bet-raise'}
+          rows=[]; latin_rows=[]; suspicious=[]; exact_observed=[]; counts=collections.Counter(); latin_tokens=collections.Counter()
+          en_literals=[]
+          for p in files:
+              txt=p.read_text('utf-8')
+              for m in lit_re.finditer(txt):
+                  s=m.group('s')
+                  line=txt.count('\n',0,m.start())+1
+                  # capture EN-looking literals too for stable base digest reference
+                  if re.search(r'[A-Za-z]',s) and not cyr.search(s): en_literals.append(f'{p}:{line}:{s}')
+                  if not cyr.search(s): continue
+                  surface='OTHER'
+                  ps=str(p)
+                  if 'FirstJourney' in ps or 'first-journey' in ps: surface='QUICK_START'
+                  elif 'DecisionFeedback' in ps or 'decision-feedback' in ps: surface='FEEDBACK'
+                  elif 'Perceptual' in ps or 'table' in ps.lower(): surface='TABLE_READING'
+                  elif 'Mastery' in ps or 'SkillDomain' in ps or 'mastery' in ps.lower(): surface='MASTERY'
+                  elif 'RealHand' in ps or 'real-hand' in ps.lower(): surface='REAL_HANDS'
+                  elif 'IntegratedSession' in ps or 'adaptive' in ps.lower(): surface='ADAPTIVE'
+                  rows.append((surface,str(p),line,s))
+                  counts[surface]+=1
+                  toks=[x.lower() for x in token.findall(s)]
+                  if toks:
+                      latin_rows.append((surface,str(p),line,s,toks))
+                      for t in toks: latin_tokens[t]+=1
+                  bad=[t for t in toks if t in observed or t in sourceish]
+                  if bad:
+                      suspicious.append((surface,str(p),line,','.join(sorted(set(bad))),s))
+                  if any(t in observed for t in toks): exact_observed.append((surface,str(p),line,s))
+          print('=== RU_CENSUS_BASE ===')
+          print('FILES_SCANNED',len(files))
+          print('RU_STRING_LITERALS',len(rows))
+          print('RU_WITH_LATIN',len(latin_rows))
+          print('DEMONSTRATED_CLASS_MEMBERS',len(exact_observed))
+          print('SOURCEISH_CLASS_MEMBERS',len(suspicious))
+          print('SURFACE_COUNTS',json.dumps(counts,ensure_ascii=False,sort_keys=True))
+          print('EN_LITERAL_DIGEST',hashlib.sha256('\n'.join(sorted(en_literals)).encode()).hexdigest())
+          print('=== OBSERVED_DEMONSTRATED ===')
+          for r in exact_observed: print('\t'.join(map(str,r)))
+          print('=== SOURCEISH_OR_OBSERVED ===')
+          for r in suspicious: print('\t'.join(map(str,r)))
+          print('=== ALL_RU_WITH_LATIN ===')
+          for surface,p,line,s,toks in latin_rows:
+              print(f'{surface}\t{p}\t{line}\t{",".join(toks)}\t{s}')
+          print('=== LATIN_TOKEN_COUNTS ===')
+          for t,n in latin_tokens.most_common(): print(f'{t}\t{n}')
+          print('=== END_RU_CENSUS_BASE ===')
+          PY
