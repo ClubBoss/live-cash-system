@@ -64,6 +64,18 @@ function selectedMisconceptionFeedback(
     };
   }
 
+  if (
+    decision.id === "PM-W4-HAND-01-102"
+    && selectedMisconceptions.has("CLASSIFICATION_SHORTCUT")
+  ) {
+    return {
+      mechanismRu: "Название «пара» описывает только часть руки. В этой раздаче EV меняют и equity дро, и будущая устойчивость: пара с сильным дро по-другому переносит давление и будущие карты, чем та же пара без этих свойств.",
+      mechanismEn: "The label 'pair' describes only part of the hand. In this decision, both draw equity and future robustness change EV: a pair with a strong draw handles pressure and future cards differently from the same pair without those traits.",
+      boundaryRu: "Простой ярлык может быть достаточен только когда дополнительные свойства не меняют equity, уязвимость или будущие ветки. Как только есть дро или меняется устойчивость к будущим картам, сравнивай свойства руки вместе с контекстом, а не только её название.",
+      boundaryEn: "A simple label is enough only when extra traits do not change equity, vulnerability, or future branches. Once a draw or future robustness changes, compare the hand's traits in context rather than its name alone.",
+    };
+  }
+
   return null;
 }
 
