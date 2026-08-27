@@ -94,7 +94,7 @@ function skillTitle(skill: PracticalSkillFamily, locale: Locale): string {
 }
 
 function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
-  return locale === "ru" ? skill.objectiveRu : `Use ${skill.titleEn} reliably in independent decisions and changed conditions.`;
+  return locale === "ru" ? skill.objectiveRu : skill.objectiveEn;
 }
 
 export default function PracticalMasteryExperience() {
