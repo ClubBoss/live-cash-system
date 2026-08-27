@@ -297,7 +297,7 @@ export default function PracticalIntegratedSessionExperience() {
       <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
       {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
         <h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
-        <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(wasCorrect)} />
+        <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(wasCorrect)} selectedActionId={actionId} selectedReasonId={reasonId} />
         <div className="today-card" style={{ marginTop: 14 }}>
           <p className="eyebrow">{locale === "ru" ? "ЧТО ПРОВЕРЯЛОСЬ" : "WHAT THIS TESTED"}</p>
           <p><b>{locale === "ru" ? "Навык:" : "Skill:"}</b> {skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : (locale === "ru" ? "Знакомый навык" : "Known skill")}</p>

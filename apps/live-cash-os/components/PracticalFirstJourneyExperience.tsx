@@ -214,7 +214,7 @@ export default function PracticalFirstJourneyExperience({
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
         <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
-        <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} />
+        <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} selectedActionId={actionId} selectedReasonId={reasonId} />
         <p className="support">{locale === "ru" ? "Это только первый контакт с навыком. Система вернёт его в новых ситуациях и позже проверит после паузы." : "This is only the first contact with the skill. The system will revisit it in new situations and later after a delay."}</p>
         <button className="secondary" onClick={advanceDecision}>{locale === "ru" ? "Следующий пример" : "Next example"} <span>→</span></button>
       </div>}

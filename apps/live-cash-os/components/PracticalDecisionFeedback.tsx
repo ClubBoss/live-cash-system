@@ -1,26 +1,42 @@
 import type { PracticalDecision } from "../content/practical-mastery";
-import { practicalDecisionFeedbackCopy } from "../content/practical-mastery/practical-decision-feedback-copy";
+import { practicalSelectedDecisionFeedback } from "../lib/practical-selected-decision-feedback";
 
 type Locale = "ru" | "en";
 
-function text(option: { textRu: string; textEn: string } | undefined, locale: Locale): string {
-  if (!option) return locale === "ru" ? "Недоступно" : "Unavailable";
-  return locale === "ru" ? option.textRu : option.textEn;
-}
-
-export default function PracticalDecisionFeedback({ decision, locale, correct }: { decision: PracticalDecision; locale: Locale; correct: boolean }) {
-  const correctAction = decision.actionOptions.find((option) => option.id === decision.correctActionId);
-  const correctReason = decision.reasonOptions.find((option) => option.id === decision.correctReasonId);
-  const feedback = practicalDecisionFeedbackCopy(decision);
-  const mechanism = locale === "ru" ? feedback.mechanismRu : feedback.mechanismEn;
-  const boundary = locale === "ru" ? feedback.boundaryRu : feedback.boundaryEn;
+export default function PracticalDecisionFeedback({
+  decision,
+  locale,
+  correct,
+  selectedActionId,
+  selectedReasonId,
+}: {
+  decision: PracticalDecision;
+  locale: Locale;
+  correct: boolean;
+  selectedActionId: string;
+  selectedReasonId: string;
+}) {
+  const feedback = practicalSelectedDecisionFeedback(decision, locale, selectedActionId, selectedReasonId, correct);
+  const hasDiagnosis = Boolean(feedback.action || feedback.reason);
 
   return <>
-    {!correct ? <div className="today-card" style={{ marginTop: 12 }} data-practical-correct-answer>
-      <p><b>{locale === "ru" ? "Правильное действие:" : "Correct action:"}</b> {text(correctAction, locale)}</p>
-      <p><b>{locale === "ru" ? "Правильная причина:" : "Correct reason:"}</b> {text(correctReason, locale)}</p>
-    </div> : null}
-    <p data-practical-feedback-mechanism>{mechanism}</p>
-    {boundary ? <p data-practical-feedback-boundary style={{ opacity: 0.86 }}>{boundary}</p> : null}
+    {!correct ? <div className="today-card" style={{ marginTop: 12 }} data-practical-correct-answer data-practical-selected-diagnosis>
+      {feedback.action ? <>
+        <p data-practical-selected-action><b>{locale === "ru" ? "Твой выбор:" : "Your choice:"}</b> {feedback.action.selectedText}</p>
+        <p><b>{locale === "ru" ? "Правильное действие:" : "Correct action:"}</b> {feedback.action.correctText}</p>
+      </> : null}
+      {feedback.reason ? <>
+        <p data-practical-selected-reason><b>{locale === "ru" ? "Твоя причина:" : "Your reason:"}</b> {feedback.reason.selectedText}</p>
+        <p><b>{locale === "ru" ? "Правильная причина:" : "Correct reason:"}</b> {feedback.reason.correctText}</p>
+      </> : null}
+      <p data-practical-feedback-mechanism>
+        {hasDiagnosis ? <b>{locale === "ru" ? "Почему выбранное здесь не подходит:" : "Why the selected choice does not fit here:"}</b> : null}
+        {hasDiagnosis ? " " : null}{feedback.mechanism}
+      </p>
+    </div> : <p data-practical-feedback-mechanism>{feedback.mechanism}</p>}
+    {feedback.boundary ? <p data-practical-feedback-boundary style={{ opacity: 0.86 }}>
+      {!correct && hasDiagnosis ? <b>{locale === "ru" ? "Что проверить в следующий раз:" : "What to check next time:"}</b> : null}
+      {!correct && hasDiagnosis ? " " : null}{feedback.boundary}
+    </p> : null}
   </>;
 }

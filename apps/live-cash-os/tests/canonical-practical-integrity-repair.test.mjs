@@ -10,6 +10,7 @@ const read = (relative) => readFile(path.join(root, relative), "utf8");
 const perception = await read("components/PracticalPerceptualExperience.tsx");
 const integrated = await read("components/PracticalIntegratedSessionExperience.tsx");
 const feedback = await read("components/PracticalDecisionFeedback.tsx");
+const selectedFeedback = await read("lib/practical-selected-decision-feedback.ts");
 const feedbackCopy = await read("content/practical-mastery/practical-decision-feedback-copy.ts");
 const reference = await read("components/PracticalReferenceExperience.tsx");
 const mastery = await read("components/PracticalMasteryExperience.tsx");
@@ -41,13 +42,13 @@ test("integrated perceptual decisions always render the canonical table state be
 });
 
 test("incorrect practical feedback names canonical action and reason without changing scoring", () => {
-  assert.match(feedback, /decision\.correctActionId/);
-  assert.match(feedback, /decision\.correctReasonId/);
+  assert.match(selectedFeedback, /decision\.correctActionId/);
+  assert.match(selectedFeedback, /decision\.correctReasonId/);
   assert.match(feedback, /Правильное действие:/);
   assert.match(feedback, /Правильная причина:/);
   assert.match(feedback, /Correct action:/);
   assert.match(feedback, /Correct reason:/);
-  assert.match(feedback, /practicalDecisionFeedbackCopy\(decision\)/);
+  assert.match(selectedFeedback, /practicalDecisionFeedbackCopy\(decision\)/);
   assert.match(feedback, /data-practical-feedback-mechanism/);
   assert.match(feedbackCopy, /mechanismRu: decision\.explanationRu/);
   assert.match(feedbackCopy, /mechanismEn: decision\.explanationEn/);
