@@ -22,7 +22,7 @@ const acceptedPokerTerms = [
   /\bSPR\b/giu,
   /\bPFR\b/giu,
   /\bc-bet\b/giu,
-  /\bA-high\b/giu,
+  /A[-‑–]high/giu,
 ];
 const practicalRuleRuFields = ["triggerRu", "defaultRu", "whyRu", "amplifiersRu", "reversalsRu", "transferCueRu"];
 
