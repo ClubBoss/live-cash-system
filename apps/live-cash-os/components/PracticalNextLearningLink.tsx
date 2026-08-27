@@ -2,6 +2,8 @@
 
 import { type CSSProperties, type ReactNode } from "react";
 import { isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
+import { recommendFirstJourneyStep } from "../lib/practical-first-journey";
+import { resolvePostQuickStartLearningTarget } from "../lib/practical-post-quick-start-learning";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
 import PracticalDocumentLink from "./PracticalDocumentLink";
@@ -17,11 +19,25 @@ type Props = {
 };
 
 function FocusedLearningLink({ className, style, content, ariaCurrent, focusSkillId }: { className?: string; style?: CSSProperties; content: ReactNode; ariaCurrent?: "page"; focusSkillId: string }) {
-  const { mastery, ready } = usePracticalProfileState();
-  if (!ready || !isIntegratedFocusAdmissible(mastery, focusSkillId)) {
+  const { mastery, ready, recoveryBlocked } = usePracticalProfileState();
+  if (!ready || recoveryBlocked) {
     return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
   }
-  return <PracticalDocumentLink className={className} style={style} href={`/mastery/session?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+
+  if (isIntegratedFocusAdmissible(mastery, focusSkillId)) {
+    return <PracticalDocumentLink className={className} style={style} href={`/mastery/session?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  }
+
+  const target = resolvePostQuickStartLearningTarget(mastery, focusSkillId);
+  if (target.kind !== "BLOCKED") {
+    return <PracticalDocumentLink className={className} style={style} href={target.href} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  }
+
+  if (target.reason === "QUICK_START_INCOMPLETE" && recommendFirstJourneyStep(mastery)?.skillId === focusSkillId) {
+    return <PracticalDocumentLink className={className} style={style} href={`/mastery/journey?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  }
+
+  return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
 }
 
 export default function PracticalNextLearningLink({

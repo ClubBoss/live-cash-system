@@ -60,7 +60,7 @@ test("skill map is the canonical home and reads as progress, not an internal con
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
 });
 
-test("Skill Map keeps generic Learn distinct from focus-admissible recommendations and rejects invalid or locked focus", async ({ page }) => {
+test("Skill Map keeps generic Learn distinct from teachable/focus-admissible recommendations and rejects invalid or locked focus", async ({ page }) => {
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   const generic = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
@@ -69,10 +69,9 @@ test("Skill Map keeps generic Learn distinct from focus-admissible recommendatio
 
   let recommendation = page.locator("section.today-card").filter({ hasText: "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" }).first();
   await expect(recommendation).toBeVisible();
-  const unavailable = recommendation.locator("[data-focus-unavailable]");
-  await expect(unavailable).toHaveAttribute("aria-disabled", "true");
-  await expect(unavailable).toHaveText("Продолжить обучение");
-  await expect(recommendation.getByRole("link", { name: "Продолжить обучение", exact: true })).toHaveCount(0);
+  const teachFirst = recommendation.getByRole("link", { name: "Продолжить обучение", exact: true });
+  await expect(teachFirst).toHaveAttribute("href", "/mastery/journey?focus=FND-01");
+  await expect(recommendation.locator("[data-focus-unavailable]")).toHaveCount(0);
 
   await generic.click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);
