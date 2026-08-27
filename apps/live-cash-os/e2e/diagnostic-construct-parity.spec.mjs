@@ -18,11 +18,11 @@ test("V3-09 Diagnostic spot 9 presents only comparable analytical factors", asyn
   }
 
   await expect(page.getByText("Ситуация 9", { exact: false })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Какой фактор проверить первым перед решением о частой ставке CO?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Какой фактор проверить первым перед решением о частой ставке HJ?" })).toBeVisible();
   const actionSet = page.getByRole("group", { name: "Выбери действие" });
   await expect(actionSet.getByRole("button")).toHaveCount(3);
   await expect(actionSet).toContainText("Преимущество диапазона BB на низкой доске");
-  await expect(actionSet).toContainText("Префлоп-инициатива CO");
+  await expect(actionSet).toContainText("Префлоп-инициатива HJ");
   await expect(actionSet).toContainText("Сам факт игры втроём");
   await expect(actionSet).not.toContainText("Range-bet из-за initiative");
   await expect(actionSet).not.toContainText("Check всегда, потому что multiway");
