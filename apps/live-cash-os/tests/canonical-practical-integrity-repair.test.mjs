@@ -63,7 +63,8 @@ test("Practical learner copy maps internal status language and keeps EN objectiv
   assert.doesNotMatch(mastery, /syncStatus/);
   assert.doesNotMatch(mastery, /skill\.objectiveRu\s*:\s*skill\.titleEn/);
   assert.doesNotMatch(journey, /skill\.objectiveRu\s*:\s*skill\.titleEn/);
-  assert.match(mastery, /Use \$\{skill\.titleEn\} reliably in independent decisions and changed conditions/);
+  assert.match(mastery, /skill\.objectiveEn/);
+  assert.doesNotMatch(mastery, /Use \$\{skill\.titleEn\} reliably in independent decisions and changed conditions/);
 });
 
 test("Reference renders human epistemic labels while provenance keys remain internal", () => {
