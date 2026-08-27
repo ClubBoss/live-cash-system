@@ -1,7 +1,8 @@
 "use client";
 
 import { type CSSProperties, type ReactNode } from "react";
-import { firstJourneyProgress, recommendFirstJourneyStep } from "../lib/practical-first-journey";
+import { isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
+import { recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { resolvePostQuickStartLearningTarget } from "../lib/practical-post-quick-start-learning";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
@@ -23,20 +24,20 @@ function FocusedLearningLink({ className, style, content, ariaCurrent, focusSkil
     return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
   }
 
-  const quickStart = firstJourneyProgress(mastery);
-  if (!quickStart.completed) {
-    const recommendation = recommendFirstJourneyStep(mastery);
-    if (recommendation?.skillId !== focusSkillId) {
-      return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
-    }
-    return <PracticalDocumentLink className={className} style={style} href={`/mastery/journey?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  if (isIntegratedFocusAdmissible(mastery, focusSkillId)) {
+    return <PracticalDocumentLink className={className} style={style} href={`/mastery/session?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
   }
 
   const target = resolvePostQuickStartLearningTarget(mastery, focusSkillId);
-  if (target.kind === "BLOCKED") {
-    return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
+  if (target.kind !== "BLOCKED") {
+    return <PracticalDocumentLink className={className} style={style} href={target.href} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
   }
-  return <PracticalDocumentLink className={className} style={style} href={target.href} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+
+  if (target.reason === "QUICK_START_INCOMPLETE" && recommendFirstJourneyStep(mastery)?.skillId === focusSkillId) {
+    return <PracticalDocumentLink className={className} style={style} href={`/mastery/journey?focus=${encodeURIComponent(focusSkillId)}`} aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  }
+
+  return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
 }
 
 export default function PracticalNextLearningLink({
@@ -55,5 +56,5 @@ export default function PracticalNextLearningLink({
     return <FocusedLearningLink className={className} style={style} content={content} ariaCurrent={ariaCurrent} focusSkillId={focusSkillId} />;
   }
 
-  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey?continue=1" aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
 }
