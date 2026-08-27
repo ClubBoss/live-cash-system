@@ -28,7 +28,9 @@ test("corrected mistakes stop being unresolved repairs", () => {
   assert.match(core, /if \(nextProgress\.lastIncorrectDecisionId === decision\.id\) nextProgress\.lastIncorrectDecisionId = null/);
   assert.match(core, /latestAttemptsByDecision/);
   const repairSection = core.slice(core.indexOf("export function practicalRepairQueue"), core.indexOf("export function markDelayedPracticalRetrieval"));
-  assert.match(repairSection, /if \(attempt\.correct \|\| isPracticalBridgeSkill\(attempt\.skillId\)\) continue/);
+  assert.match(repairSection, /attempt\.correct/);
+  assert.match(repairSection, /isIntegrationDerivedSkill\(attempt\.skillId\)/);
+  assert.match(repairSection, /isPracticalBridgeSkill\(attempt\.skillId\)/);
 });
 
 test("immediate answers cannot grant delayed or real-hand evidence", () => {

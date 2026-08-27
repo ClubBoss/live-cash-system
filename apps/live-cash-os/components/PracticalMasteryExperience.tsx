@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { practicalSkillFamilies } from "../content/practical-mastery";
+import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalSkillFamily } from "../content/practical-mastery";
@@ -58,6 +59,8 @@ const progressCategoryLabels: Record<Locale, Record<PracticalSkillProgressCatego
   },
 };
 
+const learnerSkillFamilies = practicalSkillFamilies.filter((skill) => !isIntegrationDerivedSkill(skill.id));
+
 function waveLabel(wave: string, locale: Locale): string {
   const label = waveLabels[wave];
   return label ? (locale === "ru" ? label.ru : label.en) : (locale === "ru" ? "Другие навыки" : "Other skills");
@@ -94,7 +97,7 @@ function skillTitle(skill: PracticalSkillFamily, locale: Locale): string {
 }
 
 function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
-  return locale === "ru" ? skill.objectiveRu : `Use ${skill.titleEn} reliably in independent decisions and changed conditions.`;
+  return locale === "ru" ? skill.objectiveRu : skill.objectiveEn;
 }
 
 export default function PracticalMasteryExperience() {
@@ -107,8 +110,8 @@ export default function PracticalMasteryExperience() {
     cloudMode,
     recoveryBlocked,
   } = usePracticalProfileState();
-  const defaultSkillId = practicalSkillFamilies[0]?.id ?? "FND-01";
-  const skillMapSkillIds = useMemo(() => practicalSkillFamilies.map((candidate) => candidate.id), []);
+  const defaultSkillId = learnerSkillFamilies[0]?.id ?? "FND-01";
+  const skillMapSkillIds = useMemo(() => learnerSkillFamilies.map((candidate) => candidate.id), []);
   const [selectedSkillId, setSelectedSkillId] = useState(defaultSkillId);
   const [skillMapContentVersion, setSkillMapContentVersion] = useState<string | null>(null);
 
@@ -126,31 +129,31 @@ export default function PracticalMasteryExperience() {
     setStudyWorkspace(withSkillMapCursor(studyWorkspace, state.contentVersion, selectedSkillId));
   }, [ready, selectedSkillId, setStudyWorkspace, skillMapContentVersion, state.contentVersion, studyWorkspace]);
 
-  const skill = practicalSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? practicalSkillFamilies[0];
+  const skill = learnerSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? learnerSkillFamilies[0];
   const progress = state.skills[skill.id];
   const transparency = practicalSkillProgressTransparency(state, skill.id, skill.targetEvidenceStage);
   const gap = practicalSourceGapBySkillId.get(skill.id);
   const hardPrerequisiteIds = hardDependenciesFor(skill.id).map((dependency) => dependency.fromSkillId);
   const hardPrerequisiteTitles = hardPrerequisiteIds
-    .map((id) => practicalSkillFamilies.find((candidate) => candidate.id === id))
+    .map((id) => learnerSkillFamilies.find((candidate) => candidate.id === id))
     .filter((item): item is PracticalSkillFamily => Boolean(item))
     .map((item) => skillTitle(item, locale));
   const availableIds = useMemo(() => new Set(availablePracticalSkills(state).map((candidate) => candidate.id)), [state]);
   const repairIds = useMemo(() => new Set(practicalRepairQueue(state)), [state]);
   const grouped = useMemo(() => {
     const map = new Map<string, PracticalSkillFamily[]>();
-    for (const item of practicalSkillFamilies) {
+    for (const item of learnerSkillFamilies) {
       const list = map.get(item.wave) ?? [];
       list.push(item);
       map.set(item.wave, list);
     }
     return [...map.entries()];
   }, []);
-  const trained = practicalSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
-  const retained = practicalSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DELAYED_RETRIEVAL")).length;
-  const field = practicalSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "REAL_HAND_TRANSFER")).length;
+  const trained = learnerSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
+  const retained = learnerSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DELAYED_RETRIEVAL")).length;
+  const field = learnerSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "REAL_HAND_TRANSFER")).length;
   const recommendation = useMemo(() => recommendNextPracticalSkill(state), [state]);
-  const recommendedSkill = recommendation ? practicalSkillFamilies.find((item) => item.id === recommendation.skillId) ?? null : null;
+  const recommendedSkill = recommendation ? learnerSkillFamilies.find((item) => item.id === recommendation.skillId) ?? null : null;
 
   if (!ready || skillMapContentVersion !== state.contentVersion) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
