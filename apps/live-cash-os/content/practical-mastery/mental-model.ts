@@ -258,3 +258,7 @@ export function practicalRulesForSkill(skillId: string): PracticalRule[] {
 export function practicalRulesForTrigger(triggerFamily: PracticalTriggerFamily): PracticalRule[] {
   return practicalRules.filter((rule) => rule.triggerFamily === triggerFamily);
 }
+
+export function practicalEnvironmentalHabits(): PracticalRule[] {
+  return practicalRules.filter((rule) => rule.mode === "ENVIRONMENTAL_HABIT");
+}
