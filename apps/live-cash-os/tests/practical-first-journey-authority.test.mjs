@@ -49,16 +49,20 @@ test("Quick Start 0..8 presentation matrix can complete only from progress.compl
   assert.equal(firstJourneyPresentationState(complete, false), "COMPLETE");
 });
 
-test("route authority owns one Practical profile controller and hands completed route intent to post-QS teaching", async () => {
+test("route authority owns one Practical profile controller and reacts to current route intent for post-QS teaching", async () => {
   const authority = await readFile(path.join(root, "components/PracticalFirstJourneyAuthority.tsx"), "utf8");
   const experience = await readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8");
 
+  assert.match(authority, /import \{ useSearchParams \} from "next\/navigation"/);
+  assert.match(authority, /const searchParams = useSearchParams\(\)/);
   assert.match(authority, /const profile = usePracticalProfileState\(\)/);
-  assert.match(authority, /const \[routeIntent, setRouteIntent\] = useState<JourneyRouteIntent \| null>\(null\)/);
-  assert.match(authority, /progress\.completed && \(routeIntent\.continueLearning \|\| routeIntent\.focusSkillId\)/);
-  assert.match(authority, /<PracticalPostQuickStartTeaching profile=\{profile\} requestedSkillId=\{routeIntent\.focusSkillId\} \/>/);
+  assert.match(authority, /const continueLearning = searchParams\.get\("continue"\) === "1"/);
+  assert.match(authority, /const focusSkillId = searchParams\.get\("focus"\)/);
+  assert.match(authority, /progress\.completed && \(continueLearning \|\| focusSkillId\)/);
+  assert.match(authority, /<PracticalPostQuickStartTeaching profile=\{profile\} requestedSkillId=\{focusSkillId\} \/>/);
   assert.match(authority, /firstJourneyPresentationState\(progress, Boolean\(recommendation && skill && journeyStep\)\)/);
   assert.match(authority, /<PracticalFirstJourneyExperience presentation=\{presentation\} profile=\{profile\} \/>/);
+  assert.doesNotMatch(authority, /window\.location\.search|addEventListener\("popstate"|setRouteIntent|JourneyRouteIntent/);
   assert.doesNotMatch(authority, /restoreQuickStartPostAnswer/);
   assert.match(experience, /presentation: FirstJourneyPresentationState \| null/);
   assert.match(experience, /profile:/);
