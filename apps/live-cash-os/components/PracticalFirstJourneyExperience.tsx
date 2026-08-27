@@ -155,7 +155,7 @@ export default function PracticalFirstJourneyExperience({
       <h1>{locale === "ru" ? "Быстрый старт завершён" : "Quick start complete"}</h1>
       <p>{locale === "ru" ? `Пройдено ${progress.reached} из ${progress.total} ключевых моделей. Это не означает полное освоение: дальше система будет смешивать задачи, возвращать ошибки, менять условия и позже проверять сохранение навыка после паузы.` : `You have completed ${progress.reached} of ${progress.total} core models. This is not full mastery: the system will now mix decisions, revisit mistakes, change conditions, and later test retention after a delay.`}</p>
       <p><b>{progress.reached}/{progress.total}</b></p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><Link className="primary" href="/mastery/session">{locale === "ru" ? "Продолжить обучение →" : "Continue learning →"}</Link><Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}><a className="primary" href="/mastery/journey?continue=1">{locale === "ru" ? "Продолжить обучение →" : "Continue learning →"}</a><Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></div>
     </main>;
   }
 
