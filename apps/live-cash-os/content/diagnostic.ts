@@ -29,11 +29,11 @@ function applyDiagnosticConstructParity(locale: LocaleCode) {
   const drill = drillById["mul-04"];
   if (!drill) throw new Error("Missing Diagnostic drill mul-04");
   drill.question = locale === "ru"
-    ? "Какой фактор проверить первым перед решением о частой ставке CO?"
-    : "Which factor should be checked first before deciding on a CO range-bet?";
+    ? "Какой фактор проверить первым перед решением о частой ставке HJ?"
+    : "Which factor should be checked first before deciding on an HJ range-bet?";
   const optionText = locale === "ru"
-    ? ["Преимущество диапазона BB на низкой доске", "Префлоп-инициатива CO", "Сам факт игры втроём"]
-    : ["BB low-board ownership", "CO preflop initiative", "Multiway status by itself"];
+    ? ["Преимущество диапазона BB на низкой доске", "Префлоп-инициатива HJ", "Сам факт игры втроём"]
+    : ["BB low-board ownership", "HJ preflop initiative", "Multiway status by itself"];
   drill.actionOptions.forEach((option, index) => {
     if (optionText[index]) option.text = optionText[index];
   });
