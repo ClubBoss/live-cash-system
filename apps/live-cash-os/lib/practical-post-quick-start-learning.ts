@@ -5,15 +5,19 @@ import {
   type PracticalAnchor,
   type PracticalRule,
 } from "../content/practical-mastery";
+import { learningRouteScore } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { isIntegratedFocusAdmissible } from "./practical-adaptive-session";
 import { firstJourneyProgress } from "./practical-first-journey";
 import {
   isPracticalBridgeSkill,
   markPracticalConceptTaught,
+  nextPracticalDecision,
   practicalPrerequisitesMet,
   practicalSkillCorpusCanReach,
   recommendNextPracticalSkill,
+  stageAtLeast,
+  trainablePracticalSkills,
   type PracticalMasteryState,
 } from "./practical-mastery-core";
 
@@ -73,18 +77,10 @@ export function isPostQuickStartTeachingAdmissible(
   return practicalPostQuickStartTeachingAssetForSkill(skillId) !== null;
 }
 
-export function resolvePostQuickStartLearningTarget(
+function exactPostQuickStartTarget(
   state: PracticalMasteryState,
-  requestedSkillId: string | null = null,
+  skillId: string,
 ): PracticalPostQuickStartLearningTarget {
-  if (!firstJourneyProgress(state).completed) {
-    return { kind: "BLOCKED", skillId: requestedSkillId, reason: "QUICK_START_INCOMPLETE" };
-  }
-
-  const recommendation = requestedSkillId ? null : recommendNextPracticalSkill(state);
-  const skillId = requestedSkillId ?? recommendation?.skillId ?? null;
-  if (!skillId) return { kind: "BLOCKED", skillId: null, reason: "NO_RECOMMENDATION" };
-
   if (isIntegratedFocusAdmissible(state, skillId)) {
     return {
       kind: "PRACTICE",
@@ -106,6 +102,63 @@ export function resolvePostQuickStartLearningTarget(
   }
 
   return { kind: "BLOCKED", skillId, reason: "FOCUS_UNAVAILABLE" };
+}
+
+function actionableFallbackSkillId(state: PracticalMasteryState): string | null {
+  const ranked = trainablePracticalSkills(state)
+    .map((skill) => ({
+      skill,
+      score: learningRouteScore({
+        skill,
+        currentStage: state.skills[skill.id]?.evidenceStage ?? "SOURCE_SUPPORTED",
+      }),
+    }))
+    .sort((a, b) => b.score - a.score || a.skill.id.localeCompare(b.skill.id));
+
+  const prerequisiteProgression = ranked.find(({ skill }) => {
+    const progress = state.skills[skill.id];
+    return Boolean(
+      progress?.conceptTaught
+      && !stageAtLeast(progress.evidenceStage, "DECISION_TRAINED")
+      && isIntegratedFocusAdmissible(state, skill.id)
+      && nextPracticalDecision(state, skill.id),
+    );
+  });
+  if (prerequisiteProgression) return prerequisiteProgression.skill.id;
+
+  const teachable = ranked.find(({ skill }) => isPostQuickStartTeachingAdmissible(state, skill.id));
+  if (teachable) return teachable.skill.id;
+
+  const supportedPractice = ranked.find(({ skill }) => (
+    isIntegratedFocusAdmissible(state, skill.id) && Boolean(nextPracticalDecision(state, skill.id))
+  ));
+  return supportedPractice?.skill.id ?? null;
+}
+
+export function resolvePostQuickStartLearningTarget(
+  state: PracticalMasteryState,
+  requestedSkillId: string | null = null,
+): PracticalPostQuickStartLearningTarget {
+  if (!firstJourneyProgress(state).completed) {
+    return { kind: "BLOCKED", skillId: requestedSkillId, reason: "QUICK_START_INCOMPLETE" };
+  }
+
+  if (requestedSkillId) return exactPostQuickStartTarget(state, requestedSkillId);
+
+  const recommendation = recommendNextPracticalSkill(state);
+  if (recommendation) {
+    const recommendedTarget = exactPostQuickStartTarget(state, recommendation.skillId);
+    if (recommendedTarget.kind !== "BLOCKED") return recommendedTarget;
+  }
+
+  const fallbackSkillId = actionableFallbackSkillId(state);
+  if (fallbackSkillId) return exactPostQuickStartTarget(state, fallbackSkillId);
+
+  return {
+    kind: "BLOCKED",
+    skillId: recommendation?.skillId ?? null,
+    reason: recommendation ? "FOCUS_UNAVAILABLE" : "NO_RECOMMENDATION",
+  };
 }
 
 export function beginPostQuickStartApplication(
