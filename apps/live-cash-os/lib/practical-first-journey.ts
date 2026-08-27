@@ -1,6 +1,6 @@
 import { firstJourneySteps } from "../content/practical-mastery/first-journey";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
-import { practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
+import { isOrdinaryLearnerDecision, practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
 import { practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type FirstJourneyRecommendation = {
@@ -17,7 +17,7 @@ function latestAttemptForDecision(state: PracticalMasteryState, decisionId: stri
 
 function unresolvedWrongDecisionIds(state: PracticalMasteryState, skillId: string): string[] {
   return practicalDecisions
-    .filter((decision) => decision.skillId === skillId)
+    .filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision))
     .map((decision) => ({ decision, latest: latestAttemptForDecision(state, decision.id) }))
     .filter(({ latest }) => latest && !latest.correct)
     .map(({ decision }) => decision.id);
@@ -40,7 +40,7 @@ function quickStartRecognitionReady(state: PracticalMasteryState, skillId: strin
 }
 
 export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
-  const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId);
+  const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision));
   const successfulIds = new Set(
     state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct).map((attempt) => attempt.decisionId),
   );
