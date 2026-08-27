@@ -22,7 +22,7 @@ const acceptedPokerTerms = [
   /\bSPR\b/giu,
   /\bPFR\b/giu,
   /\bc-bet\b/giu,
-  /A[-‑–]high/giu,
+  /A(?:-|\u2011|\u2013)high/giu,
 ];
 const practicalRuleRuFields = ["triggerRu", "defaultRu", "whyRu", "amplifiersRu", "reversalsRu", "transferCueRu"];
 
@@ -70,8 +70,14 @@ function stripAcceptedPokerTerms(text) {
 
 function practicalRuleDefects(rows) {
   return rows.filter(({ text }) => {
-    if (knownMalformed.test(text) || demonstrated.test(text) || sourceLike.test(text) || englishGlue.test(text)) return true;
-    return unexpectedLatinProse.test(stripAcceptedPokerTerms(text));
+    const governedText = stripAcceptedPokerTerms(text);
+    return (
+      knownMalformed.test(governedText) ||
+      demonstrated.test(governedText) ||
+      sourceLike.test(governedText) ||
+      englishGlue.test(governedText) ||
+      unexpectedLatinProse.test(governedText)
+    );
   });
 }
 
