@@ -160,7 +160,7 @@ export default function DiagnosticExperience({
           <div><b>{counts.NEEDS_WORK ?? 0}</b><span>{diagnosticFeedbackLevelLabel("NEEDS_WORK", locale)}</span></div>
           <div><b>{counts.UNCERTAIN ?? 0}</b><span>{diagnosticFeedbackLevelLabel("UNCERTAIN", locale)}</span></div>
         </div>
-        <p className="assumption-strip">{ru ? "Это рекомендации по темам, а не точный маршрут Practical. Диагностика не повышает mastery, не обходит предпосылки и не угадывает один canonical skill из широкой темы." : "These are topic recommendations, not an exact Practical route. Diagnostic does not advance mastery, bypass prerequisites, or guess one canonical skill from a broad topic."}</p>
+        <p className="assumption-strip">{ru ? "Это рекомендации по темам, а не точный маршрут Practical. Диагностика не повышает статус освоения, не обходит предпосылки и не определяет одну точную тему для тренировки по широкой диагностической категории." : "These are topic recommendations, not an exact Practical route. Diagnostic does not advance learning status, bypass prerequisites, or infer one exact practice topic from a broad diagnostic category."}</p>
         {assessment.priorityModules.length > 0 && <><h2>{ru ? "Рекомендуемые темы для старта" : "Recommended starting areas"}</h2>{assessment.priorityModules.map((moduleId) => <p key={moduleId} className="priority-box">{moduleById[moduleId].lcm} · {moduleById[moduleId].title}</p>)}</>}
         <button className="primary" onClick={continueToPractical}>{ru ? "Перейти в Practical" : "Continue in Practical"} <span aria-hidden="true">→</span></button>
         <button className="textbutton" onClick={exportRun}>{ru ? "Скачать ответы" : "Download responses"}</button>

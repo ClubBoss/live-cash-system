@@ -38,6 +38,7 @@ export type PracticalSkillFamily = {
   titleRu: string;
   titleEn: string;
   objectiveRu: string;
+  objectiveEn: string;
   legacyModuleIds: ModuleId[];
   prerequisiteSkillIds: string[];
   sourceRefs: string[];

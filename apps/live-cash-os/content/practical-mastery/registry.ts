@@ -1,4 +1,5 @@
 import type { PracticalSkillFamily } from "./types";
+import { practicalObjectiveEnById } from "./objectives-en";
 
 const f = (
   id: string,
@@ -12,7 +13,11 @@ const f = (
   livePriority: PracticalSkillFamily["livePriority"],
   targetEvidenceStage: PracticalSkillFamily["targetEvidenceStage"] = "DELAYED_RETRIEVAL",
   competencyGate = false,
-): PracticalSkillFamily => ({ id, wave, titleRu, titleEn, objectiveRu, legacyModuleIds, prerequisiteSkillIds, sourceRefs, targetEvidenceStage, competencyGate, livePriority });
+): PracticalSkillFamily => {
+  const objectiveEn = practicalObjectiveEnById[id as keyof typeof practicalObjectiveEnById];
+  if (!objectiveEn) throw new Error(`Missing objectiveEn for Practical skill ${id}`);
+  return { id, wave, titleRu, titleEn, objectiveRu, objectiveEn, legacyModuleIds, prerequisiteSkillIds, sourceRefs, targetEvidenceStage, competencyGate, livePriority };
+};
 
 export const practicalSkillFamilies: PracticalSkillFamily[] = [
   // W1 — foundation
