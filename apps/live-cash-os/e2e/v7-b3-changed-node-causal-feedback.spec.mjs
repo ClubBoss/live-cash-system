@@ -68,7 +68,7 @@ test("PF-01 changed node explains actual change -> strategic direction -> variab
   await expect(mechanismEn).toContainText("Position, action order, and ranges still left to act change equity realization");
   await expect(mechanismEn).toContainText("moving the EV of fringe continues and pressure");
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Correct action:");
-  await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Correct reason:");
+  await expect(changed.locator("[data-practical-correct-answer]")).not.toContainText("Correct reason:");
 
   const masteryNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await masteryNav.getByRole("button", { name: "RU", exact: true }).click();
@@ -84,5 +84,5 @@ test("PF-01 changed node explains actual change -> strategic direction -> variab
   await expect(mechanismRu).toContainText("Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию equity");
   await expect(mechanismRu).toContainText("сдвигают EV пограничных продолжений и давления");
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Правильное действие:");
-  await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Правильная причина:");
+  await expect(changed.locator("[data-practical-correct-answer]")).not.toContainText("Правильная причина:");
 });
