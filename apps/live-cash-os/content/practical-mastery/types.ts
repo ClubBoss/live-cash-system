@@ -72,6 +72,7 @@ export type PracticalDecisionOption = {
 export type PracticalDecision = {
   id: string;
   skillId: string;
+  learnerEligibility?: "ORDINARY" | "INTERNAL_ONLY";
   kind: "recognition" | "decision" | "changed" | "boundary" | "mixed";
   sourceRefs: string[];
   assumptions: string[];
@@ -88,3 +89,7 @@ export type PracticalDecision = {
   changedVariables?: string[];
   targetSeconds: number;
 };
+
+export function isOrdinaryLearnerDecision(decision: PracticalDecision): boolean {
+  return decision.learnerEligibility !== "INTERNAL_ONLY";
+}

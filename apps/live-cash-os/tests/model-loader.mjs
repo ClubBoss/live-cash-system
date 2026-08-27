@@ -28,7 +28,7 @@ const TRANSPILED_URLS = new Set([
 ]);
 
 function isTemporaryHarness(parentURL) {
-  return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-test-");
+  return parentURL?.includes("/tmp/live-cash-os-") || parentURL?.includes("live-cash-os-final-red-team-") || parentURL?.includes("live-cash-os-test-");
 }
 
 function isAppTypeScript(url) {

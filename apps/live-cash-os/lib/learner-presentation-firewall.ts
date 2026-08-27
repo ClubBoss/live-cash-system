@@ -203,6 +203,45 @@ function skillTitle(id: string, locale: LearnerPresentationLocale): string {
   return locale === "ru" ? skill.titleRu : skill.titleEn;
 }
 
+// After a source/evidence identifier is replaced with the plurale-tantum phrase
+// "проверенные данные", any third-person-singular present verb that was agreeing
+// with the original singular identifier is left stranded (e.g. "…прямо показывает").
+// This is a bounded, mechanical publication artifact of the substitution above:
+// the subject is unambiguously plural, so the immediately-following finite verb
+// must be plural too. Only the finite verb forms that actually follow the phrase
+// in the active learner corpus are mapped, keyed by their exact singular form, so
+// an already-plural verb never matches and no unlisted token is touched.
+const RU_EVIDENCE_PREDICATE_PLURAL = new Map<string, string>([
+  ["требует", "требуют"], ["связывает", "связывают"], ["использует", "используют"],
+  ["описывает", "описывают"], ["запрещает", "запрещают"], ["отвергает", "отвергают"],
+  ["подчёркивает", "подчёркивают"], ["подчеркивает", "подчеркивают"], ["говорит", "говорят"],
+  ["выделяет", "выделяют"], ["делает", "делают"], ["предупреждает", "предупреждают"],
+  ["отделяет", "отделяют"], ["называет", "называют"], ["строит", "строят"],
+  ["показывает", "показывают"], ["отмечает", "отмечают"], ["формулирует", "формулируют"],
+  ["поддерживает", "поддерживают"], ["разрешает", "разрешают"], ["добавляет", "добавляют"],
+  ["сравнивает", "сравнивают"], ["перечисляет", "перечисляют"], ["учит", "учат"],
+  ["разделяет", "разделяют"], ["начинает", "начинают"], ["допускает", "допускают"],
+  ["ограничивает", "ограничивают"], ["переходит", "переходят"], ["объясняет", "объясняют"],
+  ["удаляет", "удаляют"], ["занимает", "занимают"], ["даёт", "дают"], ["дает", "дают"],
+  ["рекомендует", "рекомендуют"], ["убирает", "убирают"], ["привязывает", "привязывают"],
+  ["помечает", "помечают"], ["рассматривает", "рассматривают"], ["пересчитывает", "пересчитывают"],
+  ["вводит", "вводят"], ["определяет", "определяют"], ["указывает", "указывают"],
+  ["организует", "организуют"], ["уменьшает", "уменьшают"], ["оставляет", "оставляют"],
+  ["поясняет", "поясняют"], ["учитывает", "учитывают"], ["позволяет", "позволяют"],
+]);
+const RU_EVIDENCE_PREDICATE_ADVERB = "(?:прямо|отдельно|специально|именно|сразу|особенно|явно|одновременно|также|уже|обычно)";
+const RU_EVIDENCE_PREDICATE_PATTERN = new RegExp(
+  `(проверенные данные\\s+(?:${RU_EVIDENCE_PREDICATE_ADVERB}\\s+){0,3})([а-яё]+)`,
+  "giu",
+);
+
+function fixRuEvidencePredicateAgreement(value: string): string {
+  return value.replace(RU_EVIDENCE_PREDICATE_PATTERN, (match, lead: string, verb: string) => {
+    const plural = RU_EVIDENCE_PREDICATE_PLURAL.get(verb.toLocaleLowerCase("ru-RU"));
+    return plural ? `${lead}${plural}` : match;
+  });
+}
+
 export function sanitizeLearnerPresentationText(
   value: string,
   locale: LearnerPresentationLocale,
@@ -221,6 +260,7 @@ export function sanitizeLearnerPresentationText(
 
   const evidence = locale === "ru" ? "проверенные данные" : "reviewed evidence";
   next = next.replace(new RegExp(`\\b(?:${SOURCE_ID_SOURCE}|${BARE_EVIDENCE_ID_SOURCE})\\b`, "giu"), evidence);
+  if (locale === "ru") next = fixRuEvidencePredicateAgreement(next);
   next = next.replace(
     /reviewed evidence\s+extends\s+reviewed evidence/giu,
     "reviewed evidence supports the same mechanism",

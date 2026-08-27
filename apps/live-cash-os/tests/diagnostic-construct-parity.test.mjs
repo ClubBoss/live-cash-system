@@ -22,15 +22,15 @@ function assertCategoryParity(locale, expectedQuestion, expectedOptions) {
 test("V3-09 Diagnostic item 9 keeps one analytical abstraction level in RU", () => {
   assertCategoryParity(
     "ru",
-    "Какой фактор проверить первым перед решением о частой ставке CO?",
-    ["Преимущество диапазона BB на низкой доске", "Префлоп-инициатива CO", "Сам факт игры втроём"],
+    "Какой фактор проверить первым перед решением о частой ставке HJ?",
+    ["Преимущество диапазона BB на низкой доске", "Префлоп-инициатива HJ", "Сам факт игры втроём"],
   );
 });
 
 test("V3-09 Diagnostic item 9 keeps one analytical abstraction level in EN", () => {
   assertCategoryParity(
     "en",
-    "Which factor should be checked first before deciding on a CO range-bet?",
-    ["BB low-board ownership", "CO preflop initiative", "Multiway status by itself"],
+    "Which factor should be checked first before deciding on an HJ range-bet?",
+    ["BB low-board ownership", "HJ preflop initiative", "Multiway status by itself"],
   );
 });

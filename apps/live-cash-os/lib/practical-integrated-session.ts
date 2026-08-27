@@ -2,6 +2,7 @@ import {
   practicalDecisionById,
   practicalDecisions,
   practicalSkillById,
+  isOrdinaryLearnerDecision,
   type PracticalDecision,
   type PracticalEvidenceStage,
 } from "../content/practical-mastery";
@@ -62,7 +63,7 @@ function candidateDecisionForSkill(
 ): PracticalDecision | null {
   const latest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
   const attempted = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
-  const pool = practicalDecisions.filter((decision) => decision.skillId === skillId && kinds.includes(decision.kind) && !excludedDecisionIds.has(decision.id) && !avoidDecisionIds.has(decision.id));
+  const pool = practicalDecisions.filter((decision) => isOrdinaryLearnerDecision(decision) && decision.skillId === skillId && kinds.includes(decision.kind) && !excludedDecisionIds.has(decision.id) && !avoidDecisionIds.has(decision.id));
   return pool.find((decision) => !attempted.has(decision.id) && (!requireNonIdenticalToLatest || decision.id !== latest?.decisionId)) ?? pool.find((decision) => !requireNonIdenticalToLatest || decision.id !== latest?.decisionId) ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
@@ -75,7 +76,7 @@ export function integratedBreadthReady(state: PracticalMasteryState): boolean {
 }
 
 export function supportedIntegratedSkillIds(state: PracticalMasteryState): string[] {
-  return [...new Set(practicalDecisions.map((decision) => decision.skillId))].filter((skillId) => {
+  return [...new Set(practicalDecisions.filter(isOrdinaryLearnerDecision).map((decision) => decision.skillId))].filter((skillId) => {
     if (isIntegrationDerivedSkill(skillId)) return false;
     if (BRIDGE_SKILL_IDS.has(skillId)) return false;
     const gap = practicalSourceGapBySkillId.get(skillId);

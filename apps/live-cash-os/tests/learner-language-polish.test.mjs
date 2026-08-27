@@ -178,7 +178,7 @@ test("final RU learner corpus rejects internal jargon while retaining scaffolded
 
   const mul04 = moduleById.multiway.drills.find((item) => item.id === "mul-04");
   assert.ok(mul04);
-  assert.equal(mul04.question, "Какой фактор проверить первым перед решением о частой ставке CO?");
+  assert.equal(mul04.question, "Какой фактор проверить первым перед решением о частой ставке HJ?");
   assert.equal(mul04.actionOptions.find((option) => option.id === mul04.correctActionId)?.text, "Преимущество диапазона BB на низкой доске");
   assert.match(mul04.explanation, /одной префлоп-инициативы недостаточно/u);
 
