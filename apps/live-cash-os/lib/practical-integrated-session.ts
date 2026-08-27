@@ -5,6 +5,7 @@ import {
   type PracticalDecision,
   type PracticalEvidenceStage,
 } from "../content/practical-mastery";
+import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { learningRouteScore, whyNowForSkill } from "../content/practical-mastery/learning-route";
 import {
@@ -68,14 +69,14 @@ function currentStage(state: PracticalMasteryState, skillId: string): PracticalE
 function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter((attempt) => attempt.skillId === skillId).length * 4); }
 
 export function integratedBreadthReady(state: PracticalMasteryState): boolean {
-  const trained = Object.values(state.skills).filter((progress) => !progress.skillId.startsWith("INT-") && stageAtLeast(progress.evidenceStage, "DECISION_TRAINED"));
+  const trained = Object.values(state.skills).filter((progress) => !isIntegrationDerivedSkill(progress.skillId) && stageAtLeast(progress.evidenceStage, "DECISION_TRAINED"));
   const waves = new Set(trained.map((progress) => practicalSkillById.get(progress.skillId)?.wave).filter(Boolean));
   return trained.length >= 8 && waves.size >= 4;
 }
 
 export function supportedIntegratedSkillIds(state: PracticalMasteryState): string[] {
   return [...new Set(practicalDecisions.map((decision) => decision.skillId))].filter((skillId) => {
-    if (skillId.startsWith("INT-")) return false;
+    if (isIntegrationDerivedSkill(skillId)) return false;
     if (BRIDGE_SKILL_IDS.has(skillId)) return false;
     const gap = practicalSourceGapBySkillId.get(skillId);
     if (gap?.status === "SOURCE_BLOCKED" || gap?.status === "PARTIAL") return false;
