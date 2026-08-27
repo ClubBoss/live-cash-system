@@ -2,7 +2,7 @@ import { laterStreetLegacySkillBridges, practicalAnchors, practicalDecisionById,
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { canonicalFirstJourneySkillIds, hardDependenciesFor, learningRouteScore, softDependenciesFor, whyNowForSkill } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
-import type { PracticalDecision, PracticalEvidenceStage } from "../content/practical-mastery";
+import { isOrdinaryLearnerDecision, type PracticalDecision, type PracticalEvidenceStage } from "../content/practical-mastery";
 
 export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3 as const;
 export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v3";
@@ -47,7 +47,7 @@ export function createPracticalMasteryState(now = new Date(), resetFromLegacy = 
 export function stageAtLeast(actual: PracticalEvidenceStage, required: PracticalEvidenceStage): boolean { return STAGE_ORDER.indexOf(actual) >= STAGE_ORDER.indexOf(required); }
 export function markPracticalConceptTaught(state: PracticalMasteryState, skillId: string, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); next.skills[skillId].conceptTaught = true; next.skills[skillId].conceptTaughtAt = nowIso(now); refreshEvidenceStage(next.skills[skillId]); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 
-export function practicalSkillCorpusStats(skillId: string) { const decisions = practicalDecisions.filter((decision) => decision.skillId === skillId); return { recognition: decisions.filter((decision) => decision.kind === "recognition").length, direct: decisions.filter((decision) => decision.kind === "decision").length, transfer: decisions.filter((decision) => decision.kind === "changed" || decision.kind === "mixed").length, boundary: decisions.filter((decision) => decision.kind === "boundary").length, total: decisions.length } as const; }
+export function practicalSkillCorpusStats(skillId: string) { const decisions = decisionsForPracticalSkill(skillId); return { recognition: decisions.filter((decision) => decision.kind === "recognition").length, direct: decisions.filter((decision) => decision.kind === "decision").length, transfer: decisions.filter((decision) => decision.kind === "changed" || decision.kind === "mixed").length, boundary: decisions.filter((decision) => decision.kind === "boundary").length, total: decisions.length } as const; }
 export function practicalSkillCorpusCanReach(skillId: string, stage: PracticalEvidenceStage): boolean {
   if (isPracticalBridgeSkill(skillId)) return false;
   const gap = practicalSourceGapBySkillId.get(skillId); if (gap?.status === "SOURCE_BLOCKED") return false; if (gap?.status === "PARTIAL" && stageAtLeast(stage, "DECISION_TRAINED")) return false;
@@ -81,7 +81,7 @@ export function recordPracticalDecision(state: PracticalMasteryState, input: { d
   if (correct) { nextProgress.correct += 1; if (!nextProgress.successfulDecisionIds.includes(decision.id)) nextProgress.successfulDecisionIds.push(decision.id); if (decision.kind === "recognition") nextProgress.recognitionCorrect += 1; if (decision.kind === "decision") nextProgress.directDecisionCorrect += 1; if (decision.kind === "changed") nextProgress.changedCorrect += 1; if (decision.kind === "boundary") nextProgress.boundaryCorrect += 1; if (decision.kind === "mixed") nextProgress.mixedCorrect += 1; if (nextProgress.lastIncorrectDecisionId === decision.id) nextProgress.lastIncorrectDecisionId = null; } else nextProgress.lastIncorrectDecisionId = decision.id;
   nextProgress.lastAttemptAt = answeredAt; refreshEvidenceStage(nextProgress); next.attempts.push(attempt); next.revision += 1; next.updatedAt = answeredAt; return next;
 }
-export function decisionsForPracticalSkill(skillId: string): PracticalDecision[] { return practicalDecisions.filter((decision) => decision.skillId === skillId); }
+export function decisionsForPracticalSkill(skillId: string): PracticalDecision[] { return practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision)); }
 function latestAttemptsByDecision(state: PracticalMasteryState, skillId?: string): Map<string, PracticalAttempt> { const map = new Map<string, PracticalAttempt>(); for (const attempt of state.attempts) if (!skillId || attempt.skillId === skillId) map.set(attempt.decisionId, attempt); return map; }
 function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][]): PracticalDecision | null { const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId)); return decisionsForPracticalSkill(skillId).find((decision) => kinds.includes(decision.kind) && !attemptedIds.has(decision.id)) ?? null; }
 export function nextPracticalDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
