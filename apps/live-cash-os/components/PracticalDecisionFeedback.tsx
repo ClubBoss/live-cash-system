@@ -30,10 +30,13 @@ export default function PracticalDecisionFeedback({
         <p><b>{locale === "ru" ? "Правильная причина:" : "Correct reason:"}</b> {feedback.reason.correctText}</p>
       </> : null}
       <p data-practical-feedback-mechanism>
-        {hasDiagnosis ? <b>{locale === "ru" ? "На что смотреть в следующий раз:" : "What to notice next time:"}</b> : null}
+        {hasDiagnosis ? <b>{locale === "ru" ? "Почему выбранное здесь не подходит:" : "Why the selected choice does not fit here:"}</b> : null}
         {hasDiagnosis ? " " : null}{feedback.mechanism}
       </p>
     </div> : <p data-practical-feedback-mechanism>{feedback.mechanism}</p>}
-    {feedback.boundary ? <p data-practical-feedback-boundary style={{ opacity: 0.86 }}>{feedback.boundary}</p> : null}
+    {feedback.boundary ? <p data-practical-feedback-boundary style={{ opacity: 0.86 }}>
+      {!correct && hasDiagnosis ? <b>{locale === "ru" ? "Что проверить в следующий раз:" : "What to check next time:"}</b> : null}
+      {!correct && hasDiagnosis ? " " : null}{feedback.boundary}
+    </p> : null}
   </>;
 }
