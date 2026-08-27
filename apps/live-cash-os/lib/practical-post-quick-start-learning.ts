@@ -5,6 +5,7 @@ import {
   type PracticalAnchor,
   type PracticalRule,
 } from "../content/practical-mastery";
+import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { learningRouteScore } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { isIntegratedFocusAdmissible } from "./practical-adaptive-session";
@@ -68,7 +69,7 @@ export function isPostQuickStartTeachingAdmissible(
   const skill = practicalSkillById.get(skillId);
   const progress = state.skills[skillId];
   if (!skill || !progress || progress.conceptTaught || skill.sourceRefs.length === 0) return false;
-  if (isPracticalBridgeSkill(skillId)) return false;
+  if (isIntegrationDerivedSkill(skillId) || isPracticalBridgeSkill(skillId)) return false;
 
   const sourceGap = practicalSourceGapBySkillId.get(skillId);
   if (sourceGap?.status === "SOURCE_BLOCKED" || sourceGap?.status === "PARTIAL") return false;

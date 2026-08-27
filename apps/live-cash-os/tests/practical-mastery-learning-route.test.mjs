@@ -34,10 +34,13 @@ test("runtime gating consumes curated HARD dependencies instead of registry orde
 });
 
 test("runtime scheduler can interrupt route for repair and then rank by learning EV", () => {
-  assert.match(core, /recommendNextPracticalSkill/);
-  assert.match(core, /urgentRepair/);
-  assert.match(core, /canonicalFirstJourneySkillIds/);
-  assert.match(core, /learningRouteScore/);
+  const recommendationSection = core.slice(core.indexOf("export function recommendNextPracticalSkill"), core.indexOf("export function recordPracticalDecision"));
+  assert.match(recommendationSection, /practicalRepairQueue\(state\)\.find/);
+  assert.match(recommendationSection, /activeRepairSkillId/);
+  assert.match(recommendationSection, /if \(activeRepair\)/);
+  assert.ok(recommendationSection.indexOf("if (activeRepair)") < recommendationSection.indexOf("const newCapability"), "active repair must return before new capability teaching is ranked");
+  assert.match(recommendationSection, /canonicalFirstJourneySkillIds/);
+  assert.match(recommendationSection, /learningRouteScore/);
   assert.match(route, /whyNowForSkill/);
   assert.match(route, /Repair now:/);
   assert.match(route, /High-value next capability:/);
