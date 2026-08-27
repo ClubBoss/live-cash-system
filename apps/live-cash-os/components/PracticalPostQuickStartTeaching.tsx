@@ -30,9 +30,9 @@ export default function PracticalPostQuickStartTeaching({
   const skill = target.skillId ? practicalSkillById.get(target.skillId) ?? null : null;
 
   useEffect(() => {
-    if (!ready || recoveryBlocked || target.kind !== "PRACTICE") return;
+    if (pendingPracticeSkillId || !ready || recoveryBlocked || target.kind !== "PRACTICE") return;
     window.location.replace(target.href);
-  }, [ready, recoveryBlocked, target]);
+  }, [pendingPracticeSkillId, ready, recoveryBlocked, target]);
 
   useEffect(() => {
     if (!pendingPracticeSkillId || !state.skills[pendingPracticeSkillId]?.conceptTaught) return;
