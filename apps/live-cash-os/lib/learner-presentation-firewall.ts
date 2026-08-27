@@ -221,6 +221,7 @@ export function sanitizeLearnerPresentationText(
 
   const evidence = locale === "ru" ? "проверенные данные" : "reviewed evidence";
   next = next.replace(new RegExp(`\\b(?:${SOURCE_ID_SOURCE}|${BARE_EVIDENCE_ID_SOURCE})\\b`, "giu"), evidence);
+  if (locale === "ru") next = next.replace(/проверенные данные прямо показывает/giu, "проверенные данные прямо показывают");
   next = next.replace(
     /reviewed evidence\s+extends\s+reviewed evidence/giu,
     "reviewed evidence supports the same mechanism",
