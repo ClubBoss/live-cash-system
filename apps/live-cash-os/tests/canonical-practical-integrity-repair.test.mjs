@@ -89,12 +89,12 @@ test("named Skill Map recommendation enters the canonical scheduler with validat
   assert.match(adaptive, /supportedIntegratedSkillIds\(state\)\.includes\(skillId\)/);
   assert.match(adaptive, /buildIntegratedSession/);
   assert.match(integrated, /URLSearchParams\(window\.location\.search\)\.get\("focus"\)/);
+  assert.match(integrated, /focusAdmissible[\s\S]*isIntegratedFocusAdmissible/);
+  assert.match(integrated, /will not silently substitute a different topic/);
 });
 
 test("same-item repeat grinding still cannot inflate distinct evidence", () => {
-  assert.match(core, /new Set\(skillState\.distinctRecognitionIds\)/);
-  assert.match(core, /new Set\(skillState\.distinctTransferIds\)/);
-  assert.match(core, /nextRecognition\.add\(decision\.id\)/);
-  assert.match(core, /nextTransfer\.add\(decision\.id\)/);
+  assert.match(core, /!nextProgress\.successfulDecisionIds\.includes\(decision\.id\)/);
+  assert.match(core, /new Set\(/);
   assert.match(stateIntegrity, /repeat-grinding one decision cannot inflate distinct evidence/);
 });
