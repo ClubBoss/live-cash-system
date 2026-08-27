@@ -80,7 +80,7 @@ for (const fixture of [
     await expect(page.locator("main")).toContainText("8/8");
     await expect(page.locator("main")).toContainText(/Это не означает полное освоение|This is not full mastery/);
 
-    await page.evaluate(() => window.history.pushState(null, "", "/mastery/journey?continue=1"));
+    await page.locator("main").getByRole("link", { name: /Продолжить обучение →|Continue learning →/ }).click();
     await expect(page).toHaveURL(/\/mastery\/journey\?continue=1$/);
     await expect(page.locator("main")).toContainText(/ПОСЛЕ БЫСТРОГО СТАРТА|AFTER QUICK START/);
     await expect(page.locator("main")).toContainText(/МЕХАНИЗМ|MECHANISM/);
@@ -90,18 +90,11 @@ for (const fixture of [
     await expect(page).toHaveURL(/\/mastery\/journey\?continue=1$/);
     await expect(page.locator("main")).toContainText(/ПОСЛЕ БЫСТРОГО СТАРТА|AFTER QUICK START/);
 
-    await page.evaluate(() => window.history.pushState(null, "", "/mastery/journey"));
-    await expect(page.getByRole("heading", { name: /Быстрый старт завершён|Quick start complete/ })).toBeVisible();
-
     await page.goBack();
-    await expect(page).toHaveURL(/\/mastery\/journey\?continue=1$/);
-    await expect(page.locator("main")).toContainText(/ПОСЛЕ БЫСТРОГО СТАРТА|AFTER QUICK START/);
-
-    await page.goForward();
     await expect(page).toHaveURL(/\/mastery\/journey$/);
     await expect(page.getByRole("heading", { name: /Быстрый старт завершён|Quick start complete/ })).toBeVisible();
 
-    await page.locator("main").getByRole("link", { name: /Продолжить обучение →|Continue learning →/ }).click();
+    await page.goForward();
     await expect(page).toHaveURL(/\/mastery\/journey\?continue=1$/);
     await expect(page.locator("main")).toContainText(/ПОСЛЕ БЫСТРОГО СТАРТА|AFTER QUICK START/);
     await expect(page.locator("main")).toContainText(/МЕХАНИЗМ|MECHANISM/);
