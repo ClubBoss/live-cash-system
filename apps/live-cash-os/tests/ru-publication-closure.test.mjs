@@ -70,11 +70,11 @@ test("A: raw equity resolves to the correct gender/case in its two active FND-02
   assert.match(anchor.promptRu, /приравнять исходную equity/u);
 });
 
-test("A: PM-FND-01-105 reason r3 keeps feminine participle agreement with 'требуемая equity'", () => {
+test("A: PM-FND-01-105 reason r3 keeps natural agreement with 'требуемая equity'", () => {
   const decision = practicalDecisionById.get("PM-FND-01-105");
   const r3 = decision.reasonOptions.find((option) => option.id === "r3");
-  assert.match(r3.textRu, /требуемая equity зафиксирована на 50%/u);
-  assert.doesNotMatch(r3.textRu, /зафиксирован на 50%/u);
+  assert.match(r3.textRu, /требуемая equity всегда равна 50%/iu);
+  assert.doesNotMatch(r3.textRu, /зафиксирован(?:а)? на 50%/u);
 });
 
 // --- B. hybrid RU/EN composition on the specific repaired decisions -----
@@ -145,9 +145,9 @@ test("B: the six externally observed malformed strings do not recur verbatim", (
 
 test("B: PM-FND-01-107 boundary item reads as natural, case-agreeing Russian", () => {
   const decision = practicalDecisionById.get("PM-FND-01-107");
-  assert.equal(decision.cueRu, "Flop, за спиной большой stack, впереди много будущих веток.");
+  assert.equal(decision.cueRu, "На флопе за спиной большой стек и много будущих веток.");
   assert.equal(decision.questionRu, "Достаточно ли сравнить исходную equity только с текущим порогом pot odds?");
-  assert.match(decision.explanationRu, /границ.*дерева решений/iu);
+  assert.match(decision.explanationRu, /конце дерева решений/iu);
 });
 
 // --- C. firewall publication phrasing ------------------------------------
@@ -209,13 +209,12 @@ test("E: PM-FND-01-105/107 and sibling answer identities, misconceptions and sou
   assert.equal(d001.actionOptions.find((o) => o.id === "b").misconception, "RAW_EQUITY_ONLY");
 });
 
-test("E: decisions-foundation-expansion.ts source content is untouched by this repair", async () => {
-  // The repair lives entirely in the override/firewall layer so every other
-  // already-working translation in this file keeps flowing through the
-  // existing copy-repair/final-polish pipeline unmodified.
+test("E: decisions-foundation-expansion.ts owns the corrected FND-01 RU publication", async () => {
   const original = await readFile(path.join(root, "content/practical-mastery/decisions-foundation-expansion.ts"), "utf8");
-  assert.match(original, /cueRu: "Flop, большой stack behind, много future branches\."/u);
-  assert.match(original, /cueRu: "Equity hand не меняется, но call становится дешевле\."/u);
+  assert.match(original, /cueRu: "На флопе за спиной большой стек и много будущих веток\."/u);
+  assert.match(original, /cueRu: "Equity руки не меняется, но колл становится дешевле\."/u);
+  assert.doesNotMatch(original, /Cheaper call требует больше equity/u);
+  assert.doesNotMatch(original, /Price тот же, но после range update/u);
 });
 
 test("E: EN copy for the touched FND-01/02/06 decisions is byte-for-byte unchanged", () => {
