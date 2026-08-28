@@ -60,8 +60,9 @@ test("Reference and Real Hands keep internal metadata and migration history behi
 
   await toolsMain.getByRole("button", { name: "RU", exact: true }).click();
   await expectLearnerSafe(page);
-  await expect(toolsMain).toContainText("точная тема для тренировки");
+  await expect(toolsMain).toContainText("точную тему для тренировки");
   await expect(toolsMain).not.toContainText("точным навыком Practical");
+  await expect(toolsMain).not.toContainText("точная тема для тренировки");
 
   await toolsMain.evaluate((main) => {
     const queuedRepair = document.createElement("p");

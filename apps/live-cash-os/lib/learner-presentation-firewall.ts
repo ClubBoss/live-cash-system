@@ -134,6 +134,32 @@ function replaceRuPhrases(value: string): string {
     .replace(/Точные\s+частоты\s+ещ?[её]?\s+не\s+проверены/giu, "Точные частоты здесь пока не установлены");
 }
 
+// The "practice topic" replacement above is authored in the nominative case
+// ("точная тема для тренировки"), which is correct for most callers. Two
+// active callers splice it into an accusative-object position instead —
+// after "как" ("определить как X" = identify AS X) or as the direct object
+// of "выбирает" (selects X) — where Russian requires "тему", not "тема".
+// Only those two governors are rewritten; every other context (including a
+// bare nominative use) keeps the phrase unchanged.
+const RU_PRACTICE_TOPIC_NOMINATIVE = "точная тема для тренировки";
+const RU_PRACTICE_TOPIC_ACCUSATIVE = "точную тему для тренировки";
+// \b is ASCII-\w-based in JS regexes and does not treat Cyrillic letters as
+// word characters, so it cannot bound "как"/"выбирает" here; a lookbehind on
+// "not preceded by a letter" is used instead.
+const RU_PRACTICE_TOPIC_ACCUSATIVE_GOVERNOR = new RegExp(
+  `(?<![\\p{L}])(?:как|выбирает)(\\s+)${RU_PRACTICE_TOPIC_NOMINATIVE}`,
+  "giu",
+);
+
+function fixRuPracticeTopicCase(value: string): string {
+  return value.replace(
+    RU_PRACTICE_TOPIC_ACCUSATIVE_GOVERNOR,
+    (match, spacer: string) => match.slice(0, match.length - spacer.length - RU_PRACTICE_TOPIC_NOMINATIVE.length)
+      + spacer
+      + RU_PRACTICE_TOPIC_ACCUSATIVE,
+  );
+}
+
 function replaceEnPhrases(value: string): string {
   return value
     .replace(/\bHUMAN\s*\/\s*HUMAN_ASSISTED\b/gu, "review with a person")
@@ -228,6 +254,7 @@ const RU_EVIDENCE_PREDICATE_PLURAL = new Map<string, string>([
   ["вводит", "вводят"], ["определяет", "определяют"], ["указывает", "указывают"],
   ["организует", "организуют"], ["уменьшает", "уменьшают"], ["оставляет", "оставляют"],
   ["поясняет", "поясняют"], ["учитывает", "учитывают"], ["позволяет", "позволяют"],
+  ["проводит", "проводят"], ["противопоставляет", "противопоставляют"],
 ]);
 const RU_EVIDENCE_PREDICATE_ADVERB = "(?:прямо|отдельно|специально|именно|сразу|особенно|явно|одновременно|также|уже|обычно)";
 const RU_EVIDENCE_PREDICATE_PATTERN = new RegExp(
@@ -270,6 +297,7 @@ export function sanitizeLearnerPresentationText(
   let next = replaceMigrationHistory(value, locale);
   next = replaceIndexedScenarioSentence(next, locale);
   next = locale === "ru" ? replaceRuPhrases(next) : replaceEnPhrases(next);
+  if (locale === "ru") next = fixRuPracticeTopicCase(next);
 
   next = next.replace(
     new RegExp(`\\b${MODULE_ID_SOURCE}\\b(?:\\s*[.:\u00b7\u2014-]\\s*)?`, "giu"),

@@ -1358,4 +1358,43 @@ export const practicalRuCorpusPublicationOverrides = new Map<string, string>([
   ["Пересчитать EV с учётом players behind", "Пересчитать EV с учётом игроков позади"],
   ["Слабые/passive players behind улучшают steal и realisation branches", "Слабые/пассивные игроки позади улучшают ветки стил и реализации"],
   ["Что происходит с aggressive/marginal branch?", "Что происходит с агрессивной/маргинальной веткой?"],
+
+  // RU publication closure: FND-01 boundary/changed decisions (the source of the
+  // externally observed malformed strings) and the closely adjacent FND-02/FND-06
+  // sibling items that share the same untranslated-fragment / case-agreement class.
+  // Keyed on the exact, unmodified source strings so the rest of the existing
+  // copy-repair/final-polish pipeline is left untouched for every other decision.
+  ["Required equity двигается вместе с price; source не учит одной универсальной цифре.", "Требуемая equity двигается вместе с ценой; материал не учит одной универсальной цифре."],
+  ["Call не проходит примерно 40% threshold", "Call не проходит примерно 40%-ный порог"],
+  ["Price + equity versus range", "Цена и equity против range"],
+  ["Implied odds many streets later", "Implied odds спустя много улиц"],
+  ["Only table image", "Только имидж за столом"],
+  ["Когда future tree заканчивается, equity теснее связано с immediate EV", "Когда дерево будущих решений заканчивается, equity теснее связано с непосредственным EV"],
+  ["River call создаёт ещё три streets", "River call создаёт ещё три улицы"],
+  ["Price irrelevant once river reached", "Цена не имеет значения, как только доходит до river"],
+  ["FTGU-E01 прямо выделяет river/all-in как узлы, где price/equity доминируют сильнее.", "FTGU-E01 прямо выделяет river/all-in как узлы, где цена и equity доминируют сильнее."],
+  ["Equity hand не меняется, но call становится дешевле.", "Equity руки не меняется, но call становится дешевле."],
+  ["Меньший risk относительно reward снижает break-even threshold", "Меньший риск относительно выигрыша снижает порог безубыточности"],
+  ["Required equity fixed at 50%", "Required equity зафиксирована на 50%"],
+  ["Pot odds — динамический threshold, а не фиксированная цифра.", "Pot odds — динамический порог, а не фиксированная цифра."],
+  ["At tree end price/equity comparison directly drives EV", "В конце дерева решений сравнение цены и equity напрямую определяет EV"],
+  ["FTGU-E01 определяет equity относительно opposing range и связывает её с price, когда future action исчезает.", "FTGU-E01 определяет equity относительно range соперника и связывает её с ценой, когда будущие действия исчезают."],
+  ["Flop, большой stack behind, много future branches.", "Flop, за спиной большой stack, впереди много будущих веток."],
+  ["Достаточно ли сравнить raw equity только с current pot-odds threshold?", "Достаточно ли сравнить исходную equity только с текущим порогом pot odds?"],
+  ["Future folds, leverage and implied odds can separate current equity from total EV", "Будущие фолды, leverage и implied odds могут отделить текущую equity от общего EV"],
+  ["Raw equity guarantees realization", "Исходная equity гарантирует реализацию"],
+  ["Это ключевая boundary FTGU-E01: current pot odds особенно чисты near tree-end, но не заменяют future-tree EV при глубоком SPR.", "Это ключевая граница FTGU-E01: текущий pot odds особенно чист ближе к концу дерева решений, но не заменяет EV будущего дерева при глубоком SPR."],
+  ["Equity always reaches showdown", "Equity всегда доходит до шоудауна"],
+  ["Raw equity не гарантирует, что Hero увидит все remaining cards", "Raw equity не гарантирует, что Hero увидит все оставшиеся карты"],
+  ["FTGU-E01 сразу ограничивает raw equity: она может быть surrendered before showdown.", "FTGU-E01 сразу ограничивает исходную equity: она может быть потеряна ещё до шоудауна."],
+  ["Все деньги уже в pot, future folds невозможны.", "Все деньги уже в pot, будущие фолды невозможны."],
+  ["Нужно ли здесь сильно дисконтировать raw equity из-за future realisation?", "Нужно ли здесь сильно дисконтировать исходную equity из-за будущей реализации?"],
+  ["Нет, future-realisation issue почти исчезает", "Нет, проблема будущей реализации почти исчезает"],
+  ["Да, ещё три streets впереди", "Да, впереди ещё три улицы"],
+  ["Tree-end is the boundary where equity aligns more closely with immediate EV", "Конец дерева — это граница, где equity ближе всего сходится с непосредственным EV"],
+  ["FTGU-E01 делает именно эту boundary: чем меньше future decisions, тем прямее связь equity с EV.", "FTGU-E01 проводит именно эту границу: чем меньше остаётся будущих решений, тем прямее связь equity с EV."],
+  ["После action остаётся 90 в effective stack, pot 30.", "После действия остаётся 90 в effective stack, pot 30."],
+  ["FTGU-E01 связывает stack-to-pot ratio с количеством future decisions и leverage; LCM-01 делает эту геометрию operational.", "FTGU-E01 связывает stack-to-pot ratio с количеством будущих решений и leverage; LCM-01 делает эту геометрию рабочей."],
+  ["Можно ли использовать один nominal 160bb depth для всех branches?", "Можно ли использовать одну номинальную глубину 160bb для всех веток?"],
+  ["LCM-01 делает effective-stack identity частью decision geometry; nominal seat stack не заменяет branch-specific effective depth.", "LCM-01 делает идентификацию effective stack частью decision geometry; номинальный stack места не заменяет эффективную глубину, специфичную для конкретной ветки."],
 ]);

@@ -114,6 +114,14 @@ const RU_OVERRIDES = new Map<string, string>([
   ["Hand имеет equity, но может fold до showdown.", "Рука имеет equity, но её могут сфолдить до шоудауна."],
   ["Какой component может исчезнуть?", "Какой компонент может исчезнуть?"],
   ["Выбрать по названию руки без node context", "Выбрать по названию руки без учёта контекста узла"],
+  // The generic "raw equity" -> "исходная equity" polish below (final-polish
+  // phase) always emits the feminine nominative, which is correct as a bare
+  // subject but breaks agreement with a preceding neuter adjective and breaks
+  // case when the phrase is a direct object. These two callers hit both:
+  // resolved once here, ahead of the generic polish, rather than teaching the
+  // shared regex layer full case/gender inference for one recurring token.
+  ["У Hero заметное raw equity, но он OOP и может часто fold на будущих улицах.", "У Hero заметная исходная equity, но он OOP и может часто fold на будущих улицах."],
+  ["Смотреть только на raw equity", "Смотреть только на исходную equity"],
 ]);
 
 function ru(text: string): string {
