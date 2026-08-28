@@ -33,7 +33,7 @@ export default function PracticalReferenceExperience() {
 
     <section className="today-card" style={{ marginTop: 22 }}>
       <p className="eyebrow">{locale === "ru" ? "НАСКОЛЬКО ЭТО ТОЧНО" : "HOW PRECISE IS THIS?"}</p>
-      <p>{locale === "ru" ? "Исходные материалы используют равновесные чарты как ориентир и отдельно учитывают рейк, глубину, анте, страддл и игроков позади. Для части ситуаций точные частоты и границы отдельных рук ещё не проверены по исходным чартам. Поэтому здесь показано только то, что можно использовать без ложной точности." : "The underlying material uses equilibrium charts as starting points and adjusts for rake, depth, ante, straddle, and players behind. For some spots, exact frequencies and hand-by-hand boundaries have not yet been verified against the original charts. This page therefore shows only what can be used without false precision."}</p>
+      <p>{locale === "ru" ? "Исходный материал использует равновесные чарты как ориентир и отдельно учитывает рейк, глубину, анте, страддл и игроков позади. Для части ситуаций точные частоты и границы отдельных рук ещё не проверены по исходным чартам. Поэтому здесь показано только то, что можно использовать без ложной точности." : "The underlying material uses equilibrium charts as starting points and adjusts for rake, depth, ante, straddle, and players behind. For some spots, exact frequencies and hand-by-hand boundaries have not yet been verified against the original charts. This page therefore shows only what can be used without false precision."}</p>
     </section>
 
     <section className="surface" style={{ marginTop: 22 }}>
