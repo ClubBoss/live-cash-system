@@ -122,7 +122,9 @@ const FINAL_RU_PHRASE_POLISH: ReadonlyArray<readonly [RegExp, string]> = [
   [/\baction\b/giu, "действие"],
 
   [/\bthe\b\s*/giu, ""],
-  [/\ban?\b\s*/giu, ""],
+  // Lowercase only: an uppercase standalone "A"/"AN" is the poker Ace rank label
+  // (e.g. "A-high", "AK"), not the English indefinite article, and must survive.
+  [/\ban?\b\s*/gu, ""],
   [/\band\b/giu, "и"],
   [/\bor\b/giu, "или"],
   [/\bwith\b/giu, "с"],

@@ -7,7 +7,8 @@ import { isIntegrationDerivedSkill } from "../content/practical-mastery/integrat
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalSkillFamily } from "../content/practical-mastery";
-import { restoreSkillMapCursor, withSkillMapCursor } from "../lib/practical-continuity-workspace";
+import { activeIntegratedRoundResume, restoreSkillMapCursor, withSkillMapCursor } from "../lib/practical-continuity-workspace";
+import { resolveHomeRecommendationIdentity } from "../lib/practical-home-recommendation-identity";
 import {
   availablePracticalSkills,
   practicalRepairQueue,
@@ -154,6 +155,23 @@ export default function PracticalMasteryExperience() {
   const field = learnerSkillFamilies.filter((item) => stageAtLeast(state.skills[item.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "REAL_HAND_TRANSFER")).length;
   const recommendation = useMemo(() => recommendNextPracticalSkill(state), [state]);
   const recommendedSkill = recommendation ? learnerSkillFamilies.find((item) => item.id === recommendation.skillId) ?? null : null;
+  // The primary Continue CTA (PracticalNextLearningLink with no focusSkillId)
+  // resumes an active, valid, incomplete round before starting anything new.
+  // The eyebrow/title/objective shown alongside that CTA must describe the
+  // same round it opens, never an unrelated recommended-next skill.
+  const activeResume = ready && !recoveryBlocked ? activeIntegratedRoundResume(studyWorkspace, state) : null;
+  const homeIdentity = resolveHomeRecommendationIdentity({
+    activeResume: activeResume
+      ? { focusSkillId: activeResume.focusSkillId, nextIndex: activeResume.nextIndex, itemCount: activeResume.itemCount }
+      : null,
+    recommendedSkillId: recommendedSkill?.id ?? null,
+  });
+  const activeResumeSkill = homeIdentity.kind === "ACTIVE_ROUND" && homeIdentity.focusSkillId
+    ? learnerSkillFamilies.find((item) => item.id === homeIdentity.focusSkillId) ?? null
+    : null;
+  const upcomingRecommendedSkill = homeIdentity.kind === "ACTIVE_ROUND" && homeIdentity.upcomingRecommendationSkillId
+    ? learnerSkillFamilies.find((item) => item.id === homeIdentity.upcomingRecommendationSkillId) ?? null
+    : null;
 
   if (!ready || skillMapContentVersion !== state.contentVersion) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
@@ -177,7 +195,20 @@ export default function PracticalMasteryExperience() {
       <div><b>{repairIds.size}</b><span>{locale === "ru" ? "нужно повторить" : "need repair"}</span></div>
     </section>
 
-    {recommendedSkill ? <section className="today-card" style={{ marginTop: 22 }}>
+    {homeIdentity.kind === "ACTIVE_ROUND" ? <section className="today-card" style={{ marginTop: 22 }}>
+      <p className="eyebrow">{locale === "ru" ? "ПРОДОЛЖИТЬ НАЧАТОЕ" : "CONTINUE IN PROGRESS"}</p>
+      <h2>{activeResumeSkill ? skillTitle(activeResumeSkill, locale) : (locale === "ru" ? "Интегрированная практика" : "Integrated practice")}</h2>
+      <p>{locale === "ru"
+        ? `Раунд не завершён: вопрос ${homeIdentity.nextIndex + 1} из ${homeIdentity.itemCount}. «Продолжить обучение» откроет именно его.`
+        : `Round in progress: question ${homeIdentity.nextIndex + 1} of ${homeIdentity.itemCount}. Continue learning opens this exact round.`}</p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <PracticalNextLearningLink className="primary" />
+        {activeResumeSkill ? <button className="secondary" onClick={() => setSelectedSkillId(activeResumeSkill.id)}>{locale === "ru" ? "Посмотреть на карте" : "View on map"} <span>→</span></button> : null}
+      </div>
+      {upcomingRecommendedSkill ? <p className="support">{locale === "ru"
+        ? `После этого раунда система порекомендует: ${skillTitle(upcomingRecommendedSkill, locale)}.`
+        : `After this round, the system will recommend: ${skillTitle(upcomingRecommendedSkill, locale)}.`}</p> : null}
+    </section> : homeIdentity.kind === "RECOMMENDATION" && recommendedSkill ? <section className="today-card" style={{ marginTop: 22 }}>
       <p className="eyebrow">{locale === "ru" ? "СЕЙЧАС ПОЛЕЗНЕЕ ВСЕГО" : "BEST NEXT FOCUS"}</p>
       <h2>{skillTitle(recommendedSkill, locale)}</h2>
       <p>{skillObjective(recommendedSkill, locale)}</p>

@@ -134,8 +134,14 @@ test("Quick Start wrong answer uses a non-identical sibling before returning to 
     decisionId: sibling.id,
     ...correctInput(sibling.id, 70, new Date("2026-08-26T00:12:00Z")),
   });
-  const laterRepair = nextFirstJourneyDecision(state, skillId);
-  assert.equal(laterRepair?.id, decisions[0].id, "the unresolved wrong item remains repairable after a non-identical stimulus");
+  // V3-FND-02: the wrong item must not resurface after just this one intervening
+  // decision while the skill still has a genuinely untried, non-recent decision
+  // available (bypassing recentlyAttemptedDecisionIds() was the root cause of the
+  // reported short-gap recurrence). A fresh decision is offered instead.
+  const next = nextFirstJourneyDecision(state, skillId);
+  assert.ok(next, "a further non-recent decision should be offered instead of repeating the wrong item");
+  assert.notEqual(next.id, decisions[0].id, "the wrong item must not repeat after only one intervening decision while a non-recent alternative exists");
+  assert.notEqual(next.id, sibling.id, "the just-answered sibling must not immediately repeat either");
   assert.equal(state.attempts.length, 2, "selection itself must not create attempts or double-count evidence");
 });
 
