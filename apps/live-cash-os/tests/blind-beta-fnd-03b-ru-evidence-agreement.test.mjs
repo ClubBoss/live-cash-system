@@ -30,15 +30,15 @@ function corpusRuStrings() {
 test("FND-03b closes the observed evidence-predicate agreement break", () => {
   assert.equal(
     sanitizeLearnerPresentationText("FTGU-E01 прямо показывает, почему цена колла важна.", "ru"),
-    "проверенные данные прямо показывают, почему цена колла важна.",
+    "Проверенные данные прямо показывают, почему цена колла важна.",
   );
   assert.equal(
     sanitizeLearnerPresentationText("FTGU-E02 требует сужать fringe при давлении позади.", "ru"),
-    "проверенные данные требуют сужать fringe при давлении позади.",
+    "Проверенные данные требуют сужать fringe при давлении позади.",
   );
   assert.equal(
     sanitizeLearnerPresentationText("FTGU-E01 вводит pot odds как порог, и FTGU-E01 добавляет контекст.", "ru"),
-    "проверенные данные вводят pot odds как порог, и проверенные данные добавляют контекст.",
+    "Проверенные данные вводят pot odds как порог, и проверенные данные добавляют контекст.",
   );
 });
 

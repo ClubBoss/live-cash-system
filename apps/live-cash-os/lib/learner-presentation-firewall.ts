@@ -242,6 +242,24 @@ function fixRuEvidencePredicateAgreement(value: string): string {
   });
 }
 
+// The replacement phrases above ("reviewed evidence" / "проверенные данные" and
+// similar) are authored lowercase because most source strings splice them into the
+// middle of a sentence. When the caller instead passes a full sentence that begins
+// with the replaced span (e.g. an explanation string that began "CINJ-E05
+// extends..."), the substitution leaves a lowercase sentence start behind
+// ("reviewed evidence supports..."). Some callers, however, intentionally pass
+// lowercase fragments meant to be spliced into a larger sentence by the caller
+// (e.g. "legacy mistake-practice tasks queued" -> "mistake-practice tasks to
+// complete"), or a bare jargon term that must round-trip unchanged ("bluff
+// supply"). The only safe signal that distinguishes the two is the ORIGINAL,
+// pre-sanitization text: only restore capitalization when the untouched input
+// itself began with a capital letter, so this never touches a string that was
+// never meant to stand as its own sentence.
+function capitalizeSentenceStart(original: string, sanitized: string): string {
+  if (!/^\s*\p{Lu}/u.test(original)) return sanitized;
+  return sanitized.replace(/^(\s*)(\p{Ll})/u, (_match, lead: string, letter: string) => `${lead}${letter.toUpperCase()}`);
+}
+
 export function sanitizeLearnerPresentationText(
   value: string,
   locale: LearnerPresentationLocale,
@@ -278,6 +296,8 @@ export function sanitizeLearnerPresentationText(
     .replace(/\s+([,.;:!?])/gu, "$1")
     .replace(/([([])[ \t]+/gu, "$1")
     .replace(/[ \t]+([)\]])/gu, "$1");
+
+  next = capitalizeSentenceStart(value, next);
 
   return next;
 }

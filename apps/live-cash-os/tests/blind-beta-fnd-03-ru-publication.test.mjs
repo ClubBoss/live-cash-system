@@ -52,6 +52,6 @@ test("FND-03 preserves decision and answer identities while the learner firewall
   }
   assert.equal(
     sanitizeLearnerPresentationText("FTGU-E01 прямо показывает, почему цена колла важна.", "ru"),
-    "проверенные данные прямо показывают, почему цена колла важна.",
+    "Проверенные данные прямо показывают, почему цена колла важна.",
   );
 });

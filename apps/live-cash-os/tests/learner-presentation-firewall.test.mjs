@@ -176,6 +176,39 @@ test("learner-safe replacements retain poker meaning and uncertainty instead of 
   }
 });
 
+test("a source/evidence identifier at the start of a sentence keeps sentence-initial capitalization after sanitization", () => {
+  const enSentence = sanitizeLearnerPresentationText(
+    "E09 treats strong improvement/nut-potential draws as candidates for continuing/aggression.",
+    "en",
+  );
+  assert.match(enSentence, /^Reviewed evidence treats strong improvement/);
+
+  const enExtends = sanitizeLearnerPresentationText(
+    "CINJ-E05 extends FTGU-E22: the price sets the threshold while later filtering determines plausible bluff supply.",
+    "en",
+  );
+  assert.match(enExtends, /^Reviewed evidence supports the same mechanism:/);
+
+  const ruSentence = sanitizeLearnerPresentationText(
+    "Источник подтверждает базовую линию, но частоты ещё не установлены.",
+    "ru",
+  );
+  assert.match(ruSentence, /^[А-ЯЁ]/u);
+
+  // A caller-supplied fragment that is meant to be spliced mid-sentence, or a bare
+  // jargon term, must never be force-capitalized just because it happens to sit at
+  // the start of the string passed in.
+  assert.equal(
+    sanitizeLearnerPresentationText("legacy mistake-practice tasks queued", "en"),
+    "mistake-practice tasks to complete",
+  );
+  assert.equal(sanitizeLearnerPresentationText("bluff supply", "en"), "bluff supply");
+  assert.equal(
+    sanitizeLearnerPresentationText("legacy-заданий на работу над ошибкой", "ru"),
+    "заданий на работу над ошибкой",
+  );
+});
+
 test("all normal learner and support routes are behind the firewall while Data & Recovery remains machine-readable", async () => {
   const masteryLayout = await readFile(path.join(root, "app/mastery/layout.tsx"), "utf8");
   const support = await readFile(path.join(root, "components/SupportingToolsApp.tsx"), "utf8");
