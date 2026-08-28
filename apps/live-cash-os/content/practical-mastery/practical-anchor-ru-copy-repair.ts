@@ -35,6 +35,10 @@ const RU_ANCHOR_OVERRIDES = new Map<string, string>([
   ["Нет. Range source изменился; сначала пересчитай arriving-range advantage.", "Нет. Исходный диапазон изменился; сначала пересчитай преимущество диапазона, пришедшего в этот узел."],
   ["Нет. Source поддерживает exploitative overfold против реально underbluffed branch.", "Нет. Здесь оправдан эксплойтный оверфолд против ветки, где действительно не хватает блефов."],
   ["Нет. Source требует более tight bluff categories с equity/removal и правильной strategic shape.", "Нет. Нужны более узкие категории блефов с equity, эффектом блокеров и подходящей стратегической структурой."],
+  // Same feminine-agreement/case gap as the decisions-side "raw equity" fix in
+  // practical-ru-copy-repair.ts: a preceding neuter adjective and an accusative
+  // object position both need "исходная"/"raw" resolved before any generic polish.
+  ["У руки заметное raw equity, но Hero OOP и может часто выбрасывать на будущих улицах. Можно ли raw equity приравнять к EV решения?", "У руки заметная исходная equity, но Hero OOP и может часто выбрасывать на будущих улицах. Можно ли приравнять исходную equity к EV решения?"],
 ]);
 
 const ANCHOR_RU_PHRASE_POLISH: ReadonlyArray<readonly [RegExp, string]> = [
