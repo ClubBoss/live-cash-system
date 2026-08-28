@@ -58,7 +58,13 @@ test("route authority owns one Practical profile controller and reacts to curren
   assert.match(authority, /const profile = usePracticalProfileState\(\)/);
   assert.match(authority, /const continueLearning = searchParams\.get\("continue"\) === "1"/);
   assert.match(authority, /const focusSkillId = searchParams\.get\("focus"\)/);
-  assert.match(authority, /progress\.completed && \(continueLearning \|\| focusSkillId\)/);
+  // An active, valid, incomplete round outranks progress.completed && (continueLearning ||
+  // focusSkillId): it must delegate to post-QS teaching (which resumes it) on its own,
+  // regardless of how /mastery/journey was reached.
+  assert.match(authority, /const hasActiveRoundResume = Boolean\(activeIntegratedRoundResume\(studyWorkspace, state\)\)/);
+  assert.match(authority, /firstJourneyShouldDelegateToPostQuickStartTeaching\(\{/);
+  assert.match(authority, /hasActiveRoundResume,/);
+  assert.match(authority, /progressCompleted: progress\.completed,/);
   assert.match(authority, /<PracticalPostQuickStartTeaching profile=\{profile\} requestedSkillId=\{focusSkillId\} \/>/);
   assert.match(authority, /firstJourneyPresentationState\(progress, Boolean\(recommendation && skill && journeyStep\)\)/);
   assert.match(authority, /<PracticalFirstJourneyExperience presentation=\{presentation\} profile=\{profile\} \/>/);

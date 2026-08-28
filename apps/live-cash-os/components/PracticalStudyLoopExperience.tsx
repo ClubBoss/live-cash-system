@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { practicalSkillFamilies, practicalStudyLoop, sessionPerformanceChecks } from "../content/practical-mastery";
+import { activeIntegratedRoundResume, nextLearningHref } from "../lib/practical-continuity-workspace";
 import { practicalRepairQueue, recommendNextPracticalSkill } from "../lib/practical-mastery-core";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
@@ -11,6 +12,10 @@ export default function PracticalStudyLoopExperience() {
   const [locale, setLocale] = usePracticalLocale();
   const { mastery, studyWorkspace: workspace, setStudyWorkspace, ready, recoveryBlocked } = usePracticalProfileState();
 
+  // An active, valid, incomplete round outranks starting an unrelated fresh
+  // "test the repair" round.
+  const activeResume = ready && !recoveryBlocked ? activeIntegratedRoundResume(workspace, mastery) : null;
+  const testRepairHref = nextLearningHref(activeResume, "/mastery/session");
   const recommendation = useMemo(() => recommendNextPracticalSkill(mastery), [mastery]);
   const recommendedSkill = recommendation ? practicalSkillFamilies.find((skill) => skill.id === recommendation.skillId) ?? null : null;
   const repairIds = useMemo(() => practicalRepairQueue(mastery), [mastery]);
@@ -50,7 +55,7 @@ export default function PracticalStudyLoopExperience() {
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
         <Link className="secondary" href="/mastery">← {locale === "ru" ? "Карта навыков" : "Skill map"}</Link>
-        <Link className="secondary" href="/mastery/session">{locale === "ru" ? "Проверить исправление" : "Test the repair"} →</Link>
+        <Link className="secondary" href={testRepairHref}>{locale === "ru" ? "Проверить исправление" : "Test the repair"} →</Link>
       </div>
     </section>
 
