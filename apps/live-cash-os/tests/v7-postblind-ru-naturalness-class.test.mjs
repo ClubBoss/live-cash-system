@@ -60,12 +60,15 @@ function practicalRuleRows() {
   return rows;
 }
 
-function legacyDefects(rows) {
-  return rows.filter(({ text }) => cyrillic.test(text) && (demonstrated.test(text) || sourceLike.test(text) || englishGlue.test(text)));
-}
-
 function stripAcceptedPokerTerms(text) {
   return acceptedPokerTerms.reduce((value, term) => value.replace(term, ""), text);
+}
+
+function legacyDefects(rows) {
+  return rows.filter(({ text }) => {
+    const governedText = stripAcceptedPokerTerms(text);
+    return cyrillic.test(text) && (demonstrated.test(governedText) || sourceLike.test(governedText) || englishGlue.test(governedText));
+  });
 }
 
 function practicalRuleDefects(rows) {

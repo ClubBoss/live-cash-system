@@ -2,6 +2,7 @@ import { firstJourneySteps } from "../content/practical-mastery/first-journey";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { isOrdinaryLearnerDecision, practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
 import { practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
+import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 
 export type FirstJourneyRecommendation = {
   skillId: string;
@@ -47,18 +48,18 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
   const unresolved = unresolvedWrongDecisionIds(state, skillId);
   if (unresolved.length) {
     const repair = skillDecisions.find((decision) => decision.id === unresolved[0]) ?? null;
-    const latestSkillAttempt = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
-    const isImmediateExactRetry = Boolean(repair && latestSkillAttempt && !latestSkillAttempt.correct && latestSkillAttempt.decisionId === repair.id);
-    if (!isImmediateExactRetry) return repair;
+    if (!repair) return null;
+    // Exact prompt reuse is held back for the shared recent-attempt window, not
+    // merely the single immediately-preceding attempt: a wrong item must not
+    // reappear after only one intervening decision while a non-identical,
+    // non-recent sibling remains available.
+    const recentlyAttempted = recentlyAttemptedDecisionIds(state);
+    if (!recentlyAttempted.has(repair.id)) return repair;
 
-    const sameKindSibling = repair
-      ? skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && !successfulIds.has(decision.id)) ?? null
-      : null;
+    const sameKindSibling = skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && !successfulIds.has(decision.id) && !recentlyAttempted.has(decision.id)) ?? null;
     if (sameKindSibling) return sameKindSibling;
 
-    const supportedSibling = repair
-      ? skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id)) ?? null
-      : null;
+    const supportedSibling = skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id) && !recentlyAttempted.has(decision.id)) ?? null;
     return supportedSibling;
   }
 

@@ -90,28 +90,40 @@ export function supportedIntegratedSkillIds(state: PracticalMasteryState): strin
 
 export function buildIntegratedSession(state: PracticalMasteryState, now = new Date(), size = INTEGRATED_SESSION_SIZE): IntegratedSessionItem[] {
   const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
-  // Exact prompts seen in the previous round (right or wrong) are held back for the
-  // next one; every pass keeps a no-avoid fallback so a repair is never lost.
   const recentlyAttempted = recentlyAttemptedDecisionIds(state);
   const push = (decision: PracticalDecision, reason: IntegratedSessionItem["reason"], priority: number, why: string, retentionTierDays: number | null = null) => {
     if (items.length >= size || excluded.has(decision.id) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
     items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
   };
 
-  for (const family of unresolvedMistakeFamilies(state)) {
-    if (items.length >= size) break; if (!eligibleIds.has(family.skillId)) continue;
-    const kinds: PracticalDecision["kind"][] = ["changed", "boundary", "decision", "mixed", "recognition"];
-    const decision = candidateDecisionForSkill(state, family.skillId, kinds, excluded, true, recentlyAttempted)
-      ?? candidateDecisionForSkill(state, family.skillId, kinds, excluded, true);
-    if (decision) push(decision, "REPAIR", 120 + family.priority, `Repair ${family.key}: repeated or high-confidence miss in ${family.skillId}.`);
-  }
-  for (const skillId of eligibleIds) {
-    if (items.length >= size) break; const tier = retentionTierDue(state, skillId, now); if (!tier) continue;
-    const kinds: PracticalDecision["kind"][] = ["changed", "mixed", "boundary", "decision"];
-    const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted)
-      ?? candidateDecisionForSkill(state, skillId, kinds, excluded, true);
-    if (decision) push(decision, "RETENTION", 100 + tier, `Due ${tier}-day non-identical retrieval for ${skillId}.`, tier);
-  }
+  const mistakeFamilies = unresolvedMistakeFamilies(state);
+  const dueRetentions = [...eligibleIds].map((skillId) => ({ skillId, tier: retentionTierDue(state, skillId, now) })).filter((entry): entry is { skillId: string; tier: number } => Boolean(entry.tier));
+
+  const runRepairPass = (allowRecentFallback: boolean) => {
+    for (const family of mistakeFamilies) {
+      if (items.length >= size) break; if (!eligibleIds.has(family.skillId)) continue;
+      const kinds: PracticalDecision["kind"][] = ["changed", "boundary", "decision", "mixed", "recognition"];
+      const decision = candidateDecisionForSkill(state, family.skillId, kinds, excluded, true, recentlyAttempted)
+        ?? (allowRecentFallback ? candidateDecisionForSkill(state, family.skillId, kinds, excluded, true) : null);
+      if (decision) push(decision, "REPAIR", 120 + family.priority, `Repair ${family.key}: repeated or high-confidence miss in ${family.skillId}.`);
+    }
+  };
+  const runRetentionPass = (allowRecentFallback: boolean) => {
+    for (const { skillId, tier } of dueRetentions) {
+      if (items.length >= size) break;
+      const kinds: PracticalDecision["kind"][] = ["changed", "mixed", "boundary", "decision"];
+      const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted)
+        ?? (allowRecentFallback ? candidateDecisionForSkill(state, skillId, kinds, excluded, true) : null);
+      if (decision) push(decision, "RETENTION", 100 + tier, `Due ${tier}-day non-identical retrieval for ${skillId}.`, tier);
+    }
+  };
+
+  // Pass 1: every REPAIR/RETENTION/ranked slot strictly avoids the last-seen
+  // window. A skill whose own repeatable content is briefly exhausted simply
+  // yields its slot to other eligible content in this same round, instead of
+  // reusing an exact just-attempted prompt while alternatives exist elsewhere.
+  runRepairPass(false);
+  runRetentionPass(false);
 
   const rankedSkills = [...eligibleIds].map((skillId) => {
     const skill = practicalSkillById.get(skillId); if (!skill) return null; const stage = currentStage(state, skillId);
@@ -125,9 +137,22 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
     const reason: IntegratedSessionItem["reason"] = transferReady ? "TRANSFER" : stageAtLeast(item.stage, "RECOGNITION_TRAINED") ? "REINFORCE" : "RECOGNITION";
     push(decision, reason, 40 + item.score, item.why);
   }
-  // An all-recently-seen corpus intentionally yields a short or empty round; the
-  // integrated-session UI routes the learner to the always-available primary
-  // route rather than repeating a just-seen exact prompt.
+
+  // Pass 2: only once every avoiding source (repair, retention, and the ranked
+  // skill sweep above) has had first claim on every slot do we allow an exact
+  // recently-attempted repeat, and only to fill whatever is still short. This
+  // is the genuinely-exhausted-corpus fallback: it now fires exclusively when
+  // no eligible non-recent decision exists anywhere else in the round, never
+  // merely because one skill's own alternatives ran out early.
+  if (items.length < size) {
+    runRepairPass(true);
+    runRetentionPass(true);
+  }
+
+  // A corpus that is recently-seen everywhere intentionally yields a short or
+  // empty round; the integrated-session UI routes the learner to the
+  // always-available primary route rather than repeating a just-seen exact
+  // prompt purely to pad the round out.
   return items.sort((a, b) => b.priority - a.priority).slice(0, size);
 }
 
