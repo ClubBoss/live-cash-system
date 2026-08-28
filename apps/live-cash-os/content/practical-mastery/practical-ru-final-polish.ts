@@ -170,10 +170,29 @@ function preserveInitialCase(match: string, replacement: string): string {
   return `${replacement.charAt(0).toLocaleUpperCase("ru-RU")}${replacement.slice(1)}`;
 }
 
+// The phrase substitutions above swap English nouns for Russian ones without
+// touching the surrounding sentence, so an interrogative or demonstrative that
+// agreed with the English placeholder is left stranded ("Какой базовая линия",
+// "Какой ветка"). Interrogative/demonstrative gender agreement with an immediately
+// following feminine head is fully deterministic, so repair it as a bounded class.
+// JS \b is ASCII-only, so Cyrillic word starts are matched with an explicit
+// non-letter (or string start) prefix group that is re-emitted unchanged.
+const RU_WORD_START = "(^|[^\\p{L}])";
+const RU_FEMININE_HEAD = "(?:базовая(?: защитн\\p{L}+)? лини\\p{L}+|ветк\\p{L}+|структур\\p{L}+|стратеги\\p{L}+|корректировк\\p{L}+)";
+const RU_PRONOUN_AGREEMENT: ReadonlyArray<[RegExp, string]> = [
+  // "Какой"/"какой" -> "Какая"/"какая" keeps the leading letter, so casing is safe.
+  [new RegExp(`${RU_WORD_START}(как)ой(\\s+${RU_FEMININE_HEAD})`, "giu"), "$1$2ая$3"],
+  [new RegExp(`${RU_WORD_START}(эт)от(\\s+${RU_FEMININE_HEAD})`, "giu"), "$1$2а$3"],
+  [new RegExp(`${RU_WORD_START}один(\\s+${RU_FEMININE_HEAD})`, "giu"), "$1одна$2"],
+];
+
 function polishRu(text: string): string {
   let polished = FINAL_RU_POLISH.get(text) ?? text;
   for (const [pattern, replacement] of FINAL_RU_PHRASE_POLISH) {
     polished = polished.replace(pattern, (match) => preserveInitialCase(match, replacement));
+  }
+  for (const [pattern, replacement] of RU_PRONOUN_AGREEMENT) {
+    polished = polished.replace(pattern, replacement);
   }
   return polished.replace(/\s{2,}/gu, " ").replace(/\s+([,.;!?])/gu, "$1").trim();
 }
