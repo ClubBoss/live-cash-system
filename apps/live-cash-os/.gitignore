@@ -38,3 +38,9 @@ yarn-error.log*
 /.wrangler/
 /outputs/
 /work/
+
+# typescript incremental build cache
+*.tsbuildinfo
+
+# regenerated audit reports (produced by npm run audit:corpus)
+/content/audits/*.generated.json
