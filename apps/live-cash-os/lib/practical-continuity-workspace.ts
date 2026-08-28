@@ -339,6 +339,13 @@ export function activeIntegratedRoundResume(
   return { href, focusSkillId: saved.focusSkillId, nextIndex: restore.nextIndex, itemCount: restore.items.length };
 }
 
+// Shared helper for learning-entry CTAs that otherwise point at a fixed
+// destination: an active, valid, incomplete round always outranks the fixed
+// target so a sibling CTA cannot silently abandon it.
+export function nextLearningHref(resume: ActiveIntegratedRoundResume | null, fallbackHref: string): string {
+  return resume ? resume.href : fallbackHref;
+}
+
 export function restoreIntegratedRound(
   workspace: PracticalStudyWorkspace,
   mastery: PracticalMasteryState,
