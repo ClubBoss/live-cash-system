@@ -18,7 +18,7 @@ import {
   type PracticalAttempt,
   type PracticalMasteryState,
 } from "./practical-mastery-core";
-import { recentSuccessfulDecisionIds } from "./practical-repeat-window";
+import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 
 export const INTEGRATED_SESSION_SIZE = 8;
 export const RETENTION_INTERVAL_DAYS = [1, 3, 7] as const;
@@ -90,7 +90,9 @@ export function supportedIntegratedSkillIds(state: PracticalMasteryState): strin
 
 export function buildIntegratedSession(state: PracticalMasteryState, now = new Date(), size = INTEGRATED_SESSION_SIZE): IntegratedSessionItem[] {
   const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
-  const recentSuccessful = recentSuccessfulDecisionIds(state);
+  // Exact prompts seen in the previous round (right or wrong) are held back for the
+  // next one; every pass keeps a no-avoid fallback so a repair is never lost.
+  const recentlyAttempted = recentlyAttemptedDecisionIds(state);
   const push = (decision: PracticalDecision, reason: IntegratedSessionItem["reason"], priority: number, why: string, retentionTierDays: number | null = null) => {
     if (items.length >= size || excluded.has(decision.id) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
     items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
@@ -99,13 +101,15 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
   for (const family of unresolvedMistakeFamilies(state)) {
     if (items.length >= size) break; if (!eligibleIds.has(family.skillId)) continue;
     const kinds: PracticalDecision["kind"][] = ["changed", "boundary", "decision", "mixed", "recognition"];
-    const decision = candidateDecisionForSkill(state, family.skillId, kinds, excluded, true, recentSuccessful)
+    const decision = candidateDecisionForSkill(state, family.skillId, kinds, excluded, true, recentlyAttempted)
       ?? candidateDecisionForSkill(state, family.skillId, kinds, excluded, true);
     if (decision) push(decision, "REPAIR", 120 + family.priority, `Repair ${family.key}: repeated or high-confidence miss in ${family.skillId}.`);
   }
   for (const skillId of eligibleIds) {
     if (items.length >= size) break; const tier = retentionTierDue(state, skillId, now); if (!tier) continue;
-    const decision = candidateDecisionForSkill(state, skillId, ["changed", "mixed", "boundary", "decision"], excluded, true);
+    const kinds: PracticalDecision["kind"][] = ["changed", "mixed", "boundary", "decision"];
+    const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted)
+      ?? candidateDecisionForSkill(state, skillId, kinds, excluded, true);
     if (decision) push(decision, "RETENTION", 100 + tier, `Due ${tier}-day non-identical retrieval for ${skillId}.`, tier);
   }
 
@@ -117,10 +121,13 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
   for (const item of rankedSkills) {
     if (items.length >= size) break; const transferReady = stageAtLeast(item.stage, "DECISION_TRAINED");
     const kinds: PracticalDecision["kind"][] = transferReady ? ["changed", "mixed", "boundary", "decision"] : stageAtLeast(item.stage, "RECOGNITION_TRAINED") ? ["decision", "changed", "mixed"] : ["recognition", "decision"];
-    const decision = candidateDecisionForSkill(state, item.skillId, kinds, excluded, false, recentSuccessful); if (!decision) continue;
+    const decision = candidateDecisionForSkill(state, item.skillId, kinds, excluded, false, recentlyAttempted); if (!decision) continue;
     const reason: IntegratedSessionItem["reason"] = transferReady ? "TRANSFER" : stageAtLeast(item.stage, "RECOGNITION_TRAINED") ? "REINFORCE" : "RECOGNITION";
     push(decision, reason, 40 + item.score, item.why);
   }
+  // An all-recently-seen corpus intentionally yields a short or empty round; the
+  // integrated-session UI routes the learner to the always-available primary
+  // route rather than repeating a just-seen exact prompt.
   return items.sort((a, b) => b.priority - a.priority).slice(0, size);
 }
 

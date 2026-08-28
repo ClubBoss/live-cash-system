@@ -2,7 +2,7 @@ import { allPracticalTableStates, isOrdinaryLearnerDecision, practicalDecisionBy
 import { classifyPracticalAdaptiveNeed, decisionMatchesAdaptiveNeed, type PracticalPerformanceSample } from "./practical-adaptive-repair";
 import { buildIntegratedSession, supportedIntegratedSkillIds, type IntegratedSessionItem } from "./practical-integrated-session";
 import type { PracticalMasteryState } from "./practical-mastery-core";
-import { recentSuccessfulDecisionIds } from "./practical-repeat-window";
+import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 import { decisionHasAuthoritativeVisibleChange } from "./practical-visible-scenario";
 
 function normalizeTransferLabel(item: IntegratedSessionItem): IntegratedSessionItem {
@@ -21,7 +21,7 @@ export function isIntegratedFocusAdmissible(state: PracticalMasteryState, skillI
 function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:number,performance:PracticalPerformanceSample[]):IntegratedSessionItem[]{
   const base=buildIntegratedSession(state,now,size);
   const used=new Set<string>();
-  const recentSuccessful=recentSuccessfulDecisionIds(state);
+  const recentlyAttempted=recentlyAttemptedDecisionIds(state);
   const adaptive:IntegratedSessionItem[]=[];
   const perceptualIds=new Set(allPracticalTableStates.map((table)=>table.decisionId));
   const needs=supportedIntegratedSkillIds(state)
@@ -32,7 +32,7 @@ function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:n
   for(const need of needs){
     if(adaptive.length>=Math.ceil(size/2)) break;
     const latest=[...state.attempts].reverse().find((attempt)=>attempt.skillId===need.skillId)??null;
-    const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===need.skillId&&decisionMatchesAdaptiveNeed(decision,need)&&decision.id!==latest?.decisionId&&!recentSuccessful.has(decision.id));
+    const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===need.skillId&&decisionMatchesAdaptiveNeed(decision,need)&&decision.id!==latest?.decisionId&&!recentlyAttempted.has(decision.id));
     const decision=(need.preferPerceptual?pool.find((candidate)=>perceptualIds.has(candidate.id)):undefined)??pool[0];
     if(!decision||used.has(decision.id)) continue;
     const transferLike=need.need==="TRANSFER"||need.need==="BOUNDARY";
@@ -67,12 +67,12 @@ function buildFocusedIntegratedSession(state:PracticalMasteryState,now:Date,size
   if(!isIntegratedFocusAdmissible(state,skillId)) return [];
   const seeded=buildGenericAdaptiveSession(state,now,size,performance).filter((item)=>item.skillId===skillId);
   const used=new Set(seeded.map((item)=>item.decisionId));
-  const recentSuccessful=recentSuccessfulDecisionIds(state);
+  const recentlyAttempted=recentlyAttemptedDecisionIds(state);
   const attempted=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId).map((attempt)=>attempt.decisionId));
   const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===skillId);
   const ordered=[
     ...pool.filter((decision)=>!attempted.has(decision.id)),
-    ...pool.filter((decision)=>attempted.has(decision.id)&&!recentSuccessful.has(decision.id)),
+    ...pool.filter((decision)=>attempted.has(decision.id)&&!recentlyAttempted.has(decision.id)),
   ];
   const focused=[...seeded];
   for(const decision of ordered){
