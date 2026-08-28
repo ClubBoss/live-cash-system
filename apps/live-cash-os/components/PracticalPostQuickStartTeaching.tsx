@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { practicalSkillById } from "../content/practical-mastery";
+import { activeIntegratedRoundResume } from "../lib/practical-continuity-workspace";
 import {
   beginPostQuickStartApplication,
   resolvePostQuickStartLearningTarget,
@@ -20,9 +21,14 @@ export default function PracticalPostQuickStartTeaching({
   requestedSkillId: string | null;
 }) {
   const [locale, setLocale] = usePracticalLocale();
-  const { mastery: state, setMastery, ready, recoveryBlocked } = profile;
+  const { mastery: state, studyWorkspace, setMastery, ready, recoveryBlocked } = profile;
   const [pendingPracticeSkillId, setPendingPracticeSkillId] = useState<string | null>(null);
   const [transitionFailed, setTransitionFailed] = useState(false);
+  // An active, valid, incomplete round resumes before any new post-Quick-Start step.
+  const activeResume = useMemo(
+    () => (ready && !recoveryBlocked ? activeIntegratedRoundResume(studyWorkspace, state) : null),
+    [ready, recoveryBlocked, studyWorkspace, state],
+  );
   const target = useMemo(
     () => resolvePostQuickStartLearningTarget(state, requestedSkillId),
     [requestedSkillId, state],
@@ -30,9 +36,14 @@ export default function PracticalPostQuickStartTeaching({
   const skill = target.skillId ? practicalSkillById.get(target.skillId) ?? null : null;
 
   useEffect(() => {
-    if (pendingPracticeSkillId || !ready || recoveryBlocked || target.kind !== "PRACTICE") return;
+    if (!activeResume || pendingPracticeSkillId || !ready || recoveryBlocked) return;
+    window.location.replace(activeResume.href);
+  }, [activeResume, pendingPracticeSkillId, ready, recoveryBlocked]);
+
+  useEffect(() => {
+    if (activeResume || pendingPracticeSkillId || !ready || recoveryBlocked || target.kind !== "PRACTICE") return;
     window.location.replace(target.href);
-  }, [pendingPracticeSkillId, ready, recoveryBlocked, target]);
+  }, [activeResume, pendingPracticeSkillId, ready, recoveryBlocked, target]);
 
   useEffect(() => {
     if (!pendingPracticeSkillId || !state.skills[pendingPracticeSkillId]?.conceptTaught) return;
@@ -66,6 +77,15 @@ export default function PracticalPostQuickStartTeaching({
         : "Nothing will be overwritten. Open Data & Recovery in Live Cash OS tools."}</p>
       <PracticalDocumentLink href="/tools">
         {locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →
+      </PracticalDocumentLink>
+    </main>;
+  }
+
+  if (activeResume) {
+    return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}>
+      <p>{locale === "ru" ? "Возвращаем тебя в незавершённый раунд…" : "Returning you to your round in progress…"}</p>
+      <PracticalDocumentLink className="primary" href={activeResume.href}>
+        {locale === "ru" ? "Продолжить раунд" : "Resume the round"} →
       </PracticalDocumentLink>
     </main>;
   }

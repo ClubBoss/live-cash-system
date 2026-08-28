@@ -2,6 +2,7 @@
 
 import { type CSSProperties, type ReactNode } from "react";
 import { isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
+import { activeIntegratedRoundResume } from "../lib/practical-continuity-workspace";
 import { recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { resolvePostQuickStartLearningTarget } from "../lib/practical-post-quick-start-learning";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -18,10 +19,27 @@ type Props = {
   focusSkillId?: string;
 };
 
+function PrimaryLearningLink({ className, style, content, ariaCurrent }: { className?: string; style?: CSSProperties; content: ReactNode; ariaCurrent?: "page" }) {
+  const { mastery, studyWorkspace, ready, recoveryBlocked } = usePracticalProfileState();
+  // An active, valid, incomplete round resumes before a new lesson is started.
+  const resume = ready && !recoveryBlocked ? activeIntegratedRoundResume(studyWorkspace, mastery) : null;
+  if (resume) {
+    return <PracticalDocumentLink className={className} style={style} href={resume.href} aria-current={ariaCurrent} data-active-round-resume="1">{content}</PracticalDocumentLink>;
+  }
+  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+}
+
 function FocusedLearningLink({ className, style, content, ariaCurrent, focusSkillId }: { className?: string; style?: CSSProperties; content: ReactNode; ariaCurrent?: "page"; focusSkillId: string }) {
-  const { mastery, ready, recoveryBlocked } = usePracticalProfileState();
+  const { mastery, studyWorkspace, ready, recoveryBlocked } = usePracticalProfileState();
   if (!ready || recoveryBlocked) {
     return <span className={className} style={style} aria-disabled="true" data-focus-unavailable={focusSkillId}>{content}</span>;
+  }
+
+  // A different in-progress round outranks starting this recommended skill fresh;
+  // a round already on this focus is resumed by the normal focused href below.
+  const resume = activeIntegratedRoundResume(studyWorkspace, mastery);
+  if (resume && resume.focusSkillId !== focusSkillId) {
+    return <PracticalDocumentLink className={className} style={style} href={resume.href} aria-current={ariaCurrent} data-active-round-resume="1">{content}</PracticalDocumentLink>;
   }
 
   if (isIntegratedFocusAdmissible(mastery, focusSkillId)) {
@@ -56,5 +74,5 @@ export default function PracticalNextLearningLink({
     return <FocusedLearningLink className={className} style={style} content={content} ariaCurrent={ariaCurrent} focusSkillId={focusSkillId} />;
   }
 
-  return <PracticalDocumentLink className={className} style={style} href="/mastery/journey" aria-current={ariaCurrent}>{content}</PracticalDocumentLink>;
+  return <PrimaryLearningLink className={className} style={style} content={content} ariaCurrent={ariaCurrent} />;
 }

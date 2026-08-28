@@ -311,6 +311,34 @@ export function advanceIntegratedContinuity(
   }, now);
 }
 
+export type ActiveIntegratedRoundResume = {
+  href: string;
+  focusSkillId: string | null;
+  nextIndex: number;
+  itemCount: number;
+};
+
+// Canonical "is there an active, valid, incomplete round to resume?" query.
+// Reuses restoreIntegratedRound (the single continuity authority) so the primary
+// Continue affordances can give an in-progress round resume precedence over
+// starting an unrelated new lesson, without introducing a second session store.
+export function activeIntegratedRoundResume(
+  workspace: PracticalStudyWorkspace,
+  mastery: PracticalMasteryState,
+): ActiveIntegratedRoundResume | null {
+  const saved = workspace.continuity?.integrated;
+  if (!saved) return null;
+  const restore = restoreIntegratedRound(workspace, mastery, saved.focusSkillId);
+  if (restore.status !== "VALID") return null;
+  // A fully answered round (cursor past the last item, no pending feedback) is
+  // finished and must not keep hijacking Continue.
+  if (restore.nextIndex >= restore.items.length && !restore.postAnswerAttempt) return null;
+  const href = saved.focusSkillId
+    ? `/mastery/session?focus=${encodeURIComponent(saved.focusSkillId)}`
+    : "/mastery/session";
+  return { href, focusSkillId: saved.focusSkillId, nextIndex: restore.nextIndex, itemCount: restore.items.length };
+}
+
 export function restoreIntegratedRound(
   workspace: PracticalStudyWorkspace,
   mastery: PracticalMasteryState,
