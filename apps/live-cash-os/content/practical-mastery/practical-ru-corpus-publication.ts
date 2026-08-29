@@ -416,7 +416,7 @@ export const practicalRuCorpusPublicationOverrides = new Map<string, string>([
   ["FTGU-E05 uses blind discount and small open size as direct reasons BB can continue wider than ordinary cold callers.", "Использует скидку блайнда и небольшой открытие как прямые причины, по которым BB может продолжать шире обычного холодный коллер."],
   ["FTGU-E05 uses exactly this relative comparison to explain weak-hand viability from BB.", "Использует именно это относительное сравнение, чтобы объяснить жизнеспособность слабых рук с BB."],
   ["FTGU-E05 перечисляет small opens, wide ranges, closing action и playability как факторы лучшей BB defence.", "Перечисляет небольшие открытия, широкие диапазоны, закрытие торгов и играбельность как факторы лучшей защиты BB."],
-  ["FTGU-E05 прямо перечисляет small open, wide range и closing action как факторы, улучшающие BB defence.", "Прямо перечисляет небольшой открытие, широкий диапазон и закрытие торгов как факторы, улучшающие защиту BB."],
+  ["FTGU-E05 прямо называет небольшой open, широкий range и закрытие торгов факторами, которые улучшают защиту BB.", "Небольшой open, широкий range и закрытие торгов улучшают защиту BB."],
   ["FTGU-E06 explicitly explains why SB flats are structurally weaker than BB calls.", "Прямо объясняет, почему коллы с SB структурно слабее коллов с BB."],
   ["FTGU-E06 explicitly permits some flats when the BB is weak/passive.", "Прямо допускает часть коллы, когда BB слабый или пассивный."],
   ["FTGU-E06 explicitly warns against converting 'flat is unattractive' into 'therefore 3-bet'.", "Прямо предупреждает против перехода от «колл непривлекателен» к «значит 3-бет»."],

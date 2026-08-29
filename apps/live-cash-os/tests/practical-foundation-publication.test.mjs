@@ -35,3 +35,39 @@ test("foundation publication repair keeps stable decision identities and scoring
   assert.equal(decision?.correctReasonId, "r1");
   assert.equal(decision?.targetSeconds, 25);
 });
+
+test("BB-call first exposure is composed as natural Russian while keeping its learning identities", () => {
+  const skill = practicalSkillById.get("PF-04");
+  const decisions = ["101", "102", "103", "104", "105", "106", "107"].map((suffix) =>
+    practicalDecisionById.get(`PM-PF-04-${suffix}`),
+  );
+  const learnerCopy = [
+    skill?.titleRu,
+    skill?.objectiveRu,
+    firstJourneyStepForSkill("PF-04")?.purposeRu,
+    firstJourneyStepForSkill("PF-04")?.tableUseRu,
+    ...decisions.flatMap((decision) => [
+      decision?.cueRu,
+      decision?.questionRu,
+      decision?.explanationRu,
+      ...((decision?.actionOptions ?? []).map((option) => option.textRu)),
+      ...((decision?.reasonOptions ?? []).map((option) => option.textRu)),
+    ]),
+  ].filter(Boolean).join("\n");
+
+  assert.match(learnerCopy, /Коллы из BB/u);
+  assert.match(learnerCopy, /Небольшой open с поздней позиции/u);
+  assert.doesNotMatch(learnerCopy, /Calling from BB|required realisable equity|marginal defend|Open size/u);
+  assert.deepEqual(decisions.map((decision) => [decision?.correctActionId, decision?.correctReasonId]), Array(7).fill(["a", "r1"]));
+  assert.ok(decisions.every((decision) => decision?.sourceRefs.length === 1));
+});
+
+test("33, 50 and 25 percent pot-odds teaching remains concrete before the ratio and threshold", () => {
+  const oneThird = practicalAnchorById.get("FND-01-A01");
+  const half = practicalAnchorById.get("FND-01-A02");
+  const quarter = practicalDecisionById.get("PM-FND-01-101");
+
+  assert.match(`${oneThird?.promptRu}\n${oneThird?.rationaleRu}`, /В банке 1bb, соперник ставит 1bb[\s\S]*1:2[\s\S]*33%/u);
+  assert.match(`${half?.promptRu}\n${half?.rationaleRu}`, /В банке 2bb, соперник ставит 2bb[\s\S]*2 \/ 4 = 50%/u);
+  assert.match(`${quarter?.cueRu}\n${quarter?.explanationRu}`, /В банке 2bb, соперник ставит 1bb[\s\S]*1:3[\s\S]*25%/u);
+});

@@ -33,7 +33,7 @@ export const practicalSkillFamilies: PracticalSkillFamily[] = [
   f("PF-01", "W2_PREFLOP", "RFI по позиции", "RFI by position", "Принимать open/fold решения с учётом позиции и контекста.", ["preflop"], ["FND-06"], ["FTGU-E02"], "P0"),
   f("PF-02", "W2_PREFLOP", "Limp / overlimp / isolation", "Limp, overlimp and isolation", "Выбирать iso/overlimp/fold в live limp-heavy ветках.", ["preflop", "multiway"], ["PF-01"], ["FTGU-E03"], "P0"),
   f("PF-03", "W2_PREFLOP", "Calling IP", "Calling in position", "Оценивать flat через domination, implied odds и squeeze exposure.", ["preflop"], ["FND-03"], ["FTGU-E04"], "P0"),
-  f("PF-04", "W2_PREFLOP", "Calling from BB", "Calling from the big blind", "Использовать price, closing action и realisation вместо шаблонного fold/call.", ["preflop", "blinds"], ["FND-01", "FND-02"], ["FTGU-E05"], "P0"),
+  f("PF-04", "W2_PREFLOP", "Коллы из BB", "Calling from the big blind", "Оценивать колл из BB по цене, закрытию торгов и реализации equity.", ["preflop", "blinds"], ["FND-01", "FND-02"], ["FTGU-E05"], "P0"),
   f("PF-05", "W2_PREFLOP", "SB против opens", "Small blind versus opens", "Учитывать плохую реализацию и игрока в BB позади.", ["preflop", "blinds"], ["FND-02"], ["FTGU-E06"], "P0"),
   f("PF-06", "W2_PREFLOP", "3-bet construction", "3-bet construction", "Выбирать linear/polar/merged shape по fold equity и call branch.", ["preflop"], ["PF-01"], ["FTGU-E15", "FTGU-E16", "LCM-02"], "P0"),
   f("PF-07", "W2_PREFLOP", "Facing 3-bets", "Facing 3-bets", "Разделять fold/call/4-bet branches по позиции, sizing и hand family.", ["preflop", "aggression"], ["PF-03", "PF-06"], ["FTGU-E17"], "P0"),

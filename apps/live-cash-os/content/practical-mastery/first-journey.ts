@@ -33,9 +33,9 @@ const copyBySkillId: Record<string, { purposeRu: string; purposeEn: string; tabl
     tableUseEn: "Used in every unopened preflop spot: position changes players behind and realization quality.",
   },
   "PF-04": {
-    purposeRu: "Оценивать BB call через цену, закрытие action и реализацию, а не через силу руки в вакууме.",
+    purposeRu: "Оценивать колл из BB по цене, закрытию торгов и реализации equity, а не по силе руки в вакууме.",
     purposeEn: "Judge a BB call through price, closing action, and realization rather than hand strength in isolation.",
-    tableUseRu: "BB defend — одна из самых частых live-cash ситуаций, и маленькая ошибка повторяется сотни раз.",
+    tableUseRu: "Защита BB — одна из самых частых ситуаций в live cash; небольшая ошибка здесь повторяется сотни раз.",
     tableUseEn: "BB defense is one of the most frequent cash-game situations, so small errors repeat constantly.",
   },
   "W4-BOARD-01": {
