@@ -53,10 +53,12 @@ test("BBG-03 fix preserves decision identity, correct answers and scoring for th
 test("BBG-03 fixed strings still render naturally after the learner-presentation firewall (RU and EN)", () => {
   const explanation101 = practicalDecisionById.get("PM-FND-01-101").explanationRu;
   const sanitizedRu = sanitizeLearnerPresentationText(explanation101, "ru");
-  assert.match(sanitizedRu, /^Pot odds задают порог безубыточности/u, sanitizedRu);
+  assert.match(sanitizedRu, /^После ставки соперника в банке уже 3bb/u, sanitizedRu);
+  assert.match(sanitizedRu, /pot odds равны 1:3/u, sanitizedRu);
   assert.doesNotMatch(sanitizedRu, forbiddenHybrid);
 
   const explanation102 = practicalDecisionById.get("PM-FND-01-102").explanationRu;
   const sanitizedRu102 = sanitizeLearnerPresentationText(explanation102, "ru");
-  assert.match(sanitizedRu102, /^Колл, который проигрывает большинство раздач/u, sanitizedRu102);
+  assert.match(sanitizedRu102, /^Hero платит 1bb за шанс выиграть 2bb/u, sanitizedRu102);
+  assert.match(sanitizedRu102, /38% выше этого порога/u, sanitizedRu102);
 });

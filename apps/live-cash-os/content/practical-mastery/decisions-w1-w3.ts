@@ -5,21 +5,21 @@ const o = (id: string, textRu: string, textEn: string, misconception?: string) =
 export const foundationPreflopBlindDecisions: PracticalDecision[] = [
   {
     id: "PM-FND-01-001", skillId: "FND-01", kind: "recognition", sourceRefs: ["FTGU-E01"],
-    assumptions: ["all-in", "risk 1 to win 2", "no future betting"],
-    cueRu: "Hero рискует 1, чтобы выиграть 2.", cueEn: "Hero risks 1 to win 2.",
-    questionRu: "Какой вывод о required equity верный?", questionEn: "Which statement about required equity is correct?",
+    assumptions: ["all-in", "call 1bb to win 2bb", "no future betting"],
+    cueRu: "В банке 1bb, соперник ставит 1bb. Hero должен доставить 1bb, и дальше ставок не будет.", cueEn: "Hero risks 1 to win 2.",
+    questionRu: "Какой вывод о требуемой equity верный?", questionEn: "Which statement about required equity is correct?",
     actionOptions: [
-      o("a", "Call требует около 33% equity", "The call requires about 33% equity"),
-      o("b", "Call требует больше 50% equity", "The call requires more than 50% equity", "WIN_RATE_50_SHORTCUT"),
-      o("c", "Required equity не зависит от цены", "Required equity does not depend on price", "PRICE_IGNORED"),
+      o("a", "Для call нужно около 33% equity", "The call requires about 33% equity"),
+      o("b", "Для call нужно больше 50% equity", "The call requires more than 50% equity", "WIN_RATE_50_SHORTCUT"),
+      o("c", "Требуемая equity не зависит от цены", "Required equity does not depend on price", "PRICE_IGNORED"),
     ],
     reasonOptions: [
-      o("r1", "Pot odds задают порог безубыточности", "Pot odds determine the break-even threshold"),
+      o("r1", "Pot odds 1:2 задают порог безубыточности около 33%", "Pot odds determine the break-even threshold"),
       o("r2", "Нужно выигрывать большинство раздач", "The hand must win most runouts", "WIN_RATE_50_SHORTCUT"),
       o("r3", "Equity и EV всегда одно и то же", "Equity and EV are always the same", "EQUITY_EQUALS_EV"),
     ],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 25,
-    explanationRu: "FTGU-E01 прямо показывает, что риск 1 ради выигрыша 2 даёт порог около одной трети, а не 50%.",
+    explanationRu: "Hero платит 1bb за шанс выиграть 2bb, уже лежащие в банке. Это pot odds 1:2, поэтому для безубыточного call достаточно около 33% equity, а не 50%.",
     explanationEn: "FTGU-E01 explicitly shows that risking 1 to win 2 gives a break-even threshold around one third, not 50%.",
   },
   {

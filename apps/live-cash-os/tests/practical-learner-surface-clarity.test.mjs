@@ -64,14 +64,15 @@ test("Practical navigation falls back exactly once only when client routing thro
 });
 
 test("Quick Start teaches pot odds as a calculation and immediately contrasts a changed price", async () => {
-  const guard = await read("components/PracticalLearnerPresentationGuard.tsx");
+  const anchors = await read("content/practical-mastery/anchors-w1.ts");
+  const decisions = await read("content/practical-mastery/decisions-foundation-expansion.ts");
   const journey = await read("components/PracticalFirstJourneyExperience.tsx");
   assert.match(journey, /БЫСТРЫЙ СТАРТ/);
   assert.match(journey, /ГДЕ ЭТО НУЖНО/);
   assert.doesNotMatch(journey, /<textarea|Твой прогноз|СНАЧАЛА ПРОГНОЗ|ПОЧЕМУ СЕЙЧАС/);
-  assert.match(guard, /1 \/ \(2 \+ 1\) = 33,3%/);
-  assert.match(guard, /2 \/ \(2 \+ 2\) = 50%/);
-  assert.match(guard, /порог вырос с 33,3% до 50%/);
+  assert.match(anchors, /порог равен 2 \/ 4 = 50%/);
+  assert.match(decisions, /1 \/ \(1 \+ 3\) = 25%/);
+  assert.match(decisions, /Его 38% выше этого порога/);
 });
 
 test("learner presentation keeps provenance internal while preserving the source-ceiling product contract", async () => {
@@ -118,7 +119,7 @@ test("clarity contract keeps source content clean and uses the shared post-rende
   assert.match(guard, /isLearnerMetadataOnlyLine/);
   assert.match(guard, /sanitizeLearnerPresentationText/);
   assert.match(firewall, /learnerPresentationLeakClasses|LearnerPresentationLeakClass/);
-  assert.match(guard, /New publication fixes belong in source fields/);
+  assert.match(guard, /Learner teaching copy is authored in its source fields/);
   assert.doesNotMatch(guard, /polishRussianLearnerText|cleanupSourceLanguage/);
   assert.doesNotMatch(study, /sourceRefs\.join|skill\?\.id|FTGU E30/);
   assert.match(study, /recommendedSkill\.titleRu/);

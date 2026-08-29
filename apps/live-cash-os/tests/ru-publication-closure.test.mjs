@@ -66,8 +66,8 @@ test("A: raw equity resolves to the correct gender/case in its two active FND-02
 
   const anchor = practicalAnchors.find((item) => item.id === "FND-02-A01");
   assert.doesNotMatch(anchor.promptRu, /заметное исходная|raw equity приравнять/iu);
-  assert.match(anchor.promptRu, /заметная исходная equity/u);
-  assert.match(anchor.promptRu, /приравнять исходную equity/u);
+  assert.match(anchor.promptRu, /заметная equity/u);
+  assert.match(anchor.promptRu, /приравнять эту equity/u);
 });
 
 test("A: PM-FND-01-105 reason r3 keeps natural agreement with 'требуемая equity'", () => {
