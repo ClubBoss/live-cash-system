@@ -31,7 +31,6 @@ export default function PracticalFirstJourneyExperience({
   const {
     mastery: state,
     studyWorkspace,
-    setMastery,
     setMasteryWithStudyWorkspace,
     setStudyWorkspace,
     ready,
@@ -92,8 +91,17 @@ export default function PracticalFirstJourneyExperience({
 
   const startPractice = () => {
     if (!skill) return;
+    const nextState = state.skills[skill.id]?.conceptTaught ? state : markPracticalConceptTaught(state, skill.id);
+    const nextDecision = nextFirstJourneyDecision(nextState, skill.id);
+    if (!nextDecision) return;
+    const nextWorkspace = withQuickStartDraft(studyWorkspace, nextState.contentVersion, {
+      skillId: skill.id,
+      decisionId: nextDecision.id,
+      selectedActionId: null,
+      selectedReasonId: null,
+    });
+    if (!setMasteryWithStudyWorkspace(nextState, nextWorkspace)) return;
     setPracticeStarted(true);
-    if (!state.skills[skill.id]?.conceptTaught) setMastery(markPracticalConceptTaught(state, skill.id));
   };
 
   const persistDraft = (selectedActionId: string | null, selectedReasonId: string | null) => {

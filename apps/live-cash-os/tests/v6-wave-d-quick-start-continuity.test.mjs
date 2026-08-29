@@ -36,6 +36,30 @@ test("V6-D in-progress Quick Start draft restores semantic selections with zero 
   assert.equal(state.revision, 0, "draft must not increment mastery revision");
 });
 
+test("CONT-01 unanswered Quick Start item restores its exact identity without fabricating selections or evidence", () => {
+  const decision = practicalDecisions[0];
+  assert.ok(decision);
+  const state = createPracticalMasteryState(new Date("2026-08-29T00:00:00Z"), true);
+  const masteryBefore = JSON.stringify(state);
+  const workspace = withQuickStartDraft(createPracticalStudyWorkspace(), state.contentVersion, {
+    skillId: decision.skillId,
+    decisionId: decision.id,
+    selectedActionId: null,
+    selectedReasonId: null,
+  });
+
+  const restored = restoreQuickStartDraft(workspace, state, decision.skillId, decision.id);
+  assert.deepEqual(restored, {
+    status: "VALID",
+    skillId: decision.skillId,
+    decisionId: decision.id,
+    selectedActionId: null,
+    selectedReasonId: null,
+  });
+  assert.equal(JSON.stringify(state), masteryBefore);
+  assert.equal(state.attempts.length, 0);
+});
+
 test("V6-D stale or incompatible Quick Start drafts fail closed", () => {
   const [decision, otherDecision] = practicalDecisions.slice(0, 2);
   assert.ok(decision && otherDecision);
