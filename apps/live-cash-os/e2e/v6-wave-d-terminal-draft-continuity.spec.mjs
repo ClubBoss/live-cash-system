@@ -11,6 +11,14 @@ async function ensurePracticalProfile(page) {
   if (hasProfile) return;
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
+  // This fixture needs an initialized profile while its callers explicitly
+  // choose when to enter practice. CONT-01 separately covers real active-item
+  // restoration without clearing this cursor.
+  await page.evaluate((key) => {
+    const root = JSON.parse(localStorage.getItem(key) ?? "null");
+    root._practicalProfile.studyWorkspace.continuity.quickStart = null;
+    localStorage.setItem(key, JSON.stringify(root));
+  }, LEARNER_KEY);
   await page.reload();
   await expect(page.locator("main")).toBeVisible();
 }
@@ -70,7 +78,6 @@ test("V6-D unsubmitted Quick Start draft survives reload, re-entry and history w
   await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
   await page.reload();
   await ensurePracticalProfile(page);
-
   await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   const card = await practiceCard(page);
   const masteryBeforeDraft = await masterySnapshot(page);
@@ -116,6 +123,38 @@ test("V6-D unsubmitted Quick Start draft survives reload, re-entry and history w
   await expect(staleCard.locator('input[type="radio"]:checked')).toHaveCount(0);
   expect(await masterySnapshot(page)).toBe(masteryBeforeDraft);
   expect(await attemptCount(page)).toBe(attemptsBeforeDraft);
+});
+
+test("CONT-01 unanswered Quick Start item survives reload and can be answered normally", async ({ page }) => {
+  await page.goto("/mastery/journey");
+  await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
+  await page.reload();
+  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
+  const card = await practiceCard(page);
+  const masteryBeforeReload = await masterySnapshot(page);
+  const attemptsBeforeReload = await attemptCount(page);
+  const decisionIdBeforeReload = await card.locator('input[type="radio"]').first().getAttribute("name");
+
+  await page.reload();
+  const restoredCard = await practiceCard(page);
+  await expect(restoredCard.locator('input[type="radio"]:checked')).toHaveCount(0);
+  expect(await restoredCard.locator('input[type="radio"]').first().getAttribute("name")).toBe(decisionIdBeforeReload);
+  expect(await masterySnapshot(page)).toBe(masteryBeforeReload);
+  expect(await attemptCount(page)).toBe(attemptsBeforeReload);
+
+  const mastery = await currentMastery(page);
+  const recommendation = recommendFirstJourneyStep(mastery);
+  if (!recommendation) throw new Error("missing canonical Quick Start recommendation after reload");
+  const decision = nextFirstJourneyDecision(mastery, recommendation.skillId);
+  if (!decision) throw new Error("missing canonical Quick Start decision after reload");
+  const actionIndex = decision.actionOptions.findIndex((option) => option.id === decision.correctActionId);
+  const reasonIndex = decision.reasonOptions.findIndex((option) => option.id === decision.correctReasonId);
+  await restoredCard.locator("fieldset").nth(0).locator('input[type="radio"]').nth(actionIndex).check();
+  await restoredCard.locator("fieldset").nth(1).locator('input[type="radio"]').nth(reasonIndex).check();
+  await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
+  await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
+  expect(await attemptCount(page)).toBe(attemptsBeforeReload + 1);
 });
 
 test("V6-D fresh Quick Start advances 1 through 8 and final accepted item hands off directly to canonical COMPLETE", async ({ page }) => {

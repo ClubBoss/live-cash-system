@@ -40,7 +40,8 @@ async function setReached(page, reached) {
 }
 
 async function answerVisibleQuickStartDecision(page) {
-  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  const start = page.getByRole("button", { name: /Проверить на примере|Try an example/ });
+  if (await start.count()) await start.click();
   const answer = page.getByRole("button", { name: /Ответить|Answer/ }).last();
   await expect(answer).toBeVisible();
   const card = answer.locator("xpath=ancestor::section[contains(@class,'today-card')][1]");

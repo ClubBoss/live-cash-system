@@ -135,8 +135,6 @@ export function withQuickStartDraft(
   if (!decision || decision.skillId !== input.skillId || !practicalSkillById.has(input.skillId)) return workspace;
   if (input.selectedActionId !== null && !decision.actionOptions.some((option) => option.id === input.selectedActionId)) return workspace;
   if (input.selectedReasonId !== null && !decision.reasonOptions.some((option) => option.id === input.selectedReasonId)) return workspace;
-  if (input.selectedActionId === null && input.selectedReasonId === null) return clearQuickStartContinuity(workspace, contentVersion, now);
-
   const continuity = nextContinuity(workspace, contentVersion);
   return withContinuity(workspace, {
     ...continuity,
@@ -160,7 +158,6 @@ export function restoreQuickStartDraft(
   if (saved.skillId !== expectedSkillId || saved.decisionId !== expectedDecisionId) return { status: "INVALID" };
   const decision = practicalDecisionById.get(saved.decisionId);
   if (!decision || decision.skillId !== saved.skillId || !practicalSkillById.has(saved.skillId)) return { status: "INVALID" };
-  if (saved.selectedActionId === null && saved.selectedReasonId === null) return { status: "INVALID" };
   if (saved.selectedActionId !== null && !decision.actionOptions.some((option) => option.id === saved.selectedActionId)) return { status: "INVALID" };
   if (saved.selectedReasonId !== null && !decision.reasonOptions.some((option) => option.id === saved.selectedReasonId)) return { status: "INVALID" };
   return {
