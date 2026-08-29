@@ -5,18 +5,18 @@ const o = (id: string, textRu: string, textEn: string, misconception?: string) =
 export const foundationExpansionDecisions: PracticalDecision[] = [
   // FND-01 — pot odds / required equity. FTGU-E01.
   {
-    id: "PM-FND-01-101", skillId: "FND-01", kind: "recognition", sourceRefs: ["FTGU-E01"], assumptions: ["all-in", "risk 1 to win 3", "no future action"],
-    cueRu: "Риск 1 ради выигрыша 3.", cueEn: "Risk 1 to win 3.", questionRu: "Какой примерно break-even equity?", questionEn: "What is the approximate break-even equity?",
+    id: "PM-FND-01-101", skillId: "FND-01", kind: "recognition", sourceRefs: ["FTGU-E01"], assumptions: ["all-in", "call 1bb to win 3bb", "no future action"],
+    cueRu: "В банке 2bb, соперник ставит 1bb. Hero должен доставить 1bb, и дальше ставок не будет.", cueEn: "Risk 1 to win 3.", questionRu: "Какая примерно требуемая equity для безубыточного call?", questionEn: "What is the approximate break-even equity?",
     actionOptions: [o("a", "25%", "25%"), o("b", "50%", "50%", "WIN_RATE_50_SHORTCUT"), o("c", "75%", "75%", "RATIO_INVERTED")],
-    reasonOptions: [o("r1", "Риск / (риск + выигрыш) = 1 / 4", "Risk / (risk + reward) = 1 / 4"), o("r2", "Для любого колла нужно больше 50% equity", "Every call requires equity above 50%", "WIN_RATE_50_SHORTCUT"), o("r3", "Выигрыш делится только на риск", "Reward is divided only by risk", "FORMULA_INVERTED")],
-    correctActionId: "a", correctReasonId: "r1", targetSeconds: 20, explanationRu: "Pot odds задают порог безубыточности: колл может быть прибыльным, даже если проигрывает большинство раздач.", explanationEn: "FTGU-E01 frames pot odds as a break-even threshold: a call can be profitable even when it loses most runouts.",
+    reasonOptions: [o("r1", "Hero рискует 1bb, чтобы выиграть 3bb: 1 / (1 + 3) = 25%", "Risk / (risk + reward) = 1 / 4"), o("r2", "Для любого колла нужно больше 50% equity", "Every call requires equity above 50%", "WIN_RATE_50_SHORTCUT"), o("r3", "Выигрыш делится только на риск", "Reward is divided only by risk", "FORMULA_INVERTED")],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 20, explanationRu: "После ставки соперника в банке уже 3bb. Hero доставляет 1bb, поэтому pot odds равны 1:3, а требуемая equity — 1 / 4 = 25%.", explanationEn: "FTGU-E01 frames pot odds as a break-even threshold: a call can be profitable even when it loses most runouts.",
   },
   {
-    id: "PM-FND-01-102", skillId: "FND-01", kind: "decision", sourceRefs: ["FTGU-E01"], assumptions: ["all-in", "risk 1 to win 2", "Hero equity 38%"],
-    cueRu: "Hero рискует 1 ради 2 и имеет около 38% equity.", cueEn: "Hero risks 1 to win 2 and has about 38% equity.", questionRu: "Что говорит сравнение цены и equity?", questionEn: "What does price-only EV imply?",
+    id: "PM-FND-01-102", skillId: "FND-01", kind: "decision", sourceRefs: ["FTGU-E01"], assumptions: ["all-in", "call 1bb to win 2bb", "Hero equity 38%"],
+    cueRu: "В банке 1bb, соперник ставит 1bb. Hero должен доставить 1bb и имеет около 38% equity.", cueEn: "Hero risks 1 to win 2 and has about 38% equity.", questionRu: "Что говорит сравнение цены колла и equity?", questionEn: "What does price-only EV imply?",
     actionOptions: [o("a", "Колл может быть +EV", "The call can be +EV"), o("b", "Фолд, потому что equity меньше 50%", "Fold because equity is below 50%", "WIN_RATE_50_SHORTCUT"), o("c", "Нельзя сравнить equity с ценой", "Equity cannot be compared with price", "PRICE_EQUITY_DISCONNECT")],
     reasonOptions: [o("r1", "38% выше примерно 33%-ного порога безубыточности", "38% is above the roughly 33% break-even threshold"), o("r2", "38% означает проигрыш большинства раздач, значит EV отрицателен", "38% loses most runouts, so EV is negative", "WIN_RATE_50_SHORTCUT"), o("r3", "EV в олл-ине зависит только от позиции", "All-in EV depends only on position", "POSITION_ONLY")],
-    correctActionId: "a", correctReasonId: "r1", targetSeconds: 25, explanationRu: "Колл, который проигрывает большинство раздач, всё ещё может быть прибыльным при подходящей цене.", explanationEn: "This is the FTGU-E01 source example: a call that loses most runouts can still be profitable at the offered price.",
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 25, explanationRu: "Hero платит 1bb за шанс выиграть 2bb, поэтому порог равен примерно 33%. Его 38% выше этого порога: call может быть +EV, даже если Hero проигрывает большинство раздач.", explanationEn: "This is the FTGU-E01 source example: a call that loses most runouts can still be profitable at the offered price.",
   },
   {
     id: "PM-FND-01-103", skillId: "FND-01", kind: "decision", sourceRefs: ["FTGU-E01"], assumptions: ["all-in", "risk 2 to win 3", "Hero equity 37%"],

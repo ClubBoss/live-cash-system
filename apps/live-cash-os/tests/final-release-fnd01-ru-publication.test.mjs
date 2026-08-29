@@ -42,7 +42,7 @@ test("FND-01 RU learner projection removes the observed hybrid publication class
     "Более дешёвый колл требует больше equity",
     "Цена та же, но после уточнения диапазона equity падает ниже порога безубыточности.",
     "Название руки важнее диапазона",
-    "Риск / (риск + выигрыш) = 1 / 4",
+    "Hero рискует 1bb, чтобы выиграть 3bb: 1 / (1 + 3) = 25%",
   ]) assert.match(text, new RegExp(correction.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
 
   assert.deepEqual(

@@ -15,13 +15,13 @@ export type FirstJourneyStep = {
 
 const copyBySkillId: Record<string, { purposeRu: string; purposeEn: string; tableUseRu: string; tableUseEn: string }> = {
   "FND-01": {
-    purposeRu: "Быстро считать минимальную equity, которая нужна для прибыльного call.",
+    purposeRu: "Сначала видеть цену колла в банке, затем считать минимальную equity для прибыльного call.",
     purposeEn: "Quickly calculate the minimum equity required for a profitable call.",
-    tableUseRu: "Нужно почти каждый раз, когда перед тобой ставка и ты выбираешь между call и fold.",
+    tableUseRu: "Нужно почти каждый раз, когда перед тобой ставка и ты выбираешь между call и fold: цена колла меняется вместе с банком и сайзингом.",
     tableUseEn: "You need this whenever you face a bet and choose between calling and folding.",
   },
   "FND-02": {
-    purposeRu: "Отличать equity руки от того, сколько этой equity реально удастся реализовать.",
+    purposeRu: "Отличать equity руки от той части equity, которую удастся реализовать.",
     purposeEn: "Separate a hand's raw equity from how much of it can actually be realized.",
     tableUseRu: "Особенно важно OOP и в маргинальных защитах, где будущие решения могут съесть номинальное преимущество.",
     tableUseEn: "Especially important OOP and in marginal defenses where future decisions can erase nominal equity.",

@@ -38,10 +38,11 @@ test("Quick Start teaches pot odds as a calculation and immediately contrasts a 
   await page.goto("/mastery/journey");
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
   await expect(page.locator("textarea")).toHaveCount(0);
-  await expect(page.getByText(/В банке 2 единицы\. Hero должен доплатить 1 единицу/i)).toBeVisible();
-  await expect(page.getByText(/1 \/ \(2 \+ 1\) = 33,3%/i)).toBeVisible();
+  await expect(page.getByText(/В банке 1bb, соперник ставит 1bb\. Hero должен доставить 1bb/i)).toBeVisible();
+  await expect(page.getByText(/pot odds 1:2.*около одной трети/i)).toBeVisible();
   await expect(page.getByText("ИЗМЕНИ ОДНО УСЛОВИЕ", { exact: true })).toBeVisible();
-  await expect(page.getByText(/новый порог безубыточности/i)).toBeVisible();
+  await expect(page.getByText(/В банке 2bb, соперник ставит 2bb\. Hero должен доставить 2bb/i)).toBeVisible();
+  await expect(page.getByText(/50%: требуемая equity выросла/i)).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/нужно ли выигрывать более 50% раздач/i);
   await page.getByRole("button", { name: /Проверить на примере/i }).click();
   await expect(page.getByText("ТЕПЕРЬ ТЫ", { exact: true })).toBeVisible();

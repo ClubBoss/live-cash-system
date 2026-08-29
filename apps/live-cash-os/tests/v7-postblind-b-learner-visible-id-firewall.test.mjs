@@ -15,7 +15,7 @@ const hasBareEvidenceId = (value) => /\bE\d{2,}\b/u.test(value);
 const bareEvidenceMatches = (value) => [...value.matchAll(/\bE\d{2,}\b/gu)].map((match) => match[0]);
 
 const EXPECTED_BEFORE = {
-  ru: { learnerStrings: 8821, leakingStrings: 196, occurrences: 208 },
+  ru: { learnerStrings: 8821, leakingStrings: 192, occurrences: 203 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },

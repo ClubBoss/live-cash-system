@@ -21,13 +21,13 @@ const f = (
 
 export const practicalSkillFamilies: PracticalSkillFamily[] = [
   // W1 — foundation
-  f("FND-01", "W1_FOUNDATION", "Pot odds и required equity", "Pot odds and required equity", "Связывать цену колла с требуемым equity.", ["geometry"], [], ["FTGU-E01"], "P0", "CHANGED_NODE_TRANSFER", true),
-  f("FND-02", "W1_FOUNDATION", "Raw vs realised equity", "Raw vs realised equity", "Отличать номинальное equity от реально реализуемого.", ["blinds"], ["FND-01"], ["FTGU-E01", "FTGU-E05", "LCM-03"], "P0", "CHANGED_NODE_TRANSFER", true),
-  f("FND-03", "W1_FOUNDATION", "Implied / reverse implied odds", "Implied / reverse implied odds", "Распознавать будущую ценность и domination risk.", ["preflop", "blinds"], ["FND-01"], ["FTGU-E04", "FTGU-E05"], "P1", "CHANGED_NODE_TRANSFER", true),
-  f("FND-04", "W1_FOUNDATION", "Clean / dirty outs", "Clean and dirty outs", "Не считать улучшения автоматически чистыми outs.", ["filtering"], ["FND-01"], ["FTGU-E01"], "P1", "CHANGED_NODE_TRANSFER", true),
-  f("FND-05", "W1_FOUNDATION", "Combo counting и removal", "Combo counting and removal", "Считать комбинации и card removal в практической линии.", ["ancestry", "river"], [], ["FTGU-E11", "FTGU-E13"], "P0", "CHANGED_NODE_TRANSFER", true),
-  f("FND-06", "W1_FOUNDATION", "Effective stack и SPR", "Effective stack and SPR", "Быстро определять реальный effective stack и post-action SPR.", ["geometry"], [], ["LCM-01"], "P0", "DELAYED_RETRIEVAL", true),
-  f("FND-07", "W1_FOUNDATION", "Break-even intuition", "Break-even intuition", "Связывать риск/награду с порогом прибыльности без псевдоточных solver claims.", ["shape", "river"], ["FND-01"], ["FTGU-E01", "FTGU-E12"], "P1", "CHANGED_NODE_TRANSFER", true),
+  f("FND-01", "W1_FOUNDATION", "Цена колла: pot odds и требуемая equity", "Pot odds and required equity", "Связывать цену колла с требуемой equity.", ["geometry"], [], ["FTGU-E01"], "P0", "CHANGED_NODE_TRANSFER", true),
+  f("FND-02", "W1_FOUNDATION", "Номинальная и реализуемая equity", "Raw vs realised equity", "Отличать номинальную equity от той части, которую удастся реализовать.", ["blinds"], ["FND-01"], ["FTGU-E01", "FTGU-E05", "LCM-03"], "P0", "CHANGED_NODE_TRANSFER", true),
+  f("FND-03", "W1_FOUNDATION", "Implied odds и обратные implied odds", "Implied / reverse implied odds", "Распознавать будущую ценность руки и риск доминации.", ["preflop", "blinds"], ["FND-01"], ["FTGU-E04", "FTGU-E05"], "P1", "CHANGED_NODE_TRANSFER", true),
+  f("FND-04", "W1_FOUNDATION", "Чистые и грязные ауты", "Clean and dirty outs", "Не считать каждое улучшение автоматически чистым аутом.", ["filtering"], ["FND-01"], ["FTGU-E01"], "P1", "CHANGED_NODE_TRANSFER", true),
+  f("FND-05", "W1_FOUNDATION", "Подсчёт комбо и блокеры", "Combo counting and removal", "Считать комбо и учитывать блокеры в практической линии.", ["ancestry", "river"], [], ["FTGU-E11", "FTGU-E13"], "P0", "CHANGED_NODE_TRANSFER", true),
+  f("FND-06", "W1_FOUNDATION", "Эффективный стек и SPR", "Effective stack and SPR", "Быстро определять эффективный стек и SPR после крупного действия.", ["geometry"], [], ["LCM-01"], "P0", "DELAYED_RETRIEVAL", true),
+  f("FND-07", "W1_FOUNDATION", "Порог безубыточности", "Break-even intuition", "Связывать риск и выигрыш с порогом прибыльности без ложной точности.", ["shape", "river"], ["FND-01"], ["FTGU-E01", "FTGU-E12"], "P1", "CHANGED_NODE_TRANSFER", true),
 
   // W2 — preflop
   f("PF-01", "W2_PREFLOP", "RFI по позиции", "RFI by position", "Принимать open/fold решения с учётом позиции и контекста.", ["preflop"], ["FND-06"], ["FTGU-E02"], "P0"),
