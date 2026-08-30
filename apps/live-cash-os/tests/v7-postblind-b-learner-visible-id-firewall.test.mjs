@@ -20,7 +20,7 @@ const EXPECTED_BEFORE = {
   // six additional final-composed learner strings that previously exposed E04.
   // Internal sourceRefs remain intact and the zero-residual firewall below remains
   // unchanged; this is only the truthful raw pre-sanitization learner-string census.
-  ru: { learnerStrings: 8821, leakingStrings: 174, occurrences: 191 },
+  ru: { learnerStrings: 8821, leakingStrings: 174, occurrences: 185 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },
