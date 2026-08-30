@@ -39,7 +39,7 @@ test("Quick Start teaches pot odds as a calculation and immediately contrasts a 
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
   await expect(page.locator("textarea")).toHaveCount(0);
   await expect(page.getByText(/В банке 1bb, соперник ставит 1bb\. Hero должен доставить 1bb/i)).toBeVisible();
-  await expect(page.getByText(/pot odds 1:2.*около одной трети/i)).toBeVisible();
+  await expect(page.getByText(/пот-оддсы 1:2.*около одной трети/i)).toBeVisible();
   await expect(page.getByText("ИЗМЕНИ ОДНО УСЛОВИЕ", { exact: true })).toBeVisible();
   await expect(page.getByText(/В банке 2bb, соперник ставит 2bb\. Hero должен доставить 2bb/i)).toBeVisible();
   await expect(page.getByText(/Нет: порог остаётся около 33%/i)).toBeVisible();

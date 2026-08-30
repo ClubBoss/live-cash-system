@@ -85,7 +85,7 @@ test("Quick Start teaches the mechanism before scored practice and writes schema
   await expect(page.getByText("МЕХАНИЗМ", { exact: true })).toBeVisible();
   await expect(page.locator("textarea")).toHaveCount(0);
   await expect(page.getByText(/В банке 1bb, соперник ставит 1bb\. Hero должен доставить 1bb/i)).toBeVisible();
-  await expect(page.getByText(/pot odds 1:2.*около одной трети/i)).toBeVisible();
+  await expect(page.getByText(/пот-оддсы 1:2.*около одной трети/i)).toBeVisible();
   await page.getByRole("button", { name: /Проверить на примере/ }).click();
 
   await expect.poll(async () => page.evaluate((key) => {
