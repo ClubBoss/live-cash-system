@@ -34,6 +34,7 @@ import {
   applyPracticalRuSystemicDecisionProjection,
 } from "./practical-ru-systemic-publication";
 import { applyPracticalRuSystemicPreflopCoreDecisionProjection } from "./practical-ru-systemic-preflop-core-publication";
+import { applyPracticalRuSystemicPreflopCorePf05DecisionProjection } from "./practical-ru-systemic-preflop-core-pf05-publication";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
 
@@ -112,7 +113,8 @@ export const practicalDecisions = [
   .map(applyPracticalRuFinalPolish)
   .map(applyPracticalAssessmentIntegrityRepair)
   .map(applyPracticalRuSystemicDecisionProjection)
-  .map(applyPracticalRuSystemicPreflopCoreDecisionProjection);
+  .map(applyPracticalRuSystemicPreflopCoreDecisionProjection)
+  .map(applyPracticalRuSystemicPreflopCorePf05DecisionProjection);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
