@@ -356,6 +356,30 @@ const FOUNDATION_EXPANSION_RU = new Map<string, ExactDecisionRu>([
   ]],
 ]);
 
+const FOUNDATION_GAP_FILL_RU = new Map<string, ExactDecisionRu>([
+  ["PM-FND-03-001", [
+    "У Hero невысокая текущая эквити, но дешёвая инвестиция может открыть путь к крупному будущему выигрышу.",
+    "Какой фактор может оправдать продолжение?",
+    "FTGU-E01 отделяет текущую эквити от ценности будущего дерева и определяет имплайд-оддсы как будущую отдачу относительно текущей инвестиции.",
+    ["Имплайд-оддсы и будущий EV", "Только текущая эквити на шоудауне", "Любое дро автоматически прибыльно"],
+    ["Будущие выигрыши относительно текущего вложения могут изменить общий EV", "Будущие улицы никогда не входят в EV", "Имплайд-оддсы гарантируют оплату"],
+  ]],
+  ["PM-FND-06-001", [
+    "Номинальный стек тот же, но к флопу банк становится намного больше.",
+    "Что происходит с SPR на постфлопе?",
+    "LCM-01 и FTGU-E01 связывают отношение оставшегося стека к банку с числом будущих решений и доступным давлением.",
+    ["Падает", "Растёт", "Не меняется"],
+    ["Оставшийся эффективный стек делится на более крупный банк", "SPR определяется только глубиной бай-ина", "Префлоп-сайзинг не влияет на дерево постфлоп-решений"],
+  ]],
+  ["PM-FND-07-001", [
+    "После решения почти не остаётся будущих действий.",
+    "Когда эквити теснее всего связана с непосредственным EV?",
+    "FTGU-E01 выделяет ривер и олл-ин как узлы, где цена и эквити важнее, чем в длинном дереве будущих решений.",
+    ["Когда будущих веток почти нет", "Всегда одинаково", "Только префлоп"],
+    ["Олл-ин или ривер убирают будущее давление и неопределённость реализации", "Позиция никогда не влияет на EV", "Исходная эквити автоматически учитывает рейк и будущую игру"],
+  ]],
+]);
+
 function ru(text: string): string {
   return practicalRuCorpusPublicationOverrides.get(text) ?? RU_OVERRIDES.get(text) ?? text;
 }
@@ -373,7 +397,7 @@ export function applyPracticalRuCopyRepair(decision: PracticalDecision): Practic
     actionOptions: decision.actionOptions.map(optionRu),
     reasonOptions: decision.reasonOptions.map(optionRu),
   };
-  const exact = FOUNDATION_EXPANSION_RU.get(decision.id);
+  const exact = FOUNDATION_EXPANSION_RU.get(decision.id) ?? FOUNDATION_GAP_FILL_RU.get(decision.id);
   if (!exact) return repaired;
   const [cueRu, questionRu, explanationRu, actionRu, reasonRu] = exact;
   return {
