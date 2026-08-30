@@ -22,10 +22,10 @@ test("pot odds starts with a concrete pot before stating the normalized ratio", 
   const firstStep = firstJourneyStepForSkill("FND-01");
 
   assert.match(anchor?.promptRu ?? "", /В банке 1bb, соперник ставит 1bb/u);
-  assert.match(anchor?.answerRu ?? "", /pot odds 1:2/u);
+  assert.match(anchor?.answerRu ?? "", /пот-оддсы 1:2/u);
   assert.match(anchor?.rationaleRu ?? "", /Сначала определи цену колла и банк/u);
   assert.match(decision?.cueRu ?? "", /В банке 1bb, соперник ставит 1bb/u);
-  assert.match(decision?.explanationRu ?? "", /pot odds 1:2/u);
+  assert.match(decision?.explanationRu ?? "", /пот-оддсы 1:2/u);
   assert.match(firstStep?.purposeRu ?? "", /цену колла в банке/u);
 });
 
