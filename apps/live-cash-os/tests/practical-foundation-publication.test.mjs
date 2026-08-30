@@ -56,7 +56,7 @@ test("BB-call first exposure is composed as natural Russian while keeping its le
   ].filter(Boolean).join("\n");
 
   assert.match(learnerCopy, /Коллы из BB/u);
-  assert.match(learnerCopy, /Небольшой open с поздней позиции/u);
+  assert.match(learnerCopy, /Небольшой опен с поздней позиции/u);
   assert.doesNotMatch(learnerCopy, /Calling from BB|required realisable equity|marginal defend|Open size/u);
   assert.deepEqual(decisions.map((decision) => [decision?.correctActionId, decision?.correctReasonId]), Array(7).fill(["a", "r1"]));
   assert.ok(decisions.every((decision) => decision?.sourceRefs.length === 1));

@@ -68,7 +68,8 @@ function stripApprovedNotation(text) {
 }
 
 function numericTokens(text) {
-  return text.match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
+  const withoutSourceIds = text.replace(/(?:FTGU-E\d+|LCM-\d+|EXT-[A-Z0-9-]+)/gu, "");
+  return withoutSourceIds.match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
 }
 
 function optionMachineIdentity(options) {
