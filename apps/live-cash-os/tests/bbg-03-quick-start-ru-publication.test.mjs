@@ -54,7 +54,7 @@ test("BBG-03 fixed strings still render naturally after the learner-presentation
   const explanation101 = practicalDecisionById.get("PM-FND-01-101").explanationRu;
   const sanitizedRu = sanitizeLearnerPresentationText(explanation101, "ru");
   assert.match(sanitizedRu, /^После ставки соперника в банке уже 3bb/u, sanitizedRu);
-  assert.match(sanitizedRu, /pot odds равны 1:3/u, sanitizedRu);
+  assert.match(sanitizedRu, /пот-оддсы равны 1:3/u, sanitizedRu);
   assert.doesNotMatch(sanitizedRu, forbiddenHybrid);
 
   const explanation102 = practicalDecisionById.get("PM-FND-01-102").explanationRu;

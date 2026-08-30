@@ -18,8 +18,8 @@ test("V3-FND-03 B: 'Hand' is translated instead of left as a bare English word i
   assert.ok(decision);
   assert.doesNotMatch(decision.cueRu, /\bHand\b/u);
   assert.match(decision.cueRu, /[Рр]ука/u);
-  // equity/fold/showdown are established poker terms and may remain.
-  assert.match(decision.cueRu, /equity/u);
+  assert.doesNotMatch(decision.cueRu, /\b(?:equity|fold|showdown)\b/iu);
+  assert.match(decision.cueRu, /эквити/u);
 });
 
 test("V3-FND-03 C: 'node context' is translated instead of left as an untranslated English fragment", () => {

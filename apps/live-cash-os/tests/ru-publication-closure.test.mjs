@@ -70,10 +70,10 @@ test("A: raw equity resolves to natural Russian with correct gender/case in its 
   assert.match(anchor.promptRu, /приравнять эту эквити/u);
 });
 
-test("A: PM-FND-01-105 reason r3 keeps natural agreement with 'требуемая equity'", () => {
+test("A: PM-FND-01-105 reason r3 keeps natural agreement with 'требуемая эквити'", () => {
   const decision = practicalDecisionById.get("PM-FND-01-105");
   const r3 = decision.reasonOptions.find((option) => option.id === "r3");
-  assert.match(r3.textRu, /требуемая equity всегда равна 50%/iu);
+  assert.match(r3.textRu, /требуемая эквити всегда равна 50%/iu);
   assert.doesNotMatch(r3.textRu, /зафиксирован(?:а)? на 50%/u);
 });
 
@@ -145,8 +145,8 @@ test("B: the six externally observed malformed strings do not recur verbatim", (
 
 test("B: PM-FND-01-107 boundary item reads as natural, case-agreeing Russian", () => {
   const decision = practicalDecisionById.get("PM-FND-01-107");
-  assert.equal(decision.cueRu, "На флопе за спиной большой стек и много будущих веток.");
-  assert.equal(decision.questionRu, "Достаточно ли сравнить исходную equity только с текущим порогом pot odds?");
+  assert.equal(decision.cueRu, "На флопе за спиной большой стек и впереди много возможных решений.");
+  assert.equal(decision.questionRu, "Достаточно ли сравнить исходную эквити только с текущим порогом пот-оддсов?");
   assert.match(decision.explanationRu, /конце дерева решений/iu);
 });
 

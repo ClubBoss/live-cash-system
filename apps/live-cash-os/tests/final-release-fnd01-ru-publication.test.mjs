@@ -39,8 +39,8 @@ test("FND-01 RU learner projection removes the observed hybrid publication class
   ]) assert.doesNotMatch(text, new RegExp(defect.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
 
   for (const correction of [
-    "Более дешёвый колл требует больше equity",
-    "Цена та же, но после уточнения диапазона equity падает ниже порога безубыточности.",
+    "Более дешёвый колл требует больше эквити",
+    "Цена та же, но после уточнения диапазона эквити падает ниже порога безубыточности.",
     "Название руки важнее диапазона",
     "Hero рискует 1bb, чтобы выиграть 3bb: 1 / (1 + 3) = 25%",
   ]) assert.match(text, new RegExp(correction.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
