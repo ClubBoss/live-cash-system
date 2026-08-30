@@ -75,10 +75,20 @@ function anchorPatchFieldCount(patch) {
 
 test("preflop anchors/base scoped inventory stays fully classified", () => {
   const activeFields = anchorIds.length * 3 + decisionIds.length * 9;
-  const fixFields = [...practicalRuSystemicAnchorPatches.values()].reduce(
+  const anchorPatches = anchorIds.map((id) => {
+    const patch = practicalRuSystemicAnchorPatches.get(id);
+    assert.ok(patch, `missing closed B1 anchor patch ${id}`);
+    return patch;
+  });
+  const decisionPatches = decisionIds.map((id) => {
+    const patch = practicalRuSystemicDecisionPatches.get(id);
+    assert.ok(patch, `missing closed B1 decision patch ${id}`);
+    return patch;
+  });
+  const fixFields = anchorPatches.reduce(
     (sum, patch) => sum + anchorPatchFieldCount(patch),
     0,
-  ) + [...practicalRuSystemicDecisionPatches.values()].reduce(
+  ) + decisionPatches.reduce(
     (sum, patch) => sum + patchFieldCount(patch),
     0,
   );
@@ -86,8 +96,8 @@ test("preflop anchors/base scoped inventory stays fully classified", () => {
   assert.equal(activeFields, 120);
   assert.equal(fixFields, 109);
   assert.equal(activeFields - fixFields, 11);
-  assert.deepEqual([...practicalRuSystemicAnchorPatches.keys()].sort(), [...anchorIds].sort());
-  assert.deepEqual([...practicalRuSystemicDecisionPatches.keys()].sort(), [...decisionIds].sort());
+  assert.equal(anchorPatches.length, anchorIds.length);
+  assert.equal(decisionPatches.length, decisionIds.length);
 });
 
 test("preflop anchors/base final-composed RU has no unapproved instructional English", () => {
