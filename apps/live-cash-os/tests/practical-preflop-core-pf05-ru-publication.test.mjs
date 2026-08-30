@@ -71,8 +71,7 @@ function stripApprovedNotation(text) {
 function numericTokens(text) {
   const withoutNonQuantitativeNotation = text
     .replace(/(?:FTGU-E\d+|LCM-\d+|EXT-[A-Z0-9-]+)/gu, "")
-    .replace(/\b3-bet(?:-or-fold)?\b/giu, "")
-    .replace(/\b3-бет\b/giu, "");
+    .replace(/(?:3-bet(?:-or-fold)?|3-бет)/giu, "");
   return withoutNonQuantitativeNotation.match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
 }
 
