@@ -70,7 +70,7 @@ test("Quick Start teaches pot odds as a calculation and immediately contrasts a 
   assert.match(journey, /БЫСТРЫЙ СТАРТ/);
   assert.match(journey, /ГДЕ ЭТО НУЖНО/);
   assert.doesNotMatch(journey, /<textarea|Твой прогноз|СНАЧАЛА ПРОГНОЗ|ПОЧЕМУ СЕЙЧАС/);
-  assert.match(anchors, /порог равен 2 \/ 4 = 50%/);
+  assert.match(anchors, /Порог равен 2 \/ \(4 \+ 2\) = 2 \/ 6 ≈ 33%/);
   assert.match(decisions, /1 \/ \(1 \+ 3\) = 25%/);
   assert.match(decisions, /Его 38% выше этого порога/);
 });

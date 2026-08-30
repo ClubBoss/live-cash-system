@@ -62,12 +62,21 @@ test("BB-call first exposure is composed as natural Russian while keeping its le
   assert.ok(decisions.every((decision) => decision?.sourceRefs.length === 1));
 });
 
-test("33, 50 and 25 percent pot-odds teaching remains concrete before the ratio and threshold", () => {
+test("33, 33 (scaled) and 25 percent pot-odds teaching remains concrete before the ratio and threshold", () => {
   const oneThird = practicalAnchorById.get("FND-01-A01");
-  const half = practicalAnchorById.get("FND-01-A02");
+  const scaledOneThird = practicalAnchorById.get("FND-01-A02");
   const quarter = practicalDecisionById.get("PM-FND-01-101");
 
   assert.match(`${oneThird?.promptRu}\n${oneThird?.rationaleRu}`, /В банке 1bb, соперник ставит 1bb[\s\S]*1:2[\s\S]*33%/u);
-  assert.match(`${half?.promptRu}\n${half?.rationaleRu}`, /В банке 2bb, соперник ставит 2bb[\s\S]*2 \/ 4 = 50%/u);
+  assert.match(`${scaledOneThird?.promptRu}\n${scaledOneThird?.rationaleRu}`, /В банке 2bb, соперник ставит 2bb[\s\S]*2 \/ \(4 \+ 2\) = 2 \/ 6[\s\S]*33%/u);
   assert.match(`${quarter?.cueRu}\n${quarter?.explanationRu}`, /В банке 2bb, соперник ставит 1bb[\s\S]*1:3[\s\S]*25%/u);
+});
+
+test("scaled pot-odds transfer example teaches scale invariance instead of a false 50% threshold", () => {
+  const scaled = practicalAnchorById.get("FND-01-A02");
+
+  assert.match(scaled?.assumptions.join(" ") ?? "", /call 2bb to win 4bb/u);
+  assert.doesNotMatch(scaled?.answerRu ?? "", /50%/u);
+  assert.doesNotMatch(scaled?.rationaleRu ?? "", /2 \/ 4 = 50%/u);
+  assert.match(scaled?.answerRu ?? "", /33%/u);
 });
