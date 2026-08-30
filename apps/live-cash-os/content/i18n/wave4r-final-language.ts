@@ -77,7 +77,7 @@ function applyEnglishFinalLanguage() {
       "If the wider 3-bettor still bets the flop as often as a stronger normal range, the betting range contains more weak hands. The defender can continue wider.",
       "A normal strong 3-bet range often keeps a clear advantage on dry high-card or paired boards, so a frequent small c-bet can make sense. Coordinated middle-card boards usually require more checking and a more selective betting range.",
       "After a frequent flop bet gets called, the defender has already folded the weakest hands. Rebuild both ranges before deciding whether to barrel the turn.",
-      "Before a large OOP raise or shove, identify enough strong value first. Low SPR can support aggressive play, but equity denial alone does not turn the middle of the range into a good shove.",
+      "Before a large OOP raise or shove, identify enough strong value first. At low SPR, a jamming range is built around strong value, the best bluffs, and a few hybrid hands; equity denial alone does not turn the middle of the range into a good shove.",
     ],
     heuristics: [
       "Start with the actual preflop 3-bet range: normal, too tight or too wide.",

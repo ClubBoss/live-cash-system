@@ -60,6 +60,15 @@ assert.equal(/[А-Яа-яЁё]/u.test(enPriority), false, "English Wave 3 gold c
 for (const prefix of ["pre", "bli", "agg"]) {
   for (let index = 1; index <= 5; index += 1) assert.ok(wave3.includes(`"${prefix}-0${index}"`), `Missing Wave 3 drill ${prefix}-0${index}`);
 }
+// Internal source-family/codename leak guard: a small explicit denylist of
+// confirmed internal names that must never surface as learner-facing prose
+// (distinct from admitted sourceRefs citations like "FTGU-E05", which are
+// intentionally exposed). Currently guards the demonstrated "Carrot" leak in
+// the agg-05 EN explanation.
+for (const internalName of [/\bCarrot\b/u]) {
+  assert.doesNotMatch(ruPriority, internalName, `Wave 3 RU priority copy leaks an internal source-family name: ${internalName}`);
+  assert.doesNotMatch(enPriority, internalName, `Wave 3 EN priority copy leaks an internal source-family name: ${internalName}`);
+}
 
 const wave4 = await readFile(new URL("../content/i18n/wave4-curriculum-gold.ts", import.meta.url), "utf8");
 const ruWave4 = wave4.slice(wave4.indexOf("const RU_WAVE4"), wave4.indexOf("const EN_WAVE4"));
@@ -82,6 +91,7 @@ for (const required of [
   "Trace the range through the hand",
   "Count the bluffs first",
   "Understand the price and your real options",
+  "a jamming range is built around strong value, the best bluffs, and a few hybrid hands",
 ]) assert.ok(wave4rFinalLanguage.includes(required), `Final learner-language repair is missing: ${required}`);
 for (const pattern of [
   /Range ancestry/iu,

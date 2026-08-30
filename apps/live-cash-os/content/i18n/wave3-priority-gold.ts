@@ -625,7 +625,7 @@ const EN_PRIORITY: Record<PriorityModuleId, ModuleCopy> = {
         question: "Which gate matters most?",
         actions: ["Without enough top-end value, raising can largely disappear", "Jam the middle of the range for protection", "Raise every hand that dislikes calling"],
         reasons: ["A credible aggressive branch needs strong value; denial improves a valid candidate but does not create one from the middle of the range", "Low SPR turns every made hand into a value jam", "A bad call automatically becomes a good bluff raise"],
-        explanation: "Carrot places the presence of top-end holdings before building the OOP raise range. Denial is an extra benefit, not an independent licence to jam.",
+        explanation: "Building the OOP raise range starts with the presence of top-end holdings. Denial is an extra benefit, not an independent licence to jam.",
       },
     },
     cards: {
