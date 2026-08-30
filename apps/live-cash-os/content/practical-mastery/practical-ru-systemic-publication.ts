@@ -1,7 +1,8 @@
+import type { PracticalAnchor, PracticalDecision, PracticalDecisionOption } from "./types";
+
 // ID-scoped learner-facing RU publication data for the systemic closure gauntlet.
-// This file is data only. The existing Practical RU repair functions remain the
-// sole publication authority and apply these patches without changing machine,
-// scoring, source, English, or curriculum semantics.
+// This is a bounded final-presentation projection: it changes learner RU only
+// and leaves machine/scoring fields, sources, English, and curriculum semantics intact.
 
 export type PracticalDecisionRuPatch = Readonly<{
   cueRu?: string;
@@ -211,3 +212,38 @@ export const practicalRuSystemicAnchorPatches = new Map<string, PracticalAnchorR
     rationaleRu: "FTGU-E18 прямо сокращает часть блефов против диапазонов, в которых не хватает блефов.",
   }],
 ]);
+
+function projectOptions(
+  options: PracticalDecisionOption[],
+  patches: Readonly<Record<string, string>> | undefined,
+): PracticalDecisionOption[] {
+  if (!patches) return options;
+  return options.map((option) => {
+    const textRu = patches[option.id];
+    return textRu === undefined ? option : { ...option, textRu };
+  });
+}
+
+export function applyPracticalRuSystemicDecisionProjection(decision: PracticalDecision): PracticalDecision {
+  const patch = practicalRuSystemicDecisionPatches.get(decision.id);
+  if (!patch) return decision;
+  return {
+    ...decision,
+    ...(patch.cueRu === undefined ? {} : { cueRu: patch.cueRu }),
+    ...(patch.questionRu === undefined ? {} : { questionRu: patch.questionRu }),
+    ...(patch.explanationRu === undefined ? {} : { explanationRu: patch.explanationRu }),
+    actionOptions: projectOptions(decision.actionOptions, patch.actionOptions),
+    reasonOptions: projectOptions(decision.reasonOptions, patch.reasonOptions),
+  };
+}
+
+export function applyPracticalRuSystemicAnchorProjection(anchor: PracticalAnchor): PracticalAnchor {
+  const patch = practicalRuSystemicAnchorPatches.get(anchor.id);
+  if (!patch) return anchor;
+  return {
+    ...anchor,
+    ...(patch.promptRu === undefined ? {} : { promptRu: patch.promptRu }),
+    ...(patch.answerRu === undefined ? {} : { answerRu: patch.answerRu }),
+    ...(patch.rationaleRu === undefined ? {} : { rationaleRu: patch.rationaleRu }),
+  };
+}
