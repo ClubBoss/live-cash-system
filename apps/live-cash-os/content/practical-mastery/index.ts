@@ -29,6 +29,10 @@ import { executableGateRepairDecisions } from "./decisions-executable-gate-repai
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { applyPracticalRuFinalPolish } from "./practical-ru-final-polish";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
+import {
+  applyPracticalRuSystemicAnchorProjection,
+  applyPracticalRuSystemicDecisionProjection,
+} from "./practical-ru-systemic-publication";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
 
@@ -70,6 +74,7 @@ export const practicalAnchors = [
   ...advancedPracticalAnchors,
 ]
   .map(applyPracticalAnchorRuCopyRepair)
+  .map(applyPracticalRuSystemicAnchorProjection)
   .map((anchor) => ({
     ...anchor,
     titleRu: anchor.promptRu,
@@ -104,7 +109,8 @@ export const practicalDecisions = [
 ]
   .map(applyPracticalRuCopyRepair)
   .map(applyPracticalRuFinalPolish)
-  .map(applyPracticalAssessmentIntegrityRepair);
+  .map(applyPracticalAssessmentIntegrityRepair)
+  .map(applyPracticalRuSystemicDecisionProjection);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
