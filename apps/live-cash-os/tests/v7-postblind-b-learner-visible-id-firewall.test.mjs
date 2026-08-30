@@ -18,10 +18,11 @@ const EXPECTED_BEFORE = {
   // PF-01 removed five final-composed inline E02 learner-prose occurrences,
   // PF-02 removed seven final-composed inline E03 occurrences, PF-03 removed
   // six learner strings exposing E04, PF-04 removed six further learner strings /
-  // seven occurrences exposing E05, and PF-05 removes six learner strings / six
-  // occurrences exposing E06. Internal sourceRefs remain intact; this is only the
+  // seven occurrences exposing E05, PF-05 removes six learner strings / six
+  // occurrences exposing E06, and PF-06 removes one further learner string /
+  // occurrence exposing E15. Internal sourceRefs remain intact; this is only the
   // truthful raw pre-sanitization learner-string census.
-  ru: { learnerStrings: 8821, leakingStrings: 162, occurrences: 173 },
+  ru: { learnerStrings: 8821, leakingStrings: 161, occurrences: 172 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },
