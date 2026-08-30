@@ -15,10 +15,11 @@ const hasBareEvidenceId = (value) => /\bE\d{2,}\b/u.test(value);
 const bareEvidenceMatches = (value) => [...value.matchAll(/\bE\d{2,}\b/gu)].map((match) => match[0]);
 
 const EXPECTED_BEFORE = {
-  // PF-01 systemic publication removes five final-composed inline E02 learner-prose
-  // occurrences. Internal sourceRefs remain intact and the zero-residual firewall below
-  // remains unchanged; this is only the raw pre-sanitization learner-string census.
-  ru: { learnerStrings: 8821, leakingStrings: 187, occurrences: 198 },
+  // PF-01 removed five final-composed inline E02 learner-prose occurrences and
+  // PF-02 removes seven final-composed inline E03 occurrences. Internal sourceRefs
+  // remain intact and the zero-residual firewall below remains unchanged; this is
+  // only the truthful raw pre-sanitization learner-string census.
+  ru: { learnerStrings: 8821, leakingStrings: 180, occurrences: 191 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },
