@@ -57,17 +57,17 @@ test("A: the practice-topic firewall replacement agrees in case with its governo
   assert.equal(sanitizeLearnerPresentationText("canonical Practical skill", "ru"), "точная тема для тренировки");
 });
 
-test("A: raw equity resolves to the correct gender/case in its two active FND-02 sibling call sites", () => {
+test("A: raw equity resolves to natural Russian with correct gender/case in its two active FND-02 sibling call sites", () => {
   const decision = practicalDecisionById.get("PM-FND-02-001");
-  assert.equal(decision.cueRu, "У Hero заметная исходная equity, но он OOP и может часто fold на будущих улицах.");
+  assert.equal(decision.cueRu, "У Hero заметная исходная эквити, но он играет OOP и может часто фолдить на будущих улицах.");
   assert.doesNotMatch(decision.cueRu, /заметное исходная|заметное raw/iu);
   const lookOnly = decision.actionOptions.find((option) => option.misconception === "RAW_EQUITY_ONLY");
-  assert.equal(lookOnly.textRu, "Смотреть только на исходную equity");
+  assert.equal(lookOnly.textRu, "Смотреть только на исходную эквити");
 
   const anchor = practicalAnchors.find((item) => item.id === "FND-02-A01");
   assert.doesNotMatch(anchor.promptRu, /заметное исходная|raw equity приравнять/iu);
-  assert.match(anchor.promptRu, /заметная equity/u);
-  assert.match(anchor.promptRu, /приравнять эту equity/u);
+  assert.match(anchor.promptRu, /заметная эквити/u);
+  assert.match(anchor.promptRu, /приравнять эту эквити/u);
 });
 
 test("A: PM-FND-01-105 reason r3 keeps natural agreement with 'требуемая equity'", () => {

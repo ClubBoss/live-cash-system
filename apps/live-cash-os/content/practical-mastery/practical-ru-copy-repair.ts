@@ -5,6 +5,29 @@ import { practicalRuCorpusPublicationOverrides } from "./practical-ru-corpus-pub
 // This layer is deliberately presentation-only: IDs, correct answers, source refs,
 // misconception identities, evidence semantics and English copy are untouched.
 const RU_OVERRIDES = new Map<string, string>([
+  // Foundation base decisions. Keep these sentence-level so the repair cannot
+  // mutate adjacent content or any machine/scoring identity.
+  ["Какой вывод о требуемой equity верный?", "Какой вывод о требуемой эквити верен?"],
+  ["Для call нужно около 33% equity", "Для колла нужно около 33% эквити"],
+  ["Для call нужно больше 50% equity", "Для колла нужно больше 50% эквити"],
+  ["Требуемая equity не зависит от цены", "Требуемая эквити не зависит от цены"],
+  ["Pot odds 1:2 задают порог безубыточности около 33%", "Пот-оддсы 1:2 задают порог безубыточности около 33%"],
+  ["Equity и EV всегда одно и то же", "Эквити и EV всегда одно и то же"],
+  ["Hero платит 1bb за шанс выиграть 2bb, уже лежащие в банке. Это pot odds 1:2, поэтому для безубыточного call достаточно около 33% equity, а не 50%.", "Hero платит 1bb за шанс выиграть 2bb, уже лежащие в банке. Это пот-оддсы 1:2, поэтому для безубыточного колла достаточно около 33% эквити, а не 50%."],
+  ["У Hero заметное raw equity, но он OOP и может часто fold на будущих улицах.", "У Hero заметная исходная эквити, но он играет OOP и может часто фолдить на будущих улицах."],
+  ["Оценить realisation и будущие EV-ветки", "Оценить реализацию эквити и будущие ветки EV"],
+  ["Смотреть только на raw equity", "Смотреть только на исходную эквити"],
+  ["Всегда продолжать, если equity выше 25%", "Всегда продолжать, если эквити выше 25%"],
+  ["Equity может быть сдана до showdown; позиция и future action влияют на EV", "Часть эквити можно потерять до шоудауна; позиция и будущие решения влияют на EV"],
+  ["Raw equity автоматически реализуется полностью", "Исходная эквити автоматически реализуется полностью"],
+  ["OOP не влияет на будущие решения", "Игра OOP не влияет на будущие решения"],
+  ["FTGU-E01 отделяет equity от EV, а FTGU-E05 подчёркивает роль postflop execution для marginal defends.", "FTGU-E01 отделяет эквити от EV, а FTGU-E05 подчёркивает роль качества постфлоп-игры в пограничных защитах."],
+  ["Стандартные preflop combo counts.", "Стандартное число префлоп-комбинаций."],
+  ["Какой набор верный: pocket pair / suited / offsuit?", "Какой набор верен: карманная пара / одномастная рука / разномастная рука?"],
+  ["Hand class содержит exact suit combinations, а board/hole cards позже их удаляют", "Каждый класс рук содержит точное число комбинаций по мастям, а карты доски и Hero затем исключают часть из них"],
+  ["Каждая offsuit hand всегда имеет 16 playable combos", "У каждой разномастной руки всегда 16 пригодных комбинаций"],
+  ["Combo count важен только preflop", "Число комбинаций важно только префлоп"],
+  ["FTGU-E11 даёт стандартные counts 6/4/12 и требует пересчитывать removal после board/action changes.", "FTGU-E11 даёт стандартные значения 6/4/12 и требует пересчитывать комбинации после изменений доски и линии."],
   ["Нет — нужна branch-specific evidence", "Нет — нужны данные именно по этой ветке"],
   ["Нужны exact line, available air и evidence of overbluff", "Нужны конкретная линия, реальные блеф-кандидаты и подтверждение оверблефа"],
   ["This is the core E15 changed-node transfer.", "Это ключевая проверка переноса E15 на изменённую ситуацию."],
@@ -120,8 +143,6 @@ const RU_OVERRIDES = new Map<string, string>([
   // case when the phrase is a direct object. These two callers hit both:
   // resolved once here, ahead of the generic polish, rather than teaching the
   // shared regex layer full case/gender inference for one recurring token.
-  ["У Hero заметное raw equity, но он OOP и может часто fold на будущих улицах.", "У Hero заметная исходная equity, но он OOP и может часто fold на будущих улицах."],
-  ["Смотреть только на raw equity", "Смотреть только на исходную equity"],
 ]);
 
 function ru(text: string): string {
