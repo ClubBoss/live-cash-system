@@ -108,7 +108,7 @@ export const practicalRuSystemicPreflopCoreDecisionPatches = new Map<string, Pra
 // already-closed PF-02 inventory while sharing the same final projection stage.
 export const practicalRuSystemicPreflopCorePf03DecisionPatches = new Map<string, PracticalDecisionRuPatch>([
   ["PM-PF-03-101", {
-    cueRu: "Hero рассматривает холодный колл в позиции.",
+    cueRu: "Игрок рассматривает холодный колл в позиции.",
     questionRu: "Какие две базовые причины поддерживают такой колл?",
     actionOptions: {
       a: "Вэлью или имплайд-оддсы",
