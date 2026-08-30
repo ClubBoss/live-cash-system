@@ -78,6 +78,6 @@ test("release gate carries dedicated Practical Mastery browser evidence", async 
   assert.match(acceptance, /ПОКА ЕСТЬ ОГРАНИЧЕНИЕ/);
   assert.match(acceptance, /недостаточно, чтобы честно задавать точные частоты/i);
   assert.match(clarity, /textarea/);
-  assert.match(clarity, /pot odds 1:2/);
+  assert.match(clarity, /пот-оддсы 1:2/);
   assert.match(access, /Вход для тестирования/);
 });
