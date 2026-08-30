@@ -8,7 +8,7 @@ export const foundationAnchors: PracticalAnchor[] = [
     promptEn: "Hero risks 1 unit to win 2. Must the call win more than 50% of the time to be profitable?",
     answerRu: "Нет. Hero рискует 1bb, чтобы выиграть уже лежащие в банке 2bb: pot odds 1:2, а порог безубыточности около одной трети.", answerEn: "No. The break-even threshold is about one third.",
     rationaleRu: "Сначала определи цену колла и банк, который можно выиграть. Затем переведи соотношение 1:2 в требуемую equity: около 33%.",
-    rationaleEn: "FTGU-E01 explicitly shows that pot odds determine required equity and the threshold is not automatically 50%.",
+    rationaleEn: "FTGU-E01 explicitly shows that pot odds determine required equity: risking 1 to win 2 sets the threshold at about one third (~33%), not automatically 50%.",
   },
   {
     id: "FND-01-A02", skillId: "FND-01", kind: "changed", sourceRefs: ["FTGU-E01"],
