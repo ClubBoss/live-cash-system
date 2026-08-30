@@ -16,11 +16,11 @@ const bareEvidenceMatches = (value) => [...value.matchAll(/\bE\d{2,}\b/gu)].map(
 
 const EXPECTED_BEFORE = {
   // PF-01 removed five final-composed inline E02 learner-prose occurrences,
-  // PF-02 removed seven final-composed inline E03 occurrences, and PF-03 removes
-  // six additional final-composed learner strings that previously exposed E04.
-  // Internal sourceRefs remain intact and the zero-residual firewall below remains
-  // unchanged; this is only the truthful raw pre-sanitization learner-string census.
-  ru: { learnerStrings: 8821, leakingStrings: 174, occurrences: 185 },
+  // PF-02 removed seven final-composed inline E03 occurrences, PF-03 removed
+  // six learner strings exposing E04, and PF-04 removes six further learner
+  // strings / seven occurrences exposing E05. Internal sourceRefs remain intact;
+  // this is only the truthful raw pre-sanitization learner-string census.
+  ru: { learnerStrings: 8821, leakingStrings: 168, occurrences: 179 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },
@@ -95,6 +95,7 @@ for (const locale of ["ru", "en"]) {
     const counts = Object.fromEntries([...new Set(matches)].sort().map((id) => [id, matches.filter((match) => match === id).length]));
     const expected = EXPECTED_BEFORE[locale];
 
+    console.log(`V7_POSTBLIND_B_BEFORE locale=${locale} learner_strings=${values.length} before_leaking_strings=${leaking.length} before_occurrences=${matches.length} before_ids=${JSON.stringify(counts)}`);
     assert.equal(values.length, expected.learnerStrings);
     assert.equal(leaking.length, expected.leakingStrings);
     assert.equal(matches.length, expected.occurrences);
