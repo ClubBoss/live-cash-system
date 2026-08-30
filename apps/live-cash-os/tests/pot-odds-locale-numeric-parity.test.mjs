@@ -116,6 +116,36 @@ test("decision pot-odds thresholds are derived from scenario numbers and agree a
   }
 });
 
+// Guardrail: a concrete sizing/percentage anchor stated in a scenario cue must
+// state the SAME figure in both locales. Scoped to an explicit, maintained
+// registry rather than a blanket corpus scan -- most scenario cues legitimately
+// differ in supporting detail between locales, so a naive "every RU number
+// must appear in EN" rule would false-positive across the corpus. This
+// registry exists to catch a regression equivalent to PM-OOP-04-106, whose EN
+// cue previously said only "small to large" while RU stated a concrete
+// "25–33% -> large" anchor for the identical scenario.
+const cueNumericAnchorItems = ["PM-OOP-04-106"];
+
+function percentTokens(text) {
+  return [...text.matchAll(/\d+(?:[–-]\d+)?%/gu)].map((match) => match[0]);
+}
+
+test("registered cue-level sizing anchors state the same concrete percentage range in RU and EN", () => {
+  for (const id of cueNumericAnchorItems) {
+    const decision = practicalDecisionById.get(id);
+    assert.ok(decision, `missing decision ${id}`);
+
+    const ruTokens = percentTokens(decision.cueRu);
+    const enTokens = percentTokens(decision.cueEn);
+    assert.ok(ruTokens.length > 0, `${id}: RU cue must state a concrete percentage anchor (registry entry is stale otherwise): "${decision.cueRu}"`);
+    assert.deepEqual(
+      enTokens,
+      ruTokens,
+      `${id}: EN cue must state the same percentage anchor as RU (RU: "${decision.cueRu}" EN: "${decision.cueEn}")`,
+    );
+  }
+});
+
 test("LCM-02 call-price scaffold (50 into 150 -> 200) computes 25% from its own formula in both locales", () => {
   const potAfterVillainBet = 150;
   const callAmount = 50;
