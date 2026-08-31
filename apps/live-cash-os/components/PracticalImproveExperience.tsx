@@ -1,20 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import {
-  practicalSkillById,
-} from "../content/practical-mastery";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { practicalSkillById } from "../content/practical-mastery";
 import {
   practicalImprovementTopics,
   type PracticalImprovementTopicKey,
 } from "../content/practical-mastery/improvement-topics";
 import {
+  buildAdaptiveIntegratedSession,
   isIntegratedFocusAdmissible,
   requestedIntegratedFocusItem,
 } from "../lib/practical-adaptive-session";
 import {
   activeIntegratedRoundResume,
+  recordIntegratedRoundStartContinuity,
   type ActiveIntegratedRoundResume,
 } from "../lib/practical-continuity-workspace";
 import { currentPracticalMistakes } from "../lib/practical-current-mistakes";
@@ -27,6 +28,7 @@ import {
   resolvePracticalImprovementFocus,
   type PracticalImprovementResolution,
 } from "../lib/practical-improvement-focus";
+import { INTEGRATED_SESSION_SIZE } from "../lib/practical-integrated-session";
 import { recommendNextPracticalSkill, type PracticalMasteryState } from "../lib/practical-mastery-core";
 import { hasFocusedPracticalTableState } from "../lib/practical-perceptual-focus";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -50,11 +52,15 @@ function ExactPracticeAction({
   available,
   activeResume,
   locale,
+  startFailed,
+  onStart,
 }: {
   skillId: string;
   available: boolean;
   activeResume: ActiveIntegratedRoundResume | null;
   locale: PracticalImprovementLocale;
+  startFailed: boolean;
+  onStart: (skillId: string) => void;
 }) {
   if (activeResume) {
     if (activeResume.focusSkillId === skillId) {
@@ -67,15 +73,17 @@ function ExactPracticeAction({
     </span>;
   }
 
-  if (!available) {
-    return <span className="secondary" aria-disabled="true" data-improve-action="unavailable">
-      {locale === "ru" ? "Самостоятельная практика пока недоступна" : "Independent practice is not available yet"}
+  if (!available || startFailed) {
+    return <span className="secondary" aria-disabled="true" data-improve-action={startFailed ? "no-useful-item" : "unavailable"}>
+      {startFailed
+        ? (locale === "ru" ? "Сейчас нет полезной точной задачи" : "No useful exact item is ready right now")
+        : (locale === "ru" ? "Самостоятельная практика пока недоступна" : "Independent practice is not available yet")}
     </span>;
   }
 
-  return <PracticalDocumentLink className="primary" href={`/mastery/session?focus=${encodeURIComponent(skillId)}`}>
+  return <button className="primary" type="button" onClick={() => onStart(skillId)}>
     {locale === "ru" ? "Поработать над этим" : "Work on this"} <span>→</span>
-  </PracticalDocumentLink>;
+  </button>;
 }
 
 function ExactTableReadingAction({
@@ -109,11 +117,15 @@ function ManualResolutionCard({
   state,
   activeResume,
   locale,
+  startFailureSkillId,
+  onStart,
 }: {
   resolution: PracticalImprovementResolution;
   state: PracticalMasteryState;
   activeResume: ActiveIntegratedRoundResume | null;
   locale: PracticalImprovementLocale;
+  startFailureSkillId: string | null;
+  onStart: (skillId: string) => void;
 }) {
   if (resolution.kind === "COMPLETE") {
     return <div className="today-card" data-manual-resolution="complete">
@@ -146,22 +158,33 @@ function ManualResolutionCard({
       ? (locale === "ru" ? "Системная рекомендация попала внутрь выбранной темы, поэтому она получает приоритет внутри этой темы." : "The system recommendation is inside your selected topic, so it gets first claim within this topic.")
       : (locale === "ru" ? "Выбран первый доступный точный навык в каноническом порядке этой темы." : "The first eligible exact skill in this topic's canonical order was selected.")}</p>
     <div className="button-row">
-      <ExactPracticeAction skillId={focusSkillId} available activeResume={activeResume} locale={locale} />
+      <ExactPracticeAction
+        skillId={focusSkillId}
+        available
+        activeResume={activeResume}
+        locale={locale}
+        startFailed={startFailureSkillId === focusSkillId}
+        onStart={onStart}
+      />
       <ExactTableReadingAction skillId={focusSkillId} available={tableAvailable} activeResume={activeResume} locale={locale} />
     </div>
   </div>;
 }
 
 export default function PracticalImproveExperience() {
+  const router = useRouter();
   const [locale, setLocale] = usePracticalLocale();
   const {
     mastery,
+    performance,
     studyWorkspace,
     fieldNotes,
+    setStudyWorkspace,
     ready,
     recoveryBlocked,
   } = usePracticalProfileState();
   const [manualTopic, setManualTopic] = useState<PracticalImprovementTopicKey | null>(null);
+  const [startFailureSkillId, setStartFailureSkillId] = useState<string | null>(null);
 
   const activeResume = useMemo(
     () => ready && !recoveryBlocked ? activeIntegratedRoundResume(studyWorkspace, mastery) : null,
@@ -174,6 +197,34 @@ export default function PracticalImproveExperience() {
     () => manualTopic ? resolvePracticalImprovementFocus(mastery, manualTopic) : null,
     [manualTopic, mastery],
   );
+
+  const startExactRound = useCallback((skillId: string) => {
+    if (activeResume || recoveryBlocked || !exactPracticeAvailable(mastery, skillId)) return;
+    const startedAt = new Date();
+    const items = buildAdaptiveIntegratedSession(
+      mastery,
+      startedAt,
+      INTEGRATED_SESSION_SIZE,
+      performance,
+      skillId,
+    );
+    if (!items.length) {
+      setStartFailureSkillId(skillId);
+      return;
+    }
+    const nextWorkspace = recordIntegratedRoundStartContinuity(
+      studyWorkspace,
+      mastery.contentVersion,
+      { focusSkillId: skillId, items },
+      startedAt,
+    );
+    if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) {
+      setStartFailureSkillId(skillId);
+      return;
+    }
+    setStartFailureSkillId(null);
+    router.push(`/mastery/session?focus=${encodeURIComponent(skillId)}`);
+  }, [activeResume, mastery, performance, recoveryBlocked, router, setStudyWorkspace, studyWorkspace]);
 
   if (!ready) {
     return <main style={{ maxWidth: 980, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
@@ -233,7 +284,14 @@ export default function PracticalImproveExperience() {
           {presentation.pattern ? <p><strong>{locale === "ru" ? "Где сбой" : "Mistake pattern"}:</strong> {presentation.pattern}</p> : null}
           <p>{presentation.evidenceCopy}</p>
           <div className="button-row">
-            <ExactPracticeAction skillId={row.skillId} available={practiceAvailable} activeResume={activeResume} locale={locale} />
+            <ExactPracticeAction
+              skillId={row.skillId}
+              available={practiceAvailable}
+              activeResume={activeResume}
+              locale={locale}
+              startFailed={startFailureSkillId === row.skillId}
+              onStart={startExactRound}
+            />
             <ExactTableReadingAction skillId={row.skillId} available={tableAvailable} activeResume={activeResume} locale={locale} />
           </div>
         </article>;
@@ -252,11 +310,21 @@ export default function PracticalImproveExperience() {
           className="secondary"
           type="button"
           aria-pressed={manualTopic === topic.key}
-          onClick={() => setManualTopic(topic.key)}
+          onClick={() => {
+            setStartFailureSkillId(null);
+            setManualTopic(topic.key);
+          }}
           style={{ minHeight: 48, justifyContent: "flex-start", textAlign: "left" }}
         >{locale === "ru" ? topic.titleRu : topic.titleEn}</button>)}
       </div>
-      {manualResolution ? <ManualResolutionCard resolution={manualResolution} state={mastery} activeResume={activeResume} locale={locale} /> : null}
+      {manualResolution ? <ManualResolutionCard
+        resolution={manualResolution}
+        state={mastery}
+        activeResume={activeResume}
+        locale={locale}
+        startFailureSkillId={startFailureSkillId}
+        onStart={startExactRound}
+      /> : null}
     </section>
 
     <section className="surface" data-improve-section="real-hands">
@@ -273,7 +341,14 @@ export default function PracticalImproveExperience() {
           <h3>{skillTitle(skillId, locale)}</h3>
           <p>{locale === "ru" ? "Разбор уже привязал эту ремонтную задачу к точному навыку." : "A completed review already bound this repair to an exact skill."}</p>
           <div className="button-row">
-            <ExactPracticeAction skillId={skillId} available={practiceAvailable} activeResume={activeResume} locale={locale} />
+            <ExactPracticeAction
+              skillId={skillId}
+              available={practiceAvailable}
+              activeResume={activeResume}
+              locale={locale}
+              startFailed={startFailureSkillId === skillId}
+              onStart={startExactRound}
+            />
             <ExactTableReadingAction skillId={skillId} available={tableAvailable} activeResume={activeResume} locale={locale} />
           </div>
         </article>;
