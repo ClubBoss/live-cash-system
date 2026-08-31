@@ -26,28 +26,33 @@ const rawDecisionById = new Map([...srpA6ExpansionDecisions, ...postflopAndLiveD
 const rawAnchorById = new Map(recognitionAndSrpAnchors.map((a) => [a.id, a]));
 
 function fields(d) {
-  return [
-    ["cueRu", d.cueRu], ["questionRu", d.questionRu], ["explanationRu", d.explanationRu],
-    ...d.actionOptions.map((o) => [`action:${o.id}`, o.textRu]),
-    ...d.reasonOptions.map((o) => [`reason:${o.id}`, o.textRu]),
-  ];
+  return [["cueRu", d.cueRu], ["questionRu", d.questionRu], ["explanationRu", d.explanationRu], ...d.actionOptions.map((o) => [`action:${o.id}`, o.textRu]), ...d.reasonOptions.map((o) => [`reason:${o.id}`, o.textRu])];
 }
 function anchorFields(a) { return [["promptRu", a.promptRu], ["answerRu", a.answerRu], ["rationaleRu", a.rationaleRu]]; }
 function numericTokens(text) {
-  return text
-    .replace(/\b(?:FTGU-E\d+|SLC-M\d+-L\d+|CP-G\d+-L\d+|LCM-\d+|E\d+)\b/gu, "")
-    .replace(/(?<![\p{L}\p{N}])[34]-(?:bet(?:s|ting|ted)?|бет[а-яё]*)(?![\p{L}\p{N}])/giu, "")
-    .match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
+  return text.replace(/\b(?:FTGU-E\d+|SLC-M\d+-L\d+|CP-G\d+-L\d+|LCM-\d+|E\d+)\b/gu, "").replace(/(?<![\p{L}\p{N}])[34]-(?:bet(?:s|ting|ted)?|бет[а-яё]*)(?![\p{L}\p{N}])/giu, "").match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
 }
 function machineIdentity(d) {
-  const stripOptions = (xs) => xs.map(({ textRu, ...rest }) => rest);
-  const { cueRu, questionRu, explanationRu, actionOptions, reasonOptions, ...rest } = d;
-  void cueRu; void questionRu; void explanationRu;
-  return { ...rest, actionOptions: stripOptions(actionOptions), reasonOptions: stripOptions(reasonOptions) };
+  const optionIdentity = (o) => ({ id: o.id, textEn: o.textEn, misconception: o.misconception });
+  return {
+    id: d.id,
+    skillId: d.skillId,
+    learnerEligibility: d.learnerEligibility,
+    kind: d.kind,
+    sourceRefs: d.sourceRefs,
+    assumptions: d.assumptions,
+    actionOptions: d.actionOptions.map(optionIdentity),
+    reasonOptions: d.reasonOptions.map(optionIdentity),
+    cueEn: d.cueEn,
+    questionEn: d.questionEn,
+    explanationEn: d.explanationEn,
+    correctActionId: d.correctActionId,
+    correctReasonId: d.correctReasonId,
+    changedVariables: d.changedVariables,
+    targetSeconds: d.targetSeconds,
+  };
 }
-function stripApproved(text) {
-  return text.replace(/\b(?:EV|IP|OOP|SPR|BB|SB|BTN|CO|HJ|UTG|EP|Hero)\b/gu, "").replace(/\bbb\b/gu, "").replace(/(?<=\d)bb\b/gu, "").replace(/(?<=\d)x\b/gu, "");
-}
+function stripApproved(text) { return text.replace(/\b(?:EV|IP|OOP|SPR|BB|SB|BTN|CO|HJ|UTG|EP|Hero)\b/gu, "").replace(/\bbb\b/gu, "").replace(/(?<=\d)bb\b/gu, "").replace(/(?<=\d)x\b/gu, ""); }
 function digest() {
   return createHash("sha256").update(JSON.stringify({
     anchors: practicalAnchors.map((a) => ({ id: a.id, promptRu: a.promptRu, answerRu: a.answerRu, rationaleRu: a.rationaleRu, sourceRefs: a.sourceRefs })),
@@ -56,17 +61,17 @@ function digest() {
 }
 
 test("FLOP/SRP final ownership is exactly 61 decisions / 12 anchors / 585 RU fields", () => {
-  assert.equal(decisionIds.length, 61);
-  assert.equal(anchorIds.length, 12);
+  assert.equal(decisionIds.length, 61); assert.equal(anchorIds.length, 12);
   assert.deepEqual([...practicalRuSystemicFlopSrpOopIpDecisionPatches.keys()].sort(), [...decisionIds].sort());
   assert.deepEqual([...practicalRuSystemicFlopSrpOopIpAnchorPatches.keys()].sort(), [...anchorIds].sort());
-  assert.equal([...practicalRuSystemicFlopSrpOopIpDecisionPatches.values()].reduce((n, p) => n + 3 + Object.keys(p.actionOptions).length + Object.keys(p.reasonOptions).length, 0) + [...practicalRuSystemicFlopSrpOopIpAnchorPatches.values()].reduce((n, p) => n + Object.keys(p).length, 0), 585);
+  const decisionFields = [...practicalRuSystemicFlopSrpOopIpDecisionPatches.values()].reduce((n, p) => n + 3 + Object.keys(p.actionOptions).length + Object.keys(p.reasonOptions).length, 0);
+  const ownedAnchorFields = [...practicalRuSystemicFlopSrpOopIpAnchorPatches.values()].reduce((n, p) => n + Object.keys(p).length, 0);
+  assert.equal(decisionFields + ownedAnchorFields, 585);
 });
 
 test("FLOP/SRP final runtime equals accepted projection and preserves machine, EN and numeric identity", () => {
   for (const id of decisionIds) {
-    const raw = rawDecisionById.get(id);
-    const final = practicalDecisionById.get(id);
+    const raw = rawDecisionById.get(id); const final = practicalDecisionById.get(id);
     assert.ok(raw, `missing raw ${id}`); assert.ok(final, `missing final ${id}`);
     const expected = applyPracticalAssessmentIntegrityRepair(applyPracticalRuSystemicFlopSrpOopIpDecisionProjection(raw));
     assert.deepEqual(fields(final), fields(expected), `${id} RU projection`);
@@ -75,12 +80,11 @@ test("FLOP/SRP final runtime equals accepted projection and preserves machine, E
     for (const [path, text] of fields(final)) assert.deepEqual(numericTokens(text), numericTokens(before.get(path)), `${id} ${path} numeric semantics`);
   }
   for (const id of anchorIds) {
-    const raw = rawAnchorById.get(id);
-    const final = practicalAnchors.find((a) => a.id === id);
+    const raw = rawAnchorById.get(id); const final = practicalAnchors.find((a) => a.id === id);
     assert.ok(raw, `missing raw ${id}`); assert.ok(final, `missing final ${id}`);
-    const expected = applyPracticalRuSystemicFlopSrpOopIpAnchorProjection(raw);
-    assert.deepEqual(anchorFields(final), anchorFields(expected), `${id} RU projection`);
-    for (const [path, text] of anchorFields(final)) assert.deepEqual(numericTokens(text), numericTokens(new Map(anchorFields(raw)).get(path)), `${id} ${path} numeric semantics`);
+    assert.deepEqual(anchorFields(final), anchorFields(applyPracticalRuSystemicFlopSrpOopIpAnchorProjection(raw)), `${id} RU projection`);
+    const before = new Map(anchorFields(raw));
+    for (const [path, text] of anchorFields(final)) assert.deepEqual(numericTokens(text), numericTokens(before.get(path)), `${id} ${path} numeric semantics`);
     assert.deepEqual({ sourceRefs: final.sourceRefs, assumptions: final.assumptions, changedVariables: final.changedVariables, promptEn: final.promptEn, answerEn: final.answerEn, rationaleEn: final.rationaleEn }, { sourceRefs: raw.sourceRefs, assumptions: raw.assumptions, changedVariables: raw.changedVariables, promptEn: raw.promptEn, answerEn: raw.answerEn, rationaleEn: raw.rationaleEn }, `${id} machine/EN identity`);
   }
 });
@@ -99,8 +103,7 @@ test("FLOP/SRP leaves explicitly deferred A6-adjacent nodes outside ownership", 
 
 test("FLOP/SRP preserves certified Blind assessment-integrity precedence", () => {
   for (const id of blindPrecedenceIds) {
-    const raw = blindDefenceExpansionDecisions.find((d) => d.id === id);
-    const final = practicalDecisionById.get(id);
+    const raw = blindDefenceExpansionDecisions.find((d) => d.id === id); const final = practicalDecisionById.get(id);
     assert.ok(raw); assert.ok(final);
     const expected = applyPracticalAssessmentIntegrityRepair(applyPracticalRuSystemicBlindDefenceDecisionProjection(raw));
     assert.deepEqual(fields(final), fields(expected), `${id} RU precedence`);
