@@ -21,12 +21,13 @@ function NavIcon({ name }: { name: IconName }) {
 }
 
 const tools = [
+  { href: "/mastery/improve", ru: "Улучшить", en: "Improve", icon: "review" as IconName },
   { href: "/mastery/perception", ru: "Чтение стола", en: "Table reading", icon: "eye" as IconName },
   { href: "/mastery/study", ru: "После игры", en: "After play", icon: "review" as IconName },
   { href: "/mastery/reference", ru: "Справочник", en: "Reference", icon: "book" as IconName },
 ] as const;
 
-const warmRoutes = ["/mastery", "/mastery/journey", "/mastery/perception", "/mastery/study", "/mastery/reference", "/tools?tab=data"] as const;
+const warmRoutes = ["/mastery", "/mastery/journey", "/mastery/improve", "/mastery/perception", "/mastery/study", "/mastery/reference", "/tools?tab=data"] as const;
 
 export default function PracticalMasteryNav() {
   const [locale, setLocale] = usePracticalLocale();
