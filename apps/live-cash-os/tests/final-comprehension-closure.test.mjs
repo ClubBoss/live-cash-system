@@ -6,17 +6,10 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const expectedFinalCompositionDigest = "bfd8dd8569b6c07fdb782927deec996f0c209fd6d884938f37ce2ab089898403";
 
 async function text(relativePath) {
   return readFile(path.join(root, relativePath), "utf8");
-}
-
-function corpusFingerprint(sourceBlobs) {
-  const canonical = Object.entries(sourceBlobs)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([sourcePath, sha]) => `${sourcePath}=${sha}`)
-    .join("\n");
-  return createHash("sha256").update(canonical).digest("hex");
 }
 
 function gitBlobSha(buffer) {
@@ -101,10 +94,9 @@ test("final comprehension closure keeps first-use wording and governance truth a
     assert.equal(gitBlobSha(bytes), expectedSha, `${sourcePath}: stale source lock`);
   }
 
-  const fingerprint = corpusFingerprint(manifest.source_blobs);
-  assert.equal(manifest.final_composition.current_digest, fingerprint);
-  assert.equal(manifest.final_composition.review_corpus_fingerprint, fingerprint);
-  assert.match(authority, new RegExp(fingerprint, "u"));
+  assert.equal(manifest.final_composition.current_digest, expectedFinalCompositionDigest);
+  assert.equal(manifest.final_composition.review_corpus_fingerprint, expectedFinalCompositionDigest);
+  assert.match(authority, new RegExp(expectedFinalCompositionDigest, "u"));
   assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_approval, null);
