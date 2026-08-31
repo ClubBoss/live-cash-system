@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { practicalDecisionById } from "../content/practical-mastery";
+import {
+  practicalAnchors,
+  practicalDecisionById,
+  practicalDecisions,
+} from "../content/practical-mastery";
 import { preflopAdvancedExpansionDecisions } from "../content/practical-mastery/decisions-preflop-advanced-expansion";
 import { practicalRuSystemicPreflopAdvancedPf07DecisionPatches } from "../content/practical-mastery/practical-ru-systemic-preflop-advanced-pf07-publication";
 import { practicalRuSystemicPreflopAdvancedPf08DecisionPatches } from "../content/practical-mastery/practical-ru-systemic-preflop-advanced-pf08-publication";
@@ -100,6 +104,35 @@ function optionMachineIdentity(options) {
 function gitBlobSha(buffer) {
   const header = Buffer.from(`blob ${buffer.length}\0`, "utf8");
   return createHash("sha1").update(header).update(buffer).digest("hex");
+}
+
+function finalCompositionDigest() {
+  const normalized = JSON.stringify({
+    anchors: practicalAnchors.map((anchor) => ({
+      id: anchor.id,
+      promptRu: anchor.promptRu,
+      answerRu: anchor.answerRu,
+      rationaleRu: anchor.rationaleRu,
+      sourceRefs: anchor.sourceRefs,
+    })),
+    decisions: practicalDecisions.map((decision) => ({
+      id: decision.id,
+      cueRu: decision.cueRu,
+      questionRu: decision.questionRu,
+      actionOptions: decision.actionOptions.map((option) => ({
+        id: option.id,
+        textRu: option.textRu,
+      })),
+      reasonOptions: decision.reasonOptions.map((option) => ({
+        id: option.id,
+        textRu: option.textRu,
+      })),
+      explanationRu: decision.explanationRu,
+      sourceRefs: decision.sourceRefs,
+      changedVariables: decision.changedVariables,
+    })),
+  });
+  return createHash("sha256").update(normalized, "utf8").digest("hex");
 }
 
 test("PF08 source authority stays locked to the manager-verified FTGU-E18 blob", async () => {
@@ -212,4 +245,8 @@ test("PF08 semantic firewall preserves scoring, sources, option, EN, misconcepti
     assert.equal(finalDecision.targetSeconds, raw.targetSeconds, `${id} target seconds`);
     assert.deepEqual(finalDecision.assumptions, raw.assumptions, `${id} assumptions`);
   }
+});
+
+test("PF08 final composition digest probe", () => {
+  console.log(`PF08_FINAL_COMPOSITION_DIGEST=${finalCompositionDigest()}`);
 });
