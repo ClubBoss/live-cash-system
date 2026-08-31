@@ -48,8 +48,8 @@ function machineSnapshot(decision) {
 function numericTokens(text) {
   return String(text)
     .replace(/\b(?:FTGU|LCM|SLC|CP|PM|PF|BL|RIV|FND|TURN|W4|MW|DEEP|EXP|OOP|3BP|4BP)[A-Z0-9-]*-\d+(?:-\d+)*\b/giu, " ")
-    .replace(/\b[345][ -]?bet\b/giu, " ")
-    .replace(/\b[345]-?бет\b/giu, " ")
+    .replace(/\b[345](?:BP|[ -]?bet)\b/giu, " ")
+    .replace(/[345]-?бет/giu, " ")
     .match(/\d+(?:[.,]\d+)?/gu)?.map((token) => token.replace(",", ".")) ?? [];
 }
 
@@ -73,7 +73,7 @@ test("A11/W14 ownership is frozen at 45 decisions, 0 anchors and 405 active RU f
   assert.equal(RAW.length, 45);
   assert.deepEqual(RAW.map((decision) => decision.id).sort(), [...EXPECTED_IDS].sort());
   assert.deepEqual([...integratedA11W14RuPublicationOwnedIds].sort(), [...EXPECTED_IDS].sort());
-  assert.equal(0, 0, "OWNED_ANCHORS must remain zero");
+  assert.equal(EXPECTED_IDS.filter((id) => id.includes("ANCHOR")).length, 0, "OWNED_ANCHORS must remain zero");
   assert.equal(RAW.length * ACTIVE_FIELDS_PER_DECISION, 405);
   assert.equal(EXPECTED_IDS.filter((id) => !integratedA11W14RuPublicationOwnedIds.includes(id)).length, 0, "UNCLASSIFIED must be zero");
   assert.equal(integratedA11W14RuPublicationOwnedIds.filter((id) => !EXPECTED_SET.has(id)).length, 0, "REVIEW must be zero");
