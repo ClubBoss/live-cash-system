@@ -35,6 +35,7 @@ const closedPf07Ids = [
 
 const expectedSourceRefs = new Map(decisionIds.map((id) => [id, ["FTGU-E18"]]));
 const expectedSourceBlob = "7562a026edd9ebdd830d08357b1dfafbe9a7fe16";
+const expectedFinalCompositionDigest = "bfd8dd8569b6c07fdb782927deec996f0c209fd6d884938f37ce2ab089898403";
 
 const fieldPaths = [
   "cueRu",
@@ -88,8 +89,8 @@ function stripApprovedNotation(text) {
 function numericTokens(text) {
   const withoutNonQuantitativeNotation = text
     .replace(/(?:FTGU-E\d+|LCM-\d+|EXT-[A-Z0-9-]|\bE\d+\b)/gu, "")
-    .replace(/\b(?:3|4|5)-bet(?:s|-or-fold)?\b/giu, "")
-    .replace(/[345]-бет(?:ы|ов|ам|ами|ах|а|у|ом|е)?/giu, "");
+    .replace(/\b(?:3|4|5)-?bet(?:s|ting|-or-fold)?\b/giu, "")
+    .replace(/(?:3|4|5)-?бет(?:ы|ов|ам|ами|ах|а|у|ом|е)?/giu, "");
   return withoutNonQuantitativeNotation.match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
 }
 
@@ -149,15 +150,13 @@ test("PF08 UNIT_ALL_ACTIVE_FIELDS_CLASSIFIED=TRUE and UNIT_REVIEW_COUNT=0", () =
     assert.ok(patch, `missing PF-08 patch for ${id}`);
     return [id, patch];
   });
-
   const fixFields = patches.reduce((sum, [, patch]) => sum + patchPaths(patch).length, 0);
-  const activeFields = decisionIds.length * fieldPaths.length;
   const unpatched = patches.flatMap(([id, patch]) => {
     const fixed = new Set(patchPaths(patch));
     return fieldPaths.filter((path) => !fixed.has(path)).map((path) => `${id}:${path}`);
   });
 
-  assert.equal(activeFields, 72);
+  assert.equal(decisionIds.length * fieldPaths.length, 72);
   assert.equal(fixFields, 72);
   assert.deepEqual(unpatched, []);
 });
@@ -178,7 +177,6 @@ test("PF08 UNIT_ALL_FIX_ITEMS_REPAIRED=TRUE", () => {
     const patch = practicalRuSystemicPreflopAdvancedPf08DecisionPatches.get(id);
     assert.ok(finalDecision, `missing final-composed ${id}`);
     assert.ok(patch, `missing PF-08 patch ${id}`);
-
     for (const path of patchPaths(patch)) {
       const expected = path.startsWith("action:")
         ? patch.actionOptions[path.slice("action:".length)]
@@ -247,6 +245,6 @@ test("PF08 semantic firewall preserves scoring, sources, option, EN, misconcepti
   }
 });
 
-test("PF08 final composition digest probe", () => {
-  console.log(`PF08_FINAL_COMPOSITION_DIGEST=${finalCompositionDigest()}`);
+test("PF08 final composition digest is frozen to the authored corpus", () => {
+  assert.equal(finalCompositionDigest(), expectedFinalCompositionDigest);
 });
