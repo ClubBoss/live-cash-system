@@ -48,6 +48,26 @@ const correctedRu = [
   "Требует заново проверить, остаётся ли прочекавший диапазон ограниченным сверху.",
 ];
 
+const c2PolishedCue = (cueRu) => applyPracticalRuFinalPolish({
+  id: "C2-SENTINEL",
+  skillId: "RIV-02",
+  kind: "decision",
+  sourceRefs: ["C2"],
+  assumptions: ["same assumptions"],
+  cueRu,
+  cueEn: "unchanged cue",
+  questionRu: "unchanged question",
+  questionEn: "unchanged question",
+  actionOptions: [{ id: "a", textRu: "unchanged action", textEn: "unchanged action" }],
+  reasonOptions: [{ id: "r", textRu: "unchanged reason", textEn: "unchanged reason" }],
+  correctActionId: "a",
+  correctReasonId: "r",
+  explanationRu: "unchanged explanation",
+  explanationEn: "unchanged explanation",
+  changedVariables: ["same_variable"],
+  targetSeconds: 27,
+}).cueRu;
+
 test("C1 Diagnostic RU publication survives learner sanitization grammatically", () => {
   assert.match(diagnosticSource, new RegExp(diagnosticRu.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.match(diagnosticSource, new RegExp(diagnosticEn.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -61,19 +81,21 @@ test("C1 Diagnostic RU publication survives learner sanitization grammatically",
   assert.match(diagnosticRu, /не определяет одну точную тему для тренировки по широкой диагностической категории/u);
 });
 
-test("C2 confirmed malformed RU publication strings are replaced in the active exported corpus", () => {
+test("C2 confirmed malformed RU publication strings are absent from the active exported corpus", () => {
   for (const malformed of malformedRu) {
     assert.equal(activeRu.includes(malformed), false, `malformed RU publication remains active: ${malformed}`);
   }
-  for (const [index, corrected] of correctedRu.entries()) {
-    if (index === 5) continue;
-    assert.equal(activeRu.includes(corrected), true, `corrected RU publication is not active: ${corrected}`);
+});
+
+test("C2 predecessor RU polish owns the positive replacement contract", () => {
+  for (const [index, malformed] of malformedRu.entries()) {
+    assert.equal(c2PolishedCue(malformed), correctedRu[index], `C2 predecessor correction drifted: ${malformed}`);
   }
 });
 
-test("C2 river explanation preserves showdown value, removal effect, and line value region", () => {
-  const explanation = activeRu.find((text) => text === correctedRu[3]);
-  assert.ok(explanation);
+test("C2 river correction preserves showdown value, removal effect, and line value region", () => {
+  const explanation = c2PolishedCue(malformedRu[3]);
+  assert.equal(explanation, correctedRu[3]);
   assert.match(explanation, /шоудаун-вэлью/u);
   assert.match(explanation, /эффекту блокеров/u);
   assert.match(explanation, /вэлью-зоны линии/u);
