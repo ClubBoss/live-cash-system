@@ -3,9 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
-  practicalAnchors,
   practicalDecisionById,
-  practicalDecisions,
 } from "../content/practical-mastery";
 import { preflopAdvancedExpansionDecisions } from "../content/practical-mastery/decisions-preflop-advanced-expansion";
 import { practicalRuSystemicPreflopAdvancedPf07DecisionPatches } from "../content/practical-mastery/practical-ru-systemic-preflop-advanced-pf07-publication";
@@ -35,7 +33,6 @@ const closedPf07Ids = [
 
 const expectedSourceRefs = new Map(decisionIds.map((id) => [id, ["FTGU-E18"]]));
 const expectedSourceBlob = "7562a026edd9ebdd830d08357b1dfafbe9a7fe16";
-const expectedFinalCompositionDigest = "bfd8dd8569b6c07fdb782927deec996f0c209fd6d884938f37ce2ab089898403";
 
 const fieldPaths = [
   "cueRu",
@@ -105,35 +102,6 @@ function optionMachineIdentity(options) {
 function gitBlobSha(buffer) {
   const header = Buffer.from(`blob ${buffer.length}\0`, "utf8");
   return createHash("sha1").update(header).update(buffer).digest("hex");
-}
-
-function finalCompositionDigest() {
-  const normalized = JSON.stringify({
-    anchors: practicalAnchors.map((anchor) => ({
-      id: anchor.id,
-      promptRu: anchor.promptRu,
-      answerRu: anchor.answerRu,
-      rationaleRu: anchor.rationaleRu,
-      sourceRefs: anchor.sourceRefs,
-    })),
-    decisions: practicalDecisions.map((decision) => ({
-      id: decision.id,
-      cueRu: decision.cueRu,
-      questionRu: decision.questionRu,
-      actionOptions: decision.actionOptions.map((option) => ({
-        id: option.id,
-        textRu: option.textRu,
-      })),
-      reasonOptions: decision.reasonOptions.map((option) => ({
-        id: option.id,
-        textRu: option.textRu,
-      })),
-      explanationRu: decision.explanationRu,
-      sourceRefs: decision.sourceRefs,
-      changedVariables: decision.changedVariables,
-    })),
-  });
-  return createHash("sha256").update(normalized, "utf8").digest("hex");
 }
 
 test("PF08 source authority stays locked to the manager-verified FTGU-E18 blob", async () => {
@@ -243,8 +211,4 @@ test("PF08 semantic firewall preserves scoring, sources, option, EN, misconcepti
     assert.equal(finalDecision.targetSeconds, raw.targetSeconds, `${id} target seconds`);
     assert.deepEqual(finalDecision.assumptions, raw.assumptions, `${id} assumptions`);
   }
-});
-
-test("PF08 final composition digest is frozen to the authored corpus", () => {
-  assert.equal(finalCompositionDigest(), expectedFinalCompositionDigest);
 });

@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "bfd8dd8569b6c07fdb782927deec996f0c209fd6d884938f37ce2ab089898403",
+    "current_digest": "3c871b914a32d95ac353464150c4de5a382390f51f08a91847aa7aa35520707f",
     "approved_digest": null,
-    "review_corpus_fingerprint": "bfd8dd8569b6c07fdb782927deec996f0c209fd6d884938f37ce2ab089898403",
-    "note": "The current review corpus inherits all governed repairs through the closed Base Preflop PF-07 unit. PF-08 rewrites exactly PM-PF-08-101..108 through its own frozen ID-scoped final projection, replacing decoding-heavy RU/EN instructional hybrids with sentence-level natural Russian while preserving FTGU-E18 source authority, polar 4-bet construction, OOP equity-denial/SPR-compression, value-versus-5-bet, underbluff, frequent-flat sizing, position-incentive and blocker/fold-equity meanings. SourceRefs, decision/option IDs, correct answers, misconception tags, changedVariables, assumptions, EN, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
+    "review_corpus_fingerprint": "3c871b914a32d95ac353464150c4de5a382390f51f08a91847aa7aa35520707f",
+    "note": "The current review corpus inherits all governed repairs through the closed Base Preflop PF-08 unit and composes the accepted PF-09/PF-10 RU publication projections for exactly PM-PF-09-101..108 and PM-PF-10-101..108. PF-09 replaces learner-facing squeeze-family hybrid/source-token copy while preserving squeeze dead-money, fold-equity, value/isolation, blocker, position and called-branch semantics. PF-10 replaces learner-facing live/depth/rake/straddle hybrid/source-token copy while preserving straddle working-unit/action-order, rake, players-behind pressure, depth, implied-odds and reverse-implied-odds semantics. SourceRefs, decision/option IDs, correct answers, misconception tags, changedVariables, assumptions, EN, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged. PF-08 protection is unit-local; PF-09/PF-10 own the truthful final-composition digest after valid corpus growth. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -46,6 +46,8 @@
       "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf06-publication.ts",
       "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf07-publication.ts",
       "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf08-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-preflop-live-pf09-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-preflop-live-pf10-publication.ts",
       "content/practical-mastery/index.ts",
       "app/page.tsx",
       "components/LiveCashApp.tsx",
@@ -100,7 +102,7 @@
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "content/practical-mastery/practical-ru-copy-repair.ts": "1be4cd2e49fde14cfee3e6006d6fa7374e24b80e",
     "content/practical-mastery/practical-anchor-ru-copy-repair.ts": "91886f72a12d08ea64871e9b2cc818c4079b9ec2",
-    "content/practical-mastery/index.ts": "f0a569544c072d55f88211f5994bf0abeee7d298",
+    "content/practical-mastery/index.ts": "2256412270cb4ae6300fb12002d9d43801852aef",
     "app/page.tsx": "8a414fda72fd95bf8cbbd12adfaedae0c42d4c02",
     "components/LiveCashApp.tsx": "aab5534214d32d14d4f69a83d1697ffd30b40ec7",
     "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
@@ -123,7 +125,10 @@
     "content/practical-mastery/practical-ru-systemic-preflop-core-pf05-publication.ts": "4283b21d0fd74779dbdacee1460fbdaa3495ec9f",
     "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf06-publication.ts": "f8e771338d6def83fd369095f3c4fdd59b7e80d7",
     "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf07-publication.ts": "089e47871eba1cb48c3b629d33d20a9122077a6b",
-    "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf08-publication.ts": "189726be48ba4fd17407e93dd457f3e806eb1fbc"
+    "content/practical-mastery/practical-ru-systemic-preflop-advanced-pf08-publication.ts": "189726be48ba4fd17407e93dd457f3e806eb1fbc",
+    "content/practical-mastery/decisions-preflop-live-expansion.ts": "a3235dd7fad88110eb165f5848e180cca586cbf2",
+    "content/practical-mastery/practical-ru-systemic-preflop-live-pf09-publication.ts": "0ea4c435e8a7dc30b9bff1ac388af0aeb3929a12",
+    "content/practical-mastery/practical-ru-systemic-preflop-live-pf10-publication.ts": "7c02a21fe998696cb701a0f10b90008efee48c68"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Machine and agent repairs are materialized; fresh human RU/EN review remains pending."},
