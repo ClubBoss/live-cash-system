@@ -178,7 +178,7 @@ test("INT-04 preserves delayed non-identical retrieval and transfer", () => {
 test("INT-05 preserves causal real-hand routing and rejects loss-size-to-tilt routing", () => {
   const native = BY_ID.get("PM-INT-05-001");
   const largeLoss = BY_ID.get("PM-INT-05-A11-108");
-  assert.match(native.explanationRu, /механизм решения, а не размер проигрыша/u);
+  assert.match(native.explanationRu, /по механизму решения, а не по размеру проигрыша/u);
   assert.match(largeLoss.actionOptions.find((option) => option.id === "good").textRu, /^Нет/u);
   assert.match(largeLoss.explanationRu, /большой проигрыш сам по себе не доказывает ни тильт, ни стратегическую ошибку/u);
 });
