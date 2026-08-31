@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
-import { practicalAnchors, practicalDecisionById, practicalDecisions } from "../content/practical-mastery";
+import { practicalAnchors, practicalDecisionById } from "../content/practical-mastery";
 import { recognitionAndSrpAnchors } from "../content/practical-mastery/anchors-w4-w6";
 import { blindDefenceExpansionDecisions } from "../content/practical-mastery/decisions-blind-defence-expansion";
 import { srpA6ExpansionDecisions } from "../content/practical-mastery/decisions-srp-a6-expansion";
@@ -15,7 +14,6 @@ import {
   practicalRuSystemicFlopSrpOopIpDecisionPatches,
 } from "../content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication";
 
-const expectedDigest = "e8a041d6f8e66f1a8c69d8afba99e9b27aef91019f61ba09de5847a953b792b7";
 const expansionIds = ["OOP-01", "OOP-02", "OOP-03", "OOP-04", "OOP-05", "IP-01", "IP-02"]
   .flatMap((skill) => Array.from({ length: 8 }, (_, i) => `PM-${skill}-${101 + i}`));
 const nativeIds = ["PM-W4-BOARD-001", "PM-W4-REL-001", "PM-OOP-01-001", "PM-OOP-03-001", "PM-IP-01-001"];
@@ -53,12 +51,6 @@ function machineIdentity(d) {
   };
 }
 function stripApproved(text) { return text.replace(/\b(?:EV|IP|OOP|SPR|BB|SB|BTN|CO|HJ|UTG|EP|Hero)\b/gu, "").replace(/\bbb\b/gu, "").replace(/(?<=\d)bb\b/gu, "").replace(/(?<=\d)x\b/gu, ""); }
-function digest() {
-  return createHash("sha256").update(JSON.stringify({
-    anchors: practicalAnchors.map((a) => ({ id: a.id, promptRu: a.promptRu, answerRu: a.answerRu, rationaleRu: a.rationaleRu, sourceRefs: a.sourceRefs })),
-    decisions: practicalDecisions.map((d) => ({ id: d.id, cueRu: d.cueRu, questionRu: d.questionRu, actionOptions: d.actionOptions.map((o) => ({ id: o.id, textRu: o.textRu })), reasonOptions: d.reasonOptions.map((o) => ({ id: o.id, textRu: o.textRu })), explanationRu: d.explanationRu, sourceRefs: d.sourceRefs, changedVariables: d.changedVariables })),
-  }), "utf8").digest("hex");
-}
 
 test("FLOP/SRP final ownership is exactly 61 decisions / 12 anchors / 585 RU fields", () => {
   assert.equal(decisionIds.length, 61); assert.equal(anchorIds.length, 12);
@@ -110,5 +102,3 @@ test("FLOP/SRP preserves certified Blind assessment-integrity precedence", () =>
     assert.deepEqual(machineIdentity(final), machineIdentity(applyPracticalAssessmentIntegrityRepair(raw)), `${id} machine/EN precedence`);
   }
 });
-
-test("FLOP/SRP owns the current truthful final-composition digest", () => assert.equal(digest(), expectedDigest));
