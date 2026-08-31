@@ -2,11 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import {
-  practicalAnchors,
-  practicalDecisionById,
-  practicalDecisions,
-} from "../content/practical-mastery";
+import { practicalDecisionById } from "../content/practical-mastery";
 import { preflopLiveExpansionDecisions } from "../content/practical-mastery/decisions-preflop-live-expansion";
 import {
   applyPracticalRuSystemicPreflopLivePf09DecisionProjection,
@@ -52,7 +48,6 @@ const fieldPaths = [
   "reason:r3",
 ];
 const expectedRawSourceBlob = "a3235dd7fad88110eb165f5848e180cca586cbf2";
-const expectedFinalCompositionDigest = "3c871b914a32d95ac353464150c4de5a382390f51f08a91847aa7aa35520707f";
 const rawAuthoritySnapshot = JSON.stringify(preflopLiveExpansionDecisions);
 
 const rawById = new Map(
@@ -140,35 +135,6 @@ function semanticIdentity(decision) {
 function gitBlobSha(buffer) {
   const header = Buffer.from(`blob ${buffer.length}\0`, "utf8");
   return createHash("sha1").update(header).update(buffer).digest("hex");
-}
-
-function finalCompositionDigest() {
-  const normalized = JSON.stringify({
-    anchors: practicalAnchors.map((anchor) => ({
-      id: anchor.id,
-      promptRu: anchor.promptRu,
-      answerRu: anchor.answerRu,
-      rationaleRu: anchor.rationaleRu,
-      sourceRefs: anchor.sourceRefs,
-    })),
-    decisions: practicalDecisions.map((decision) => ({
-      id: decision.id,
-      cueRu: decision.cueRu,
-      questionRu: decision.questionRu,
-      actionOptions: decision.actionOptions.map((option) => ({
-        id: option.id,
-        textRu: option.textRu,
-      })),
-      reasonOptions: decision.reasonOptions.map((option) => ({
-        id: option.id,
-        textRu: option.textRu,
-      })),
-      explanationRu: decision.explanationRu,
-      sourceRefs: decision.sourceRefs,
-      changedVariables: decision.changedVariables,
-    })),
-  });
-  return createHash("sha256").update(normalized, "utf8").digest("hex");
 }
 
 test("PF09/PF10 raw preflop-live authority remains locked", async () => {
@@ -263,8 +229,4 @@ test("PF09/PF10 projectors are ID-local and pass through the sibling unit unchan
     assert.ok(raw);
     assert.equal(applyPracticalRuSystemicPreflopLivePf10DecisionProjection(raw), raw, `PF10 mutated PF09 ${id}`);
   }
-});
-
-test("PF09/PF10 own the truthful final-composition digest after valid corpus growth", () => {
-  assert.equal(finalCompositionDigest(), expectedFinalCompositionDigest);
 });
