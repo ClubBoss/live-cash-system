@@ -21,10 +21,11 @@ const EXPECTED_BEFORE = {
   // seven occurrences exposing E05, PF-05 removes six learner strings / six
   // occurrences exposing E06, and PF-06 removes one learner string / occurrence
   // exposing E15. PF-07 and PF-08 preserve the truthful raw census. PF-09/PF-10
-  // remove two final-composed RU learner strings / two occurrences while keeping
-  // raw authority source identities intact; the learner presentation firewall
-  // must still remove every residual identifier before presentation.
-  ru: { learnerStrings: 8821, leakingStrings: 159, occurrences: 170 },
+  // remove two final-composed RU learner strings / two occurrences. Blind Defense
+  // removes ten further final-composed RU learner strings / eleven occurrences
+  // while keeping raw authority source identities intact; the learner presentation
+  // firewall must still remove every residual identifier before presentation.
+  ru: { learnerStrings: 8821, leakingStrings: 149, occurrences: 159 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },

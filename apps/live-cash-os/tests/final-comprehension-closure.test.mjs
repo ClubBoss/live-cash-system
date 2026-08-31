@@ -6,7 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const expectedFinalCompositionDigest = "3c871b914a32d95ac353464150c4de5a382390f51f08a91847aa7aa35520707f";
+const expectedFinalCompositionDigest = "0d345b75ff4ca0f18d6b2e124b64a3816fa49701b106c7874d56107b581d4133";
 
 async function text(relativePath) {
   return readFile(path.join(root, relativePath), "utf8");
