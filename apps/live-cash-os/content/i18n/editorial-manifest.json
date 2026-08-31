@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "b05df3f788305d7b46913231b9480da8cd9b578adfbcdb8dae99eb21b6090b2e",
+    "current_digest": "bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9",
     "approved_digest": null,
-    "review_corpus_fingerprint": "b05df3f788305d7b46913231b9480da8cd9b578adfbcdb8dae99eb21b6090b2e",
-    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, closed Blind Defense and closed Flop/SRP OOP-IP, then composes the accepted A7 3BP/4BP RU projection for exactly 76 decisions and 7 anchors / 705 learner-facing RU fields, and finally reapplies the already-certified assessment-integrity presentation repair for PM-BL-03-103, PM-BL-04-104 and PM-BL-05-105. PF-09/PF-10, Blind Defense and Flop/SRP retain their unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. A7 owns the truthful current global final-composition digest. The underlying decisions-3bp-4bp-a7-expansion.ts and anchors-w7-w13.ts source authority remains raw and unchanged. SourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
+    "review_corpus_fingerprint": "bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9",
+    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, closed Blind Defense, closed Flop/SRP OOP-IP and closed A7 3BP/4BP, then composes the serially closed A8 Turn/River, A9+A10 Live/Exploit, A11/W14 Integrated, B1+C0 Source Closure/Utilization, B3+B4 Variation/Live-Edge and Perceptual/Executable-Gate-Repair RU projections, and finally reapplies the already-certified assessment-integrity presentation repair. Each closed systemic unit retains its own unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. PERCEPTUAL_EXECUTABLE owns the truthful current global final-composition digest. The underlying raw decision, anchor and table-state source authority for every closed unit remains raw and unchanged. SourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -51,6 +51,12 @@
       "content/practical-mastery/practical-ru-systemic-blind-defence-publication.ts",
       "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts",
       "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-turn-river-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-a9-a10-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-integrated-a11-w14-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-b1-c0-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-b3-b4-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts",
       "content/practical-mastery/index.ts",
       "app/page.tsx",
       "components/LiveCashApp.tsx",
@@ -142,7 +148,25 @@
     "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts": "41dbe324d54dbaecce69a8c1849febe540e193f4",
     "content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts": "7d296e0144ce7bdeac2b23f7cd392acfcea306e6",
     "content/practical-mastery/anchors-w7-w13.ts": "ae6b868c629bf00cbffebbecade870d1c8005c62",
-    "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts": "7302ff44857a91c70bb0525399e687eefbda12dd"
+    "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts": "7302ff44857a91c70bb0525399e687eefbda12dd",
+    "content/practical-mastery/decisions-turn-river-a8-expansion.ts": "983afb3654b802b5fa5502f68e65dad336abc631",
+    "content/practical-mastery/practical-ru-systemic-turn-river-publication.ts": "bb74203722de8a0b1daad6465c1a74450201d65c",
+    "content/practical-mastery/decisions-live-a9-expansion.ts": "fd6a6ff91d794d20b9a364fdc73f1f5a98bfec9a",
+    "content/practical-mastery/decisions-exploit-a10-expansion.ts": "b6f7d8a83cc823b54cc7c505bca07367b80588fd",
+    "content/practical-mastery/practical-ru-systemic-a9-a10-publication.ts": "5ea993209ce97a650b58010d2063b9cf2d910807",
+    "content/practical-mastery/decisions-integrated-a11-expansion.ts": "c03c57ae79dd3e17bbcf35e5de50efe3cc29641e",
+    "content/practical-mastery/decisions-w14.ts": "c6e9020655789b1175a2413fb76b6e7a0274a17a",
+    "content/practical-mastery/practical-ru-systemic-integrated-a11-w14-publication.ts": "2d0378abf7a8c9f11a0e6cbfdb96e6b64d0173bf",
+    "content/practical-mastery/decisions-source-closure-b1.ts": "f47180076ffda39d127269ce3453245043566d5d",
+    "content/practical-mastery/decisions-source-utilization-c0.ts": "20a22eac60ce2b18429cb4eb26105a325cfacd0a",
+    "content/practical-mastery/practical-ru-systemic-b1-c0-publication.ts": "19bcd4c77761f64de354a6d51cb3a297b9f9a879",
+    "content/practical-mastery/decisions-variation-b3.ts": "dcc08c12ffdb761db093b29a18346cab3a9fb735",
+    "content/practical-mastery/decisions-live-edge-b4.ts": "47935a40424a5986ea3b57bb5a98cf46aacc625a",
+    "content/practical-mastery/practical-ru-systemic-b3-b4-publication.ts": "d3f256d3e3130ae8c8b6ca043a8cbcb9538ec74b",
+    "content/practical-mastery/perceptual-table-states.ts": "ba5a917eb9400c10c679fda8906ea487fb7b9ac8",
+    "content/practical-mastery/perceptual-table-states-b3.ts": "e6c3274d1d003ba8a417db4d2e603993a8463570",
+    "content/practical-mastery/decisions-executable-gate-repair.ts": "0975c210bb314fd8a6bd0c56690e26d8028f4576",
+    "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts": "7f98b7d0cf3a0306b0b5cdb8e2e6bcbfb6775f61"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Machine and agent repairs are materialized; fresh human RU/EN review remains pending."},
