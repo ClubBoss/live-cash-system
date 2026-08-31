@@ -99,6 +99,10 @@ test("V7-D Real Hands exposes semantic RU and EN accessibility labels with zero 
 
 test("V7-D Data & Recovery stays outside the learner attribute firewall", async ({ page }) => {
   await page.goto("/tools?tab=data");
+  // Do not inject into the temporary React-owned loading <main>. Wait until the
+  // actual Data & Recovery route owns the DOM, then test that its attributes are
+  // intentionally outside the learner presentation firewall.
+  await expect(page.getByRole("heading", { name: "Прогресс остаётся под твоим контролем." })).toBeVisible();
   const main = page.locator("main");
   await expect(main).toBeVisible();
   await main.evaluate((root) => {
