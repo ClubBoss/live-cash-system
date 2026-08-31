@@ -9,6 +9,7 @@ const clientMasteryRoutes = new Set([
   "/mastery",
   "/mastery/journey",
   "/mastery/session",
+  "/mastery/improve",
   "/mastery/perception",
   "/mastery/study",
   "/mastery/reference",
