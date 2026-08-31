@@ -64,6 +64,7 @@ import {
   applyPracticalRuSystemicLiveA9AnchorProjection,
   applyPracticalRuSystemicExploitA10AnchorProjection,
 } from "./practical-ru-systemic-a9-a10-publication";
+import { applyIntegratedA11W14RuPublication } from "./practical-ru-systemic-integrated-a11-w14-publication";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
 
@@ -163,6 +164,7 @@ export const practicalDecisions = [
   .map(applyPracticalRuSystemicExploitA10DecisionProjection)
   .map(applyPracticalRuSystemicLiveA9NativeDecisionProjection)
   .map(applyPracticalRuSystemicExploitA10NativeDecisionProjection)
+  .map(applyIntegratedA11W14RuPublication)
   .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
