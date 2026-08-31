@@ -73,6 +73,12 @@ import {
   applyPracticalRuSystemicB3DecisionProjection,
   applyPracticalRuSystemicB4DecisionProjection,
 } from "./practical-ru-systemic-b3-b4-publication";
+import {
+  applyPracticalRuPerceptualDecisionProjection,
+  applyPracticalRuPerceptualPrimaryTableStateProjection,
+  applyPracticalRuPerceptualB3TableStateProjection,
+  applyPracticalRuExecutableGateRepairDecisionProjection,
+} from "./practical-ru-systemic-perceptual-executable-publication";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
 
@@ -105,7 +111,9 @@ export * from "./study-loop-c1";
 export * from "./reference-baselines-c2";
 export { practicalSkillFamilies } from "./registry";
 
-export const allPracticalTableStates = [...practicalTableStates, ...b3PracticalTableStates];
+export const allPracticalTableStates = [...practicalTableStates, ...b3PracticalTableStates]
+  .map(applyPracticalRuPerceptualPrimaryTableStateProjection)
+  .map(applyPracticalRuPerceptualB3TableStateProjection);
 
 export const practicalAnchors = [
   ...foundationAnchors,
@@ -177,6 +185,8 @@ export const practicalDecisions = [
   .map(applyPracticalRuSystemicC0DecisionProjection)
   .map(applyPracticalRuSystemicB3DecisionProjection)
   .map(applyPracticalRuSystemicB4DecisionProjection)
+  .map(applyPracticalRuPerceptualDecisionProjection)
+  .map(applyPracticalRuExecutableGateRepairDecisionProjection)
   .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));

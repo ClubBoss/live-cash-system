@@ -28,7 +28,10 @@ test("V3-FND-03 C: 'node context' is translated instead of left as an untranslat
   assert.ok(badR1);
   assert.doesNotMatch(badR1.textRu, /\bnode\b/iu);
   assert.doesNotMatch(badR1.textRu, /\bcontext\b/iu);
-  assert.match(badR1.textRu, /узл/u);
+  // The PERCEPTUAL_EXECUTABLE unit owns this decision's RU publication and
+  // replaces the earlier partial fix with a fully native phrase (no "node"
+  // calque); assert the replacement is fully Russian, not the old wording.
+  assert.match(badR1.textRu, /ветк/u);
 });
 
 test("V3-FND-03 D: the final-polish article-stripping rule no longer mangles the poker Ace-rank label 'A' (root cause of \"dry -high\")", () => {
@@ -37,7 +40,11 @@ test("V3-FND-03 D: the final-polish article-stripping rule no longer mangles the
   assert.ok(bad1);
   // Must not have lost the "A" from "A-high" (the reported "Только 'dry -high'").
   assert.doesNotMatch(bad1.textRu, /dry\s+-high/u);
-  assert.match(bad1.textRu, /dry A-high/u);
+  // The PERCEPTUAL_EXECUTABLE unit owns this decision's RU publication and
+  // replaces the earlier hybrid "dry A-high" fragment with a fully native
+  // Russian phrase; assert the Ace-rank concept survives as "туз", not that
+  // the old English fragment is preserved.
+  assert.match(bad1.textRu, /туз/u);
 });
 
 test("V3-FND-03: the generic article-stripping rule still removes the lowercase English articles it targets", () => {
