@@ -130,7 +130,8 @@ export const practicalDecisions = [
   .map(applyPracticalRuSystemicPreflopAdvancedPf08DecisionProjection)
   .map(applyPracticalRuSystemicPreflopLivePf09DecisionProjection)
   .map(applyPracticalRuSystemicPreflopLivePf10DecisionProjection)
-  .map(applyPracticalRuSystemicBlindDefenceDecisionProjection);
+  .map(applyPracticalRuSystemicBlindDefenceDecisionProjection)
+  .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
