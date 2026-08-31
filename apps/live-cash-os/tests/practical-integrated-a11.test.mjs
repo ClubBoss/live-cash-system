@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const engine = await readFile(path.join(root, "lib/practical-integrated-session.ts"), "utf8");
 const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "utf8");
+const currentMistakes = await readFile(path.join(root, "lib/practical-current-mistakes.ts"), "utf8");
 const ui = await readFile(path.join(root, "components/PracticalIntegratedSessionExperience.tsx"), "utf8");
 const journey = await readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8");
 const integratedCorpus = await readFile(path.join(root, "content/practical-mastery/decisions-integrated-a11-expansion.ts"), "utf8");
@@ -36,11 +37,17 @@ test("scheduler never blind-tests unseen concepts or source-blocked skills", () 
   assert.match(engine, /supportedIntegratedSkillIds/);
 });
 
-test("repair priority uses latest unresolved misconceptions and high-confidence wrongs", () => {
-  assert.match(engine, /HIGH_CONFIDENCE_WRONG = 75/);
-  assert.match(engine, /selectedMisconceptions/);
-  assert.match(engine, /attempt\.confidence >= HIGH_CONFIDENCE_WRONG \? 5 : 2/);
-  assert.match(core, /latestAttemptsByDecision/);
+test("repair priority consumes canonical tagged misconceptions and preserves scheduler-only untagged fallback", () => {
+  assert.match(currentMistakes, /PRACTICAL_HIGH_CONFIDENCE_WRONG = 75/);
+  assert.match(currentMistakes, /currentPracticalMistakes/);
+  assert.match(currentMistakes, /selectedWrongPracticalMisconceptionIds/);
+  assert.match(engine, /currentPracticalMistakes\(state\)/);
+  assert.match(engine, /selectedWrongPracticalMisconceptionIds\(attempt\)/);
+  assert.match(engine, /`SKILL:\$\{attempt\.skillId\}`/);
+  assert.match(engine, /mistake\.highConfidenceEvidenceCount \* 5 \+ normalEvidenceCount \* 2/);
+  assert.match(engine, /attempt\.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG \? 5 : 2/);
+  assert.doesNotMatch(engine, /function selectedMisconceptions/);
+  assert.match(core, /export function latestAttemptsByDecision/);
   assert.match(core, /lastIncorrectDecisionId = null/);
 });
 
