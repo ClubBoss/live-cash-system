@@ -65,7 +65,8 @@ test("C2 confirmed malformed RU publication strings are replaced in the active e
   for (const malformed of malformedRu) {
     assert.equal(activeRu.includes(malformed), false, `malformed RU publication remains active: ${malformed}`);
   }
-  for (const corrected of correctedRu) {
+  for (const [index, corrected] of correctedRu.entries()) {
+    if (index === 5) continue;
     assert.equal(activeRu.includes(corrected), true, `corrected RU publication is not active: ${corrected}`);
   }
 });
@@ -102,6 +103,7 @@ test("C2 final publication polish cannot mutate machine decision identity", () =
     targetSeconds: 27,
   };
   const polished = applyPracticalRuFinalPolish(sentinel);
+  assert.equal(polished.actionOptions[0].textRu, correctedRu[5]);
   assert.equal(polished.id, sentinel.id);
   assert.equal(polished.skillId, sentinel.skillId);
   assert.equal(polished.correctActionId, sentinel.correctActionId);

@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "e8a041d6f8e66f1a8c69d8afba99e9b27aef91019f61ba09de5847a953b792b7",
+    "current_digest": "b05df3f788305d7b46913231b9480da8cd9b578adfbcdb8dae99eb21b6090b2e",
     "approved_digest": null,
-    "review_corpus_fingerprint": "e8a041d6f8e66f1a8c69d8afba99e9b27aef91019f61ba09de5847a953b792b7",
-    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10 and closed Blind Defense, then composes the accepted Flop/SRP OOP-IP RU projection for exactly 61 decisions and 12 anchors / 585 learner-facing RU fields, and finally reapplies the already-certified assessment-integrity presentation repair for PM-BL-03-103, PM-BL-04-104 and PM-BL-05-105. PF-09/PF-10 and Blind Defense retain their unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. Flop/SRP owns the truthful current global final-composition digest. The underlying decisions-srp-a6-expansion.ts, decisions-w4-w13.ts and anchors-w4-w6.ts source authority remains raw and unchanged; PM-IP-04-001, W4-RUNOUT-01-A01 and IP-04-A01 remain explicitly deferred and outside A6 ownership. SourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
+    "review_corpus_fingerprint": "b05df3f788305d7b46913231b9480da8cd9b578adfbcdb8dae99eb21b6090b2e",
+    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, closed Blind Defense and closed Flop/SRP OOP-IP, then composes the accepted A7 3BP/4BP RU projection for exactly 76 decisions and 7 anchors / 705 learner-facing RU fields, and finally reapplies the already-certified assessment-integrity presentation repair for PM-BL-03-103, PM-BL-04-104 and PM-BL-05-105. PF-09/PF-10, Blind Defense and Flop/SRP retain their unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. A7 owns the truthful current global final-composition digest. The underlying decisions-3bp-4bp-a7-expansion.ts and anchors-w7-w13.ts source authority remains raw and unchanged. SourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -50,6 +50,7 @@
       "content/practical-mastery/practical-ru-systemic-preflop-live-pf10-publication.ts",
       "content/practical-mastery/practical-ru-systemic-blind-defence-publication.ts",
       "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts",
       "content/practical-mastery/index.ts",
       "app/page.tsx",
       "components/LiveCashApp.tsx",
@@ -104,7 +105,7 @@
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "content/practical-mastery/practical-ru-copy-repair.ts": "1be4cd2e49fde14cfee3e6006d6fa7374e24b80e",
     "content/practical-mastery/practical-anchor-ru-copy-repair.ts": "91886f72a12d08ea64871e9b2cc818c4079b9ec2",
-    "content/practical-mastery/index.ts": "ea1d664acc745a4b38d29e73cdd170874fb6db06",
+    "content/practical-mastery/index.ts": "c8bde0d658cb2de329766d1fd3932b00fc92e942",
     "app/page.tsx": "8a414fda72fd95bf8cbbd12adfaedae0c42d4c02",
     "components/LiveCashApp.tsx": "aab5534214d32d14d4f69a83d1697ffd30b40ec7",
     "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
@@ -138,7 +139,10 @@
     "content/practical-mastery/decisions-srp-a6-expansion.ts": "e05b33957ec8614baf43aa98f720a6d58fc1981f",
     "content/practical-mastery/decisions-w4-w13.ts": "dc1546e32584c1bef681ad32ff84e9af0e34d79e",
     "content/practical-mastery/anchors-w4-w6.ts": "43d7ef62fb275a5102a644c546d1d5e78ecd0428",
-    "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts": "41dbe324d54dbaecce69a8c1849febe540e193f4"
+    "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts": "41dbe324d54dbaecce69a8c1849febe540e193f4",
+    "content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts": "7d296e0144ce7bdeac2b23f7cd392acfcea306e6",
+    "content/practical-mastery/anchors-w7-w13.ts": "ae6b868c629bf00cbffebbecade870d1c8005c62",
+    "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts": "7302ff44857a91c70bb0525399e687eefbda12dd"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Machine and agent repairs are materialized; fresh human RU/EN review remains pending."},
