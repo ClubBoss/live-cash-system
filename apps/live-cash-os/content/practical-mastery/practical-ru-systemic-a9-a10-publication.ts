@@ -1,11 +1,13 @@
-import type { PracticalDecision, PracticalDecisionOption } from "./types";
-import type { PracticalDecisionRuPatch } from "./practical-ru-systemic-publication";
+import type { PracticalAnchor, PracticalDecision, PracticalDecisionOption } from "./types";
+import type { PracticalAnchorRuPatch, PracticalDecisionRuPatch } from "./practical-ru-systemic-publication";
 
 // Isolated A9 (MW-01..04, DEEP-01/03/04) + A10 (EXP-01..05) staging projection.
 // Patches the two dedicated "-A9-"/"-A10-" expansion corpora
-// (decisions-live-a9-expansion.ts, decisions-exploit-a10-expansion.ts) with
-// direct, hand-authored learner Russian. Not wired into index.ts: this is a
-// parallel staging layer for the integration writer to compose later.
+// (decisions-live-a9-expansion.ts, decisions-exploit-a10-expansion.ts) plus
+// the family's native W7-W13 decisions (decisions-w4-w13.ts) and anchors
+// (anchors-w7-w13.ts) with direct, hand-authored learner Russian. Not wired
+// into index.ts: this is a parallel staging layer for the integration writer
+// to compose later.
 
 type A9FamilyRu = {
   prefix: string;
@@ -309,6 +311,172 @@ export const practicalRuSystemicExploitA10DecisionPatches = new Map<string, Prac
   a10Families.flatMap(buildA10FamilyPatches),
 );
 
+// Native W7-W13 decisions owned by MW-01/MW-03/DEEP-01 (A9) and EXP-01/EXP-05 (A10).
+export const practicalRuSystemicLiveA9NativeDecisionPatches = new Map<string, PracticalDecisionRuPatch>([
+  ["PM-MW-01-001", {
+    cueRu: "Мы сидим между беттором и ещё одним живым диапазоном, который действует после нас.",
+    questionRu: "Почему защиту из хедз-апа нельзя просто скопировать?",
+    actionOptions: {
+      a: "Нужно учитывать диапазон позади и то, что защита делится между несколькими игроками",
+      b: "Вся нагрузка по обязательной частоте защиты ложится только на нас",
+      c: "Игрок позади не важен до ривера",
+    },
+    reasonOptions: {
+      r1: "Зажатая позиция делает коллы и рейзы уязвимыми к действиям игроков позади",
+      r2: "Мультивей — это просто хедз-ап с большим банком",
+      r3: "Закрытие торгов не имеет значения в мультивее",
+    },
+    explanationRu:
+      "Ключевое отличие мультивея — эффект зажатой позиции и то, что защита распределена между несколькими продолжающими диапазонами.",
+  }],
+  ["PM-MW-03-001", {
+    cueRu: "Мы хотим добавить блеф без эквити и блокеров только потому, что в хедз-апе он иногда срабатывает.",
+    questionRu: "Это хороший стандартный выбор?",
+    actionOptions: {
+      a: "Нет",
+      b: "Да, в мультивее нужно блефовать больше",
+      c: "Да, блокеры не важны",
+    },
+    reasonOptions: {
+      r1: "Нужно пробить больше диапазонов сразу; блефы нужно сужать в сторону рук с эквити и блокерами",
+      r2: "Распределённая защита повышает EV случайного блефа",
+      r3: "У пустой руки тот же риск коллизии с чужими картами, что и в хедз-апе",
+    },
+    explanationRu:
+      "Случайные блефы без эквити и блокеров в мультивее явно не работают — их нужно заменять более обоснованными кандидатами.",
+  }],
+  ["PM-DEEP-01-001", {
+    cueRu: "Мы играем глубоко и без позиции на подвижной доске.",
+    questionRu: "Какой защитный стандартный выбор предпочтителен при неопределённости?",
+    actionOptions: {
+      a: "Защищённая структура чек-колла с выборочными рейзами",
+      b: "Силой продавливать пограничное вэлью в большой банк",
+      c: "Чек-фолдить всю среднюю по силе часть диапазона",
+    },
+    reasonOptions: {
+      r1: "Глубокий SPR и отсутствие позиции снижают реализуемый EV и повышают значение будущих карт",
+      r2: "При 200bb сырое эквити равно EV",
+      r3: "Оверпары обязаны всегда уходить из диапазона чек-колла",
+    },
+    explanationRu:
+      "На глубоких стеках без позиции защищённая линия чек-колла удерживает сильные руки внутри диапазона колла, а не выводит их из него.",
+  }],
+  ["PM-DEEP-01-002", {
+    cueRu: "Сайзинг с-бета увеличился.",
+    questionRu: "Как должен сдвигаться баланс рейзов и коллов?",
+    actionOptions: {
+      a: "Меньше рейзов, больше коллов",
+      b: "Больше рейзов, меньше коллов",
+      c: "Ничего не меняется",
+    },
+    reasonOptions: {
+      r1: "Крупный сайзинг повышает вложения и давление; сильные руки и дро удерживают линию колла",
+      r2: "Крупная ставка всегда означает более слабый диапазон",
+      r3: "На глубоких стеках эффект сайзинга не действует",
+    },
+    explanationRu: "Против более крупных ставок нужно чаще коллировать и реже рейзить.",
+  }],
+]);
+
+export const practicalRuSystemicExploitA10NativeDecisionPatches = new Map<string, PracticalDecisionRuPatch>([
+  ["PM-EXP-01-001", {
+    cueRu: "Соперник выглядит агрессивным.",
+    questionRu: "Достаточно ли этого для более широких коллов на ривере?",
+    actionOptions: {
+      a: "Нет — нужны данные именно по этой ветке",
+      b: "Да — ярлыка «агрессивный» достаточно",
+      c: "Да — любой регуляр переблефовывает",
+    },
+    reasonOptions: {
+      r1: "Нужны точная линия розыгрыша, доступный воздух в диапазоне и подтверждение избыточного блефа",
+      r2: "Тип игрока заменяет анализ диапазона",
+      r3: "Одно вскрытие карт подтверждает все ветки сразу",
+    },
+    explanationRu:
+      "Эксплойт должен быть привязан к точной переблефованной ветке, а не к общему ярлыку «агрессивный».",
+  }],
+  ["PM-EXP-05-001", {
+    cueRu: "Источник предлагает эксплойт против маленького проб-бета на ривере и описывает перефолд в популяции игроков.",
+    questionRu: "Что из этого можно перенести в подтверждённую истину продукта?",
+    actionOptions: {
+      a: "Сам механизм, но не универсальный масштаб перефолда в популяции",
+      b: "Универсальное правило: незнакомые лайв-игроки всегда перефолдят",
+      c: "Точные частоты из источника",
+    },
+    reasonOptions: {
+      r1: "Утверждения о популяции требуют собственной проверки, прежде чем становиться правилом",
+      r2: "Любое утверждение источника о популяции универсально",
+      r3: "Частоты, зависящие от визуального материала, можно восстановить по памяти",
+    },
+    explanationRu:
+      "Сам механизм эксплойта принят, но его масштаб в популяции остаётся гипотезой, которую нужно проверять полевыми данными.",
+  }],
+]);
+
+// Native W7-W13 anchors owned by MW-01/02/03, DEEP-01/03 (A9) and EXP-01/03/04/05 (A10).
+export const practicalRuSystemicLiveA9AnchorPatches = new Map<string, PracticalAnchorRuPatch>([
+  ["MW-01-A01", {
+    promptRu: "Почему зажатый между другими игроками не может защищаться так же свободно, как в банке один на один?",
+    answerRu:
+      "Потому что действия позади ещё не закончены; нагрузка защиты распределена между несколькими игроками, и диапазон позади может наказать колл или рейз.",
+    rationaleRu: "Эффект зажатой позиции — центральная динамика мультивея.",
+  }],
+  ["MW-03-A01", {
+    promptRu: "Нужно ли переносить случайные блефовые кандидаты без эквити из хедз-апа в мультивей-дерево?",
+    answerRu: "Нет. Блефовые категории нужно сужать до рук с эквити, блокерами и правильной стратегической формой.",
+    rationaleRu: "Случайные блефы без эквити явно не работают в мультивее.",
+  }],
+  ["MW-02-A01", {
+    promptRu: "Как меняется ценность одной пары без запасного эквити после сильной серии действий в мультивее?",
+    answerRu: "Она резко падает; запасное эквити и пути улучшения до натсовой руки становятся важнее.",
+    rationaleRu: "Топ-пара без запасного эквити в сильной мультивей-серии превращается в почти чистый фолд.",
+  }],
+  ["DEEP-01-A01", {
+    promptRu:
+      "Почему на глубоких стеках без позиции нельзя просто «давить вэлью» средней по силе частью диапазона, даже если сырое эквити неплохое?",
+    answerRu:
+      "Отсутствие позиции и меняющиеся карты снижают реализуемый EV; защищённая линия чек-колла сохраняет среднюю часть диапазона.",
+    rationaleRu: "Это центральный механизм игры на глубоких стеках без позиции.",
+  }],
+  ["DEEP-01-A02", {
+    promptRu: "Как должен меняться ответ без позиции на более крупный с-бет на глубоких стеках?",
+    answerRu: "Частота рейзов снижается, преобладает колл; сильные руки и дро удерживают линию колла.",
+    rationaleRu: "Это прямая реакция на изменение сайзинга ставки.",
+  }],
+  ["DEEP-03-A01", {
+    promptRu: "Что нужно пересчитать первым делом после появления обязательного страддла?",
+    answerRu:
+      "Рабочую единицу обязательной ставки, эффективную глубину и последующий SPR; обычные bb перестают быть единственным описанием глубины.",
+    rationaleRu: "Это тот же механизм пересчёта глубины, что и без страддла, перенесённый в отдельную практическую тему.",
+  }],
+]);
+
+export const practicalRuSystemicExploitA10AnchorPatches = new Map<string, PracticalAnchorRuPatch>([
+  ["EXP-01-A01", {
+    promptRu: "Достаточно ли ярлыка «агрессивный» для более широких коллов на ривере?",
+    answerRu:
+      "Нет. Нужны точная линия розыгрыша, доступный воздух в диапазоне и подтверждение, что именно эта ветка переблефована.",
+    rationaleRu: "Эксплойт требует данных именно по этой ветке, а не общего впечатления об игроке.",
+  }],
+  ["EXP-03-A01", {
+    promptRu: "Какой эксплойт оправдан, если естественный запас блефов в диапазоне почти исчез?",
+    answerRu: "Перефолд относительно сбалансированной базовой стратегии, особенно против крупного сайзинга.",
+    rationaleRu: "Раноуты, структурно лишённые воздуха, — источник недоблефа у соперника.",
+  }],
+  ["EXP-04-A01", {
+    promptRu: "Какой эксплойт оправдан против реально переблефованной ветки, богатой воздухом?",
+    answerRu: "Более широкие коллы блеф-кетчером, с учётом блокеров и оставшихся недоехавших дро.",
+    rationaleRu: "Это центральный механизм эксплойта против избыточного блефа.",
+  }],
+  ["EXP-05-A01", {
+    promptRu:
+      "Можно ли превратить утверждение «люди часто перефолдят маленькие проб-беты на ривере» в универсальное правило для лайва?",
+    answerRu:
+      "Нет. Механизм принят, но масштаб этого перефолда в популяции остаётся гипотезой, которую нужно проверять полем.",
+    rationaleRu: "Принятый механизм и гипотеза о масштабе в популяции — это разные вещи; вторая требует отдельной проверки.",
+  }],
+]);
+
 function projectOptions(
   options: PracticalDecisionOption[],
   patches: Readonly<Record<string, string>> | undefined,
@@ -338,4 +506,30 @@ export function applyPracticalRuSystemicLiveA9DecisionProjection(decision: Pract
 
 export function applyPracticalRuSystemicExploitA10DecisionProjection(decision: PracticalDecision): PracticalDecision {
   return applyPatch(decision, practicalRuSystemicExploitA10DecisionPatches.get(decision.id));
+}
+
+export function applyPracticalRuSystemicLiveA9NativeDecisionProjection(decision: PracticalDecision): PracticalDecision {
+  return applyPatch(decision, practicalRuSystemicLiveA9NativeDecisionPatches.get(decision.id));
+}
+
+export function applyPracticalRuSystemicExploitA10NativeDecisionProjection(decision: PracticalDecision): PracticalDecision {
+  return applyPatch(decision, practicalRuSystemicExploitA10NativeDecisionPatches.get(decision.id));
+}
+
+function applyAnchorPatch(anchor: PracticalAnchor, patch: PracticalAnchorRuPatch | undefined): PracticalAnchor {
+  if (!patch) return anchor;
+  return {
+    ...anchor,
+    ...(patch.promptRu === undefined ? {} : { promptRu: patch.promptRu }),
+    ...(patch.answerRu === undefined ? {} : { answerRu: patch.answerRu }),
+    ...(patch.rationaleRu === undefined ? {} : { rationaleRu: patch.rationaleRu }),
+  };
+}
+
+export function applyPracticalRuSystemicLiveA9AnchorProjection(anchor: PracticalAnchor): PracticalAnchor {
+  return applyAnchorPatch(anchor, practicalRuSystemicLiveA9AnchorPatches.get(anchor.id));
+}
+
+export function applyPracticalRuSystemicExploitA10AnchorProjection(anchor: PracticalAnchor): PracticalAnchor {
+  return applyAnchorPatch(anchor, practicalRuSystemicExploitA10AnchorPatches.get(anchor.id));
 }
