@@ -22,12 +22,14 @@ const EXPECTED_BEFORE = {
   // occurrences exposing E06, and PF-06 removes one learner string / occurrence
   // exposing E15. PF-07 and PF-08 preserve the truthful raw census. PF-09/PF-10
   // remove two final-composed RU learner strings / two occurrences. Blind Defense
-  // removes ten further final-composed RU learner strings / eleven occurrences
-  // while keeping raw authority source identities intact; the learner presentation
+  // removes ten further final-composed RU learner strings / eleven occurrences.
+  // The accepted A6 Flop/SRP projection removes another 36 RU learner strings /
+  // 39 occurrences while preserving raw source authority. The presentation
   // firewall must still remove every residual identifier before presentation.
-  ru: { learnerStrings: 8821, leakingStrings: 149, occurrences: 159 },
+  ru: { learnerStrings: 8821, leakingStrings: 113, occurrences: 120 },
   // FND-V2-03: PM-W4-REL-01-107 no longer cites "E08" inline in its EN explanation
   // / reason text (2 strings, 2 occurrences), so both counts dropped by 2.
+  // A6 is RU-only, so the EN census remains unchanged.
   en: { learnerStrings: 8821, leakingStrings: 485, occurrences: 529 },
 };
 
@@ -104,7 +106,8 @@ for (const locale of ["ru", "en"]) {
     assert.equal(values.length, expected.learnerStrings);
     assert.equal(leaking.length, expected.leakingStrings);
     assert.equal(matches.length, expected.occurrences);
-    assert.ok(matches.includes("E07"));
+    if (locale === "ru") assert.equal(matches.includes("E07"), false, "A6 final RU projection removes the last final-composed E07 learner leak");
+    else assert.ok(matches.includes("E07"));
     assert.ok(matches.includes("E20"));
     assert.ok(matches.includes("E21"));
 

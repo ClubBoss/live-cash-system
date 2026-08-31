@@ -25,15 +25,14 @@ test("FND-03 closes the observed RU publication defects and their bounded malfor
   ]) assert.doesNotMatch(text, new RegExp(defect, "iu"));
 
   for (const correction of [
-    "Можно ли определить, кому принадлежит преимущество на доске, только по её ярлыку?",
+    "Можно ли только по описанию доски решить, какому диапазону она выгоднее?",
     "Какая стратегия здесь выглядит правдоподобной?",
     "Какой переход нужен до действия?",
     "Какой сигнал нужно назвать до действия?",
     "Перенос проверяется на неидентичных примерах.",
   ]) assert.match(text, new RegExp(correction.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
-  // The W4-HAND-01 combo->family explanations were rewritten to direct poker at
-  // source (FND-V2-03); the earlier polish-map corrections for -103 / -105 are
-  // superseded — see blind-v2-fnd-03-internal-language for that contract.
+  // The W4 board wording is now owned by the accepted A6 Flop/SRP publication.
+  // W4-HAND-01 combo->family explanations remain direct poker copy at source.
 });
 
 test("FND-03 preserves decision and answer identities while the learner firewall repairs the source-label agreement", () => {
