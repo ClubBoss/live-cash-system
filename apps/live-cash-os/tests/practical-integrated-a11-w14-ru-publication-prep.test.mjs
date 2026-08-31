@@ -45,9 +45,17 @@ function machineSnapshot(decision) {
   };
 }
 
+// Bounded to the source-reference/skill-routing code shapes demonstrated in the
+// owned 45-decision corpus (e.g. "FTGU-E05", "LCM-08", "SLC-M02-L21", "CP-G3-L09",
+// "W4-BOARD-01", "OOP-01", and the shared-prefix shorthand "FTGU-E05/E06"). RU
+// publication legitimately drops these citation/routing codes from learner-facing
+// copy (see assertNoSourceId), so their embedded digits are not genuine
+// learner-visible poker quantities and must not be compared as numeric semantics.
+const CITATION_CODE = /\b(?:FTGU|LCM|SLC|CP|PM|PF|BL|RIV|FND|TURN|W4|MW|DEEP|EXP|OOP|3BP|4BP)-[A-Z0-9-]+(?:\/[A-Z0-9-]+)*\b/giu;
+
 function numericTokens(text) {
   return String(text)
-    .replace(/\b(?:FTGU|LCM|SLC|CP|PM|PF|BL|RIV|FND|TURN|W4|MW|DEEP|EXP|OOP|3BP|4BP)[A-Z0-9-]*-\d+(?:-\d+)*\b/giu, " ")
+    .replace(CITATION_CODE, " ")
     .replace(/\b[345](?:BP|[ -]?bet)\b/giu, " ")
     .replace(/[345]-?бет/giu, " ")
     .match(/\d+(?:[.,]\d+)?/gu)?.map((token) => token.replace(",", ".")) ?? [];
@@ -114,6 +122,25 @@ test("all 405 learner-facing RU fields are mapped, natural-script clean and sour
     }
   }
   assert.equal(activeFields, 405);
+});
+
+test("numericTokens firewall: genuine quantities survive, source-citation digits do not", () => {
+  assert.deepEqual(numericTokens("100bb"), ["100"]);
+  assert.deepEqual(numericTokens("33%"), ["33"]);
+  assert.deepEqual(numericTokens("2.5"), ["2.5"]);
+  assert.deepEqual(numericTokens("1.5bb"), ["1.5"]);
+  assert.deepEqual(numericTokens("3-bet to 12bb"), ["12"]);
+  assert.deepEqual(numericTokens("open to 2.5x with 40bb effective"), ["2.5", "40"]);
+
+  assert.deepEqual(numericTokens("FTGU-E05"), []);
+  assert.deepEqual(numericTokens("FTGU-E05/E06 show why BB and SB do not share one defense identity."), []);
+  assert.deepEqual(numericTokens("LCM-08"), []);
+  assert.deepEqual(numericTokens("SLC-M02-L21"), []);
+  assert.deepEqual(numericTokens("CP-G3-L09"), []);
+  assert.deepEqual(numericTokens("W4-BOARD-01 + OOP-01"), []);
+  assert.deepEqual(numericTokens("PF-04 + BL-04"), []);
+
+  assert.deepEqual(numericTokens("FTGU-E05/E06 river call at 33% pot with 12bb behind"), ["33", "12"]);
 });
 
 test("genuine learner-visible numeric semantics survive RU publication", () => {
