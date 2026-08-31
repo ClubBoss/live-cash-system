@@ -44,6 +44,10 @@ import {
   applyPracticalRuSystemicBlindDefenceAnchorProjection,
   applyPracticalRuSystemicBlindDefenceDecisionProjection,
 } from "./practical-ru-systemic-blind-defence-publication";
+import {
+  applyPracticalRuSystemicFlopSrpOopIpAnchorProjection,
+  applyPracticalRuSystemicFlopSrpOopIpDecisionProjection,
+} from "./practical-ru-systemic-flop-srp-oop-ip-publication";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
 import { practicalSkillFamilies } from "./registry";
 
@@ -87,6 +91,7 @@ export const practicalAnchors = [
   .map(applyPracticalAnchorRuCopyRepair)
   .map(applyPracticalRuSystemicAnchorProjection)
   .map(applyPracticalRuSystemicBlindDefenceAnchorProjection)
+  .map(applyPracticalRuSystemicFlopSrpOopIpAnchorProjection)
   .map((anchor) => ({
     ...anchor,
     titleRu: anchor.promptRu,
@@ -131,6 +136,7 @@ export const practicalDecisions = [
   .map(applyPracticalRuSystemicPreflopLivePf09DecisionProjection)
   .map(applyPracticalRuSystemicPreflopLivePf10DecisionProjection)
   .map(applyPracticalRuSystemicBlindDefenceDecisionProjection)
+  .map(applyPracticalRuSystemicFlopSrpOopIpDecisionProjection)
   .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));

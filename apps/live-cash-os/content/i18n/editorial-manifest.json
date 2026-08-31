@@ -12,10 +12,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "0d345b75ff4ca0f18d6b2e124b64a3816fa49701b106c7874d56107b581d4133",
+    "current_digest": "e8a041d6f8e66f1a8c69d8afba99e9b27aef91019f61ba09de5847a953b792b7",
     "approved_digest": null,
-    "review_corpus_fingerprint": "0d345b75ff4ca0f18d6b2e124b64a3816fa49701b106c7874d56107b581d4133",
-    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, composes the accepted Blind Defense RU projection for exactly 46 decisions and 5 anchors, and then reapplies the already-certified assessment-integrity presentation repair for PM-BL-03-103, PM-BL-04-104 and PM-BL-05-105. PF-09/PF-10 retain unit-local ownership of exactly PM-PF-09-101..108 and PM-PF-10-101..108 / 144 RU learner fields, including semantic, source, numeric, hybrid and machine-identity firewalls, but do not freeze future valid whole-corpus growth. Blind Defense owns the truthful current global final-composition digest. Blind source authority, sourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
+    "review_corpus_fingerprint": "e8a041d6f8e66f1a8c69d8afba99e9b27aef91019f61ba09de5847a953b792b7",
+    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10 and closed Blind Defense, then composes the accepted Flop/SRP OOP-IP RU projection for exactly 61 decisions and 12 anchors / 585 learner-facing RU fields, and finally reapplies the already-certified assessment-integrity presentation repair for PM-BL-03-103, PM-BL-04-104 and PM-BL-05-105. PF-09/PF-10 and Blind Defense retain their unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. Flop/SRP owns the truthful current global final-composition digest. The underlying decisions-srp-a6-expansion.ts, decisions-w4-w13.ts and anchors-w4-w6.ts source authority remains raw and unchanged; PM-IP-04-001, W4-RUNOUT-01-A01 and IP-04-A01 remain explicitly deferred and outside A6 ownership. SourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
   },
   "repair_source_paths": {
     "strategy": ["content/claims/lcm-02.claims.json", "content/claims/lcm-03.claims.json", "content/claims/lcm-06.claims.json"],
@@ -49,6 +49,7 @@
       "content/practical-mastery/practical-ru-systemic-preflop-live-pf09-publication.ts",
       "content/practical-mastery/practical-ru-systemic-preflop-live-pf10-publication.ts",
       "content/practical-mastery/practical-ru-systemic-blind-defence-publication.ts",
+      "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts",
       "content/practical-mastery/index.ts",
       "app/page.tsx",
       "components/LiveCashApp.tsx",
@@ -103,7 +104,7 @@
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "content/practical-mastery/practical-ru-copy-repair.ts": "1be4cd2e49fde14cfee3e6006d6fa7374e24b80e",
     "content/practical-mastery/practical-anchor-ru-copy-repair.ts": "91886f72a12d08ea64871e9b2cc818c4079b9ec2",
-    "content/practical-mastery/index.ts": "7b73aea794fe6dd9f6ca0af6a33189fb0c530b63",
+    "content/practical-mastery/index.ts": "ea1d664acc745a4b38d29e73cdd170874fb6db06",
     "app/page.tsx": "8a414fda72fd95bf8cbbd12adfaedae0c42d4c02",
     "components/LiveCashApp.tsx": "aab5534214d32d14d4f69a83d1697ffd30b40ec7",
     "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
@@ -133,7 +134,11 @@
     "content/practical-mastery/decisions-blind-defence-expansion.ts": "f5d0abcaba1f0cc3a96c755610df52fa702e97d7",
     "content/practical-mastery/decisions-w1-w3.ts": "f5b1f92dcab8b080cf4f5140edc37b43fd21ea4e",
     "content/practical-mastery/anchors-w2-w3.ts": "fbe43747d0e73a789eac10315557b6fb0e5bbf99",
-    "content/practical-mastery/practical-ru-systemic-blind-defence-publication.ts": "48eb3ee0cef0be738d697295599999adb15acd6b"
+    "content/practical-mastery/practical-ru-systemic-blind-defence-publication.ts": "48eb3ee0cef0be738d697295599999adb15acd6b",
+    "content/practical-mastery/decisions-srp-a6-expansion.ts": "e05b33957ec8614baf43aa98f720a6d58fc1981f",
+    "content/practical-mastery/decisions-w4-w13.ts": "dc1546e32584c1bef681ad32ff84e9af0e34d79e",
+    "content/practical-mastery/anchors-w4-w6.ts": "43d7ef62fb275a5102a644c546d1d5e78ecd0428",
+    "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts": "41dbe324d54dbaecce69a8c1849febe540e193f4"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Machine and agent repairs are materialized; fresh human RU/EN review remains pending."},

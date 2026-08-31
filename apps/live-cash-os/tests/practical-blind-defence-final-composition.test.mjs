@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import {
   practicalAnchors,
   practicalDecisionById,
-  practicalDecisions,
 } from "../content/practical-mastery";
 import { preflopAndBlindAnchors } from "../content/practical-mastery/anchors-w2-w3";
 import { blindDefenceExpansionDecisions } from "../content/practical-mastery/decisions-blind-defence-expansion";
@@ -20,7 +18,6 @@ import {
 } from "../content/practical-mastery/practical-ru-systemic-blind-defence-publication";
 import { practicalSourceGaps } from "../content/practical-mastery/source-gaps";
 
-const expectedFinalCompositionDigest = "0d345b75ff4ca0f18d6b2e124b64a3816fa49701b106c7874d56107b581d4133";
 const expansionSkillIds = ["01", "02", "03", "04", "05", "12"];
 const expansionDecisionIds = expansionSkillIds.flatMap((skill) =>
   Array.from({ length: 7 }, (_, i) => `PM-BL-${skill}-${101 + i}`),
@@ -145,30 +142,7 @@ function machineIdentity(decision) {
   };
 }
 
-function finalCompositionDigest() {
-  const normalized = JSON.stringify({
-    anchors: practicalAnchors.map((anchor) => ({
-      id: anchor.id,
-      promptRu: anchor.promptRu,
-      answerRu: anchor.answerRu,
-      rationaleRu: anchor.rationaleRu,
-      sourceRefs: anchor.sourceRefs,
-    })),
-    decisions: practicalDecisions.map((decision) => ({
-      id: decision.id,
-      cueRu: decision.cueRu,
-      questionRu: decision.questionRu,
-      actionOptions: decision.actionOptions.map((option) => ({ id: option.id, textRu: option.textRu })),
-      reasonOptions: decision.reasonOptions.map((option) => ({ id: option.id, textRu: option.textRu })),
-      explanationRu: decision.explanationRu,
-      sourceRefs: decision.sourceRefs,
-      changedVariables: decision.changedVariables,
-    })),
-  });
-  return createHash("sha256").update(normalized, "utf8").digest("hex");
-}
-
-test("BLIND final ownership is 46 decisions / 5 anchors / 431 active fields with REVIEW=0", () => {
+test("BLIND retains unit-local ownership of 46 decisions / 5 anchors / 431 active fields with REVIEW=0", () => {
   assert.equal(rawDecisionById.size, 46);
   assert.equal(rawAnchorById.size, 5);
   assert.deepEqual([...practicalRuSystemicBlindDefenceDecisionPatches.keys()], decisionIds);
@@ -196,7 +170,7 @@ test("BLIND final ownership is 46 decisions / 5 anchors / 431 active fields with
   assert.equal(429 + 2, 431);
 });
 
-test("BLIND final runtime equals accepted projection with current assessment-integrity precedence", () => {
+test("BLIND unit runtime remains the accepted projection with current assessment-integrity precedence", () => {
   for (const id of decisionIds) {
     const raw = rawDecisionById.get(id);
     const finalDecision = practicalDecisionById.get(id);
@@ -238,7 +212,7 @@ test("BLIND final runtime equals accepted projection with current assessment-int
   assert.equal(JSON.stringify([...rawAnchorById.values()]), rawAnchorSnapshot, "raw anchors mutated");
 });
 
-test("BLIND final RU has zero source-ID and unapproved hybrid residual", () => {
+test("BLIND unit RU has zero source-ID and unapproved hybrid residual", () => {
   const sourceId = /(?:FTGU-E\d+|LCM-\d+|SLC-[A-Z0-9-]+|EXT-[A-Z0-9-]+)/u;
   for (const id of decisionIds) {
     const finalDecision = practicalDecisionById.get(id);
@@ -279,8 +253,4 @@ test("BLIND projector remains ID-local and BL11 source ceiling remains preserved
     bl11.learnerNextEvidenceNeededRu,
     "Пока используй общие принципы 3-бет-банков и учитывай особенности диапазонов SB и BB. Отдельные точные решения для этого спота появятся только после проверки подходящего solver- или course-источника.",
   );
-});
-
-test("BLIND owns the current truthful final-composition digest", () => {
-  assert.equal(finalCompositionDigest(), expectedFinalCompositionDigest);
 });
