@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { threeBetFourBetA7ExpansionDecisions } from "../content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts";
 import { postflopAndLiveDecisions } from "../content/practical-mastery/decisions-w4-w13.ts";
-import { laterWaveAnchors } from "../content/practical-mastery/anchors-w7-w13.ts";
+import { advancedPracticalAnchors as laterWaveAnchors } from "../content/practical-mastery/anchors-w7-w13.ts";
 import {
   THREE_BET_FOUR_BET_RU_ACTIVE_FIELD_PATHS,
   THREE_BET_FOUR_BET_RU_OWNED_ANCHOR_IDS,
@@ -78,7 +78,7 @@ function anchorRuEntries(value) {
   return [[`${value.id}.promptRu`,value.promptRu],[`${value.id}.answerRu`,value.answerRu],[`${value.id}.rationaleRu`,value.rationaleRu]];
 }
 function quantitativeTokens(value) {
-  const sanitized = value.replace(/[34][\-‑]?(?:bet|бет)[A-Za-zА-Яа-яЁё]*/giu, "");
+  const sanitized = value.replace(/\b(?:FTGU|SLC|CINJ|CP)-[A-Z0-9-]+\b|\b[EL]\d+(?:\/[EL]\d+)?\b|\b[34]BP\b|[34][-‑]?(?:bet|бет)[A-Za-zА-Яа-яЁё]*/giu, "");
   return sanitized.match(/\d+(?:[.,]\d+)?(?:%|bb)?/giu) ?? [];
 }
 function residuals(entries) {
@@ -158,4 +158,15 @@ test("A7 3BP/4BP projection is pass-through outside ownership and owns no A8", (
   const syntheticA8 = {...syntheticBase,id:syntheticBase.id.replace("-A7-","-A8-")};
   assert.strictEqual(projectThreeBetFourBetSystemicRuDecision(syntheticA8),syntheticA8);
   assert.equal(THREE_BET_FOUR_BET_RU_OWNED_DECISION_IDS.some((id) => id.includes("-A8-")),false);
+});
+
+test("quantitativeTokens ignores citation/pot-label notation but retains genuine quantitative values", () => {
+  assert.deepEqual(quantitativeTokens("FTGU-E28 связывает small high-frequency betting"),[]);
+  assert.deepEqual(quantitativeTokens("CINJ-E09 supports a branch-specific exploit"),[]);
+  assert.deepEqual(quantitativeTokens("CP-G3-L09 treats OOP 3BP defence"),[]);
+  assert.deepEqual(quantitativeTokens("E28/E29 образуют spectrum между nodes"),[]);
+  assert.deepEqual(quantitativeTokens("3BP, Hero — IP 3-bettor."),[]);
+  assert.deepEqual(quantitativeTokens("3-бет-пот. Хиро — агрессор IP."),[]);
+  assert.deepEqual(quantitativeTokens("stack is 100bb, pot 33%, SPR 2.5, open 1.5bb"),["100bb","33%","2.5","1.5bb"]);
+  assert.deepEqual(quantitativeTokens("4bet to 22bb here"),["22bb"]);
 });
