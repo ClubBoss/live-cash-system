@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { reachPersistedSkillTargets } from "./practical-fixture-authority.mjs";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 const QUICK_START_SKILLS = [
@@ -31,22 +32,11 @@ async function ensurePracticalProfile(page) {
 }
 
 async function setReached(page, reached) {
-  await page.evaluate(({ key, ids, count }) => {
-    const raw = localStorage.getItem(key);
-    if (!raw) throw new Error("missing learner state");
-    const root = JSON.parse(raw);
-    const mastery = root._practicalProfile?.mastery;
-    if (!mastery?.skills) throw new Error("missing practical mastery state");
-
-    ids.forEach((skillId, index) => {
-      const skill = mastery.skills[skillId];
-      if (!skill) throw new Error(`missing Quick Start skill ${skillId}`);
-      skill.evidenceStage = index < count ? "RECOGNITION_TRAINED" : "SOURCE_SUPPORTED";
-      skill.conceptTaught = index < count;
-    });
-
-    localStorage.setItem(key, JSON.stringify(root));
-  }, { key: LEARNER_KEY, ids: QUICK_START_SKILLS, count: reached });
+  await reachPersistedSkillTargets(
+    page,
+    LEARNER_KEY,
+    QUICK_START_SKILLS.slice(0, reached).map((skillId) => ({ skillId, targetStage: "RECOGNITION_TRAINED" })),
+  );
   await page.reload();
   await expect(page.locator("main")).toBeVisible();
 }
