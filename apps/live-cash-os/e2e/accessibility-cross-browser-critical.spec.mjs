@@ -74,9 +74,9 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
     }
 
     await links.first().focus();
-    for (let index = 0; index < 5; index += 1) {
+    for (let index = 0; index < 6; index += 1) {
       await expect(links.nth(index)).toBeFocused();
-      if (index < 4) await page.keyboard.press("Tab");
+      if (index < 5) await page.keyboard.press("Tab");
     }
     await expect(rail.getByRole("link", { name: labels.at(-1), exact: true })).toBeFocused();
   }
