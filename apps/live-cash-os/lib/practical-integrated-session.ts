@@ -16,6 +16,7 @@ import {
 } from "./practical-current-mistakes";
 import {
   isPracticalBridgeSkill,
+  isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
   markDelayedPracticalRetrieval,
   practicalPrerequisitesMet,
@@ -72,7 +73,12 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
   return [...grouped.values()].sort((a, b) => b.priority - a.priority || a.skillId.localeCompare(b.skillId));
 }
 
-function latestCorrectAttempt(state: PracticalMasteryState, skillId: string): PracticalAttempt | null { return [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId && attempt.correct) ?? null; }
+// The most recent qualifying row itself must be semantically valid, or this
+// returns null rather than falling back to an older correct attempt: a
+// forged/malformed "correct" row must not be allowed to establish a fake
+// (e.g. artificially old) retention anchor, and reaching past it to an older
+// row would let it silently overrule a genuine, more recent unresolved miss.
+function latestCorrectAttempt(state: PracticalMasteryState, skillId: string): PracticalAttempt | null { const attempt = [...state.attempts].reverse().find((candidate) => candidate.skillId === skillId && candidate.correct) ?? null; return attempt && isSemanticallyValidPracticalAttempt(attempt) ? attempt : null; }
 function elapsedDays(iso: string, now: Date): number { return Math.max(0, (now.getTime() - new Date(iso).getTime()) / 86_400_000); }
 
 export function retentionTierDue(state: PracticalMasteryState, skillId: string, now = new Date()): number | null {
@@ -89,13 +95,14 @@ function candidateDecisionForSkill(
   requireNonIdenticalToLatest = false,
   avoidDecisionIds: ReadonlySet<string> = new Set<string>(),
 ): PracticalDecision | null {
-  const latest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
-  const attempted = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId));
+  const rawLatest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
+  const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
+  const attempted = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId && isSemanticallyValidPracticalAttempt(attempt)).map((attempt) => attempt.decisionId));
   const pool = practicalDecisions.filter((decision) => isOrdinaryLearnerDecision(decision) && decision.skillId === skillId && kinds.includes(decision.kind) && !excludedDecisionIds.has(decision.id) && !avoidDecisionIds.has(decision.id));
   return pool.find((decision) => !attempted.has(decision.id) && (!requireNonIdenticalToLatest || decision.id !== latest?.decisionId)) ?? pool.find((decision) => !requireNonIdenticalToLatest || decision.id !== latest?.decisionId) ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
-function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter((attempt) => attempt.skillId === skillId).length * 4); }
+function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isSemanticallyValidPracticalAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
 
 export function integratedBreadthReady(state: PracticalMasteryState): boolean {
   const trained = Object.values(state.skills).filter((progress) => !isIntegrationDerivedSkill(progress.skillId) && stageAtLeast(progress.evidenceStage, "DECISION_TRAINED"));

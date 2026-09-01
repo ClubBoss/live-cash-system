@@ -90,7 +90,15 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   // rather than silently dropping or sanitizing a corrupted row, matching the
   // existing recovery contract (practicalProfileFromLearnerState throws,
   // cloud sync surfaces a conflict) instead of inventing a repair path.
-  if (!value.attempts.every(isSemanticallyValidPracticalAttempt)) return false;
+  // Duplicate attempt ids are rejected too: continuity restoration resolves a
+  // saved attemptId via `.find(id)`, and a collision would silently resolve
+  // to whichever row happens to come first rather than the intended one.
+  const attemptIds = new Set<string>();
+  for (const attempt of value.attempts) {
+    if (!isSemanticallyValidPracticalAttempt(attempt)) return false;
+    if (attemptIds.has(attempt.id)) return false;
+    attemptIds.add(attempt.id);
+  }
   return Object.values(value.skills).every((progress) => isRecord(progress)
     && typeof progress.skillId === "string"
     && typeof progress.evidenceStage === "string"

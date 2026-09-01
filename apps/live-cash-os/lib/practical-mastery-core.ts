@@ -43,13 +43,18 @@ export type PracticalRecommendedSkill = { skillId: string; score: number; whyNow
 export function isSemanticallyValidPracticalAttempt(attempt: unknown): attempt is PracticalAttempt {
   if (!attempt || typeof attempt !== "object" || Array.isArray(attempt)) return false;
   const candidate = attempt as Record<string, unknown>;
-  if (typeof candidate.id !== "string"
+  if (typeof candidate.id !== "string" || candidate.id.length === 0
     || typeof candidate.decisionId !== "string"
     || typeof candidate.skillId !== "string"
     || typeof candidate.actionId !== "string"
     || typeof candidate.reasonId !== "string"
     || typeof candidate.correct !== "boolean"
     || typeof candidate.answeredAt !== "string") return false;
+  // answeredAt must be exactly the canonical ISO-8601 form nowIso()/Date#toISOString
+  // produces — not merely Date.parse-able — so a structurally-plausible but
+  // out-of-domain timestamp string cannot pass as a legitimate recordPracticalDecision output.
+  const answeredAtMs = Date.parse(candidate.answeredAt);
+  if (!Number.isFinite(answeredAtMs) || new Date(answeredAtMs).toISOString() !== candidate.answeredAt) return false;
   if (typeof candidate.confidence !== "number"
     || !Number.isInteger(candidate.confidence)
     || candidate.confidence < 0
@@ -140,7 +145,11 @@ function repairUrgencyForSkill(state: PracticalMasteryState, skillId: string): 0
   if (weighted >= 1) return 1;
   return 0;
 }
-function recentExposurePenaltyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 { const count = state.attempts.filter(isSemanticallyValidPracticalAttempt).slice(-8).filter((attempt) => attempt.skillId === skillId).length; if (count >= 5) return 3; if (count >= 3) return 2; if (count >= 1) return 1; return 0; }
+// Real last-N persisted slots first, then validity: a malformed row occupies
+// its own physical slot and contributes zero signal, but must not shrink the
+// window in a way that pulls an older, otherwise-out-of-window attempt in to
+// compensate. Identical to the pre-repair count for any all-valid history.
+export function recentExposurePenaltyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 { const count = state.attempts.slice(-8).filter(isSemanticallyValidPracticalAttempt).filter((attempt) => attempt.skillId === skillId).length; if (count >= 5) return 3; if (count >= 3) return 2; if (count >= 1) return 1; return 0; }
 function softReadinessPenalty(state: PracticalMasteryState, skillId: string): number { return softDependenciesFor(skillId).reduce((penalty, dependency) => { const progress = state.skills[dependency.fromSkillId]; if (!progress?.conceptTaught) return penalty + 7; if (!stageAtLeast(progress.evidenceStage, "RECOGNITION_TRAINED")) return penalty + 4; return penalty; }, 0); }
 function hasTeachingAnchor(skillId: string): boolean { return practicalAnchors.some((anchor) => anchor.skillId === skillId); }
 
@@ -164,11 +173,27 @@ export function recordPracticalDecision(state: PracticalMasteryState, input: { d
   nextProgress.lastAttemptAt = answeredAt; refreshEvidenceStage(nextProgress); next.attempts.push(attempt); next.revision += 1; next.updatedAt = answeredAt; return next;
 }
 export function decisionsForPracticalSkill(skillId: string): PracticalDecision[] { return practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision)); }
-export function latestAttemptsByDecision(state: PracticalMasteryState, skillId?: string): Map<string, PracticalAttempt> { const map = new Map<string, PracticalAttempt>(); for (const attempt of state.attempts) if (!skillId || attempt.skillId === skillId) map.set(attempt.decisionId, attempt); return map; }
+// Global latest-by-decision identity is built from the FULL unfiltered
+// history first (last write per decisionId wins, regardless of skillId), and
+// only THEN narrowed to a requested skillId. Narrowing before building would
+// let a forged/malformed latest row (whose own skillId field lies about which
+// skill it belongs to) become invisible to the true skill's per-skill view,
+// silently un-shadowing that decision's older, otherwise-superseded row. For
+// any valid history every attempt's stored skillId already matches its
+// decision's canonical skillId, so this reordering never changes valid-state
+// results.
+export function latestAttemptsByDecision(state: PracticalMasteryState, skillId?: string): Map<string, PracticalAttempt> {
+  const map = new Map<string, PracticalAttempt>();
+  for (const attempt of state.attempts) map.set(attempt.decisionId, attempt);
+  if (!skillId) return map;
+  const scoped = new Map<string, PracticalAttempt>();
+  for (const [decisionId, attempt] of map) if (attempt.skillId === skillId) scoped.set(decisionId, attempt);
+  return scoped;
+}
 function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][]): PracticalDecision | null { const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId)); return decisionsForPracticalSkill(skillId).find((decision) => kinds.includes(decision.kind) && !attemptedIds.has(decision.id)) ?? null; }
 export function nextPracticalDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   if (isPracticalBridgeSkill(skillId) || !practicalPrerequisitesMet(state, skillId)) return null; const pool = decisionsForPracticalSkill(skillId); if (!pool.length) return null; const progress = state.skills[skillId];
-  const latest = latestAttemptsByDecision(state, skillId); const unresolved = [...latest.values()].reverse().find((attempt) => !attempt.correct) ?? null; const repair = unresolved ? practicalDecisionById.get(unresolved.decisionId) ?? null : null; if (repair) return repair;
+  const latest = latestAttemptsByDecision(state, skillId); const unresolved = [...latest.values()].reverse().find((attempt) => !attempt.correct && isSemanticallyValidPracticalAttempt(attempt)) ?? null; const repair = unresolved ? practicalDecisionById.get(unresolved.decisionId) ?? null : null; if (repair) return repair;
   if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["recognition"]); if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["decision"]); if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"]); if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
   const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId)); return pool.find((decision) => !attemptedIds.has(decision.id)) ?? null;
 }

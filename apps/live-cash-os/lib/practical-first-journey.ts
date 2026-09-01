@@ -1,7 +1,7 @@
 import { firstJourneySteps } from "../content/practical-mastery/first-journey";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { isOrdinaryLearnerDecision, practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
-import { practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 
 export type FirstJourneyRecommendation = {
@@ -13,7 +13,8 @@ export type FirstJourneyRecommendation = {
 };
 
 function latestAttemptForDecision(state: PracticalMasteryState, decisionId: string) {
-  return [...state.attempts].reverse().find((attempt) => attempt.decisionId === decisionId) ?? null;
+  const attempt = [...state.attempts].reverse().find((candidate) => candidate.decisionId === decisionId) ?? null;
+  return attempt && isSemanticallyValidPracticalAttempt(attempt) ? attempt : null;
 }
 
 function unresolvedWrongDecisionIds(state: PracticalMasteryState, skillId: string): string[] {
@@ -43,7 +44,7 @@ function quickStartRecognitionReady(state: PracticalMasteryState, skillId: strin
 export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision));
   const successfulIds = new Set(
-    state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct).map((attempt) => attempt.decisionId),
+    state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt)).map((attempt) => attempt.decisionId),
   );
   const unresolved = unresolvedWrongDecisionIds(state, skillId);
   if (unresolved.length) {
