@@ -24,6 +24,44 @@ export type PracticalSkillProgress = {
 export type PracticalMasteryState = { schemaVersion: typeof PRACTICAL_MASTERY_STATE_SCHEMA_VERSION; contentVersion: string; revision: number; updatedAt: string; resetFromLegacyAt: string | null; skills: Record<string, PracticalSkillProgress>; attempts: PracticalAttempt[] };
 export type PracticalRecommendedSkill = { skillId: string; score: number; whyNow: string };
 
+// Shared canonical semantic-attempt validity authority: whether a persisted
+// PracticalAttempt row could legitimately have come from recordPracticalDecision
+// (id/decisionId/skillId/actionId/reasonId/answeredAt shape, decision exists,
+// skill matches the canonical decision, the selected action/reason are real
+// options of that decision, stored `correct` matches the canonically derived
+// correctness, and confidence obeys recordPracticalDecision's persisted domain
+// — an integer clamped to [0, 100]). It intentionally does NOT require
+// isOrdinaryLearnerDecision: recordPracticalDecision itself never gates on
+// learner eligibility, so other canonical scored decision types can
+// legitimately be persisted too. It also does NOT treat misconception-tag
+// presence as validity: a valid untagged wrong attempt is still valid,
+// legitimate scheduler evidence. Every scheduler-facing raw attempt read
+// (repair queue, repair urgency, recent exposure) and profile-state
+// validation both gate on this single predicate so a semantically invalid
+// row can never sneak into scheduler behavior through a path that forgot to
+// check it separately.
+export function isSemanticallyValidPracticalAttempt(attempt: unknown): attempt is PracticalAttempt {
+  if (!attempt || typeof attempt !== "object" || Array.isArray(attempt)) return false;
+  const candidate = attempt as Record<string, unknown>;
+  if (typeof candidate.id !== "string"
+    || typeof candidate.decisionId !== "string"
+    || typeof candidate.skillId !== "string"
+    || typeof candidate.actionId !== "string"
+    || typeof candidate.reasonId !== "string"
+    || typeof candidate.correct !== "boolean"
+    || typeof candidate.answeredAt !== "string") return false;
+  if (typeof candidate.confidence !== "number"
+    || !Number.isInteger(candidate.confidence)
+    || candidate.confidence < 0
+    || candidate.confidence > 100) return false;
+  const decision = practicalDecisionById.get(candidate.decisionId);
+  if (!decision || decision.skillId !== candidate.skillId) return false;
+  if (!decision.actionOptions.some((option) => option.id === candidate.actionId)) return false;
+  if (!decision.reasonOptions.some((option) => option.id === candidate.reasonId)) return false;
+  const derivedCorrect = candidate.actionId === decision.correctActionId && candidate.reasonId === decision.correctReasonId;
+  return candidate.correct === derivedCorrect;
+}
+
 // The scheduler-only generic repair fallback for a real latest wrong whose
 // actually-wrong dimensions carry no misconception tag. Feature A never
 // synthesizes misconception evidence for these, so the scheduler counts them
@@ -33,13 +71,10 @@ function untaggedWrongDecisionIdsForSkill(state: PracticalMasteryState, skillId:
   const ids: string[] = [];
   for (const attempt of latestAttemptsByDecision(state, skillId).values()) {
     if (attempt.correct) continue;
-    const decision = practicalDecisionById.get(attempt.decisionId);
-    if (!decision || !isOrdinaryLearnerDecision(decision) || decision.skillId !== attempt.skillId) continue;
+    if (!isSemanticallyValidPracticalAttempt(attempt)) continue;
+    const decision = practicalDecisionById.get(attempt.decisionId)!;
+    if (!isOrdinaryLearnerDecision(decision)) continue;
     if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue;
-    const selectedActionValid = decision.actionOptions.some((option) => option.id === attempt.actionId);
-    const selectedReasonValid = decision.reasonOptions.some((option) => option.id === attempt.reasonId);
-    const derivedCorrect = attempt.actionId === decision.correctActionId && attempt.reasonId === decision.correctReasonId;
-    if (!selectedActionValid || !selectedReasonValid || attempt.correct !== derivedCorrect) continue;
     if (selectedWrongPracticalMisconceptionIds(attempt).length > 0) continue;
     ids.push(attempt.decisionId);
   }
@@ -105,7 +140,7 @@ function repairUrgencyForSkill(state: PracticalMasteryState, skillId: string): 0
   if (weighted >= 1) return 1;
   return 0;
 }
-function recentExposurePenaltyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 { const count = state.attempts.slice(-8).filter((attempt) => attempt.skillId === skillId).length; if (count >= 5) return 3; if (count >= 3) return 2; if (count >= 1) return 1; return 0; }
+function recentExposurePenaltyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 { const count = state.attempts.filter(isSemanticallyValidPracticalAttempt).slice(-8).filter((attempt) => attempt.skillId === skillId).length; if (count >= 5) return 3; if (count >= 3) return 2; if (count >= 1) return 1; return 0; }
 function softReadinessPenalty(state: PracticalMasteryState, skillId: string): number { return softDependenciesFor(skillId).reduce((penalty, dependency) => { const progress = state.skills[dependency.fromSkillId]; if (!progress?.conceptTaught) return penalty + 7; if (!stageAtLeast(progress.evidenceStage, "RECOGNITION_TRAINED")) return penalty + 4; return penalty; }, 0); }
 function hasTeachingAnchor(skillId: string): boolean { return practicalAnchors.some((anchor) => anchor.skillId === skillId); }
 
@@ -143,7 +178,7 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
 // base wrong-attempt population and its ordering stay byte-identical to before
 // when no high-confidence evidence exists.
 function practicalRepairQueueWeight(attempts: PracticalAttempt[]): number { return attempts.length + attempts.filter((attempt) => attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG).length * 2; }
-export function practicalRepairQueue(state: PracticalMasteryState): string[] { const latest = latestAttemptsByDecision(state); const bySkill = new Map<string, PracticalAttempt[]>(); for (const attempt of latest.values()) { if (attempt.correct || isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue; const attempts = bySkill.get(attempt.skillId) ?? []; attempts.push(attempt); bySkill.set(attempt.skillId, attempts); } return [...bySkill.entries()].sort((left, right) => practicalRepairQueueWeight(right[1]) - practicalRepairQueueWeight(left[1]) || left[0].localeCompare(right[0])).map(([skillId]) => skillId); }
+export function practicalRepairQueue(state: PracticalMasteryState): string[] { const latest = latestAttemptsByDecision(state); const bySkill = new Map<string, PracticalAttempt[]>(); for (const attempt of latest.values()) { if (!isSemanticallyValidPracticalAttempt(attempt) || attempt.correct || isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue; const attempts = bySkill.get(attempt.skillId) ?? []; attempts.push(attempt); bySkill.set(attempt.skillId, attempts); } return [...bySkill.entries()].sort((left, right) => practicalRepairQueueWeight(right[1]) - practicalRepairQueueWeight(left[1]) || left[0].localeCompare(right[0])).map(([skillId]) => skillId); }
 export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skillId: string, successful: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") nextProgress.delayedRetrievalPassed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function markPracticalRealHandTransfer(state: PracticalMasteryState, skillId: string, reviewed: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (reviewed && nextProgress.delayedRetrievalPassed) nextProgress.realHandTransferReviewed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function practicalEvidenceRequirements() { return { recognitionStimuli: MIN_RECOGNITION_STIMULI, directDecisionStimuli: MIN_DIRECT_DECISION_STIMULI, transferStimuli: MIN_TRANSFER_STIMULI, boundaryStimuli: MIN_BOUNDARY_STIMULI } as const; }

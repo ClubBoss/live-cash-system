@@ -1,5 +1,5 @@
 import type { CardState } from "./model-core";
-import type { PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 import type { PracticalPerformanceEvent } from "./practical-performance-telemetry";
 
 export const PRACTICAL_PROFILE_FIELD = "_practicalProfile" as const;
@@ -85,6 +85,12 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   if (value.schemaVersion !== PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION) return false;
   if (typeof value.contentVersion !== "string" || typeof value.revision !== "number" || typeof value.updatedAt !== "string") return false;
   if (!isRecord(value.skills) || !Array.isArray(value.attempts)) return false;
+  // A persisted/imported/restored attempt row cannot make the profile valid
+  // unless it is legitimate product-generated evidence: fail closed here
+  // rather than silently dropping or sanitizing a corrupted row, matching the
+  // existing recovery contract (practicalProfileFromLearnerState throws,
+  // cloud sync surfaces a conflict) instead of inventing a repair path.
+  if (!value.attempts.every(isSemanticallyValidPracticalAttempt)) return false;
   return Object.values(value.skills).every((progress) => isRecord(progress)
     && typeof progress.skillId === "string"
     && typeof progress.evidenceStage === "string"
