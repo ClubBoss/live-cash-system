@@ -5,7 +5,6 @@ import {
   STATE_SCHEMA_VERSION,
   emptyLearnerState,
   migrateLearnerState,
-  validateLearnerState,
   type LearnerState,
 } from "./model";
 import {
@@ -15,6 +14,7 @@ import {
   prepareLearnerStateImport,
   readLocalLearnerState,
   runtimeCompatible,
+  validateRootLearnerState,
   type RuntimeIdentity,
   type SyncMeta,
 } from "./reliability";
@@ -136,7 +136,7 @@ function claimLegacyProfileStorage(profileCode: string | null) {
 }
 
 function payloadState(payload: StateApiPayload): LearnerState | null {
-  if (!payload.state || !validateLearnerState(payload.state)) return null;
+  if (!payload.state || !validateRootLearnerState(payload.state)) return null;
   return migrateLearnerState(payload.state);
 }
 
@@ -417,7 +417,7 @@ export function useReliableLearnerState() {
               setSyncStatus("local");
               writeSyncMeta(accountKey(SYNC_META_KEY), { ...EMPTY_SYNC_META, cloudDisabled: true });
             } else if (remotePayload.code === "CLOUD_STATE_UNREADABLE"
-              || (remotePayload.state && !validateLearnerState(remotePayload.state))) {
+              || (remotePayload.state && !validateRootLearnerState(remotePayload.state))) {
               setRecoveryCode("CLOUD_STATE_UNREADABLE");
               setLastErrorCode("CLOUD_STATE_UNREADABLE");
               setSyncStatus("error");
@@ -618,7 +618,7 @@ export function useReliableLearnerState() {
   }, [state]);
 
   const applyImport = useCallback((candidate: LearnerState) => {
-    if (!validateLearnerState(candidate)) return false;
+    if (!validateRootLearnerState(candidate)) return false;
     if (!safeSet(accountKey(IMPORT_BACKUP_KEY), JSON.stringify(state))) {
       setLastErrorCode("IMPORT_BACKUP_FAILED");
       return false;
