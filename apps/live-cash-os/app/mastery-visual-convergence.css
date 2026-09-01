@@ -208,6 +208,10 @@
   .practical-mastery-nav__item {
     flex: 1 1 0;
     min-width: 44px;
+    /* A layout-consuming border-right across N items can push the row's
+       total width a few px past the rail on some engines' flex rounding;
+       drop the divider at this narrowest breakpoint rather than risk it. */
+    border-right: 0;
   }
   .practical-mastery-nav ~ main .metrics { grid-template-columns: 1fr 1fr; }
 }
