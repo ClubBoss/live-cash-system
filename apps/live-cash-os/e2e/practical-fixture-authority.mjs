@@ -2,10 +2,15 @@ import { hardDependenciesFor } from "../content/practical-mastery/learning-route
 import {
   decisionsForPracticalSkill,
   deriveEvidenceStage,
+  markDelayedPracticalRetrieval,
   markPracticalConceptTaught,
+  markPracticalRealHandTransfer,
   practicalSkillCorpusCanReach,
   recordPracticalDecision,
 } from "../lib/practical-mastery-core.ts";
+import { RETENTION_INTERVAL_DAYS } from "../lib/practical-integrated-session.ts";
+
+const TERMINAL_TARGET_STAGES = new Set(["DELAYED_RETRIEVAL", "REAL_HAND_TRANSFER"]);
 
 const KIND_ORDER = new Map([
   ["recognition", 0],
@@ -55,7 +60,26 @@ export function reachSkillStage(state, skillId, targetStage, now = "2026-09-01T0
     });
     const actualStage = deriveEvidenceStage(next.skills[skillId]);
     if (actualStage === targetStage) return next;
+    if (actualStage === "BOUNDARY_TESTED") break;
   }
+
+  const boundaryStage = deriveEvidenceStage(next.skills[skillId]);
+  if (boundaryStage !== "BOUNDARY_TESTED" || !TERMINAL_TARGET_STAGES.has(targetStage)) {
+    staleTestIntent(skillId, targetStage, boundaryStage);
+  }
+
+  // DELAYED_RETRIEVAL/REAL_HAND_TRANSFER are not corpus-answer-driven: the real
+  // writer (recordIntegratedDecision, practical-integrated-session.ts) always
+  // grants a retentionDaysPassed tier in the same atomic step it flips
+  // delayedRetrievalPassed, so this mirrors that atomic grant instead of
+  // calling markDelayedPracticalRetrieval alone, which only ever sets the
+  // boolean and requires a tier already present.
+  next = { ...next, skills: { ...next.skills, [skillId]: { ...next.skills[skillId], retentionDaysPassed: [RETENTION_INTERVAL_DAYS[0]] } } };
+  next = markDelayedPracticalRetrieval(next, skillId, true, at);
+  if (deriveEvidenceStage(next.skills[skillId]) === targetStage) return next;
+
+  next = markPracticalRealHandTransfer(next, skillId, true, at);
+  if (deriveEvidenceStage(next.skills[skillId]) === targetStage) return next;
 
   staleTestIntent(skillId, targetStage, deriveEvidenceStage(next.skills[skillId]));
 }

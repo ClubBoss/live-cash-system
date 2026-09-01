@@ -1,6 +1,17 @@
 import { expect, test } from "@playwright/test";
+import { reachPersistedSkillTargets } from "./practical-fixture-authority.mjs";
+import { practicalSkillCorpusCanReach } from "../lib/practical-mastery-core.ts";
+import { practicalSkillFamilies } from "../content/practical-mastery/index.ts";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
+// Legacy-bridge and thin-corpus skills are permanently ceilinged below
+// REAL_HAND_TRANSFER (applySourceEvidenceCeiling / practicalSkillCorpusCanReach);
+// left untouched at their natural SOURCE_SUPPORTED state rather than forcing a
+// value the canonical re-derivation could never legitimately produce.
+const REAL_HAND_TRANSFER_TARGETS = practicalSkillFamilies
+  .map((skill) => skill.id)
+  .filter((skillId) => practicalSkillCorpusCanReach(skillId, "REAL_HAND_TRANSFER"))
+  .map((skillId) => ({ skillId, targetStage: "REAL_HAND_TRANSFER" }));
 const observedRuArtifacts = /небольшой открытие|преимущество диапазона сконцентрирован(?![А-Яа-яЁё])|концентрированный преимущество|расширение диапазон(?![А-Яа-яЁё])|позиция рейзер(?![А-Яа-яЁё])|(?:больше|меньше)\s+[А-Яа-яЁё-]+ых\s+сохранившиеся\s+комбинации|избирательный\s+доски\s+требуют|убира(?:ют|ет)\s+[А-Яа-яЁё-]*ые\s+кандидаты(?![А-Яа-яЁё])|конкретными\s+ран-ауты(?![А-Яа-яЁё])/iu;
 
 async function seedSupportedPracticalSkills(page) {
@@ -13,21 +24,7 @@ async function seedSupportedPracticalSkills(page) {
 }
 
 async function restoreSupportedPracticalSkills(page) {
-  await page.evaluate((key) => {
-    const state = JSON.parse(localStorage.getItem(key));
-    const mastery = state?._practicalProfile?.mastery;
-    if (!mastery?.skills) throw new Error("Practical mastery fixture unavailable");
-    for (const progress of Object.values(mastery.skills)) {
-      progress.conceptTaught = true;
-      progress.evidenceStage = "REAL_HAND_TRANSFER";
-    }
-    const now = new Date().toISOString();
-    mastery.revision = (mastery.revision ?? 0) + 1;
-    mastery.updatedAt = now;
-    state.revision = (state.revision ?? 0) + 1;
-    state.updatedAt = now;
-    localStorage.setItem(key, JSON.stringify(state));
-  }, LEARNER_KEY);
+  await reachPersistedSkillTargets(page, LEARNER_KEY, REAL_HAND_TRANSFER_TARGETS);
 }
 
 async function revealTarget(page, focusSkillId, targetDecisionId) {

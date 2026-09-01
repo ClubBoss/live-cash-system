@@ -31,13 +31,21 @@ async function ensurePracticalProfile(page) {
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
 }
 
+// A handful of legacy-bridge skills are permanently ceilinged at
+// SOURCE_SUPPORTED regardless of conceptTaught (applySourceEvidenceCeiling in
+// practical-mastery-core.ts); forcing them past that ceiling would make the
+// persisted evidenceStage disagree with the canonical re-derivation and fail
+// profile validation, so this fixture leaves them untouched.
+const BRIDGE_SKILL_IDS = ["OOP-06", "OOP-07", "IP-03", "IP-04", "IP-05", "IP-06"];
+
 async function enablePracticalSkills(page) {
-  await page.evaluate((key) => {
+  await page.evaluate(({ key, bridgeSkillIds }) => {
     const state = JSON.parse(localStorage.getItem(key));
     const mastery = state?._practicalProfile?.mastery;
     if (!mastery?.skills) throw new Error("missing practical mastery fixture");
     const now = new Date().toISOString();
-    for (const skill of Object.values(mastery.skills)) {
+    for (const [skillId, skill] of Object.entries(mastery.skills)) {
+      if (bridgeSkillIds.includes(skillId)) continue;
       skill.conceptTaught = true;
       if (skill.evidenceStage === "SOURCE_SUPPORTED") skill.evidenceStage = "CONCEPT_TAUGHT";
       skill.conceptTaughtAt ??= now;
@@ -47,7 +55,7 @@ async function enablePracticalSkills(page) {
     state.revision = (state.revision ?? 0) + 1;
     state.updatedAt = now;
     localStorage.setItem(key, JSON.stringify(state));
-  }, LEARNER_KEY);
+  }, { key: LEARNER_KEY, bridgeSkillIds: BRIDGE_SKILL_IDS });
 }
 
 async function answerCurrentPractical(page) {

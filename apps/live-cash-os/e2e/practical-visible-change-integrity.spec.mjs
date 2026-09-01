@@ -30,6 +30,7 @@ async function exposePf01(page) {
     const skill = mastery?.skills?.["PF-01"];
     if (!mastery || !skill) throw new Error("PF-01 practical profile missing after canonical profile initialization");
     skill.conceptTaught = true;
+    skill.evidenceStage = "CONCEPT_TAUGHT";
     mastery.revision += 1;
     mastery.updatedAt = new Date().toISOString();
     localStorage.setItem(learnerKey, JSON.stringify(root));
