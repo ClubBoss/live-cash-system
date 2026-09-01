@@ -1,7 +1,7 @@
 import { allPracticalTableStates, isOrdinaryLearnerDecision, practicalDecisionById, practicalDecisions } from "../content/practical-mastery";
 import { classifyPracticalAdaptiveNeed, decisionMatchesAdaptiveNeed, type PracticalPerformanceSample } from "./practical-adaptive-repair";
 import { buildIntegratedSession, supportedIntegratedSkillIds, type IntegratedSessionItem } from "./practical-integrated-session";
-import type { PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 import { decisionHasAuthoritativeVisibleChange } from "./practical-visible-scenario";
 
@@ -31,7 +31,8 @@ function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:n
 
   for(const need of needs){
     if(adaptive.length>=Math.ceil(size/2)) break;
-    const latest=[...state.attempts].reverse().find((attempt)=>attempt.skillId===need.skillId)??null;
+    const latestPhysical=[...state.attempts].reverse().find((attempt)=>attempt.skillId===need.skillId)??null;
+    const latest=latestPhysical&&isSemanticallyValidPracticalAttempt(latestPhysical)?latestPhysical:null;
     const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===need.skillId&&decisionMatchesAdaptiveNeed(decision,need)&&decision.id!==latest?.decisionId&&!recentlyAttempted.has(decision.id));
     const decision=(need.preferPerceptual?pool.find((candidate)=>perceptualIds.has(candidate.id)):undefined)??pool[0];
     if(!decision||used.has(decision.id)) continue;
@@ -68,7 +69,7 @@ function buildFocusedIntegratedSession(state:PracticalMasteryState,now:Date,size
   const seeded=buildGenericAdaptiveSession(state,now,size,performance).filter((item)=>item.skillId===skillId);
   const used=new Set(seeded.map((item)=>item.decisionId));
   const recentlyAttempted=recentlyAttemptedDecisionIds(state);
-  const attempted=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId).map((attempt)=>attempt.decisionId));
+  const attempted=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&isSemanticallyValidPracticalAttempt(attempt)).map((attempt)=>attempt.decisionId));
   const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===skillId);
   const ordered=[
     ...pool.filter((decision)=>!attempted.has(decision.id)),
