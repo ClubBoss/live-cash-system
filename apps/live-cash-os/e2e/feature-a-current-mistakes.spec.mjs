@@ -62,7 +62,7 @@ test("Feature A existing Current Mistakes surface uses exact misconception evide
 
   await page.goto("/mastery/study");
   await expect(page.getByRole("heading", { name: "Что нужно исправить сейчас", exact: true })).toBeVisible();
-  const currentMistakes = page.locator("section.surface").filter({ hasText: "ТЕКУЩИЕ ОШИБКИ" });
+  const currentMistakes = page.locator("section.surface").filter({ hasText: /ТЕКУЩИЕ ОШИБКИ|CURRENT MISTAKES/ });
   await expect(currentMistakes).toHaveCount(1);
   await expect(currentMistakes.locator(".today-card")).toHaveCount(1);
   await expect(currentMistakes.getByText("Где сбой", { exact: false })).toBeVisible();
