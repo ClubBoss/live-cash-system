@@ -2,9 +2,11 @@ import { isOrdinaryLearnerDecision, practicalDecisionById, practicalSkillById } 
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import type { CardState } from "./model-core";
 import {
+  createPracticalMasteryState,
   deriveEvidenceStage,
   isPracticalBridgeSkill,
   isSemanticallyValidPracticalAttempt,
+  recordPracticalDecision,
   type PracticalMasteryState,
   type PracticalSkillProgress,
 } from "./practical-mastery-core";
@@ -93,21 +95,30 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const RETENTION_TIER_SET = new Set<number>(RETENTION_INTERVAL_DAYS);
+const CANONICAL_PRACTICAL_SKILL_IDS = Object.keys(createPracticalMasteryState(new Date(0)).skills).sort();
 
-// A canonical skill's evidence fields are either a PRIMARY authority the
-// writer sets directly (conceptTaught, conceptTaughtAt), a DERIVED authority
-// that must match the product's canonical derivation (evidenceStage, and the
-// coherence relations below), or a counter the writer only ever moves in one
-// direction by fixed increments. successfulDecisionIds is validated against
-// the sibling PracticalAttempt array in the SAME state: recordPracticalDecision
-// is the only writer, and it always appends the attempt and the
-// successfulDecisionIds entry atomically together, so every legitimate id is
-// backed by a real correct, semantically valid attempt on that same skill —
-// closing both forged and wrong-skill evidence claims at once.
+function deterministicAttemptFieldsMatch(value: PracticalSkillProgress, replayed: PracticalSkillProgress): boolean {
+  return value.attempts === replayed.attempts
+    && value.correct === replayed.correct
+    && value.recognitionCorrect === replayed.recognitionCorrect
+    && value.directDecisionCorrect === replayed.directDecisionCorrect
+    && value.changedCorrect === replayed.changedCorrect
+    && value.boundaryCorrect === replayed.boundaryCorrect
+    && value.mixedCorrect === replayed.mixedCorrect
+    && value.lastAttemptAt === replayed.lastAttemptAt
+    && value.lastIncorrectDecisionId === replayed.lastIncorrectDecisionId
+    && JSON.stringify(value.successfulDecisionIds) === JSON.stringify(replayed.successfulDecisionIds);
+}
+
+// The persisted attempt ledger is the authority for fields written only by
+// recordPracticalDecision. Replay that ledger through the canonical writer so
+// validation cannot drift into a second mastery model. Independent authorities
+// (concept/retention/delayed-retrieval/real-hand review) remain validated on
+// their own domains below rather than being reconstructed from attempts.
 function validSkillProgress(
   skillId: string,
   value: unknown,
-  correctDecisionIdsBySkill: ReadonlyMap<string, ReadonlySet<string>>,
+  replayed: PracticalSkillProgress,
 ): value is PracticalSkillProgress {
   if (!isRecord(value)) return false;
   if (value.skillId !== skillId || !practicalSkillById.has(skillId)) return false;
@@ -124,16 +135,10 @@ function validSkillProgress(
   if (typeof value.changedCorrect !== "number" || !Number.isInteger(value.changedCorrect) || value.changedCorrect < 0) return false;
   if (typeof value.boundaryCorrect !== "number" || !Number.isInteger(value.boundaryCorrect) || value.boundaryCorrect < 0) return false;
   if (typeof value.mixedCorrect !== "number" || !Number.isInteger(value.mixedCorrect) || value.mixedCorrect < 0) return false;
-  // Every correct answer increments `correct` and exactly one of the five
-  // kind-specific counters (the five PracticalDecision["kind"] values are
-  // exhaustive), so the sum must always equal the total.
   if (value.recognitionCorrect + value.directDecisionCorrect + value.changedCorrect + value.boundaryCorrect + value.mixedCorrect !== value.correct) return false;
   if (!(value.lastAttemptAt === null || typeof value.lastAttemptAt === "string")) return false;
   if (!(value.lastIncorrectDecisionId === null || typeof value.lastIncorrectDecisionId === "string")) return false;
 
-  // retentionDaysPassed: only canonical supported tiers, no duplicates,
-  // strictly ascending — recordIntegratedDecision always writes through
-  // `[...new Set([...prev, tier])].sort((a, b) => a - b)`.
   const seenTiers = new Set<number>();
   for (const day of value.retentionDaysPassed) {
     if (!RETENTION_TIER_SET.has(day) || seenTiers.has(day)) return false;
@@ -143,22 +148,11 @@ function validSkillProgress(
     if (value.retentionDaysPassed[index] <= value.retentionDaysPassed[index - 1]) return false;
   }
 
-  // delayedRetrievalPassed/realHandTransferReviewed can only legitimately be
-  // true alongside the prerequisite the canonical writer always establishes
-  // first: markDelayedPracticalRetrieval only ever fires in the same branch
-  // that just granted a retention tier, and markPracticalRealHandTransfer
-  // only sets true when delayedRetrievalPassed is already true.
   if (value.delayedRetrievalPassed && value.retentionDaysPassed.length === 0) return false;
   if (value.realHandTransferReviewed && !value.delayedRetrievalPassed) return false;
 
-  const correctForSkill = correctDecisionIdsBySkill.get(skillId);
-  for (const decisionId of value.successfulDecisionIds) {
-    if (!correctForSkill?.has(decisionId)) return false;
-  }
+  if (!deterministicAttemptFieldsMatch(value as PracticalSkillProgress, replayed)) return false;
 
-  // The persisted stage must equal the canonical re-derivation from the
-  // now-validated fields above — a forged stage the persisted evidence could
-  // not legitimately have produced fails closed rather than being trusted.
   if (value.evidenceStage !== deriveEvidenceStage(value as PracticalSkillProgress)) return false;
 
   return true;
@@ -170,27 +164,29 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   if (typeof value.contentVersion !== "string" || typeof value.revision !== "number" || typeof value.updatedAt !== "string") return false;
   if (!(value.resetFromLegacyAt === null || typeof value.resetFromLegacyAt === "string")) return false;
   if (!isRecord(value.skills) || !Array.isArray(value.attempts)) return false;
-  // A persisted/imported/restored attempt row cannot make the profile valid
-  // unless it is legitimate product-generated evidence: fail closed here
-  // rather than silently dropping or sanitizing a corrupted row, matching the
-  // existing recovery contract (practicalProfileFromLearnerState throws,
-  // cloud sync surfaces a conflict) instead of inventing a repair path.
-  // Duplicate attempt ids are rejected too: continuity restoration resolves a
-  // saved attemptId via `.find(id)`, and a collision would silently resolve
-  // to whichever row happens to come first rather than the intended one.
+
+  const persistedSkillIds = Object.keys(value.skills).sort();
+  if (persistedSkillIds.length !== CANONICAL_PRACTICAL_SKILL_IDS.length
+    || persistedSkillIds.some((skillId, index) => skillId !== CANONICAL_PRACTICAL_SKILL_IDS[index])) return false;
+
   const attemptIds = new Set<string>();
-  const correctDecisionIdsBySkill = new Map<string, Set<string>>();
+  let replayed = createPracticalMasteryState(new Date(0));
   for (const attempt of value.attempts) {
     if (!isSemanticallyValidPracticalAttempt(attempt)) return false;
     if (attemptIds.has(attempt.id)) return false;
     attemptIds.add(attempt.id);
-    if (attempt.correct) {
-      const decisionIds = correctDecisionIdsBySkill.get(attempt.skillId) ?? new Set<string>();
-      decisionIds.add(attempt.decisionId);
-      correctDecisionIdsBySkill.set(attempt.skillId, decisionIds);
-    }
+    replayed = recordPracticalDecision(replayed, {
+      decisionId: attempt.decisionId,
+      actionId: attempt.actionId,
+      reasonId: attempt.reasonId,
+      confidence: attempt.confidence,
+      now: new Date(attempt.answeredAt),
+    });
   }
-  return Object.entries(value.skills).every(([skillId, progress]) => validSkillProgress(skillId, progress, correctDecisionIdsBySkill));
+
+  return CANONICAL_PRACTICAL_SKILL_IDS.every((skillId) => (
+    validSkillProgress(skillId, value.skills[skillId], replayed.skills[skillId])
+  ));
 }
 
 function validContinuityIntegratedItem(value: unknown): value is PracticalContinuityIntegratedItem {
@@ -200,14 +196,9 @@ function validContinuityIntegratedItem(value: unknown): value is PracticalContin
   if (!["REPAIR", "RETENTION", "TRANSFER", "REINFORCE", "RECOGNITION"].includes(String(value.reason))) return false;
   if (typeof value.whyAfterAnswer !== "string") return false;
   if (!(value.retentionTierDays === null || (typeof value.retentionTierDays === "number" && RETENTION_TIER_SET.has(value.retentionTierDays)))) return false;
-  // Only the RETENTION pass in buildIntegratedSession ever attaches a tier;
-  // every other pass's push() call always omits it (practical-integrated-session.ts).
   if ((value.reason === "RETENTION") !== (value.retentionTierDays !== null)) return false;
   const decision = practicalDecisionById.get(value.decisionId);
   if (!decision || decision.skillId !== value.skillId) return false;
-  // Content-only, mastery-state-independent properties: safe to check
-  // unconditionally without re-validating dynamic eligibility (which must
-  // not invalidate an already-legitimate active round as mastery evolves).
   if (!isOrdinaryLearnerDecision(decision)) return false;
   if (isIntegrationDerivedSkill(value.skillId) || isPracticalBridgeSkill(value.skillId)) return false;
   return true;
@@ -229,17 +220,8 @@ function validIntegratedContinuity(value: unknown): boolean {
     decisionIds.add(item.decisionId);
 
     if (focused) {
-      // buildFocusedIntegratedSession is the canonical focused producer. It
-      // intentionally fills the requested round from one skill up to the
-      // requested size (normally 8), so same-skill multiplicity is bounded by
-      // total round size, not by buildIntegratedSession's generic base cap.
       if (item.skillId !== value.focusSkillId) return false;
     } else {
-      // The learner runtime persists buildAdaptiveIntegratedSession output, not
-      // bare buildIntegratedSession output. In the generic path there is at
-      // most one adaptive overlay item per skill (one classified need per
-      // supported skill) plus at most two items from buildIntegratedSession's
-      // base writer. Real-writer regression G1 reproduces the resulting max=3.
       const count = (skillCounts.get(item.skillId) ?? 0) + 1;
       if (count > 3) return false;
       skillCounts.set(item.skillId, count);
@@ -296,8 +278,6 @@ function validPerformanceEvents(value: unknown[]): boolean {
   const ids = new Set<string>();
   for (const event of value) {
     if (!isSemanticallyValidPracticalPerformanceEvent(event)) return false;
-    // Duplicate ids would collapse in rowsById's Map and could confuse
-    // safe-successor identity comparison the same way duplicate attempt ids would.
     if (ids.has(event.id)) return false;
     ids.add(event.id);
   }
