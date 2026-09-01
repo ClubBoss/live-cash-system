@@ -146,7 +146,7 @@ test("B+-A-05 explicit exact start persists only a valid non-empty focused round
   assert.ok(items.length > 0);
   assert.ok(items.every((item) => item.skillId === "FND-01"));
 
-  const workspace = createPracticalStudyWorkspace(NOW);
+  const workspace = createPracticalStudyWorkspace();
   const started = recordIntegratedRoundStartContinuity(workspace, state.contentVersion, { focusSkillId: "FND-01", items }, NOW);
   assert.ok(started);
   assert.equal(started.continuity?.integrated?.focusSkillId, "FND-01");
@@ -160,9 +160,9 @@ test("B+-A-05 explicit exact start persists only a valid non-empty focused round
 
 test("B+-A-06 empty or unavailable exact start writes no continuity and cannot cross-topic fallback", () => {
   const state = createPracticalMasteryState(NOW, true);
-  const workspace = createPracticalStudyWorkspace(NOW);
+  const workspace = createPracticalStudyWorkspace();
   assert.equal(recordIntegratedRoundStartContinuity(workspace, state.contentVersion, { focusSkillId: "FND-01", items: [] }, NOW), null);
-  assert.equal(workspace.continuity, null);
+  assert.equal(workspace.continuity ?? null, null);
 
   const resolution = resolvePracticalImprovementFocus(state, "foundations", {
     focusAuthorities: {
