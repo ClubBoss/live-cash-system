@@ -5,6 +5,7 @@ import {
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import {
   isPracticalBridgeSkill,
+  isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
   type PracticalAttempt,
   type PracticalMasteryState,
@@ -32,16 +33,13 @@ function compareCanonicalId(left: string, right: string): number {
 export function selectedWrongPracticalMisconceptionIds(
   attempt: PracticalAttempt,
 ): readonly string[] {
-  const decision = practicalDecisionById.get(attempt.decisionId);
-  if (!decision || !isOrdinaryLearnerDecision(decision)) return [];
-  if (decision.skillId !== attempt.skillId) return [];
+  if (!isSemanticallyValidPracticalAttempt(attempt)) return [];
+  const decision = practicalDecisionById.get(attempt.decisionId)!;
+  if (!isOrdinaryLearnerDecision(decision)) return [];
   if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) return [];
 
-  const selectedAction = decision.actionOptions.find((option) => option.id === attempt.actionId);
-  const selectedReason = decision.reasonOptions.find((option) => option.id === attempt.reasonId);
-  if (!selectedAction || !selectedReason) return [];
-  const derivedCorrect = attempt.actionId === decision.correctActionId && attempt.reasonId === decision.correctReasonId;
-  if (attempt.correct !== derivedCorrect) return [];
+  const selectedAction = decision.actionOptions.find((option) => option.id === attempt.actionId)!;
+  const selectedReason = decision.reasonOptions.find((option) => option.id === attempt.reasonId)!;
 
   const misconceptionIds = new Set<string>();
   if (attempt.actionId !== decision.correctActionId && selectedAction.misconception) {
