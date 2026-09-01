@@ -8,6 +8,10 @@ import {
   validateLearnerState,
   type LearnerState,
 } from "./model-core";
+import {
+  optionalPracticalProfileValid,
+  practicalProfileSafeSuccessor,
+} from "./practical-profile-contract";
 
 export type RuntimeIdentity = {
   appVersion: string;
@@ -80,6 +84,10 @@ function legacySchemaSupported(version: number): boolean {
   return version >= 0 && version < STATE_SCHEMA_VERSION;
 }
 
+export function validateRootLearnerState(value: unknown): value is LearnerState {
+  return validateLearnerState(value) && optionalPracticalProfileValid(value);
+}
+
 export function readLocalLearnerState(raw: string | null): LocalStateRead {
   if (raw === null) return { kind: "missing", state: null, raw: null };
 
@@ -96,20 +104,20 @@ export function readLocalLearnerState(raw: string | null): LocalStateRead {
     return { kind: "future", state: null, raw, reason: `State schema ${version} is newer than supported schema ${STATE_SCHEMA_VERSION}` };
   }
 
-  if (version === STATE_SCHEMA_VERSION && validateLearnerState(parsed)) {
+  if (version === STATE_SCHEMA_VERSION && validateRootLearnerState(parsed)) {
     return { kind: "valid", state: migrateLearnerState(parsed), raw };
   }
 
   if (legacySchemaSupported(version)) {
     const migrated = migrateLearnerState(parsed);
-    if (validateLearnerState(migrated)) return { kind: "migrated", state: migrated, raw };
+    if (validateRootLearnerState(migrated)) return { kind: "migrated", state: migrated, raw };
     return { kind: "corrupt", state: null, raw, reason: "Legacy state could not be migrated safely" };
   }
 
   // A malformed schema-v2 local snapshot is recoverable only as a quarantined
   // best-effort copy. The caller preserves the original raw value first.
   const recovered = migrateLearnerState(parsed);
-  if (validateLearnerState(recovered)) {
+  if (validateRootLearnerState(recovered)) {
     return { kind: "recovered", state: recovered, raw, reason: "Schema-v2 state required recovery" };
   }
   return { kind: "corrupt", state: null, raw, reason: "State failed validation" };
@@ -132,12 +140,12 @@ export function prepareLearnerStateImport(text: string, current: LearnerState): 
   if (version === STATE_SCHEMA_VERSION) {
     // Import is fail-closed: unlike local corruption recovery, a malformed
     // current-schema import is never silently salvaged into the live state.
-    if (!validateLearnerState(parsed)) return { ok: false, reason: "invalid_state" };
+    if (!validateRootLearnerState(parsed)) return { ok: false, reason: "invalid_state" };
     candidate = migrateLearnerState(parsed);
   } else if (legacySchemaSupported(version)) {
     candidate = migrateLearnerState(parsed);
     migrated = true;
-    if (!validateLearnerState(candidate)) return { ok: false, reason: "invalid_state" };
+    if (!validateRootLearnerState(candidate)) return { ok: false, reason: "invalid_state" };
   } else {
     return { ok: false, reason: "invalid_state" };
   }
@@ -293,6 +301,7 @@ function activeSessionPreserved(candidate: LearnerState, base: LearnerState): bo
  * unfinished answer. If proof is unavailable, callers surface a conflict.
  */
 export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): boolean {
+  if (!validateRootLearnerState(candidate) || !validateRootLearnerState(base)) return false;
   if (sameLearnerState(candidate, base)) return true;
   if (candidate.revision < base.revision) return false;
   if (!immutableRowsPreserved(candidate.interactions, base.interactions)) return false;
@@ -306,17 +315,23 @@ export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): bo
   if (!modulesDoNotRegress(candidate, base)) return false;
   if (!cardsDoNotRegress(candidate, base)) return false;
   if (!activeSessionPreserved(candidate, base)) return false;
+  if (!practicalProfileSafeSuccessor(candidate, base)) return false;
   return true;
 }
 
 export function chooseRestoreState(localRead: LocalStateRead, remote: LearnerState | null): RestoreDecision {
   const local = localRead.state;
   if (!local && !remote) return { kind: "empty", state: emptyLearnerState(), remoteState: null };
-  if (!local && remote) return { kind: "remote", state: remote, remoteState: remote };
+  if (!local && remote) return validateRootLearnerState(remote)
+    ? { kind: "remote", state: remote, remoteState: remote }
+    : { kind: "empty", state: emptyLearnerState(), remoteState: null };
   if (local && !remote) return { kind: "local", state: local, remoteState: null };
 
   const localState = local as LearnerState;
   const remoteState = remote as LearnerState;
+  if (!validateRootLearnerState(localState) || !validateRootLearnerState(remoteState)) {
+    return { kind: "conflict", state: localState, remoteState };
+  }
   if (sameLearnerState(localState, remoteState)) return { kind: "equivalent", state: remoteState, remoteState };
 
   if (localRead.kind === "missing" || !hasMeaningfulLearnerData(localState)) {
@@ -392,7 +407,7 @@ export function buildSafeDebugSummary(input: {
     } : null,
     online: input.online,
     serializedBytes,
-    validation: validateLearnerState(state) ? "valid" : "invalid",
+    validation: validateRootLearnerState(state) ? "valid" : "invalid",
     lastErrorCode: input.lastErrorCode ?? null,
   };
 }
