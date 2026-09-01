@@ -1,4 +1,4 @@
-import type { PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 
 export const PRACTICAL_EXACT_REPEAT_WINDOW = 8;
 
@@ -14,7 +14,9 @@ export function recentSuccessfulDecisionIds(
   return new Set(
     state.attempts
       .slice(-windowSize)
-      .filter((attempt) => attempt.correct && latestByDecision.get(attempt.decisionId)?.id === attempt.id)
+      .filter((attempt) => attempt.correct
+        && isSemanticallyValidPracticalAttempt(attempt)
+        && latestByDecision.get(attempt.decisionId)?.id === attempt.id)
       .map((attempt) => attempt.decisionId),
   );
 }
@@ -29,5 +31,10 @@ export function recentlyAttemptedDecisionIds(
   windowSize = PRACTICAL_EXACT_REPEAT_WINDOW,
 ): Set<string> {
   if (windowSize <= 0 || state.attempts.length === 0) return new Set();
-  return new Set(state.attempts.slice(-windowSize).map((attempt) => attempt.decisionId));
+  return new Set(
+    state.attempts
+      .slice(-windowSize)
+      .filter(isSemanticallyValidPracticalAttempt)
+      .map((attempt) => attempt.decisionId),
+  );
 }

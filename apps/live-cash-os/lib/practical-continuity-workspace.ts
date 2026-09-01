@@ -1,6 +1,6 @@
 import { practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import type { IntegratedSessionItem } from "./practical-integrated-session";
-import type { PracticalAttempt, PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, type PracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 import type {
   PracticalContinuityWorkspace,
   PracticalStudyWorkspace,
@@ -206,7 +206,7 @@ export function restoreQuickStartPostAnswer(
   const decision = practicalDecisionById.get(saved.decisionId);
   if (!decision || decision.skillId !== saved.skillId) return { status: "INVALID" };
   const attempt = mastery.attempts.find((candidate) => candidate.id === saved.attemptId);
-  if (!attempt || attempt.decisionId !== saved.decisionId || attempt.skillId !== saved.skillId) return { status: "INVALID" };
+  if (!attempt || attempt.decisionId !== saved.decisionId || attempt.skillId !== saved.skillId || !isSemanticallyValidPracticalAttempt(attempt)) return { status: "INVALID" };
   return { status: "VALID", skillId: saved.skillId, decisionId: saved.decisionId, attempt };
 }
 
@@ -364,13 +364,13 @@ export function restoreIntegratedRound(
     if (index >= saved.submittedAttemptIds.length) continue;
     const attemptId = saved.submittedAttemptIds[index];
     const attempt = mastery.attempts.find((candidate) => candidate.id === attemptId);
-    if (!attempt || attempt.decisionId !== item.decisionId || attempt.skillId !== item.skillId) return { status: "INVALID" };
+    if (!attempt || attempt.decisionId !== item.decisionId || attempt.skillId !== item.skillId || !isSemanticallyValidPracticalAttempt(attempt)) return { status: "INVALID" };
   }
 
   const postAnswerAttempt = postAnswerPending
     ? mastery.attempts.find((candidate) => candidate.id === saved.submittedAttemptIds[saved.nextIndex]) ?? null
     : null;
-  if (postAnswerPending && !postAnswerAttempt) return { status: "INVALID" };
+  if (postAnswerPending && (!postAnswerAttempt || !isSemanticallyValidPracticalAttempt(postAnswerAttempt))) return { status: "INVALID" };
 
   return {
     status: "VALID",
