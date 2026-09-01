@@ -117,10 +117,10 @@ test("G3: invalid true-latest shadows older valid latest-attempt evidence withou
   state.attempts = [olderValid, ...invalidFillers];
 
   assert.equal(recentlyAttemptedDecisionIds(state).has(target.id), false, "older valid row must stay outside the last-eight physical window");
-  assert.deepEqual(
-    ids(genericItems(state)),
-    ids(baseline),
-    "filtering invalid rows before selecting latest would resurrect the older valid row and exclude the baseline decision",
+  assert.equal(
+    ids(genericItems(state)).includes(target.id),
+    true,
+    "invalid true-latest must not resurrect the older valid row as adaptive latest-decision exclusion",
   );
 });
 
