@@ -1,5 +1,5 @@
 import type { PracticalEvidenceStage } from "../content/practical-mastery";
-import { stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type PracticalSkillProgressCategoryKey =
   | "CONCEPT"
@@ -39,8 +39,10 @@ export function practicalSkillProgressTransparency(
       ...category,
       satisfied: stageAtLeast(currentStage, category.stage),
     }));
-  const recentAttempts = state.attempts.filter((attempt) => attempt.skillId === skillId).slice(-8);
+  const recentPhysicalAttempts = state.attempts.filter((attempt) => attempt.skillId === skillId).slice(-8);
+  const recentAttempts = recentPhysicalAttempts.filter(isSemanticallyValidPracticalAttempt);
   const recentCorrect = recentAttempts.filter((attempt) => attempt.correct);
+  const latestPhysicalAttempt = recentPhysicalAttempts.at(-1) ?? null;
 
   return {
     currentStage,
@@ -49,6 +51,8 @@ export function practicalSkillProgressTransparency(
     recentAttemptCount: recentAttempts.length,
     recentCorrectCount: recentCorrect.length,
     recentDistinctCorrectCount: new Set(recentCorrect.map((attempt) => attempt.decisionId)).size,
-    latestConfidence: recentAttempts.at(-1)?.confidence ?? null,
+    latestConfidence: latestPhysicalAttempt && isSemanticallyValidPracticalAttempt(latestPhysicalAttempt)
+      ? latestPhysicalAttempt.confidence
+      : null,
   } as const;
 }

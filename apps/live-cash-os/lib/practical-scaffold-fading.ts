@@ -1,10 +1,10 @@
 import { practicalDecisionById } from "../content/practical-mastery";
-import type { PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type PracticalScaffoldLevel = "guided" | "reduced" | "hidden";
 
 function successfulDistinctByKind(state:PracticalMasteryState,skillId:string,kinds:string[]):number{
-  const ids=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&attempt.correct).filter((attempt)=>{
+  const ids=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&isSemanticallyValidPracticalAttempt(attempt)&&attempt.correct).filter((attempt)=>{
     const decision=practicalDecisionById.get(attempt.decisionId);
     return decision?kinds.includes(decision.kind):false;
   }).map((attempt)=>attempt.decisionId));
@@ -12,7 +12,8 @@ function successfulDistinctByKind(state:PracticalMasteryState,skillId:string,kin
 }
 
 function latestSkillAttempt(state:PracticalMasteryState,skillId:string){
-  return [...state.attempts].reverse().find((attempt)=>attempt.skillId===skillId)??null;
+  const latest=[...state.attempts].reverse().find((attempt)=>attempt.skillId===skillId)??null;
+  return latest&&isSemanticallyValidPracticalAttempt(latest)?latest:null;
 }
 
 export function recommendedPracticalScaffold(state:PracticalMasteryState,skillId:string):PracticalScaffoldLevel{
