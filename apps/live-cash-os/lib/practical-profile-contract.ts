@@ -1,6 +1,18 @@
+import { isOrdinaryLearnerDecision, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
+import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import type { CardState } from "./model-core";
-import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
-import type { PracticalPerformanceEvent } from "./practical-performance-telemetry";
+import {
+  deriveEvidenceStage,
+  isPracticalBridgeSkill,
+  isSemanticallyValidPracticalAttempt,
+  type PracticalMasteryState,
+  type PracticalSkillProgress,
+} from "./practical-mastery-core";
+import { isSemanticallyValidPracticalPerformanceEvent, type PracticalPerformanceEvent } from "./practical-performance-telemetry";
+// RETENTION_INTERVAL_DAYS is canonically defined in practical-integrated-session.ts
+// (the only writer of PracticalSkillProgress.retentionDaysPassed / IntegratedSessionItem.retentionTierDays);
+// imported here rather than duplicated so this validator can never drift from the real tier domain.
+import { RETENTION_INTERVAL_DAYS } from "./practical-integrated-session";
 
 export const PRACTICAL_PROFILE_FIELD = "_practicalProfile" as const;
 export const PRACTICAL_PROFILE_VERSION = 1 as const;
@@ -80,10 +92,83 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
+const RETENTION_TIER_SET = new Set<number>(RETENTION_INTERVAL_DAYS);
+
+// A canonical skill's evidence fields are either a PRIMARY authority the
+// writer sets directly (conceptTaught, conceptTaughtAt), a DERIVED authority
+// that must match the product's canonical derivation (evidenceStage, and the
+// coherence relations below), or a counter the writer only ever moves in one
+// direction by fixed increments. successfulDecisionIds is validated against
+// the sibling PracticalAttempt array in the SAME state: recordPracticalDecision
+// is the only writer, and it always appends the attempt and the
+// successfulDecisionIds entry atomically together, so every legitimate id is
+// backed by a real correct, semantically valid attempt on that same skill —
+// closing both forged and wrong-skill evidence claims at once.
+function validSkillProgress(
+  skillId: string,
+  value: unknown,
+  correctDecisionIdsBySkill: ReadonlyMap<string, ReadonlySet<string>>,
+): value is PracticalSkillProgress {
+  if (!isRecord(value)) return false;
+  if (value.skillId !== skillId || !practicalSkillById.has(skillId)) return false;
+  if (typeof value.evidenceStage !== "string") return false;
+  if (typeof value.conceptTaught !== "boolean") return false;
+  if (!(value.conceptTaughtAt === null || typeof value.conceptTaughtAt === "string")) return false;
+  if (!Array.isArray(value.successfulDecisionIds) || !value.successfulDecisionIds.every((id) => typeof id === "string")) return false;
+  if (!Array.isArray(value.retentionDaysPassed) || !value.retentionDaysPassed.every((day) => typeof day === "number")) return false;
+  if (typeof value.delayedRetrievalPassed !== "boolean" || typeof value.realHandTransferReviewed !== "boolean") return false;
+  if (typeof value.attempts !== "number" || !Number.isInteger(value.attempts) || value.attempts < 0) return false;
+  if (typeof value.correct !== "number" || !Number.isInteger(value.correct) || value.correct < 0 || value.correct > value.attempts) return false;
+  if (typeof value.recognitionCorrect !== "number" || !Number.isInteger(value.recognitionCorrect) || value.recognitionCorrect < 0) return false;
+  if (typeof value.directDecisionCorrect !== "number" || !Number.isInteger(value.directDecisionCorrect) || value.directDecisionCorrect < 0) return false;
+  if (typeof value.changedCorrect !== "number" || !Number.isInteger(value.changedCorrect) || value.changedCorrect < 0) return false;
+  if (typeof value.boundaryCorrect !== "number" || !Number.isInteger(value.boundaryCorrect) || value.boundaryCorrect < 0) return false;
+  if (typeof value.mixedCorrect !== "number" || !Number.isInteger(value.mixedCorrect) || value.mixedCorrect < 0) return false;
+  // Every correct answer increments `correct` and exactly one of the five
+  // kind-specific counters (the five PracticalDecision["kind"] values are
+  // exhaustive), so the sum must always equal the total.
+  if (value.recognitionCorrect + value.directDecisionCorrect + value.changedCorrect + value.boundaryCorrect + value.mixedCorrect !== value.correct) return false;
+  if (!(value.lastAttemptAt === null || typeof value.lastAttemptAt === "string")) return false;
+  if (!(value.lastIncorrectDecisionId === null || typeof value.lastIncorrectDecisionId === "string")) return false;
+
+  // retentionDaysPassed: only canonical supported tiers, no duplicates,
+  // strictly ascending — recordIntegratedDecision always writes through
+  // `[...new Set([...prev, tier])].sort((a, b) => a - b)`.
+  const seenTiers = new Set<number>();
+  for (const day of value.retentionDaysPassed) {
+    if (!RETENTION_TIER_SET.has(day) || seenTiers.has(day)) return false;
+    seenTiers.add(day);
+  }
+  for (let index = 1; index < value.retentionDaysPassed.length; index += 1) {
+    if (value.retentionDaysPassed[index] <= value.retentionDaysPassed[index - 1]) return false;
+  }
+
+  // delayedRetrievalPassed/realHandTransferReviewed can only legitimately be
+  // true alongside the prerequisite the canonical writer always establishes
+  // first: markDelayedPracticalRetrieval only ever fires in the same branch
+  // that just granted a retention tier, and markPracticalRealHandTransfer
+  // only sets true when delayedRetrievalPassed is already true.
+  if (value.delayedRetrievalPassed && value.retentionDaysPassed.length === 0) return false;
+  if (value.realHandTransferReviewed && !value.delayedRetrievalPassed) return false;
+
+  const correctForSkill = correctDecisionIdsBySkill.get(skillId);
+  for (const decisionId of value.successfulDecisionIds) {
+    if (!correctForSkill?.has(decisionId)) return false;
+  }
+
+  // The persisted stage must equal the canonical re-derivation from the
+  // now-validated fields above — a forged stage the persisted evidence could
+  // not legitimately have produced fails closed rather than being trusted.
+  if (value.evidenceStage !== deriveEvidenceStage(value as PracticalSkillProgress)) return false;
+
+  return true;
+}
+
 function validMasteryState(value: unknown): value is PracticalMasteryState {
   if (!isRecord(value)) return false;
   if (value.schemaVersion !== PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION) return false;
   if (typeof value.contentVersion !== "string" || typeof value.revision !== "number" || typeof value.updatedAt !== "string") return false;
+  if (!(value.resetFromLegacyAt === null || typeof value.resetFromLegacyAt === "string")) return false;
   if (!isRecord(value.skills) || !Array.isArray(value.attempts)) return false;
   // A persisted/imported/restored attempt row cannot make the profile valid
   // unless it is legitimate product-generated evidence: fail closed here
@@ -94,45 +179,78 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   // saved attemptId via `.find(id)`, and a collision would silently resolve
   // to whichever row happens to come first rather than the intended one.
   const attemptIds = new Set<string>();
+  const correctDecisionIdsBySkill = new Map<string, Set<string>>();
   for (const attempt of value.attempts) {
     if (!isSemanticallyValidPracticalAttempt(attempt)) return false;
     if (attemptIds.has(attempt.id)) return false;
     attemptIds.add(attempt.id);
+    if (attempt.correct) {
+      const decisionIds = correctDecisionIdsBySkill.get(attempt.skillId) ?? new Set<string>();
+      decisionIds.add(attempt.decisionId);
+      correctDecisionIdsBySkill.set(attempt.skillId, decisionIds);
+    }
   }
-  return Object.values(value.skills).every((progress) => isRecord(progress)
-    && typeof progress.skillId === "string"
-    && typeof progress.evidenceStage === "string"
-    && typeof progress.conceptTaught === "boolean"
-    && Array.isArray(progress.successfulDecisionIds)
-    && Array.isArray(progress.retentionDaysPassed)
-    && typeof progress.attempts === "number"
-    && typeof progress.correct === "number");
-}
-
-function validPerformanceEvent(value: unknown): value is PracticalPerformanceEvent {
-  if (!isRecord(value)) return false;
-  return typeof value.id === "string"
-    && typeof value.decisionId === "string"
-    && typeof value.skillId === "string"
-    && typeof value.mode === "string"
-    && typeof value.startedAt === "string"
-    && typeof value.answeredAt === "string"
-    && typeof value.responseMs === "number"
-    && typeof value.confidence === "number"
-    && typeof value.actionCorrect === "boolean"
-    && typeof value.reasonCorrect === "boolean"
-    && typeof value.correct === "boolean"
-    && typeof value.kind === "string";
+  return Object.entries(value.skills).every(([skillId, progress]) => validSkillProgress(skillId, progress, correctDecisionIdsBySkill));
 }
 
 function validContinuityIntegratedItem(value: unknown): value is PracticalContinuityIntegratedItem {
   if (!isRecord(value)) return false;
-  return typeof value.decisionId === "string"
-    && typeof value.skillId === "string"
-    && typeof value.priority === "number"
-    && ["REPAIR", "RETENTION", "TRANSFER", "REINFORCE", "RECOGNITION"].includes(String(value.reason))
-    && typeof value.whyAfterAnswer === "string"
-    && (value.retentionTierDays === null || typeof value.retentionTierDays === "number");
+  if (typeof value.decisionId !== "string" || typeof value.skillId !== "string") return false;
+  if (typeof value.priority !== "number") return false;
+  if (!["REPAIR", "RETENTION", "TRANSFER", "REINFORCE", "RECOGNITION"].includes(String(value.reason))) return false;
+  if (typeof value.whyAfterAnswer !== "string") return false;
+  if (!(value.retentionTierDays === null || (typeof value.retentionTierDays === "number" && RETENTION_TIER_SET.has(value.retentionTierDays)))) return false;
+  // Only the RETENTION pass in buildIntegratedSession ever attaches a tier;
+  // every other pass's push() call always omits it (practical-integrated-session.ts).
+  if ((value.reason === "RETENTION") !== (value.retentionTierDays !== null)) return false;
+  const decision = practicalDecisionById.get(value.decisionId);
+  if (!decision || decision.skillId !== value.skillId) return false;
+  // Content-only, mastery-state-independent properties: safe to check
+  // unconditionally without re-validating dynamic eligibility (which must
+  // not invalidate an already-legitimate active round as mastery evolves).
+  if (!isOrdinaryLearnerDecision(decision)) return false;
+  if (isIntegrationDerivedSkill(value.skillId) || isPracticalBridgeSkill(value.skillId)) return false;
+  return true;
+}
+
+function validIntegratedContinuity(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  if (!(value.focusSkillId === null || typeof value.focusSkillId === "string")) return false;
+  if (!Array.isArray(value.items) || value.items.length === 0 || value.items.length > 8) return false;
+
+  const focused = value.focusSkillId !== null;
+  if (focused && !practicalSkillById.has(value.focusSkillId as string)) return false;
+
+  const decisionIds = new Set<string>();
+  const skillCounts = new Map<string, number>();
+  for (const item of value.items) {
+    if (!validContinuityIntegratedItem(item)) return false;
+    if (decisionIds.has(item.decisionId)) return false;
+    decisionIds.add(item.decisionId);
+
+    if (focused) {
+      // buildFocusedIntegratedSession is the canonical focused producer. It
+      // intentionally fills the requested round from one skill up to the
+      // requested size (normally 8), so same-skill multiplicity is bounded by
+      // total round size, not by buildIntegratedSession's generic base cap.
+      if (item.skillId !== value.focusSkillId) return false;
+    } else {
+      // The learner runtime persists buildAdaptiveIntegratedSession output, not
+      // bare buildIntegratedSession output. In the generic path there is at
+      // most one adaptive overlay item per skill (one classified need per
+      // supported skill) plus at most two items from buildIntegratedSession's
+      // base writer. Real-writer regression G1 reproduces the resulting max=3.
+      const count = (skillCounts.get(item.skillId) ?? 0) + 1;
+      if (count > 3) return false;
+      skillCounts.set(item.skillId, count);
+    }
+  }
+  if (typeof value.nextIndex !== "number" || !Number.isInteger(value.nextIndex) || value.nextIndex < 0 || value.nextIndex > value.items.length) return false;
+  if (!Array.isArray(value.submittedAttemptIds) || ![value.nextIndex, value.nextIndex + 1].includes(value.submittedAttemptIds.length)) return false;
+  if (value.submittedAttemptIds.length > value.items.length) return false;
+  if (!value.submittedAttemptIds.every((id) => typeof id === "string")) return false;
+  if (typeof value.updatedAt !== "string") return false;
+  return true;
 }
 
 function validContinuityWorkspace(value: unknown): value is PracticalContinuityWorkspace {
@@ -149,22 +267,7 @@ function validContinuityWorkspace(value: unknown): value is PracticalContinuityW
         || !(value.quickStart.selectedReasonId === null || typeof value.quickStart.selectedReasonId === "string")) return false;
     } else return false;
   }
-  if (value.integrated !== null) {
-    if (!isRecord(value.integrated)
-      || !(value.integrated.focusSkillId === null || typeof value.integrated.focusSkillId === "string")
-      || !Array.isArray(value.integrated.items)
-      || value.integrated.items.length > 8
-      || !value.integrated.items.every(validContinuityIntegratedItem)
-      || typeof value.integrated.nextIndex !== "number"
-      || !Number.isInteger(value.integrated.nextIndex)
-      || value.integrated.nextIndex < 0
-      || value.integrated.nextIndex > value.integrated.items.length
-      || !Array.isArray(value.integrated.submittedAttemptIds)
-      || ![value.integrated.nextIndex, value.integrated.nextIndex + 1].includes(value.integrated.submittedAttemptIds.length)
-      || value.integrated.submittedAttemptIds.length > value.integrated.items.length
-      || !value.integrated.submittedAttemptIds.every((id) => typeof id === "string")
-      || typeof value.integrated.updatedAt !== "string") return false;
-  }
+  if (value.integrated !== null && !validIntegratedContinuity(value.integrated)) return false;
   if (value.perceptual !== undefined && value.perceptual !== null) {
     if (!isRecord(value.perceptual)
       || typeof value.perceptual.decisionId !== "string"
@@ -189,13 +292,25 @@ function validStudyWorkspace(value: unknown): value is PracticalStudyWorkspace {
     && (value.continuity === undefined || validContinuityWorkspace(value.continuity));
 }
 
+function validPerformanceEvents(value: unknown[]): boolean {
+  const ids = new Set<string>();
+  for (const event of value) {
+    if (!isSemanticallyValidPracticalPerformanceEvent(event)) return false;
+    // Duplicate ids would collapse in rowsById's Map and could confuse
+    // safe-successor identity comparison the same way duplicate attempt ids would.
+    if (ids.has(event.id)) return false;
+    ids.add(event.id);
+  }
+  return true;
+}
+
 export function validatePracticalProfileState(value: unknown): value is PracticalProfileState {
   return isRecord(value)
     && value.version === PRACTICAL_PROFILE_VERSION
     && validMasteryState(value.mastery)
     && Array.isArray(value.performance)
     && value.performance.length <= PRACTICAL_PERFORMANCE_LIMIT
-    && value.performance.every(validPerformanceEvent)
+    && validPerformanceEvents(value.performance)
     && validStudyWorkspace(value.studyWorkspace);
 }
 

@@ -89,7 +89,11 @@ function untaggedWrongDecisionIdsForSkill(state: PracticalMasteryState, skillId:
 const STAGE_ORDER: PracticalEvidenceStage[] = ["SOURCE_SUPPORTED", "CONCEPT_TAUGHT", "RECOGNITION_TRAINED", "DECISION_TRAINED", "CHANGED_NODE_TRANSFER", "BOUNDARY_TESTED", "DELAYED_RETRIEVAL", "REAL_HAND_TRANSFER"];
 const MIN_RECOGNITION_STIMULI = 2; const MIN_DIRECT_DECISION_STIMULI = 3; const MIN_TRANSFER_STIMULI = 2; const MIN_BOUNDARY_STIMULI = 1;
 function nowIso(now?: Date): string { return (now ?? new Date()).toISOString(); }
-function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.filter((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision ? kinds.includes(decision.kind) : false; })).size; }
+// A successful decision only advances the skill it canonically belongs to:
+// without the skillId check, an id belonging to another skill's decision
+// (of a matching kind) would otherwise be silently counted toward this
+// skill's evidence stage.
+function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.filter((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision ? decision.skillId === progress.skillId && kinds.includes(decision.kind) : false; })).size; }
 
 function applySourceEvidenceCeiling(skillId: string, stage: PracticalEvidenceStage): PracticalEvidenceStage {
   if (isPracticalBridgeSkill(skillId)) return "SOURCE_SUPPORTED";
@@ -98,7 +102,7 @@ function applySourceEvidenceCeiling(skillId: string, stage: PracticalEvidenceSta
   if (gap?.status === "PARTIAL" && STAGE_ORDER.indexOf(stage) > STAGE_ORDER.indexOf("RECOGNITION_TRAINED")) return "RECOGNITION_TRAINED";
   return stage;
 }
-function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
+export function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
   if (!progress.conceptTaught) return applySourceEvidenceCeiling(progress.skillId, "SOURCE_SUPPORTED");
   const recognition = distinctSuccessfulByKind(progress, ["recognition"]); const direct = distinctSuccessfulByKind(progress, ["decision"]); const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]); const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
   let stage: PracticalEvidenceStage;

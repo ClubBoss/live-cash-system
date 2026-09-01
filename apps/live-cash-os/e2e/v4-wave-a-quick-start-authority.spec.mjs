@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { reachPersistedSkillTargets } from "./practical-fixture-authority.mjs";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 const QUICK_START_SKILLS = ["FND-01", "FND-02", "PF-01", "PF-04", "W4-BOARD-01", "IP-01", "BL-04", "W4-RUNOUT-01"];
@@ -12,6 +13,22 @@ async function masteryAttempts(page) {
   }, LEARNER_KEY);
 }
 
+async function pendingQuickStartAttemptId(page) {
+  return page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    const quickStart = raw ? JSON.parse(raw)._practicalProfile?.studyWorkspace?.continuity?.quickStart ?? null : null;
+    return quickStart?.phase === "POST_ANSWER" ? quickStart.attemptId ?? null : null;
+  }, LEARNER_KEY);
+}
+
+async function attemptOccurrences(page, attemptId) {
+  return page.evaluate(({ key, id }) => {
+    const raw = localStorage.getItem(key);
+    const attempts = raw ? JSON.parse(raw)._practicalProfile?.mastery?.attempts ?? [] : [];
+    return attempts.filter((attempt) => attempt.id === id).length;
+  }, { key: LEARNER_KEY, id: attemptId });
+}
+
 async function ensurePracticalProfile(page) {
   const hasProfile = await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY);
   if (hasProfile) return;
@@ -22,20 +39,11 @@ async function ensurePracticalProfile(page) {
 }
 
 async function setReached(page, reached) {
-  await page.evaluate(({ key, ids, count }) => {
-    const raw = localStorage.getItem(key);
-    if (!raw) throw new Error("missing learner state");
-    const root = JSON.parse(raw);
-    const mastery = root._practicalProfile?.mastery;
-    if (!mastery?.skills) throw new Error("missing practical mastery state");
-    ids.forEach((skillId, index) => {
-      const skill = mastery.skills[skillId];
-      if (!skill) throw new Error(`missing Quick Start skill ${skillId}`);
-      skill.evidenceStage = index < count ? "RECOGNITION_TRAINED" : "SOURCE_SUPPORTED";
-      skill.conceptTaught = index < count;
-    });
-    localStorage.setItem(key, JSON.stringify(root));
-  }, { key: LEARNER_KEY, ids: QUICK_START_SKILLS, count: reached });
+  await reachPersistedSkillTargets(
+    page,
+    LEARNER_KEY,
+    QUICK_START_SKILLS.slice(0, reached).map((skillId) => ({ skillId, targetStage: "RECOGNITION_TRAINED" })),
+  );
   await page.reload();
 }
 
@@ -51,6 +59,11 @@ async function answerVisibleQuickStartDecision(page) {
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
 }
 
+async function assertPendingAttemptStillUnique(page, attemptId, attemptBaseline) {
+  expect(await masteryAttempts(page)).toBe(attemptBaseline);
+  expect(await attemptOccurrences(page, attemptId)).toBe(1);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/state", async (route) => {
     await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "V4 Wave A local authority fixture" }) });
@@ -62,6 +75,8 @@ test("V4 Wave A: generic journey target never presents 0..7/8 as complete and ac
   await ensurePracticalProfile(page);
   await expect(page.locator("main")).toBeVisible();
 
+  // The sequence is monotonic, so each checkpoint adds only the minimum
+  // canonical evidence required for newly-reached Quick Start skills.
   for (const reached of [0, 1, 3, 5, 7]) {
     await setReached(page, reached);
     await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toHaveCount(0);
@@ -76,43 +91,53 @@ test("V4 Wave A: partial VALID post-answer feedback survives reload and leave/re
   await page.goto("/mastery/journey");
   await ensurePracticalProfile(page);
   await answerVisibleQuickStartDecision(page);
-  const attemptsAfterAnswer = await masteryAttempts(page);
-  expect(attemptsAfterAnswer).toBeGreaterThan(0);
 
+  const pendingAttemptId = await pendingQuickStartAttemptId(page);
+  expect(pendingAttemptId).toBeTruthy();
+  expect(await attemptOccurrences(page, pendingAttemptId)).toBe(1);
+
+  // Canonical fixture progression legitimately creates backing attempts. Take
+  // the continuity baseline only after that setup, then prove the learner's
+  // already-submitted attempt is never duplicated by reload/re-entry/Next.
   await setReached(page, 5);
+  const attemptsAfterFixture = await masteryAttempts(page);
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toHaveCount(0);
-  expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
+  await assertPendingAttemptStillUnique(page, pendingAttemptId, attemptsAfterFixture);
 
   await page.reload();
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
-  expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
+  await assertPendingAttemptStillUnique(page, pendingAttemptId, attemptsAfterFixture);
 
   await page.goto("/mastery");
   await page.goto("/mastery/journey");
   await ensurePracticalProfile(page);
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toHaveCount(0);
-  expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
+  await assertPendingAttemptStillUnique(page, pendingAttemptId, attemptsAfterFixture);
 
   await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toHaveCount(0);
-  expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
+  await assertPendingAttemptStillUnique(page, pendingAttemptId, attemptsAfterFixture);
 });
 
 test("V4 Wave A: completed authority preserves final post-answer feedback before exposing completion", async ({ page }) => {
   await page.goto("/mastery/journey");
   await ensurePracticalProfile(page);
   await answerVisibleQuickStartDecision(page);
-  const attemptsAfterAnswer = await masteryAttempts(page);
+
+  const pendingAttemptId = await pendingQuickStartAttemptId(page);
+  expect(pendingAttemptId).toBeTruthy();
+  expect(await attemptOccurrences(page, pendingAttemptId)).toBe(1);
 
   await setReached(page, 8);
+  const attemptsAfterFixture = await masteryAttempts(page);
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toHaveCount(0);
-  expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
+  await assertPendingAttemptStillUnique(page, pendingAttemptId, attemptsAfterFixture);
 
   await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
   await expect(page.getByRole("heading", { name: COMPLETE_HEADING })).toBeVisible();
   await expect(page.locator("main")).toContainText("8/8");
-  expect(await masteryAttempts(page)).toBe(attemptsAfterAnswer);
+  await assertPendingAttemptStillUnique(page, pendingAttemptId, attemptsAfterFixture);
 });

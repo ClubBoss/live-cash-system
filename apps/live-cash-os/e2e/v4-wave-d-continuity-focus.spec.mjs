@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { reachPersistedSkillTargets } from "./practical-fixture-authority.mjs";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 
@@ -8,13 +9,17 @@ async function useLocalWaveDFixture(page) {
   });
 }
 
-async function patchPracticalSkills(page, patches) {
+async function ensurePracticalProfile(page) {
   await page.goto("/mastery/journey");
   const hasProfile = await page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY);
   if (!hasProfile) {
     await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
   }
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile), LEARNER_KEY)).toBe(true);
+}
+
+async function patchPracticalSkills(page, patches) {
+  await ensurePracticalProfile(page);
   await page.evaluate(({ key, patches: skillPatches }) => {
     const raw = localStorage.getItem(key);
     if (!raw) throw new Error("missing learner fixture");
@@ -33,6 +38,15 @@ async function patchPracticalSkills(page, patches) {
     learner.updatedAt = now;
     localStorage.setItem(key, JSON.stringify(learner));
   }, { key: LEARNER_KEY, patches });
+  await page.reload();
+}
+
+async function seedCanonicalFocusScenario(page) {
+  await ensurePracticalProfile(page);
+  await reachPersistedSkillTargets(page, LEARNER_KEY, [
+    { skillId: "FND-06", targetStage: "DECISION_TRAINED", withPrerequisites: true },
+    { skillId: "PF-01", targetStage: "CONCEPT_TAUGHT", withPrerequisites: true },
+  ]);
   await page.reload();
 }
 
@@ -137,10 +151,7 @@ test("V4-D Table Reading keeps the same active item across reload, focused-Pract
 
 test("V4-D focused PF-01 session shows canonical RU/EN learner title while all eight scored items stay PF-01 and generic presentation stays generic", async ({ page }) => {
   await useLocalWaveDFixture(page);
-  await patchPracticalSkills(page, {
-    "FND-06": { conceptTaught: true, evidenceStage: "DECISION_TRAINED" },
-    "PF-01": { conceptTaught: true, evidenceStage: "CONCEPT_TAUGHT" },
-  });
+  await seedCanonicalFocusScenario(page);
 
   await page.goto("/mastery/session?source=v4-wave-d-generic");
   const genericEyebrow = page.locator("section.hero .eyebrow").first();

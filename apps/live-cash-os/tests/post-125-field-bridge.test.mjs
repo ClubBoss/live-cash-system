@@ -65,6 +65,10 @@ function transferNote(id, signals = { evidenceGeneralizationIssue: true }, outco
 
 function practicalState(delayed = false) {
   const state = createPracticalMasteryState(new Date("2026-08-20T00:00:00.000Z"));
+  // markDelayedPracticalRetrieval never sets delayedRetrievalPassed without a
+  // retention tier already granted in the same step, so this fixture must
+  // carry one too to remain a semantically valid persisted profile.
+  state.skills["EXP-01"].retentionDaysPassed = delayed ? [1] : [];
   state.skills["EXP-01"].delayedRetrievalPassed = delayed;
   return state;
 }
