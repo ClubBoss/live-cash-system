@@ -10,7 +10,7 @@ import {
   validateLearnerState,
   type LearnerState,
 } from "../../../lib/model";
-import { CURRENT_RUNTIME } from "../../../lib/reliability";
+import { CURRENT_RUNTIME, validateRootLearnerState } from "../../../lib/reliability";
 
 const MAX_STATE_BYTES = 1_000_000;
 const TOMBSTONE_KIND = "cloud-deleted-v1";
@@ -112,9 +112,9 @@ function migrateStoredState(value: unknown): LearnerState | null {
   if (!isRecord(value)) return null;
   const version = value.schemaVersion;
   if (typeof version === "number" && version > STATE_SCHEMA_VERSION) return null;
-  if (version === STATE_SCHEMA_VERSION && !validateLearnerState(value)) return null;
+  if (version === STATE_SCHEMA_VERSION && !validateRootLearnerState(value)) return null;
   const migrated = migrateLearnerState(value);
-  return validateLearnerState(migrated) ? migrated : null;
+  return validateRootLearnerState(migrated) ? migrated : null;
 }
 
 function parseTombstone(value: unknown): CloudTombstone | null {
