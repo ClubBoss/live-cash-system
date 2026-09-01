@@ -205,12 +205,17 @@
 }
 
 @media (max-width: 430px) {
+  /* flex-grow item distribution can round a few px past the rail's own
+     width on some engines regardless of border/padding; grid's fr-unit
+     column distribution (the same technique the desktop rule already
+     uses) divides the rail's exact width with no residual overflow. */
+  .practical-mastery-nav__rail {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    overflow: hidden;
+  }
   .practical-mastery-nav__item {
-    flex: 1 1 0;
-    min-width: 44px;
-    /* A layout-consuming border-right across N items can push the row's
-       total width a few px past the rail on some engines' flex rounding;
-       drop the divider at this narrowest breakpoint rather than risk it. */
+    min-width: 0;
     border-right: 0;
   }
   .practical-mastery-nav ~ main .metrics { grid-template-columns: 1fr 1fr; }
