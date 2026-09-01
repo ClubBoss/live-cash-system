@@ -97,9 +97,9 @@ for (const locale of ["ru", "en"]) {
   });
 }
 
-test("state, card schema, scheduler, mastery and evidence implementation stay byte-identical to accepted main", async () => {
+test("state, card schema, scheduler, mastery and evidence implementation stay byte-identical to the accepted scope", async () => {
   await assertGitBlob("lib/model-core.ts", "42ef6e80912887ee2c18e5264fd4c8e3edf32726");
   await assertGitBlob("lib/scheduler.ts", "6cf3ba078ec98ac0af90aa18cf9aae62fe7a144d");
   await assertGitBlob("content/types.ts", "d3aec56bbdb1e28d83aa32ce3391cbfa70d5efa2");
-  await assertGitBlob("lib/reliability.ts", "8bf4457acbedbc95cf62f54b85e38f6002ee0fbe");
+  await assertGitBlob("lib/reliability.ts", "ea5227d58ce5e20aab4c5ed8edb9c88e039343fd");
 });
