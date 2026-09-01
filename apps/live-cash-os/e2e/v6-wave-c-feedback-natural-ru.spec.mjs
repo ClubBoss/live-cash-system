@@ -1,17 +1,12 @@
 import { expect, test } from "@playwright/test";
 import { reachPersistedSkillTargets } from "./practical-fixture-authority.mjs";
-import { practicalSkillCorpusCanReach } from "../lib/practical-mastery-core.ts";
-import { practicalSkillFamilies } from "../content/practical-mastery/index.ts";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
-// Legacy-bridge and thin-corpus skills are permanently ceilinged below
-// REAL_HAND_TRANSFER (applySourceEvidenceCeiling / practicalSkillCorpusCanReach);
-// left untouched at their natural SOURCE_SUPPORTED state rather than forcing a
-// value the canonical re-derivation could never legitimately produce.
-const REAL_HAND_TRANSFER_TARGETS = practicalSkillFamilies
-  .map((skill) => skill.id)
-  .filter((skillId) => practicalSkillCorpusCanReach(skillId, "REAL_HAND_TRANSFER"))
-  .map((skillId) => ({ skillId, targetStage: "REAL_HAND_TRANSFER" }));
+const FOCUSED_FEEDBACK_TARGETS = [
+  { skillId: "BL-01", targetStage: "CONCEPT_TAUGHT" },
+  { skillId: "OOP-01", targetStage: "CONCEPT_TAUGHT", withPrerequisites: true },
+  { skillId: "BL-02", targetStage: "CONCEPT_TAUGHT" },
+];
 const observedRuArtifacts = /небольшой открытие|преимущество диапазона сконцентрирован(?![А-Яа-яЁё])|концентрированный преимущество|расширение диапазон(?![А-Яа-яЁё])|позиция рейзер(?![А-Яа-яЁё])|(?:больше|меньше)\s+[А-Яа-яЁё-]+ых\s+сохранившиеся\s+комбинации|избирательный\s+доски\s+требуют|убира(?:ют|ет)\s+[А-Яа-яЁё-]*ые\s+кандидаты(?![А-Яа-яЁё])|конкретными\s+ран-ауты(?![А-Яа-яЁё])/iu;
 
 async function seedSupportedPracticalSkills(page) {
@@ -20,11 +15,7 @@ async function seedSupportedPracticalSkills(page) {
   });
   await page.goto("/mastery");
   await expect.poll(async () => page.evaluate((key) => Boolean(JSON.parse(localStorage.getItem(key) ?? "null")?._practicalProfile?.mastery?.skills), LEARNER_KEY)).toBe(true);
-  await restoreSupportedPracticalSkills(page);
-}
-
-async function restoreSupportedPracticalSkills(page) {
-  await reachPersistedSkillTargets(page, LEARNER_KEY, REAL_HAND_TRANSFER_TARGETS);
+  await reachPersistedSkillTargets(page, LEARNER_KEY, FOCUSED_FEEDBACK_TARGETS);
 }
 
 async function revealTarget(page, focusSkillId, targetDecisionId) {
@@ -76,7 +67,6 @@ test("RU and EN focused feedback teaches mechanism and boundary across skill fam
   const blindCorrectReason = (await blindCard.locator("[data-practical-correct-answer] p").nth(1).innerText()).replace(/^Правильная причина:\s*/u, "").trim();
   expect((await blindMechanism.innerText()).trim()).not.toBe(blindCorrectReason);
 
-  await restoreSupportedPracticalSkills(page);
   const oopCard = await revealTarget(page, "OOP-01", "PM-OOP-01-106");
   await page.getByLabel("Язык").getByRole("button", { name: "EN", exact: true }).click();
   const oopMechanism = oopCard.locator("[data-practical-feedback-mechanism]");
