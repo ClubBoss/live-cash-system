@@ -52,7 +52,7 @@ function perSkillCounts(items) {
   return counts;
 }
 
-test("F1 current validator rejects a real focused writer round with more than two same-skill items", () => {
+test("C7/F1 real focused writer round with more than two same-skill items validates", () => {
   let mastery = createPracticalMasteryState(NOW, true);
   mastery = markPracticalConceptTaught(mastery, FOCUS_SKILL_ID, NOW);
 
@@ -63,10 +63,13 @@ test("F1 current validator rejects a real focused writer round with more than tw
   assert.equal(new Set(items.map((item) => item.decisionId)).size, items.length);
 
   const profile = profileWithRound(mastery, FOCUS_SKILL_ID, items);
-  assert.equal(validatePracticalProfileState(profile), false, "probe documents the current over-constrained validator before repair");
+  assert.equal(validatePracticalProfileState(profile), true, "canonical focused writer output must validate");
+  const restored = restoreIntegratedRound(profile.studyWorkspace, mastery, FOCUS_SKILL_ID);
+  assert.equal(restored.status, "VALID");
+  assert.deepEqual(restored.items, items);
 });
 
-test("G1 real generic adaptive writer can reproduce three items from one skill", () => {
+test("G1 real generic adaptive writer can reproduce and validate three items from one skill", () => {
   let reproduced = null;
   const base = markPracticalConceptTaught(createPracticalMasteryState(NOW, true), FOCUS_SKILL_ID, NOW);
 
@@ -84,7 +87,7 @@ test("G1 real generic adaptive writer can reproduce three items from one skill",
     const counts = perSkillCounts(items);
     const max = Math.max(0, ...counts.values());
     if (max > 2) {
-      reproduced = { items, max, skillId: [...counts.entries()].find(([, count]) => count === max)?.[0] ?? null };
+      reproduced = { mastery, items, max, skillId: [...counts.entries()].find(([, count]) => count === max)?.[0] ?? null };
       break;
     }
   }
@@ -93,19 +96,8 @@ test("G1 real generic adaptive writer can reproduce three items from one skill",
   assert.equal(reproduced.max, 3, "generic writer architecture allows exactly one adaptive overlay plus the base writer's two-item cap");
   assert.equal(new Set(reproduced.items.map((item) => item.decisionId)).size, reproduced.items.length);
 
-  const profile = profileWithRound(
-    recordPracticalDecision(
-      base,
-      (() => {
-        const decision = decisionsForPracticalSkill(FOCUS_SKILL_ID).find((candidate) => wrongInputFor(candidate));
-        const wrong = wrongInputFor(decision);
-        return { decisionId: decision.id, actionId: wrong.actionId, reasonId: wrong.reasonId, confidence: 90, now: NOW };
-      })(),
-    ),
-    null,
-    reproduced.items,
-  );
-  assert.equal(validatePracticalProfileState(profile), false, "current generic <=2 validator also rejects a real three-item generic writer shape");
+  const profile = profileWithRound(reproduced.mastery, null, reproduced.items);
+  assert.equal(validatePracticalProfileState(profile), true, "canonical generic adaptive writer output with three same-skill items must validate");
 });
 
 test("F2 focused persistence cannot claim one focus while containing another canonical skill", () => {
@@ -133,10 +125,10 @@ test("F2 focused persistence cannot claim one focus while containing another can
     },
   ];
   const profile = profileWithRound(mastery, FOCUS_SKILL_ID, mixed);
-  assert.equal(validatePracticalProfileState(profile), true, "probe documents missing focus-scope invariant before repair");
+  assert.equal(validatePracticalProfileState(profile), false, "focused persisted round must contain only its exact focus skill");
 });
 
-test("D1 real focused writer keeps decision identities unique", () => {
+test("D1 real focused writer keeps decision identities unique and duplicates remain rejected", () => {
   let mastery = createPracticalMasteryState(NOW, true);
   mastery = markPracticalConceptTaught(mastery, FOCUS_SKILL_ID, NOW);
   const items = buildAdaptiveIntegratedSession(mastery, NOW, 8, [], FOCUS_SKILL_ID);

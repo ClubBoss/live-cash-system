@@ -217,18 +217,33 @@ function validIntegratedContinuity(value: unknown): boolean {
   if (!isRecord(value)) return false;
   if (!(value.focusSkillId === null || typeof value.focusSkillId === "string")) return false;
   if (!Array.isArray(value.items) || value.items.length === 0 || value.items.length > 8) return false;
+
+  const focused = value.focusSkillId !== null;
+  if (focused && !practicalSkillById.has(value.focusSkillId as string)) return false;
+
   const decisionIds = new Set<string>();
   const skillCounts = new Map<string, number>();
   for (const item of value.items) {
     if (!validContinuityIntegratedItem(item)) return false;
-    // buildIntegratedSession's push() tracks `excluded` (no decision reused
-    // within a round) and caps `skillUse` at 2 per skill; a persisted round
-    // could never legitimately have been constructed otherwise.
     if (decisionIds.has(item.decisionId)) return false;
     decisionIds.add(item.decisionId);
-    const count = (skillCounts.get(item.skillId) ?? 0) + 1;
-    if (count > 2) return false;
-    skillCounts.set(item.skillId, count);
+
+    if (focused) {
+      // buildFocusedIntegratedSession is the canonical focused producer. It
+      // intentionally fills the requested round from one skill up to the
+      // requested size (normally 8), so same-skill multiplicity is bounded by
+      // total round size, not by buildIntegratedSession's generic base cap.
+      if (item.skillId !== value.focusSkillId) return false;
+    } else {
+      // The learner runtime persists buildAdaptiveIntegratedSession output, not
+      // bare buildIntegratedSession output. In the generic path there is at
+      // most one adaptive overlay item per skill (one classified need per
+      // supported skill) plus at most two items from buildIntegratedSession's
+      // base writer. Real-writer regression G1 reproduces the resulting max=3.
+      const count = (skillCounts.get(item.skillId) ?? 0) + 1;
+      if (count > 3) return false;
+      skillCounts.set(item.skillId, count);
+    }
   }
   if (typeof value.nextIndex !== "number" || !Number.isInteger(value.nextIndex) || value.nextIndex < 0 || value.nextIndex > value.items.length) return false;
   if (!Array.isArray(value.submittedAttemptIds) || ![value.nextIndex, value.nextIndex + 1].includes(value.submittedAttemptIds.length)) return false;
