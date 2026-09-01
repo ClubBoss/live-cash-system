@@ -3,6 +3,11 @@ import { isIntegrationDerivedSkill } from "../content/practical-mastery/integrat
 import { canonicalFirstJourneySkillIds, hardDependenciesFor, learningRouteScore, softDependenciesFor, whyNowForSkill } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { isOrdinaryLearnerDecision, type PracticalDecision, type PracticalEvidenceStage } from "../content/practical-mastery";
+import {
+  PRACTICAL_HIGH_CONFIDENCE_WRONG,
+  practicalMisconceptionEvidenceFamilies,
+  selectedWrongPracticalMisconceptionIds,
+} from "./practical-current-mistakes";
 
 export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3 as const;
 export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v3";
@@ -18,6 +23,28 @@ export type PracticalSkillProgress = {
 };
 export type PracticalMasteryState = { schemaVersion: typeof PRACTICAL_MASTERY_STATE_SCHEMA_VERSION; contentVersion: string; revision: number; updatedAt: string; resetFromLegacyAt: string | null; skills: Record<string, PracticalSkillProgress>; attempts: PracticalAttempt[] };
 export type PracticalRecommendedSkill = { skillId: string; score: number; whyNow: string };
+
+// The scheduler-only generic repair fallback for a real latest wrong whose
+// actually-wrong dimensions carry no misconception tag. Feature A never
+// synthesizes misconception evidence for these, so the scheduler counts them
+// as their own untagged evidence unit per skill (mirrors the "SKILL:" fallback
+// already established for in-round scheduling in practical-integrated-session.ts).
+function untaggedWrongDecisionIdsForSkill(state: PracticalMasteryState, skillId: string): string[] {
+  const ids: string[] = [];
+  for (const attempt of latestAttemptsByDecision(state, skillId).values()) {
+    if (attempt.correct) continue;
+    const decision = practicalDecisionById.get(attempt.decisionId);
+    if (!decision || !isOrdinaryLearnerDecision(decision) || decision.skillId !== attempt.skillId) continue;
+    if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue;
+    const selectedActionValid = decision.actionOptions.some((option) => option.id === attempt.actionId);
+    const selectedReasonValid = decision.reasonOptions.some((option) => option.id === attempt.reasonId);
+    const derivedCorrect = attempt.actionId === decision.correctActionId && attempt.reasonId === decision.correctReasonId;
+    if (!selectedActionValid || !selectedReasonValid || attempt.correct !== derivedCorrect) continue;
+    if (selectedWrongPracticalMisconceptionIds(attempt).length > 0) continue;
+    ids.push(attempt.decisionId);
+  }
+  return ids;
+}
 
 const STAGE_ORDER: PracticalEvidenceStage[] = ["SOURCE_SUPPORTED", "CONCEPT_TAUGHT", "RECOGNITION_TRAINED", "DECISION_TRAINED", "CHANGED_NODE_TRANSFER", "BOUNDARY_TESTED", "DELAYED_RETRIEVAL", "REAL_HAND_TRANSFER"];
 const MIN_RECOGNITION_STIMULI = 2; const MIN_DIRECT_DECISION_STIMULI = 3; const MIN_TRANSFER_STIMULI = 2; const MIN_BOUNDARY_STIMULI = 1;
@@ -57,7 +84,27 @@ export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId:
 export function availablePracticalSkills(state: PracticalMasteryState) { return practicalSkillFamilies.filter((skill) => practicalPrerequisitesMet(state, skill.id)); }
 export function trainablePracticalSkills(state: PracticalMasteryState) { return availablePracticalSkills(state).filter((skill) => !isIntegrationDerivedSkill(skill.id) && !isPracticalBridgeSkill(skill.id) && practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED")); }
 
-function repairUrgencyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 { const latest = latestAttemptsByDecision(state, skillId); const wrong = [...latest.values()].filter((attempt) => !attempt.correct).length; if (wrong >= 4) return 3; if (wrong >= 2) return 2; if (wrong >= 1) return 1; return 0; }
+// Re-resolved onto Feature A's canonical (skillId, misconceptionId) evidence
+// authority instead of a raw wrong-attempt count: a decision wrong on two
+// distinct misconceptions (action and reason both wrong differently) counts as
+// two evidence units, not one, and high-confidence wrong evidence is weighted
+// the same way Feature A weights it for presentation (PRACTICAL_HIGH_CONFIDENCE_WRONG,
+// 2x). The untagged "SKILL:" fallback still contributes its own evidence unit.
+// This never reads the Current Mistakes presentation-sorted array or its
+// order — only the unsorted per-family evidence counts.
+function repairUrgencyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 {
+  const families = practicalMisconceptionEvidenceFamilies(state).filter((family) => family.skillId === skillId);
+  const latest = latestAttemptsByDecision(state, skillId);
+  const untaggedDecisionIds = untaggedWrongDecisionIdsForSkill(state, skillId);
+  const untaggedHighConfidenceCount = untaggedDecisionIds.filter((decisionId) => (latest.get(decisionId)?.confidence ?? 0) >= PRACTICAL_HIGH_CONFIDENCE_WRONG).length;
+  const evidenceCount = families.reduce((sum, family) => sum + family.evidenceCount, 0) + untaggedDecisionIds.length;
+  const highConfidenceEvidenceCount = families.reduce((sum, family) => sum + family.highConfidenceEvidenceCount, 0) + untaggedHighConfidenceCount;
+  const weighted = evidenceCount + 2 * highConfidenceEvidenceCount + (families.length >= 2 ? 1 : 0);
+  if (weighted >= 4) return 3;
+  if (weighted >= 2) return 2;
+  if (weighted >= 1) return 1;
+  return 0;
+}
 function recentExposurePenaltyForSkill(state: PracticalMasteryState, skillId: string): 0 | 1 | 2 | 3 { const count = state.attempts.slice(-8).filter((attempt) => attempt.skillId === skillId).length; if (count >= 5) return 3; if (count >= 3) return 2; if (count >= 1) return 1; return 0; }
 function softReadinessPenalty(state: PracticalMasteryState, skillId: string): number { return softDependenciesFor(skillId).reduce((penalty, dependency) => { const progress = state.skills[dependency.fromSkillId]; if (!progress?.conceptTaught) return penalty + 7; if (!stageAtLeast(progress.evidenceStage, "RECOGNITION_TRAINED")) return penalty + 4; return penalty; }, 0); }
 function hasTeachingAnchor(skillId: string): boolean { return practicalAnchors.some((anchor) => anchor.skillId === skillId); }
@@ -90,7 +137,13 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
   if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["recognition"]); if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["decision"]); if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"]); if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
   const attemptedIds = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId).map((attempt) => attempt.decisionId)); return pool.find((decision) => !attemptedIds.has(decision.id)) ?? null;
 }
-export function practicalRepairQueue(state: PracticalMasteryState): string[] { const latest = latestAttemptsByDecision(state); const bySkill = new Map<string, PracticalAttempt[]>(); for (const attempt of latest.values()) { if (attempt.correct || isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue; const attempts = bySkill.get(attempt.skillId) ?? []; attempts.push(attempt); bySkill.set(attempt.skillId, attempts); } return [...bySkill.entries()].sort((left, right) => right[1].length - left[1].length || left[0].localeCompare(right[0])).map(([skillId]) => skillId); }
+// primaryRepairLoad: which single skill wins "the" active repair slot. Re-resolved
+// post-A to weight high-confidence wrong evidence the same way Feature A's own
+// presentationEvidenceScore does (PRACTICAL_HIGH_CONFIDENCE_WRONG, 2x), while the
+// base wrong-attempt population and its ordering stay byte-identical to before
+// when no high-confidence evidence exists.
+function practicalRepairQueueWeight(attempts: PracticalAttempt[]): number { return attempts.length + attempts.filter((attempt) => attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG).length * 2; }
+export function practicalRepairQueue(state: PracticalMasteryState): string[] { const latest = latestAttemptsByDecision(state); const bySkill = new Map<string, PracticalAttempt[]>(); for (const attempt of latest.values()) { if (attempt.correct || isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue; const attempts = bySkill.get(attempt.skillId) ?? []; attempts.push(attempt); bySkill.set(attempt.skillId, attempts); } return [...bySkill.entries()].sort((left, right) => practicalRepairQueueWeight(right[1]) - practicalRepairQueueWeight(left[1]) || left[0].localeCompare(right[0])).map(([skillId]) => skillId); }
 export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skillId: string, successful: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") nextProgress.delayedRetrievalPassed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function markPracticalRealHandTransfer(state: PracticalMasteryState, skillId: string, reviewed: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (reviewed && nextProgress.delayedRetrievalPassed) nextProgress.realHandTransferReviewed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function practicalEvidenceRequirements() { return { recognitionStimuli: MIN_RECOGNITION_STIMULI, directDecisionStimuli: MIN_DIRECT_DECISION_STIMULI, transferStimuli: MIN_TRANSFER_STIMULI, boundaryStimuli: MIN_BOUNDARY_STIMULI } as const; }

@@ -12,16 +12,18 @@ import {
 
 export const PRACTICAL_HIGH_CONFIDENCE_WRONG = 75;
 
-export type CurrentPracticalMistake = Readonly<{
+export type PracticalMisconceptionEvidenceFamily = Readonly<{
   skillId: string;
   misconceptionId: string;
   unresolvedDecisionIds: readonly string[];
   evidenceCount: number;
   highConfidenceEvidenceCount: number;
-  presentationEvidenceScore: number;
   latestAnsweredAt: string;
   representativeDecisionId: string;
 }>;
+
+export type CurrentPracticalMistake = PracticalMisconceptionEvidenceFamily &
+  Readonly<{ presentationEvidenceScore: number }>;
 
 function compareCanonicalId(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -52,9 +54,14 @@ export function selectedWrongPracticalMisconceptionIds(
   return [...misconceptionIds].sort(compareCanonicalId);
 }
 
-export function currentPracticalMistakes(
+// Unsorted (skillId, misconceptionId) evidence families — the single canonical
+// authority both the Current Mistakes presentation surface (below) and the
+// repair scheduler (practical-mastery-core.ts) build on. The scheduler must
+// re-derive its own urgency ranking from this unsorted data; it must never
+// read currentPracticalMistakes()'s presentation-sorted array or its order.
+export function practicalMisconceptionEvidenceFamilies(
   state: PracticalMasteryState,
-): readonly CurrentPracticalMistake[] {
+): readonly PracticalMisconceptionEvidenceFamily[] {
   const grouped = new Map<string, {
     skillId: string;
     misconceptionId: string;
@@ -76,30 +83,38 @@ export function currentPracticalMistakes(
     }
   }
 
-  return [...grouped.values()]
-    .map((family) => {
-      const contributors = [...family.contributors.values()]
-        .sort((left, right) => compareCanonicalId(left.decisionId, right.decisionId));
-      const unresolvedDecisionIds = contributors.map((attempt) => attempt.decisionId);
-      const evidenceCount = contributors.length;
-      const highConfidenceEvidenceCount = contributors
-        .filter((attempt) => attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG).length;
-      const latestAnsweredAt = contributors.reduce(
-        (latest, attempt) => attempt.answeredAt > latest ? attempt.answeredAt : latest,
-        "",
-      );
+  return [...grouped.values()].map((family) => {
+    const contributors = [...family.contributors.values()]
+      .sort((left, right) => compareCanonicalId(left.decisionId, right.decisionId));
+    const unresolvedDecisionIds = contributors.map((attempt) => attempt.decisionId);
+    const evidenceCount = contributors.length;
+    const highConfidenceEvidenceCount = contributors
+      .filter((attempt) => attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG).length;
+    const latestAnsweredAt = contributors.reduce(
+      (latest, attempt) => attempt.answeredAt > latest ? attempt.answeredAt : latest,
+      "",
+    );
 
-      return {
-        skillId: family.skillId,
-        misconceptionId: family.misconceptionId,
-        unresolvedDecisionIds,
-        evidenceCount,
-        highConfidenceEvidenceCount,
-        presentationEvidenceScore: evidenceCount + 2 * highConfidenceEvidenceCount,
-        latestAnsweredAt,
-        representativeDecisionId: unresolvedDecisionIds[0] ?? "",
-      } satisfies CurrentPracticalMistake;
-    })
+    return {
+      skillId: family.skillId,
+      misconceptionId: family.misconceptionId,
+      unresolvedDecisionIds,
+      evidenceCount,
+      highConfidenceEvidenceCount,
+      latestAnsweredAt,
+      representativeDecisionId: unresolvedDecisionIds[0] ?? "",
+    } satisfies PracticalMisconceptionEvidenceFamily;
+  });
+}
+
+export function currentPracticalMistakes(
+  state: PracticalMasteryState,
+): readonly CurrentPracticalMistake[] {
+  return practicalMisconceptionEvidenceFamilies(state)
+    .map((family) => ({
+      ...family,
+      presentationEvidenceScore: family.evidenceCount + 2 * family.highConfidenceEvidenceCount,
+    } satisfies CurrentPracticalMistake))
     .sort((left, right) =>
       right.presentationEvidenceScore - left.presentationEvidenceScore
       || compareCanonicalId(left.skillId, right.skillId)
