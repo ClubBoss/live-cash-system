@@ -217,6 +217,11 @@
   .practical-mastery-nav__item {
     min-width: 0;
     border-right: 0;
+    /* A single long unwrapped word (e.g. "Продолжить") can exceed a
+       narrow grid track's width and force overflow even though the
+       track itself has no minimum; let long words break instead. */
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .practical-mastery-nav ~ main .metrics { grid-template-columns: 1fr 1fr; }
 }
