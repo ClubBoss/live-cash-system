@@ -10,7 +10,6 @@ import {
   validateLearnerState,
 } from "../lib/model-core.ts";
 import {
-  markDelayedPracticalRetrieval,
   markPracticalConceptTaught,
   markPracticalRealHandTransfer,
   practicalSkillCorpusCanReach,

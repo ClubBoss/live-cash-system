@@ -163,9 +163,10 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   if (value.schemaVersion !== PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION) return false;
   if (typeof value.contentVersion !== "string" || typeof value.revision !== "number" || typeof value.updatedAt !== "string") return false;
   if (!(value.resetFromLegacyAt === null || typeof value.resetFromLegacyAt === "string")) return false;
-  if (!isRecord(value.skills) || !Array.isArray(value.attempts)) return false;
+  const skills = value.skills;
+  if (!isRecord(skills) || !Array.isArray(value.attempts)) return false;
 
-  const persistedSkillIds = Object.keys(value.skills).sort();
+  const persistedSkillIds = Object.keys(skills).sort();
   if (persistedSkillIds.length !== CANONICAL_PRACTICAL_SKILL_IDS.length
     || persistedSkillIds.some((skillId, index) => skillId !== CANONICAL_PRACTICAL_SKILL_IDS[index])) return false;
 
@@ -185,7 +186,7 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   }
 
   return CANONICAL_PRACTICAL_SKILL_IDS.every((skillId) => (
-    validSkillProgress(skillId, value.skills[skillId], replayed.skills[skillId])
+    validSkillProgress(skillId, skills[skillId], replayed.skills[skillId])
   ));
 }
 
