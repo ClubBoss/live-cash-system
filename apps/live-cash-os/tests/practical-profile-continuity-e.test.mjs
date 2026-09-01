@@ -53,7 +53,7 @@ test("pre-Practical import cannot silently replace a current Practical profile",
   assert.equal(prepared.requiresConfirmation, true);
 });
 
-test("lineage markers make divergent offline Practical branches fail closed", () => {
+test("mutable-workspace Practical branches remain fail-closed without exact CAS ancestry", () => {
   const base = stateWithProfile();
   const profile = practicalProfileFromLearnerState(base);
   const branchA = withPracticalProfile(base, {
@@ -65,8 +65,8 @@ test("lineage markers make divergent offline Practical branches fail closed", ()
     studyWorkspace: { ...profile.studyWorkspace, focus: "branch B", updatedAt: "2026-08-21T00:02:00.000Z" },
   }, new Date("2026-08-21T00:02:00Z"));
 
-  assert.equal(isSafeSuccessor(branchA, base), true);
-  assert.equal(isSafeSuccessor(branchB, base), true);
+  assert.equal(isSafeSuccessor(branchA, base), false);
+  assert.equal(isSafeSuccessor(branchB, base), false);
   assert.equal(isSafeSuccessor(branchA, branchB), false);
   assert.equal(isSafeSuccessor(branchB, branchA), false);
 });
