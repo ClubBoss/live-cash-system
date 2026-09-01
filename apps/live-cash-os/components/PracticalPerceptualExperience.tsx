@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import { restorePerceptualCursor, withPerceptualCursor } from "../lib/practical-continuity-workspace";
 import { recordPracticalDecision } from "../lib/practical-mastery-core";
+import { focusedPracticalTableStates } from "../lib/practical-perceptual-focus";
 import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -22,6 +23,7 @@ export default function PracticalPerceptualExperience() {
     ready,
     recoveryBlocked,
   } = usePracticalProfileState();
+  const [requestedFocus, setRequestedFocus] = useState<string | null | undefined>(undefined);
   const [index, setIndex] = useState(0);
   const [cursorContentVersion, setCursorContentVersion] = useState<string | null>(null);
   const [actionId, setActionId] = useState("");
@@ -32,11 +34,33 @@ export default function PracticalPerceptualExperience() {
   const [submittedScaffold, setSubmittedScaffold] = useState<ReturnType<typeof effectivePracticalScaffold> | null>(null);
   const [startedAt, setStartedAt] = useState(() => new Date());
 
+  useEffect(() => {
+    const syncFocusFromUrl = () => setRequestedFocus(new URLSearchParams(window.location.search).get("focus"));
+    syncFocusFromUrl();
+    window.addEventListener("popstate", syncFocusFromUrl);
+    return () => window.removeEventListener("popstate", syncFocusFromUrl);
+  }, []);
+
+  useEffect(() => {
+    if (requestedFocus === undefined) return;
+    setIndex(0);
+    setCursorContentVersion(null);
+    setActionId("");
+    setReasonId("");
+    setRevealed(false);
+    setLastCorrect(null);
+    setSubmittedDecisionId(null);
+    setSubmittedScaffold(null);
+  }, [requestedFocus]);
+
   const eligible = useMemo(() => {
+    if (requestedFocus === undefined) return [];
     const attempted = new Set(state.attempts.map((attempt) => attempt.decisionId));
-    const exposed = allPracticalTableStates.filter((candidate) => state.skills[practicalDecisionById.get(candidate.decisionId)?.skillId ?? ""]?.conceptTaught);
+    const exposed = requestedFocus
+      ? focusedPracticalTableStates(state, requestedFocus)
+      : allPracticalTableStates.filter((candidate) => state.skills[practicalDecisionById.get(candidate.decisionId)?.skillId ?? ""]?.conceptTaught);
     return [...exposed.filter((candidate) => !attempted.has(candidate.decisionId)), ...exposed.filter((candidate) => attempted.has(candidate.decisionId))];
-  }, [state]);
+  }, [requestedFocus, state]);
 
   const queuedTable = eligible[index % Math.max(eligible.length, 1)] ?? null;
   const table = submittedDecisionId
@@ -44,26 +68,27 @@ export default function PracticalPerceptualExperience() {
     : queuedTable;
   const decision = table ? practicalDecisionById.get(table.decisionId) ?? null : null;
   const skill = decision ? practicalSkillById.get(decision.skillId) ?? null : null;
+  const requestedSkill = requestedFocus ? practicalSkillById.get(requestedFocus) ?? null : null;
   const liveScaffold = table && skill ? effectivePracticalScaffold(state, skill.id, table.scaffold) : "guided";
   const scaffold = submittedScaffold ?? liveScaffold;
   const supportCue = practicalScaffoldCue(scaffold, locale);
 
   useEffect(() => {
-    if (!ready || cursorContentVersion === state.contentVersion) return;
+    if (!ready || requestedFocus === undefined || cursorContentVersion === state.contentVersion) return;
     const restored = restorePerceptualCursor(studyWorkspace, state, eligible.map((candidate) => candidate.decisionId));
     const restoredIndex = restored.status === "VALID"
       ? eligible.findIndex((candidate) => candidate.decisionId === restored.decisionId)
       : 0;
     setIndex(restoredIndex >= 0 ? restoredIndex : 0);
     setCursorContentVersion(state.contentVersion);
-  }, [cursorContentVersion, eligible, ready, state, studyWorkspace]);
+  }, [cursorContentVersion, eligible, ready, requestedFocus, state, studyWorkspace]);
 
   useEffect(() => {
-    if (!ready || cursorContentVersion !== state.contentVersion || !queuedTable) return;
+    if (!ready || requestedFocus === undefined || cursorContentVersion !== state.contentVersion || !queuedTable) return;
     const continuity = studyWorkspace.continuity;
     if (continuity?.contentVersion === state.contentVersion && continuity.perceptual?.decisionId === queuedTable.decisionId) return;
     setStudyWorkspace(withPerceptualCursor(studyWorkspace, state.contentVersion, queuedTable.decisionId));
-  }, [cursorContentVersion, queuedTable, ready, setStudyWorkspace, state.contentVersion, studyWorkspace]);
+  }, [cursorContentVersion, queuedTable, ready, requestedFocus, setStudyWorkspace, state.contentVersion, studyWorkspace]);
 
   useEffect(() => { setStartedAt(new Date()); }, [table?.decisionId]);
 
@@ -92,8 +117,14 @@ export default function PracticalPerceptualExperience() {
     setLastCorrect(null);
   };
 
-  if (!ready || cursorContentVersion !== state.contentVersion) return <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
+  if (!ready || requestedFocus === undefined || cursorContentVersion !== state.contentVersion) return <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
   if (recoveryBlocked) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><h1>{locale === "ru" ? "Прогресс требует восстановления" : "Progress needs recovery"}</h1><p>{locale === "ru" ? "Прогресс не будет перезаписан. Открой «Данные и восстановление» в инструментах Live Cash OS." : "Practical progress will not be overwritten. Open Data & Recovery in Live Cash OS tools."}</p><Link href="/tools">{locale === "ru" ? "Открыть данные и восстановление" : "Open Data & Recovery"} →</Link></main>;
+  if (requestedFocus && (!table || !decision || !skill)) return <main style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px 64px" }} data-perceptual-focus-state="unavailable">
+    <p className="eyebrow">{locale === "ru" ? "ТОЧНОЕ ЧТЕНИЕ СТОЛА" : "EXACT TABLE READING"}</p>
+    <h1>{requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : (locale === "ru" ? "Для выбранного навыка пока нет подходящего стола" : "No eligible table state for the selected skill")}</h1>
+    <p>{locale === "ru" ? "Этот точный фокус не будет заменён общим режимом или другой темой. Вернись к выбору улучшения и продолжи доступный точный маршрут." : "This exact focus will not be replaced by generic table reading or another topic. Return to Improve and choose an available exact route."}</p>
+    <Link className="secondary" href="/mastery/improve">{locale === "ru" ? "Вернуться к улучшению" : "Back to Improve"}</Link>
+  </main>;
   if (!table || !decision || !skill) return <main style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px 64px" }}><p className="eyebrow">{locale === "ru" ? "ЧТЕНИЕ СТОЛА" : "PERCEPTUAL PRACTICE"}</p><h1>{locale === "ru" ? "Сначала познакомься с механизмами" : "Learn the mechanisms first"}</h1><p>{locale === "ru" ? "Этот режим не проверяет незнакомые темы. Сначала пройди первый круг, а затем изученные навыки появятся здесь уже как реальные состояния стола." : "This mode does not test unseen topics. Complete First Journey first; learned skills will then appear here as table states."}</p><Link className="primary" href="/mastery/journey">{locale === "ru" ? "Первый круг" : "First Journey"} →</Link></main>;
 
   const scaffoldLabel = locale === "ru"
@@ -101,7 +132,7 @@ export default function PracticalPerceptualExperience() {
     : (scaffold === "guided" ? "guided" : scaffold === "reduced" ? "reduced cues" : "no cue");
 
   return <main style={{ maxWidth: 900, margin: "0 auto", padding: "24px 18px 64px" }}>
-    <section className="hero compact-hero"><p className="eyebrow">{locale === "ru" ? `ЧТЕНИЕ СТОЛА · ${scaffoldLabel}` : `PERCEPTUAL PRACTICE · ${scaffoldLabel}`}</p><h1>{locale === "ru" ? "Прочитай стол до того, как назовёшь тему" : "Read the table before naming the topic"}</h1>{supportCue ? <p>{supportCue}</p> : <p>{locale === "ru" ? "Подсказка снята: сам найди переменную, которая меняет решение." : "The cue has faded: identify the decision-changing variable yourself."}</p>}<div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div></section>
+    <section className="hero compact-hero"><p className="eyebrow">{requestedFocus ? (locale === "ru" ? `ТОЧНЫЙ ФОКУС · ${scaffoldLabel}` : `EXACT FOCUS · ${scaffoldLabel}`) : (locale === "ru" ? `ЧТЕНИЕ СТОЛА · ${scaffoldLabel}` : `PERCEPTUAL PRACTICE · ${scaffoldLabel}`)}</p><h1>{requestedFocus && requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : (locale === "ru" ? "Прочитай стол до того, как назовёшь тему" : "Read the table before naming the topic")}</h1>{supportCue ? <p>{supportCue}</p> : <p>{locale === "ru" ? "Подсказка снята: сам найди переменную, которая меняет решение." : "The cue has faded: identify the decision-changing variable yourself."}</p>}<div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div></section>
     <section className="surface" style={{ marginTop: 18 }} data-practical-decision-id={decision.id}>
       <PracticalTableStateStimulus state={table} locale={locale} />
       <h2>{locale === "ru" ? decision.questionRu : decision.questionEn}</h2>

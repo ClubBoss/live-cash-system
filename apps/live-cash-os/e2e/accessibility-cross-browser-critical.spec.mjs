@@ -28,8 +28,8 @@ test("Practical Mastery primary navigation is keyboard reachable with visible fo
 });
 
 const mobileNavCases = [
-  { locale: "RU", labels: ["Главная", "Продолжить обучение", "Чтение стола", "После игры", "Справочник"] },
-  { locale: "EN", labels: ["Home", "Continue learning", "Table reading", "After play", "Reference"] },
+  { locale: "RU", labels: ["Главная", "Продолжить обучение", "Улучшить", "Чтение стола", "После игры", "Справочник"] },
+  { locale: "EN", labels: ["Home", "Continue learning", "Improve", "Table reading", "After play", "Reference"] },
 ];
 
 test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN", async ({ page }) => {
@@ -42,7 +42,7 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
 
     const rail = nav.locator(".practical-mastery-nav__rail");
     const links = rail.locator(".practical-mastery-nav__item");
-    await expect(links).toHaveCount(5);
+    await expect(links).toHaveCount(6);
 
     for (const label of labels) {
       await expect(rail.getByRole("link", { name: label, exact: true })).toBeVisible();
@@ -74,9 +74,9 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
     }
 
     await links.first().focus();
-    for (let index = 0; index < 5; index += 1) {
+    for (let index = 0; index < 6; index += 1) {
       await expect(links.nth(index)).toBeFocused();
-      if (index < 4) await page.keyboard.press("Tab");
+      if (index < 5) await page.keyboard.press("Tab");
     }
     await expect(rail.getByRole("link", { name: labels.at(-1), exact: true })).toBeFocused();
   }

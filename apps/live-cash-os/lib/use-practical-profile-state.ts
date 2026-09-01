@@ -82,6 +82,7 @@ export function usePracticalProfileState() {
     mastery: profile.mastery,
     performance: profile.performance,
     studyWorkspace: profile.studyWorkspace,
+    fieldNotes: (controller.state.fieldNotes ?? []) as readonly PracticalFieldTransferNote[],
     setMastery,
     setMasteryWithPerformance,
     setMasteryWithStudyWorkspace,
