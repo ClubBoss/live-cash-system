@@ -2,13 +2,17 @@ import { hardDependenciesFor } from "../content/practical-mastery/learning-route
 import {
   decisionsForPracticalSkill,
   deriveEvidenceStage,
-  markDelayedPracticalRetrieval,
   markPracticalConceptTaught,
   markPracticalRealHandTransfer,
   practicalSkillCorpusCanReach,
   recordPracticalDecision,
 } from "../lib/practical-mastery-core.ts";
-import { RETENTION_INTERVAL_DAYS } from "../lib/practical-integrated-session.ts";
+import {
+  buildIntegratedSession,
+  recordIntegratedDecision,
+  RETENTION_INTERVAL_DAYS,
+} from "../lib/practical-integrated-session.ts";
+import { validatePracticalProfileState } from "../lib/practical-profile-contract.ts";
 
 const TERMINAL_TARGET_STAGES = new Set(["DELAYED_RETRIEVAL", "REAL_HAND_TRANSFER"]);
 
@@ -26,6 +30,27 @@ function fixtureDate(now) {
 
 function staleTestIntent(skillId, targetStage, actualStage) {
   throw new Error(`STALE_TEST_INTENT: ${skillId} cannot be canonically moved from ${actualStage} to exact ${targetStage}`);
+}
+
+function delayedRetrievalThroughIntegratedWriter(state, skillId, at) {
+  const tier = RETENTION_INTERVAL_DAYS[0];
+  const latestCorrect = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId && attempt.correct) ?? null;
+  if (!latestCorrect) staleTestIntent(skillId, "DELAYED_RETRIEVAL", deriveEvidenceStage(state.skills[skillId]));
+
+  const dueAt = new Date(Math.max(at.getTime(), new Date(latestCorrect.answeredAt).getTime() + tier * 86_400_000));
+  const retentionItem = buildIntegratedSession(state, dueAt, 8)
+    .find((item) => item.skillId === skillId && item.reason === "RETENTION" && item.retentionTierDays === tier) ?? null;
+  if (!retentionItem) staleTestIntent(skillId, "DELAYED_RETRIEVAL", deriveEvidenceStage(state.skills[skillId]));
+
+  const decision = decisionsForPracticalSkill(skillId).find((candidate) => candidate.id === retentionItem.decisionId);
+  if (!decision) throw new Error(`missing canonical retention decision ${retentionItem.decisionId}`);
+
+  return recordIntegratedDecision(state, retentionItem, {
+    actionId: decision.correctActionId,
+    reasonId: decision.correctReasonId,
+    confidence: 100,
+    now: dueAt,
+  });
 }
 
 export function reachSkillStage(state, skillId, targetStage, now = "2026-09-01T00:00:00.000Z") {
@@ -68,17 +93,14 @@ export function reachSkillStage(state, skillId, targetStage, now = "2026-09-01T0
     staleTestIntent(skillId, targetStage, boundaryStage);
   }
 
-  // DELAYED_RETRIEVAL/REAL_HAND_TRANSFER are not corpus-answer-driven: the real
-  // writer (recordIntegratedDecision, practical-integrated-session.ts) always
-  // grants a retentionDaysPassed tier in the same atomic step it flips
-  // delayedRetrievalPassed, so this mirrors that atomic grant instead of
-  // calling markDelayedPracticalRetrieval alone, which only ever sets the
-  // boolean and requires a tier already present.
-  next = { ...next, skills: { ...next.skills, [skillId]: { ...next.skills[skillId], retentionDaysPassed: [RETENTION_INTERVAL_DAYS[0]] } } };
-  next = markDelayedPracticalRetrieval(next, skillId, true, at);
+  // Terminal evidence is created only through the same production writer path
+  // that can create it for a learner. buildIntegratedSession must first emit a
+  // genuinely due RETENTION item; recordIntegratedDecision atomically grants
+  // the canonical retention tier and delayed-retrieval flag.
+  next = delayedRetrievalThroughIntegratedWriter(next, skillId, at);
   if (deriveEvidenceStage(next.skills[skillId]) === targetStage) return next;
 
-  next = markPracticalRealHandTransfer(next, skillId, true, at);
+  next = markPracticalRealHandTransfer(next, skillId, true, new Date(next.updatedAt));
   if (deriveEvidenceStage(next.skills[skillId]) === targetStage) return next;
 
   staleTestIntent(skillId, targetStage, deriveEvidenceStage(next.skills[skillId]));
@@ -115,6 +137,10 @@ export async function reachPersistedSkillTargets(page, learnerKey, targets, now 
       : reachSkillStage(mastery, target.skillId, target.targetStage, now);
   }
   root._practicalProfile.mastery = mastery;
+
+  if (!validatePracticalProfileState(root._practicalProfile)) {
+    throw new Error("LEGITIMATE_PRODUCTION_WRITER_STATE_REJECTED: canonical fixture authority produced a profile rejected by validatePracticalProfileState");
+  }
 
   await page.evaluate(({ key, value }) => {
     localStorage.setItem(key, JSON.stringify(value));
