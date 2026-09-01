@@ -361,7 +361,9 @@ export default function PracticalImproveExperience() {
         <h2>{locale === "ru" ? "Проверь точный навык в визуальном споте" : "Test an exact skill in a visual spot"}</h2>
         <p>{locale === "ru" ? "Если для выбранного точного навыка есть подходящее состояние стола, ссылка выше ведёт только к нему. Если такого состояния нет, общий режим не подставляется вместо выбранного фокуса." : "When an eligible table state exists for an exact skill, the contextual links above route only to that skill. If none exists, generic table reading is not substituted for that focus."}</p>
       </div>
-      <PracticalDocumentLink className="secondary" href="/mastery/perception">{locale === "ru" ? "Открыть обычное чтение стола" : "Open generic table reading"} →</PracticalDocumentLink>
+      {activeResume
+        ? <span className="secondary" aria-disabled="true" data-table-reading-generic="active-round-first">{locale === "ru" ? "Обычное чтение стола — после текущего раунда" : "Generic table reading — after the current round"}</span>
+        : <PracticalDocumentLink className="secondary" href="/mastery/perception">{locale === "ru" ? "Открыть обычное чтение стола" : "Open generic table reading"} →</PracticalDocumentLink>}
     </section>
   </main>;
 }
