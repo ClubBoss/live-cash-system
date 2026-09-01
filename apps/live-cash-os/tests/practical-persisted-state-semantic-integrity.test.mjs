@@ -94,11 +94,13 @@ test("M2 a canonical successfulDecisionId from a wrong skill contributes zero to
   const decision = syntheticDecision({ id: "INTEGRITY-M2", skillId: "FND-01" });
   withSyntheticDecisions([decision], () => {
     const profile = baseProfile();
-    profile.mastery.attempts = [attempt({ id: "1", decisionId: decision.id, skillId: "FND-01", actionId: "a", reasonId: "r1", confidence: 40, correct: true })];
-    profile.mastery.skills["FND-01"].successfulDecisionIds = [decision.id];
-    profile.mastery.skills["FND-01"].attempts = 1;
-    profile.mastery.skills["FND-01"].correct = 1;
-    profile.mastery.skills["FND-01"].directDecisionCorrect = 1;
+    profile.mastery = recordPracticalDecision(profile.mastery, {
+      decisionId: decision.id,
+      actionId: "a",
+      reasonId: "r1",
+      confidence: 40,
+      now: NOW,
+    });
     assert.equal(validatePracticalProfileState(profile), true, "legitimately-backed evidence on the owning skill must validate");
 
     // Forge the SAME real correct decision into a different skill's evidence.

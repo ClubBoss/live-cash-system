@@ -213,6 +213,13 @@ export async function POST(request: Request) {
     return json({ error: "Learner state schema 2 is required", code: "INVALID_STATE" }, 400);
   }
   const incoming = migrateLearnerState(rawState);
+  // Every LearnerState persistence branch below shares this root trust boundary.
+  // Migration happens first so legacy-compatible states can normalize before
+  // current Practical Profile integrity is evaluated; malformed Practical
+  // evidence can never reach first-write, live CAS, or tombstone-resume writes.
+  if (!validateRootLearnerState(incoming)) {
+    return json({ error: "Learner state schema 2 is required", code: "INVALID_STATE" }, 400);
+  }
   const baseRevision = typeof payload.baseRevision === "number" && Number.isFinite(payload.baseRevision)
     ? payload.baseRevision
     : null;
