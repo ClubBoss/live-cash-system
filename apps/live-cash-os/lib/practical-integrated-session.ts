@@ -10,6 +10,13 @@ import { isIntegrationDerivedSkill } from "../content/practical-mastery/integrat
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { learningRouteScore, whyNowForSkill } from "../content/practical-mastery/learning-route";
 import {
+  PRACTICAL_HIGH_CONFIDENCE_WRONG,
+  currentPracticalMistakes,
+  selectedWrongPracticalMisconceptionIds,
+} from "./practical-current-mistakes";
+import {
+  isPracticalBridgeSkill,
+  latestAttemptsByDecision,
   markDelayedPracticalRetrieval,
   practicalPrerequisitesMet,
   practicalSkillCorpusCanReach,
@@ -22,25 +29,46 @@ import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 
 export const INTEGRATED_SESSION_SIZE = 8;
 export const RETENTION_INTERVAL_DAYS = [1, 3, 7] as const;
-const HIGH_CONFIDENCE_WRONG = 75;
 const BRIDGE_SKILL_IDS = new Set(["OOP-06", "OOP-07", "IP-03", "IP-04", "IP-05", "IP-06"]);
 
 type MistakeFamily = { key: string; skillId: string; unresolvedDecisionIds: string[]; priority: number };
 export type IntegratedSessionItem = { decisionId: string; skillId: string; priority: number; reason: "REPAIR" | "RETENTION" | "TRANSFER" | "REINFORCE" | "RECOGNITION"; whyAfterAnswer: string; retentionTierDays: number | null };
 
-function selectedMisconceptions(attempt: PracticalAttempt): string[] {
-  const decision = practicalDecisionById.get(attempt.decisionId); if (!decision) return [];
-  const action = decision.actionOptions.find((option) => option.id === attempt.actionId); const reason = decision.reasonOptions.find((option) => option.id === attempt.reasonId);
-  return [action?.misconception, reason?.misconception].filter((value): value is string => Boolean(value));
-}
-function latestAttemptsByDecision(state: PracticalMasteryState): Map<string, PracticalAttempt> { const map = new Map<string, PracticalAttempt>(); for (const attempt of state.attempts) map.set(attempt.decisionId, attempt); return map; }
-
 export function unresolvedMistakeFamilies(state: PracticalMasteryState): MistakeFamily[] {
-  const latest = latestAttemptsByDecision(state); const grouped = new Map<string, MistakeFamily>();
-  for (const attempt of latest.values()) {
-    if (attempt.correct) continue; const keys = selectedMisconceptions(attempt); const familyKeys = keys.length ? keys : [`SKILL:${attempt.skillId}`];
-    for (const key of familyKeys) { const composite = `${attempt.skillId}:${key}`; const current = grouped.get(composite) ?? { key, skillId: attempt.skillId, unresolvedDecisionIds: [], priority: 0 }; current.unresolvedDecisionIds.push(attempt.decisionId); current.priority += attempt.confidence >= HIGH_CONFIDENCE_WRONG ? 5 : 2; grouped.set(composite, current); }
+  const grouped = new Map<string, MistakeFamily>();
+
+  for (const mistake of currentPracticalMistakes(state)) {
+    const normalEvidenceCount = mistake.evidenceCount - mistake.highConfidenceEvidenceCount;
+    grouped.set(JSON.stringify([mistake.skillId, mistake.misconceptionId]), {
+      key: mistake.misconceptionId,
+      skillId: mistake.skillId,
+      unresolvedDecisionIds: [...mistake.unresolvedDecisionIds],
+      priority: mistake.highConfidenceEvidenceCount * 5 + normalEvidenceCount * 2,
+    });
   }
+
+  // Feature A never synthesizes misconception evidence. Integrated scheduling
+  // still needs the historical generic repair fallback for a real latest wrong
+  // whose actually-wrong dimensions carry no misconception tag.
+  for (const attempt of latestAttemptsByDecision(state).values()) {
+    if (attempt.correct) continue;
+    const decision = practicalDecisionById.get(attempt.decisionId);
+    if (!decision || !isOrdinaryLearnerDecision(decision) || decision.skillId !== attempt.skillId) continue;
+    if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue;
+    const selectedActionValid = decision.actionOptions.some((option) => option.id === attempt.actionId);
+    const selectedReasonValid = decision.reasonOptions.some((option) => option.id === attempt.reasonId);
+    const derivedCorrect = attempt.actionId === decision.correctActionId && attempt.reasonId === decision.correctReasonId;
+    if (!selectedActionValid || !selectedReasonValid || attempt.correct !== derivedCorrect) continue;
+    if (selectedWrongPracticalMisconceptionIds(attempt).length > 0) continue;
+
+    const key = `SKILL:${attempt.skillId}`;
+    const composite = JSON.stringify([attempt.skillId, key]);
+    const current = grouped.get(composite) ?? { key, skillId: attempt.skillId, unresolvedDecisionIds: [], priority: 0 };
+    current.unresolvedDecisionIds.push(attempt.decisionId);
+    current.priority += attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG ? 5 : 2;
+    grouped.set(composite, current);
+  }
+
   return [...grouped.values()].sort((a, b) => b.priority - a.priority || a.skillId.localeCompare(b.skillId));
 }
 

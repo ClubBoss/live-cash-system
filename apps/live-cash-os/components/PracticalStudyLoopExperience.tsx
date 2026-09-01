@@ -2,11 +2,47 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { practicalSkillFamilies, practicalStudyLoop, sessionPerformanceChecks } from "../content/practical-mastery";
+import { practicalDecisionById, practicalSkillFamilies, practicalStudyLoop, sessionPerformanceChecks } from "../content/practical-mastery";
 import { activeIntegratedRoundResume, nextLearningHref } from "../lib/practical-continuity-workspace";
-import { practicalRepairQueue, recommendNextPracticalSkill } from "../lib/practical-mastery-core";
+import { currentPracticalMistakes, type CurrentPracticalMistake } from "../lib/practical-current-mistakes";
+import { latestAttemptsByDecision, practicalRepairQueue, recommendNextPracticalSkill, type PracticalAttempt } from "../lib/practical-mastery-core";
+import { practicalSelectedDecisionFeedback } from "../lib/practical-selected-decision-feedback";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+
+type Locale = "ru" | "en";
+
+function currentMistakePresentation(
+  row: CurrentPracticalMistake,
+  latest: ReadonlyMap<string, PracticalAttempt>,
+  locale: Locale,
+): { cue: string | null; mechanism: string | null } {
+  const attempt = latest.get(row.representativeDecisionId);
+  const decision = attempt ? practicalDecisionById.get(attempt.decisionId) : null;
+  if (!attempt || !decision || decision.skillId !== row.skillId) return { cue: null, mechanism: null };
+
+  const cues = new Set<string>();
+  if (attempt.actionId !== decision.correctActionId) {
+    const option = decision.actionOptions.find((candidate) => candidate.id === attempt.actionId);
+    if (option?.misconception === row.misconceptionId) cues.add(locale === "ru" ? option.textRu : option.textEn);
+  }
+  if (attempt.reasonId !== decision.correctReasonId) {
+    const option = decision.reasonOptions.find((candidate) => candidate.id === attempt.reasonId);
+    if (option?.misconception === row.misconceptionId) cues.add(locale === "ru" ? option.textRu : option.textEn);
+  }
+
+  const feedback = practicalSelectedDecisionFeedback(
+    decision,
+    locale,
+    attempt.actionId,
+    attempt.reasonId,
+    attempt.correct,
+  );
+  return {
+    cue: [...cues].join(" · ") || null,
+    mechanism: feedback.mechanism || null,
+  };
+}
 
 export default function PracticalStudyLoopExperience() {
   const [locale, setLocale] = usePracticalLocale();
@@ -20,22 +56,8 @@ export default function PracticalStudyLoopExperience() {
   const recommendedSkill = recommendation ? practicalSkillFamilies.find((skill) => skill.id === recommendation.skillId) ?? null : null;
   const repairIds = useMemo(() => practicalRepairQueue(mastery), [mastery]);
   const repairSkills = repairIds.map((id) => practicalSkillFamilies.find((skill) => skill.id === id)).filter(Boolean).slice(0, 3);
-  const leakRows = useMemo(() => {
-    const latest = new Map<string, (typeof mastery.attempts)[number]>();
-    for (const attempt of mastery.attempts) latest.set(attempt.decisionId, attempt);
-    const bySkill = new Map<string, { wrong: number; highConfidenceWrong: number }>();
-    for (const attempt of latest.values()) {
-      if (attempt.correct) continue;
-      const row = bySkill.get(attempt.skillId) ?? { wrong: 0, highConfidenceWrong: 0 };
-      row.wrong += 1;
-      if (attempt.confidence >= 75) row.highConfidenceWrong += 1;
-      bySkill.set(attempt.skillId, row);
-    }
-    return [...bySkill.entries()]
-      .map(([skillId, row]) => ({ skillId, ...row, score: row.wrong + row.highConfidenceWrong * 2 }))
-      .sort((a, b) => b.score - a.score || a.skillId.localeCompare(b.skillId))
-      .slice(0, 3);
-  }, [mastery]);
+  const canonicalMistakeRows = useMemo(() => currentPracticalMistakes(mastery), [mastery]);
+  const latestAttempts = useMemo(() => latestAttemptsByDecision(mastery), [mastery]);
 
   const updateWorkspace = (patch: Partial<typeof workspace>) => setStudyWorkspace({ ...workspace, ...patch, updatedAt: new Date().toISOString() });
   const toggleFlag = (id: string) => updateWorkspace({
@@ -68,7 +90,7 @@ export default function PracticalStudyLoopExperience() {
 
     <section className="surface" style={{ marginTop: 22 }}><div className="section-head"><p className="eyebrow">{locale === "ru" ? "ЦИКЛ РАБОТЫ" : "REVIEW LOOP"}</p><h2>{locale === "ru" ? "Шесть шагов" : "Six steps"}</h2></div>{practicalStudyLoop.map((step, index) => <article key={step.id} className="today-card" style={{ marginTop: 12 }}><p className="eyebrow">{index + 1}</p><h3>{locale === "ru" ? step.titleRu : step.titleEn}</h3><p>{locale === "ru" ? step.instructionRu : step.instructionEn}</p><p className="support">{locale === "ru" ? `Как проверяем: ${step.learnerEvidenceRuleRu}` : `How we check: ${step.learnerEvidenceRule}`}</p></article>)}</section>
 
-    <section className="surface" style={{ marginTop: 22 }}><div className="section-head"><p className="eyebrow">{locale === "ru" ? "ТЕКУЩИЕ ОШИБКИ" : "CURRENT MISTAKES"}</p><h2>{locale === "ru" ? "Что повторяется сейчас" : "What is repeating now"}</h2></div>{leakRows.length ? leakRows.map((row) => { const skill = practicalSkillFamilies.find((candidate) => candidate.id === row.skillId); return <div key={row.skillId} className="today-card" style={{ marginTop: 10 }}><b>{skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : (locale === "ru" ? "Игровой навык" : "Poker skill")}</b><p>{locale === "ru" ? (row.highConfidenceWrong > 0 ? "Эта ошибка повторяется, в том числе в ответах, где ты был уверен. Вернись к механизму и проверь его в новой задаче." : "Эта ошибка повторяется. Вернись к механизму и проверь его в новой задаче.") : (row.highConfidenceWrong > 0 ? "This mistake is repeating, including in answers you felt confident about. Revisit the mechanism and test it in a fresh spot." : "This mistake is repeating. Revisit the mechanism and test it in a fresh spot.")}</p></div>; }) : <p>{locale === "ru" ? "Сейчас нет повторяющейся нерешённой ошибки. Продолжай обычную практику и отложенные проверки." : "There are no repeating unresolved mistakes right now. Continue regular practice and delayed review."}</p>}{repairSkills.length ? <p className="support">{locale === "ru" ? "Вернуться к" : "Return to"}: {repairSkills.map((skill) => locale === "ru" ? skill?.titleRu : skill?.titleEn).filter(Boolean).join(" → ")}</p> : null}</section>
+    <section className="surface" style={{ marginTop: 22 }}><div className="section-head"><p className="eyebrow">{locale === "ru" ? "ТЕКУЩИЕ ОШИБКИ" : "CURRENT MISTAKES"}</p><h2>{locale === "ru" ? "Что нужно исправить сейчас" : "What needs repair now"}</h2></div>{canonicalMistakeRows.length ? canonicalMistakeRows.slice(0, 3).map((row) => { const skill = practicalSkillFamilies.find((candidate) => candidate.id === row.skillId); const presentation = currentMistakePresentation(row, latestAttempts, locale); return <div key={`${row.skillId}:${row.misconceptionId}`} className="today-card" style={{ marginTop: 10 }}><b>{skill ? (locale === "ru" ? skill.titleRu : skill.titleEn) : (locale === "ru" ? "Игровой навык" : "Poker skill")}</b>{presentation.cue ? <p><strong>{locale === "ru" ? "Где сбой" : "Mistake pattern"}:</strong> {presentation.cue}</p> : null}{presentation.mechanism ? <p>{presentation.mechanism}</p> : null}<p className="support">{locale === "ru" ? (row.evidenceCount >= 2 ? (row.highConfidenceEvidenceCount > 0 ? "Эта ошибка повторяется, в том числе в ответах, где ты был уверен. Проверь механизм на новой задаче." : "Эта ошибка повторяется. Проверь механизм на новой задаче.") : (row.highConfidenceEvidenceCount > 0 ? "Эта ошибка сейчас не закрыта, и в этом ответе ты был уверен. Проверь механизм на новой задаче." : "Эта ошибка сейчас не закрыта. Проверь механизм на новой задаче.")) : (row.evidenceCount >= 2 ? (row.highConfidenceEvidenceCount > 0 ? "This mistake is repeating, including in answers you felt confident about. Test the mechanism in a fresh spot." : "This mistake is repeating. Test the mechanism in a fresh spot.") : (row.highConfidenceEvidenceCount > 0 ? "This mistake is currently unresolved, and you were confident in this answer. Test the mechanism in a fresh spot." : "This mistake is currently unresolved. Test the mechanism in a fresh spot."))}</p></div>; }) : <p>{locale === "ru" ? "Сейчас нет нерешённых ошибок с точно диагностированным механизмом. Продолжай обычную практику и отложенные проверки." : "There are no unresolved mistakes with a specifically diagnosed mechanism right now. Continue regular practice and delayed review."}</p>}{repairSkills.length ? <p className="support">{locale === "ru" ? "Вернуться к" : "Return to"}: {repairSkills.map((skill) => locale === "ru" ? skill?.titleRu : skill?.titleEn).filter(Boolean).join(" → ")}</p> : null}</section>
 
     <section className="surface" style={{ marginTop: 22 }}><div className="section-head"><p className="eyebrow">{locale === "ru" ? "СЖАТЬ ВЫВОД" : "COMPRESS"}</p><h2>{locale === "ru" ? "Одно рабочее правило" : "One repair rule"}</h2></div><p>{locale === "ru" ? "Формат: Сигнал → Что он значит → Действие → Когда правило перестаёт работать. Не записывай действие из solver без условий задачи." : "Format: Trigger → Meaning → Action → Boundary. Do not store a solver action without the assumptions that make it valid."}</p><textarea value={workspace.repairRule} onChange={(event) => updateWorkspace({ repairRule: event.target.value })} rows={5} style={{ width: "100%", padding: 10 }} placeholder={locale === "ru" ? "Сигнал → Значение → Действие → Граница" : "Trigger → Meaning → Action → Boundary"} /><p className="support">{locale === "ru" ? "Записанное правило — материал для учёбы, а не доказательство навыка. Проверка — новые споты, задача без подсказки, возврат позже и разбор реальной руки." : "A written rule is a study note, not proof of skill. Check it in new situations, without hints, after a delay, and in reviewed real hands."}</p></section>
 
