@@ -9,6 +9,7 @@ import {
   practicalDecisions,
   practicalReferenceBaselines,
   practicalRules,
+  practicalSkillFamilies,
   practicalStudyLoop,
   sessionPerformanceChecks,
 } from "../content/practical-mastery/index.ts";
@@ -122,4 +123,14 @@ test("poker-native vocabulary remains allowed instead of being mechanically tran
   for (const token of ["3-bet", "SPR", "squeeze", "river"]) {
     assert.match(corpus, new RegExp(token, "iu"), `${token} should remain available where it is natural poker vocabulary`);
   }
+});
+
+test("flop texture skill keeps natural RU copy and unchanged EN meaning", () => {
+  const skill = practicalSkillFamilies.find((candidate) => candidate.id === "W4-BOARD-01");
+  assert.ok(skill);
+  assert.equal(skill.titleRu, "Классы текстур флопа");
+  assert.equal(skill.objectiveRu, "Быстро классифицировать основные текстуры флопа.");
+  assert.equal(skill.titleEn, "Flop board classes");
+  assert.equal(skill.objectiveEn, "Quickly classify the main flop textures.");
+  assert.doesNotMatch(`${skill.titleRu}\n${skill.objectiveRu}`, /Flop board classes|flop textures/u);
 });

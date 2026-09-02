@@ -56,7 +56,7 @@ export const practicalSkillFamilies: PracticalSkillFamily[] = [
   f("BL-12", "W3_BLINDS", "Blind depth/rake variants", "Blind depth and rake variants", "Менять defence/3-bet incentives при depth/rake changes.", ["geometry", "blinds"], ["BL-04", "FND-06"], ["FTGU-E05", "FTGU-E06"], "P0"),
 
   // W4 — recognition
-  f("W4-BOARD-01", "W4_RECOGNITION", "Flop board classes", "Flop board classes", "Быстро классифицировать основные flop textures.", ["filtering"], [], ["SLC-SRP-BOARD-CLASSES", "FTGU-E07"], "P0"),
+  f("W4-BOARD-01", "W4_RECOGNITION", "Классы текстур флопа", "Flop board classes", "Быстро классифицировать основные текстуры флопа.", ["filtering"], [], ["SLC-SRP-BOARD-CLASSES", "FTGU-E07"], "P0"),
   f("W4-RUNOUT-01", "W4_RECOGNITION", "Turn/river runout classes", "Turn and river runout classes", "Распознавать blank, scare, draw-completing и range-shifting cards.", ["filtering", "ancestry"], ["W4-BOARD-01"], ["FTGU-E20", "FTGU-E21"], "P0"),
   f("W4-HAND-01", "W4_RECOGNITION", "Made-hand families", "Made-hand families", "Переходить от exact combo к relative hand family.", ["filtering"], [], ["LCM-02", "FINAL_LEARNING_INTEGRITY"], "P0"),
   f("W4-DRAW-01", "W4_RECOGNITION", "Draw families", "Draw families", "Различать nut/weak/combo/pair+draw и domination risk.", ["filtering"], ["FND-04"], ["FTGU-E01", "FTGU-E09"], "P1"),
