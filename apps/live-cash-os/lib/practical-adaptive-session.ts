@@ -18,6 +18,15 @@ export function isIntegratedFocusAdmissible(state: PracticalMasteryState, skillI
   return supportedIntegratedSkillIds(state).includes(skillId) && practicalDecisions.some((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision));
 }
 
+// Canonical per-skill multiplicity contract for this module, matched by
+// validIntegratedContinuity's persisted continuity cap (practical-profile-contract.ts):
+//   BASE_MAX_PER_SKILL = 2            (buildIntegratedSession's own push() cap)
+//   GENERIC_ADAPTIVE_MAX_PER_SKILL = 3 (buildGenericAdaptiveSession composes up
+//                                        to 1 adaptive-need item with up to 2 base
+//                                        items for the same skill; this 3 is the
+//                                        accepted shipped ceiling, not a defect)
+//   FOCUSED_CAN_EXCEED_2               (buildFocusedIntegratedSession intentionally
+//                                        allows same-skill multiplicity beyond 2)
 function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:number,performance:PracticalPerformanceSample[]):IntegratedSessionItem[]{
   const base=buildIntegratedSession(state,now,size);
   const used=new Set<string>();

@@ -653,8 +653,16 @@ function validExplainBackRecord(value: unknown): boolean {
     && typeof value.reviewerNote === "string"
     && (value.reviewedAt === undefined || typeof value.reviewedAt === "string");
 }
+// Cloud tombstones (see app/api/state/route.ts's CloudTombstone) are the only
+// records that carry `kind`/`deletedAt` at the top level. Reserving both keys
+// here makes a validated live LearnerState and a validated tombstone provably
+// disjoint: no object can ever satisfy both shapes, so live evidence can never
+// be misread as, or destructively resumed over as, a deletion marker.
+export const LEARNER_STATE_RESERVED_TOMBSTONE_KEYS = ["kind", "deletedAt"] as const;
+
 export function validateLearnerState(value: unknown): value is LearnerState {
   if (!isRecord(value) || value.schemaVersion !== STATE_SCHEMA_VERSION || !isFiniteNumber(value.revision) || typeof value.updatedAt !== "string") return false;
+  if (LEARNER_STATE_RESERVED_TOMBSTONE_KEYS.some((key) => key in value)) return false;
   if (typeof value.appVersion !== "string" || typeof value.contentVersion !== "string") return false;
   if (!isRecord(value.modules) || !Array.isArray(value.interactions) || !Array.isArray(value.reviewQueue) || !isRecord(value.cards) || !Array.isArray(value.fieldNotes) || !validDiagnostic(value.diagnostic)) return false;
   if (!(value.activeSession === null || validActiveSession(value.activeSession))) return false;

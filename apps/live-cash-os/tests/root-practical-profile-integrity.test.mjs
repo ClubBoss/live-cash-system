@@ -428,3 +428,72 @@ test("L20 independent concept, retention, delayed-retrieval and real-hand author
   assert.equal(transferred.skills[boundary.skillId].realHandTransferReviewed, true);
   assert.equal(validateRootLearnerState(stateWithMastery(transferred, new Date(retentionAt.getTime() + 60_000))), true, "L20 canonical real-hand-transfer state must remain valid");
 });
+
+test("L21 an exact-token write may mutate the practical attempt ledger's array order (adjudicated: not append-only under exact-token CAS)", () => {
+  // cloud-sync-contract.ts's own contract: "Exact-token writes may mutate the
+  // slice; lost-token writes additionally need monotonic practical ancestry."
+  // The persisted attempts array order is the canonical replay order, not an
+  // independent immutable chronology. This pins that adjudicated behavior as
+  // executable evidence so a future audit does not re-flag it as a defect.
+  const decision = [...practicalDecisionById.values()].find((candidate) => candidate.skillId === "FND-01");
+  const wrong = wrongSelectionFor(decision);
+
+  let mastery = createPracticalProfileState(NOW).mastery;
+  mastery = recordPracticalDecision(mastery, { decisionId: decision.id, ...wrong, confidence: 80, now: NOW });
+  mastery = recordPracticalDecision(mastery, {
+    decisionId: decision.id,
+    actionId: decision.correctActionId,
+    reasonId: decision.correctReasonId,
+    confidence: 80,
+    now: LATER,
+  });
+  const existingState = stateWithMastery(mastery, LATER);
+
+  // Reorder the two attempts, then recompute skill progress by replaying the
+  // reordered array through the same canonical writer (exactly what
+  // validMasteryState's own replay check requires for self-consistency).
+  const reorderedAttempts = [...mastery.attempts].reverse();
+  let replayed = createPracticalProfileState(NOW).mastery;
+  for (const attempt of reorderedAttempts) {
+    replayed = recordPracticalDecision(replayed, {
+      decisionId: attempt.decisionId,
+      actionId: attempt.actionId,
+      reasonId: attempt.reasonId,
+      confidence: attempt.confidence,
+      now: new Date(attempt.answeredAt),
+    });
+  }
+  const reorderedState = stateWithMastery(replayed, LATER);
+  assert.equal(validateRootLearnerState(reorderedState), true, "a self-consistent reordering must still validate structurally");
+
+  const exactToken = "exact-token-l21";
+  const decision1 = assessCloudWrite(existingState, reorderedState, existingState.revision, exactToken, exactToken);
+  assert.equal(decision1.kind, "accept", "exact-token CAS may accept a reordered-but-self-consistent successor");
+});
+
+test("L22 retentionDaysPassed is an independent persisted authority (adjudicated: no converse invariant to delayedRetrievalPassed)", () => {
+  // practical-profile-contract.ts's validSkillProgress only requires the
+  // directional relationship (delayed retrieval requires its retention
+  // prerequisite; real-hand transfer requires delayed retrieval), never the
+  // converse. M3 in practical-persisted-state-semantic-integrity.test.mjs
+  // already exercises this at the field-validator level; this pins the same
+  // adjudicated contract at the whole-root-state level as executable evidence.
+  const boundary = canonicalBoundaryMastery();
+  const skillProgress = boundary.mastery.skills[boundary.skillId];
+  const independentRetention = {
+    ...boundary.mastery,
+    skills: {
+      ...boundary.mastery.skills,
+      [boundary.skillId]: {
+        ...skillProgress,
+        retentionDaysPassed: [RETENTION_INTERVAL_DAYS[0]],
+        delayedRetrievalPassed: false,
+      },
+    },
+  };
+  assert.equal(
+    validateRootLearnerState(stateWithMastery(independentRetention)),
+    true,
+    "supported retention tiers may exist on their own independent authority, without delayedRetrievalPassed",
+  );
+});

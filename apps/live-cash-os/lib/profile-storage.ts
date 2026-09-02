@@ -47,3 +47,20 @@ export function activeProfileStorageKey(baseKey: string): string {
   try { profileCode = window.localStorage.getItem(PORTABLE_PROFILE_KEY); } catch { /* best effort */ }
   return profileStorageKey(baseKey, profileCode);
 }
+
+// A storage-denied browser (private mode, blocked cookies/storage, a
+// storage-restricted embed) throws on localStorage access. Every read/write
+// touchpoint in this codebase should degrade instead of crashing or hanging;
+// these are the one canonical pair of wrappers for that.
+export function safeStorageGet(key: string): string | null {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+export function safeStorageSet(key: string, value: string): boolean {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}

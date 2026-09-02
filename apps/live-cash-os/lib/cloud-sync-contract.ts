@@ -26,6 +26,17 @@ export type CloudWriteDecision =
  * that slice, no later write may silently drop or corrupt it. Exact-token writes
  * may mutate the slice; lost-token writes additionally need monotonic practical
  * ancestry before they can be accepted automatically.
+ *
+ * The persisted `mastery.attempts` array order is the canonical replay order
+ * (see validMasteryState in practical-profile-contract.ts) for both regimes.
+ * There is no independent, immutable chronology/event-ledger authority that
+ * requires the array to stay append-only: the writer that currently holds the
+ * exact cloud token owns that slice's array order the same way it owns any
+ * other field-level mutation of it. `practicalProfileSafeSuccessor`'s ancestry
+ * proof (id-set membership, not array order) is deliberately scoped to the
+ * lost-token regime only, matching the "exact-token writes may mutate the
+ * slice" line above; requiring it on exact-token writes as well would change
+ * the accepted concurrency model, not fix a defect in it.
  */
 export function assessCloudWrite(
   existing: LearnerState | null,

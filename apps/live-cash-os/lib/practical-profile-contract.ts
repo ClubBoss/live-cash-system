@@ -148,6 +148,15 @@ function validSkillProgress(
     if (value.retentionDaysPassed[index] <= value.retentionDaysPassed[index - 1]) return false;
   }
 
+  // conceptTaught / retentionDaysPassed / delayedRetrievalPassed /
+  // realHandTransferReviewed each have independent persisted/canonical-writer
+  // authority; unlike attempts/correct/etc. above, they are never reconstructed
+  // from the attempt ledger by deterministicAttemptFieldsMatch. The only
+  // required cross-field relationship is directional (delayed requires its
+  // retention prerequisite; real-hand transfer requires delayed retrieval).
+  // There is deliberately no converse invariant requiring
+  // retentionDaysPassed.length > 0 to imply delayedRetrievalPassed === true:
+  // supported retention tiers may exist on their own independent authority.
   if (value.delayedRetrievalPassed && value.retentionDaysPassed.length === 0) return false;
   if (value.realHandTransferReviewed && !value.delayedRetrievalPassed) return false;
 
