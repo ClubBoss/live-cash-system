@@ -98,11 +98,14 @@ for (const locale of ["ru", "en"]) {
 }
 
 test("state, card schema, scheduler, mastery and evidence implementation stay byte-identical to the accepted scope", async () => {
-  // model-core.ts and reliability.ts hashes advanced in the tombstone-disjointness
-  // and local-write-arbitration repair (P1-1 / P1-5); scheduler.ts and
-  // content/types.ts remain untouched by that repair, so their pins are unchanged.
+  // model-core.ts hash advanced in the tombstone-disjointness and
+  // local-write-arbitration repair (P1-1 / P1-5); scheduler.ts and
+  // content/types.ts remain untouched by that repair, so their pins are
+  // unchanged. reliability.ts hash advanced again in the final acceptance
+  // repair that reattaches a valid _practicalProfile during schema-v2 local
+  // recovery instead of silently dropping it.
   await assertGitBlob("lib/model-core.ts", "220a7108c3fec03d9b6c5b9e5a2111f8b3ab920e");
   await assertGitBlob("lib/scheduler.ts", "6cf3ba078ec98ac0af90aa18cf9aae62fe7a144d");
   await assertGitBlob("content/types.ts", "d3aec56bbdb1e28d83aa32ce3391cbfa70d5efa2");
-  await assertGitBlob("lib/reliability.ts", "86c8abca443fac4c0f803f5f4733e946c8132920");
+  await assertGitBlob("lib/reliability.ts", "0bf08b9b8e94245fcc1c2d080657ca035098a7c0");
 });

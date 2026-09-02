@@ -170,6 +170,40 @@ test("R5-R8 malformed Practical imports and current-schema local recovery fail c
   assert.equal(validateRootLearnerState(genericMigration), false, "R8 generic migration/recovery cannot make malformed Practical evidence trusted");
 });
 
+test("R19 local schema-v2 recovery reattaches a valid _practicalProfile instead of silently dropping it", () => {
+  const { state } = stateWithCanonicalAttempt();
+  assert.equal(validateRootLearnerState(state), true, "fixture must start as a fully valid root state");
+
+  // Damage a base field unrelated to the Practical Profile so validateLearnerState
+  // fails on the root while the profile slice stays independently valid, forcing
+  // readLocalLearnerState's schema-v2 salvage/rebuild path.
+  const damaged = structuredClone(state);
+  damaged.fieldNotes = [{ bogus: true }];
+  assert.equal(validateLearnerState(damaged), false, "fixture must isolate base damage from the Practical Profile");
+
+  const local = readLocalLearnerState(JSON.stringify(damaged));
+  assert.equal(local.kind, "recovered", "R19 a base-only failure must still salvage as recovered, not corrupt");
+  assert.equal(validateRootLearnerState(local.state), true);
+  assert.deepEqual(
+    local.state[PRACTICAL_PROFILE_FIELD],
+    damaged[PRACTICAL_PROFILE_FIELD],
+    "R19 an independently valid Practical Profile must survive base-state salvage untouched",
+  );
+
+  // A profile that is itself malformed must never be reattached by the salvage
+  // rebuild: it stays dropped (as the pre-fix rebuild always dropped it), and
+  // the state still salvages as recovered because profile absence is valid.
+  const bothDamaged = structuredClone(damaged);
+  bothDamaged[PRACTICAL_PROFILE_FIELD].version = 999;
+  const bothDamagedLocal = readLocalLearnerState(JSON.stringify(bothDamaged));
+  assert.equal(bothDamagedLocal.kind, "recovered", "R19 base salvage still succeeds once the malformed profile is dropped");
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(bothDamagedLocal.state, PRACTICAL_PROFILE_FIELD),
+    false,
+    "R19 a malformed profile must never be reattached, unlike a valid one",
+  );
+});
+
 test("R9-R11 whole-state ancestry protects Practical evidence and permits canonical writer successors", () => {
   const { base, candidate: regressed } = practicalRegression();
   assert.equal(validateRootLearnerState(base), true);
