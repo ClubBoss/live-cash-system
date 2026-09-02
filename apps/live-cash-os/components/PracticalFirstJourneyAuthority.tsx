@@ -10,7 +10,7 @@ import {
   type FirstJourneyPresentationState,
 } from "../lib/practical-first-journey-authority";
 import { firstJourneyProgress, recommendFirstJourneyStep } from "../lib/practical-first-journey";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalFirstJourneyExperience from "./PracticalFirstJourneyExperience";
 import PracticalPostQuickStartTeaching from "./PracticalPostQuickStartTeaching";
 

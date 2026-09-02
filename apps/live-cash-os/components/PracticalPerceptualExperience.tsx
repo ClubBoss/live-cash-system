@@ -9,7 +9,7 @@ import { focusedPracticalTableStates } from "../lib/practical-perceptual-focus";
 import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
 import PracticalTableStateStimulus from "./PracticalTableStateStimulus";
 

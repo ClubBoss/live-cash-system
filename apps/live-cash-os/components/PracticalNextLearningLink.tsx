@@ -6,7 +6,7 @@ import { activeIntegratedRoundResume } from "../lib/practical-continuity-workspa
 import { recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { resolvePostQuickStartLearningTarget } from "../lib/practical-post-quick-start-learning";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDocumentLink from "./PracticalDocumentLink";
 
 type Props = {

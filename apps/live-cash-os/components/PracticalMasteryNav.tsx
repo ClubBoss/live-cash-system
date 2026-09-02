@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDocumentLink, { warmPracticalDocument } from "./PracticalDocumentLink";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
 
