@@ -174,6 +174,7 @@ export function useReliableLearnerState() {
   const lastAckedSerialized = useRef<string | null>(null);
   const cloudSaveInFlight = useRef(false);
   const queuedCloudState = useRef<LearnerState | null>(null);
+  const lastWrittenLocalRaw = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     latestState.current = state;
@@ -485,8 +486,11 @@ export function useReliableLearnerState() {
     // durable read than what is currently on disk. Arbitrate against the
     // actual durable snapshot before writing so an incompatible stale write
     // can never silently discard another writer's already-recorded evidence.
-    const durableRead = readLocalLearnerState(safeGet(accountKey(LEARNER_STORAGE_KEY)));
-    const arbitration = arbitrateLocalWrite(state, durableRead);
+    // Ancestry is only consulted when disk has actually diverged from what
+    // this tab itself last wrote -- ordinary same-tab progress is untouched.
+    const durableKey = accountKey(LEARNER_STORAGE_KEY);
+    const durableRead = readLocalLearnerState(safeGet(durableKey));
+    const arbitration = arbitrateLocalWrite(state, durableRead, lastWrittenLocalRaw.current);
     if (arbitration.kind === "conflict") {
       // The durable snapshot is preserved untouched. The superseded candidate
       // is backed up (never silently discarded, never unioned) using the same
@@ -498,17 +502,19 @@ export function useReliableLearnerState() {
         local: state,
         remote: arbitration.durable,
       }));
+      lastWrittenLocalRaw.current = durableRead.raw;
       setLearnerState(arbitration.durable);
       return;
     }
 
     const serialized = JSON.stringify(state);
-    if (!safeSet(accountKey(LEARNER_STORAGE_KEY), serialized)) {
+    if (!safeSet(durableKey, serialized)) {
       setRecoveryCode("LOCAL_WRITE_FAILED");
       setLastErrorCode("LOCAL_WRITE_FAILED");
       setSyncStatus("error");
       return;
     }
+    lastWrittenLocalRaw.current = serialized;
     setLastLocalSaveAt(new Date().toISOString());
 
     if (saveTimer.current) clearTimeout(saveTimer.current);

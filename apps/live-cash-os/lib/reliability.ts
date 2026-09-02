@@ -326,15 +326,39 @@ export type LocalWriteArbitration =
 /**
  * Guards the local durable snapshot (localStorage) against a stale in-memory
  * writer, e.g. a second browser tab that restored before another tab's later
- * local write landed. Reuses the same whole-snapshot ancestry proof already
- * used for remote CAS, so a durable, already-recorded local snapshot can
- * never be silently replaced by an incompatible stale one. This is not a
- * merge: an incompatible candidate is never unioned with the durable
- * snapshot, only rejected.
+ * local write landed.
+ *
+ * `lastWrittenRaw` is the exact raw JSON this same writer last confirmed was
+ * durable (from its own prior write, or its first read of disk). Ancestry
+ * (isSafeSuccessor) is only consulted when the actual on-disk value has
+ * diverged from that -- i.e. when some OTHER writer touched storage in the
+ * meantime. `undefined` means this writer has not yet established a baseline
+ * (its very first check this session) and always allows the write: the
+ * caller's own restore/reconciliation already vetted that starting state.
+ *
+ * This narrowing matters: isSafeSuccessor (via activeSessionPreserved) is
+ * intentionally strict about comparing two independently-sourced snapshots
+ * (e.g. local vs. remote at mount time), where an in-progress answer that
+ * hasn't yet produced a new interaction or completed block is genuinely
+ * ambiguous. But within one writer's own continuous session -- selecting an
+ * answer, then submitting it -- every step is a trusted, sequential
+ * continuation of what that same writer just durably held, not a foreign
+ * candidate to be second-guessed; nothing else could have touched storage in
+ * between. Applying the ancestry check there would reject ordinary UI
+ * progress as a false conflict. Ancestry is therefore only the arbiter once a
+ * genuinely different writer is detected, not on every write.
+ *
+ * This is not a merge: an incompatible candidate is never unioned with the
+ * durable snapshot, only rejected.
  */
-export function arbitrateLocalWrite(candidate: LearnerState, durableRead: LocalStateRead): LocalWriteArbitration {
+export function arbitrateLocalWrite(
+  candidate: LearnerState,
+  durableRead: LocalStateRead,
+  lastWrittenRaw: string | null | undefined,
+): LocalWriteArbitration {
   const durable = durableRead.state;
   if (!durable) return { kind: "write" };
+  if (lastWrittenRaw === undefined || durableRead.raw === lastWrittenRaw) return { kind: "write" };
   if (sameLearnerState(candidate, durable)) return { kind: "write" };
   if (isSafeSuccessor(candidate, durable)) return { kind: "write" };
   return { kind: "conflict", durable };

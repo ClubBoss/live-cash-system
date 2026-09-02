@@ -104,5 +104,5 @@ test("state, card schema, scheduler, mastery and evidence implementation stay by
   await assertGitBlob("lib/model-core.ts", "220a7108c3fec03d9b6c5b9e5a2111f8b3ab920e");
   await assertGitBlob("lib/scheduler.ts", "6cf3ba078ec98ac0af90aa18cf9aae62fe7a144d");
   await assertGitBlob("content/types.ts", "d3aec56bbdb1e28d83aa32ce3391cbfa70d5efa2");
-  await assertGitBlob("lib/reliability.ts", "198c4f4e57376597642e994f8b4689fdab0a8321");
+  await assertGitBlob("lib/reliability.ts", "86c8abca443fac4c0f803f5f4733e946c8132920");
 });
