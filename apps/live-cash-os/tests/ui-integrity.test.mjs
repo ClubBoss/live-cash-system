@@ -13,7 +13,10 @@ test("cloud sync is driven by learner-state changes, not sync-label changes", as
   assert.match(hook, /const serialized = JSON\.stringify\(state\)/u);
   assert.match(hook, /serialized === lastAckedSerialized\.current/u);
   assert.match(hook, /void flushCloudState\(latestState\.current\)/u);
-  assert.match(hook, /\[accountKey, flushCloudState, ready, recoveryBlocked, retryNonce, state\]\);/u);
+  // setLearnerState was added (P1-5 local-write-arbitration repair) so the
+  // conflict branch can adopt the durable snapshot; it is a stable ([] deps)
+  // callback, so this still does not reintroduce a syncStatus-driven effect.
+  assert.match(hook, /\[accountKey, flushCloudState, ready, recoveryBlocked, retryNonce, state, setLearnerState\]\);/u);
   assert.doesNotMatch(hook, /\[[^\]]*syncStatus[^\]]*\]\);/u);
 });
 

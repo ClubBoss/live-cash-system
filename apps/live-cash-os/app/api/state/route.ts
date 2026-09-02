@@ -15,6 +15,12 @@ import { CURRENT_RUNTIME, validateRootLearnerState } from "../../../lib/reliabil
 const MAX_STATE_BYTES = 1_000_000;
 const TOMBSTONE_KIND = "cloud-deleted-v1";
 
+// CloudTombstone's two fields are exactly LEARNER_STATE_RESERVED_TOMBSTONE_KEYS
+// (lib/model-core.ts), which validateLearnerState forbids on any live
+// LearnerState. That is what makes a validated live state and a validated
+// tombstone provably disjoint: neither shape can ever satisfy the other, so
+// parseTombstone below can never misidentify durable learner evidence as
+// deleted, and the CAS-free tombstone-resume branch can never overwrite it.
 type CloudTombstone = {
   kind: typeof TOMBSTONE_KIND;
   deletedAt: string;

@@ -3,7 +3,8 @@ import test from "node:test";
 
 import { isOrdinaryLearnerDecision, practicalDecisionById, practicalDecisions } from "../content/practical-mastery/index.ts";
 import { buildAdaptiveIntegratedSession } from "../lib/practical-adaptive-session.ts";
-import { createPracticalMasteryState, isSemanticallyValidPracticalAttempt } from "../lib/practical-mastery-core.ts";
+import { buildIntegratedSession } from "../lib/practical-integrated-session.ts";
+import { createPracticalMasteryState, isSemanticallyValidPracticalAttempt, recordPracticalDecision } from "../lib/practical-mastery-core.ts";
 import { recentlyAttemptedDecisionIds } from "../lib/practical-repeat-window.ts";
 
 const NOW = new Date("2026-09-01T00:00:00.000Z");
@@ -205,4 +206,54 @@ test("adaptive raw-reader repair preserves deterministic output and session caps
   assert.deepEqual(ids(firstFocused), ids(secondFocused));
   assert.ok(firstGeneric.length <= 8);
   assert.ok(firstFocused.length <= 8);
+});
+
+test("R3 adjudicated per-skill multiplicity ceiling: base caps at 2, generic adaptive may reach exactly 3, with real valid data and no higher", () => {
+  // buildIntegratedSession's own push() caps any one skill at 2 items per
+  // round. buildGenericAdaptiveSession intentionally composes up to 1
+  // adaptive-need item with up to 2 base items for the same skill, so 3 is
+  // the accepted shipped ceiling for the generic adaptive wrapper (see the
+  // BASE_MAX_PER_SKILL / GENERIC_ADAPTIVE_MAX_PER_SKILL / FOCUSED_CAN_EXCEED_2
+  // contract documented in lib/practical-adaptive-session.ts). This pins
+  // that adjudicated ceiling as executable evidence, with a real early-journey
+  // single-skill learner and no malformed data, so a future audit does not
+  // re-flag it as a defect.
+  const wrongDecision = practicalDecisionById.get("PM-FND-01-107");
+  assert.ok(wrongDecision, "fixture decision PM-FND-01-107 must exist");
+  const wrongOption = wrongDecision.actionOptions.find((option) => option.id !== wrongDecision.correctActionId);
+  assert.ok(wrongOption, "PM-FND-01-107 must expose a wrong action option");
+
+  let state = introducedState();
+  state = recordPracticalDecision(state, {
+    decisionId: wrongDecision.id,
+    actionId: wrongOption.id,
+    reasonId: wrongDecision.correctReasonId,
+    confidence: 60,
+    now: NOW,
+  });
+
+  const base = buildIntegratedSession(state, NOW, 8);
+  const baseSkillCount = base.filter((item) => item.skillId === SKILL_ID).length;
+  assert.ok(baseSkillCount <= 2, `buildIntegratedSession must never exceed the base cap of 2 for one skill, got ${baseSkillCount}`);
+
+  const generic = genericItems(state);
+  const genericSkillCount = generic.filter((item) => item.skillId === SKILL_ID).length;
+  assert.equal(genericSkillCount, 3, "the generic adaptive ceiling of 3 for one skill must be reachable with real valid data");
+
+  // Across a spread of single-wrong-decision fixtures for the same skill, the
+  // generic adaptive ceiling must never exceed the adjudicated maximum of 3.
+  for (const decision of practicalDecisions.filter((candidate) => candidate.skillId === SKILL_ID && isOrdinaryLearnerDecision(candidate))) {
+    const option = decision.actionOptions.find((candidate) => candidate.id !== decision.correctActionId);
+    if (!option) continue;
+    let sweepState = introducedState();
+    sweepState = recordPracticalDecision(sweepState, {
+      decisionId: decision.id,
+      actionId: option.id,
+      reasonId: decision.correctReasonId,
+      confidence: 60,
+      now: NOW,
+    });
+    const sweepCount = genericItems(sweepState).filter((item) => item.skillId === SKILL_ID).length;
+    assert.ok(sweepCount <= 3, `generic adaptive session must never exceed 3 items for one skill, got ${sweepCount} for wrong-decision fixture ${decision.id}`);
+  }
 });

@@ -5,6 +5,7 @@ import { fieldFactLabels, fieldStatusLabel } from "../content/i18n/learner-ui";
 import { applyLocaleData } from "../content/i18n/locale-pipeline";
 import { runtimeCopy } from "../content/i18n/runtime";
 import { APP_VERSION, type LocaleCode } from "../lib/model";
+import { safeStorageGet, safeStorageSet } from "../lib/profile-storage";
 import { resolveToolsRuntime, supportTabFromSearch, type SupportTab } from "../lib/support-tools-routing";
 import { useReliableLearnerState } from "../lib/use-learner-state-sync";
 import DataSafetyPanel from "./DataSafetyPanel";
@@ -45,7 +46,7 @@ function requestedRuntime(): "support" | "legacy" {
   return resolveToolsRuntime({
     legacyToolsMode: __LIVE_CASH_LEGACY_TOOLS_MODE__,
     search: window.location.search,
-    legacyMarker: localStorage.getItem(E2E_LEGACY_TOOLS_KEY),
+    legacyMarker: safeStorageGet(E2E_LEGACY_TOOLS_KEY),
     referrer: document.referrer,
     origin: window.location.origin,
   });
@@ -59,7 +60,7 @@ function SupportingToolsRuntime() {
   const t = runtimeCopy[locale];
 
   useEffect(() => {
-    const storedLocale = localStorage.getItem(LOCALE_KEY);
+    const storedLocale = safeStorageGet(LOCALE_KEY);
     const nextLocale: LocaleCode = storedLocale === "en" ? "en" : "ru";
     applyLocaleData(nextLocale);
     setLocale(nextLocale);
@@ -68,7 +69,7 @@ function SupportingToolsRuntime() {
 
   useEffect(() => {
     if (!ready) return;
-    localStorage.setItem(LOCALE_KEY, locale);
+    safeStorageSet(LOCALE_KEY, locale);
     document.documentElement.lang = locale;
   }, [locale, ready]);
 

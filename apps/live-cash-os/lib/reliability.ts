@@ -319,6 +319,27 @@ export function isSafeSuccessor(candidate: LearnerState, base: LearnerState): bo
   return true;
 }
 
+export type LocalWriteArbitration =
+  | { kind: "write" }
+  | { kind: "conflict"; durable: LearnerState };
+
+/**
+ * Guards the local durable snapshot (localStorage) against a stale in-memory
+ * writer, e.g. a second browser tab that restored before another tab's later
+ * local write landed. Reuses the same whole-snapshot ancestry proof already
+ * used for remote CAS, so a durable, already-recorded local snapshot can
+ * never be silently replaced by an incompatible stale one. This is not a
+ * merge: an incompatible candidate is never unioned with the durable
+ * snapshot, only rejected.
+ */
+export function arbitrateLocalWrite(candidate: LearnerState, durableRead: LocalStateRead): LocalWriteArbitration {
+  const durable = durableRead.state;
+  if (!durable) return { kind: "write" };
+  if (sameLearnerState(candidate, durable)) return { kind: "write" };
+  if (isSafeSuccessor(candidate, durable)) return { kind: "write" };
+  return { kind: "conflict", durable };
+}
+
 export function chooseRestoreState(localRead: LocalStateRead, remote: LearnerState | null): RestoreDecision {
   const local = localRead.state;
   if (!local && !remote) return { kind: "empty", state: emptyLearnerState(), remoteState: null };

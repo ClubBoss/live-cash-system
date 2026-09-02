@@ -9,6 +9,7 @@ import {
 } from "./model";
 import {
   EMPTY_SYNC_META,
+  arbitrateLocalWrite,
   chooseRestoreState,
   parseSyncMeta,
   prepareLearnerStateImport,
@@ -479,6 +480,28 @@ export function useReliableLearnerState() {
   useEffect(() => {
     if (!ready || recoveryBlocked) return;
     latestState.current = state;
+
+    // A second tab (or any other stale in-memory writer) may hold an older
+    // durable read than what is currently on disk. Arbitrate against the
+    // actual durable snapshot before writing so an incompatible stale write
+    // can never silently discard another writer's already-recorded evidence.
+    const durableRead = readLocalLearnerState(safeGet(accountKey(LEARNER_STORAGE_KEY)));
+    const arbitration = arbitrateLocalWrite(state, durableRead);
+    if (arbitration.kind === "conflict") {
+      // The durable snapshot is preserved untouched. The superseded candidate
+      // is backed up (never silently discarded, never unioned) using the same
+      // conflict-backup machinery already used for remote CAS conflicts, and
+      // this tab self-heals onto the durable snapshot instead of retrying the
+      // same incompatible write on every render.
+      safeSet(accountKey(CONFLICT_BACKUP_KEY), JSON.stringify({
+        at: new Date().toISOString(),
+        local: state,
+        remote: arbitration.durable,
+      }));
+      setLearnerState(arbitration.durable);
+      return;
+    }
+
     const serialized = JSON.stringify(state);
     if (!safeSet(accountKey(LEARNER_STORAGE_KEY), serialized)) {
       setRecoveryCode("LOCAL_WRITE_FAILED");
@@ -501,7 +524,7 @@ export function useReliableLearnerState() {
       void flushCloudState(latestState.current);
     }, CLOUD_SAVE_DEBOUNCE_MS);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [accountKey, flushCloudState, ready, recoveryBlocked, retryNonce, state]);
+  }, [accountKey, flushCloudState, ready, recoveryBlocked, retryNonce, state, setLearnerState]);
 
   useEffect(() => {
     const retry = () => {
