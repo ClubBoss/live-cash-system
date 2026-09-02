@@ -103,6 +103,40 @@ test("Quick Start teaches the mechanism before scored practice and writes schema
   }, LEARNER_KEY)).toBe(true);
 });
 
+test("skill domain overview reflects just-recorded progress after client-side navigation, without a reload", async ({ page }) => {
+  // Regression guard: the layout-persistent nav/overview siblings in
+  // app/mastery/layout.tsx and the routed page content must share one
+  // PracticalProfileProvider instance. Before that fix, each independently
+  // called usePracticalProfileState() with no Context, so after ordinary
+  // in-app navigation (no full reload) the overview kept showing whatever
+  // it saw at its own first mount -- silently stale, even though the
+  // learner's progress was already correctly persisted to disk.
+  test.skip(crossMatrix, "state-sharing across layout siblings is covered once in canonical Chromium");
+  await page.goto("/mastery");
+  const overview = page.locator(".practical-domain-overview");
+  await expect(overview.getByRole("heading", { name: /Прогресс по игровым направлениям/i })).toBeVisible();
+  await expect(overview).not.toContainText(/навыков сейчас накапливают подтверждённую практику/i);
+
+  const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await nav.getByRole("link", { name: "Продолжить обучение", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery\/journey$/);
+  await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
+  await page.getByRole("button", { name: /Проверить на примере/ }).click();
+  await expect(page.getByText("ТЕПЕРЬ ТЫ", { exact: true })).toBeVisible();
+
+  await expect.poll(async () => page.evaluate((key) => {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw)._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught : false;
+  }, LEARNER_KEY)).toBe(true);
+
+  // Client-side navigation back to the overview -- NOT page.goto/reload.
+  // The layout (and the nav/overview instances it owns) is not remounted.
+  await nav.getByRole("link", { name: "Главная", exact: true }).click();
+  await expect(page).toHaveURL(/\/mastery$/);
+  await expect(overview.getByRole("heading", { name: /Прогресс по игровым направлениям/i })).toBeVisible();
+  await expect(overview).toContainText(/навыков сейчас накапливают подтверждённую практику/i);
+});
+
 test("mastery locale persists across route changes and localizes shared navigation", async ({ page }) => {
   test.skip(crossMatrix, "locale persistence is covered once in canonical Chromium");
   await page.goto("/mastery");

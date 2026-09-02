@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { practicalSkillFamilies } from "../content/practical-mastery";
 import { stageAtLeast } from "../lib/practical-mastery-core";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 
 const domains = [
   { key: "foundation", waves: ["W1_FOUNDATION", "W2_PREFLOP", "W3_BLINDS"], ru: "База и префлоп", en: "Foundations & preflop", range: "W1–W3", icon: "◫" },

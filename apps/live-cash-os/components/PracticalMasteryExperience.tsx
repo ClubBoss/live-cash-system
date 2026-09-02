@@ -17,7 +17,7 @@ import {
 } from "../lib/practical-mastery-core";
 import { practicalSkillProgressTransparency, type PracticalSkillProgressCategoryKey } from "../lib/practical-skill-transparency";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
 
 type Locale = "ru" | "en";

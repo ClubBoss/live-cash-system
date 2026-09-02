@@ -32,7 +32,7 @@ import { INTEGRATED_SESSION_SIZE } from "../lib/practical-integrated-session";
 import { recommendNextPracticalSkill, type PracticalMasteryState } from "../lib/practical-mastery-core";
 import { hasFocusedPracticalTableState } from "../lib/practical-perceptual-focus";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDocumentLink from "./PracticalDocumentLink";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
 

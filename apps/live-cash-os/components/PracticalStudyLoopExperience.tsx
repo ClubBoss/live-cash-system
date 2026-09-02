@@ -8,7 +8,7 @@ import { currentPracticalMistakes, type CurrentPracticalMistake } from "../lib/p
 import { latestAttemptsByDecision, practicalRepairQueue, recommendNextPracticalSkill, type PracticalAttempt } from "../lib/practical-mastery-core";
 import { practicalSelectedDecisionFeedback } from "../lib/practical-selected-decision-feedback";
 import { usePracticalLocale } from "../lib/use-practical-locale";
-import { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import { usePracticalProfileState } from "../lib/practical-profile-context";
 
 type Locale = "ru" | "en";
 
