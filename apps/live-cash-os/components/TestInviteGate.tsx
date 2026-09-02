@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { rememberStateBootstrap } from "../lib/state-bootstrap";
 import {
   CONFLICT_BACKUP_KEY,
@@ -111,11 +111,14 @@ async function checkInvite(code: string): Promise<InviteCheckResult> {
 
 export default function TestInviteGate({ children }: { children: ReactNode }) {
   const enabled = __LIVE_CASH_TEST_INVITE_MODE__;
-  const [startupCode] = useState(() => enabled ? storedCode() : "");
-  const [code, setCode] = useState(startupCode);
+  // Initial render must match the server-rendered markup exactly (no localStorage
+  // access during render), otherwise React discards the SSR tree on hydration.
+  // A stored invite is instead picked up in a layout effect below, which commits
+  // before the browser paints, so the access form never has a chance to show.
+  const [code, setCode] = useState("");
   const [locale, setLocale] = useState<GateLocale>("ru");
-  const [status, setStatus] = useState<GateStatus>(startupCode ? "CHECKING" : "READY");
-  const [checkingStoredInvite, setCheckingStoredInvite] = useState(Boolean(startupCode));
+  const [status, setStatus] = useState<GateStatus>("READY");
+  const [checkingStoredInvite, setCheckingStoredInvite] = useState(false);
   const [accessGranted, setAccessGranted] = useState(false);
   const checkingRef = useRef(false);
   const copy = GATE_COPY[locale];
@@ -127,14 +130,14 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
     document.documentElement.lang = nextLocale;
   }, [enabled]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!enabled) return;
+    const existing = storedCode();
+    if (!existing) return;
     let cancelled = false;
-    const existing = startupCode;
-    if (!existing) {
-      return;
-    }
-
+    setCode(existing);
+    setStatus("CHECKING");
+    setCheckingStoredInvite(true);
     checkingRef.current = true;
     void checkInvite(existing).then((result) => {
       if (cancelled) return;
@@ -151,10 +154,16 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
       cancelled = true;
       checkingRef.current = false;
     };
-  }, [enabled, startupCode]);
+  }, [enabled]);
 
   if (!enabled) return <>{children}</>;
-  if (checkingStoredInvite) return <main className="loading" aria-busy="true" aria-label={copy.checking} />;
+  if (checkingStoredInvite) {
+    return (
+      <main className="loading" aria-busy="true">
+        <p role="status">{copy.checking}</p>
+      </main>
+    );
+  }
   if (accessGranted) return <>{children}</>;
 
   function changeLocale(nextLocale: GateLocale) {

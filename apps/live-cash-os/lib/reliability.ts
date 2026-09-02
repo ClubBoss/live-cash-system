@@ -9,8 +9,11 @@ import {
   type LearnerState,
 } from "./model-core";
 import {
+  hasPracticalProfileField,
+  learnerStateHasValidPracticalProfile,
   optionalPracticalProfileValid,
   practicalProfileSafeSuccessor,
+  PRACTICAL_PROFILE_FIELD,
 } from "./practical-profile-contract";
 
 export type RuntimeIdentity = {
@@ -116,11 +119,21 @@ export function readLocalLearnerState(raw: string | null): LocalStateRead {
 
   // A malformed schema-v2 local snapshot is recoverable only as a quarantined
   // best-effort copy. The caller preserves the original raw value first.
-  const recovered = migrateLearnerState(parsed);
+  // migrateLearnerState rebuilds the base state from scratch here (the root
+  // failed validation, not necessarily the profile) and does not carry the
+  // profile field forward, so a _practicalProfile that independently
+  // validates is reattached from the original snapshot rather than lost.
+  const recovered = withRecoveredPracticalProfile(migrateLearnerState(parsed), parsed);
   if (validateRootLearnerState(recovered)) {
     return { kind: "recovered", state: recovered, raw, reason: "Schema-v2 state required recovery" };
   }
   return { kind: "corrupt", state: null, raw, reason: "State failed validation" };
+}
+
+function withRecoveredPracticalProfile(recovered: LearnerState, parsed: unknown): LearnerState {
+  if (!hasPracticalProfileField(parsed) || !learnerStateHasValidPracticalProfile(parsed)) return recovered;
+  const profile = (parsed as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD];
+  return { ...recovered, [PRACTICAL_PROFILE_FIELD]: structuredClone(profile) } as LearnerState;
 }
 
 export function prepareLearnerStateImport(text: string, current: LearnerState): ImportPreparation {

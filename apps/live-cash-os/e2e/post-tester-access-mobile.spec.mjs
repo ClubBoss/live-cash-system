@@ -356,6 +356,9 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
   });
 
   test("stored invite revalidation stays fail-closed without flashing the access form", async ({ page }) => {
+    const pageErrors = [];
+    page.on("pageerror", (error) => pageErrors.push(error));
+
     await installOnlineTruth(page);
     await seedStorage(page, { code: TEST_CODE, locale: "ru" });
     const controller = apiController();
@@ -384,6 +387,12 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     expect(await page.getByRole("navigation", { name: "Practical Mastery navigation" }).count()).toBe(0);
     await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
     expect(controller.getRequests()).toBe(3);
+
+    // Hydration must produce the same initial tree the server rendered; a
+    // mismatch here (React error #418) means the SSR document was discarded
+    // and re-rendered client-side, which is the concrete regression this test
+    // guards against across the initial load, in-app navigation, and reload.
+    expect(pageErrors).toEqual([]);
   });
 
   test("language switching during a service error preserves portable identity and learner state", async ({ page }) => {
