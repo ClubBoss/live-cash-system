@@ -111,9 +111,11 @@ async function checkInvite(code: string): Promise<InviteCheckResult> {
 
 export default function TestInviteGate({ children }: { children: ReactNode }) {
   const enabled = __LIVE_CASH_TEST_INVITE_MODE__;
-  const [code, setCode] = useState("");
+  const [startupCode] = useState(() => enabled ? storedCode() : "");
+  const [code, setCode] = useState(startupCode);
   const [locale, setLocale] = useState<GateLocale>("ru");
-  const [status, setStatus] = useState<GateStatus>("CHECKING");
+  const [status, setStatus] = useState<GateStatus>(startupCode ? "CHECKING" : "READY");
+  const [checkingStoredInvite, setCheckingStoredInvite] = useState(Boolean(startupCode));
   const [accessGranted, setAccessGranted] = useState(false);
   const checkingRef = useRef(false);
   const copy = GATE_COPY[locale];
@@ -128,17 +130,16 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;
-    const existing = storedCode();
+    const existing = startupCode;
     if (!existing) {
-      setStatus("READY");
       return;
     }
 
-    setCode(existing);
     checkingRef.current = true;
     void checkInvite(existing).then((result) => {
       if (cancelled) return;
       checkingRef.current = false;
+      setCheckingStoredInvite(false);
       if (result === "VALID") {
         setAccessGranted(true);
         return;
@@ -150,9 +151,10 @@ export default function TestInviteGate({ children }: { children: ReactNode }) {
       cancelled = true;
       checkingRef.current = false;
     };
-  }, [enabled]);
+  }, [enabled, startupCode]);
 
   if (!enabled) return <>{children}</>;
+  if (checkingStoredInvite) return <main className="loading" aria-busy="true" aria-label={copy.checking} />;
   if (accessGranted) return <>{children}</>;
 
   function changeLocale(nextLocale: GateLocale) {

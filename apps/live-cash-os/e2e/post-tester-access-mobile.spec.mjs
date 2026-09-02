@@ -355,6 +355,37 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
     await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
   });
 
+  test("stored invite revalidation stays fail-closed without flashing the access form", async ({ page }) => {
+    await installOnlineTruth(page);
+    await seedStorage(page, { code: TEST_CODE, locale: "ru" });
+    const controller = apiController();
+    controller.setMode("delay-200");
+    await page.route("**/api/state", (route) => controller.handle(route));
+
+    await page.goto("/tools?tab=data");
+    const pending = page.locator("main.loading[aria-busy='true']");
+    await expect(pending).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Вход для тестирования" })).toHaveCount(0);
+    await expect(page.locator("#test-invite-code")).toHaveCount(0);
+    await expectLocked(page);
+    await expect(page.getByRole("heading", { name: "Инструменты", level: 1 })).toBeVisible();
+
+    await page.getByRole("link", { name: "Вернуться в Practical Mastery" }).click();
+    await expect(pending).toBeVisible();
+    expect(await page.getByRole("heading", { name: "Вход для тестирования" }).count()).toBe(0);
+    expect(await page.locator("#test-invite-code").count()).toBe(0);
+    expect(await page.getByRole("navigation", { name: "Practical Mastery navigation" }).count()).toBe(0);
+    await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+
+    await page.reload();
+    await expect(pending).toBeVisible();
+    expect(await page.getByRole("heading", { name: "Вход для тестирования" }).count()).toBe(0);
+    expect(await page.locator("#test-invite-code").count()).toBe(0);
+    expect(await page.getByRole("navigation", { name: "Practical Mastery navigation" }).count()).toBe(0);
+    await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })).toBeVisible();
+    expect(controller.getRequests()).toBe(3);
+  });
+
   test("language switching during a service error preserves portable identity and learner state", async ({ page }) => {
     await installOnlineTruth(page);
     await seedStorage(page, {
