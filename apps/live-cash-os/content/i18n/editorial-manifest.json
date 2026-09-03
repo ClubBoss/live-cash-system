@@ -163,10 +163,10 @@
     "content/practical-mastery/decisions-variation-b3.ts": "dcc08c12ffdb761db093b29a18346cab3a9fb735",
     "content/practical-mastery/decisions-live-edge-b4.ts": "47935a40424a5986ea3b57bb5a98cf46aacc625a",
     "content/practical-mastery/practical-ru-systemic-b3-b4-publication.ts": "d3f256d3e3130ae8c8b6ca043a8cbcb9538ec74b",
-    "content/practical-mastery/perceptual-table-states.ts": "ba5a917eb9400c10c679fda8906ea487fb7b9ac8",
+    "content/practical-mastery/perceptual-table-states.ts": "93a591b354e10b970fddf61dcd17518c79c70ff2",
     "content/practical-mastery/perceptual-table-states-b3.ts": "e6c3274d1d003ba8a417db4d2e603993a8463570",
     "content/practical-mastery/decisions-executable-gate-repair.ts": "0975c210bb314fd8a6bd0c56690e26d8028f4576",
-    "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts": "7f98b7d0cf3a0306b0b5cdb8e2e6bcbfb6775f61"
+    "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts": "5499558ed0cd464ffefff71b5e4002cedca0716e"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Machine and agent repairs are materialized; fresh human RU/EN review remains pending."},

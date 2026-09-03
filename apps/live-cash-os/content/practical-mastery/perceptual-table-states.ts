@@ -18,7 +18,9 @@ export type PracticalTableState = {
   potBb?: number;
   straddle?: { position: PerceptualSeat["position"]; amountBb: number };
   actions: string[];
+  actionsRu?: string[];
   irrelevantCues?: string[];
+  irrelevantCuesRu?: string[];
   revealCueRu: string;
   revealCueEn: string;
 };
