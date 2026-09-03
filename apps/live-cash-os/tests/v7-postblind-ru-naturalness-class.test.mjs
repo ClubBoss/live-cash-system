@@ -88,7 +88,7 @@ test("V7 post-blind governed RU decision/anchor malformed-hybrid class remains c
   const rows = decisionAnchorRows();
   const failures = legacyDefects(rows);
   const cyrillicRows = rows.filter(({ text }) => cyrillic.test(text)).length;
-  assert.equal(rows.length, 7660, "Reachable RU decision/anchor denominator changed; re-census the governed class deliberately");
+  assert.equal(rows.length, 7813, "Reachable RU decision/anchor denominator changed; re-census the governed class deliberately");
   assert.deepEqual(failures, [], `V7 RU naturalness class regressed:\n${failures.map((row) => `${row.id}:${row.field}: ${row.text}`).join("\n")}`);
   console.log(`V7_POSTBLIND_RU_NATURALNESS rows=${rows.length} cyrillicRows=${cyrillicRows} defects=${failures.length}`);
 });

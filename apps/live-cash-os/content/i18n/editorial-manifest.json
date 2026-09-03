@@ -111,7 +111,7 @@
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "content/practical-mastery/practical-ru-copy-repair.ts": "1be4cd2e49fde14cfee3e6006d6fa7374e24b80e",
     "content/practical-mastery/practical-anchor-ru-copy-repair.ts": "91886f72a12d08ea64871e9b2cc818c4079b9ec2",
-    "content/practical-mastery/index.ts": "b7b5d1667cfa6f8fe9d5e58de342f82b70eaeac4",
+    "content/practical-mastery/index.ts": "8214e424b697c5a8660d01b829d83c76b700047f",
     "app/page.tsx": "8a414fda72fd95bf8cbbd12adfaedae0c42d4c02",
     "components/LiveCashApp.tsx": "aab5534214d32d14d4f69a83d1697ffd30b40ec7",
     "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
@@ -166,7 +166,7 @@
     "content/practical-mastery/perceptual-table-states.ts": "93a591b354e10b970fddf61dcd17518c79c70ff2",
     "content/practical-mastery/perceptual-table-states-b3.ts": "e6c3274d1d003ba8a417db4d2e603993a8463570",
     "content/practical-mastery/decisions-executable-gate-repair.ts": "0975c210bb314fd8a6bd0c56690e26d8028f4576",
-    "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts": "5499558ed0cd464ffefff71b5e4002cedca0716e"
+    "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts": "79ea0546b8b7f6d07879eec65dc4b883e5add2f5"
   },
   "modules": {
     "geometry": {"ru": "REVIEW_REQUIRED", "en": "REVIEW_REQUIRED", "note": "Machine and agent repairs are materialized; fresh human RU/EN review remains pending."},

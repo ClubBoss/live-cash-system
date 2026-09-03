@@ -26,6 +26,7 @@ import { balanceB3AssessmentOptions } from "./b3-assessment-integrity";
 import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
+import { finalContentDeltaDecisions } from "./decisions-final-content-delta";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { applyPracticalRuFinalPolish } from "./practical-ru-final-polish";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
@@ -106,6 +107,7 @@ export * from "./perceptual-table-states-b3";
 export * from "./decisions-variation-b3";
 export * from "./decisions-live-edge-b4";
 export * from "./decisions-executable-gate-repair";
+export * from "./decisions-final-content-delta";
 export * from "./rep-depth-policy";
 export * from "./study-loop-c1";
 export * from "./reference-baselines-c2";
@@ -160,6 +162,7 @@ export const practicalDecisions = [
   ...perceptualPracticalDecisions,
   ...integratedMasteryDecisions,
   ...integratedA11ExpansionDecisions,
+  ...finalContentDeltaDecisions,
 ]
   .map(applyPracticalRuCopyRepair)
   .map(applyPracticalRuFinalPolish)

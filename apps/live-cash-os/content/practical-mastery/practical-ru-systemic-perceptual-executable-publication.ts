@@ -447,6 +447,7 @@ export const practicalRuPerceptualB3RevealCuePatches = new Map<string, string>([
 export const practicalRuPerceptualB3ActionsPatches = new Map<string, string[]>([
   ["PM-B3-PF06-101", ["CO открывает 3bb", "Ход за BTN"]],
   ["PM-B3-PF06-103", ["CO открывает 3bb", "CO уже несколько раз коллировал 3-беты и почти не фолдил"]],
+  ["PM-B3-RIV01-101", ["На флопе BTN ставит/коллирует", "На терне BTN ставит/коллирует", "На ривере BB чекает"]],
   ["PM-B3-RIV01-103", ["На флопе BTN ставит/коллирует", "На терне BTN ставит/коллирует", "На ривере BB чекает", "BB уже несколько раз чекал/коллировал тайтово на ривере"]],
 ]);
 
