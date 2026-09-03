@@ -10,8 +10,12 @@ import {
   practicalRuPerceptualDecisionPatches,
   applyPracticalRuPerceptualDecisionProjection,
   practicalRuPerceptualPrimaryRevealCuePatches,
+  practicalRuPerceptualPrimaryActionsPatches,
+  practicalRuPerceptualPrimaryIrrelevantCuesPatches,
   applyPracticalRuPerceptualPrimaryTableStateProjection,
   practicalRuPerceptualB3RevealCuePatches,
+  practicalRuPerceptualB3ActionsPatches,
+  practicalRuPerceptualB3IrrelevantCuesPatches,
   applyPracticalRuPerceptualB3TableStateProjection,
   practicalRuExecutableGateRepairDecisionPatches,
   applyPracticalRuExecutableGateRepairDecisionProjection,
@@ -81,6 +85,8 @@ function optionMachineIdentity(options) {
 function withoutRevealCueRu(state) {
   const clone = { ...state };
   delete clone.revealCueRu;
+  delete clone.actionsRu;
+  delete clone.irrelevantCuesRu;
   return clone;
 }
 
@@ -202,7 +208,7 @@ test("PRIMARY table states raw authority is exactly the 20 owned decision IDs; 2
   }
 });
 
-test("PRIMARY table states projection: only revealCueRu differs, all else byte/deep-equal; idempotent; non-mutating; unmapped-pass-through", () => {
+test("PRIMARY table states projection: only revealCueRu/actionsRu/irrelevantCuesRu differ, all else byte/deep-equal; idempotent; non-mutating; unmapped-pass-through", () => {
   for (const id of perceptualDecisionIds) {
     const raw = rawPrimaryStateById.get(id);
     const rawSnapshot = structuredClone(raw);
@@ -210,8 +216,10 @@ test("PRIMARY table states projection: only revealCueRu differs, all else byte/d
     const projected2 = applyPracticalRuPerceptualPrimaryTableStateProjection(raw);
     assert.deepEqual(raw, rawSnapshot, `${id} raw mutated`);
     assert.deepEqual(projected1, projected2, `${id} not idempotent`);
-    assert.deepEqual(withoutRevealCueRu(projected1), withoutRevealCueRu(raw), `${id} non-revealCueRu fields changed`);
+    assert.deepEqual(withoutRevealCueRu(projected1), withoutRevealCueRu(raw), `${id} non-patched fields changed`);
     assert.equal(projected1.revealCueRu, practicalRuPerceptualPrimaryRevealCuePatches.get(id));
+    assert.deepEqual(projected1.actionsRu, practicalRuPerceptualPrimaryActionsPatches.get(id));
+    assert.deepEqual(projected1.irrelevantCuesRu, practicalRuPerceptualPrimaryIrrelevantCuesPatches.get(id));
   }
   const unmapped = { decisionId: "PM-NOT-OWNED", scaffold: "guided", stakes: "1/3", hero: "BTN", dealer: "BTN", seats: [], actions: [], revealCueRu: "x", revealCueEn: "x" };
   assert.deepEqual(applyPracticalRuPerceptualPrimaryTableStateProjection(unmapped), unmapped);
@@ -222,6 +230,12 @@ test("PRIMARY table states HYBRID_RESIDUAL_FIELDS=0 and LEARNER_VISIBLE_SOURCE_I
     const cue = practicalRuPerceptualPrimaryRevealCuePatches.get(id);
     assert.doesNotMatch(stripApprovedNotation(cue), /[A-Za-z]/u, `${id} revealCueRu hybrid residual: ${cue}`);
     assert.doesNotMatch(cue, SOURCE_ID_PATTERN, `${id} revealCueRu source id residual: ${cue}`);
+  }
+  for (const lines of practicalRuPerceptualPrimaryActionsPatches.values()) {
+    for (const line of lines) assert.doesNotMatch(stripApprovedNotation(line), /[A-Za-z]/u, `actionsRu hybrid residual: ${line}`);
+  }
+  for (const lines of practicalRuPerceptualPrimaryIrrelevantCuesPatches.values()) {
+    for (const line of lines) assert.doesNotMatch(stripApprovedNotation(line), /[A-Za-z]/u, `irrelevantCuesRu hybrid residual: ${line}`);
   }
 });
 
@@ -237,7 +251,7 @@ test("B3 table states raw authority is exactly the 22 owned decision IDs; 22 rev
   }
 });
 
-test("B3 table states projection: only revealCueRu differs, all else byte/deep-equal; idempotent; non-mutating; unmapped-pass-through", () => {
+test("B3 table states projection: only revealCueRu/actionsRu/irrelevantCuesRu differ, all else byte/deep-equal; idempotent; non-mutating; unmapped-pass-through", () => {
   for (const id of b3TableStateIds) {
     const raw = rawB3StateById.get(id);
     const rawSnapshot = structuredClone(raw);
@@ -245,8 +259,10 @@ test("B3 table states projection: only revealCueRu differs, all else byte/deep-e
     const projected2 = applyPracticalRuPerceptualB3TableStateProjection(raw);
     assert.deepEqual(raw, rawSnapshot, `${id} raw mutated`);
     assert.deepEqual(projected1, projected2, `${id} not idempotent`);
-    assert.deepEqual(withoutRevealCueRu(projected1), withoutRevealCueRu(raw), `${id} non-revealCueRu fields changed`);
+    assert.deepEqual(withoutRevealCueRu(projected1), withoutRevealCueRu(raw), `${id} non-patched fields changed`);
     assert.equal(projected1.revealCueRu, practicalRuPerceptualB3RevealCuePatches.get(id));
+    assert.deepEqual(projected1.actionsRu, practicalRuPerceptualB3ActionsPatches.get(id));
+    assert.deepEqual(projected1.irrelevantCuesRu, practicalRuPerceptualB3IrrelevantCuesPatches.get(id));
   }
   const unmapped = { decisionId: "PM-NOT-OWNED", scaffold: "hidden", stakes: "1/3", hero: "BTN", dealer: "BTN", seats: [], actions: [], revealCueRu: "x", revealCueEn: "x" };
   assert.deepEqual(applyPracticalRuPerceptualB3TableStateProjection(unmapped), unmapped);
@@ -257,6 +273,12 @@ test("B3 table states HYBRID_RESIDUAL_FIELDS=0 and LEARNER_VISIBLE_SOURCE_ID_RES
     const cue = practicalRuPerceptualB3RevealCuePatches.get(id);
     assert.doesNotMatch(stripApprovedNotation(cue), /[A-Za-z]/u, `${id} revealCueRu hybrid residual: ${cue}`);
     assert.doesNotMatch(cue, SOURCE_ID_PATTERN, `${id} revealCueRu source id residual: ${cue}`);
+  }
+  for (const lines of practicalRuPerceptualB3ActionsPatches.values()) {
+    for (const line of lines) assert.doesNotMatch(stripApprovedNotation(line), /[A-Za-z]/u, `actionsRu hybrid residual: ${line}`);
+  }
+  for (const lines of practicalRuPerceptualB3IrrelevantCuesPatches.values()) {
+    for (const line of lines) assert.doesNotMatch(stripApprovedNotation(line), /[A-Za-z]/u, `irrelevantCuesRu hybrid residual: ${line}`);
   }
 });
 

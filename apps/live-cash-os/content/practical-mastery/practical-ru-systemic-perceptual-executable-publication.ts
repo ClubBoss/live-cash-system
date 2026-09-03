@@ -379,11 +379,37 @@ export const practicalRuPerceptualPrimaryRevealCuePatches = new Map<string, stri
   ["PM-PERC-EXP01-2", "Вывод должен ослабнуть: новые данные в той же ветке противоречат прежней гипотезе."],
 ]);
 
+// Table-state actions/irrelevantCues are learner-facing narration rendered
+// verbatim in PracticalTableStateStimulus regardless of locale; these two
+// records leaked full English sentences onto the RU surface (final
+// acceptance audit finding). Only the RU-locale render path is patched, so
+// English learners and all machine identities (decisionId, scoring,
+// sourceRefs) are untouched.
+export const practicalRuPerceptualPrimaryActionsPatches = new Map<string, string[]>([
+  ["PM-PERC-FND06-1", ["BTN 3-бет до 18bb", "SB коллирует", "BB фолдит"]],
+  ["PM-PERC-FND06-2", ["CO открывает 3bb", "BTN 3-бет до 11bb", "CO коллирует"]],
+  ["PM-PERC-EXP01-1", ["HJ на прошлом орбите показал один огромный блеф на ривере", "Повторной выборки в этой же ветке пока нет"]],
+  ["PM-PERC-EXP01-2", ["HJ ранее переблефовывал крупными ставками на ривере", "Последние 4 сравнимые ветки: чек/фолд или шоудаун вэлью"]],
+]);
+
+export const practicalRuPerceptualPrimaryIrrelevantCuesPatches = new Map<string, string[]>([
+  ["PM-PERC-FND06-1", ["У CO самый большой стек"]],
+  ["PM-PERC-EXP01-1", ["У HJ самый большой стек"]],
+]);
+
 export function applyPracticalRuPerceptualPrimaryTableStateProjection(
   state: PracticalTableState,
 ): PracticalTableState {
   const revealCueRu = practicalRuPerceptualPrimaryRevealCuePatches.get(state.decisionId);
-  return revealCueRu === undefined ? state : { ...state, revealCueRu };
+  const actionsRu = practicalRuPerceptualPrimaryActionsPatches.get(state.decisionId);
+  const irrelevantCuesRu = practicalRuPerceptualPrimaryIrrelevantCuesPatches.get(state.decisionId);
+  if (revealCueRu === undefined && actionsRu === undefined && irrelevantCuesRu === undefined) return state;
+  return {
+    ...state,
+    ...(revealCueRu === undefined ? null : { revealCueRu }),
+    ...(actionsRu === undefined ? null : { actionsRu }),
+    ...(irrelevantCuesRu === undefined ? null : { irrelevantCuesRu }),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -415,11 +441,32 @@ export const practicalRuPerceptualB3RevealCuePatches = new Map<string, string>([
   ["PM-B3-DEEP01-103", "Изменилась только эффективная глубина; планирование с одной парой и расчёт будущего рычага давления должны на это отреагировать."],
 ]);
 
+// See the primary table-state actions/irrelevantCues patch above for why
+// these exist: full English sentences otherwise leak onto the RU Table
+// Reading surface for these B3 companion records.
+export const practicalRuPerceptualB3ActionsPatches = new Map<string, string[]>([
+  ["PM-B3-PF06-101", ["CO открывает 3bb", "Ход за BTN"]],
+  ["PM-B3-PF06-103", ["CO открывает 3bb", "CO уже несколько раз коллировал 3-беты и почти не фолдил"]],
+  ["PM-B3-RIV01-103", ["На флопе BTN ставит/коллирует", "На терне BTN ставит/коллирует", "На ривере BB чекает", "BB уже несколько раз чекал/коллировал тайтово на ривере"]],
+]);
+
+export const practicalRuPerceptualB3IrrelevantCuesPatches = new Map<string, string[]>([
+  ["PM-B3-PF06-101", ["CO раньше коллировал несколько рейзов, но выборка маленькая"]],
+]);
+
 export function applyPracticalRuPerceptualB3TableStateProjection(
   state: PracticalTableState,
 ): PracticalTableState {
   const revealCueRu = practicalRuPerceptualB3RevealCuePatches.get(state.decisionId);
-  return revealCueRu === undefined ? state : { ...state, revealCueRu };
+  const actionsRu = practicalRuPerceptualB3ActionsPatches.get(state.decisionId);
+  const irrelevantCuesRu = practicalRuPerceptualB3IrrelevantCuesPatches.get(state.decisionId);
+  if (revealCueRu === undefined && actionsRu === undefined && irrelevantCuesRu === undefined) return state;
+  return {
+    ...state,
+    ...(revealCueRu === undefined ? null : { revealCueRu }),
+    ...(actionsRu === undefined ? null : { actionsRu }),
+    ...(irrelevantCuesRu === undefined ? null : { irrelevantCuesRu }),
+  };
 }
 
 // ---------------------------------------------------------------------------

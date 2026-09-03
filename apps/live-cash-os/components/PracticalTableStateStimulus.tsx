@@ -33,8 +33,8 @@ function TableSnapshot({ state, locale }: { state: PracticalTableState; locale: 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>{state.board?.map((card) => <Card key={card} card={card} />)}</div>
       {state.potBb !== undefined ? <p><b>{locale === "ru" ? "Банк" : "Pot"} {state.potBb}bb</b></p> : null}
       {state.straddle ? <p>{locale === "ru" ? "Страддл" : "Straddle"}: <b>{state.straddle.position} {state.straddle.amountBb}bb</b></p> : null}
-      <div style={{ fontSize: 14, maxWidth: 560 }}>{state.actions.map((action) => <div key={action}>{action}</div>)}</div>
-      {state.irrelevantCues?.map((cue) => <div key={cue} style={{ fontSize: 12, opacity: 0.6, marginTop: 4 }}>• {cue}</div>)}
+      <div style={{ fontSize: 14, maxWidth: 560 }}>{(locale === "ru" && state.actionsRu ? state.actionsRu : state.actions).map((action) => <div key={action}>{action}</div>)}</div>
+      {(locale === "ru" && state.irrelevantCuesRu ? state.irrelevantCuesRu : state.irrelevantCues)?.map((cue) => <div key={cue} style={{ fontSize: 12, opacity: 0.6, marginTop: 4 }}>• {cue}</div>)}
       {heroSeat && state.heroCards ? <div style={{ marginTop: 14 }}><b>Hero {state.hero}</b><div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 5 }}>{state.heroCards.map((card) => <Card key={card} card={card} />)}</div></div> : null}
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginTop: 8 }}>

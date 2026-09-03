@@ -88,8 +88,8 @@ test("V7 post-blind RU publication is natural across the five canonical learner 
 
   // Focused Table Reading.
   await page.goto("/mastery/perception");
-  await assertNaturalRussian(page.locator("main"), "Table Reading");
   await expect(page.locator("section.surface[data-practical-decision-id]").first()).toBeVisible();
+  await assertNaturalRussian(page.locator("main"), "Table Reading");
 
   // Mastery/progress.
   await page.goto("/mastery");
