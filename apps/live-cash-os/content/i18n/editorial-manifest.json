@@ -12,9 +12,9 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9",
+    "current_digest": "41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d",
     "approved_digest": null,
-    "review_corpus_fingerprint": "bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9",
+    "review_corpus_fingerprint": "41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d",
     "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, closed Blind Defense, closed Flop/SRP OOP-IP and closed A7 3BP/4BP, then composes the serially closed A8 Turn/River, A9+A10 Live/Exploit, A11/W14 Integrated, B1+C0 Source Closure/Utilization, B3+B4 Variation/Live-Edge and Perceptual/Executable-Gate-Repair RU projections, and finally reapplies the already-certified assessment-integrity presentation repair. Each closed systemic unit retains its own unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. PERCEPTUAL_EXECUTABLE owns the truthful current global final-composition digest. The underlying raw decision, anchor and table-state source authority for every closed unit remains raw and unchanged. SourceRefs, decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order, poker strategy and quantitative semantics remain unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval."
   },
   "repair_source_paths": {
@@ -111,7 +111,7 @@
     "content/i18n/learning-route.ts": "ab5d5c84773393497b384793ef21fa08a3a9d985",
     "content/practical-mastery/practical-ru-copy-repair.ts": "1be4cd2e49fde14cfee3e6006d6fa7374e24b80e",
     "content/practical-mastery/practical-anchor-ru-copy-repair.ts": "91886f72a12d08ea64871e9b2cc818c4079b9ec2",
-    "content/practical-mastery/index.ts": "8214e424b697c5a8660d01b829d83c76b700047f",
+    "content/practical-mastery/index.ts": "8fec81eeb2721314031e7c811bd575dbfa279680",
     "app/page.tsx": "8a414fda72fd95bf8cbbd12adfaedae0c42d4c02",
     "components/LiveCashApp.tsx": "aab5534214d32d14d4f69a83d1697ffd30b40ec7",
     "components/LiveCashAppCore.tsx": "00f31b82e1d4c38166a739558439421196d7ba0f",
