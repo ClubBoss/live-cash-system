@@ -124,9 +124,9 @@ Git blob locks are stale-mutation detectors, not a mechanism for carrying old ap
 
 The integrated candidate is re-locked against its actual active source inventory. The current final-composition digest is:
 
-`bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9`
+`41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d`
 
-This fingerprint is the exact final composition after the accepted PF-09/PF-10, Blind and Flop/SRP unit-local RU projections, the accepted A7 3BP/4BP projection, the intentional current-main assessment-integrity precedence, and the serially closed A8 Turn/River, A9+A10, A11/W14, B1+C0, B3+B4 and Perceptual/Executable-Gate-Repair RU publications are composed on top of the closed PF-01..PF-10, Blind and Flop/SRP lineage. Every closed unit through A7 3BP/4BP retains unit-local ownership/firewall guarantees; they do not freeze future valid whole-corpus growth. Perceptual/Executable-Gate-Repair owns the current global/final-composition digest and final firewall.
+This fingerprint is the exact final composition after the accepted PF-09/PF-10, Blind and Flop/SRP unit-local RU projections, the accepted A7 3BP/4BP projection, the intentional current-main assessment-integrity precedence, and the serially closed A8 Turn/River, A9+A10, A11/W14, B1+C0, B3+B4 and Perceptual/Executable-Gate-Repair RU publications are composed on top of the closed PF-01..PF-10, Blind and Flop/SRP lineage. Every closed unit through A7 3BP/4BP retains unit-local ownership/firewall guarantees; they do not freeze future valid whole-corpus growth. Perceptual/Executable-Gate-Repair owns the current global/final-composition digest and final firewall. The Execution Transfer Closure wave (`content/practical-mastery/decisions-execution-transfer-closure.ts`) extends the equal-blind BvB, turn-classification, board-recognition and hand-role skill families in place, authored inline with its own dedicated RU/position-balance acceptance test; it does not change digest ownership.
 
 Current status:
 
@@ -196,7 +196,7 @@ Human poker review must cover:
 
 Separate human language review must cover:
 
-- exact final RU composition at digest `bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9`;
+- exact final RU composition at digest `41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d`;
 - exact final EN composition at the same digest;
 - the 55/55 drill and 10/10 Diagnostic decision surfaces affected by the comprehension closure;
 - the generated Practical Mastery RU decision and anchor surfaces affected by `applyPracticalRuCopyRepair`, `applyPracticalAnchorRuCopyRepair`, `applyPracticalRuFinalPolish`, the serial systemic RU publication projections through Perceptual/Executable-Gate-Repair, and the three bilingual assessment surfaces affected by `applyPracticalAssessmentIntegrityRepair`.

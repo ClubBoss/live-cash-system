@@ -34,7 +34,7 @@ test("C2-C4 closure preserves scoring identity while repairing polarity and misc
 test("generated runtime audit is clean after classifying boundary/mixed rows separately from changed-node metadata", () => {
   const ledger = runtimeCorpusAuditLedger();
   assert.equal(ledger.counts.skills, 86);
-  assert.equal(ledger.counts.stimuli, 901);
+  assert.equal(ledger.counts.stimuli, 926);
   assert.equal(ledger.counts.partialSourceSkills, 1);
   assert.equal(ledger.counts.errorItems, 0);
   assert.equal(ledger.counts.reviewItems, 0);
