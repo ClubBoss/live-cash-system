@@ -111,3 +111,95 @@ test("the cross-module compression card exists exactly once and warns classifica
   assert.match(card.answerEn, /does not determine the action/);
   assert.match(`${card.answerRu} ${card.answerEn}`, /mainly informs|в основном подсказывает/i);
 });
+
+// FPA1-001: the boundary item must describe a genuine blind-vs-blind chop
+// (hand terminates by prior agreement before any street is played), never a
+// played check-down to showdown. A "true chop" and a "played check-down" are
+// different phenomena and must not be conflated in this item.
+test("FPA1-001: the chop item describes termination before a strategic branch, not a played check-down", () => {
+  const chop = executionTransferClosureDecisions.find((d) => d.id === "PM-BL-06-ETC-103");
+  assert.ok(chop, "PM-BL-06-ETC-103 must exist");
+  assert.equal(chop.skillId, "BL-06");
+  assert.equal(chop.kind, "boundary");
+
+  const visible = [
+    chop.cueRu, chop.cueEn, chop.explanationRu, chop.explanationEn,
+    ...chop.actionOptions.flatMap((o) => [o.textRu, o.textEn]),
+    ...chop.reasonOptions.flatMap((o) => [o.textRu, o.textEn]),
+  ].join("\n");
+
+  // Must name the chop mechanism and that it precedes the flop.
+  assert.match(visible, /chop/i);
+  assert.match(visible, /до флопа|before the flop/i);
+
+  // Must NOT describe a played check-down / showdown split — that is a
+  // different phenomenon (a real strategic branch was played, just checked).
+  for (const playedCheckdownPhrase of [
+    /чекнули банк без единой ставки/i,
+    /checked the pot down/i,
+    /банк просто раздели/i,
+    /pot was simply split/i,
+  ]) {
+    assert.doesNotMatch(visible, playedCheckdownPhrase, `chop item must not describe a played check-down: ${playedCheckdownPhrase}`);
+  }
+
+  // The correct action/reason must state the hand ends before any strategic
+  // node — not merely "no bet was made" (which is compatible with a played
+  // check-down and would fail to distinguish the two phenomena).
+  const correctAction = chop.actionOptions.find((o) => o.id === chop.correctActionId);
+  const correctReason = chop.reasonOptions.find((o) => o.id === chop.correctReasonId);
+  assert.match(`${correctAction.textRu} ${correctAction.textEn}`, /прежде чем.*(сыгран|played)|before.*(played|actually played)/i);
+  assert.match(`${correctReason.textRu} ${correctReason.textEn}`, /под реальным давлением|under real pressure/i);
+});
+
+// FPA1-002: the specific hybrid classes found by Fresh Pass #1 (raw English
+// nouns stitched into Russian sentences) cannot trivially recur in this file.
+test("FPA1-002: RU naturalness firewall covers the newly observed hybrid classes", () => {
+  const ru = executionTransferClosureDecisions.flatMap((decision) => [
+    decision.cueRu,
+    decision.questionRu,
+    decision.explanationRu,
+    ...decision.actionOptions.map((option) => option.textRu),
+    ...decision.reasonOptions.map((option) => option.textRu),
+  ]).concat(executionTransferClosureAnchors.flatMap((a) => [a.promptRu, a.answerRu, a.rationaleRu]))
+    .join("\n");
+
+  for (const forbidden of [
+    /\bancestry\b/i,
+    /\bvoluntary raiser\b/i,
+    /opponent-evidence/i,
+    /Branch-специфичн\w*/i,
+    /\bBvB\b/,
+    /forced unit/i,
+    /\bboost\b/i,
+    /\bPAIR\b(?!ED)/,
+    /DRAW COMPLETE/i,
+    /классификация REPAIR/i,
+    /evidence-дисциплина/i,
+  ]) assert.doesNotMatch(ru, forbidden, `RU text must not contain the hybrid: ${forbidden}`);
+});
+
+// FPA1-003: the confirmed cartoonish distractors (absurd category errors that
+// a learner could reject on tone alone, without reasoning about range/
+// ownership/history/job) must not recur verbatim. This is a lexical
+// tripwire only — it cannot prove plausibility, which was verified by manual
+// semantic audit of all 24 decisions (see repair PR description).
+test("FPA1-003: confirmed cartoonish distractor phrases do not recur", () => {
+  const allOptionsText = executionTransferClosureDecisions
+    .flatMap((d) => [...d.actionOptions, ...d.reasonOptions])
+    .flatMap((o) => [o.textRu, o.textEn])
+    .join("\n");
+
+  for (const cartoonish of [
+    /three different suits by themselves make the board low/i,
+    /три разные масти сами по себе делают доску низкой/i,
+    /having a king automatically makes the board connected/i,
+    /наличие короля автоматически делает доску связанной/i,
+    /any nine automatically means a check/i,
+    /любая карта девятки автоматически означает чек/i,
+    /is fixed on the flop and is never revisited/i,
+    /фиксируется на флопе и не пересматривается/i,
+    /any turn raise always means the nuts regardless of the opponent's history/i,
+    /любой терн-рейз всегда означает натсы независимо от истории соперника/i,
+  ]) assert.doesNotMatch(allOptionsText, cartoonish, `cartoonish distractor must not recur: ${cartoonish}`);
+});
