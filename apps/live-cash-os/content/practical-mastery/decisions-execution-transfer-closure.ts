@@ -400,7 +400,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     correctActionId: "c", correctReasonId: "r3", targetSeconds: 26,
     explanationRu: "Семейство доски ≠ действие. Одна и та же доска в single-raised и в 3-bet pot несёт разные пришедшие диапазоны и разную позицию агрессора, поэтому план нужно пересчитывать заново, а не переносить по названию текстуры.",
     explanationEn: "BOARD FAMILY does not equal ACTION. The same board in a single-raised pot versus a 3-bet pot carries different arriving ranges and a different aggressor position, so the plan must be recomputed rather than transferred by the texture's name.",
-    changedVariables: ["pot_type", "arriving_ranges"],
+    changedVariables: ["pot_type", "arriving_ranges", "aggressor_position"],
   },
   {
     id: "PM-W4-BOARD-01-ETC-104", skillId: "W4-BOARD-01", kind: "changed", sourceRefs: ["FTGU-E07", "SLC-MULTIWAY"],
