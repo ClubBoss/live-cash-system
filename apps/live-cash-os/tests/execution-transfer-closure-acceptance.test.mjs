@@ -203,3 +203,20 @@ test("FPA1-003: confirmed cartoonish distractor phrases do not recur", () => {
     /любой терн-рейз всегда означает натсы независимо от истории соперника/i,
   ]) assert.doesNotMatch(allOptionsText, cartoonish, `cartoonish distractor must not recur: ${cartoonish}`);
 });
+
+// FPA1R-001: PM-W4-BOARD-01-ETC-103 teaches that the strategic delta between
+// the two nodes comes from pot type, arriving-range composition, AND
+// aggressor position (node A: BTN aggressor IP; node B: aggressor OOP in a
+// deep 3-bet pot). changedVariables previously omitted aggressor_position,
+// making the machine-readable metadata causally incomplete relative to what
+// the correct action/reason/explanation actually teach.
+test("FPA1R-001: PM-W4-BOARD-01-ETC-103 declares aggressor_position as a changed variable", () => {
+  const decision = executionTransferClosureDecisions.find((d) => d.id === "PM-W4-BOARD-01-ETC-103");
+  assert.ok(decision, "PM-W4-BOARD-01-ETC-103 must exist");
+  assert.equal(decision.kind, "changed");
+  assert.deepEqual(
+    [...decision.changedVariables].sort(),
+    ["aggressor_position", "arriving_ranges", "pot_type"],
+    "PM-W4-BOARD-01-ETC-103 must declare pot_type, arriving_ranges, and aggressor_position",
+  );
+});
