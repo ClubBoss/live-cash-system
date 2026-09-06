@@ -4,9 +4,10 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { corpusFingerprint } from "../scripts/governance-contract.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const expectedFinalCompositionDigest = "41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d";
+const expectedFinalCompositionDigest = "2c19a356404b6c9f310e1a54ee67c7bca5068ba15e6d9376f0d9abddddedbb51";
 
 // The six late systemic RU publication modules admitted to the final governed
 // frontier by GLOBAL_SYSTEMIC_RU closure: each is both a language-repair
@@ -186,6 +187,45 @@ test("terminal assessment-integrity repair remains the absolute last step in the
   assert.ok(b4 < perceptual, "B4 must precede Perceptual");
   assert.ok(perceptual < gateRepair, "Perceptual must precede ExecutableGateRepair");
   assert.ok(gateRepair < terminal, "ExecutableGateRepair must precede the terminal assessment-integrity repair");
+});
+
+// FPA1-GOV-001: the active canonical raw ETC authority was part of the
+// current practical corpus but absent from manifest.source_blobs, so it
+// could mutate without invalidating the review-corpus fingerprint. This
+// proves it is now a governed source_blobs participant whose Git blob SHA
+// is locked and whose value flows into the re-materialized final-composition
+// digest via the existing generic corpusFingerprint(source_blobs) procedure
+// (no parallel governance framework, no second digest system).
+test("FPA1-GOV-001: the ETC raw authority is a locked source_blobs participant and current_digest matches the re-materialized corpus fingerprint", async () => {
+  const etcPath = "content/practical-mastery/decisions-execution-transfer-closure.ts";
+  const manifest = JSON.parse(await text("content/i18n/editorial-manifest.json"));
+
+  assert.ok(manifest.source_blobs[etcPath], "ETC raw authority must be present in source_blobs");
+  assert.match(manifest.source_blobs[etcPath], /^[0-9a-f]{40}$/u, "ETC source_blobs entry must be a Git blob SHA-1");
+
+  const actualBytes = await readFile(path.join(root, etcPath));
+  assert.equal(gitBlobSha(actualBytes), manifest.source_blobs[etcPath], "ETC source lock is stale against the actual file");
+
+  // A future mutation of the raw ETC authority must invalidate the lock
+  // through the existing generic source_blobs verification (same mechanism
+  // as every other governed source, not a parallel check).
+  const mutatedBytes = Buffer.concat([actualBytes, Buffer.from("\n// FPA1-GOV-001 regression: this mutation must break the lock\n")]);
+  assert.notEqual(gitBlobSha(mutatedBytes), manifest.source_blobs[etcPath], "the generic source_blobs lock must be sensitive to ETC mutation");
+
+  // current_digest / review_corpus_fingerprint must equal the repository's
+  // existing canonical procedure applied to the exact current source_blobs
+  // set, not a stale or hand-picked constant.
+  const rematerialized = corpusFingerprint(manifest.source_blobs);
+  assert.equal(manifest.final_composition.current_digest, rematerialized, "current_digest must equal the re-materialized corpusFingerprint(source_blobs)");
+  assert.equal(manifest.final_composition.review_corpus_fingerprint, rematerialized, "review_corpus_fingerprint must equal the re-materialized corpusFingerprint(source_blobs)");
+  assert.equal(manifest.final_composition.current_digest, expectedFinalCompositionDigest);
+
+  // Human-approval truth must not be manufactured by this machine repair.
+  assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
+  assert.equal(manifest.final_composition.approved_digest, null);
+  assert.equal(manifest.strategy_approval, null);
+  assert.equal(manifest.drill_approval, null);
+  assert.deepEqual(manifest.human_approvals, {});
 });
 
 test("no stale A7-owned global final-composition frontier text remains", async () => {
