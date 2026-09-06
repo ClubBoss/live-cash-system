@@ -6,7 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const expectedFinalCompositionDigest = "bb814bdf17a626ebfdfb756d2f63f8a9d80d0bed7cac4d9ad6fe024eaf9b96c9";
+const expectedFinalCompositionDigest = "41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d";
 
 // The six late systemic RU publication modules admitted to the final governed
 // frontier by GLOBAL_SYSTEMIC_RU closure: each is both a language-repair

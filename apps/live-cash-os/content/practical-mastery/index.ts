@@ -27,6 +27,7 @@ import { b3PracticalTableStates } from "./perceptual-table-states-b3";
 import { liveEdgeB4Decisions } from "./decisions-live-edge-b4";
 import { executableGateRepairDecisions } from "./decisions-executable-gate-repair";
 import { finalContentDeltaDecisions } from "./decisions-final-content-delta";
+import { executionTransferClosureDecisions, executionTransferClosureAnchors } from "./decisions-execution-transfer-closure";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { applyPracticalRuFinalPolish } from "./practical-ru-final-polish";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
@@ -108,6 +109,7 @@ export * from "./decisions-variation-b3";
 export * from "./decisions-live-edge-b4";
 export * from "./decisions-executable-gate-repair";
 export * from "./decisions-final-content-delta";
+export * from "./decisions-execution-transfer-closure";
 export * from "./rep-depth-policy";
 export * from "./study-loop-c1";
 export * from "./reference-baselines-c2";
@@ -122,6 +124,7 @@ export const practicalAnchors = [
   ...preflopAndBlindAnchors,
   ...recognitionAndSrpAnchors,
   ...advancedPracticalAnchors,
+  ...executionTransferClosureAnchors,
 ]
   .map(applyPracticalAnchorRuCopyRepair)
   .map(applyPracticalRuSystemicAnchorProjection)
@@ -163,6 +166,7 @@ export const practicalDecisions = [
   ...integratedMasteryDecisions,
   ...integratedA11ExpansionDecisions,
   ...finalContentDeltaDecisions,
+  ...executionTransferClosureDecisions,
 ]
   .map(applyPracticalRuCopyRepair)
   .map(applyPracticalRuFinalPolish)
