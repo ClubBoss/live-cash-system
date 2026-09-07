@@ -52,8 +52,8 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
       o("r3", "Раз SB отказался от инициативы чеком, BB наследует статус префлоп-агрессора для дальнейшего анализа этой раздачи", "Since SB gave up the initiative by checking, BB inherits preflop-aggressor status for the rest of this hand's analysis", "ROLE_INVENTED"),
     ],
     correctActionId: "a", correctReasonId: "r2", targetSeconds: 20,
-    explanationRu: "Ни SB, ни BB не рейзили префлоп, поэтому ни один диапазон не отфильтрован через агрессию. Опираться здесь на понятие «диапазон префлоп-агрессора» нельзя — оба диапазона остаются широкими и симметрично неотфильтрованными до флопа.",
-    explanationEn: "Neither SB nor BB raised preflop, so neither range was filtered by aggression. There is no preflop-aggressor range advantage to invoke here — both ranges stay wide and symmetrically unfiltered going into the flop.",
+    explanationRu: "Ни SB, ни BB не рейзили префлоп, поэтому ни один диапазон не был сужен рейзом — конвенционального префлоп-агрессора в этой раздаче нет. Но «без рейза» — не то же самое, что «без обусловленности действием»: каждый добровольный чек тоже часть префлоп-анцестрии. Диапазон SB обусловлен тем, что SB выбрал чек, а не рейз; затем диапазон BB обусловлен тем, что BB тоже выбрал чек, а не рейз, отвечая на чек SB. Оба диапазона всё ещё сужены этими развилками — просто не рейзом.",
+    explanationEn: "Neither SB nor BB raised preflop, so neither range was narrowed by a raise — there is no conventional preflop aggressor in this hand. But 'no raise' is not the same as 'not conditioned by action': every voluntary check is still part of the preflop ancestry. SB's range is conditioned on checking rather than raising; then BB's range is conditioned on checking rather than raising, in response to SB's check. Both ranges are still shaped by these branches — just not by a raise.",
   },
   {
     id: "PM-BL-09-ETC-101", skillId: "BL-09", kind: "decision", sourceRefs: ["LCM-03"],
@@ -111,12 +111,12 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     ],
     reasonOptions: [
       o("r1", "Радужная сухая доска сама задаёт единственно верную линию независимо от истории торгов", "A dry rainbow board by itself dictates the one correct line regardless of the betting history", "BOARD_LABEL_SHORTCUT"),
-      o("r2", "В первой раздаче ни один диапазон не сузился рейзом, а во второй диапазон SB прошёл через рейз и колл BB — на одной и той же доске это разные выжившие диапазоны", "In node A neither range was narrowed by a raise, while in node B SB's range passed through a raise and a call — on the same board these are different surviving ranges"),
+      o("r2", "В первой раздаче оба диапазона обусловлены чеком, а не рейзом — конвенционального PFR нет; во второй диапазон SB сначала обусловлен чеком вместо рейза, а затем ещё раз сужен коллом против рейза BB, тогда как сам BB становится префлоп-агрессором через этот рейз — на одной и той же доске это разные выжившие диапазоны", "In node A both ranges are check-conditioned rather than raise-conditioned — there is no conventional PFR; in node B SB's range is first conditioned by checking instead of raising, then filtered again by calling BB's raise, while BB becomes the preflop aggressor through that raise itself — on the same board these are different surviving ranges"),
       o("r3", "Позиция важнее любой информации о префлоп-действиях", "Position matters more than any information about preflop actions", "ANCESTRY_IGNORED"),
     ],
     correctActionId: "b", correctReasonId: "r2", targetSeconds: 26,
-    explanationRu: "Семейство доски ≠ действие. Один и тот же флоп после разных префлоп-путей несёт разное владение диапазоном: в первой раздаче диапазоны симметрично неотфильтрованы, во второй BB становится позиционным префлоп-агрессором против дважды отфильтрованного диапазона SB.",
-    explanationEn: "Board family does not equal action. The same flop after different preflop paths carries different range ownership: node A is symmetrically unfiltered, while node B makes BB the in-position preflop aggressor against a twice-filtered SB range.",
+    explanationRu: "Семейство доски ≠ действие. Один и тот же флоп после разных префлоп-путей несёт разное владение диапазоном: в первой раздаче нет конвенционального PFR, но оба диапазона всё равно обусловлены собственными чеками, а не «неотфильтрованы»; во второй BB становится позиционным префлоп-агрессором через рейз, а диапазон SB отфильтрован дважды — сначала чеком вместо рейза, затем коллом против рейза.",
+    explanationEn: "Board family does not equal action. The same flop after different preflop paths carries different range ownership: node A has no conventional PFR, but both ranges are still conditioned by their own checks rather than being 'unfiltered'; node B makes BB the in-position preflop aggressor through the raise, while SB's range is filtered twice — first by checking instead of raising, then by calling the raise.",
     changedVariables: ["preflop_path", "surviving_range"],
   },
   {

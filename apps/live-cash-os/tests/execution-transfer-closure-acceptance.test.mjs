@@ -270,3 +270,65 @@ test("FPA1R-001: PM-W4-BOARD-01-ETC-103 declares aggressor_position as a changed
     "PM-W4-BOARD-01-ETC-103 must declare pot_type, arriving_ranges, and aggressor_position",
   );
 });
+
+// FPA1-ANCESTRY-001: NO RAISE != NO FILTER. A voluntary CHECK is a
+// branch-conditioning event whenever raising has non-zero strategic
+// probability. "Neither range was narrowed by a raise" (no conventional
+// PFR) must never be upgraded to "ranges are symmetrically unfiltered" /
+// "checks carry no ancestry information" — PM-BL-09-ETC-101 already
+// correctly teaches SB CHECK as an ancestry filter, and PM-BL-10-ETC-101/102
+// must not contradict it.
+test("FPA1-ANCESTRY-001: no-raise is never upgraded to no-filter", () => {
+  const decisionsById = new Map(executionTransferClosureDecisions.map((decision) => [decision.id, decision]));
+
+  const etc101 = decisionsById.get("PM-BL-10-ETC-101");
+  assert.ok(etc101, "PM-BL-10-ETC-101 must exist");
+  const etc101Visible = [
+    etc101.explanationRu, etc101.explanationEn,
+    ...etc101.actionOptions.flatMap((o) => [o.textRu, o.textEn]),
+    ...etc101.reasonOptions.flatMap((o) => [o.textRu, o.textEn]),
+  ].join("\n");
+
+  // 1. Must not teach CHECK/CHECK as "symmetrically unfiltered" / no-action-filter.
+  assert.doesNotMatch(etc101Visible, /symmetrically unfiltered/i, "PM-BL-10-ETC-101 must not claim ranges are symmetrically unfiltered");
+  assert.doesNotMatch(etc101Visible, /симметрично неотфильтрован/i, "PM-BL-10-ETC-101 must not claim ranges are симметрично неотфильтрованы");
+  assert.doesNotMatch(etc101Visible, /checks carry no ancestry/i, "PM-BL-10-ETC-101 must not claim checks carry no ancestry information");
+  assert.doesNotMatch(etc101Visible, /(original|unrestricted) ranges? survive(s)? unchanged/i, "PM-BL-10-ETC-101 must not claim original ranges survive unchanged");
+
+  // 2. Must preserve: no conventional PFR / no range narrowed through a raise.
+  assert.match(etc101Visible, /no conventional (preflop[- ]aggressor|PFR)/i, "PM-BL-10-ETC-101 must preserve the no-conventional-PFR lesson");
+  assert.match(etc101Visible, /narrowed by a raise|сужен рейзом/i, "PM-BL-10-ETC-101 must preserve the no-raise-filter distinction");
+
+  // Must explicitly distinguish "not narrowed by a raise" from "not conditioned by action".
+  assert.match(etc101Visible, /not conditioned by action|обусловленности действием/i, "PM-BL-10-ETC-101 must distinguish no-raise-filter from no-action-conditioning");
+
+  const etc102 = decisionsById.get("PM-BL-10-ETC-102");
+  assert.ok(etc102, "PM-BL-10-ETC-102 must exist");
+  const etc102Visible = [
+    etc102.explanationRu, etc102.explanationEn,
+    ...etc102.actionOptions.flatMap((o) => [o.textRu, o.textEn]),
+    ...etc102.reasonOptions.flatMap((o) => [o.textRu, o.textEn]),
+  ].join("\n");
+
+  // 3. Node A (SB check -> BB check) must not be described as unfiltered.
+  assert.doesNotMatch(etc102Visible, /symmetrically unfiltered/i, "PM-BL-10-ETC-102 must not describe node A as symmetrically unfiltered");
+  assert.doesNotMatch(etc102Visible, /симметрично неотфильтрован/i, "PM-BL-10-ETC-102 must not describe node A as симметрично неотфильтрованы");
+  assert.doesNotMatch(etc102Visible, /node A is (symmetrically )?unfiltered/i, "PM-BL-10-ETC-102 must not describe node A as unfiltered");
+
+  // 4. Must explicitly preserve CHECK-conditioning ancestry for both node A and node B,
+  //    and must not describe node B's SB filter as raise+call alone (the prior SB check filter must survive too).
+  assert.match(etc102Visible, /check-conditioned|conditioned by checking|обусловлен.*чек/i, "PM-BL-10-ETC-102 must preserve CHECK-conditioning ancestry");
+  assert.match(etc102Visible, /filtered twice|дважды|two branches in a row/i, "PM-BL-10-ETC-102 node B must preserve SB's double filter (check, then call)");
+  assert.match(etc102Visible, /checking instead of raising|чеком вместо рейза/i, "PM-BL-10-ETC-102 node B must preserve the prior SB check filter, not just raise+call");
+
+  // 5. PM-BL-09-ETC-101 (control) must still treat SB CHECK as an ancestry filter.
+  const control = decisionsById.get("PM-BL-09-ETC-101");
+  assert.ok(control, "PM-BL-09-ETC-101 control must exist");
+  const controlVisible = [
+    control.explanationRu, control.explanationEn,
+    ...control.actionOptions.flatMap((o) => [o.textRu, o.textEn]),
+    ...control.reasonOptions.flatMap((o) => [o.textRu, o.textEn]),
+  ].join("\n");
+  assert.match(controlVisible, /filtered twice|дважды отфильтрован/i, "PM-BL-09-ETC-101 must still treat SB's check as part of a double-filtered ancestry");
+  assert.match(controlVisible, /checking instead of raising|чеком вместо рейза/i, "PM-BL-09-ETC-101 must still treat SB CHECK (instead of raise) as an ancestry filter");
+});
