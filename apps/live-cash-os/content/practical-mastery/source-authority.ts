@@ -9,7 +9,7 @@ const canonical = (ref: string, note?: string): PracticalSourceAuthority => ({ r
 const supporting = (ref: string, note: string): PracticalSourceAuthority => ({ ref, kind: "SUPPORTING_SOURCE", note });
 const reference = (ref: string, note: string): PracticalSourceAuthority => ({ ref, kind: "REFERENCE_SOURCE", note });
 const internal = (ref: string, note: string): PracticalSourceAuthority => ({ ref, kind: "INTERNAL_AUTHORITY", note });
-const alias = (ref: string, canonicalRefs: string[]): PracticalSourceAuthority => ({ ref, kind: "SOURCE_GROUP_ALIAS", canonicalRefs });
+const alias = (ref: string, canonicalRefs: string[], note?: string): PracticalSourceAuthority => ({ ref, kind: "SOURCE_GROUP_ALIAS", canonicalRefs, note });
 
 export const practicalSourceAuthorities: PracticalSourceAuthority[] = [
   ...Array.from({ length: 29 }, (_, index) => canonical(`FTGU-E${String(index + 1).padStart(2, "0")}`)),
@@ -52,11 +52,12 @@ export const practicalSourceAuthorities: PracticalSourceAuthority[] = [
   internal("LCM-11", "Legacy transfer/retention authority; not an external source ID."),
   internal("FINAL_LEARNING_INTEGRITY", "Repository learning-integrity authority; supports transfer design, not poker strategy truth."),
   internal("LIVE_CASH_SYSTEM_OBJECTIVE", "Product objective authority only; cannot support a poker-strategy answer key."),
+  internal("EQUAL_BLIND_GAME_STRUCTURE", "Project-defined game-rule inference, not external poker-strategy evidence: with equal-size blinds, a player who has already posted a full blind and faces no bet keeps a genuine no-cost check option that a standard 0.5bb-to-1bb open/fold node does not have; when neither blind raises preflop, no range is narrowed by a preflop raise and no single-raised-pot-style preflop aggressor exists; and a preflop chop returns both blinds by prior agreement and ends the hand before any street or strategic decision is played. Scoped to the equal-blind/chop Execution Transfer Closure records (FPA1-SA-001); it does not support any exact poker-strategy claim, frequency or threshold."),
 
   alias("SLC-PREFLOP-SQUEEZING", ["SLC-M01-L02"]),
   alias("SLC-PREFLOP-ADJUSTMENTS", ["SLC-M01-L03"]),
   alias("SLC-BB-VS-BTN", ["SLC-M02-L06", "SLC-M02-L07"]),
-  alias("SLC-BB-VS-SB", ["SLC-M02-L05"]),
+  alias("SLC-BB-VS-SB", ["SLC-M02-L05"], "Scope (LCM-03-CL-003, HIGH confidence, admitted): the same flop can require different c-bet strategy versus an SB caller and a BB caller because their preflop source-range shapes differ; the direct reviewed example is HJ versus SB/BB caller at 200bb, with mechanism-level reuse admitted at other depths. This alias does NOT establish equal-blind (same-size-blind) preflop topology, SB free-check semantics, SB-check/BB-raise role semantics, true-chop mechanics, or blinds-returned/hand-ends-preflop facts; those are represented via LCM-03 and EQUAL_BLIND_GAME_STRUCTURE instead (FPA1-SA-001)."),
   alias("SLC-SRP-BOARD-CLASSES", ["SLC-M02-L22", "SLC-M02-L23"]),
   alias("SLC-CHECK-RAISE", ["SLC-M02-L16", "SLC-M02-L17"]),
   alias("SLC-HARD-CONTINUES", ["SLC-M02-L15"]),

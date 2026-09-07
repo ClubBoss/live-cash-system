@@ -4,6 +4,7 @@ import {
   executionTransferClosureDecisions,
   executionTransferClosureAnchors,
 } from "../content/practical-mastery/decisions-execution-transfer-closure.ts";
+import { practicalSourceAuthorityByRef, isPokerStrategySourceRef } from "../content/practical-mastery/source-authority.ts";
 
 function correctPosition(options, id) {
   return options.findIndex((option) => option.id === id);
@@ -202,6 +203,55 @@ test("FPA1-003: confirmed cartoonish distractor phrases do not recur", () => {
     /any turn raise always means the nuts regardless of the opponent's history/i,
     /любой терн-рейз всегда означает натсы независимо от истории соперника/i,
   ]) assert.doesNotMatch(allOptionsText, cartoonish, `cartoonish distractor must not recur: ${cartoonish}`);
+});
+
+// FPA1-SA-001: the alias SLC-BB-VS-SB resolves exclusively to SLC-M02-L05,
+// whose only admitted claim (LCM-03-CL-003) is HJ-versus-SB/BB-caller
+// source-range-shape c-bet strategy at 200bb. That claim does not establish
+// equal-blind preflop topology, SB free-check semantics, SB-check/BB-raise
+// role semantics, true-chop mechanics, or blinds-returned/hand-ends-preflop
+// facts, so the six equal-blind/chop records must not cite it as direct
+// authority. Pure game-structure claims move to the explicitly labelled
+// EQUAL_BLIND_GAME_STRUCTURE internal authority; path-dependent range/role
+// claims stay on the already-admitted LCM-03 blind-identity mechanism.
+test("FPA1-SA-001: equal-blind/chop records no longer cite SLC-BB-VS-SB as direct authority", () => {
+  const affectedIds = [
+    "PM-BL-06-ETC-101",
+    "PM-BL-10-ETC-101",
+    "PM-BL-09-ETC-101",
+    "PM-BL-06-ETC-102",
+    "PM-BL-10-ETC-102",
+    "PM-BL-06-ETC-103",
+  ];
+  const decisionsById = new Map(executionTransferClosureDecisions.map((decision) => [decision.id, decision]));
+  assert.equal(decisionsById.size >= affectedIds.length, true);
+
+  for (const id of affectedIds) {
+    const decision = decisionsById.get(id);
+    assert.ok(decision, `${id} must exist`);
+    assert.ok(!decision.sourceRefs.includes("SLC-BB-VS-SB"), `${id}: must not cite the misleading SLC-BB-VS-SB alias`);
+    for (const ref of decision.sourceRefs) {
+      assert.ok(practicalSourceAuthorityByRef.has(ref), `${id}: sourceRef ${ref} must resolve to a known authority`);
+    }
+  }
+
+  // Pure equal-blind/chop game-structure claims are represented through the
+  // explicitly labelled internal authority, never disguised as external
+  // poker-strategy evidence.
+  for (const id of ["PM-BL-06-ETC-101", "PM-BL-10-ETC-101", "PM-BL-06-ETC-103"]) {
+    const decision = decisionsById.get(id);
+    assert.ok(decision.sourceRefs.includes("EQUAL_BLIND_GAME_STRUCTURE"), `${id}: must cite EQUAL_BLIND_GAME_STRUCTURE`);
+  }
+
+  const equalBlindAuthority = practicalSourceAuthorityByRef.get("EQUAL_BLIND_GAME_STRUCTURE");
+  assert.equal(equalBlindAuthority.kind, "INTERNAL_AUTHORITY", "EQUAL_BLIND_GAME_STRUCTURE must be a labelled internal authority, not external evidence");
+  assert.equal(isPokerStrategySourceRef("EQUAL_BLIND_GAME_STRUCTURE"), false, "EQUAL_BLIND_GAME_STRUCTURE must not be classified as poker-strategy source authority");
+  assert.match(equalBlindAuthority.note, /project-defined/i);
+
+  const aliasAuthority = practicalSourceAuthorityByRef.get("SLC-BB-VS-SB");
+  assert.equal(aliasAuthority.kind, "SOURCE_GROUP_ALIAS");
+  assert.deepEqual(aliasAuthority.canonicalRefs, ["SLC-M02-L05"]);
+  assert.match(aliasAuthority.note, /does NOT establish equal-blind/);
 });
 
 // FPA1R-001: PM-W4-BOARD-01-ETC-103 teaches that the strategic delta between

@@ -14,7 +14,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
   // Section A — 5/5 equal-blind topology (BL-06 / BL-09 / BL-10 / DEEP-03)
   // ---------------------------------------------------------------------
   {
-    id: "PM-BL-06-ETC-101", skillId: "BL-06", kind: "recognition", sourceRefs: ["SLC-BB-VS-SB"],
+    id: "PM-BL-06-ETC-101", skillId: "BL-06", kind: "recognition", sourceRefs: ["EQUAL_BLIND_GAME_STRUCTURE"],
     assumptions: ["ставки 5/5 без анте", "блайнды равны", "все сфолдили до SB"],
     cueRu: "Игра 5/5, блайнды равны. Все сфолдили до SB.",
     cueEn: "5/5 game, equal blinds. Everyone folds to SB.",
@@ -35,7 +35,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     explanationEn: "With equal blinds, SB is not the first voluntary entry into the pot — it is already a fully paid bet. Transferring the standard 0.5bb-to-1bb open/fold logic here is wrong: SB has a third option, a free check.",
   },
   {
-    id: "PM-BL-10-ETC-101", skillId: "BL-10", kind: "recognition", sourceRefs: ["SLC-BB-VS-SB", "LCM-03"],
+    id: "PM-BL-10-ETC-101", skillId: "BL-10", kind: "recognition", sourceRefs: ["EQUAL_BLIND_GAME_STRUCTURE", "LCM-03"],
     assumptions: ["5/5 равные блайнды", "все сфолдили до SB", "SB чекнул, BB чекнул", "флоп K72 без масти"],
     cueRu: "5/5. Все сфолдили до SB. SB чекнул, BB чекнул. Флоп K♦7♣2♠.",
     cueEn: "5/5. Everyone folds to SB. SB checks, BB checks. Flop K♦7♣2♠.",
@@ -56,7 +56,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     explanationEn: "Neither SB nor BB raised preflop, so neither range was filtered by aggression. There is no preflop-aggressor range advantage to invoke here — both ranges stay wide and symmetrically unfiltered going into the flop.",
   },
   {
-    id: "PM-BL-09-ETC-101", skillId: "BL-09", kind: "decision", sourceRefs: ["SLC-BB-VS-SB"],
+    id: "PM-BL-09-ETC-101", skillId: "BL-09", kind: "decision", sourceRefs: ["LCM-03"],
     assumptions: ["5/5 равные блайнды", "SB чекнул", "BB поднял до $20", "SB уравнял", "флоп K72 без масти"],
     cueRu: "5/5. SB чекнул. BB поднял до $20. SB уравнял. Флоп K♦7♣2♠.",
     cueEn: "5/5. SB checks. BB raises to $20. SB calls. Flop K♦7♣2♠.",
@@ -77,7 +77,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     explanationEn: "This is a BvB node after BB aggression, not standard BB defense. SB's range passed through two branches in a row (check, then a call against a raise), so the node needs to be analyzed from this ancestry rather than importing a tree from a different node.",
   },
   {
-    id: "PM-BL-06-ETC-102", skillId: "BL-06", kind: "decision", sourceRefs: ["SLC-BB-VS-SB"],
+    id: "PM-BL-06-ETC-102", skillId: "BL-06", kind: "decision", sourceRefs: ["LCM-03"],
     assumptions: ["5/5 равные блайнды", "все сфолдили до SB", "SB поднял до $20", "BB уравнял"],
     cueRu: "5/5. Все сфолдили до SB. SB поднял до $20. BB уравнял.",
     cueEn: "5/5. Everyone folds to SB. SB raises to $20. BB calls.",
@@ -98,7 +98,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     explanationEn: "SB is the voluntary raiser out of position; BB is the caller defending the blind against a raise. This is a distinct branch, not a restatement of the 'SB check → BB raise → SB call' node (PM-BL-09-ETC-101), even though both end up as a single raised pot.",
   },
   {
-    id: "PM-BL-10-ETC-102", skillId: "BL-10", kind: "changed", sourceRefs: ["SLC-BB-VS-SB", "LCM-03"],
+    id: "PM-BL-10-ETC-102", skillId: "BL-10", kind: "changed", sourceRefs: ["LCM-03"],
     assumptions: ["5/5 равные блайнды", "один и тот же флоп K72 без масти в двух раздачах", "сравниваются два разных префлоп-пути"],
     cueRu: "Тот же флоп K♦7♣2♠ в двух раздачах. В первой: SB чекнул, BB чекнул. Во второй: SB чекнул, BB поднял, SB уравнял.",
     cueEn: "The same flop K♦7♣2♠ in two hands. Node A: SB checks, BB checks. Node B: SB checks, BB raises, SB calls.",
@@ -120,7 +120,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     changedVariables: ["preflop_path", "surviving_range"],
   },
   {
-    id: "PM-BL-06-ETC-103", skillId: "BL-06", kind: "boundary", sourceRefs: ["SLC-BB-VS-SB", "LCM-10"],
+    id: "PM-BL-06-ETC-103", skillId: "BL-06", kind: "boundary", sourceRefs: ["EQUAL_BLIND_GAME_STRUCTURE", "LCM-10"],
     assumptions: ["5/5 равные блайнды", "действие несколько раз подряд доходило до блайндов", "каждый раз SB и BB заранее договаривались на chop и просто забирали блайнды обратно", "раздача каждый раз заканчивалась до раздачи флопа, без единого стратегического действия"],
     cueRu: "В нескольких предыдущих раздачах 5/5 действие доходило до блайндов, и каждый раз SB и BB заранее договаривались на chop: оба забирали свои блайнды обратно, а раздача заканчивалась до флопа — без единой ставки, колла, рейза или фолда под давлением.",
     cueEn: "In several previous 5/5 hands, action folded to the blinds, and each time SB and BB agreed in advance to chop: both took their blinds back, and the hand ended before the flop — with no bet, call, raise, or fold under pressure.",
