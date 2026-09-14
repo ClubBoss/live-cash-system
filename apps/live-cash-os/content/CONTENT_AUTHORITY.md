@@ -213,3 +213,6 @@ Wave 10 remains empirical and cannot be completed by this deterministic repair.
 
 
 C-FAMILY-REPAIR-2026-09-15 re-materialized the governed review corpus at digest `e69766eb342da7efbb0084db742d34d0c093ccc0cbc86a152ed2cd93896f27b4` after bounded owning-family assessment repairs. IDs, scoring, source ceilings and raw learner history remain preserved. Strategy, drills, RU, EN and final-composition human review remain pending.
+
+
+C-POSITION-AUDIT-2026-09-15 re-materialized the governed review corpus at digest `623691f80b1d4cbf90eac5e4450056313b248434f35b237313e0d58b4ad54481` after the final bounded TURN-01/perceptual semantic repair. Human strategy, drill, RU, EN and final-composition review remain pending.
