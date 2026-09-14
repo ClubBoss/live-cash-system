@@ -16,8 +16,8 @@ function family(f:F):PracticalDecision[]{
  ] as const;
  return rows.map((r,i)=>{
   const [kind,cueRu,cueEn,qRu,qEn,goodRu,goodEn,whyRu,whyEn]=r;
-  const slot=i%3; const good=o("good",goodRu,goodEn); const b1=o("b1",f.shortcutRu,f.shortcutEn,"LIVE_SHORTCUT"); const b2=o("b2","Игнорировать players/depth/position","Ignore players/depth/position","CONTEXT_IGNORED");
-  const gr=o("goodR",whyRu,whyEn); const br1=o("br1","Heads-up 100bb intuition переносится без изменений","Heads-up 100bb intuition transfers unchanged","HU_100BB_AUTOPILOT"); const br2=o("br2","Exact hand label важнее geometry","The exact hand label matters more than geometry","GEOMETRY_IGNORED");
+  const slot=i%3; const good=o("good",goodRu,goodEn); const b1=o("b1",`Использовать shortcut «${f.shortcutRu}» как достаточное правило, потому что видимый live-фактор якобы не меняет основную ветку`,`Use the shortcut “${f.shortcutEn}” as sufficient because the visible live factor supposedly does not change the main branch`,"LIVE_SHORTCUT"); const b2=o("b2","Игнорировать игроков, глубину и позицию","Ignore players, depth, and position","CONTEXT_IGNORED");
+  const gr=o("goodR",whyRu,whyEn); const br1=o("br1","Переносить heads-up 100bb интуицию без пересчёта, потому что карты Hero не изменились","Transfer heads-up 100bb intuition without recomputing because Hero cards are unchanged","HU_100BB_AUTOPILOT"); const br2=o("br2","Считать название руки важнее геометрии","Treat the hand label as more important than geometry","GEOMETRY_IGNORED");
   return {id:`${f.prefix}-${101+i}`,skillId:f.skillId,kind:kind as PracticalDecision["kind"],sourceRefs:f.sourceRefs,assumptions:["source-scoped live-cash mechanism; no unreviewed exact frequency"],cueRu,cueEn,questionRu:qRu,questionEn:qEn,actionOptions:slot===0?[good,b1,b2]:slot===1?[b1,good,b2]:[b1,b2,good],reasonOptions:slot===0?[br1,gr,br2]:slot===1?[gr,br1,br2]:[br1,br2,gr],correctActionId:"good",correctReasonId:"goodR",targetSeconds:28,explanationRu:whyRu,explanationEn:whyEn,changedVariables:kind==="changed"?["live_context_variable"]:undefined} satisfies PracticalDecision;
  });
 }
