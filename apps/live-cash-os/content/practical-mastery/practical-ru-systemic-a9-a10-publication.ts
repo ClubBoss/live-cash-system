@@ -75,7 +75,7 @@ function buildA9FamilyPatches(f: A9FamilyRu): [string, PracticalDecisionRuPatch]
       cueRu,
       questionRu: A9_QUESTIONS[i],
       explanationRu: f.whyRu,
-      actionOptions: { good: goods[i], b1: `Использовать шаблон «${f.shortcutRu}» как готовое решение, потому что видимое сходство spot якобы важнее изменившейся live-геометрии`, b2: A9_B2 },
+      actionOptions: { good: goods[i], b1: `Использовать шаблон «${f.shortcutRu}» как готовое решение, потому что видимое сходство ситуации якобы важнее изменившейся лайв-геометрии`, b2: A9_B2 },
       reasonOptions: { goodR: f.whyRu, br1: A9_BR1, br2: A9_BR2 },
     },
   ]);
