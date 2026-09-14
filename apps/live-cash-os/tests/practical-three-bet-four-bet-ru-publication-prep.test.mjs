@@ -3,9 +3,11 @@ import test from "node:test";
 
 import { threeBetFourBetA7ExpansionDecisions } from "../content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts";
 import { postflopAndLiveDecisions } from "../content/practical-mastery/decisions-w4-w13.ts";
+import { practicalDecisionById } from "../content/practical-mastery/index.ts";
 import { advancedPracticalAnchors as laterWaveAnchors } from "../content/practical-mastery/anchors-w7-w13.ts";
 import {
   THREE_BET_FOUR_BET_RU_ACTIVE_FIELD_PATHS,
+  THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN,
   THREE_BET_FOUR_BET_RU_OWNED_ANCHOR_IDS,
   THREE_BET_FOUR_BET_RU_OWNED_DECISION_IDS,
   projectThreeBetFourBetSystemicRuAnchor,
@@ -169,4 +171,38 @@ test("quantitativeTokens ignores citation/pot-label notation but retains genuine
   assert.deepEqual(quantitativeTokens("3-бет-пот. Хиро — агрессор IP."),[]);
   assert.deepEqual(quantitativeTokens("stack is 100bb, pot 33%, SPR 2.5, open 1.5bb"),["100bb","33%","2.5","1.5bb"]);
   assert.deepEqual(quantitativeTokens("4bet to 22bb here"),["22bb"]);
+});
+
+
+test("A7 final runtime preserves reviewed RU misconception polarity for every wrong reason", () => {
+  const expansions = ownedDecisions.filter((decision) => decision.id.includes("-A7-"));
+  assert.equal(expansions.length, 72);
+  for (const raw of expansions) {
+    const projected = projectThreeBetFourBetSystemicRuDecision(raw);
+    const canonical = practicalDecisionById.get(raw.id);
+    assert.ok(canonical, \`\${raw.id}: missing final runtime decision\`);
+    for (const option of raw.reasonOptions.filter((candidate) => candidate.id !== raw.correctReasonId)) {
+      const expectedRu = THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[option.textEn];
+      assert.ok(expectedRu, \`\${raw.id}/\${option.id}: unreviewed EN->RU misconception polarity\`);
+      assert.equal(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu);
+      assert.equal(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu,
+        \`\${raw.id}/\${option.id}: a later runtime transform overwrote the reviewed misconception\`);
+    }
+  }
+});
+
+test("confirmed polarity regressions remain false misconceptions in final RU runtime", () => {
+  const expected = new Map([
+    ["PM-3BP-01-A7-101", ["Позиция сама по себе создаёт преимущество диапазона.", "У любого 3-беттора на любом флопе одна и та же стратегия."]],
+    ["PM-3BP-04-A7-101", ["Текущая цена полностью определяет защиту OOP.", "Будущие улицы не важны в 3-бет-поте."]],
+    ["PM-3BP-04-A7-108", ["Позиционный недостаток оправдывает отказ от защиты диапазона.", "Агрессия отменяет структурный недостаток OOP."]],
+    ["PM-4BP-02-A7-101", ["Меньшее число улиц означает одинаковый EV у всех рук.", "4-бет-пот отменяет взаимодействие диапазонов."]],
+  ]);
+  for (const [id, texts] of expected) {
+    const decision = practicalDecisionById.get(id);
+    assert.ok(decision, \`\${id}: missing final runtime decision\`);
+    const wrong = decision.reasonOptions.filter((option) => option.id !== decision.correctReasonId);
+    assert.deepEqual(wrong.map((option) => option.textRu), texts);
+    assert.ok(wrong.every((option) => option.misconception), \`\${id}: wrong reason lost misconception identity\`);
+  }
 });
