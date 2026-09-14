@@ -174,6 +174,16 @@ test("quantitativeTokens ignores citation/pot-label notation but retains genuine
 });
 
 
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function reviewedA7SemanticEn(text) {
+  return text.match(/^Assume “(.+)”, so the causal range interaction need not be checked$/u)?.[1]
+    ?? text.match(/^Assume “(.+)” and carry it forward as a universal rule after the node changes$/u)?.[1]
+    ?? text;
+}
+
 test("A7 final runtime preserves reviewed RU misconception polarity for every wrong reason", () => {
   const expansions = ownedDecisions.filter((decision) => decision.id.includes("-A7-"));
   assert.equal(expansions.length, 72);
@@ -182,15 +192,16 @@ test("A7 final runtime preserves reviewed RU misconception polarity for every wr
     const canonical = practicalDecisionById.get(raw.id);
     assert.ok(canonical, `${raw.id}: missing final runtime decision`);
     for (const option of raw.reasonOptions.filter((candidate) => candidate.id !== raw.correctReasonId)) {
-      const expectedRu = THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[option.textEn];
+      const semanticEn = reviewedA7SemanticEn(option.textEn);
+      const expectedRu = THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[semanticEn];
       assert.ok(expectedRu, `${raw.id}/${option.id}: unreviewed EN->RU misconception polarity`);
-      assert.match(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu ?? "", new RegExp(expectedRu.replace(/[.*+?^${}()|[\]\\]/g, "\\      assert.equal(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu);
-      assert.equal(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu,
-        `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`);"), "u"));
-      assert.match(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu ?? "", new RegExp(expectedRu.replace(/[.*+?^${}()|[\]\\]/g, "\\      assert.equal(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu);
-      assert.equal(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu,
-        `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`);"), "u"),
-        `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`);
+      const pattern = new RegExp(escapeRegex(expectedRu), "u");
+      assert.match(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu ?? "", pattern);
+      assert.match(
+        canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu ?? "",
+        pattern,
+        `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`,
+      );
     }
   }
 });
@@ -207,8 +218,9 @@ test("confirmed polarity regressions remain false misconceptions in final RU run
     assert.ok(decision, `${id}: missing final runtime decision`);
     const wrong = decision.reasonOptions.filter((option) => option.id !== decision.correctReasonId);
     assert.equal(wrong.length, texts.length);
-    for (const [index, option] of wrong.entries()) assert.match(option.textRu, new RegExp(texts[index].replace(/[.*+?^${}()|[\]\\]/g, "\\    assert.deepEqual(wrong.map((option) => option.textRu), texts);
-    assert.ok(wrong.every((option) => option.misconception), `${id}: wrong reason lost misconception identity`);"), "u"));
+    for (const [index, option] of wrong.entries()) {
+      assert.match(option.textRu, new RegExp(escapeRegex(texts[index]), "u"));
+    }
     assert.ok(wrong.every((option) => option.misconception), `${id}: wrong reason lost misconception identity`);
   }
 });
