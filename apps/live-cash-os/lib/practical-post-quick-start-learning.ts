@@ -50,13 +50,13 @@ export type PracticalPostQuickStartLearningTarget =
 export function practicalPostQuickStartTeachingAssetForSkill(
   skillId: string,
 ): PracticalPostQuickStartTeachingAsset | null {
+  const sourceBound = practicalSourceBoundTeachingAssetBySkillId.get(skillId);
+  if (sourceBound) return { kind: "SOURCE_BOUND", teaching: sourceBound };
+
   const rule = practicalRules.find(
     (candidate) => candidate.skillIds.includes(skillId) && candidate.sourceRefs.length > 0,
   );
   if (rule) return { kind: "RULE", rule };
-
-  const sourceBound = practicalSourceBoundTeachingAssetBySkillId.get(skillId);
-  if (sourceBound) return { kind: "SOURCE_BOUND", teaching: sourceBound };
 
   const anchor = practicalAnchors.find(
     (candidate) => candidate.skillId === skillId && candidate.kind === "recognition" && candidate.sourceRefs.length > 0,
