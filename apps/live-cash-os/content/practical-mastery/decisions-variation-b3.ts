@@ -13,13 +13,13 @@ function build(v: V): PracticalDecision[] {
   return rows.map((r, i) => {
     const slot = i % 3;
     const good = o("good", r.goodRu, r.goodEn);
-    const b1 = o("b1", "Сохранить прежнее действие без пересчёта", "Keep the old action without recomputing", "TRANSFER_AUTOPILOT");
-    const b2 = o("b2", "Решать только по названию конкретной руки", "Decide only from the exact hand label", "HAND_LABEL_ONLY");
+    const b1 = o("b1", "Сохранить прежнее действие без пересчёта, потому что похожий spot должен играться так же", "Keep the old action without recomputing because a similar-looking spot should play the same way", "TRANSFER_AUTOPILOT");
+    const b2 = o("b2", "Решать только по названию конкретной руки и не проверять изменившиеся range, price или position inputs", "Decide only from the exact hand label and ignore changed range, price, or position inputs", "HAND_LABEL_ONLY");
     const reasonRu = "whyRu" in r && r.whyRu ? r.whyRu : v.whyRu;
     const reasonEn = "whyEn" in r && r.whyEn ? r.whyEn : v.whyEn;
     const gr = o("goodR", reasonRu, reasonEn);
-    const br1 = o("br1", "Одна стратегия переносится на все похожие ситуации", "One strategy transfers across all similar spots", "UNIVERSAL_RULE");
-    const br2 = o("br2", "Существенный фактор не влияет на EV", "The material variable does not affect EV", "VARIABLE_IGNORED");
+    const br1 = o("br1", "Похожий внешний вид spot означает, что одна стратегия переносится без проверки изменившихся assumptions", "A similar-looking spot means one strategy transfers without checking changed assumptions", "UNIVERSAL_RULE");
+    const br2 = o("br2", "Изменившийся существенный фактор можно считать декоративным: threshold, range и realization якобы остаются прежними", "The changed material variable can be treated as decorative, leaving the threshold, range, and realization unchanged", "VARIABLE_IGNORED");
     return {
       id: `${v.prefix}-${101 + i}`,
       skillId: v.skillId,
