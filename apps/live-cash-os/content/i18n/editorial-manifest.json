@@ -45,7 +45,10 @@
       "content/i18n/decision-option-balance.ts",
       "content/i18n/final-learning-integrity.ts",
       "content/practical-mastery/decisions-srp-a6-expansion.ts",
-      "content/practical-mastery/decisions-turn-river-a8-expansion.ts"
+      "content/practical-mastery/decisions-turn-river-a8-expansion.ts",
+      "content/practical-mastery/decisions-live-a9-expansion.ts",
+      "content/practical-mastery/decisions-exploit-a10-expansion.ts",
+      "content/practical-mastery/decisions-variation-b3.ts"
     ],
     "language": [
       "content/i18n/geometry-locale.ts",
@@ -97,7 +100,10 @@
       "components/Gauntlet4LearningIntegrityLayer.tsx",
       "components/DataSafetyPanel.tsx",
       "content/practical-mastery/decisions-srp-a6-expansion.ts",
-      "content/practical-mastery/decisions-turn-river-a8-expansion.ts"
+      "content/practical-mastery/decisions-turn-river-a8-expansion.ts",
+      "content/practical-mastery/decisions-live-a9-expansion.ts",
+      "content/practical-mastery/decisions-exploit-a10-expansion.ts",
+      "content/practical-mastery/decisions-variation-b3.ts"
     ]
   },
   "source_blobs": {
