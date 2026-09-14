@@ -20,11 +20,11 @@ function make(skillId: string, prefix: string, scenarios: S[]): PracticalDecisio
   return scenarios.map((s, index) => {
     const slot = index % 3;
     const goodA = o("good", s.goodRu, s.goodEn);
-    const badA1 = o("bad1", s.bad1Ru, s.bad1En, "ROLE_OR_RANGE_SHORTCUT");
-    const badA2 = o("bad2", s.bad2Ru, s.bad2En, "SIZE_OR_SPR_AUTOPILOT");
+    const badA1 = o("bad1", `Принять shortcut «${s.bad1Ru}» как достаточный action без проверки arriving ranges и position role`, `Treat the shortcut “${s.bad1En}” as sufficient without checking arriving ranges and position role`, "ROLE_OR_RANGE_SHORTCUT");
+    const badA2 = o("bad2", `Принять «${s.bad2Ru}» как готовое правило и не пересчитывать board interaction, sizing или SPR exposure`, `Treat “${s.bad2En}” as a finished rule without recomputing board interaction, sizing, or SPR exposure`, "SIZE_OR_SPR_AUTOPILOT");
     const goodR = o("goodR", s.whyRu, s.whyEn);
-    const badR1 = o("badR1", s.badWhy1Ru, s.badWhy1En, "MECHANISM_SHORTCUT");
-    const badR2 = o("badR2", s.badWhy2Ru, s.badWhy2En, "UNIVERSAL_RULE");
+    const badR1 = o("badR1", `Считать верным, что «${s.badWhy1Ru}», поэтому causal range interaction можно не проверять`, `Assume “${s.badWhy1En}”, so the causal range interaction need not be checked`, "MECHANISM_SHORTCUT");
+    const badR2 = o("badR2", `Считать верным, что «${s.badWhy2Ru}», и переносить это как universal rule после изменения node`, `Assume “${s.badWhy2En}” and carry it forward as a universal rule after the node changes`, "UNIVERSAL_RULE");
     const actions = slot === 0 ? [goodA, badA1, badA2] : slot === 1 ? [badA1, goodA, badA2] : [badA1, badA2, goodA];
     const reasons = slot === 0 ? [badR1, goodR, badR2] : slot === 1 ? [goodR, badR1, badR2] : [badR1, badR2, goodR];
     return {
