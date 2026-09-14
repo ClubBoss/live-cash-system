@@ -65,6 +65,12 @@ function metrics(pool, locale) {
     decision.actionOptions[0]?.id === decision.correctActionId
     && decision.reasonOptions[0]?.id === decision.correctReasonId
   )).length;
+  const lastAction = pool.filter((decision) => decision.actionOptions[decision.actionOptions.length - 1]?.id === decision.correctActionId).length;
+  const lastReason = pool.filter((decision) => decision.reasonOptions[decision.reasonOptions.length - 1]?.id === decision.correctReasonId).length;
+  const lastJoint = pool.filter((decision) => (
+    decision.actionOptions[decision.actionOptions.length - 1]?.id === decision.correctActionId
+    && decision.reasonOptions[decision.reasonOptions.length - 1]?.id === decision.correctReasonId
+  )).length;
   const rate = n ? jointLongest / n : 0;
   const standardError = n ? Math.sqrt(chance * (1 - chance) / n) : 0;
   const z = standardError > 0 ? (rate - chance) / standardError : 0;
@@ -89,6 +95,10 @@ function metrics(pool, locale) {
     firstReason,
     firstJoint,
     firstJointRate: n ? firstJoint / n : 0,
+    lastAction,
+    lastReason,
+    lastJoint,
+    lastJointRate: n ? lastJoint / n : 0,
     z,
   };
 }
@@ -98,10 +108,17 @@ function metrics(pool, locale) {
 // above the pool's actual random-choice baseline and at least 3 standard errors.
 // Family packs smaller than 12 remain manual-review territory rather than being
 // given a noisy pass/fail statistic.
-export function materialLengthShortcutAlert(result) {
+export function materialRateShortcutAlert(result, rateKey) {
+  const rate = result[rateKey];
+  const standardError = result.n ? Math.sqrt(result.chance * (1 - result.chance) / result.n) : 0;
+  const z = standardError > 0 ? (rate - result.chance) / standardError : 0;
   return result.n >= 12
-    && result.jointLongestRate - result.chance >= 0.20
-    && result.z >= 3;
+    && rate - result.chance >= 0.20
+    && z >= 3;
+}
+
+export function materialLengthShortcutAlert(result) {
+  return materialRateShortcutAlert(result, "jointLongestRate");
 }
 
 function eligibleSkillIds() {
@@ -124,7 +141,7 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   ));
 
   const pools = { all: practicalDecisions, eligible, teachable };
-  const report = { pools: {}, familyAlerts: [], decisionAlerts: [] };
+  const report = { pools: {}, familyAlerts: [], shortcutAlerts: [], decisionAlerts: [] };
 
   for (const [name, pool] of Object.entries(pools)) {
     report.pools[name] = {};
@@ -139,13 +156,19 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
       const reasonLongest = longestFirst(decision.reasonOptions, decision.correctReasonId, locale);
       const actionShortest = shortestFirst(decision.actionOptions, decision.correctActionId, locale);
       const reasonShortest = shortestFirst(decision.reasonOptions, decision.correctReasonId, locale);
-      if ((actionLongest && reasonLongest) || (actionShortest && reasonShortest)) {
+      const jointFirst = decision.actionOptions[0]?.id === decision.correctActionId
+        && decision.reasonOptions[0]?.id === decision.correctReasonId;
+      const jointLast = decision.actionOptions[decision.actionOptions.length - 1]?.id === decision.correctActionId
+        && decision.reasonOptions[decision.reasonOptions.length - 1]?.id === decision.correctReasonId;
+      if ((actionLongest && reasonLongest) || (actionShortest && reasonShortest) || jointFirst || jointLast) {
         report.decisionAlerts.push({
           id: decision.id,
           skillId: decision.skillId,
           locale,
           jointLongest: actionLongest && reasonLongest,
           jointShortest: actionShortest && reasonShortest,
+          jointFirst,
+          jointLast,
         });
       }
     }
@@ -159,6 +182,16 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
       if (materialLengthShortcutAlert(result)) {
         report.familyAlerts.push({ skillId: skill.id, locale, ...result });
       }
+      for (const [kind, rateKey] of [
+        ["longest", "jointLongestRate"],
+        ["shortest", "jointShortestRate"],
+        ["first", "firstJointRate"],
+        ["last", "lastJointRate"],
+      ]) {
+        if (materialRateShortcutAlert(result, rateKey)) {
+          report.shortcutAlerts.push({ skillId: skill.id, locale, kind, rate: result[rateKey], chance: result.chance });
+        }
+      }
     }
   }
 
@@ -168,10 +201,19 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   console.log("ASSESSMENT_SHORTCUT_AUDIT " + JSON.stringify(report));
   for (const [poolName, byLocale] of Object.entries(report.pools)) {
     for (const [locale, result] of Object.entries(byLocale)) {
-      assert.equal(materialLengthShortcutAlert(result), false,
-        `${poolName}/${locale}: material joint-longest shortcut remains at ${result.jointLongest}/${result.n}`);
+      for (const [kind, rateKey, countKey] of [
+        ["longest", "jointLongestRate", "jointLongest"],
+        ["shortest", "jointShortestRate", "jointShortest"],
+        ["first", "firstJointRate", "firstJoint"],
+        ["last", "lastJointRate", "lastJoint"],
+      ]) {
+        assert.equal(materialRateShortcutAlert(result, rateKey), false,
+          `${poolName}/${locale}: material joint-${kind} shortcut remains at ${result[countKey]}/${result.n}`);
+      }
     }
   }
   assert.deepEqual(report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`), [],
     `material family-level joint-longest shortcuts remain: ${report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`).join(", ")}`);
+  assert.deepEqual(report.shortcutAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`), [],
+    `material family-level shortcut signals remain: ${report.shortcutAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`).join(", ")}`);
 });

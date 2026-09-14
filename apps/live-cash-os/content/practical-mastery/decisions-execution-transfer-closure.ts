@@ -216,11 +216,11 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     questionEn: "What happens to the ranges on this turn card?",
     actionOptions: [
       o("a", "Карта непропорционально усиливает верхнюю часть диапазона агрессора: дама добавляет новые топ-пары туда, где у коллера симметричного усиления нет", "The card disproportionately strengthens the aggressor's top range: the queen adds new top pairs where the caller gets no symmetric improvement"),
-      o("b", "Любая старшая карта на терне автоматически считается усилением агрессора без проверки диапазонов", "Any high turn card automatically counts as boosting the aggressor without checking ranges", "HIGH_CARD_ALWAYS_BOOST"),
+      o("b", "Считать любую старшую карту на терне усилением агрессора только потому, что его префлоп-диапазон содержит больше бродвеев, не проверяя конкретный диапазон колла BB на флопе", "Treat any high turn card as an aggressor boost merely because the preflop range contains more broadways, without checking the specific BB flop-calling range", "HIGH_CARD_ALWAYS_BOOST"),
       o("c", "Ничего не меняется — оба диапазона одинаково нейтральны к даме", "Nothing changes — both ranges are equally neutral to the queen", "RUNOUT_MISCLASSIFIED"),
     ],
     reasonOptions: [
-      o("r1", "Дама всегда усиливает того, кто ставил на флопе, независимо от диапазонов", "A queen always strengthens whoever bet the flop, regardless of ranges", "HIGH_CARD_ALWAYS_BOOST"),
+      o("r1", "Достаточно знать, что Q♥ — высокая карта: предполагается, что инициатор ставки автоматически получает больше новых сильных комбинаций, а состав диапазона колла BB можно не проверять", "It is enough that Q♥ is a high card: assume the bettor automatically gains more new strong combinations, so the composition of BB's calling range need not be checked", "HIGH_CARD_ALWAYS_BOOST"),
       o("r2", "Диапазон открытия и c-bet Hero на этой доске сохраняет заметную долю комбинаций с дамой, тогда как диапазон колла BB на K72 держит их заметно реже — усиление асимметрично в пользу агрессора", "Hero's opening and c-bet range on this board retains a clear share of queen combinations, while BB's calling range on K72 holds them far less often — the improvement is asymmetric toward the aggressor"),
       o("r3", "Усиление определяется исключительно тем, что карта выше карт флопа", "The improvement is determined solely by the card being higher than the flop cards", "HIGH_CARD_ALWAYS_BOOST"),
     ],
