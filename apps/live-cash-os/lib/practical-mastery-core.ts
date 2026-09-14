@@ -12,7 +12,7 @@ import {
 export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3 as const;
 export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v3";
 export const PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION = "A7_RU_REASON_POLARITY_V2";
-function requiresA7RuReasonSemanticRevision(decisionId: string): boolean { return /^PM-(?:3BP|4BP)-\\d{2}-A7-\\d+$/u.test(decisionId); }
+function requiresA7RuReasonSemanticRevision(decisionId: string): boolean { return /^PM-(?:3BP|4BP)-\d{2}-A7-\d+$/u.test(decisionId); }
 const PRACTICAL_BRIDGE_SKILL_IDS = new Set<string>(Object.keys(laterStreetLegacySkillBridges));
 export function isPracticalBridgeSkill(skillId: string): boolean { return PRACTICAL_BRIDGE_SKILL_IDS.has(skillId); }
 
