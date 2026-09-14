@@ -17,6 +17,8 @@ type B3Family = {
   whyRu: string;
   change1Ru: string;
   change2Ru: string;
+  change2GoodRu?: string;
+  change2WhyRu?: string;
 };
 
 type B4Family = {
@@ -35,10 +37,10 @@ const B3_GENERIC = {
   q4: "Что изменилось причинно?",
   row3Good: "Пересчитать направление; прежнюю базовую линию не переносить автоматически",
   row4Good: "Вместе с изменённым фактором меняются соответствующий порог, диапазон или реализация эквити",
-  b1: "Сохранить прежнее действие без пересчёта",
+  b1: "Сохранить прежнее действие: похожий внешний вид ситуации якобы важнее изменившихся цены, позиции или диапазонов",
   b2: "Решать только по названию конкретной руки",
-  br1: "Одна стратегия переносится на все похожие ситуации",
-  br2: "Существенный фактор не влияет на EV",
+  br1: "Переносить прежнюю стратегию без проверки предпосылок, потому что похожие ситуации якобы имеют одинаковую причинную структуру",
+  br2: "Считать изменившийся фактор несущественным для EV",
 } as const;
 
 const B4_GENERIC = {
@@ -218,6 +220,8 @@ const B3_FAMILIES: B3Family[] = [
     whyRu: "Глубина увеличивает значение будущего левериджа и риска обратных потенциальных шансов.",
     change1Ru: "Та же рука и узел: 100bb → 200bb эффективного стека.",
     change2Ru: "Та же глубина: позиция меняется с IP на OOP.",
+    change2GoodRu: "Потеря позиции ухудшает реализацию эквити и повышает цену пограничных продолжений и разгона банка",
+    change2WhyRu: "Глубина здесь не изменилась. Причина сдвига — потеря позиции: при том же большом будущем стеке OOP хуже реализует эквити и чаще платит за решения на следующих улицах.",
   },
   {
     skillId: "DEEP-03", prefix: "PM-B3-DEEP03",
@@ -347,9 +351,9 @@ function buildB3Patches(f: B3Family): [string, PracticalDecisionRuPatch][] {
     [`${f.prefix}-104`, {
       cueRu: f.change2Ru,
       questionRu: B3_GENERIC.q4,
-      explanationRu: f.whyRu,
-      actionOptions: { good: B3_GENERIC.row4Good, ...distractors },
-      reasonOptions: { goodR: f.whyRu, ...reasonDistractors },
+      explanationRu: f.change2WhyRu ?? f.whyRu,
+      actionOptions: { good: f.change2GoodRu ?? B3_GENERIC.row4Good, ...distractors },
+      reasonOptions: { goodR: f.change2WhyRu ?? f.whyRu, ...reasonDistractors },
     }],
   ];
 }
