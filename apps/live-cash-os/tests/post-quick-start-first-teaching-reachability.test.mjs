@@ -285,3 +285,18 @@ test("whole graph: fresh learner can reach every eligible teaching edge and supp
     assert.equal(isIntegratedFocusAdmissible(state, skill.id), true, `${skill.id} must expose supported focused practice`);
   }
 });
+
+
+test("FND-06 teaching covers pairwise effective stack, pot compression, and forced-unit geometry before practice", () => {
+  const asset = practicalPostQuickStartTeachingAssetForSkill("FND-06");
+  assert.ok(asset);
+  assert.equal(asset.kind, "SOURCE_BOUND");
+  const ru = [asset.teaching.situationRu, asset.teaching.mechanismRu, asset.teaching.exampleRu, asset.teaching.boundaryRu].join(" ");
+  const en = [asset.teaching.situationEn, asset.teaching.mechanismEn, asset.teaching.exampleEn, asset.teaching.boundaryEn].join(" ");
+  assert.match(ru, /попарн|против каждого соперника/iu);
+  assert.match(ru, /SPR/iu);
+  assert.match(ru, /straddle|страддл/iu);
+  assert.match(en, /pairwise|by opponent/iu);
+  assert.match(en, /SPR/iu);
+  assert.match(en, /straddle/iu);
+});
