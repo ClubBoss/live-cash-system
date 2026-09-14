@@ -43,6 +43,10 @@ function metrics(pool, locale) {
   const chance = n
     ? pool.reduce((sum, decision) => sum + 1 / (decision.actionOptions.length * decision.reasonOptions.length), 0) / n
     : 0;
+  const actionLongest = pool.filter((decision) => longestFirst(decision.actionOptions, decision.correctActionId, locale)).length;
+  const reasonLongest = pool.filter((decision) => longestFirst(decision.reasonOptions, decision.correctReasonId, locale)).length;
+  const actionShortest = pool.filter((decision) => shortestFirst(decision.actionOptions, decision.correctActionId, locale)).length;
+  const reasonShortest = pool.filter((decision) => shortestFirst(decision.reasonOptions, decision.correctReasonId, locale)).length;
   const jointLongest = pool.filter((decision) => (
     longestFirst(decision.actionOptions, decision.correctActionId, locale)
     && longestFirst(decision.reasonOptions, decision.correctReasonId, locale)
@@ -67,6 +71,14 @@ function metrics(pool, locale) {
   return {
     n,
     chance,
+    actionLongest,
+    actionLongestRate: n ? actionLongest / n : 0,
+    reasonLongest,
+    reasonLongestRate: n ? reasonLongest / n : 0,
+    actionShortest,
+    actionShortestRate: n ? actionShortest / n : 0,
+    reasonShortest,
+    reasonShortestRate: n ? reasonShortest / n : 0,
     jointLongest,
     jointLongestRate: rate,
     jointUniqueLongest,
@@ -135,5 +147,13 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   assert.equal(report.pools.all.Ru.n, practicalDecisions.length);
   assert.equal(report.pools.eligible.Ru.n, eligible.length);
   assert.equal(report.pools.teachable.Ru.n, teachable.length);
+  for (const [poolName, byLocale] of Object.entries(report.pools)) {
+    for (const [locale, result] of Object.entries(byLocale)) {
+      assert.equal(materialLengthShortcutAlert(result), false,
+        `${poolName}/${locale}: material joint-longest shortcut remains at ${result.jointLongest}/${result.n}`);
+    }
+  }
+  assert.deepEqual(report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`), [],
+    `material family-level joint-longest shortcuts remain: ${report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`).join(", ")}`);
   console.log("ASSESSMENT_SHORTCUT_AUDIT " + JSON.stringify(report));
 });
