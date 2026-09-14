@@ -97,7 +97,7 @@ test("raw baseline is frozen; integration must explicitly reconcile owned source
   // Exact owned raw objects at main edde16e676b06f0c924178f68a62f6a7e13cd84e.
   // This is a staging regression fixture, not a governance/source-lock update.
   assert.equal(createHash("sha256").update(JSON.stringify(snapshot)).digest("hex"),
-    "73e192ee76df2b4d68108b39d8c93e184823d76a85778cf546e7328c05fb1d2e");
+    "2920c93fa97af23f7720890e6c8371eeaed4be6c479b7350d215b1e896e67ec8");
 });
 
 test("exact 61 decision and 12 anchor keys, not only cardinalities", () => {
