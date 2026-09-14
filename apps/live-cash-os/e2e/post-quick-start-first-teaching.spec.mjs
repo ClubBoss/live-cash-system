@@ -117,3 +117,43 @@ for (const fixture of [
     expect(QUICK_START_SKILLS).not.toContain(focusSkillId);
   });
 }
+
+
+test("new source-bounded teaching is rendered before FND-04 practice", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/api/state", async (route) => {
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "post-QS FND-04 teaching fixture" }),
+    });
+  });
+
+  await page.goto("/mastery/journey");
+  await page.evaluate((key) => localStorage.removeItem(key), LEARNER_KEY);
+  await page.reload();
+  await ensurePracticalProfile(page);
+  await setQuickStartDecisionTrained(page);
+
+  const before = await masterySnapshot(page);
+  expect(before.skills["FND-04"].conceptTaught).toBe(false);
+
+  await page.goto("/mastery/journey?focus=FND-04");
+  await expect(page).toHaveURL(/\/mastery\/journey\?focus=FND-04$/);
+  await expect(page.locator("main")).toContainText(/Ситуация:|Situation:/);
+  await expect(page.locator("main")).toContainText(/Граница:|Boundary:/);
+  await expect(page.locator("main")).toContainText(/чистые ауты|clean outs/i);
+
+  const stillUntaught = await masterySnapshot(page);
+  expect(stillUntaught.skills["FND-04"].conceptTaught).toBe(false);
+  expect(stillUntaught.attempts).toHaveLength(before.attempts.length);
+
+  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  await expect(page).toHaveURL(/\/mastery\/session\?focus=FND-04$/);
+  await expect(page.locator('input[type="radio"]').first()).toBeVisible();
+
+  const after = await masterySnapshot(page);
+  expect(after.skills["FND-04"].conceptTaught).toBe(true);
+  expect(after.skills["FND-04"].evidenceStage).toBe("CONCEPT_TAUGHT");
+  expect(after.attempts).toHaveLength(before.attempts.length);
+});
