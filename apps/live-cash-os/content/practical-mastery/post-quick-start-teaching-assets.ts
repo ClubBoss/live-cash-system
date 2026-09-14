@@ -22,6 +22,18 @@ const a = (asset: PracticalSourceBoundTeachingAsset): PracticalSourceBoundTeachi
  */
 export const practicalSourceBoundTeachingAssets: PracticalSourceBoundTeachingAsset[] = [
   a({
+    skillId: "FND-06",
+    sourceRefs: ["LCM-01", "FTGU-E01"],
+    situationRu: "Перед решением геометрия может измениться тремя способами: соперники имеют разные стеки, сформированный банк меняется относительно оставшегося стека или обязательная единица ставки становится другой.",
+    situationEn: "Before a decision, geometry can change in three ways: opponents have different stacks, the formed pot changes relative to the remaining stack, or the forced betting unit changes.",
+    mechanismRu: "Сначала определи попарный effective stack против реально релевантного соперника. Затем считай SPR как оставшийся effective stack относительно банка: больший банк при том же стеке сжимает future tree, больший оставшийся стек при том же банке расширяет его. Если появился straddle, сначала переякорь рабочую глубину и порядок действий в новой forced unit.",
+    mechanismEn: "First identify the pairwise effective stack versus the relevant opponent. Then read SPR as remaining effective stack relative to the pot: a larger pot with the same stack compresses the future tree, while more remaining stack with the same pot expands it. If a straddle appears, first re-anchor working depth and action order to the new forced unit.",
+    exampleRu: "Hero 160bb играет multiway против стеков 70bb и 220bb: против каждого соперника effective depth различается. Если при том же effective stack префлоп-экшен удваивает банк, flop SPR падает. Mandatory straddle дополнительно меняет рабочую единицу и может сделать nominal 200bb заметно короче стратегически.",
+    exampleEn: "Hero at 160bb plays multiway versus 70bb and 220bb stacks: effective depth differs by opponent. If preflop action doubles the pot with the same effective stack, flop SPR falls. A mandatory straddle also changes the working unit and can make a nominal 200bb stack strategically much shorter.",
+    boundaryRu: "Не ищи одну общую глубину для всего multiway-банка, не считай SPR по стартовому buy-in и не воспринимай straddle как косметическую метку.",
+    boundaryEn: "Do not force one table-wide depth onto a multiway pot, do not compute SPR from the starting buy-in, and do not treat a straddle as a cosmetic label.",
+  }),
+  a({
     skillId: "FND-04",
     sourceRefs: ["EXT-PC-OUTS-2026", "EXT-PC-OUTS-GUIDE-2023"],
     situationRu: "У Hero дро, но часть карт, которые визуально улучшают руку, не гарантирует лучшую комбинацию против диапазона соперника.",
