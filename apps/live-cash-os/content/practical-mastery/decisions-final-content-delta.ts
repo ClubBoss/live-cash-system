@@ -298,10 +298,10 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     actionOptions: [
       o("a", "Распределение флешей, натсов и комбинаций с одной картой нужной масти", "The flush/nut potential distribution and who holds one-card-suit holdings"),
       o("c", "Только абсолютный ранг руки Hero, без учёта мастей", "Only Hero's absolute hand rank, without considering suits at all", "SUIT_IGNORED"),
-      o("b", "Ничего — это всё ещё высокая доска, масти не важны", "Nothing — the board class is still the same high-card class; suits do not matter", "SUIT_IGNORED"),
+      o("b", "Сохранить прежнюю стратегию только потому, что доска всё ещё высокая, считая изменение мастей несущественным для распределения флешей и натсов", "Keep the old strategy only because the board is still high, treating the suit change as irrelevant to flush and nut distribution", "SUIT_IGNORED"),
     ],
     reasonOptions: [
-      o("r3", "Сам факт высокой карты определяет преимущество диапазона независимо от мастей", "High-card texture by itself decides range advantage regardless of suits", "BOARD_LABEL_SHORTCUT"),
+      o("r3", "Считать high-card label достаточным для преимущества диапазона и не пересчитывать, как monotone-структура перераспределяет натсовые комбинации", "Treat the high-card label as sufficient for range advantage without recomputing how monotone structure redistributes nut combinations", "BOARD_LABEL_SHORTCUT"),
       o("r1", "Monotone-доска заметно меняет распределение натсов: флеши и комбинации с одной картой нужной масти становятся важной частью сильного региона, а пограничные готовые руки хуже переносят большой банк", "A monotone board materially changes the nut distribution: flushes and one-card-suit holdings become important in the strong region, while marginal made hands are less comfortable building a large pot"),
       o("r2", "Одна масть на доске не меняет комбинаторику диапазонов", "One suit on the board does not change range combinatorics", "SUIT_IGNORED"),
     ],
@@ -316,12 +316,12 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     cueRu: "Возникает упрощённое правило: на любой monotone-доске правильный default — всегда check.", cueEn: "The learner hears the word 'monotone' and decides: on any monotone board the correct default is always to check.",
     questionRu: "Это верная эвристика?", questionEn: "Is that a correct heuristic?",
     actionOptions: [
-      o("b", "Да — monotone-доска полностью исключает ставки", "Yes — a monotone board completely rules out betting", "LABEL_AS_LAW"),
+      o("b", "Да — превратить monotone label в правило полного отказа от ставок, не проверяя диапазоны, позицию и владение флешевым регионом", "Yes — turn the monotone label into a no-betting rule without checking ranges, position, or flush-region ownership", "LABEL_AS_LAW"),
       o("a", "Нет — стимул к чеку обычно растёт, но small-bet и value-линии всё ещё зависят от дошедших диапазонов и роли", "No — the checking incentive usually rises, but small-bet and value lines still depend on the arriving ranges and role"),
       o("c", "Да — единственная безопасная линия здесь check-fold", "Yes — the only safe line here is check-fold", "LABEL_AS_LAW"),
     ],
     reasonOptions: [
-      o("r2", "Одно слово monotone полностью определяет стратегию", "The single word 'monotone' fully determines the whole strategy", "LABEL_AS_LAW"),
+      o("r2", "Считать одно слово monotone достаточным для всей стратегии и не проверять, сохраняет ли конкретный диапазон основания для small-bet или value", "Treat the word 'monotone' as sufficient for the whole strategy without checking whether the actual range still supports a small-bet or value line", "LABEL_AS_LAW"),
       o("r3", "Мастевая структура отменяет необходимость анализа диапазонов", "Suit texture eliminates the need for range analysis", "LABEL_AS_STRATEGY"),
       o("r1", "Monotone повышает стимул к чеку во многих узлах, но префлоп-преимущество диапазона, роль и владение флешевым регионом всё ещё определяют, где сохраняется смысл small-bet или value-линии", "Monotone raises the checking incentive in many nodes, but preflop range advantage, role and flush-region ownership still determine where a small-bet or value line makes sense"),
     ],
