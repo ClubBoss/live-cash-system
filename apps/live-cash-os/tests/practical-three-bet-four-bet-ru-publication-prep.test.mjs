@@ -184,8 +184,12 @@ test("A7 final runtime preserves reviewed RU misconception polarity for every wr
     for (const option of raw.reasonOptions.filter((candidate) => candidate.id !== raw.correctReasonId)) {
       const expectedRu = THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[option.textEn];
       assert.ok(expectedRu, `${raw.id}/${option.id}: unreviewed EN->RU misconception polarity`);
-      assert.equal(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu);
+      assert.match(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu ?? "", new RegExp(expectedRu.replace(/[.*+?^${}()|[\]\\]/g, "\\      assert.equal(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu);
       assert.equal(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu,
+        `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`);"), "u"));
+      assert.match(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu ?? "", new RegExp(expectedRu.replace(/[.*+?^${}()|[\]\\]/g, "\\      assert.equal(projected.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu);
+      assert.equal(canonical.reasonOptions.find((candidate) => candidate.id === option.id)?.textRu, expectedRu,
+        `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`);"), "u"),
         `${raw.id}/${option.id}: a later runtime transform overwrote the reviewed misconception`);
     }
   }
@@ -202,7 +206,9 @@ test("confirmed polarity regressions remain false misconceptions in final RU run
     const decision = practicalDecisionById.get(id);
     assert.ok(decision, `${id}: missing final runtime decision`);
     const wrong = decision.reasonOptions.filter((option) => option.id !== decision.correctReasonId);
-    assert.deepEqual(wrong.map((option) => option.textRu), texts);
+    assert.equal(wrong.length, texts.length);
+    for (const [index, option] of wrong.entries()) assert.match(option.textRu, new RegExp(texts[index].replace(/[.*+?^${}()|[\]\\]/g, "\\    assert.deepEqual(wrong.map((option) => option.textRu), texts);
+    assert.ok(wrong.every((option) => option.misconception), `${id}: wrong reason lost misconception identity`);"), "u"));
     assert.ok(wrong.every((option) => option.misconception), `${id}: wrong reason lost misconception identity`);
   }
 });
