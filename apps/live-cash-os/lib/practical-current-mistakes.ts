@@ -5,6 +5,7 @@ import {
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import {
   isPracticalBridgeSkill,
+  isCurrentPracticalEvidenceAttempt,
   isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
   type PracticalAttempt,
@@ -33,7 +34,7 @@ function compareCanonicalId(left: string, right: string): number {
 export function selectedWrongPracticalMisconceptionIds(
   attempt: PracticalAttempt,
 ): readonly string[] {
-  if (!isSemanticallyValidPracticalAttempt(attempt)) return [];
+  if (!isCurrentPracticalEvidenceAttempt(attempt)) return [];
   const decision = practicalDecisionById.get(attempt.decisionId)!;
   if (!isOrdinaryLearnerDecision(decision)) return [];
   if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) return [];
