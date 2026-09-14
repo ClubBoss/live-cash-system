@@ -45,8 +45,8 @@ const A9_ROW7_GOOD =
   "Отклонить универсальный шаблон и сохранить механизм, привязанный к источнику и лайв-контексту";
 
 const A9_B2 = "Игнорировать игроков, глубину стека и позицию";
-const A9_BR1 = "Привычная логика хедз-апа на 100bb переносится без изменений";
-const A9_BR2 = "Точное название руки важнее геометрии стола";
+const A9_BR1 = "Переносить привычную логику хедз-апа на 100bb без пересчёта, потому что карты Hero не изменились и live-контекст якобы не меняет причинную структуру ветки";
+const A9_BR2 = "Считать название руки важнее геометрии стола";
 
 function buildA9FamilyPatches(f: A9FamilyRu): [string, PracticalDecisionRuPatch][] {
   const cues = [
@@ -75,7 +75,7 @@ function buildA9FamilyPatches(f: A9FamilyRu): [string, PracticalDecisionRuPatch]
       cueRu,
       questionRu: A9_QUESTIONS[i],
       explanationRu: f.whyRu,
-      actionOptions: { good: goods[i], b1: f.shortcutRu, b2: A9_B2 },
+      actionOptions: { good: goods[i], b1: `Использовать шаблон «${f.shortcutRu}» как готовое решение, потому что видимое сходство spot якобы важнее изменившейся live-геометрии`, b2: A9_B2 },
       reasonOptions: { goodR: f.whyRu, br1: A9_BR1, br2: A9_BR2 },
     },
   ]);
@@ -207,8 +207,8 @@ const A10_ROW6_GOOD = "Только если данные действитель
 const A10_ROW7_GOOD = "Отклонить стереотип и глобальное обобщение, вернувшись к базовой стратегии";
 
 const A10_B2 = "Распространить рид на всю игру целиком";
-const A10_BR1 = "Одно наблюдение уже доказывает устойчивую тенденцию";
-const A10_BR2 = "Достаточно одного ярлыка игрока";
+const A10_BR1 = "Считать одно яркое наблюдение устойчивой тенденцией, пока не появилось прямого противоречия, и поэтому не требовать повторения в той же ветке";
+const A10_BR2 = "Считать ярлык игрока достаточным";
 
 function buildA10FamilyPatches(f: A10FamilyRu): [string, PracticalDecisionRuPatch][] {
   const cues = [
@@ -237,7 +237,7 @@ function buildA10FamilyPatches(f: A10FamilyRu): [string, PracticalDecisionRuPatc
       cueRu,
       questionRu: A10_QUESTIONS[i],
       explanationRu: f.whyRu,
-      actionOptions: { good: goods[i], b1: f.shortcutRu, b2: A10_B2 },
+      actionOptions: { good: goods[i], b1: `Считать правило «${f.shortcutRu}» подтверждённым, потому что одно яркое наблюдение кажется репрезентативным именно для этого игрока`, b2: A10_B2 },
       reasonOptions: { goodR: f.whyRu, br1: A10_BR1, br2: A10_BR2 },
     },
   ]);
