@@ -1,21 +1,23 @@
 import type { PracticalDecision } from "./types";
 
 const o = (id: string, textRu: string, textEn: string, misconception?: string) => ({ id, textRu, textEn, misconception });
-type V = { skillId: string; prefix: string; sourceRefs: string[]; baseRu: string; baseEn: string; signalRu: string; signalEn: string; directRu: string; directEn: string; whyRu: string; whyEn: string; change1Ru: string; change1En: string; change2Ru: string; change2En: string; vars1: string[]; vars2: string[] };
+type V = { skillId: string; prefix: string; sourceRefs: string[]; baseRu: string; baseEn: string; signalRu: string; signalEn: string; directRu: string; directEn: string; whyRu: string; whyEn: string; change1Ru: string; change1En: string; change2Ru: string; change2En: string; vars1: string[]; vars2: string[]; change1GoodRu?: string; change1GoodEn?: string; change2GoodRu?: string; change2GoodEn?: string; change1WhyRu?: string; change1WhyEn?: string; change2WhyRu?: string; change2WhyEn?: string };
 
 function build(v: V): PracticalDecision[] {
   const rows = [
     { kind: "recognition" as const, cueRu: v.baseRu, cueEn: v.baseEn, qRu: "Какой существенный фактор нужно определить до решения?", qEn: "Which material variable must be extracted before deciding?", goodRu: v.signalRu, goodEn: v.signalEn, changed: undefined },
     { kind: "decision" as const, cueRu: v.baseRu, cueEn: v.baseEn, qRu: "Какая практическая ветка решения лучше?", qEn: "Which practical branch is better?", goodRu: v.directRu, goodEn: v.directEn, changed: undefined },
-    { kind: "changed" as const, cueRu: v.change1Ru, cueEn: v.change1En, qRu: "Как должна измениться пограничная ветка?", qEn: "How should the marginal branch change?", goodRu: "Пересчитать направление; прежнюю базовую линию не переносить автоматически", goodEn: "Recompute the direction; do not copy the old default automatically", changed: v.vars1 },
-    { kind: "changed" as const, cueRu: v.change2Ru, cueEn: v.change2En, qRu: "Что изменилось причинно?", qEn: "What changed causally?", goodRu: "Вместе с изменённым фактором меняются соответствующий порог, диапазон или реализация equity", goodEn: "The relevant threshold/range/realization changed with the variable", changed: v.vars2 },
+    { kind: "changed" as const, cueRu: v.change1Ru, cueEn: v.change1En, qRu: "Как должна измениться пограничная ветка?", qEn: "How should the marginal branch change?", goodRu: v.change1GoodRu ?? "Пересчитать направление; прежнюю базовую линию не переносить автоматически", goodEn: v.change1GoodEn ?? "Recompute the direction; do not copy the old default automatically", whyRu: v.change1WhyRu ?? v.whyRu, whyEn: v.change1WhyEn ?? v.whyEn, changed: v.vars1 },
+    { kind: "changed" as const, cueRu: v.change2Ru, cueEn: v.change2En, qRu: "Что изменилось причинно?", qEn: "What changed causally?", goodRu: v.change2GoodRu ?? "Вместе с изменённым фактором меняются соответствующий порог, диапазон или реализация equity", goodEn: v.change2GoodEn ?? "The relevant threshold/range/realization changed with the variable", whyRu: v.change2WhyRu ?? v.whyRu, whyEn: v.change2WhyEn ?? v.whyEn, changed: v.vars2 },
   ];
   return rows.map((r, i) => {
     const slot = i % 3;
     const good = o("good", r.goodRu, r.goodEn);
     const b1 = o("b1", "Сохранить прежнее действие без пересчёта", "Keep the old action without recomputing", "TRANSFER_AUTOPILOT");
     const b2 = o("b2", "Решать только по названию конкретной руки", "Decide only from the exact hand label", "HAND_LABEL_ONLY");
-    const gr = o("goodR", v.whyRu, v.whyEn);
+    const reasonRu = "whyRu" in r && r.whyRu ? r.whyRu : v.whyRu;
+    const reasonEn = "whyEn" in r && r.whyEn ? r.whyEn : v.whyEn;
+    const gr = o("goodR", reasonRu, reasonEn);
     const br1 = o("br1", "Одна стратегия переносится на все похожие ситуации", "One strategy transfers across all similar spots", "UNIVERSAL_RULE");
     const br2 = o("br2", "Существенный фактор не влияет на EV", "The material variable does not affect EV", "VARIABLE_IGNORED");
     return {
@@ -33,8 +35,8 @@ function build(v: V): PracticalDecision[] {
       correctActionId: "good",
       correctReasonId: "goodR",
       targetSeconds: 20,
-      explanationRu: v.whyRu,
-      explanationEn: v.whyEn,
+      explanationRu: reasonRu,
+      explanationEn: reasonEn,
       changedVariables: r.changed,
     } satisfies PracticalDecision;
   });
@@ -327,6 +329,10 @@ const variants: V[] = [
     change1En: "Same hand/node: 100bb → 200bb effective.",
     change2Ru: "Та же глубина: позиция меняется с IP на OOP.",
     change2En: "Same depth: position changes IP → OOP.",
+    change2GoodRu: "OOP снижает реализацию equity и повышает цену пограничных продолжений и разгона банка",
+    change2GoodEn: "Moving OOP reduces equity realization and raises the cost of marginal continues and pot inflation",
+    change2WhyRu: "Глубина здесь не изменилась. Причина сдвига — потеря позиции: при том же большом future stack OOP хуже реализует equity и чаще платит за решения на следующих улицах.",
+    change2WhyEn: "Depth did not change here. The causal shift is positional: with the same large future stack, moving OOP reduces equity realization and increases the cost of later-street decisions.",
     vars1: ["effective_depth"], vars2: ["position", "realisation"],
   },
   {
