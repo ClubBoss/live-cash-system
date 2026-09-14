@@ -144,3 +144,17 @@ test("wrong-answer correction contract remains present in PracticalDecisionFeedb
   assert.match(source, /Правильное действие:/);
   assert.match(source, /Правильная причина:/);
 });
+
+
+test("DEEP-01 IP-to-OOP transfer teaches the changed position rather than re-explaining depth", () => {
+  const decision = variationB3Decisions.find((candidate) => candidate.id === "PM-B3-DEEP01-104");
+  assert.ok(decision);
+  assert.deepEqual(decision.changedVariables, ["position", "realisation"]);
+
+  assert.match(correctActionText(decision, "ru"), /OOP.*реализац/iu);
+  assert.match(correctActionText(decision, "en"), /OOP.*realization/iu);
+  assert.match(correctReasonText(decision, "ru"), /глубина здесь не изменилась.*потеря позиции/iu);
+  assert.match(correctReasonText(decision, "en"), /Depth did not change.*positional/iu);
+  assert.equal(decision.explanationRu, correctReasonText(decision, "ru"));
+  assert.equal(decision.explanationEn, correctReasonText(decision, "en"));
+});
