@@ -21,14 +21,14 @@ type Case = {
 function mk(c: Case): PracticalDecision {
   const good = opt("good", c.goodRu, c.goodEn);
   const bad1 = opt("bad1", `Применить «${c.bad1Ru}» как достаточное правило без проверки взаимодействия диапазонов и размера ставки`, `Use “${c.bad1En}” as a sufficient rule without checking range interaction and sizing context`, "PRIMARY_MISCONCEPTION");
-  const bad2 = opt("bad2", `Применить «${c.bad2Ru}» как готовую ветку и не пересчитывать позицию, оставшиеся диапазоны или будущий ответ соперника`, `Use “${c.bad2En}” as the finished branch without recomputing position, surviving ranges, or future response`, "SECONDARY_MISCONCEPTION");
+  const bad2 = opt("bad2", c.bad2Ru, c.bad2En, "SECONDARY_MISCONCEPTION");
   const actions = [good, bad1, bad2];
   const orderedActions = c.slot === 0 ? actions : c.slot === 1 ? [bad1, good, bad2] : [bad1, bad2, good];
   const reasonGood = opt("why", c.whyRu, c.whyEn);
   const shortcutWhyRu = c.wrongWhyRu ?? "Инициатива или ярлык ситуации сами определяют решение.";
   const shortcutWhyEn = c.wrongWhyEn ?? "Initiative/label alone decides the node.";
   const reasonBad1 = opt("whyBad1", `Считать верным, что «${shortcutWhyRu}», поэтому другие данные о диапазонах и контексте не нужны`, `Assume “${shortcutWhyEn}”, so no other range/context input is needed`, "SHORTCUT_REASON");
-  const reasonBad2 = opt("whyBad2", "Считать контекст, размер ставки и оставшиеся диапазоны несущественными и переносить прежнее решение без новой фильтрации.", "Treat context, sizing, and surviving ranges as immaterial and carry the old decision forward without new filtering.", "CONTEXT_IGNORED");
+  const reasonBad2 = opt("whyBad2", "Контекст и оставшиеся диапазоны якобы не меняют решение.", "Context and surviving ranges supposedly do not change the decision.", "CONTEXT_IGNORED");
   const reasonSlot = (c.slot + 1) % 3;
   const reasons = reasonSlot === 0 ? [reasonGood, reasonBad1, reasonBad2] : reasonSlot === 1 ? [reasonBad1, reasonGood, reasonBad2] : [reasonBad1, reasonBad2, reasonGood];
   return {
