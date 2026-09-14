@@ -28,10 +28,10 @@
   "human_approvals": {},
   "final_composition": {
     "status": "REVIEW_PENDING",
-    "current_digest": "61adf482a7f54195681abd149301e4cccf253f016fe79616f90ef2491d6da68f",
+    "current_digest": "2d76830b3a89615023d5731ef6112e72eb53c9b1a98e60d82dade81c3b54d338",
     "approved_digest": null,
-    "review_corpus_fingerprint": "61adf482a7f54195681abd149301e4cccf253f016fe79616f90ef2491d6da68f",
-    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, closed Blind Defense, closed Flop/SRP OOP-IP and closed A7 3BP/4BP, then composes the serially closed A8 Turn/River, A9+A10 Live/Exploit, A11/W14 Integrated, B1+C0 Source Closure/Utilization, B3+B4 Variation/Live-Edge and Perceptual/Executable-Gate-Repair RU projections, and finally reapplies the already-certified assessment-integrity presentation repair. Each closed systemic unit retains its own unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. PERCEPTUAL_EXECUTABLE owns the truthful current global final-composition digest. The underlying raw decision, anchor and table-state source authority for every closed unit remains raw and unchanged. FPA1-GOV-001 admits the previously omitted active raw Execution Transfer Closure authority (content/practical-mastery/decisions-execution-transfer-closure.ts) into this source_blobs inventory and re-materializes current_digest/review_corpus_fingerprint from the resulting complete source_blobs set via the existing corpusFingerprint(source_blobs) procedure in scripts/governance-contract.mjs; the digest therefore changed from 41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d. FPA1-SA-001 also repaired the sourceRefs on six Execution Transfer Closure equal-blind/chop decisions (PM-BL-06-ETC-101, PM-BL-10-ETC-101, PM-BL-09-ETC-101, PM-BL-06-ETC-102, PM-BL-10-ETC-102, PM-BL-06-ETC-103) to remove the misleading SLC-BB-VS-SB citation and cite the truthful LCM-03 blind-identity mechanism and/or the new EQUAL_BLIND_GAME_STRUCTURE internal authority instead; decision/anchor/option IDs, correct answers, scoring, mastery, scheduler, learner state, prerequisites, curriculum order and poker strategy itself remain unchanged. Decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order and quantitative semantics remain otherwise unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. FPA1-ANCESTRY-001 repaired PM-BL-10-ETC-101 and PM-BL-10-ETC-102 in content/practical-mastery/decisions-execution-transfer-closure.ts to remove the false CHECK/CHECK 'symmetrically unfiltered' upgrade: no conventional PFR / no range narrowed through a raise is preserved, but each voluntary check is now explicitly taught as a branch-conditioning event on the surviving range, consistent with the control record PM-BL-09-ETC-101; the source_blobs lock for that file and the resulting current_digest/review_corpus_fingerprint were re-materialized via the existing corpusFingerprint(source_blobs) procedure, and the digest therefore changed from 2c19a356404b6c9f310e1a54ee67c7bca5068ba15e6d9376f0d9abddddedbb51. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval. BOUNDED-REPAIR-2026-09-14 opens decisions-variation-b3.ts under the existing drill/language review state for the DEEP-01 IP→OOP causal-text repair; deterministic source-lock staleness is permitted only inside that explicit repair scope and does not create human approval."
+    "review_corpus_fingerprint": "2d76830b3a89615023d5731ef6112e72eb53c9b1a98e60d82dade81c3b54d338",
+    "note": "The current review corpus inherits all governed repairs through closed Base Preflop PF-01..PF-10, closed Blind Defense, closed Flop/SRP OOP-IP and closed A7 3BP/4BP, then composes the serially closed A8 Turn/River, A9+A10 Live/Exploit, A11/W14 Integrated, B1+C0 Source Closure/Utilization, B3+B4 Variation/Live-Edge and Perceptual/Executable-Gate-Repair RU projections, and finally reapplies the already-certified assessment-integrity presentation repair. Each closed systemic unit retains its own unit-local semantic, source, numeric, hybrid and machine-identity firewalls without freezing future valid whole-corpus growth. PERCEPTUAL_EXECUTABLE owns the truthful current global final-composition digest. The underlying raw decision, anchor and table-state source authority for every closed unit remains raw and unchanged. FPA1-GOV-001 admits the previously omitted active raw Execution Transfer Closure authority (content/practical-mastery/decisions-execution-transfer-closure.ts) into this source_blobs inventory and re-materializes current_digest/review_corpus_fingerprint from the resulting complete source_blobs set via the existing corpusFingerprint(source_blobs) procedure in scripts/governance-contract.mjs; the digest therefore changed from 41fcb3fd8ba657614b5e06225bbbb70a09fc69fa3ee73509c4d09d2dc3a39a5d. FPA1-SA-001 also repaired the sourceRefs on six Execution Transfer Closure equal-blind/chop decisions (PM-BL-06-ETC-101, PM-BL-10-ETC-101, PM-BL-09-ETC-101, PM-BL-06-ETC-102, PM-BL-10-ETC-102, PM-BL-06-ETC-103) to remove the misleading SLC-BB-VS-SB citation and cite the truthful LCM-03 blind-identity mechanism and/or the new EQUAL_BLIND_GAME_STRUCTURE internal authority instead; decision/anchor/option IDs, correct answers, scoring, mastery, scheduler, learner state, prerequisites, curriculum order and poker strategy itself remain unchanged. Decision/anchor/option IDs, correct answers, changedVariables, assumptions, scoring, mastery, scheduler, learner state, prerequisites, curriculum order and quantitative semantics remain otherwise unchanged; current-main Blind assessment-integrity EN/misconception presentation precedence remains intentional. BL11 remains source-ceiling protected and partial. FPA1-ANCESTRY-001 repaired PM-BL-10-ETC-101 and PM-BL-10-ETC-102 in content/practical-mastery/decisions-execution-transfer-closure.ts to remove the false CHECK/CHECK 'symmetrically unfiltered' upgrade: no conventional PFR / no range narrowed through a raise is preserved, but each voluntary check is now explicitly taught as a branch-conditioning event on the surviving range, consistent with the control record PM-BL-09-ETC-101; the source_blobs lock for that file and the resulting current_digest/review_corpus_fingerprint were re-materialized via the existing corpusFingerprint(source_blobs) procedure, and the digest therefore changed from 2c19a356404b6c9f310e1a54ee67c7bca5068ba15e6d9376f0d9abddddedbb51. Strategy, drills, exact RU/EN human review and final composition approval remain pending; deterministic locks and CI are rejection evidence only and do not create approval. BOUNDED-REPAIR-2026-09-14 locks the repaired A7 publication, repaired B3 causal authority, and the new source-bounded post-Quick-Start teaching authority into source_blobs and re-materializes current_digest/review_corpus_fingerprint=2d76830b3a89615023d5731ef6112e72eb53c9b1a98e60d82dade81c3b54d338; review remains pending and no approval is created."
   },
   "repair_source_paths": {
     "strategy": [
@@ -43,8 +43,7 @@
       "content/i18n/wave3-priority-gold.ts",
       "content/i18n/decision-transfer-integrity.ts",
       "content/i18n/decision-option-balance.ts",
-      "content/i18n/final-learning-integrity.ts",
-      "content/practical-mastery/decisions-variation-b3.ts"
+      "content/i18n/final-learning-integrity.ts"
     ],
     "language": [
       "content/i18n/geometry-locale.ts",
@@ -94,8 +93,7 @@
       "components/Wave5PracticeLayer.tsx",
       "components/Wave7Experience.tsx",
       "components/Gauntlet4LearningIntegrityLayer.tsx",
-      "components/DataSafetyPanel.tsx",
-      "content/practical-mastery/decisions-variation-b3.ts"
+      "components/DataSafetyPanel.tsx"
     ]
   },
   "source_blobs": {
@@ -175,7 +173,7 @@
     "content/practical-mastery/practical-ru-systemic-flop-srp-oop-ip-publication.ts": "41dbe324d54dbaecce69a8c1849febe540e193f4",
     "content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts": "7d296e0144ce7bdeac2b23f7cd392acfcea306e6",
     "content/practical-mastery/anchors-w7-w13.ts": "ae6b868c629bf00cbffebbecade870d1c8005c62",
-    "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts": "7302ff44857a91c70bb0525399e687eefbda12dd",
+    "content/practical-mastery/practical-ru-systemic-three-bet-four-bet-publication.ts": "53c8fbe298c7a5c4dd9cadfe4ea966ffa6189083",
     "content/practical-mastery/decisions-turn-river-a8-expansion.ts": "983afb3654b802b5fa5502f68e65dad336abc631",
     "content/practical-mastery/practical-ru-systemic-turn-river-publication.ts": "bb74203722de8a0b1daad6465c1a74450201d65c",
     "content/practical-mastery/decisions-live-a9-expansion.ts": "fd6a6ff91d794d20b9a364fdc73f1f5a98bfec9a",
@@ -187,14 +185,15 @@
     "content/practical-mastery/decisions-source-closure-b1.ts": "f47180076ffda39d127269ce3453245043566d5d",
     "content/practical-mastery/decisions-source-utilization-c0.ts": "20a22eac60ce2b18429cb4eb26105a325cfacd0a",
     "content/practical-mastery/practical-ru-systemic-b1-c0-publication.ts": "19bcd4c77761f64de354a6d51cb3a297b9f9a879",
-    "content/practical-mastery/decisions-variation-b3.ts": "dcc08c12ffdb761db093b29a18346cab3a9fb735",
+    "content/practical-mastery/decisions-variation-b3.ts": "717ff789d1484201fa3d71d4883ccd33d534de77",
     "content/practical-mastery/decisions-live-edge-b4.ts": "47935a40424a5986ea3b57bb5a98cf46aacc625a",
     "content/practical-mastery/practical-ru-systemic-b3-b4-publication.ts": "d3f256d3e3130ae8c8b6ca043a8cbcb9538ec74b",
     "content/practical-mastery/perceptual-table-states.ts": "93a591b354e10b970fddf61dcd17518c79c70ff2",
     "content/practical-mastery/perceptual-table-states-b3.ts": "e6c3274d1d003ba8a417db4d2e603993a8463570",
     "content/practical-mastery/decisions-executable-gate-repair.ts": "0975c210bb314fd8a6bd0c56690e26d8028f4576",
     "content/practical-mastery/practical-ru-systemic-perceptual-executable-publication.ts": "79ea0546b8b7f6d07879eec65dc4b883e5add2f5",
-    "content/practical-mastery/decisions-execution-transfer-closure.ts": "205b86fcf6e82dfad745e3c99b7cc5218f5444ee"
+    "content/practical-mastery/decisions-execution-transfer-closure.ts": "205b86fcf6e82dfad745e3c99b7cc5218f5444ee",
+    "content/practical-mastery/post-quick-start-teaching-assets.ts": "14ce57ee4e07e6c3ae567e278b3b72ddd8563b5e"
   },
   "modules": {
     "geometry": {
