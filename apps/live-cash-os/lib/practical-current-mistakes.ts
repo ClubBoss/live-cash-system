@@ -6,7 +6,6 @@ import { isIntegrationDerivedSkill } from "../content/practical-mastery/integrat
 import {
   isPracticalBridgeSkill,
   isCurrentPracticalEvidenceAttempt,
-  isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
   type PracticalAttempt,
   type PracticalMasteryState,
