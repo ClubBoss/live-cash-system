@@ -124,12 +124,30 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   ));
 
   const pools = { all: practicalDecisions, eligible, teachable };
-  const report = { pools: {}, familyAlerts: [] };
+  const report = { pools: {}, familyAlerts: [], decisionAlerts: [] };
 
   for (const [name, pool] of Object.entries(pools)) {
     report.pools[name] = {};
     for (const locale of ["Ru", "En"]) {
       report.pools[name][locale] = metrics(pool, locale);
+    }
+  }
+
+  for (const decision of practicalDecisions) {
+    for (const locale of ["Ru", "En"]) {
+      const actionLongest = longestFirst(decision.actionOptions, decision.correctActionId, locale);
+      const reasonLongest = longestFirst(decision.reasonOptions, decision.correctReasonId, locale);
+      const actionShortest = shortestFirst(decision.actionOptions, decision.correctActionId, locale);
+      const reasonShortest = shortestFirst(decision.reasonOptions, decision.correctReasonId, locale);
+      if ((actionLongest && reasonLongest) || (actionShortest && reasonShortest)) {
+        report.decisionAlerts.push({
+          id: decision.id,
+          skillId: decision.skillId,
+          locale,
+          jointLongest: actionLongest && reasonLongest,
+          jointShortest: actionShortest && reasonShortest,
+        });
+      }
     }
   }
 
