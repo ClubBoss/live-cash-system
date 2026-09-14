@@ -87,7 +87,7 @@ function exactPostQuickStartTarget(
   state: PracticalMasteryState,
   skillId: string,
 ): PracticalPostQuickStartLearningTarget {
-  if (isIntegratedFocusAdmissible(state, skillId)) {
+  if (isIntegratedFocusAdmissible(state, skillId) && nextPracticalDecision(state, skillId)) {
     return {
       kind: "PRACTICE",
       skillId,
