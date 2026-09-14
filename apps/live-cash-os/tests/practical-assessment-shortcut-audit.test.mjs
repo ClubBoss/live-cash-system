@@ -147,13 +147,12 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   assert.equal(report.pools.all.Ru.n, practicalDecisions.length);
   assert.equal(report.pools.eligible.Ru.n, eligible.length);
   assert.equal(report.pools.teachable.Ru.n, teachable.length);
+  console.log("ASSESSMENT_SHORTCUT_AUDIT " + JSON.stringify(report));
   for (const [poolName, byLocale] of Object.entries(report.pools)) {
-    for (const [locale, result] of Object.entries(byLocale)) {
       assert.equal(materialLengthShortcutAlert(result), false,
         `${poolName}/${locale}: material joint-longest shortcut remains at ${result.jointLongest}/${result.n}`);
     }
   }
   assert.deepEqual(report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`), [],
     `material family-level joint-longest shortcuts remain: ${report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`).join(", ")}`);
-  console.log("ASSESSMENT_SHORTCUT_AUDIT " + JSON.stringify(report));
 });
