@@ -230,3 +230,5 @@ F1-F3-FINAL-CLOSURE-2026-09-15 re-locks the bounded authority-cue, concrete tran
 NOVICE-SEMANTIC-TERMINAL-2026-09-16 extends the governed review corpus with the Practical novice-concept authority, Quick Start first-contact/primer surfaces, semantic stimulus identity, focused-session diversity constraints, and cross-skill transfer repair while preserving terminal assessment-integrity precedence. The canonical review corpus is re-materialized through `corpusFingerprint(source_blobs)` at `36f95b4738f3637ffb162b4ff757f7e477f7048de8c6ce3042523c39181f5181`. This is deterministic rejection evidence only: strategy, drills, RU/EN and final human approval remain pending.
 
 CANONICAL-FINGERPRINT-2026-09-16 records the exact JS `corpusFingerprint(source_blobs)` result for the semantic-sequencing candidate as `e171d10adf5c2330ccd42cc1d1ca2f04db80c6fb8e6c5da59f711dd758c6cd40`; all human review/approval states remain unchanged and pending.
+
+RU-NATURALNESS-2026-09-16 records the naturalized BL-05 transfer candidate at governed review-corpus fingerprint `d2a696c8375e310be0d3844ad2e2c44f7ba5c1609812bec2cd97a68a0b1e0e6e`; no human approval is inferred.
