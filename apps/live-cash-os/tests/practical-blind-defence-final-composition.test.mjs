@@ -10,6 +10,7 @@ import { executableGateRepairDecisions } from "../content/practical-mastery/deci
 import { sourceClosureB1Decisions } from "../content/practical-mastery/decisions-source-closure-b1";
 import { foundationPreflopBlindDecisions } from "../content/practical-mastery/decisions-w1-w3";
 import { applyPracticalAssessmentIntegrityRepair } from "../content/practical-mastery/practical-assessment-integrity-repair";
+import { applyPracticalCrossSkillOverlapRepair } from "../content/practical-mastery/practical-cross-skill-overlap-repair";
 import {
   applyPracticalRuSystemicBlindDefenceAnchorProjection,
   applyPracticalRuSystemicBlindDefenceDecisionProjection,
@@ -26,6 +27,7 @@ const nativeDecisionIds = ["PM-BL-03-001", "PM-BL-04-001", "PM-BL-05-001", "PM-B
 const decisionIds = [...expansionDecisionIds, ...nativeDecisionIds];
 const anchorIds = ["BL-03-A01", "BL-04-A01", "BL-05-A01", "BL-10-A01", "BL-10-A02"];
 const assessmentPrecedenceIds = new Set(["PM-BL-03-103", "PM-BL-04-104", "PM-BL-05-105"]);
+const crossSkillTransferIds = new Set(["PM-BL-05-101", "PM-BL-05-102", "PM-BL-05-103", "PM-BL-05-104", "PM-BL-05-105"]);
 const decisionFieldPaths = [
   "cueRu",
   "questionRu",
@@ -177,15 +179,15 @@ test("BLIND unit runtime remains the accepted projection with current assessment
     assert.ok(raw, `missing raw ${id}`);
     assert.ok(finalDecision, `missing final ${id}`);
     const projected = applyPracticalRuSystemicBlindDefenceDecisionProjection(raw);
-    const expected = applyPracticalAssessmentIntegrityRepair(projected);
+    const expected = applyPracticalAssessmentIntegrityRepair(applyPracticalCrossSkillOverlapRepair(projected));
 
     for (const path of decisionFieldPaths) {
       assert.equal(decisionFieldValue(finalDecision, path), decisionFieldValue(expected, path), `${id} ${path}`);
       assert.deepEqual(numericTokens(decisionFieldValue(finalDecision, path)), numericTokens(decisionFieldValue(raw, path)), `${id} ${path} numeric semantics`);
     }
-    assert.deepEqual(machineIdentity(finalDecision), machineIdentity(applyPracticalAssessmentIntegrityRepair(raw)), `${id} machine/current-main identity`);
+    assert.deepEqual(machineIdentity(finalDecision), machineIdentity(expected), `${id} machine/current-main identity`);
 
-    if (!assessmentPrecedenceIds.has(id)) {
+    if (!assessmentPrecedenceIds.has(id) && !crossSkillTransferIds.has(id)) {
       assert.deepEqual(machineIdentity(finalDecision), machineIdentity(raw), `${id} raw machine identity`);
     }
   }
