@@ -53,7 +53,7 @@ test("repair priority consumes canonical tagged misconceptions and preserves sch
 
 test("delayed retrieval requires real spacing and a non-identical item", () => {
   assert.match(engine, /RETENTION_INTERVAL_DAYS = \[1, 3, 7\]/);
-  assert.match(engine, /item\.decisionId !== latestCorrectBefore\.decisionId/);
+  assert.match(engine, /practicalStimulusFamilyId\(decision\) !== practicalStimulusFamilyId\(latestCorrectDecision\)/);
   assert.match(engine, /actualGap >= item\.retentionTierDays/);
   assert.match(core, /retentionDaysPassed: number\[\]/);
   assert.match(dod, /immediate repeats cannot grant delayed retrieval/i);
