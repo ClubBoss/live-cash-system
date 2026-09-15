@@ -195,8 +195,8 @@ export const practicalDecisions = [
   .map(applyPracticalRuSystemicB4DecisionProjection)
   .map(applyPracticalRuPerceptualDecisionProjection)
   .map(applyPracticalRuExecutableGateRepairDecisionProjection)
-  .map(applyPracticalAssessmentIntegrityRepair)
-  .map(applyPracticalCrossSkillOverlapRepair);
+  .map(applyPracticalCrossSkillOverlapRepair)
+  .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
