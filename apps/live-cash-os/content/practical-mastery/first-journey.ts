@@ -33,8 +33,8 @@ const copyBySkillId: Record<string, { titleRu: string; titleEn: string; purposeR
     tableUseEn: "Especially important out of position and in marginal defenses with several decisions still to come.",
   },
   "PF-01": {
-    titleRu: "Как позиция меняет открытие?",
-    titleEn: "How does position change an opening decision?",
+    titleRu: "Как позиция меняет решение до флопа?",
+    titleEn: "How does position change a preflop decision?",
     purposeRu: "Понять, почему одна и та же рука может открываться ближе к баттону и выбрасываться раньше.",
     purposeEn: "Understand why the same hand can be opened closer to the button and folded earlier.",
     tableUseRu: "Используется каждый раз, когда до тебя все сфолдили и ты решаешь, входить ли в банк рейзом.",
@@ -65,8 +65,8 @@ const copyBySkillId: Record<string, { titleRu: string; titleEn: string; purposeR
     tableUseEn: "After raising preflop you often reach the flop in position and must quickly choose the overall betting plan.",
   },
   "BL-04": {
-    titleRu: "Как размер открытия меняет защиту большого блайнда?",
-    titleEn: "How does open size change big-blind defense?",
+    titleRu: "Как размер рейза меняет защиту большого блайнда?",
+    titleEn: "How does raise size change big-blind defense?",
     purposeRu: "Не копировать одну и ту же защиту: более крупное открытие делает пограничные коллы дороже.",
     purposeEn: "Do not copy one defense: a larger open makes marginal calls more expensive.",
     tableUseRu: "В live игре размеры открытия заметно меняются, поэтому одна и та же рука может иметь разное решение против 2.5bb и 4bb.",
