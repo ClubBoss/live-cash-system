@@ -23,11 +23,11 @@ type Row = {
 function make(row: Row, index: number): PracticalDecision {
   const slot = index % 3;
   const good = option("good", row.goodRu, row.goodEn);
-  const bad1 = option("bad1", `Использовать «${row.bad1Ru}» как готовый river вывод без фильтрации origin range по линии`, `Use “${row.bad1En}” as the finished river conclusion without filtering the origin range through the line`, "ORIGIN_RANGE_IGNORED");
-  const bad2 = option("bad2", `Считать «${row.bad2Ru}» достаточным доказательством и не проверять surviving value/bluff mass`, `Treat “${row.bad2En}” as sufficient proof without checking surviving value/bluff mass`, "ORIGIN_PRIOR_OVERGENERALIZED");
+  const bad1 = option("bad1", `${row.bad1Ru}; origin range по линии не требует дополнительной фильтрации`, `${row.bad1En}; the origin range needs no additional filtering through the line`, "ORIGIN_RANGE_IGNORED");
+  const bad2 = option("bad2", `${row.bad2Ru}; этого достаточно независимо от surviving value/bluff mass`, `${row.bad2En}; that is sufficient regardless of surviving value/bluff mass`, "ORIGIN_PRIOR_OVERGENERALIZED");
   const goodReason = option("goodR", row.whyRu, row.whyEn);
-  const badReason1 = option("badR1", "Считать position label доказательством river overbluff, даже если конкретная линия отфильтровала большую часть исходного air", "Treat the position label as proof of a river overbluff even if the actual line filtered out much of the original air", "POSITION_AS_PROOF");
-  const badReason2 = option("badR2", "Считать current price заменой street-by-street filtering и не пересчитывать surviving value/bluff composition", "Treat the current price as a substitute for street-by-street filtering and skip recomputing surviving value/bluff composition", "FILTERING_IGNORED");
+  const badReason1 = option("badR1", "Position label доказывает river overbluff даже после линии, которая отфильтровала большую часть исходного air", "The position label proves a river overbluff even after the line filtered out much of the original air", "POSITION_AS_PROOF");
+  const badReason2 = option("badR2", "Current price заменяет street-by-street filtering; surviving value/bluff composition не требует пересчёта", "The current price substitutes for street-by-street filtering; surviving value/bluff composition needs no recomputation", "FILTERING_IGNORED");
   return {
     id: row.id,
     skillId: "RIV-03",

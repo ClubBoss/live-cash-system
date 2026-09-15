@@ -13,7 +13,7 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     cueEn: "Same hand and same board, only SPR differs from the previous hand.",
     questionRu: "Что должно измениться вместе с SPR?", questionEn: "What should change together with SPR?",
     actionOptions: [
-      o("b", "Оставить прежний сайзинг, потому что при той же доске структура ставок якобы не зависит от отношения оставшегося стека к банку", "Keep the old sizing because with the same board the betting structure supposedly does not depend on remaining stack relative to pot", "SPR_IGNORED"),
+      o("b", "Оставить прежний сайзинг, потому что при той же доске структура ставок не зависит от отношения оставшегося стека к банку", "Keep the old sizing because with the same board the betting structure does not depend on remaining stack relative to pot", "SPR_IGNORED"),
       o("a", "Семейство геометрических сайзингов на оставшихся улицах", "The family of geometric sizes on the remaining streets"),
       o("c", "Ничего — сайзинг зависит только от абсолютной силы руки", "Nothing — sizing depends only on absolute hand strength", "SIZE_DOGMA"),
     ],
@@ -38,7 +38,7 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
       o("a", "Класс b60/b60 — примерно 60% банка на каждой из двух улиц", "The b60/b60 class — roughly 60% pot on each of the two streets"),
     ],
     reasonOptions: [
-      o("r2", "Считать класс pot/pot универсальным для любого SPR, потому что одинаковый план олл-ина якобы требует одинаковой доли банка независимо от остатка стека", "Treat pot/pot as universal for every SPR because the same all-in plan supposedly needs the same pot fraction regardless of remaining stack", "SIZE_DOGMA"),
+      o("r2", "Класс pot/pot универсален для любого SPR: одинаковый план олл-ина требует одинаковой доли банка независимо от остатка стека", "Pot/pot is universal for every SPR because the same all-in plan needs the same pot fraction regardless of remaining stack", "SIZE_DOGMA"),
       o("r3", "Маленький сайзинг всегда безопаснее независимо от SPR", "A small sizing is always safer regardless of SPR", "DEPTH_IGNORED"),
       o("r1", "Для одинаковой доли банка x на двух улицах SPR=2x+2x²; при SPR≈2 получаем x≈0,618, то есть ориентир около 60% банка на каждой улице", "For the same pot fraction x on two streets, SPR=2x+2x²; at SPR≈2, x≈0.618, giving an anchor of about 60% pot on each street"),
     ],
@@ -55,7 +55,7 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     actionOptions: [
       o("a", "Класс pot/pot — примерно 100% банка на каждой улице", "The pot/pot class — roughly 100% pot on each street"),
       o("c", "Полный олл-ин уже на этой улице", "A full all-in already on this street", "DEPTH_MISREAD"),
-      o("b", "Сохранить b60/b60, как при SPR≈2, потому что запомненный класс сайзинга якобы переносится на более глубокую геометрию без пересчёта", "Keep b60/b60 as at SPR≈2 because the memorized sizing class supposedly transfers to deeper geometry without recomputation", "SIZE_MEMORIZED"),
+      o("b", "Сохранить b60/b60, как при SPR≈2, потому что запомненный класс сайзинга переносится на более глубокую геометрию без пересчёта", "Keep b60/b60 as at SPR≈2 because the memorized sizing class transfers to deeper geometry without recomputation", "SIZE_MEMORIZED"),
     ],
     reasonOptions: [
       o("r3", "SPR≈4 сам по себе уже означает немедленный олл-ин", "SPR≈4 is already immediate all-in depth by itself", "DEPTH_MISREAD"),

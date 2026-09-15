@@ -195,5 +195,35 @@ export const THREE_BET_FOUR_BET_RU_ACTIVE_FIELD_PATHS=Object.freeze([
 ].sort());
 
 function projectOptions(options:PracticalDecisionOption[],texts:Readonly<Record<string,string>>){let changed=false;const next=options.map(option=>{const text=texts[option.id];if(text===undefined||text===option.textRu)return option;changed=true;return{...option,textRu:text};});return changed?next:options;}
-export function projectThreeBetFourBetSystemicRuDecision(decision:PracticalDecision):PracticalDecision{const r=ROWS[decision.id];if(!r)return decision;const exp=decision.id.includes("-A7-");const a=exp?["good","bad1","bad2"]:["a","b","c"];const q=exp?["goodR","badR1","badR2"]:["r1","r2","r3"];const actionOptions=projectOptions(decision.actionOptions,{[a[0]]:r[2],[a[1]]:r[3],[a[2]]:r[4]});const reasonTexts:Record<string,string>={[q[0]]:r[5],[q[1]]:r[6],[q[2]]:r[7]};if(exp){for(const option of decision.reasonOptions){if(option.id===q[0])continue;const mechanismWrapped=option.textEn.match(/^Assume “(.+)”, so the causal range interaction need not be checked$/u);const universalWrapped=option.textEn.match(/^Assume “(.+)” and carry it forward as a universal rule after the node changes$/u);const semanticEn=mechanismWrapped?.[1]??universalWrapped?.[1]??option.textEn;const translated=THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[semanticEn];if(translated!==undefined)reasonTexts[option.id]=mechanismWrapped?`Считать верным, что «${translated}», поэтому причинное взаимодействие диапазонов можно не проверять.`:universalWrapped?`Считать верным, что «${translated}», и переносить это как универсальное правило после изменения ситуации.`:translated;}}const reasonOptions=projectOptions(decision.reasonOptions,reasonTexts);if(decision.cueRu===r[0]&&decision.questionRu===r[1]&&decision.explanationRu===r[8]&&actionOptions===decision.actionOptions&&reasonOptions===decision.reasonOptions)return decision;return{...decision,cueRu:r[0],questionRu:r[1],actionOptions,reasonOptions,explanationRu:r[8]};}
+export function projectThreeBetFourBetSystemicRuDecision(decision: PracticalDecision): PracticalDecision {
+  const r = ROWS[decision.id];
+  if (!r) return decision;
+  const exp = decision.id.includes("-A7-");
+  const a = exp ? ["good", "bad1", "bad2"] : ["a", "b", "c"];
+  const q = exp ? ["goodR", "badR1", "badR2"] : ["r1", "r2", "r3"];
+  const actionOptions = projectOptions(decision.actionOptions, {[a[0]]: r[2], [a[1]]: r[3], [a[2]]: r[4]});
+  const reasonTexts: Record<string, string> = {[q[0]]: r[5], [q[1]]: r[6], [q[2]]: r[7]};
+  if (exp) {
+    for (const option of decision.reasonOptions) {
+      if (option.id === q[0]) continue;
+      const oldMechanism = option.textEn.match(/^Assume “(.+)”, so the causal range interaction need not be checked$/u);
+      const oldUniversal = option.textEn.match(/^Assume “(.+)” and carry it forward as a universal rule after the node changes$/u);
+      const directMechanism = option.textEn.match(/^(.+?) Therefore relative range interaction can change execution frequency but not the strategic choice in this node$/u);
+      const directUniversal = option.textEn.match(/^(.+?) Therefore after a material node change the old conclusion remains valid without recomputing price, ranges, or SPR$/u);
+      const semanticEn = directMechanism?.[1] ?? directUniversal?.[1] ?? oldMechanism?.[1] ?? oldUniversal?.[1] ?? option.textEn;
+      const translated = THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[semanticEn];
+      if (translated === undefined) continue;
+      if (directMechanism || oldMechanism) {
+        reasonTexts[option.id] = `${translated} Поэтому взаимодействие диапазонов может менять частоту исполнения, но не сам стратегический выбор в этом узле.`;
+      } else if (directUniversal || oldUniversal) {
+        reasonTexts[option.id] = `${translated} Поэтому после существенного изменения узла прежний вывод сохраняется без нового расчёта цены, диапазонов или SPR.`;
+      } else {
+        reasonTexts[option.id] = translated;
+      }
+    }
+  }
+  const reasonOptions = projectOptions(decision.reasonOptions, reasonTexts);
+  if (decision.cueRu === r[0] && decision.questionRu === r[1] && decision.explanationRu === r[8] && actionOptions === decision.actionOptions && reasonOptions === decision.reasonOptions) return decision;
+  return {...decision, cueRu: r[0], questionRu: r[1], actionOptions, reasonOptions, explanationRu: r[8]};
+}
 export function projectThreeBetFourBetSystemicRuAnchor(anchor:PracticalAnchor):PracticalAnchor{const r=ANCHORS[anchor.id];if(!r)return anchor;if(anchor.promptRu===r[0]&&anchor.answerRu===r[1]&&anchor.rationaleRu===r[2])return anchor;return{...anchor,promptRu:r[0],answerRu:r[1],rationaleRu:r[2]};}

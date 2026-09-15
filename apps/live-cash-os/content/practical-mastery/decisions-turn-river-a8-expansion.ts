@@ -27,11 +27,11 @@ function family(f:F):PracticalDecision[]{
   return rows.map((r,i)=>{
     const slot=i%3;
     const good=o("good",r.goodRu,r.goodEn);
-    const b1=o("b1",`Использовать ошибочный shortcut «${r.bad1Ru}», потому что он якобы уже учитывает главный механизм этой ветки`,`Use the mistaken shortcut “${r.bad1En}” because it supposedly already captures the branch's main mechanism`,"LATER_STREET_SHORTCUT");
+    const b1=o("b1",`${r.bad1Ru}. Этого достаточно для выбора действия в этой ветке`,`${r.bad1En}. That alone determines the action in this branch`,"LATER_STREET_SHORTCUT");
     const b2=o("b2",r.bad2Ru,r.bad2En,"ANCESTRY_IGNORED");
     const gr=o("goodR",r.whyRu,r.whyEn);
-    const br1=o("br1","Считать название street/node достаточным объяснением и не проверять, какие value/bluff regions реально сохранились","Treat the street/node label as a sufficient explanation without checking which value/bluff regions actually survived","LABEL_AS_ACTION");
-    const br2=o("br2","Считать, что предыдущая линия не меняет текущий диапазон","Treat the previous line as not changing the current range","HISTORY_IGNORED");
+    const br1=o("br1","Название street/node само по себе объясняет действие; сохранившиеся value/bluff regions не меняют вывод","The street/node label alone explains the action; surviving value/bluff regions do not change the conclusion","LABEL_AS_ACTION");
+    const br2=o("br2","Предыдущая линия не меняет текущий диапазон","The previous line does not change the current range","HISTORY_IGNORED");
     const actionOptions=slot===0?[good,b1,b2]:slot===1?[b1,good,b2]:[b1,b2,good];
     const reasonOptions=slot===0?[br1,gr,br2]:slot===1?[gr,br1,br2]:[br1,br2,gr];
     return {id:`${f.prefix}-${101+i}`,skillId:f.skillId,kind:r.kind,sourceRefs:f.sourceRefs,assumptions:["source-scoped later-street mechanism; no unreviewed exact frequency"],cueRu:r.cueRu,cueEn:r.cueEn,questionRu:r.qRu,questionEn:r.qEn,actionOptions,reasonOptions,correctActionId:"good",correctReasonId:"goodR",targetSeconds:27,explanationRu:r.whyRu,explanationEn:r.whyEn,changedVariables:r.changed} satisfies PracticalDecision;

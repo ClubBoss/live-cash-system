@@ -334,3 +334,11 @@ test("double-submit characterization: one submit path records one attempt and co
   assert.equal((integratedUiSource.match(/recordIntegratedDecision\(state, item/g) ?? []).length, 1);
   assert.equal((integratedUiSource.match(/recordIntegratedAnswerContinuity\(studyWorkspace/g) ?? []).length, 1);
 });
+
+test("study loop puts personal mistakes before the static review-loop disclosure", () => {
+  const mistakesIndex = studyLoopSource.indexOf("CURRENT MISTAKES");
+  const disclosureIndex = studyLoopSource.indexOf("How the full six-step review loop works");
+  assert.ok(mistakesIndex >= 0 && disclosureIndex >= 0, "study loop must render both personalized mistakes and the review-loop disclosure");
+  assert.ok(mistakesIndex < disclosureIndex, "personalized mistakes must appear before static review instructions");
+  assert.match(studyLoopSource, /<details className="surface"/);
+});

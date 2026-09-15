@@ -94,10 +94,10 @@ test("raw baseline is frozen; integration must explicitly reconcile owned source
     decisions: decisionIds.map((id) => rawById.get(id)).sort(byId),
     anchors: anchorIds.map((id) => rawAnchorById.get(id)).sort(byId),
   };
-  // Exact owned raw objects at main edde16e676b06f0c924178f68a62f6a7e13cd84e.
-  // This is a staging regression fixture, not a governance/source-lock update.
+  // Exact owned raw objects after the bounded assessment-shortcut wording repair.
+  // Machine identity and correct-answer semantics are unchanged; this fixture tracks the reviewed raw text.
   assert.equal(createHash("sha256").update(JSON.stringify(snapshot)).digest("hex"),
-    "2920c93fa97af23f7720890e6c8371eeaed4be6c479b7350d215b1e896e67ec8");
+    "d35a51ff509ae95febd3c5a9e7e3a3d7dda123fbb9fdf60209af4d1dcb9d2ecd");
 });
 
 test("exact 61 decision and 12 anchor keys, not only cardinalities", () => {

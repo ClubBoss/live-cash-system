@@ -27,8 +27,8 @@ function mk(c: Case): PracticalDecision {
   const reasonGood = opt("why", c.whyRu, c.whyEn);
   const shortcutWhyRu = c.wrongWhyRu ?? "Инициатива или ярлык ситуации сами определяют решение.";
   const shortcutWhyEn = c.wrongWhyEn ?? "Initiative/label alone decides the node.";
-  const reasonBad1 = opt("whyBad1", `Считать верным, что «${shortcutWhyRu}», поэтому другие данные о диапазонах и контексте не нужны`, `Assume “${shortcutWhyEn}”, so no other range/context input is needed`, "SHORTCUT_REASON");
-  const reasonBad2 = opt("whyBad2", "Контекст и оставшиеся диапазоны якобы не меняют решение.", "Context and surviving ranges supposedly do not change the decision.", "CONTEXT_IGNORED");
+  const reasonBad1 = opt("whyBad1", `${shortcutWhyRu} Другие данные о диапазонах и контексте не меняют вывод`, `${shortcutWhyEn} Other range/context information does not change the conclusion`, "SHORTCUT_REASON");
+  const reasonBad2 = opt("whyBad2", "Контекст и оставшиеся диапазоны не меняют решение.", "Context and surviving ranges do not change the decision.", "CONTEXT_IGNORED");
   const reasonSlot = (c.slot + 1) % 3;
   const reasons = reasonSlot === 0 ? [reasonGood, reasonBad1, reasonBad2] : reasonSlot === 1 ? [reasonBad1, reasonGood, reasonBad2] : [reasonBad1, reasonBad2, reasonGood];
   return {

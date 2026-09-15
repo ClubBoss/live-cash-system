@@ -179,7 +179,9 @@ function escapeRegex(text) {
 }
 
 function reviewedA7SemanticEn(text) {
-  return text.match(/^Assume “(.+)”, so the causal range interaction need not be checked$/u)?.[1]
+  return text.match(/^(.+?) Therefore relative range interaction can change execution frequency but not the strategic choice in this node$/u)?.[1]
+    ?? text.match(/^(.+?) Therefore after a material node change the old conclusion remains valid without recomputing price, ranges, or SPR$/u)?.[1]
+    ?? text.match(/^Assume “(.+)”, so the causal range interaction need not be checked$/u)?.[1]
     ?? text.match(/^Assume “(.+)” and carry it forward as a universal rule after the node changes$/u)?.[1]
     ?? text;
 }

@@ -8,6 +8,7 @@ import {
 } from "../content/practical-mastery/index.ts";
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived.ts";
 import { practicalPostQuickStartTeachingAssetForSkill } from "../lib/practical-post-quick-start-learning.ts";
+import { sanitizeLearnerPresentationText } from "../lib/learner-presentation-firewall.ts";
 import {
   isPracticalBridgeSkill,
   practicalSkillCorpusCanReach,
@@ -15,6 +16,59 @@ import {
 
 function text(option, locale) {
   return option[`text${locale}`].trim();
+}
+
+
+
+const WORDING_CUE_PREFIX = {
+  Ru: /^(Считать|Переносить|Игнорировать|Распространить|Выбрать)\s/u,
+  En: /^(Treat|Assume|Ignore|Transfer)\s/u,
+};
+const EXPLICIT_WRONGNESS_META = {
+  Ru: /(?:якобы|ошибочн(?:ый|ая|ое|ую)\s+(?:правил\w*|shortcut|шаблон\w*))/iu,
+  En: /(?:supposedly|mistaken\s+shortcut|wrong\s+rule|erroneous\s+rule)/iu,
+};
+
+function learnerVisibleOptionText(option, locale) {
+  const learnerLocale = locale === "Ru" ? "ru" : "en";
+  return sanitizeLearnerPresentationText(text(option, locale), learnerLocale);
+}
+
+function wordingCueStats(pool, locale) {
+  const stages = {};
+  const authorialWrongness = [];
+  for (const stage of ["action", "reason"]) {
+    const optionsFor = stage === "action"
+      ? (decision) => decision.actionOptions
+      : (decision) => decision.reasonOptions;
+    const correctFor = stage === "action"
+      ? (decision) => decision.correctActionId
+      : (decision) => decision.correctReasonId;
+    let selected = 0;
+    let correct = 0;
+    const familyCounts = new Map();
+    for (const decision of pool) {
+      const options = optionsFor(decision);
+      const correctId = correctFor(decision);
+      const remaining = options.filter((option) => (
+        !WORDING_CUE_PREFIX[locale].test(learnerVisibleOptionText(option, locale))
+      ));
+      if (remaining.length === 1) {
+        selected += 1;
+        correct += Number(remaining[0].id === correctId);
+        familyCounts.set(decision.skillId, (familyCounts.get(decision.skillId) ?? 0) + 1);
+      }
+      for (const option of options) {
+        if (option.id === correctId) continue;
+        const rendered = learnerVisibleOptionText(option, locale);
+        if (EXPLICIT_WRONGNESS_META[locale].test(rendered)) {
+          authorialWrongness.push({ id: decision.id, skillId: decision.skillId, stage, optionId: option.id, rendered });
+        }
+      }
+    }
+    stages[stage] = { selected, correct, families: [...familyCounts.entries()] };
+  }
+  return { ...stages, authorialWrongness };
 }
 
 function longestFirst(options, correctId, locale) {
@@ -331,7 +385,12 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
     expandedPositionAlerts: [],
     expandedFamilyPositionAlerts: [],
     decisionAlerts: [],
+    wordingCue: {},
   };
+
+  for (const locale of ["Ru", "En"]) {
+    report.wordingCue[locale] = wordingCueStats(eligible, locale);
+  }
 
   for (const [name, pool] of Object.entries(pools)) {
     report.pools[name] = {};
@@ -446,4 +505,15 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
     `material expanded pool-level position shortcuts remain: ${report.expandedPositionAlerts.map(({ pool, locale, kind }) => `${pool}:${locale}:${kind}`).join(", ")}`);
   assert.deepEqual(report.expandedFamilyPositionAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`), [],
     `material expanded family-level position shortcuts remain: ${report.expandedFamilyPositionAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`).join(", ")}`);
+
+
+  for (const locale of ["Ru", "En"]) {
+    const cue = report.wordingCue[locale];
+    assert.equal(cue.action.correct, 0,
+      `${locale}: visible wording-prefix rule still selects ${cue.action.correct} correct actions`);
+    assert.equal(cue.reason.correct, 0,
+      `${locale}: visible wording-prefix rule still selects ${cue.reason.correct} correct reasons`);
+    assert.deepEqual(cue.authorialWrongness, [],
+      `${locale}: learner-visible distractors still contain explicit authorial wrongness cues`);
+  }
 });

@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { corpusFingerprint } from "../scripts/governance-contract.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const expectedFinalCompositionDigest = "5d99948f8d2a93d1d990362c3c4b4d07d3a8812a5ce2e217da0c90e65659d1c4";
+const expectedFinalCompositionDigest = "43c62da25acac3b8428549e2a05261cf5e69a8c4cb2d01b9acc1fb3adc410920";
 
 // The six late systemic RU publication modules admitted to the final governed
 // frontier by GLOBAL_SYSTEMIC_RU closure: each is both a language-repair
