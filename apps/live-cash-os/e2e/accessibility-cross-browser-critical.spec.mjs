@@ -1,15 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-test("Practical Mastery primary navigation is keyboard reachable with visible focus", async ({ page }) => {
+test("Practical Mastery primary navigation is keyboard reachable with visible focus", async ({ page, browserName }) => {
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await expect(nav).toBeVisible();
   const learn = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
   await expect(learn).toBeVisible();
 
+  const nextFocusKey = browserName === "webkit" ? "Alt+Tab" : "Tab";
   let reachedLearn = false;
   for (let step = 0; step < 20; step += 1) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(nextFocusKey);
     reachedLearn = await learn.evaluate((element) => element === document.activeElement);
     if (reachedLearn) break;
   }
@@ -32,7 +33,7 @@ const mobileNavCases = [
   { locale: "EN", labels: ["Home", "Continue learning", "Improve", "Table reading", "After play", "Reference"] },
 ];
 
-test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN", async ({ page }) => {
+test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN", async ({ page, browserName }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
   for (const { locale, labels } of mobileNavCases) {
@@ -88,10 +89,11 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
       expect(label.wordBreak).toBe("normal");
     }
 
+    const nextFocusKey = browserName === "webkit" ? "Alt+Tab" : "Tab";
     await links.first().focus();
     for (let index = 0; index < 6; index += 1) {
       await expect(links.nth(index)).toBeFocused();
-      if (index < 5) await page.keyboard.press("Tab");
+      if (index < 5) await page.keyboard.press(nextFocusKey);
     }
     await expect(rail.getByRole("link", { name: labels.at(-1), exact: true })).toBeFocused();
   }

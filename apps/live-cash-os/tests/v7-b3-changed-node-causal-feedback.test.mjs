@@ -12,7 +12,7 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_B3_MACHINE_FINGERPRINT = "5cbcd796aab6023999c44a1c64737268eff679e067b01da6d993c63e18af6870";
-const EXPECTED_B3_FULL_CORPUS_FINGERPRINT = "ead9a3ae1e739485f9cc0a96b1ca2fe5aecea4bfd45b9818353c40bc896a32cd";
+const EXPECTED_B3_FULL_CORPUS_FINGERPRINT = "163814907cf9f9fb3763900c1b94e49027112119c17a41a1f7d90dacf24e3b2d";
 
 function familyKey(id) {
   return id.replace(/-\d+$/, "");

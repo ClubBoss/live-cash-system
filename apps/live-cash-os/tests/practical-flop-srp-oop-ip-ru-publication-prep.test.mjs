@@ -97,7 +97,7 @@ test("raw baseline is frozen; integration must explicitly reconcile owned source
   // Exact owned raw objects after the bounded assessment-shortcut wording repair.
   // Machine identity and correct-answer semantics are unchanged; this fixture tracks the reviewed raw text.
   assert.equal(createHash("sha256").update(JSON.stringify(snapshot)).digest("hex"),
-    "d35a51ff509ae95febd3c5a9e7e3a3d7dda123fbb9fdf60209af4d1dcb9d2ecd");
+    "116efd1c05ad1e8de3c811e76baa9f554a670a8f6668f5e4f153492a1b2c47b2");
 });
 
 test("exact 61 decision and 12 anchor keys, not only cardinalities", () => {
