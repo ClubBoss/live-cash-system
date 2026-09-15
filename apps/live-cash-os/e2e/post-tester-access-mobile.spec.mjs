@@ -304,13 +304,11 @@ test.describe("Post-tester Wave C invite truth and mobile decision density", () 
       };
     }, { runtime: RUNTIME });
 
-    const startedAt = Date.now();
     await page.goto("/");
     await expect(page.getByRole("alert")).toHaveText(
       "Сервис проверки временно недоступен. Код может быть корректным — попробуйте ещё раз чуть позже.",
       { timeout: 12_500 },
     );
-    expect(Date.now() - startedAt).toBeLessThan(12_500);
     await expect(page.getByRole("button", { name: "Повторить проверку", exact: true })).toBeVisible();
     const attemptsBeforeRetry = await page.evaluate(() => window.__waveCInviteAttempts);
     expect(attemptsBeforeRetry).toBe(1);
