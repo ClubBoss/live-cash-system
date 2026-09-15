@@ -54,6 +54,7 @@ export default function PracticalFirstJourneyExperience({
   const journeyStep = presentationSkillId ? firstJourneyStepForSkill(presentationSkillId) : null;
   const rules = journeyStep?.memoryRuleIds.map((ruleId) => practicalRuleById.get(ruleId)).filter(Boolean) ?? [];
   const rule = rules[0] ?? null;
+  const ruleAlreadyLearned = Boolean(rule && skill && rule.skillIds.some((ruleSkillId) => ruleSkillId !== skill.id && state.skills[ruleSkillId]?.conceptTaught));
   const skillAnchors = skill ? practicalAnchors.filter((item) => item.skillId === skill.id) : [];
   const anchor = skillAnchors[0] ?? null;
   const contrastAnchor = skillAnchors.find((item) => item.kind === "changed" || item.kind === "boundary") ?? null;
@@ -73,6 +74,12 @@ export default function PracticalFirstJourneyExperience({
   ] : [
     locale === "ru" ? skill?.objectiveRu : skill?.objectiveEn,
   ];
+
+  useEffect(() => {
+    if (!skill?.id || answeredDecisionId) return;
+    setPracticeStarted(false);
+    setPracticeHelpOpen(false);
+  }, [skill?.id, answeredDecisionId]);
 
   useEffect(() => {
     if (!ready || recoveryBlocked || continuityChecked || presentation === null) return;
@@ -161,7 +168,6 @@ export default function PracticalFirstJourneyExperience({
   const advanceDecision = () => {
     const nextWorkspace = clearQuickStartContinuity(studyWorkspace, state.contentVersion);
     if (nextWorkspace !== studyWorkspace && !setStudyWorkspace(nextWorkspace)) return;
-    setPracticeStarted(false);
     setAnsweredDecisionId(null);
     setAnsweredSkillId(null);
     setActionId("");
@@ -202,7 +208,9 @@ export default function PracticalFirstJourneyExperience({
       <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
       <h1>{locale === "ru" ? journeyStep.titleRu : journeyStep.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
-      <p className="support">{locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example."}</p>
+      <p className="support">{ruleAlreadyLearned
+        ? (locale === "ru" ? "Это новый узел на уже знакомом механизме: правило не учим заново, а переносим в другую игровую ситуацию." : "This is a new node using a mechanism you already know: do not relearn the rule; transfer it to a different game situation.")
+        : (locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example.")}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
 
@@ -215,8 +223,14 @@ export default function PracticalFirstJourneyExperience({
       <PracticalConceptPrimer skillId={skill.id} locale={locale} teachingTexts={primerTeachingTexts} />
 
       <section className="surface" style={{ marginTop: 20 }}>
-        <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
-        {rule ? <>
+        <p className="eyebrow">{ruleAlreadyLearned
+          ? (locale === "ru" ? "ЗНАКОМЫЙ МЕХАНИЗМ · НОВОЕ ПРИМЕНЕНИЕ" : "KNOWN MECHANISM · NEW APPLICATION")
+          : (locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM")}</p>
+        {rule && ruleAlreadyLearned ? <>
+          <h2>{locale === "ru" ? "Не переучиваем правило — переносим его" : "Do not relearn the rule — transfer it"}</h2>
+          <p>{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p>
+          <p className="support">{locale === "ru" ? "Новая ценность этого шага — распознать тот же причинный механизм в другом узле, а не снова прочитать тот же ответ." : "The value of this step is recognizing the same causal mechanism in a different node, not rereading the same answer."}</p>
+        </> : rule ? <>
           <h2>{locale === "ru" ? rule.defaultRu : rule.defaultEn}</h2>
           <p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? rule.whyRu : rule.whyEn}</p>
           <p><b>{locale === "ru" ? "Когда правило меняется:" : "When it changes:"}</b> {(locale === "ru" ? rule.reversalsRu : rule.reversalsEn).join(" · ")}</p>
@@ -226,13 +240,13 @@ export default function PracticalFirstJourneyExperience({
           <p>{locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn}</p>
         </> : <p>{locale === "ru" ? skill.objectiveRu : `Use ${skill.titleEn} reliably in independent decisions and changed conditions.`}</p>}
 
-        {contrastAnchor && contrastAnchor.id !== anchor?.id ? <div className="today-card" style={{ marginTop: 16 }}>
+        {!ruleAlreadyLearned && contrastAnchor && contrastAnchor.id !== anchor?.id ? <div className="today-card" style={{ marginTop: 16 }}>
           <p className="eyebrow">{locale === "ru" ? "ИЗМЕНИ ОДНО УСЛОВИЕ" : "CHANGE ONE CONDITION"}</p>
           <p>{locale === "ru" ? contrastAnchor.promptRu : contrastAnchor.promptEn}</p>
           <p><b>{locale === "ru" ? "Что меняется:" : "What changes:"}</b> {locale === "ru" ? contrastAnchor.answerRu : contrastAnchor.answerEn}</p>
-        </div> : rule ? <p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p> : null}
+        </div> : !ruleAlreadyLearned && rule ? <p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p> : null}
 
-        <button className="primary" onClick={startPractice} style={{ marginTop: 16 }}>{locale === "ru" ? "Проверить на примере" : "Try an example"} <span>→</span></button>
+        <button className="primary" onClick={startPractice} style={{ marginTop: 16 }}>{locale === "ru" ? "Проверить на новом примере" : "Try a new example"} <span>→</span></button>
       </section>
     </> : null}
 
