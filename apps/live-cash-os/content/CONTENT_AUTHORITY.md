@@ -232,3 +232,5 @@ NOVICE-SEMANTIC-TERMINAL-2026-09-16 extends the governed review corpus with the 
 CANONICAL-FINGERPRINT-2026-09-16 records the exact JS `corpusFingerprint(source_blobs)` result for the semantic-sequencing candidate as `e171d10adf5c2330ccd42cc1d1ca2f04db80c6fb8e6c5da59f711dd758c6cd40`; all human review/approval states remain unchanged and pending.
 
 RU-NATURALNESS-2026-09-16 records the naturalized BL-05 transfer candidate at governed review-corpus fingerprint `d2a696c8375e310be0d3844ad2e2c44f7ba5c1609812bec2cd97a68a0b1e0e6e`; no human approval is inferred.
+
+TARGETED-QA-2026-09-16 records the final semantic-sequencing review corpus at `e55333692d52f146f9ab5f0235821a8825a32fe7922e14345a4f75c37fc605b6` after 42/42 targeted regressions passed. Deterministic QA does not create human approval.
