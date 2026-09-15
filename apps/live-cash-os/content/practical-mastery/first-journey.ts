@@ -19,7 +19,7 @@ const copyBySkillId: Record<string, { titleRu: string; titleEn: string; purposeR
   "FND-01": {
     titleRu: "Когда колл окупается?",
     titleEn: "When does a call pay for itself?",
-    purposeRu: "Сравнивать стоимость колла с тем, как часто рука должна выигрывать, чтобы решение хотя бы не теряло деньги.",
+    purposeRu: "Сначала видеть цену колла в банке: сколько нужно заплатить сейчас и как часто рука должна выигрывать, чтобы решение хотя бы не теряло деньги.",
     purposeEn: "Compare the cost of a call with how often the hand must win for the decision to break even.",
     tableUseRu: "Нужно почти каждый раз, когда перед тобой ставка и ты выбираешь между коллом и фолдом.",
     tableUseEn: "You need this whenever you face a bet and choose between calling and folding.",
