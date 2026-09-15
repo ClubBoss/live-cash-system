@@ -33,7 +33,6 @@ function corpus(locale) {
       rule[`transferCue${suffix}`],
     ]),
     ...practicalAnchors.flatMap((anchor) => [
-      ...(anchor.assumptions ?? []),
       anchor[`prompt${suffix}`],
       anchor[`answer${suffix}`],
       anchor[`rationale${suffix}`],
@@ -45,7 +44,6 @@ function corpus(locale) {
       asset[`boundary${suffix}`],
     ]),
     ...practicalDecisions.flatMap((decision) => [
-      ...(decision.assumptions ?? []),
       decision[`cue${suffix}`],
       decision[`question${suffix}`],
       decision[`explanation${suffix}`],
