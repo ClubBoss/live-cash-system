@@ -177,7 +177,7 @@ export default function PracticalPostQuickStartTeaching({
       <button className="primary" onClick={startApplication} disabled={pendingPracticeSkillId !== null} style={{ marginTop: 16 }}>
         {pendingPracticeSkillId
           ? (locale === "ru" ? "Открываем пример…" : "Opening example…")
-          : (locale === "ru" ? "Проверить на новом примере" : "Try a new example")} <span>→</span>
+          : (locale === "ru" ? "Проверить на примере" : "Try an example")} <span>→</span>
       </button>
       {transitionFailed ? <p role="alert" className="support">
         {locale === "ru" ? "Не удалось сохранить переход. Прогресс не изменён." : "The transition could not be saved. Progress was not changed."}
