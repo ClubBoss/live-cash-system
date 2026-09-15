@@ -82,6 +82,7 @@ import {
   applyPracticalRuExecutableGateRepairDecisionProjection,
 } from "./practical-ru-systemic-perceptual-executable-publication";
 import { applyPracticalAssessmentIntegrityRepair } from "./practical-assessment-integrity-repair";
+import { applyPracticalCrossSkillOverlapRepair } from "./practical-cross-skill-overlap-repair";
 import { practicalSkillFamilies } from "./registry";
 
 export * from "./types";
@@ -194,7 +195,8 @@ export const practicalDecisions = [
   .map(applyPracticalRuSystemicB4DecisionProjection)
   .map(applyPracticalRuPerceptualDecisionProjection)
   .map(applyPracticalRuExecutableGateRepairDecisionProjection)
-  .map(applyPracticalAssessmentIntegrityRepair);
+  .map(applyPracticalAssessmentIntegrityRepair)
+  .map(applyPracticalCrossSkillOverlapRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
