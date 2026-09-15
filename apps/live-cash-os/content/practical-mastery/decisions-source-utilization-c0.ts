@@ -63,8 +63,8 @@ const rows: Row[] = [
     bad1En: "Ignore the preflop origin; only the river card matters",
     bad2Ru: "Wide origin automatically proves an overbluff",
     bad2En: "A wide origin automatically proves an overbluff",
-    whyRu: "CINJ-E05 treats origin width as the starting denominator for later air mass, but explicitly requires board and action filtering before a call decision.",
-    whyEn: "CINJ-E05 treats origin width as the starting denominator for later air mass, but explicitly requires board and action filtering before a call decision.",
+    whyRu: "Origin width is only the starting denominator for later air mass; board and action filtering still determine the river range.",
+    whyEn: "Origin width is only the starting denominator for later air mass; board and action filtering still determine the river range.",
   },
   {
     id: "PM-RIV-03-C0-202",
@@ -95,8 +95,8 @@ const rows: Row[] = [
     bad1En: "Call because BTN started wide",
     bad2Ru: "Ignore origin and use pot odds alone",
     bad2En: "Ignore origin and use pot odds alone",
-    whyRu: "CINJ-E05 extends FTGU-E22: the price sets the threshold, while origin width and subsequent filtering determine whether enough plausible bluffs can exist.",
-    whyEn: "CINJ-E05 extends FTGU-E22: the price sets the threshold, while origin width and subsequent filtering determine whether enough plausible bluffs can exist.",
+    whyRu: "Price sets the bluff-catch threshold, while origin width and subsequent filtering determine whether enough plausible bluffs can exist.",
+    whyEn: "Price sets the bluff-catch threshold, while origin width and subsequent filtering determine whether enough plausible bluffs can exist.",
   },
   {
     id: "PM-RIV-03-C0-204",
@@ -127,8 +127,8 @@ const rows: Row[] = [
     bad1En: "Yes — the river price is unchanged",
     bad2Ru: "No — but EP automatically means zero bluffs",
     bad2En: "No — but EP automatically means zero bluffs",
-    whyRu: "This is the core one-variable transfer from CINJ-E05: origin range is a causal prior for later bluff supply, not a binary position label.",
-    whyEn: "This is the core one-variable transfer from CINJ-E05: origin range is a causal prior for later bluff supply, not a binary position label.",
+    whyRu: "Origin range is a causal prior for later bluff supply, not a binary position label.",
+    whyEn: "Origin range is a causal prior for later bluff supply, not a binary position label.",
     changedVariables: ["preflop_origin_width"],
   },
   {
@@ -144,8 +144,8 @@ const rows: Row[] = [
     bad1En: "Yes — a wide origin permanently means high bluff density",
     bad2Ru: "No — origin width never matters",
     bad2En: "No — origin width never matters",
-    whyRu: "CINJ-E05 explicitly frames origin width as a prior. Board texture and street-by-street range filtering can narrow or reverse its practical effect.",
-    whyEn: "CINJ-E05 explicitly frames origin width as a prior. Board texture and street-by-street range filtering can narrow or reverse its practical effect.",
+    whyRu: "Origin width is a prior, not a conclusion; board texture and street-by-street filtering can narrow or reverse its practical effect.",
+    whyEn: "Origin width is a prior, not a conclusion; board texture and street-by-street filtering can narrow or reverse its practical effect.",
     changedVariables: ["later_street_filtering"],
   },
   {
@@ -177,8 +177,8 @@ const rows: Row[] = [
     bad1En: "Yes — a tight origin means no bluffs",
     bad2Ru: "Yes — blockers become irrelevant",
     bad2En: "Yes — blockers become irrelevant",
-    whyRu: "CINJ-E05 preserves street filtering and FTGU-E22 preserves price/removal analysis; the useful rule is directional, not absolute.",
-    whyEn: "CINJ-E05 preserves street filtering and FTGU-E22 preserves price/removal analysis; the useful rule is directional, not absolute.",
+    whyRu: "Street filtering, price, and removal all remain necessary; the useful rule is directional rather than absolute.",
+    whyEn: "Street filtering, price, and removal all remain necessary; the useful rule is directional rather than absolute.",
   },
 ];
 
