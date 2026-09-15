@@ -21,11 +21,18 @@ function NavIcon({ name }: { name: IconName }) {
 }
 
 const tools = [
-  { href: "/mastery/improve", ru: "Улучшить", en: "Improve", icon: "review" as IconName },
-  { href: "/mastery/perception", ru: "Чтение стола", en: "Table reading", icon: "eye" as IconName },
-  { href: "/mastery/study", ru: "После игры", en: "After play", icon: "review" as IconName },
-  { href: "/mastery/reference", ru: "Справочник", en: "Reference", icon: "book" as IconName },
+  { href: "/mastery/improve", ru: "Улучшить", en: "Improve", compactRu: "Улучшить", compactEn: "Improve", icon: "review" as IconName },
+  { href: "/mastery/perception", ru: "Чтение стола", en: "Table reading", compactRu: "Стол", compactEn: "Table", icon: "eye" as IconName },
+  { href: "/mastery/study", ru: "После игры", en: "After play", compactRu: "Разбор", compactEn: "Review", icon: "review" as IconName },
+  { href: "/mastery/reference", ru: "Справочник", en: "Reference", compactRu: "Справка", compactEn: "Reference", icon: "book" as IconName },
 ] as const;
+
+function NavLabel({ full, compact }: { full: string; compact: string }) {
+  return <>
+    <span className="practical-mastery-nav__label-full">{full}</span>
+    <span className="practical-mastery-nav__label-compact" aria-hidden="true">{compact}</span>
+  </>;
+}
 
 const warmRoutes = ["/mastery", "/mastery/journey", "/mastery/improve", "/mastery/perception", "/mastery/study", "/mastery/reference", "/tools?tab=data"] as const;
 
@@ -48,15 +55,15 @@ export default function PracticalMasteryNav() {
     <div className="practical-mastery-nav__brand">LIVE CASH OS</div>
     <div className="practical-mastery-nav__rail">
       <PracticalDocumentLink href="/mastery" aria-current={homeActive ? "page" : undefined} className={`practical-mastery-nav__item practical-mastery-nav__home ${homeActive ? "is-active" : ""}`}>
-        <NavIcon name="home"/><span>{locale === "ru" ? "Главная" : "Home"}</span>
+        <NavIcon name="home"/><NavLabel full={locale === "ru" ? "Главная" : "Home"} compact={locale === "ru" ? "Главная" : "Home"} />
       </PracticalDocumentLink>
       <PracticalNextLearningLink className={`practical-mastery-nav__item ${learningActive ? "is-active" : ""}`} ariaCurrent={learningActive ? "page" : undefined}>
-        <NavIcon name="learn"/><span>{locale === "ru" ? "Продолжить обучение" : "Continue learning"}</span>
+        <NavIcon name="learn"/><NavLabel full={locale === "ru" ? "Продолжить обучение" : "Continue learning"} compact={locale === "ru" ? "Учиться" : "Learn"} />
       </PracticalNextLearningLink>
       {tools.map((item) => {
         const active = pathname === item.href;
         return <PracticalDocumentLink key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`practical-mastery-nav__item ${active ? "is-active" : ""}`}>
-          <NavIcon name={item.icon}/><span>{locale === "ru" ? item.ru : item.en}</span>
+          <NavIcon name={item.icon}/><NavLabel full={locale === "ru" ? item.ru : item.en} compact={locale === "ru" ? item.compactRu : item.compactEn} />
         </PracticalDocumentLink>;
       })}
     </div>
