@@ -246,7 +246,7 @@ export default function PracticalFirstJourneyExperience({
           <p><b>{locale === "ru" ? "Что меняется:" : "What changes:"}</b> {locale === "ru" ? contrastAnchor.answerRu : contrastAnchor.answerEn}</p>
         </div> : !ruleAlreadyLearned && rule ? <p className="support">{locale === "ru" ? rule.transferCueRu : rule.transferCueEn}</p> : null}
 
-        <button className="primary" onClick={startPractice} style={{ marginTop: 16 }}>{locale === "ru" ? "Проверить на новом примере" : "Try a new example"} <span>→</span></button>
+        <button className="primary" onClick={startPractice} style={{ marginTop: 16 }}>{locale === "ru" ? "Проверить на примере" : "Try an example"} <span>→</span></button>
       </section>
     </> : null}
 
