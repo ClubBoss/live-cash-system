@@ -5,7 +5,7 @@ import { isSemanticallyValidPracticalAttempt, practicalSkillCorpusCanReach, stag
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 import { practicalStimulusFamilyId } from "./practical-stimulus-identity";
 
-const QUICK_START_TEACHING_LEAK_EXCLUSIONS = new Set(["PM-FND-01-001"]);
+const QUICK_START_TEACHING_LEAK_EXCLUSIONS = new Set<string>();
 
 export type FirstJourneyRecommendation = {
   skillId: string;
