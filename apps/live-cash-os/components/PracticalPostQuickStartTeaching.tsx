@@ -130,6 +130,11 @@ export default function PracticalPostQuickStartTeaching({
         <p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? asset.rule.whyRu : asset.rule.whyEn}</p>
         <p><b>{locale === "ru" ? "Когда правило меняется:" : "When it changes:"}</b> {(locale === "ru" ? asset.rule.reversalsRu : asset.rule.reversalsEn).join(" · ")}</p>
         <p className="support">{locale === "ru" ? asset.rule.transferCueRu : asset.rule.transferCueEn}</p>
+      </> : asset.kind === "SOURCE_BOUND" ? <>
+        <p><b>{locale === "ru" ? "Ситуация:" : "Situation:"}</b> {locale === "ru" ? asset.teaching.situationRu : asset.teaching.situationEn}</p>
+        <h2>{locale === "ru" ? asset.teaching.mechanismRu : asset.teaching.mechanismEn}</h2>
+        <p><b>{locale === "ru" ? "Пример:" : "Example:"}</b> {locale === "ru" ? asset.teaching.exampleRu : asset.teaching.exampleEn}</p>
+        <p className="support"><b>{locale === "ru" ? "Граница:" : "Boundary:"}</b> {locale === "ru" ? asset.teaching.boundaryRu : asset.teaching.boundaryEn}</p>
       </> : <>
         <h2>{locale === "ru" ? asset.anchor.promptRu : asset.anchor.promptEn}</h2>
         <p><b>{locale === "ru" ? "Разбор:" : "Answer:"}</b> {locale === "ru" ? asset.anchor.answerRu : asset.anchor.answerEn}</p>

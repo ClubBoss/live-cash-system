@@ -23,11 +23,11 @@ type Row = {
 function make(row: Row, index: number): PracticalDecision {
   const slot = index % 3;
   const good = option("good", row.goodRu, row.goodEn);
-  const bad1 = option("bad1", row.bad1Ru, row.bad1En, "ORIGIN_RANGE_IGNORED");
-  const bad2 = option("bad2", row.bad2Ru, row.bad2En, "ORIGIN_PRIOR_OVERGENERALIZED");
+  const bad1 = option("bad1", `${row.bad1Ru}; origin range по линии не требует дополнительной фильтрации`, `${row.bad1En}; the origin range needs no additional filtering through the line`, "ORIGIN_RANGE_IGNORED");
+  const bad2 = option("bad2", `${row.bad2Ru}; этого достаточно независимо от surviving value/bluff mass`, `${row.bad2En}; that is sufficient regardless of surviving value/bluff mass`, "ORIGIN_PRIOR_OVERGENERALIZED");
   const goodReason = option("goodR", row.whyRu, row.whyEn);
-  const badReason1 = option("badR1", "Position label itself proves the river is overbluffed.", "The position label itself proves the river is overbluffed.", "POSITION_AS_PROOF");
-  const badReason2 = option("badR2", "Current price replaces street-by-street range filtering.", "Current price replaces street-by-street range filtering.", "FILTERING_IGNORED");
+  const badReason1 = option("badR1", "Position label доказывает river overbluff даже после линии, которая отфильтровала большую часть исходного air", "The position label proves a river overbluff even after the line filtered out much of the original air", "POSITION_AS_PROOF");
+  const badReason2 = option("badR2", "Current price заменяет street-by-street filtering; surviving value/bluff composition не требует пересчёта", "The current price substitutes for street-by-street filtering; surviving value/bluff composition needs no recomputation", "FILTERING_IGNORED");
   return {
     id: row.id,
     skillId: "RIV-03",

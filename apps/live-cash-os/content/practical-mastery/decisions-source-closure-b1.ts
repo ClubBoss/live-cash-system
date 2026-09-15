@@ -27,11 +27,11 @@ function family(f:Family):PracticalDecision[]{
   return rows.map((r,i)=>{
     const slot=i%3;
     const good=o("good",r.goodRu,r.goodEn);
-    const bad1=o("bad1",f.shortcutRu,f.shortcutEn,"SOURCE_SHORTCUT");
-    const bad2=o("bad2","Игнорировать range/context","Ignore the range/context","CONTEXT_IGNORED");
+    const bad1=o("bad1",`Применить shortcut «${f.shortcutRu}» как достаточное правило без проверки его assumptions`,`Use the shortcut “${f.shortcutEn}” as a sufficient rule without checking its assumptions`,"SOURCE_SHORTCUT");
+    const bad2=o("bad2","Текущий hand label уже задаёт ветку; arriving range, price и context её не меняют","The current hand label already fixes the branch; arriving range, price, and context do not change it","CONTEXT_IGNORED");
     const goodR=o("goodR",r.whyRu,r.whyEn);
-    const badR1=o("badR1","Exact hand label сам задаёт action","The exact hand label determines the action","LABEL_AS_ACTION");
-    const badR2=o("badR2","Одна цифра/схема универсальна","One number/pattern is universal","UNIVERSAL_RULE");
+    const badR1=o("badR1","Exact hand label достаточно для action независимо от range, price, depth или response branch","The exact hand label is sufficient for the action regardless of range, price, depth, or response branch","LABEL_AS_ACTION");
+    const badR2=o("badR2","Одна цифра или схема остаётся универсальной после изменения существенного контекста","One number or pattern remains universal after a material context change","UNIVERSAL_RULE");
     return {
       id:`${f.prefix}-${101+i}`,skillId:f.skillId,kind:r.kind,sourceRefs:f.sourceRefs,
       assumptions:["reviewed B1 public authority; directional mechanism only unless explicitly stated; no copied exact chart cell"],

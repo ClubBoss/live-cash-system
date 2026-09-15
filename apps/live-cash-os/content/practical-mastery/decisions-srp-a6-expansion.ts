@@ -20,13 +20,15 @@ type Case = {
 
 function mk(c: Case): PracticalDecision {
   const good = opt("good", c.goodRu, c.goodEn);
-  const bad1 = opt("bad1", c.bad1Ru, c.bad1En, "PRIMARY_MISCONCEPTION");
+  const bad1 = opt("bad1", `Применить «${c.bad1Ru}» как достаточное правило без проверки взаимодействия диапазонов и размера ставки`, `Use “${c.bad1En}” as a sufficient rule without checking range interaction and sizing context`, "PRIMARY_MISCONCEPTION");
   const bad2 = opt("bad2", c.bad2Ru, c.bad2En, "SECONDARY_MISCONCEPTION");
   const actions = [good, bad1, bad2];
   const orderedActions = c.slot === 0 ? actions : c.slot === 1 ? [bad1, good, bad2] : [bad1, bad2, good];
   const reasonGood = opt("why", c.whyRu, c.whyEn);
-  const reasonBad1 = opt("whyBad1", c.wrongWhyRu ?? "Initiative/label alone decides the node.", c.wrongWhyEn ?? "Initiative/label alone decides the node.", "SHORTCUT_REASON");
-  const reasonBad2 = opt("whyBad2", "Context, sizing и surviving ranges не меняют решение.", "Context, sizing and surviving ranges do not change the decision.", "CONTEXT_IGNORED");
+  const shortcutWhyRu = c.wrongWhyRu ?? "Инициатива или ярлык ситуации сами определяют решение.";
+  const shortcutWhyEn = c.wrongWhyEn ?? "Initiative/label alone decides the node.";
+  const reasonBad1 = opt("whyBad1", `${shortcutWhyRu} Другие данные о диапазонах и контексте не меняют вывод`, `${shortcutWhyEn} Other range/context information does not change the conclusion`, "SHORTCUT_REASON");
+  const reasonBad2 = opt("whyBad2", "Контекст и оставшиеся диапазоны не меняют решение.", "Context and surviving ranges do not change the decision.", "CONTEXT_IGNORED");
   const reasonSlot = (c.slot + 1) % 3;
   const reasons = reasonSlot === 0 ? [reasonGood, reasonBad1, reasonBad2] : reasonSlot === 1 ? [reasonBad1, reasonGood, reasonBad2] : [reasonBad1, reasonBad2, reasonGood];
   return {

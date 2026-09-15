@@ -26,8 +26,12 @@ function family(f:F):PracticalDecision[]{
   ];
   return rows.map((r,i)=>{
     const slot=i%3;
-    const good=o("good",r.goodRu,r.goodEn); const b1=o("b1",r.bad1Ru,r.bad1En,"LATER_STREET_SHORTCUT"); const b2=o("b2",r.bad2Ru,r.bad2En,"ANCESTRY_IGNORED");
-    const gr=o("goodR",r.whyRu,r.whyEn); const br1=o("br1","Street label сам задаёт action","The street label itself determines the action","LABEL_AS_ACTION"); const br2=o("br2","Previous action не меняет range","Previous action does not change the range","HISTORY_IGNORED");
+    const good=o("good",r.goodRu,r.goodEn);
+    const b1=o("b1",`${r.bad1Ru}. Этого достаточно для выбора действия в этой ветке`,`${r.bad1En}. That alone determines the action in this branch`,"LATER_STREET_SHORTCUT");
+    const b2=o("b2",r.bad2Ru,r.bad2En,"ANCESTRY_IGNORED");
+    const gr=o("goodR",r.whyRu,r.whyEn);
+    const br1=o("br1","Название street/node само по себе объясняет действие; сохранившиеся value/bluff regions не меняют вывод","The street/node label alone explains the action; surviving value/bluff regions do not change the conclusion","LABEL_AS_ACTION");
+    const br2=o("br2","Предыдущая линия не меняет текущий диапазон","The previous line does not change the current range","HISTORY_IGNORED");
     const actionOptions=slot===0?[good,b1,b2]:slot===1?[b1,good,b2]:[b1,b2,good];
     const reasonOptions=slot===0?[br1,gr,br2]:slot===1?[gr,br1,br2]:[br1,br2,gr];
     return {id:`${f.prefix}-${101+i}`,skillId:f.skillId,kind:r.kind,sourceRefs:f.sourceRefs,assumptions:["source-scoped later-street mechanism; no unreviewed exact frequency"],cueRu:r.cueRu,cueEn:r.cueEn,questionRu:r.qRu,questionEn:r.qEn,actionOptions,reasonOptions,correctActionId:"good",correctReasonId:"goodR",targetSeconds:27,explanationRu:r.whyRu,explanationEn:r.whyEn,changedVariables:r.changed} satisfies PracticalDecision;

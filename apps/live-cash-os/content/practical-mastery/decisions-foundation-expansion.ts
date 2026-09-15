@@ -145,25 +145,25 @@ export const foundationExpansionDecisions: PracticalDecision[] = [
   // FND-06 — effective stack / SPR. FTGU-E01 + admitted LCM-01 geometry.
   {
     id: "PM-FND-06-101", skillId: "FND-06", kind: "recognition", sourceRefs: ["FTGU-E01", "LCM-01"], assumptions: ["heads-up", "one player has 80bb", "other has 200bb"], cueRu: "Stacks 80bb и 200bb.", cueEn: "Stacks are 80bb and 200bb.", questionRu: "Какой stack ограничивает объём, который может быть разыгран между ними?", questionEn: "Which stack caps the amount that can be played between them?",
-    actionOptions: [o("a", "80bb effective", "80bb effective"), o("b", "200bb", "200bb", "BIG_STACK_ONLY"), o("c", "280bb", "280bb", "STACKS_ADDED")],
+    actionOptions: [ o("b", "200bb", "200bb", "BIG_STACK_ONLY"),o("a", "80bb effective", "80bb effective"), o("c", "280bb", "280bb", "STACKS_ADDED")],
     reasonOptions: [o("r1", "Effective stack ограничен меньшим участвующим stack", "Effective stack is capped by the smaller participating stack"), o("r2", "Stacks always add together", "Stacks always add together", "STACKS_ADDED"), o("r3", "Bigger stack defines every decision", "The bigger stack defines every decision", "BIG_STACK_ONLY")],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 15, explanationRu: "LCM-01 использует effective stack как рабочую геометрию вместо nominal big stack.", explanationEn: "LCM-01 uses effective stack as the working geometry rather than the nominal larger stack.",
   },
   {
     id: "PM-FND-06-102", skillId: "FND-06", kind: "decision", sourceRefs: ["FTGU-E01", "LCM-01"], assumptions: ["remaining effective stack 90", "pot 30"], cueRu: "После action остаётся 90 в effective stack, pot 30.", cueEn: "After the action, 90 remains in the effective stack and the pot is 30.", questionRu: "Какой SPR примерно?", questionEn: "What is the approximate SPR?",
-    actionOptions: [o("a", "3", "3"), o("b", "30", "30", "RATIO_MISREAD"), o("c", "0.33", "0.33", "RATIO_INVERTED")],
+    actionOptions: [ o("b", "30", "30", "RATIO_MISREAD"),o("a", "3", "3"), o("c", "0.33", "0.33", "RATIO_INVERTED")],
     reasonOptions: [o("r1", "SPR = remaining effective stack / pot", "SPR = remaining effective stack / pot"), o("r2", "SPR = pot / stack", "SPR = pot / stack", "RATIO_INVERTED"), o("r3", "SPR equals preflop raise size", "SPR equals the preflop raise size", "WRONG_FORMULA")],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 18, explanationRu: "FTGU-E01 связывает stack-to-pot ratio с количеством future decisions и leverage; LCM-01 делает эту геометрию operational.", explanationEn: "FTGU-E01 links stack-to-pot ratio with future decisions and leverage; LCM-01 makes that geometry operational.",
   },
   {
     id: "PM-FND-06-103", skillId: "FND-06", kind: "decision", sourceRefs: ["FTGU-E01", "LCM-01"], assumptions: ["same hand", "SPR 1 versus SPR 8"], cueRu: "Сравни тот же hand при SPR≈1 и SPR≈8.", cueEn: "Compare the same hand at SPR≈1 and SPR≈8.", questionRu: "Где future tree обычно более сжат?", questionEn: "Where is the future tree generally more compressed?",
-    actionOptions: [o("a", "SPR≈1", "SPR≈1"), o("b", "SPR≈8", "SPR≈8", "SPR_BACKWARDS"), o("c", "Одинаково", "The same", "SPR_IGNORED")],
+    actionOptions: [ o("b", "SPR≈8", "SPR≈8", "SPR_BACKWARDS"),o("a", "SPR≈1", "SPR≈1"), o("c", "Одинаково", "The same", "SPR_IGNORED")],
     reasonOptions: [o("r1", "Меньше stack relative to pot оставляет меньше leverage/decision depth", "Less stack relative to pot leaves less leverage/decision depth"), o("r2", "Higher SPR ends the hand faster", "Higher SPR ends the hand faster", "SPR_BACKWARDS"), o("r3", "SPR never changes future decisions", "SPR never changes future decisions", "SPR_IGNORED")],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 20, explanationRu: "FTGU-E01 прямо связывает larger remaining stack/SPR с большей ролью future decisions.", explanationEn: "FTGU-E01 explicitly links larger remaining stack/SPR with a greater role for future decisions.",
   },
   {
     id: "PM-FND-06-104", skillId: "FND-06", kind: "decision", sourceRefs: ["LCM-01"], assumptions: ["three-way pot", "Hero 160bb", "Villain A 70bb", "Villain B 220bb"], cueRu: "Hero 160bb, один villain 70bb, другой 220bb.", cueEn: "Hero has 160bb, one villain 70bb, the other 220bb.", questionRu: "Можно ли использовать один nominal 160bb depth для всех branches?", questionEn: "Can one nominal 160bb depth be used for every branch?",
-    actionOptions: [o("a", "Нет — effective stack зависит от противника/branch", "No — effective stack depends on opponent/branch"), o("b", "Да, Hero stack определяет всё", "Yes, Hero's stack determines everything", "HERO_STACK_ONLY"), o("c", "Да, использовать biggest stack", "Yes, use the biggest stack", "BIG_STACK_ONLY")],
+    actionOptions: [ o("b", "Да, Hero stack определяет всё", "Yes, Hero's stack determines everything", "HERO_STACK_ONLY"),o("a", "Нет — effective stack зависит от противника/branch", "No — effective stack depends on opponent/branch"), o("c", "Да, использовать biggest stack", "Yes, use the biggest stack", "BIG_STACK_ONLY")],
     reasonOptions: [o("r1", "Каждая contested branch ограничена меньшим participating stack", "Each contested branch is capped by the smaller participating stack"), o("r2", "Multiway stacks simply add", "Multiway stacks simply add", "STACKS_ADDED"), o("r3", "Effective stack irrelevant multiway", "Effective stack is irrelevant multiway", "EFFECTIVE_IGNORED")],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 25, explanationRu: "LCM-01 делает effective-stack identity частью decision geometry; nominal seat stack не заменяет branch-specific effective depth.", explanationEn: "LCM-01 makes effective-stack identity part of decision geometry; nominal seat stack does not replace branch-specific effective depth.",
   },

@@ -13,13 +13,13 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     cueEn: "Same hand and same board, only SPR differs from the previous hand.",
     questionRu: "Что должно измениться вместе с SPR?", questionEn: "What should change together with SPR?",
     actionOptions: [
-      o("b", "Ничего — сайзинг зависит только от структуры доски", "Nothing — sizing depends only on board texture", "SPR_IGNORED"),
+      o("b", "Оставить прежний сайзинг, потому что при той же доске структура ставок не зависит от отношения оставшегося стека к банку", "Keep the old sizing because with the same board the betting structure does not depend on remaining stack relative to pot", "SPR_IGNORED"),
       o("a", "Семейство геометрических сайзингов на оставшихся улицах", "The family of geometric sizes on the remaining streets"),
       o("c", "Ничего — сайзинг зависит только от абсолютной силы руки", "Nothing — sizing depends only on absolute hand strength", "SIZE_DOGMA"),
     ],
     reasonOptions: [
       o("r1", "Отношение эффективного остатка стека к банку задаёт долю банка, которую нужно ставить на каждой оставшейся улице, если выбран план довести деньги до олл-ина", "The remaining stack relative to the pot sets the pot fraction needed on each remaining street if the plan is to reach an all-in"),
-      o("r3", "Сайзинг определяется исключительно абсолютной силой руки", "Sizing is determined solely by absolute hand strength", "SIZE_DOGMA"),
+      o("r3", "Считать абсолютную силу руки достаточной для выбора сайзинга, а изменение SPR — несущественным для распределения денег по будущим улицам", "Treat absolute hand strength as sufficient for sizing and regard the SPR change as irrelevant to distributing money across future streets", "SIZE_DOGMA"),
       o("r2", "Сайзинг — просто визуальная привычка под структуру доски", "Sizing is simply a visual habit tied to board texture", "GEOMETRY_IGNORED"),
     ],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 20,
@@ -34,11 +34,11 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     questionRu: "Какой класс сайзинга естественно доводит Hero до олл-ина за две улицы?", questionEn: "Which sizing class naturally gets Hero to an all-in over two streets?",
     actionOptions: [
       o("c", "Минимальные блокирующие ставки — около 20–25% банка", "Minimal blocking bets — roughly 20–25% pot", "DEPTH_IGNORED"),
-      o("b", "Класс pot/pot — 100% банка на каждой улице", "The pot/pot class — 100% pot on each street", "SIZE_MEMORIZED"),
+      o("b", "Использовать класс pot/pot из памяти как универсальный двухуличный план, не пересчитывая его под текущий SPR≈2", "Use the memorized pot/pot class as a universal two-street plan without recomputing it for current SPR≈2", "SIZE_MEMORIZED"),
       o("a", "Класс b60/b60 — примерно 60% банка на каждой из двух улиц", "The b60/b60 class — roughly 60% pot on each of the two streets"),
     ],
     reasonOptions: [
-      o("r2", "Класс pot/pot универсален для любого SPR", "The pot/pot class is universal for any SPR", "SIZE_DOGMA"),
+      o("r2", "Класс pot/pot универсален для любого SPR: одинаковый план олл-ина требует одинаковой доли банка независимо от остатка стека", "Pot/pot is universal for every SPR because the same all-in plan needs the same pot fraction regardless of remaining stack", "SIZE_DOGMA"),
       o("r3", "Маленький сайзинг всегда безопаснее независимо от SPR", "A small sizing is always safer regardless of SPR", "DEPTH_IGNORED"),
       o("r1", "Для одинаковой доли банка x на двух улицах SPR=2x+2x²; при SPR≈2 получаем x≈0,618, то есть ориентир около 60% банка на каждой улице", "For the same pot fraction x on two streets, SPR=2x+2x²; at SPR≈2, x≈0.618, giving an anchor of about 60% pot on each street"),
     ],
@@ -55,12 +55,12 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     actionOptions: [
       o("a", "Класс pot/pot — примерно 100% банка на каждой улице", "The pot/pot class — roughly 100% pot on each street"),
       o("c", "Полный олл-ин уже на этой улице", "A full all-in already on this street", "DEPTH_MISREAD"),
-      o("b", "Класс b60/b60, как при SPR≈2", "The b60/b60 class, as at SPR≈2", "SIZE_MEMORIZED"),
+      o("b", "Сохранить b60/b60, как при SPR≈2, потому что запомненный класс сайзинга переносится на более глубокую геометрию без пересчёта", "Keep b60/b60 as at SPR≈2 because the memorized sizing class transfers to deeper geometry without recomputation", "SIZE_MEMORIZED"),
     ],
     reasonOptions: [
       o("r3", "SPR≈4 сам по себе уже означает немедленный олл-ин", "SPR≈4 is already immediate all-in depth by itself", "DEPTH_MISREAD"),
       o("r1", "Для одинаковой доли банка x на двух улицах SPR=2x+2x²; при SPR=4 решение x=1, то есть pot/pot", "For the same pot fraction x on two streets, SPR=2x+2x²; at SPR=4, x=1, which is pot/pot"),
-      o("r2", "Один и тот же класс сайзинга подходит любому SPR", "One and the same sizing class fits any SPR", "SIZE_DOGMA"),
+      o("r2", "Переносить один и тот же класс сайзинга между разными SPR, предполагая, что изменение эффективного остатка не меняет двухуличную геометрию", "Carry the same sizing class across different SPRs, assuming the changed effective remainder does not alter two-street geometry", "SIZE_DOGMA"),
     ],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 25,
     explanationRu: "Геометрия FTGU-E01/LCM-01: SPR=2x+2x² для одной и той же доли банка на двух улицах. При SPR=4 получаем x=1, поэтому ориентир — pot/pot.",
@@ -93,14 +93,14 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     cueEn: "SPR≈3 fits a geometric two-street plan nicely, but Hero has no nut advantage and no worse hands that would pay the chosen sizing.",
     questionRu: "Значит ли подходящий SPR, что здесь нужно ставить?", questionEn: "Does a suitable SPR mean Hero should bet here?",
     actionOptions: [
-      o("c", "Да — если сайзинг естественно доводит до олл-ина, стек-офф всегда оправдан", "Yes — since the sizing naturally reaches the stacks, stacking off is always justified", "STACKOFF_AUTOPILOT"),
+      o("c", "Да — считать сам факт удобной геометрии достаточной причиной для стек-оффа, даже без преимущества по натсам или худших рук, готовых платить", "Yes — treat convenient geometry itself as sufficient reason to stack off even without nut advantage or worse hands willing to pay", "STACKOFF_AUTOPILOT"),
       o("a", "Нет — геометрия определяет размер только после того, как уже есть стратегическая причина ставить", "No — geometry determines the size only after there is a strategic reason to bet"),
       o("b", "Да — подходящий SPR сам по себе достаточная причина ставить", "Yes — a suitable SPR is itself sufficient reason to bet", "GEOMETRY_AS_REASON"),
     ],
     reasonOptions: [
       o("r1", "Преимущество по натсам, роль руки и наличие худших рук для оплаты решают, нужна ли ставка; геометрия только задаёт способ распределить ставки по банку после этого решения", "Nut ownership, hand role and worse hands that can pay decide whether to bet; geometry only determines how to size after that decision"),
       o("r2", "Любой подходящий SPR создаёт причину для агрессии", "Any suitable SPR creates a reason for aggression", "GEOMETRY_AS_REASON"),
-      o("r3", "Само семейство сайзингов создаёт fold equity против любого диапазона", "The sizing family itself creates fold equity against any range", "STACKOFF_AUTOPILOT"),
+      o("r3", "Считать, что подходящее семейство геометрических сайзингов само создаёт достаточное fold equity против любого диапазона и тем самым оправдывает ставку", "Treat a convenient geometric sizing family as creating sufficient fold equity against any range and therefore justifying the bet by itself", "STACKOFF_AUTOPILOT"),
     ],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 28,
     explanationRu: "Граница правила: геометрический сайзинг описывает, какую долю банка ставить по улицам, если ставка уже стратегически оправдана. Сам подходящий SPR не создаёт причину ставить без преимущества по натсам, цели для вэлью или другой стратегической работы ставки.",
@@ -298,10 +298,10 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     actionOptions: [
       o("a", "Распределение флешей, натсов и комбинаций с одной картой нужной масти", "The flush/nut potential distribution and who holds one-card-suit holdings"),
       o("c", "Только абсолютный ранг руки Hero, без учёта мастей", "Only Hero's absolute hand rank, without considering suits at all", "SUIT_IGNORED"),
-      o("b", "Ничего — это всё ещё высокая доска, масти не важны", "Nothing — the board class is still the same high-card class; suits do not matter", "SUIT_IGNORED"),
+      o("b", "Сохранить прежнюю стратегию только потому, что доска всё ещё высокая, считая изменение мастей несущественным для распределения флешей и натсов", "Keep the old strategy only because the board is still high, treating the suit change as irrelevant to flush and nut distribution", "SUIT_IGNORED"),
     ],
     reasonOptions: [
-      o("r3", "Сам факт высокой карты определяет преимущество диапазона независимо от мастей", "High-card texture by itself decides range advantage regardless of suits", "BOARD_LABEL_SHORTCUT"),
+      o("r3", "Считать high-card label достаточным для преимущества диапазона и не пересчитывать, как monotone-структура перераспределяет натсовые комбинации", "Treat the high-card label as sufficient for range advantage without recomputing how monotone structure redistributes nut combinations", "BOARD_LABEL_SHORTCUT"),
       o("r1", "Monotone-доска заметно меняет распределение натсов: флеши и комбинации с одной картой нужной масти становятся важной частью сильного региона, а пограничные готовые руки хуже переносят большой банк", "A monotone board materially changes the nut distribution: flushes and one-card-suit holdings become important in the strong region, while marginal made hands are less comfortable building a large pot"),
       o("r2", "Одна масть на доске не меняет комбинаторику диапазонов", "One suit on the board does not change range combinatorics", "SUIT_IGNORED"),
     ],
@@ -316,12 +316,12 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     cueRu: "Возникает упрощённое правило: на любой monotone-доске правильный default — всегда check.", cueEn: "The learner hears the word 'monotone' and decides: on any monotone board the correct default is always to check.",
     questionRu: "Это верная эвристика?", questionEn: "Is that a correct heuristic?",
     actionOptions: [
-      o("b", "Да — monotone-доска полностью исключает ставки", "Yes — a monotone board completely rules out betting", "LABEL_AS_LAW"),
+      o("b", "Да — превратить monotone label в правило полного отказа от ставок, не проверяя диапазоны, позицию и владение флешевым регионом", "Yes — turn the monotone label into a no-betting rule without checking ranges, position, or flush-region ownership", "LABEL_AS_LAW"),
       o("a", "Нет — стимул к чеку обычно растёт, но small-bet и value-линии всё ещё зависят от дошедших диапазонов и роли", "No — the checking incentive usually rises, but small-bet and value lines still depend on the arriving ranges and role"),
       o("c", "Да — единственная безопасная линия здесь check-fold", "Yes — the only safe line here is check-fold", "LABEL_AS_LAW"),
     ],
     reasonOptions: [
-      o("r2", "Одно слово monotone полностью определяет стратегию", "The single word 'monotone' fully determines the whole strategy", "LABEL_AS_LAW"),
+      o("r2", "Считать одно слово monotone достаточным для всей стратегии и не проверять, сохраняет ли конкретный диапазон основания для small-bet или value", "Treat the word 'monotone' as sufficient for the whole strategy without checking whether the actual range still supports a small-bet or value line", "LABEL_AS_LAW"),
       o("r3", "Мастевая структура отменяет необходимость анализа диапазонов", "Suit texture eliminates the need for range analysis", "LABEL_AS_STRATEGY"),
       o("r1", "Monotone повышает стимул к чеку во многих узлах, но префлоп-преимущество диапазона, роль и владение флешевым регионом всё ещё определяют, где сохраняется смысл small-bet или value-линии", "Monotone raises the checking incentive in many nodes, but preflop range advantage, role and flush-region ownership still determine where a small-bet or value line makes sense"),
     ],

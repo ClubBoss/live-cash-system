@@ -89,6 +89,104 @@ const ANCHORS:Readonly<Record<string,readonly[string,string,string]>>={
 "4BP-04-A01":["Почему при выборе размера на тёрне в 4-бет-поте с низким SPR нельзя игнорировать вероятность пуша соперника?","Потому что крупная ставка может сделать пуш соперника удобнее и ухудшить реализацию эквити средних по EV рук.","Размер нужно выбирать с учётом следующей ветки дерева: сколько мы вкладываем сейчас и что произойдёт, если соперник ответит пушем."],
 };
 
+export const THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN:Readonly<Record<string,string>>=Object.freeze({
+  "Position itself creates range advantage.": "Позиция сама по себе создаёт преимущество диапазона.",
+  "Every 3-bettor has the same flop strategy.": "У любого 3-беттора на любом флопе одна и та же стратегия.",
+  "A 3-bet pot preserves preflop advantage on every board.": "3-бет-пот сохраняет префлоп-преимущество на любой доске.",
+  "The texture label is sufficient without arriving ranges.": "Достаточно ярлыка текстуры; диапазоны прихода не важны.",
+  "A large size is better on every advantage board.": "На любой доске с преимуществом диапазона крупный размер лучше.",
+  "Pot type determines action regardless of the board.": "Тип банка определяет действие независимо от доски.",
+  "All 3BP boards favor the aggressor equally.": "Все флопы в 3-бет-потах одинаково выгодны агрессору.",
+  "A large pot makes board interaction irrelevant.": "Большой банк делает взаимодействие диапазонов с доской неважным.",
+  "Strategy must be binary.": "Стратегия обязана сводиться к двум крайностям.",
+  "One sizing must cover every board.": "Один размер ставки должен подходить для любой доски.",
+  "Preflop role completely fixes flop strategy.": "Префлоп-роль полностью фиксирует стратегию на всех флопах.",
+  "Board changes equity but not strategy shape.": "Смена доски меняет эквити, но не форму стратегии.",
+  "Initiative erases positional disadvantage.": "Инициатива стирает недостаток позиции.",
+  "SPR makes position irrelevant.": "SPR делает позицию неважной.",
+  "Pot type replaces board analysis.": "Тип банка заменяет анализ доски.",
+  "A preflop 3-bet means permanent nut advantage.": "Префлоп 3-бет даёт постоянное натсовое преимущество.",
+  "The preflop aggressor always controls the tree.": "Префлоп-агрессор всегда контролирует дерево решений.",
+  "The IP caller gets no realization edge.": "Коллер IP не получает преимущества реализации эквити.",
+  "OOP does not matter after a 3-bet.": "После 3-бета игра OOP перестаёт иметь значение.",
+  "Pot size guarantees fold equity.": "Размер банка гарантирует достаточную вероятность фолда.",
+  "Any likely-best hand must value bet.": "Любая рука, которая, вероятно, впереди, обязана ставить на велью.",
+  "Protection always requires a large sizing.": "Защита эквити всегда требует крупного размера.",
+  "Preflop advantage never decays.": "Префлоп-преимущество никогда не ослабевает.",
+  "OOP bluffing gets a positional bonus.": "Блеф OOP получает позиционный бонус.",
+  "A check always means weakness.": "Чек всегда означает слабость.",
+  "Protection requires 100% betting.": "Защита диапазона требует ставить в 100% случаев.",
+  "Position alone fixes strategy.": "Одна только позиция полностью фиксирует стратегию.",
+  "An equalizing board automatically strengthens the aggressor.": "Выравнивающая доска автоматически усиливает агрессора.",
+  "Aggressor identity makes positions equivalent.": "Одинаковая роль агрессора делает позиции эквивалентными.",
+  "SPR fully determines strategy.": "SPR полностью определяет стратегию.",
+  "Initiative dominates position.": "Инициатива важнее позиции.",
+  "Low SPR erases positional asymmetry.": "Низкий SPR стирает позиционную асимметрию.",
+  "Sizing directly reveals hand strength.": "Размер ставки напрямую раскрывает силу руки.",
+  "Position guarantees profitable aggression.": "Позиция гарантирует прибыльность агрессии.",
+  "A population leak means all hands profitably raise.": "Если у поля есть лик, рейз любой рукой становится прибыльным.",
+  "3BP callers cannot have raising ranges.": "У коллера в 3-бет-поте не бывает диапазона рейза.",
+  "Range disadvantage means every medium hand folds.": "Недостаток диапазона означает, что каждую среднюю руку нужно фолдить.",
+  "Small sizing automatically invites a raise.": "Небольшой размер ставки автоматически требует рейза.",
+  "The draw label determines the action.": "Сам ярлык «дро» определяет действие.",
+  "The preflop caller cannot apply pressure postflop.": "Префлоп-коллер не может оказывать давление постфлоп.",
+  "One leak generalizes to all boards/sizes.": "Один лик можно переносить на все доски и размеры.",
+  "An exploit requires an exact solver frequency first.": "Для эксплойта сначала нужна точная солверная частота.",
+  "A bigger pot improves the caller's price.": "Больший банк улучшает цену колла.",
+  "Sizing does not alter defense EV.": "Размер ставки не меняет EV защиты.",
+  "The preflop caller range never catches up.": "Диапазон префлоп-коллера никогда не догоняет диапазон агрессора.",
+  "Board class does not affect caller coverage.": "Класс доски не влияет на покрытие диапазона коллера.",
+  "Population tendencies are identical in all pools.": "Тенденции поля одинаковы во всех пулах.",
+  "Position alone proves overfold.": "Одной позиции достаточно, чтобы доказать оверфолд.",
+  "The current price fully determines OOP defense.": "Текущая цена полностью определяет защиту OOP.",
+  "Future streets do not matter in 3BPs.": "Будущие улицы не важны в 3-бет-поте.",
+  "A strong-hand label forces a raise.": "Ярлык «сильная рука» всегда требует рейза.",
+  "Checking always caps the range.": "Чек всегда капает диапазон.",
+  "OOP means marginal hands cannot realize any equity.": "OOP означает, что пограничные руки вообще не реализуют эквити.",
+  "Only aggression can realize equity.": "Только агрессия позволяет реализовать эквити.",
+  "Sunk investment justifies wider calls.": "Уже вложенные деньги оправдывают более широкий колл.",
+  "A weak pair automatically blocks enough value.": "Слабая пара автоматически блокирует достаточно велью.",
+  "Immediate value always dominates future EV.": "Немедленный добор всегда важнее будущего EV.",
+  "Being OOP requires taking initiative immediately.": "OOP требует немедленно забирать инициативу.",
+  "Pot size alone improves calls.": "Большой банк сам по себе улучшает колл.",
+  "Sizing does not change future pressure.": "Размер ставки не меняет давление на следующих улицах.",
+  "The caller role fixes strategy regardless of position.": "Роль коллера фиксирует стратегию независимо от позиции.",
+  "SPR removes position from the tree.": "SPR убирает позицию из дерева решений.",
+  "Positional disadvantage justifies abandoning range protection.": "Позиционный недостаток оправдывает отказ от защиты диапазона.",
+  "Aggression structurally cancels OOP.": "Агрессия отменяет структурный недостаток OOP.",
+  "A 3BP is one strategy class.": "3-бет-пот — это один неизменный класс стратегии.",
+  "Sizing is independent of range interaction.": "Размер ставки не зависит от взаимодействия диапазонов.",
+  "All bets represent the same range.": "Все размеры ставки представляют один и тот же диапазон.",
+  "Defense thresholds never move with price.": "Пороги защиты не меняются вместе с ценой.",
+  "A small size always means polar strength.": "Небольшой размер всегда означает полярную силу.",
+  "The defender should ignore pot odds.": "Защищающийся игрок должен игнорировать пот-оддсы.",
+  "Board equalization increases all betting.": "Выравнивание доски увеличивает частоту всех ставок.",
+  "The defender responds only to hand rank.": "Защищающийся игрок реагирует только на абсолютную силу руки.",
+  "Exact precision can be guessed from the mechanism.": "Точную частоту можно угадать из общего механизма.",
+  "No exact frequency means no useful knowledge.": "Без точной частоты полезного знания нет.",
+  "A bigger pot means a better price.": "Больший банк означает лучшую цену колла.",
+  "Sizing never changes range composition.": "Размер ставки никогда не меняет состав диапазона.",
+  "Sizing fixes strategy independent of board.": "Размер ставки фиксирует стратегию независимо от доски.",
+  "A 3BP caller never has nut coverage.": "У коллера в 3-бет-поте никогда нет натсового покрытия.",
+  "Simplification should erase causal variables.": "Упрощение должно стирать причинные переменные.",
+  "Range advantage is static after preflop.": "Преимущество диапазона после префлопа остаётся неизменным.",
+  "Fewer streets means equal EV for all hands.": "Меньшее число улиц означает одинаковый EV у всех рук.",
+  "A 4-bet pot cancels range interaction.": "4-бет-пот отменяет взаимодействие диапазонов.",
+  "SPR is a strategy answer key.": "SPR сам по себе даёт готовый ответ на стратегический вопрос.",
+  "Preflop investment forces postflop commitment.": "Вложения префлоп обязывают играть на стек постфлоп.",
+  "Low SPR requires maximum sizing.": "Низкий SPR требует максимального размера ставки.",
+  "4BPs always need zero betting.": "В 4-бет-поте всегда нужно полностью отказаться от ставок.",
+  "Future action can be ignored at low SPR.": "При низком SPR будущие действия соперника можно игнорировать.",
+  "The sunk pot size forces betting.": "Уже сформированный крупный банк вынуждает ставить.",
+  "Low SPR eliminates checking ranges.": "Низкий SPR исключает диапазон чека.",
+  "Lower SPR increases absolute hand strength.": "Снижение SPR увеличивает абсолютную силу руки.",
+  "Pot geometry does not affect planning.": "Геометрия банка не влияет на планирование.",
+  "Geometry replaces hand evaluation.": "Геометрия банка заменяет оценку класса руки.",
+  "Preflop pot size guarantees a stack-off.": "Размер банка префлоп гарантирует игру на стек.",
+  "All compressed pots have identical thresholds.": "Во всех сжатых банках пороги одинаковы.",
+  "Board/runout cannot change commitment.": "Доска и ранаут не могут изменить готовность вкладывать стек."
+});
+
 export const THREE_BET_FOUR_BET_RU_OWNED_DECISION_IDS=Object.freeze(Object.keys(ROWS).sort());
 export const THREE_BET_FOUR_BET_RU_OWNED_ANCHOR_IDS=Object.freeze(Object.keys(ANCHORS).sort());
 export const THREE_BET_FOUR_BET_RU_ACTIVE_FIELD_PATHS=Object.freeze([
@@ -97,5 +195,35 @@ export const THREE_BET_FOUR_BET_RU_ACTIVE_FIELD_PATHS=Object.freeze([
 ].sort());
 
 function projectOptions(options:PracticalDecisionOption[],texts:Readonly<Record<string,string>>){let changed=false;const next=options.map(option=>{const text=texts[option.id];if(text===undefined||text===option.textRu)return option;changed=true;return{...option,textRu:text};});return changed?next:options;}
-export function projectThreeBetFourBetSystemicRuDecision(decision:PracticalDecision):PracticalDecision{const r=ROWS[decision.id];if(!r)return decision;const exp=decision.id.includes("-A7-");const a=exp?["good","bad1","bad2"]:["a","b","c"];const q=exp?["goodR","badR1","badR2"]:["r1","r2","r3"];const actionOptions=projectOptions(decision.actionOptions,{[a[0]]:r[2],[a[1]]:r[3],[a[2]]:r[4]});const reasonOptions=projectOptions(decision.reasonOptions,{[q[0]]:r[5],[q[1]]:r[6],[q[2]]:r[7]});if(decision.cueRu===r[0]&&decision.questionRu===r[1]&&decision.explanationRu===r[8]&&actionOptions===decision.actionOptions&&reasonOptions===decision.reasonOptions)return decision;return{...decision,cueRu:r[0],questionRu:r[1],actionOptions,reasonOptions,explanationRu:r[8]};}
+export function projectThreeBetFourBetSystemicRuDecision(decision: PracticalDecision): PracticalDecision {
+  const r = ROWS[decision.id];
+  if (!r) return decision;
+  const exp = decision.id.includes("-A7-");
+  const a = exp ? ["good", "bad1", "bad2"] : ["a", "b", "c"];
+  const q = exp ? ["goodR", "badR1", "badR2"] : ["r1", "r2", "r3"];
+  const actionOptions = projectOptions(decision.actionOptions, {[a[0]]: r[2], [a[1]]: r[3], [a[2]]: r[4]});
+  const reasonTexts: Record<string, string> = {[q[0]]: r[5], [q[1]]: r[6], [q[2]]: r[7]};
+  if (exp) {
+    for (const option of decision.reasonOptions) {
+      if (option.id === q[0]) continue;
+      const oldMechanism = option.textEn.match(/^Assume “(.+)”, so the causal range interaction need not be checked$/u);
+      const oldUniversal = option.textEn.match(/^Assume “(.+)” and carry it forward as a universal rule after the node changes$/u);
+      const directMechanism = option.textEn.match(/^(.+?) Therefore relative range interaction can change execution frequency but not the strategic choice in this node$/u);
+      const directUniversal = option.textEn.match(/^(.+?) Therefore after a material node change the old conclusion remains valid without recomputing price, ranges, or SPR$/u);
+      const semanticEn = directMechanism?.[1] ?? directUniversal?.[1] ?? oldMechanism?.[1] ?? oldUniversal?.[1] ?? option.textEn;
+      const translated = THREE_BET_FOUR_BET_A7_BAD_REASON_RU_BY_EN[semanticEn];
+      if (translated === undefined) continue;
+      if (directMechanism || oldMechanism) {
+        reasonTexts[option.id] = `${translated} Поэтому взаимодействие диапазонов может менять частоту исполнения, но не сам стратегический выбор в этом узле.`;
+      } else if (directUniversal || oldUniversal) {
+        reasonTexts[option.id] = `${translated} Поэтому после существенного изменения узла прежний вывод сохраняется без нового расчёта цены, диапазонов или SPR.`;
+      } else {
+        reasonTexts[option.id] = translated;
+      }
+    }
+  }
+  const reasonOptions = projectOptions(decision.reasonOptions, reasonTexts);
+  if (decision.cueRu === r[0] && decision.questionRu === r[1] && decision.explanationRu === r[8] && actionOptions === decision.actionOptions && reasonOptions === decision.reasonOptions) return decision;
+  return {...decision, cueRu: r[0], questionRu: r[1], actionOptions, reasonOptions, explanationRu: r[8]};
+}
 export function projectThreeBetFourBetSystemicRuAnchor(anchor:PracticalAnchor):PracticalAnchor{const r=ANCHORS[anchor.id];if(!r)return anchor;if(anchor.promptRu===r[0]&&anchor.answerRu===r[1]&&anchor.rationaleRu===r[2])return anchor;return{...anchor,promptRu:r[0],answerRu:r[1],rationaleRu:r[2]};}

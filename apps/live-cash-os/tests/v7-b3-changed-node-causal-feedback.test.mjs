@@ -12,7 +12,7 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_B3_MACHINE_FINGERPRINT = "5cbcd796aab6023999c44a1c64737268eff679e067b01da6d993c63e18af6870";
-const EXPECTED_B3_FULL_CORPUS_FINGERPRINT = "972715ee618c11b34f9db422b8feff715a2c37c0f1055ecda5741b8ec70e3c3c";
+const EXPECTED_B3_FULL_CORPUS_FINGERPRINT = "ead9a3ae1e739485f9cc0a96b1ca2fe5aecea4bfd45b9818353c40bc896a32cd";
 
 function familyKey(id) {
   return id.replace(/-\d+$/, "");
@@ -143,4 +143,18 @@ test("wrong-answer correction contract remains present in PracticalDecisionFeedb
   assert.match(source, /Correct reason:/);
   assert.match(source, /Правильное действие:/);
   assert.match(source, /Правильная причина:/);
+});
+
+
+test("DEEP-01 IP-to-OOP transfer teaches the changed position rather than re-explaining depth", () => {
+  const decision = variationB3Decisions.find((candidate) => candidate.id === "PM-B3-DEEP01-104");
+  assert.ok(decision);
+  assert.deepEqual(decision.changedVariables, ["position", "realisation"]);
+
+  assert.match(correctActionText(decision, "ru"), /OOP.*реализац/iu);
+  assert.match(correctActionText(decision, "en"), /OOP.*realization/iu);
+  assert.match(correctReasonText(decision, "ru"), /глубина здесь не изменилась.*потеря позиции/iu);
+  assert.match(correctReasonText(decision, "en"), /Depth did not change.*positional/iu);
+  assert.equal(decision.explanationRu, correctReasonText(decision, "ru"));
+  assert.equal(decision.explanationEn, correctReasonText(decision, "en"));
 });

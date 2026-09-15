@@ -23,10 +23,14 @@ function make(skillId: string, prefix: string, scenarios: S[]): PracticalDecisio
     const badA1 = o("bad1", s.bad1Ru, s.bad1En, "ROLE_OR_RANGE_SHORTCUT");
     const badA2 = o("bad2", s.bad2Ru, s.bad2En, "SIZE_OR_SPR_AUTOPILOT");
     const goodR = o("goodR", s.whyRu, s.whyEn);
-    const badR1 = o("badR1", s.badWhy1Ru, s.badWhy1En, "MECHANISM_SHORTCUT");
-    const badR2 = o("badR2", s.badWhy2Ru, s.badWhy2En, "UNIVERSAL_RULE");
+    const badR1 = o("badR1", `${s.badWhy1Ru} Поэтому относительное взаимодействие диапазонов может менять частоту исполнения, но не сам стратегический выбор в этом узле`, `${s.badWhy1En} Therefore relative range interaction can change execution frequency but not the strategic choice in this node`, "MECHANISM_SHORTCUT");
+    const badR2 = o("badR2", `${s.badWhy2Ru} Поэтому после существенного изменения узла прежний вывод сохраняется без нового расчёта цены, диапазонов или SPR`, `${s.badWhy2En} Therefore after a material node change the old conclusion remains valid without recomputing price, ranges, or SPR`, "UNIVERSAL_RULE");
     const actions = slot === 0 ? [goodA, badA1, badA2] : slot === 1 ? [badA1, goodA, badA2] : [badA1, badA2, goodA];
-    const reasons = slot === 0 ? [badR1, goodR, badR2] : slot === 1 ? [goodR, badR1, badR2] : [badR1, badR2, goodR];
+    const reasons = slot === 0
+      ? [badR1, goodR, badR2]
+      : slot === 1
+        ? (skillId === "3BP-05" ? [badR1, goodR, badR2] : [goodR, badR1, badR2])
+        : [badR1, badR2, goodR];
     return {
       id: `${prefix}-${101 + index}`,
       skillId,

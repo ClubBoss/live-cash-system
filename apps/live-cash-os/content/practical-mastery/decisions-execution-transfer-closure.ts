@@ -194,13 +194,13 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     questionRu: "К какому классу относится 9♠ и какой вопрос нужно задать следующим?",
     questionEn: "Which class does 9♠ belong to, and what question comes next?",
     actionOptions: [
-      o("a", "Бланк — коллер не мог держать ничего, что усиливается этой картой", "A blank — the caller could not hold anything strengthened by this card", "RUNOUT_MISCLASSIFIED"),
+      o("a", "Бланк: считать, что колл на флопе уже исключил T9, 98, 97, 75, флеш-дро и комбо-дро, поэтому 9♠ не добавляет коллеру достаточно сильных продолжений, чтобы пересматривать владение верхом диапазона", "A blank: assume the flop call already excluded T9, 98, 97, 75, flush draws and combo draws, so 9♠ does not add enough strong caller continues to reassess top-range ownership", "RUNOUT_MISCLASSIFIED"),
       o("b", "Спаренная доска — нужно заново оценить владение сетами", "A paired board — set ownership needs to be reassessed", "RUNOUT_MISCLASSIFIED"),
       o("c", "Ремонтная карта: она усиливает несколько правдоподобных продолжений коллера (T9, 98, 97, 75, дро на флеш и комбо-дро), значит дальше нужно спросить, чей топовый диапазон реально улучшился", "A repair card: it strengthens several plausible continues of the caller (T9, 98, 97, 75, flush draws and combo draws), so next the question is whose top range actually improved"),
     ],
     reasonOptions: [
       o("r1", "9♠ никогда не меняет диапазон, потому что коллер уже был отфильтрован флопом", "9♠ never changes the range, because the caller was already filtered by the flop", "ANCESTRY_OVERWEIGHTED"),
-      o("r2", "Раз 9♠ усиливает несколько продолжений коллера, Hero должен по умолчанию чекать почти весь диапазон, не пересчитывая владение натсами отдельно", "Because 9♠ strengthens several caller continues, Hero should default to checking most of the range without separately reassessing nut ownership", "REPAIR_AS_CHECK"),
+      o("r2", "Раз 9♠ усиливает несколько продолжений коллера, считать эту карту автоматическим сигналом чекать почти весь диапазон без отдельного пересчёта владения натсами", "Because 9♠ strengthens several caller continues, treat it as an automatic signal to check most of the range without separately reassessing nut ownership", "REPAIR_AS_CHECK"),
       o("r3", "На этой доске множество естественных продолжений коллера с флопа доходят до стрита или сильного дро именно через девятку, поэтому нужно пересчитать, чей диапазон реально усилился, прежде чем выбирать действие", "On this board, many natural flop continues of the caller reach a straight or a strong draw precisely through a nine, so it is necessary to recompute whose range actually strengthened before choosing an action"),
     ],
     correctActionId: "c", correctReasonId: "r3", targetSeconds: 20,
@@ -216,11 +216,11 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     questionEn: "What happens to the ranges on this turn card?",
     actionOptions: [
       o("a", "Карта непропорционально усиливает верхнюю часть диапазона агрессора: дама добавляет новые топ-пары туда, где у коллера симметричного усиления нет", "The card disproportionately strengthens the aggressor's top range: the queen adds new top pairs where the caller gets no symmetric improvement"),
-      o("b", "Любая старшая карта на терне автоматически считается усилением агрессора без проверки диапазонов", "Any high turn card automatically counts as boosting the aggressor without checking ranges", "HIGH_CARD_ALWAYS_BOOST"),
+      o("b", "Считать любую старшую карту на терне усилением агрессора только потому, что его префлоп-диапазон содержит больше бродвеев, не проверяя конкретный диапазон колла BB на флопе", "Treat any high turn card as an aggressor boost merely because the preflop range contains more broadways, without checking the specific BB flop-calling range", "HIGH_CARD_ALWAYS_BOOST"),
       o("c", "Ничего не меняется — оба диапазона одинаково нейтральны к даме", "Nothing changes — both ranges are equally neutral to the queen", "RUNOUT_MISCLASSIFIED"),
     ],
     reasonOptions: [
-      o("r1", "Дама всегда усиливает того, кто ставил на флопе, независимо от диапазонов", "A queen always strengthens whoever bet the flop, regardless of ranges", "HIGH_CARD_ALWAYS_BOOST"),
+      o("r1", "Достаточно знать, что Q♥ — высокая карта: предполагается, что инициатор ставки автоматически получает больше новых сильных комбинаций, а состав диапазона колла BB можно не проверять", "It is enough that Q♥ is a high card: assume the bettor automatically gains more new strong combinations, so the composition of BB's calling range need not be checked", "HIGH_CARD_ALWAYS_BOOST"),
       o("r2", "Диапазон открытия и c-bet Hero на этой доске сохраняет заметную долю комбинаций с дамой, тогда как диапазон колла BB на K72 держит их заметно реже — усиление асимметрично в пользу агрессора", "Hero's opening and c-bet range on this board retains a clear share of queen combinations, while BB's calling range on K72 holds them far less often — the improvement is asymmetric toward the aggressor"),
       o("r3", "Усиление определяется исключительно тем, что карта выше карт флопа", "The improvement is determined solely by the card being higher than the flop cards", "HIGH_CARD_ALWAYS_BOOST"),
     ],

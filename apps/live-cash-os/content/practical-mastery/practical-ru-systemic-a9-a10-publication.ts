@@ -44,9 +44,9 @@ const A9_ROW6_GOOD = "Более строгие и более устойчивы
 const A9_ROW7_GOOD =
   "Отклонить универсальный шаблон и сохранить механизм, привязанный к источнику и лайв-контексту";
 
-const A9_B2 = "Игнорировать игроков, глубину стека и позицию";
-const A9_BR1 = "Привычная логика хедз-апа на 100bb переносится без изменений";
-const A9_BR2 = "Точное название руки важнее геометрии стола";
+const A9_B2 = "Игроки, глубина стека и позиция не меняют решение";
+const A9_BR1 = "Привычная логика хедз-апа на 100bb остаётся верной: карты игрока не изменились, а лайв-контекст не меняет причинную структуру ветки";
+const A9_BR2 = "Название руки важнее геометрии стола";
 
 function buildA9FamilyPatches(f: A9FamilyRu): [string, PracticalDecisionRuPatch][] {
   const cues = [
@@ -75,7 +75,7 @@ function buildA9FamilyPatches(f: A9FamilyRu): [string, PracticalDecisionRuPatch]
       cueRu,
       questionRu: A9_QUESTIONS[i],
       explanationRu: f.whyRu,
-      actionOptions: { good: goods[i], b1: f.shortcutRu, b2: A9_B2 },
+      actionOptions: { good: goods[i], b1: `${f.shortcutRu}; видимое сходство ситуации важнее изменившейся лайв-геометрии`, b2: A9_B2 },
       reasonOptions: { goodR: f.whyRu, br1: A9_BR1, br2: A9_BR2 },
     },
   ]);
@@ -206,9 +206,9 @@ const A10_ROW5_GOOD = "Уменьшить, развернуть или сузи�
 const A10_ROW6_GOOD = "Только если данные действительно подтверждают именно эту новую ветку";
 const A10_ROW7_GOOD = "Отклонить стереотип и глобальное обобщение, вернувшись к базовой стратегии";
 
-const A10_B2 = "Распространить рид на всю игру целиком";
-const A10_BR1 = "Одно наблюдение уже доказывает устойчивую тенденцию";
-const A10_BR2 = "Достаточно одного ярлыка игрока";
+const A10_B2 = "Рид действует на всю игру целиком";
+const A10_BR1 = "Одно яркое наблюдение уже задаёт устойчивую тенденцию до прямого противоречия; повторение в той же ветке не требуется";
+const A10_BR2 = "Ярлыка игрока достаточно для решения";
 
 function buildA10FamilyPatches(f: A10FamilyRu): [string, PracticalDecisionRuPatch][] {
   const cues = [
@@ -237,7 +237,7 @@ function buildA10FamilyPatches(f: A10FamilyRu): [string, PracticalDecisionRuPatc
       cueRu,
       questionRu: A10_QUESTIONS[i],
       explanationRu: f.whyRu,
-      actionOptions: { good: goods[i], b1: f.shortcutRu, b2: A10_B2 },
+      actionOptions: { good: goods[i], b1: `${f.shortcutRu}; одного яркого наблюдения достаточно, чтобы подтвердить правило для этого игрока`, b2: A10_B2 },
       reasonOptions: { goodR: f.whyRu, br1: A10_BR1, br2: A10_BR2 },
     },
   ]);

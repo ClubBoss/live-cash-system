@@ -6,6 +6,7 @@ import {
   practicalSkillFamilies,
 } from "../content/practical-mastery/index.ts";
 import { firstJourneySteps } from "../content/practical-mastery/first-journey.ts";
+import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived.ts";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route.ts";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps.ts";
 import { isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session.ts";
@@ -72,7 +73,7 @@ function completeQuickStart(state, clockStart = Date.parse("2026-08-27T00:00:00.
 
 function canEventuallyReachDecision(skillId, visiting = new Set()) {
   if (visiting.has(skillId)) return false;
-  if (isPracticalBridgeSkill(skillId)) return false;
+  if (isPracticalBridgeSkill(skillId) || isIntegrationDerivedSkill(skillId)) return false;
   if (!practicalSkillCorpusCanReach(skillId, "DECISION_TRAINED")) return false;
   const sourceGap = practicalSourceGapBySkillId.get(skillId);
   if (sourceGap?.status === "SOURCE_BLOCKED" || sourceGap?.status === "PARTIAL") return false;
@@ -87,8 +88,8 @@ function graphTeachingTargets() {
   return practicalSkillFamilies.filter((skill) => (
     skill.sourceRefs.length > 0
     && !isPracticalBridgeSkill(skill.id)
+    && !isIntegrationDerivedSkill(skill.id)
     && practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED")
-    && practicalPostQuickStartTeachingAssetForSkill(skill.id) !== null
     && canEventuallyReachDecision(skill.id)
   ));
 }
@@ -96,6 +97,30 @@ function graphTeachingTargets() {
 function wrongOptionId(options, correctId) {
   return options.find((option) => option.id !== correctId)?.id ?? null;
 }
+
+const DOCUMENTED_MISSING_TEACHING_IDS = ["FND-04","PF-10","BL-06","BL-07","BL-08","BL-09","BL-12","W4-DRAW-01","OOP-04","OOP-05","3BP-02","3BP-03","3BP-04","4BP-02","TURN-04","TURN-05","RIV-01","MW-04","MW-05","DEEP-02","DEEP-04","EXP-02","EXP-06"];
+
+test("documented post-QS teaching gaps all have explicit source-bounded teaching", () => {
+  for (const skillId of DOCUMENTED_MISSING_TEACHING_IDS) {
+    const asset = practicalPostQuickStartTeachingAssetForSkill(skillId);
+    assert.ok(asset, `${skillId}: teaching asset is still missing`);
+    assert.equal(asset.kind, "SOURCE_BOUND", `${skillId}: bounded repair should resolve through explicit teaching, not an incidental rule/anchor`);
+    assert.ok(asset.teaching.sourceRefs.length > 0, `${skillId}: teaching must retain source refs`);
+    for (const locale of ["Ru", "En"]) {
+      assert.ok(asset.teaching[`situation${locale}`].trim().length > 0, `${skillId}: missing ${locale} situation`);
+      assert.ok(asset.teaching[`mechanism${locale}`].trim().length > 0, `${skillId}: missing ${locale} mechanism`);
+      assert.ok(asset.teaching[`example${locale}`].trim().length > 0, `${skillId}: missing ${locale} example`);
+      assert.ok(asset.teaching[`boundary${locale}`].trim().length > 0, `${skillId}: missing ${locale} boundary`);
+    }
+  }
+});
+
+test("every ordinary source-supported decision-trained skill has a teaching asset", () => {
+  const missing = graphTeachingTargets()
+    .filter((skill) => practicalPostQuickStartTeachingAssetForSkill(skill.id) === null)
+    .map((skill) => skill.id);
+  assert.deepEqual(missing, []);
+});
 
 test("Quick Start remains the exact canonical eight and 8/8 is not full mastery", () => {
   assert.equal(firstJourneySteps.length, 8);
@@ -259,4 +284,19 @@ test("whole graph: fresh learner can reach every eligible teaching edge and supp
     assert.equal(state.skills[skill.id].conceptTaught, true, `${skill.id} must be learner-teachable`);
     assert.equal(isIntegratedFocusAdmissible(state, skill.id), true, `${skill.id} must expose supported focused practice`);
   }
+});
+
+
+test("FND-06 teaching covers pairwise effective stack, pot compression, and forced-unit geometry before practice", () => {
+  const asset = practicalPostQuickStartTeachingAssetForSkill("FND-06");
+  assert.ok(asset);
+  assert.equal(asset.kind, "SOURCE_BOUND");
+  const ru = [asset.teaching.situationRu, asset.teaching.mechanismRu, asset.teaching.exampleRu, asset.teaching.boundaryRu].join(" ");
+  const en = [asset.teaching.situationEn, asset.teaching.mechanismEn, asset.teaching.exampleEn, asset.teaching.boundaryEn].join(" ");
+  assert.match(ru, /попарн|против каждого соперника/iu);
+  assert.match(ru, /SPR/iu);
+  assert.match(ru, /straddle|страддл/iu);
+  assert.match(en, /pairwise|by opponent/iu);
+  assert.match(en, /SPR/iu);
+  assert.match(en, /straddle/iu);
 });

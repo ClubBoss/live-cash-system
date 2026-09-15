@@ -1,23 +1,94 @@
 import type { PracticalDecision } from "./types";
 
 const o = (id: string, textRu: string, textEn: string, misconception?: string) => ({ id, textRu, textEn, misconception });
-type V = { skillId: string; prefix: string; sourceRefs: string[]; baseRu: string; baseEn: string; signalRu: string; signalEn: string; directRu: string; directEn: string; whyRu: string; whyEn: string; change1Ru: string; change1En: string; change2Ru: string; change2En: string; vars1: string[]; vars2: string[] };
+type V = { skillId: string; prefix: string; sourceRefs: string[]; baseRu: string; baseEn: string; signalRu: string; signalEn: string; directRu: string; directEn: string; whyRu: string; whyEn: string; change1Ru: string; change1En: string; change2Ru: string; change2En: string; vars1: string[]; vars2: string[]; change1GoodRu?: string; change1GoodEn?: string; change2GoodRu?: string; change2GoodEn?: string; change1WhyRu?: string; change1WhyEn?: string; change2WhyRu?: string; change2WhyEn?: string };
+
+const B3_CHANGED_DIRECTIONS: Partial<Record<string, { change1Ru: string; change1En: string; change2Ru: string; change2En: string }>> = {
+  "PF-01": {
+    change1Ru: "С HJ и большим числом игроков позади убери часть пограничных BTN-open: требования к силе и реализации становятся выше",
+    change1En: "Moving to HJ with more players behind removes part of the BTN fringe because strength and realization requirements rise",
+    change2Ru: "Более высокий рейк и сильная реализация игроков позади сужают пограничные открытия, а не расширяют их",
+    change2En: "Higher rake plus strong realization behind tighten fringe opens rather than widening them",
+  },
+  "PF-04": {
+    change1Ru: "Против более сильного EP origin сузь пограничные BB-call при той же цене",
+    change1En: "Against the stronger EP origin, tighten marginal BB calls at the same price",
+    change2Ru: "Более крупный open и рейк убирают слабейшие пограничные BB-call",
+    change2En: "A larger open plus rake remove the weakest marginal BB calls",
+  },
+  "PF-06": {
+    change1Ru: "Когда opener реже фолдит и чаще коллирует, сдвигай 3-бет к более value-dense/линейной структуре",
+    change1En: "When the opener folds less and calls more, shift the 3-bet construction toward a more value-dense/linear shape",
+    change2Ru: "Переход OOP ухудшает реализацию: убирай пограничные 3-беты, которым нужен удобный IP called branch",
+    change2En: "Moving OOP worsens realization; remove marginal 3-bets that rely on a comfortable IP called branch",
+  },
+  "PF-07": {
+    change1Ru: "При заметно большем 3-бете сузь call-часть и требуй больше EV от каждого продолжения",
+    change1En: "Facing a materially larger 3-bet, tighten the calling region and demand more EV from each continue",
+    change2Ru: "Переход OOP сужает пограничные call, потому что та же цена реализуется хуже на будущих улицах",
+    change2En: "Moving OOP tightens marginal calls because the same immediate price realizes worse on future streets",
+  },
+  "BL-03": {
+    change1Ru: "Open 4bb убирает слабейшую suited/connected периферию BB, которая могла защищаться против 2.5bb",
+    change1En: "A 4bb open removes the weakest suited/connected BB fringe that could continue versus 2.5bb",
+    change2Ru: "Слабая реализация и высокий рейк дополнительно сужают пограничные BB-call даже при той же текущей цене",
+    change2En: "Poor realization and high rake further tighten marginal BB calls even at the same immediate price",
+  },
+  "OOP-02": {
+    change1Ru: "Против 75% банка продолжай заметно более устойчивой частью диапазона; слабые dominated call уходят первыми",
+    change1En: "Versus 75% pot, continue with a materially more robust region; weak dominated calls disappear first",
+    change2Ru: "Слабая dominated пара без redraw чаще уходит в fold там, где pair+draw ещё выдерживает ту же цену",
+    change2En: "A dominated weak pair without redraw folds more often where a robust pair-plus-draw can still continue at the same price",
+  },
+  "3BP-05": {
+    change1Ru: "Крупный выборочный c-bet требует более polar/robust набора рук; broad small-bet часть сокращается",
+    change1En: "A large selected c-bet requires a more polar/robust hand set; the broad small-bet region contracts",
+    change2Ru: "На выравнивающей доске переходи от broad pressure к более выборочной ставке и большему числу check",
+    change2En: "On the equalizing board, move from broad pressure toward more selective betting and more checking",
+  },
+  "TURN-02": {
+    change1Ru: "Карта, усиливающая leverage агрессора, добавляет подходящие value/bluff barrels относительно caller-favouring blank",
+    change1En: "A card that improves aggressor leverage adds suitable value/bluff barrels relative to a caller-favouring blank",
+    change2Ru: "Medium-showdown рука чаще сохраняет showdown через check, чем low-showdown bluff candidate на том же turn",
+    change2En: "A medium-showdown hand checks to preserve showdown more often than a low-showdown bluff candidate on the same turn",
+  },
+  "RIV-01": {
+    change1Ru: "Когда диапазон call становится тайтовее, thin value сужается: часть прежних value bet переходит в меньший сайзинг или check",
+    change1En: "When the calling range tightens, thin value contracts; some former value bets move to a smaller size or check",
+    change2Ru: "Если крупный сайзинг выбивает худшие руки, которые платили меньшему, снижай value investment: меньший сайзинг или check",
+    change2En: "If the larger size folds out the worse hands that paid a smaller bet, reduce value investment: smaller size or check",
+  },
+  "RIV-03": {
+    change1Ru: "Когда линия убирает естественные промахнувшиеся блефы, сузь marginal bluff-catch даже при той же цене",
+    change1En: "When the line removes natural missed bluffs, tighten marginal bluff-catches even at the same price",
+    change2Ru: "Blocker, который теперь убирает блефы вместо вэлью, делает marginal call хуже, а не лучше",
+    change2En: "A blocker that now removes bluffs instead of value makes a marginal call worse, not better",
+  },
+  "DEEP-01": {
+    change1Ru: "При 200bb меньше переигрывай one-pair/marginal continues и выше цени руки с устойчивым nut potential на будущих улицах",
+    change1En: "At 200bb, overplay one-pair/marginal continues less and value hands with robust nut potential more across future streets",
+    change2Ru: "OOP снижает реализацию equity и повышает цену пограничных продолжений и разгона банка",
+    change2En: "Moving OOP reduces equity realization and raises the cost of marginal continues and pot inflation",
+  },
+};
 
 function build(v: V): PracticalDecision[] {
   const rows = [
     { kind: "recognition" as const, cueRu: v.baseRu, cueEn: v.baseEn, qRu: "Какой существенный фактор нужно определить до решения?", qEn: "Which material variable must be extracted before deciding?", goodRu: v.signalRu, goodEn: v.signalEn, changed: undefined },
     { kind: "decision" as const, cueRu: v.baseRu, cueEn: v.baseEn, qRu: "Какая практическая ветка решения лучше?", qEn: "Which practical branch is better?", goodRu: v.directRu, goodEn: v.directEn, changed: undefined },
-    { kind: "changed" as const, cueRu: v.change1Ru, cueEn: v.change1En, qRu: "Как должна измениться пограничная ветка?", qEn: "How should the marginal branch change?", goodRu: "Пересчитать направление; прежнюю базовую линию не переносить автоматически", goodEn: "Recompute the direction; do not copy the old default automatically", changed: v.vars1 },
-    { kind: "changed" as const, cueRu: v.change2Ru, cueEn: v.change2En, qRu: "Что изменилось причинно?", qEn: "What changed causally?", goodRu: "Вместе с изменённым фактором меняются соответствующий порог, диапазон или реализация equity", goodEn: "The relevant threshold/range/realization changed with the variable", changed: v.vars2 },
+    { kind: "changed" as const, cueRu: v.change1Ru, cueEn: v.change1En, qRu: "Как должна измениться пограничная ветка?", qEn: "How should the marginal branch change?", goodRu: v.change1GoodRu ?? B3_CHANGED_DIRECTIONS[v.skillId]?.change1Ru ?? "Пересчитать направление; прежнюю базовую линию не переносить автоматически", goodEn: v.change1GoodEn ?? B3_CHANGED_DIRECTIONS[v.skillId]?.change1En ?? "Recompute the direction; do not copy the old default automatically", whyRu: v.change1WhyRu ?? v.whyRu, whyEn: v.change1WhyEn ?? v.whyEn, changed: v.vars1 },
+    { kind: "changed" as const, cueRu: v.change2Ru, cueEn: v.change2En, qRu: "Что изменилось причинно?", qEn: "What changed causally?", goodRu: v.change2GoodRu ?? B3_CHANGED_DIRECTIONS[v.skillId]?.change2Ru ?? "Вместе с изменённым фактором меняются соответствующий порог, диапазон или реализация equity", goodEn: v.change2GoodEn ?? B3_CHANGED_DIRECTIONS[v.skillId]?.change2En ?? "The relevant threshold/range/realization changed with the variable", whyRu: v.change2WhyRu ?? v.whyRu, whyEn: v.change2WhyEn ?? v.whyEn, changed: v.vars2 },
   ];
   return rows.map((r, i) => {
     const slot = i % 3;
     const good = o("good", r.goodRu, r.goodEn);
-    const b1 = o("b1", "Сохранить прежнее действие без пересчёта", "Keep the old action without recomputing", "TRANSFER_AUTOPILOT");
-    const b2 = o("b2", "Решать только по названию конкретной руки", "Decide only from the exact hand label", "HAND_LABEL_ONLY");
-    const gr = o("goodR", v.whyRu, v.whyEn);
-    const br1 = o("br1", "Одна стратегия переносится на все похожие ситуации", "One strategy transfers across all similar spots", "UNIVERSAL_RULE");
-    const br2 = o("br2", "Существенный фактор не влияет на EV", "The material variable does not affect EV", "VARIABLE_IGNORED");
+    const b1 = o("b1", "Сохранить прежнее действие без пересчёта, потому что похожий spot должен играться так же", "Keep the old action without recomputing because a similar-looking spot should play the same way", "TRANSFER_AUTOPILOT");
+    const b2 = o("b2", "Решать только по названию конкретной руки", "The exact hand label determines the branch; changes in price, position, and opponent range may alter frequency but not the chosen action", "HAND_LABEL_ONLY");
+    const reasonRu = "whyRu" in r && r.whyRu ? r.whyRu : v.whyRu;
+    const reasonEn = "whyEn" in r && r.whyEn ? r.whyEn : v.whyEn;
+    const gr = o("goodR", reasonRu, reasonEn);
+    const br1 = o("br1", "Похожий внешний вид spot означает, что одна стратегия переносится без проверки изменившихся assumptions", "A similar-looking spot means one strategy transfers without checking changed assumptions", "UNIVERSAL_RULE");
+    const br2 = o("br2", "Изменившийся существенный фактор не влияет на EV", "The changed material variable is irrelevant to EV", "VARIABLE_IGNORED");
     return {
       id: `${v.prefix}-${101 + i}`,
       skillId: v.skillId,
@@ -33,8 +104,8 @@ function build(v: V): PracticalDecision[] {
       correctActionId: "good",
       correctReasonId: "goodR",
       targetSeconds: 20,
-      explanationRu: v.whyRu,
-      explanationEn: v.whyEn,
+      explanationRu: reasonRu,
+      explanationEn: reasonEn,
       changedVariables: r.changed,
     } satisfies PracticalDecision;
   });
@@ -327,6 +398,10 @@ const variants: V[] = [
     change1En: "Same hand/node: 100bb → 200bb effective.",
     change2Ru: "Та же глубина: позиция меняется с IP на OOP.",
     change2En: "Same depth: position changes IP → OOP.",
+    change2GoodRu: "OOP снижает реализацию equity и повышает цену пограничных продолжений и разгона банка",
+    change2GoodEn: "Moving OOP reduces equity realization and raises the cost of marginal continues and pot inflation",
+    change2WhyRu: "Глубина здесь не изменилась. Причина сдвига — потеря позиции: при том же большом future stack OOP хуже реализует equity и чаще платит за решения на следующих улицах.",
+    change2WhyEn: "Depth did not change here. The causal shift is positional: with the same large future stack, moving OOP reduces equity realization and increases the cost of later-street decisions.",
     vars1: ["effective_depth"], vars2: ["position", "realisation"],
   },
   {

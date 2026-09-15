@@ -6,6 +6,7 @@ import {
   type PracticalRule,
 } from "../content/practical-mastery";
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
+import { practicalSourceBoundTeachingAssetBySkillId, type PracticalSourceBoundTeachingAsset } from "../content/practical-mastery/post-quick-start-teaching-assets";
 import { learningRouteScore } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { isIntegratedFocusAdmissible } from "./practical-adaptive-session";
@@ -24,7 +25,8 @@ import {
 
 export type PracticalPostQuickStartTeachingAsset =
   | { kind: "RULE"; rule: PracticalRule }
-  | { kind: "ANCHOR"; anchor: PracticalAnchor };
+  | { kind: "ANCHOR"; anchor: PracticalAnchor }
+  | { kind: "SOURCE_BOUND"; teaching: PracticalSourceBoundTeachingAsset };
 
 export type PracticalPostQuickStartLearningTarget =
   | {
@@ -48,6 +50,9 @@ export type PracticalPostQuickStartLearningTarget =
 export function practicalPostQuickStartTeachingAssetForSkill(
   skillId: string,
 ): PracticalPostQuickStartTeachingAsset | null {
+  const sourceBound = practicalSourceBoundTeachingAssetBySkillId.get(skillId);
+  if (sourceBound) return { kind: "SOURCE_BOUND", teaching: sourceBound };
+
   const rule = practicalRules.find(
     (candidate) => candidate.skillIds.includes(skillId) && candidate.sourceRefs.length > 0,
   );
@@ -82,7 +87,7 @@ function exactPostQuickStartTarget(
   state: PracticalMasteryState,
   skillId: string,
 ): PracticalPostQuickStartLearningTarget {
-  if (isIntegratedFocusAdmissible(state, skillId)) {
+  if (isIntegratedFocusAdmissible(state, skillId) && nextPracticalDecision(state, skillId)) {
     return {
       kind: "PRACTICE",
       skillId,

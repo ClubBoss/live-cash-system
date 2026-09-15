@@ -30,11 +30,11 @@ const o=(id:string,textRu:string,textEn:string,misconception?:string)=>({id,text
 function d(input:{id:string;skillId:string;kind:"recognition"|"changed";sourceRefs:string[];questionRu:string;questionEn:string;goodRu:string;goodEn:string;whyRu:string;whyEn:string;bad1Ru:string;bad1En:string;bad2Ru:string;bad2En:string;changedVariables?:string[]}):PracticalDecision{
   const slot=Number(input.id.slice(-1))%3;
   const good=o("good",input.goodRu,input.goodEn);
-  const bad1=o("bad1",input.bad1Ru,input.bad1En,"PERCEPTUAL_SHORTCUT");
+  const bad1=o("bad1",`${input.bad1Ru}; самый заметный strategic cue уже определяет решение без чтения остального стола`,`${input.bad1En}; the most salient strategic cue already determines the decision without reading the rest of the table`,"PERCEPTUAL_SHORTCUT");
   const bad2=o("bad2",input.bad2Ru,input.bad2En,"IRRELEVANT_CUE");
   const goodR=o("goodR",input.whyRu,input.whyEn);
-  const badR1=o("badR1","Выбрать по названию руки без node context","Choose from hand label without node context","HAND_LABEL_ONLY");
-  const badR2=o("badR2","Выбрать самый заметный визуальный объект","Choose the most visually salient object","SALIENCE_BIAS");
+  const badR1=o("badR1","Определять решение по названию руки или одному яркому cue, не проверяя node context и причинно важные данные стола","Choose from the hand label or one salient cue without checking node context and causally relevant table information","HAND_LABEL_ONLY");
+  const badR2=o("badR2","Самый заметный визуальный объект — главный фактор решения","The most visually salient object is the main decision factor","SALIENCE_BIAS");
   return {
     id:input.id,skillId:input.skillId,kind:input.kind,sourceRefs:input.sourceRefs,
     assumptions:["B2 table-state stimulus; topic hidden before answer; visual metadata is part of the prompt"],
