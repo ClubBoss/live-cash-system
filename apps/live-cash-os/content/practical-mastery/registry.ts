@@ -46,7 +46,7 @@ export const practicalSkillFamilies: PracticalSkillFamily[] = [
   f("BL-02", "W3_BLINDS", "BB vs CO", "BB versus CO", "Распознавать более широкий late-position branch.", ["blinds"], ["PF-04"], ["FTGU-E05", "LCM-03"], "P0"),
   f("BL-03", "W3_BLINDS", "BB vs BTN", "BB versus BTN", "Исполнять high-frequency blind-defence family против BTN.", ["blinds"], ["PF-04"], ["FTGU-E05", "SLC-BB-VS-BTN"], "P0"),
   f("BL-04", "W3_BLINDS", "BB vs open size", "BB versus open size", "Менять defence при изменении цены и не переносить одну частоту между сайзингами.", ["blinds"], ["BL-01", "BL-02", "BL-03"], ["FTGU-E05"], "P0"),
-  f("BL-05", "W3_BLINDS", "SB vs opens", "SB versus opens", "Учитывать плохую позицию и BB behind.", ["blinds"], ["PF-05"], ["FTGU-E06"], "P0"),
+  f("BL-05", "W3_BLINDS", "SB: исключения к 3-bet-or-fold", "SB: exceptions to the 3-bet-or-fold default", "После базового PF-05 распознавать, когда BB behind, opener continue range и hand class возвращают conditional flat или превращают forced 3-bet в fold.", ["blinds"], ["PF-05"], ["FTGU-E06"], "P0"),
   f("BL-06", "W3_BLINDS", "SB first-in", "SB first-in", "Распознавать raise/limp/fold structure там, где source support допускает branch.", ["blinds"], ["PF-01"], ["SLC-BB-VS-SB"], "P0"),
   f("BL-07", "W3_BLINDS", "BB vs SB raise", "BB versus SB raise", "Играть wide-range blind-vs-blind defence.", ["blinds"], ["BL-06"], ["SLC-BB-VS-SB"], "P0"),
   f("BL-08", "W3_BLINDS", "BB vs SB limp", "BB versus SB limp", "Различать check/raise branches против SB limp.", ["blinds"], ["BL-06"], ["SLC-BB-VS-SB"], "P0"),
@@ -110,7 +110,7 @@ export const practicalSkillFamilies: PracticalSkillFamily[] = [
   f("MW-01", "W11_MULTIWAY_LIMP", "Relative position multiway", "Relative position multiway", "Отслеживать who acts behind and closing action in multiway trees.", ["multiway"], ["PF-02"], ["LCM-08", "SLC-MULTIWAY"], "P0"),
   f("MW-02", "W11_MULTIWAY_LIMP", "Multiway value thresholds", "Multiway value thresholds", "Повышать требования к value и nut potential при нескольких ranges.", ["multiway"], ["MW-01", "W4-REL-01"], ["SLC-MULTIWAY"], "P0"),
   f("MW-03", "W11_MULTIWAY_LIMP", "Multiway bluff discipline", "Multiway bluff discipline", "Не переносить HU bluff frequencies в multiway.", ["multiway"], ["MW-01"], ["SLC-MULTIWAY"], "P0"),
-  f("MW-04", "W11_MULTIWAY_LIMP", "Isolation and overlimp", "Isolation and overlimp", "Выбирать iso/overlimp/fold против live limpers.", ["preflop", "multiway"], ["PF-02"], ["FTGU-E03"], "P0"),
+  f("MW-04", "W11_MULTIWAY_LIMP", "Limped multiway transfer", "Limped multiway transfer", "Переносить уже изученный PF-02 в несколько limpers: сравнивать iso и overlimp через реальный fold equity, вероятность multiway и цену входа.", ["preflop", "multiway"], ["PF-02"], ["FTGU-E03"], "P0"),
   f("MW-05", "W11_MULTIWAY_LIMP", "Multiway river", "Multiway river", "Сужать bluff/value assumptions на river with multiple ranges.", ["multiway", "river"], ["MW-02", "RIV-01"], ["SLC-MULTIWAY"], "P1"),
 
   // W12 — deep/straddle
