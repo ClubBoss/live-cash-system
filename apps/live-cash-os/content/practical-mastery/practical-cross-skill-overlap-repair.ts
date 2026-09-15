@@ -66,7 +66,7 @@ export function applyPracticalCrossSkillOverlapRepair(decision: PracticalDecisio
       r2: { textRu: "Любой passive BB делает flat обязательным", textEn: "Any passive BB makes flatting mandatory", misconception: "PLAYER_TYPE_ABSOLUTE" },
       r3: { textRu: "Conditional flat не зависит от hand class", textEn: "A conditional flat does not depend on hand class", misconception: "HAND_CLASS_IGNORED" },
     }),
-    explanationRu: "Source default остаётся 3-bet-or-fold, но это не literal law. BL-05 тренирует именно contextual exceptions после того, как PF-05 уже дал базовую модель.",
+    explanationRu: "Базовая линия остаётся 3-bet-or-fold, но это не абсолютный закон. BL-05 тренирует именно контекстные исключения после того, как PF-05 уже дал базовую модель.",
     explanationEn: "The source default remains 3-bet-or-fold, but it is not a literal law. BL-05 specifically trains contextual exceptions after PF-05 established the baseline model.",
   };
 
@@ -83,7 +83,7 @@ export function applyPracticalCrossSkillOverlapRepair(decision: PracticalDecisio
       c: { textRu: "Automatic fold", textEn: "Automatic fold", misconception: "BLOCKER_IGNORED" },
     }),
     reasonOptions: patchOptions(decision.reasonOptions, {
-      r1: { textRu: "3-bet может убрать BB branch, получить folds и всё ещё иметь playability when called", textEn: "The 3-bet can remove the BB branch, generate folds, and still retain playability when called" },
+      r1: { textRu: "3-bet может убрать ветку с участием BB, получить фолды и сохранить играбельность после колла", textEn: "The 3-bet can remove the BB branch, generate folds, and still retain playability when called" },
       r2: { textRu: "Blocker гарантирует fold", textEn: "The blocker guarantees a fold", misconception: "BLOCKER_GUARANTEE" },
       r3: { textRu: "Suited hand не может быть dominated", textEn: "A suited hand cannot be dominated", misconception: "DOMINATION_FALSE" },
     }),
