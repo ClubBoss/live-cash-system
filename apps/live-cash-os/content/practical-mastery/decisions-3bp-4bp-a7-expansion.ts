@@ -26,7 +26,11 @@ function make(skillId: string, prefix: string, scenarios: S[]): PracticalDecisio
     const badR1 = o("badR1", `Считать верным, что «${s.badWhy1Ru}», поэтому причинное взаимодействие диапазонов можно не проверять`, `Assume “${s.badWhy1En}”, so the causal range interaction need not be checked`, "MECHANISM_SHORTCUT");
     const badR2 = o("badR2", `Считать верным, что «${s.badWhy2Ru}», и переносить это как универсальное правило после изменения ситуации`, `Assume “${s.badWhy2En}” and carry it forward as a universal rule after the node changes`, "UNIVERSAL_RULE");
     const actions = slot === 0 ? [goodA, badA1, badA2] : slot === 1 ? [badA1, goodA, badA2] : [badA1, badA2, goodA];
-    const reasons = slot === 0 ? [badR1, goodR, badR2] : slot === 1 ? [goodR, badR1, badR2] : [badR1, badR2, goodR];
+    const reasons = slot === 0
+      ? [badR1, goodR, badR2]
+      : slot === 1
+        ? (skillId === "3BP-05" ? [badR1, goodR, badR2] : [goodR, badR1, badR2])
+        : [badR1, badR2, goodR];
     return {
       id: `${prefix}-${101 + index}`,
       skillId,
