@@ -94,16 +94,17 @@ test("Practical route sequence stays in one document and preserves locale, histo
   await expectContinuousShell(page, marker);
 });
 
-test("keyboard navigation and the historical prerequisite CTA use the reliable client path", async ({ page }) => {
+test("keyboard navigation and the historical prerequisite CTA use the reliable client path", async ({ page, browserName }) => {
   await installUnloadCounter(page);
   await page.goto("/mastery");
   const marker = await stampShell(page);
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   const learn = nav.getByRole("link", { name: "Продолжить обучение", exact: true });
 
+  const nextFocusKey = browserName === "webkit" ? "Alt+Tab" : "Tab";
   let reachedLearn = false;
   for (let step = 0; step < 20; step += 1) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(nextFocusKey);
     reachedLearn = await learn.evaluate((element) => element === document.activeElement);
     if (reachedLearn) break;
   }
