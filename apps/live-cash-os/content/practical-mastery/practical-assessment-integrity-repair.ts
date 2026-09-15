@@ -58,15 +58,15 @@ const repairs: Record<string, DecisionRepair> = {
     },
   },
   "PM-BL-05-105": {
-    questionRu: "Как оценить решение, если и flat, и called 3-bet branch проблемны?",
+    questionRu: "Как оценить решение, если и колл, и ветка 3-бета после колла соперника проблемны?",
     questionEn: "How should the decision be evaluated when both the flat and the called 3-bet branch are problematic?",
     actionOptions: {
       a: {
-        textRu: "Сравнить EV 3-бета при колле и допустить fold",
+        textRu: "Сравнить EV 3-бета после колла соперника и допустить фолд",
         textEn: "Compare the called-branch EV of the 3-bet and allow folding",
       },
       b: {
-        textRu: "Форсировать 3-бет только потому, что flat слабый",
+        textRu: "Форсировать 3-бет только потому, что колл слабый",
         textEn: "Force a 3-bet only because flatting is weak",
         misconception: "THREE_BET_OR_FOLD_LITERAL",
       },
@@ -78,7 +78,7 @@ const repairs: Record<string, DecisionRepair> = {
     },
     reasonOptions: {
       r1: {
-        textRu: "Плохой flat сам по себе не делает dominated 3-bet прибыльным",
+        textRu: "Плохой колл сам по себе не делает доминируемый 3-бет прибыльным",
         textEn: "A bad flat alone does not make a dominated 3-bet profitable",
       },
       r2: {
