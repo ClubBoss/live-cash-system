@@ -50,6 +50,7 @@
 }
 .practical-mastery-nav__item.is-active:hover { background: #1f5bd8; }
 .practical-mastery-nav__item svg { flex: none; }
+.practical-mastery-nav__label-compact { display: none; }
 
 .practical-mastery-nav__hands {
   width: fit-content;
@@ -205,6 +206,7 @@
 }
 
 @media (max-width: 430px) {
+  .practical-mastery-nav { padding-inline: 6px; }
   /* flex-grow item distribution can round a few px past the rail's own
      width on some engines regardless of border/padding; grid's fr-unit
      column distribution (the same technique the desktop rule already
@@ -217,11 +219,25 @@
   .practical-mastery-nav__item {
     min-width: 0;
     border-right: 0;
-    /* A single long unwrapped word (e.g. "Продолжить") can exceed a
-       narrow grid track's width and force overflow even though the
-       track itself has no minimum; let long words break instead. */
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    padding-inline: 2px;
+  }
+  .practical-mastery-nav__label-full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .practical-mastery-nav__label-compact {
+    display: block;
+    max-width: 100%;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
   }
   .practical-mastery-nav ~ main .metrics { grid-template-columns: 1fr 1fr; }
 }

@@ -19,6 +19,7 @@ import { practicalSkillProgressTransparency, type PracticalSkillProgressCategory
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
+import PracticalSkillDomainOverview from "./PracticalSkillDomainOverview";
 
 type Locale = "ru" | "en";
 
@@ -187,6 +188,8 @@ export default function PracticalMasteryExperience() {
       </div>
       <p className="support">{locale === "ru" ? (cloudMode === "cloud" ? "Прогресс сохраняется в облаке" : "Прогресс сохраняется на устройстве") : (cloudMode === "cloud" ? "Progress is saved to the cloud" : "Progress is saved on this device")}</p>
     </section>
+
+    <PracticalSkillDomainOverview />
 
     <section className="metrics">
       <div><b>{trained}</b><span>{locale === "ru" ? "навыков в рабочей практике" : "skills in working practice"}</span></div>
