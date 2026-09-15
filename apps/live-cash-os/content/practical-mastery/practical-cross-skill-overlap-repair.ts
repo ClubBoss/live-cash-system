@@ -66,7 +66,7 @@ export function applyPracticalCrossSkillOverlapRepair(decision: PracticalDecisio
       r2: { textRu: "Любой пассивный BB делает колл обязательным", textEn: "Any passive BB makes flatting mandatory", misconception: "PLAYER_TYPE_ABSOLUTE" },
       r3: { textRu: "Условный колл не зависит от типа руки", textEn: "A conditional flat does not depend on hand class", misconception: "HAND_CLASS_IGNORED" },
     }),
-    explanationRu: "Базовая линия остаётся 3-bet-or-fold, но это не абсолютный закон: при слабом или пассивном BB некоторые коллы снова становятся допустимыми.",
+    explanationRu: "Базовая линия — 3-бет или фолд, но это не абсолютный закон: при слабом или пассивном BB некоторые коллы снова становятся допустимыми.",
     explanationEn: "The source default remains 3-bet-or-fold, but it is not a literal law. BL-05 specifically trains contextual exceptions after PF-05 established the baseline model.",
   };
 
@@ -83,7 +83,7 @@ export function applyPracticalCrossSkillOverlapRepair(decision: PracticalDecisio
       c: { textRu: "Автоматический фолд", textEn: "Automatic fold", misconception: "BLOCKER_IGNORED" },
     }),
     reasonOptions: patchOptions(decision.reasonOptions, {
-      r1: { textRu: "3-bet может убрать ветку с участием BB, получить фолды и сохранить играбельность после колла", textEn: "The 3-bet can remove the BB branch, generate folds, and still retain playability when called" },
+      r1: { textRu: "3-бет может убрать ветку с участием BB, получить фолды и сохранить играбельность после колла", textEn: "The 3-bet can remove the BB branch, generate folds, and still retain playability when called" },
       r2: { textRu: "Блокер гарантирует фолд", textEn: "The blocker guarantees a fold", misconception: "BLOCKER_GUARANTEE" },
       r3: { textRu: "Мастевая рука не может быть доминирована", textEn: "A suited hand cannot be dominated", misconception: "DOMINATION_FALSE" },
     }),
@@ -125,7 +125,7 @@ export function applyPracticalCrossSkillOverlapRepair(decision: PracticalDecisio
       c: { textRu: "Любая играбельная рука обязана рейзить", textEn: "Every playable hand must raise", misconception: "ISO_AUTOPILOT" },
     }),
     reasonOptions: patchOptions(decision.reasonOptions, {
-      r1: { textRu: "Когда фолдов почти нет и мультивей сохраняется, меньшая инвестиция лучше сохраняет ветку с хорошими implied odds", textEn: "When folds are scarce and the pot stays multiway, the smaller investment better preserves the implied-odds branch" },
+      r1: { textRu: "Когда фолдов почти нет и мультивей сохраняется, меньшая инвестиция лучше сохраняет ветку с хорошими потенциальными шансами банка", textEn: "When folds are scarce and the pot stays multiway, the smaller investment better preserves the implied-odds branch" },
       r2: { textRu: "Большой размер гарантирует изоляцию", textEn: "A large size guarantees isolation", misconception: "ISO_GUARANTEE" },
       r3: { textRu: "Мультивей сам по себе делает оверлимп убыточным", textEn: "Multiway play by itself makes overlimping negative EV", misconception: "OVERLIMP_ALWAYS_BAD" },
     }),
