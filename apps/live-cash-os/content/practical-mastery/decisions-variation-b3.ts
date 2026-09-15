@@ -3,23 +3,23 @@ import type { PracticalDecision } from "./types";
 const o = (id: string, textRu: string, textEn: string, misconception?: string) => ({ id, textRu, textEn, misconception });
 type V = { skillId: string; prefix: string; sourceRefs: string[]; baseRu: string; baseEn: string; signalRu: string; signalEn: string; directRu: string; directEn: string; whyRu: string; whyEn: string; change1Ru: string; change1En: string; change2Ru: string; change2En: string; vars1: string[]; vars2: string[]; change1GoodRu?: string; change1GoodEn?: string; change2GoodRu?: string; change2GoodEn?: string; change1WhyRu?: string; change1WhyEn?: string; change2WhyRu?: string; change2WhyEn?: string };
 
-const B3_CHANGED_DIRECTIONS: Partial<Record<string, { change1Ru: string; change1En: string; change2Ru: string; change2En: string }>> = {
+export const B3_CHANGED_DIRECTIONS: Partial<Record<string, { change1Ru: string; change1En: string; change2Ru: string; change2En: string }>> = {
   "PF-01": {
-    change1Ru: "С HJ и большим числом игроков позади убери часть пограничных BTN-open: требования к силе и реализации становятся выше",
+    change1Ru: "С HJ и большим числом игроков позади убери часть пограничных открытий BTN: требования к силе и реализации становятся выше",
     change1En: "Moving to HJ with more players behind removes part of the BTN fringe because strength and realization requirements rise",
     change2Ru: "Более высокий рейк и сильная реализация игроков позади сужают пограничные открытия, а не расширяют их",
     change2En: "Higher rake plus strong realization behind tighten fringe opens rather than widening them",
   },
   "PF-04": {
-    change1Ru: "Против более сильного EP origin сузь пограничные BB-call при той же цене",
+    change1Ru: "Против более сильного исходного диапазона EP сузь пограничные коллы BB при той же цене",
     change1En: "Against the stronger EP origin, tighten marginal BB calls at the same price",
-    change2Ru: "Более крупный open и рейк убирают слабейшие пограничные BB-call",
+    change2Ru: "Более крупное открытие и рейк убирают слабейшие пограничные коллы BB",
     change2En: "A larger open plus rake remove the weakest marginal BB calls",
   },
   "PF-06": {
-    change1Ru: "Когда opener реже фолдит и чаще коллирует, сдвигай 3-бет к более value-dense/линейной структуре",
+    change1Ru: "Когда опенер реже фолдит и чаще коллирует, сдвигай 3-бет к более плотной по вэлью и линейной структуре",
     change1En: "When the opener folds less and calls more, shift the 3-bet construction toward a more value-dense/linear shape",
-    change2Ru: "Переход OOP ухудшает реализацию: убирай пограничные 3-беты, которым нужен удобный IP called branch",
+    change2Ru: "Переход OOP ухудшает реализацию: убирай пограничные 3-беты, которым нужна удобная ветка после колла в позиции",
     change2En: "Moving OOP worsens realization; remove marginal 3-bets that rely on a comfortable IP called branch",
   },
   "PF-07": {
@@ -29,46 +29,100 @@ const B3_CHANGED_DIRECTIONS: Partial<Record<string, { change1Ru: string; change1
     change2En: "Moving OOP tightens marginal calls because the same immediate price realizes worse on future streets",
   },
   "BL-03": {
-    change1Ru: "Open 4bb убирает слабейшую suited/connected периферию BB, которая могла защищаться против 2.5bb",
+    change1Ru: "Открытие 4bb убирает слабейшую одномастную и связанную периферию BB, которая могла защищаться против 2.5bb",
     change1En: "A 4bb open removes the weakest suited/connected BB fringe that could continue versus 2.5bb",
-    change2Ru: "Слабая реализация и высокий рейк дополнительно сужают пограничные BB-call даже при той же текущей цене",
+    change2Ru: "Слабая реализация и высокий рейк дополнительно сужают пограничные коллы BB даже при той же текущей цене",
     change2En: "Poor realization and high rake further tighten marginal BB calls even at the same immediate price",
   },
   "OOP-02": {
-    change1Ru: "Против 75% банка продолжай заметно более устойчивой частью диапазона; слабые dominated call уходят первыми",
+    change1Ru: "Против 75% банка продолжай заметно более устойчивой частью диапазона; слабые доминируемые коллы уходят первыми",
     change1En: "Versus 75% pot, continue with a materially more robust region; weak dominated calls disappear first",
-    change2Ru: "Слабая dominated пара без redraw чаще уходит в fold там, где pair+draw ещё выдерживает ту же цену",
+    change2Ru: "Слабая доминируемая пара без дополнительных усилений чаще уходит в фолд там, где пара с дро ещё выдерживает ту же цену",
     change2En: "A dominated weak pair without redraw folds more often where a robust pair-plus-draw can still continue at the same price",
   },
   "3BP-05": {
-    change1Ru: "Крупный выборочный c-bet требует более polar/robust набора рук; broad small-bet часть сокращается",
+    change1Ru: "Крупный выборочный контбет требует более полярного и устойчивого набора рук; широкая часть маленькой ставки сокращается",
     change1En: "A large selected c-bet requires a more polar/robust hand set; the broad small-bet region contracts",
-    change2Ru: "На выравнивающей доске переходи от broad pressure к более выборочной ставке и большему числу check",
+    change2Ru: "На выравнивающей доске переходи от широкого давления к более выборочной ставке и большему числу чеков",
     change2En: "On the equalizing board, move from broad pressure toward more selective betting and more checking",
   },
   "TURN-02": {
-    change1Ru: "Карта, усиливающая leverage агрессора, добавляет подходящие value/bluff barrels относительно caller-favouring blank",
+    change1Ru: "Карта, усиливающая давление агрессора, добавляет подходящие вэлью- и блеф-баррели по сравнению с бланком в пользу коллера",
     change1En: "A card that improves aggressor leverage adds suitable value/bluff barrels relative to a caller-favouring blank",
-    change2Ru: "Medium-showdown рука чаще сохраняет showdown через check, чем low-showdown bluff candidate на том же turn",
+    change2Ru: "Рука со средней шоудаун-ценностью чаще сохраняет шоудаун через чек, чем блеф-кандидат с низкой шоудаун-ценностью на том же тёрне",
     change2En: "A medium-showdown hand checks to preserve showdown more often than a low-showdown bluff candidate on the same turn",
   },
   "RIV-01": {
-    change1Ru: "Когда диапазон call становится тайтовее, thin value сужается: часть прежних value bet переходит в меньший сайзинг или check",
+    change1Ru: "Когда диапазон колла становится тайтовее, тонкое вэлью сужается: часть прежних ставок переходит в меньший сайзинг или чек",
     change1En: "When the calling range tightens, thin value contracts; some former value bets move to a smaller size or check",
-    change2Ru: "Если крупный сайзинг выбивает худшие руки, которые платили меньшему, снижай value investment: меньший сайзинг или check",
+    change2Ru: "Если крупный сайзинг выбивает худшие руки, которые платили меньшему, снижай вложение: меньший сайзинг или чек",
     change2En: "If the larger size folds out the worse hands that paid a smaller bet, reduce value investment: smaller size or check",
   },
   "RIV-03": {
-    change1Ru: "Когда линия убирает естественные промахнувшиеся блефы, сузь marginal bluff-catch даже при той же цене",
+    change1Ru: "Когда линия убирает естественные промахнувшиеся блефы, сузь пограничные блеф-кетчи даже при той же цене",
     change1En: "When the line removes natural missed bluffs, tighten marginal bluff-catches even at the same price",
-    change2Ru: "Blocker, который теперь убирает блефы вместо вэлью, делает marginal call хуже, а не лучше",
+    change2Ru: "Блокер, который теперь убирает блефы вместо вэлью, делает пограничный колл хуже, а не лучше",
     change2En: "A blocker that now removes bluffs instead of value makes a marginal call worse, not better",
   },
   "DEEP-01": {
-    change1Ru: "При 200bb меньше переигрывай one-pair/marginal continues и выше цени руки с устойчивым nut potential на будущих улицах",
+    change1Ru: "При 200bb меньше переигрывай одну пару и пограничные продолжения; выше цени устойчивый натсовый потенциал на будущих улицах",
     change1En: "At 200bb, overplay one-pair/marginal continues less and value hands with robust nut potential more across future streets",
-    change2Ru: "OOP снижает реализацию equity и повышает цену пограничных продолжений и разгона банка",
+    change2Ru: "OOP снижает реализацию эквити и повышает цену пограничных продолжений и разгона банка",
     change2En: "Moving OOP reduces equity realization and raises the cost of marginal continues and pot inflation",
+  },
+  "BL-04": {
+    change1Ru: "При росте открытия с 2bb до 3bb сузь пограничную защиту BB: худшая цена убирает слабейшие коллы",
+    change1En: "Moving from a 2bb to a 3bb open tightens marginal BB defense because the worse price removes the weakest calls",
+    change2Ru: "Против лайв-открытия 5bb сузь защиту ещё сильнее; без компенсирующего фактора продолжай только более устойчивой частью диапазона",
+    change2En: "Against a 5bb live open, tighten further; without an offsetting factor, continue only with a more robust part of the range",
+  },
+  "W4-BOARD-01": {
+    change1Ru: "Заново определи владение диапазоном для новых HJ–BTN диапазонов; прежняя частота давления BTN–BB автоматически не переносится",
+    change1En: "Reclassify ownership from the new HJ-BTN ranges; the old BTN-BB pressure frequency does not transfer automatically",
+    change2Ru: "На связанном среднем флопе переходи от широкого давления к более выборочным ставкам и чекам, потому что коллер покрывает больше сильных комбинаций",
+    change2En: "On the connected middle flop, move from broad pressure toward more selective betting and checking because the caller covers more strong combinations",
+  },
+  "W4-RUNOUT-01": {
+    change1Ru: "После чека вдогонку заново восстанови сохранившиеся диапазоны; ограничение сверху из линии ставка-колл нельзя переносить на другую предыдущую линию",
+    change1En: "After a check-back, reconstruct the surviving ranges; a cap inferred from a bet-call line cannot be copied across different ancestry",
+    change2Ru: "Карта, закрывающая натсовые комбинации, может вернуть сильные регионы: ослабь давление, которое держалось только на прежнем ограничении сверху, пока предыдущая линия его не подтверждает",
+    change2En: "A nut-changing completion can restore strong regions; reduce pressure that depended on the old cap unless the action ancestry still supports it",
+  },
+  "IP-01": {
+    change1Ru: "На низком связанном флопе сократи широкий маленький контбет и чаще используй выборочные ставки и чеки",
+    change1En: "On the low connected flop, reduce broad small c-betting and use more selective betting and checking",
+    change2Ru: "Когда диапазон коллера получает больше натсового покрытия, сократи ставку всем диапазоном и сдвинься к более выборочной или полярной ставке с большим числом чеков",
+    change2En: "When the caller gains more nut coverage, reduce range betting and shift toward more selective or polar betting with more checks",
+  },
+  "TURN-03": {
+    change1Ru: "Если тёрн возвращает диапазону IP натсовые и сильные руки, проб-бет становится реже и более выборочным",
+    change1En: "If the turn restores nutted and strong hands to IP, probing becomes less frequent and more selective",
+    change2Ru: "После ставки-колла вместо чека вдогонку прежняя ветка проб-бета больше не применима: восстанови сохранившиеся диапазоны до выбора действия на тёрне",
+    change2En: "After bet-call rather than check-back, the old probe branch no longer applies; reconstruct the surviving ranges before choosing the turn action",
+  },
+  "MW-01": {
+    change1Ru: "Когда игрок начинает закрывать экшен, можно сохранять больше пограничных продолжений, потому что позади уже нет риска нового колла или рейза",
+    change1En: "When Hero closes the action, more marginal continues can survive because there is no remaining call or raise risk behind",
+    change2Ru: "Когда позади остаются два сильных активных диапазона, сузь пограничные продолжения и агрессию до более устойчивой части диапазона",
+    change2En: "With two strong active ranges still behind, tighten marginal continues and aggression to a more robust part of the range",
+  },
+  "MW-02": {
+    change1Ru: "При переходе из хедз-апа к трём игрокам подними требования к вэлью одной пары и выставлению: ещё один живой диапазон увеличивает шанс сильной руки у оппонентов",
+    change1En: "Moving heads-up to three-way raises one-pair value and stack-off requirements because another live range increases the chance an opponent is strong",
+    change2Ru: "Если диапазон позади становится сильным и неограниченным сверху, ещё сильнее сузь тонкое вэлью и пограничные выставления",
+    change2En: "If the range behind becomes strong and uncapped, tighten thin value and marginal stack-offs further",
+  },
+  "DEEP-03": {
+    change1Ru: "С обязательным страдлом сначала пересчитай рабочую единицу, порядок действий и эффективную глубину; обычные пороги BB больше нельзя переносить напрямую",
+    change1En: "With a mandatory straddle, first recompute the working unit, action order, and effective depth; ordinary-BB thresholds no longer transfer directly",
+    change2Ru: "При том же страдле переход с 300bb физических к 90bb физических делает дерево существенно мельче и уменьшает роль веток имплайд-оддсов глубоких стеков",
+    change2En: "With the same straddle, moving from 300bb physical to 90bb physical makes the tree materially shallower and reduces the role of deep-stack implied-odds branches",
+  },
+  "EXP-01": {
+    change1Ru: "Повторяющиеся наблюдения в той же ветке повышают уверенность и позволяют сильнее отклоняться от базовой линии только внутри этой ветки",
+    change1En: "Repeated observations in the same branch increase confidence and justify a larger deviation only inside that branch",
+    change2Ru: "Противоречащие наблюдения в той же ветке снижают уверенность и возвращают решение к базовой линии, пока новая гипотеза не получит подтверждение",
+    change2En: "Contradictory observations in the same branch reduce confidence and move the decision back toward baseline until a new hypothesis is supported",
   },
 };
 
@@ -398,7 +452,7 @@ const variants: V[] = [
     change1En: "Same hand/node: 100bb → 200bb effective.",
     change2Ru: "Та же глубина: позиция меняется с IP на OOP.",
     change2En: "Same depth: position changes IP → OOP.",
-    change2GoodRu: "OOP снижает реализацию equity и повышает цену пограничных продолжений и разгона банка",
+    change2GoodRu: "OOP снижает реализацию эквити и повышает цену пограничных продолжений и разгона банка",
     change2GoodEn: "Moving OOP reduces equity realization and raises the cost of marginal continues and pot inflation",
     change2WhyRu: "Глубина здесь не изменилась. Причина сдвига — потеря позиции: при том же большом future stack OOP хуже реализует equity и чаще платит за решения на следующих улицах.",
     change2WhyEn: "Depth did not change here. The causal shift is positional: with the same large future stack, moving OOP reduces equity realization and increases the cost of later-street decisions.",

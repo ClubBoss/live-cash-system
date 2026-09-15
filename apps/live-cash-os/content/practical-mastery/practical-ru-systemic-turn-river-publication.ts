@@ -1,10 +1,10 @@
+import { A8_BOUNDARY_DIRECTIONS } from "./decisions-turn-river-a8-expansion";
 import type { PracticalAnchor, PracticalDecision, PracticalDecisionOption } from "./types";
 
-// A8 (turn/river) owns an isolated staging RU projection. This is a bounded
-// final-presentation projection: it changes learner RU only and leaves
-// machine/scoring fields, sources, English, and curriculum semantics intact.
-// It is intentionally independent of the composed content index so it can be
-// developed and tested in isolation before systemic integration.
+// A8 (turn/river) owns a bounded RU final-presentation projection. index.ts
+// composes this projection into the learner corpus. It changes learner RU only
+// and leaves machine/scoring fields, sources, English, and curriculum semantics
+// intact.
 
 export type PracticalTurnRiverA8DecisionRuPatch = Readonly<{
   cueRu?: string;
@@ -68,13 +68,13 @@ const ROW6_BAD1 = "Автоматически расширить агресси�
 const ROW6_BAD2 = "Не меняется";
 
 const ROW7_QUESTION = "Где проходит граница?";
-const ROW7_GOOD = "Отказаться от универсального правила и вернуться к механике, привязанной к источнику";
 const ROW7_BAD2 = "Точная частота без подтверждённого источника заменяет проверку механики и границ этой ветки";
 
 const BR1 = "Название улицы достаточно объясняет действие; сохранившиеся после предыдущей линии вэлью- и блеф-комбинации не меняют вывод";
 const BR2 = "Предыдущее действие не меняет диапазон";
 
 type CleanFamily = {
+  skillId: string;
   prefix: string;
   nodeRu: string;
   signalRu: string;
@@ -87,6 +87,7 @@ type CleanFamily = {
 
 const CLEAN_FAMILIES: CleanFamily[] = [
   {
+    skillId: "TURN-01",
     prefix: "PM-TURN-01-A8",
     nodeRu:
       "Тёрн после действий на флопе: нужно отличить бланк от карты, которая меняет владение натсовой частью диапазона.",
@@ -99,6 +100,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Страшная карта = ставка",
   },
   {
+    skillId: "TURN-02",
     prefix: "PM-TURN-02-A8",
     nodeRu: "Hero ставит c-bet на флопе и выбирает, баррелить ли тёрн.",
     signalRu: "Кандидат на вэлью или блеф × тип ран-аута × сохранившийся диапазон продолжения",
@@ -112,6 +114,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Ставил на флопе = ставить на тёрне",
   },
   {
+    skillId: "TURN-03",
     prefix: "PM-TURN-03-A8",
     nodeRu: "Флоп чекнут вдогонку; игрок OOP рассматривает проб-бет на тёрне.",
     signalRu: "Какие сильные руки убрал чек вдогонку и вернула ли карта тёрна часть этой силы",
@@ -123,6 +126,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Пропустил ставку на флопе = делать проб-бет",
   },
   {
+    skillId: "TURN-04",
     prefix: "PM-TURN-04-A8",
     nodeRu: "Hero коллировал флоп в позиции OOP и рассматривает лид на тёрне.",
     signalRu: "Тёрн достаточно сильно меняет владение натсами или покрытием, чтобы оправдать лид",
@@ -135,6 +139,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Рука Hero усилилась = лидировать",
   },
   {
+    skillId: "TURN-05",
     prefix: "PM-TURN-05-A8",
     nodeRu:
       "Рука средней шоудаун-силы на тёрне: ставить тонкое вэлью или для защиты, либо чекать и придерживать банк.",
@@ -148,6 +153,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Вероятно впереди = ставить на вэлью",
   },
   {
+    skillId: "RIV-01",
     prefix: "PM-RIV-01-A8",
     nodeRu: "Решение о вэлью-ставке на ривере: дальнейших улиц уже не будет.",
     signalRu: "Конкретные худшие руки, которые коллируют, × выбранный сайзинг",
@@ -159,6 +165,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Часто лучшая рука = ставить на вэлью",
   },
   {
+    skillId: "RIV-02",
     prefix: "PM-RIV-02-A8",
     nodeRu: "Выбор блефа на ривере после завершённой линии.",
     signalRu: "Низкая шоудаун-сила + блокеры и антиблокеры + правдоподобная история линии для вэлью",
@@ -172,6 +179,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Промахнулось дро = блефовать",
   },
   {
+    skillId: "RIV-03",
     prefix: "PM-RIV-03-A8",
     nodeRu: "Блеф-кетч на ривере: рука Hero бьёт блефы, но проигрывает вэлью.",
     signalRu: "Цена × реальный запас блефов × эффект блокеров × предыдущая линия",
@@ -183,6 +191,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Хорошая цена = коллировать",
   },
   {
+    skillId: "RIV-04",
     prefix: "PM-RIV-04-A8",
     nodeRu: "Небольшой блок-бет или проб-бет на ривере.",
     signalRu: "Назначение ставки по цене + реакция оппонента + класс руки по вэлью и шоудаун-силе",
@@ -195,6 +204,7 @@ const CLEAN_FAMILIES: CleanFamily[] = [
     shortcutRu: "Рука средней силы = блок-бет",
   },
   {
+    skillId: "RIV-05",
     prefix: "PM-RIV-05-A8",
     nodeRu: "Кандидат на эксплойт по пулу на ривере: в одной конкретной ветке есть признаки недоблефа или переблефа.",
     signalRu: "Сила наблюдений именно по этой ветке + уверенность в самой выборке",
@@ -284,7 +294,7 @@ function buildFamilyPatches(f: CleanFamily): Array<readonly [string, PracticalTu
       {
         cueRu: f.boundaryRu,
         questionRu: ROW7_QUESTION,
-        actionOptions: { good: ROW7_GOOD, b1: f.shortcutRu, b2: ROW7_BAD2 },
+        actionOptions: { good: A8_BOUNDARY_DIRECTIONS[f.skillId].ru, b1: f.shortcutRu, b2: ROW7_BAD2 },
         reasonOptions: { goodR: f.whyRu, br1: BR1, br2: BR2 },
         explanationRu: f.whyRu,
       },

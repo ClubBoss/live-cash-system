@@ -13,6 +13,49 @@ type F={
   shortcutRu:string; shortcutEn:string;
 };
 
+export const A8_BOUNDARY_DIRECTIONS: Record<string, { ru: string; en: string }> = {
+  "TURN-01": {
+    ru: "Старшая карта сама по себе не даёт автоматический баррель: продолжай давление только если ран-аут меняет сохранившиеся диапазоны и владение сильной частью в пользу агрессора",
+    en: "An overcard alone does not create an automatic barrel; keep applying pressure only when the runout shifts surviving ranges and ownership toward the aggressor",
+  },
+  "TURN-02": {
+    ru: "Ставка на флопе не обязывает баррелить: продолжай только с подходящим классом руки, если тёрн усиливает давление против сохранившегося диапазона",
+    en: "Betting the flop does not force a barrel; continue only with a suitable hand class when the turn improves leverage against the surviving range",
+  },
+  "TURN-03": {
+    ru: "Проб-бет уместен, только если чек вдогонку действительно оставил диапазон IP ограниченным сверху или слишком широким и тёрн не вернул сильные регионы",
+    en: "Probe only when the check-back genuinely left IP capped or overwide and the turn did not restore strong regions",
+  },
+  "TURN-04": {
+    ru: "Улучшения конкретной руки недостаточно: лид нужен только когда тёрн сдвигает владение диапазоном или натсами в пользу сохранившегося диапазона коллера",
+    en: "Improving Hero's exact hand is not enough; lead only when the turn shifts range or nut ownership toward the caller's retained range",
+  },
+  "TURN-05": {
+    ru: "Быть впереди недостаточно: ставь только если худшие руки продолжают, защита имеет ценность и есть план против рейза и ривера",
+    en: "Being ahead is not enough; bet only when worse hands continue, protection has value, and the raise and river branches are planned",
+  },
+  "RIV-01": {
+    ru: "Того, что рука вероятно лучшая, недостаточно для вэлью-ставки: назови худшие руки, которые коллируют выбранный сайзинг; иначе уменьши размер или чек",
+    en: "Being likely best is not enough for a value bet; name worse hands that call the chosen size, otherwise use a smaller size or check",
+  },
+  "RIV-02": {
+    ru: "Промахнувшееся дро не становится блефом автоматически: выбирай руки с низкой шоудаун-ценностью и профилем блокеров и антиблокеров, который повышает EV фолда и сохраняет правдоподобность вэлью",
+    en: "A missed draw is not an automatic bluff; choose low-showdown-value hands whose blocker and unblocker profile improves fold EV while preserving credible value",
+  },
+  "RIV-03": {
+    ru: "Хорошая цена сама не заставляет коллировать: колл требует достаточного числа реальных блефов после всей линии и подходящего эффекта блокеров",
+    en: "A good price alone does not force a call; calling requires enough credible bluffs after the full line and a favorable removal profile",
+  },
+  "RIV-04": {
+    ru: "Рука средней силы не означает автоматический блок-бет: маленькая ставка нужна только если она лучше чека реализует вэлью и имеет план против рейза",
+    en: "A medium-strength hand does not imply an automatic block bet; use the small bet only when it realizes value better than checking and has a plan versus a raise",
+  },
+  "RIV-05": {
+    ru: "Один недоблефленный узел не означает фолд всех блеф-кетчеров: отклоняйся только в подтверждённой ветке и только при повторяющихся наблюдениях",
+    en: "One underbluffed node does not mean folding every bluff-catcher; deviate only in the evidenced branch and only with repeated observations",
+  },
+};
+
 function family(f:F):PracticalDecision[]{
   const rows:Array<{kind:PracticalDecision["kind"]; cueRu:string;cueEn:string;qRu:string;qEn:string;goodRu:string;goodEn:string;whyRu:string;whyEn:string;bad1Ru:string;bad1En:string;bad2Ru:string;bad2En:string;changed?:string[]}>= [
     {kind:"recognition",cueRu:f.nodeRu,cueEn:f.nodeEn,qRu:"Какой signal нужно назвать до action?",qEn:"Which signal should be named before choosing an action?",goodRu:f.signalRu,goodEn:f.signalEn,whyRu:f.whyRu,whyEn:f.whyEn,bad1Ru:f.shortcutRu,bad1En:f.shortcutEn,bad2Ru:"Только absolute hand rank",bad2En:"Only absolute hand rank"},
@@ -22,7 +65,7 @@ function family(f:F):PracticalDecision[]{
     {kind:"decision",cueRu:`${f.nodeRu} Current price/sizing materially changes.`,cueEn:`${f.nodeEn} The current price/sizing changes materially.`,qRu:"Что пересчитать?",qEn:"What should be recomputed?",goodRu:"Threshold + continuing range + future/terminal EV",goodEn:"Threshold + continuing range + future/terminal EV",whyRu:"Sizing is part of the branch and changes both price and range selection.",whyEn:"Sizing is part of the branch and changes both price and range selection.",bad1Ru:"Ничего — hand та же",bad1En:"Nothing — the hand is unchanged",bad2Ru:"Только pot size display",bad2En:"Only the pot-size display"},
     {kind:"changed",cueRu:f.changeRu,cueEn:f.changeEn,qRu:"Как должен измениться вывод?",qEn:"How should the conclusion change?",goodRu:"Пересобрать branch, а не переносить старый action",goodEn:"Rebuild the branch rather than copying the old action",whyRu:"The changed variable alters range ownership, price, bluff supply or value targets.",whyEn:"The changed variable alters range ownership, price, bluff supply or value targets.",bad1Ru:"Action не меняется",bad1En:"The action does not change",bad2Ru:f.shortcutRu,bad2En:f.shortcutEn,changed:["material_node_variable"]},
     {kind:"changed",cueRu:`${f.nodeRu} Opponent range/action history становится заметно сильнее или более защищённой.`,cueEn:`${f.nodeEn} The opponent range/action history becomes materially stronger or better protected.`,qRu:"Что происходит с aggressive/marginal branch?",qEn:"What happens to the aggressive/marginal branch?",goodRu:"Становится более selective",goodEn:"It becomes more selective",whyRu:"Stronger surviving ranges reduce the EV of thin value, weak bluffs and marginal bluff-catches.",whyEn:"Stronger surviving ranges reduce the EV of thin value, weak bluffs and marginal bluff-catches.",bad1Ru:"Становится шире автоматически",bad1En:"It automatically becomes wider",bad2Ru:"Не меняется",bad2En:"It does not change",changed:["opponent_range_strength"]},
-    {kind:"boundary",cueRu:f.boundaryRu,cueEn:f.boundaryEn,qRu:"Где boundary?",qEn:"Where is the boundary?",goodRu:"Отказаться от universal rule и вернуться к source-scoped mechanism",goodEn:"Reject the universal rule and return to the source-scoped mechanism",whyRu:f.whyRu,whyEn:f.whyEn,bad1Ru:f.shortcutRu,bad1En:f.shortcutEn,bad2Ru:"Invent exact frequency",bad2En:"Invent an exact frequency"},
+    {kind:"boundary",cueRu:f.boundaryRu,cueEn:f.boundaryEn,qRu:"Где boundary?",qEn:"Where is the boundary?",goodRu:A8_BOUNDARY_DIRECTIONS[f.skillId].ru,goodEn:A8_BOUNDARY_DIRECTIONS[f.skillId].en,whyRu:f.whyRu,whyEn:f.whyEn,bad1Ru:f.shortcutRu,bad1En:f.shortcutEn,bad2Ru:"Invent exact frequency",bad2En:"Invent an exact frequency"},
   ];
   return rows.map((r,i)=>{
     const slot=i%3;
