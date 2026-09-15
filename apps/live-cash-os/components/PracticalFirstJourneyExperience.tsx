@@ -16,6 +16,7 @@ import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/prac
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import type { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import PracticalConceptPrimer from "./PracticalConceptPrimer";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
 
 type PracticalFirstJourneyProfileController = ReturnType<typeof usePracticalProfileState>;
@@ -44,6 +45,7 @@ export default function PracticalFirstJourneyExperience({
   const [answerRevealed, setAnswerRevealed] = useState(false);
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
   const [continuityChecked, setContinuityChecked] = useState(false);
+  const [practiceHelpOpen, setPracticeHelpOpen] = useState(false);
 
   const recommendation = useMemo(() => recommendFirstJourneyStep(state), [state]);
   const progress = useMemo(() => firstJourneyProgress(state), [state]);
@@ -57,6 +59,20 @@ export default function PracticalFirstJourneyExperience({
   const contrastAnchor = skillAnchors.find((item) => item.kind === "changed" || item.kind === "boundary") ?? null;
   const nextDecision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
   const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
+
+  const primerTeachingTexts = rule ? [
+    locale === "ru" ? rule.triggerRu : rule.triggerEn,
+    locale === "ru" ? rule.defaultRu : rule.defaultEn,
+    locale === "ru" ? rule.whyRu : rule.whyEn,
+    ...(locale === "ru" ? rule.reversalsRu : rule.reversalsEn),
+    locale === "ru" ? rule.transferCueRu : rule.transferCueEn,
+  ] : anchor ? [
+    locale === "ru" ? anchor.promptRu : anchor.promptEn,
+    locale === "ru" ? anchor.answerRu : anchor.answerEn,
+    locale === "ru" ? anchor.rationaleRu : anchor.rationaleEn,
+  ] : [
+    locale === "ru" ? skill?.objectiveRu : skill?.objectiveEn,
+  ];
 
   useEffect(() => {
     if (!ready || recoveryBlocked || continuityChecked || presentation === null) return;
@@ -101,6 +117,7 @@ export default function PracticalFirstJourneyExperience({
       selectedReasonId: null,
     });
     if (!setMasteryWithStudyWorkspace(nextState, nextWorkspace)) return;
+    setPracticeHelpOpen(false);
     setPracticeStarted(true);
   };
 
@@ -151,6 +168,7 @@ export default function PracticalFirstJourneyExperience({
     setReasonId("");
     setAnswerRevealed(false);
     setLastCorrect(null);
+    setPracticeHelpOpen(false);
   };
 
   if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
@@ -182,8 +200,9 @@ export default function PracticalFirstJourneyExperience({
   return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
     <section className="hero compact-hero">
       <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
-      <h1>{locale === "ru" ? skill.titleRu : skill.titleEn}</h1>
+      <h1>{locale === "ru" ? journeyStep.titleRu : journeyStep.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
+      <p className="support">{locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example."}</p>
       <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
 
@@ -192,6 +211,8 @@ export default function PracticalFirstJourneyExperience({
         <p className="eyebrow">{locale === "ru" ? "ГДЕ ЭТО НУЖНО" : "WHERE THIS MATTERS"}</p>
         <p>{locale === "ru" ? journeyStep.tableUseRu : journeyStep.tableUseEn}</p>
       </section>
+
+      <PracticalConceptPrimer skillId={skill.id} locale={locale} teachingTexts={primerTeachingTexts} />
 
       <section className="surface" style={{ marginTop: 20 }}>
         <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
@@ -220,7 +241,16 @@ export default function PracticalFirstJourneyExperience({
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      {!answerRevealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
+      {!answerRevealed ? <>
+        <button className="secondary" type="button" onClick={() => setPracticeHelpOpen((value) => !value)} style={{ marginBottom: 12 }}>
+          {locale === "ru" ? "Не знаю / пока не уверен" : "I don't know / not sure yet"}
+        </button>
+        {practiceHelpOpen ? <>
+          <p className="support">{locale === "ru" ? "Ответ не записан и ошибкой не считается. Сверь значения терминов и затем выбери действие и причину." : "Nothing was recorded and this does not count as an error. Review the terms, then choose an action and reason."}</p>
+          <PracticalConceptPrimer skillId={skill.id} locale={locale} teachingTexts={primerTeachingTexts} compact />
+        </> : null}
+        <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button>
+      </> : <div>
         <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
         <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} selectedActionId={actionId} selectedReasonId={reasonId} />
         <p className="support">{locale === "ru" ? "Это только первый контакт с навыком. Система вернёт его в новых ситуациях и позже проверит после паузы." : "This is only the first contact with the skill. The system will revisit it in new situations and later after a delay."}</p>
