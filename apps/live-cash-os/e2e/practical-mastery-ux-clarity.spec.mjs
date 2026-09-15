@@ -62,6 +62,19 @@ test("skill map is the canonical home and reads as progress, not an internal con
   await expect(page.getByText("База решений", { exact: false })).toBeVisible();
 });
 
+test("mobile skill map puts the primary Continue learning CTA before domain progress", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/mastery");
+  const cta = page.locator("main .hero").getByRole("link", { name: "Продолжить обучение", exact: true });
+  const overview = page.locator(".practical-domain-overview");
+  await expect(cta).toBeVisible();
+  await expect(overview).toBeVisible();
+  const [ctaBox, overviewBox] = await Promise.all([cta.boundingBox(), overview.boundingBox()]);
+  expect(ctaBox).not.toBeNull();
+  expect(overviewBox).not.toBeNull();
+  expect(ctaBox.y).toBeLessThan(overviewBox.y);
+});
+
 test("Skill Map keeps generic Learn distinct from teachable/focus-admissible recommendations and rejects invalid or locked focus", async ({ page }) => {
   await page.goto("/mastery");
   const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
