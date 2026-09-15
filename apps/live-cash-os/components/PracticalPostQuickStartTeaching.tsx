@@ -35,6 +35,7 @@ export default function PracticalPostQuickStartTeaching({
     [requestedSkillId, state],
   );
   const skill = target.skillId ? practicalSkillById.get(target.skillId) ?? null : null;
+  const ruleAlreadyLearned = Boolean(target.kind === "TEACH" && target.asset.kind === "RULE" && target.asset.rule.skillIds.some((ruleSkillId) => ruleSkillId !== target.skillId && state.skills[ruleSkillId]?.conceptTaught));
 
   const primerTeachingTexts = target.kind === "TEACH"
     ? target.asset.kind === "RULE"
@@ -138,9 +139,9 @@ export default function PracticalPostQuickStartTeaching({
     <section className="hero compact-hero">
       <p className="eyebrow">{locale === "ru" ? "ПОСЛЕ БЫСТРОГО СТАРТА" : "AFTER QUICK START"}</p>
       <h1>{locale === "ru" ? skill.titleRu : skill.titleEn}</h1>
-      <p>{locale === "ru"
-        ? "Быстрый старт 8/8 завершён. Сначала разберись в терминах и механизме; практика откроется только после явного перехода к примеру."
-        : "Quick Start 8/8 is complete. First review the terms and mechanism; practice opens only after you explicitly move to an example."}</p>
+      <p>{ruleAlreadyLearned
+        ? (locale === "ru" ? "Этот причинный механизм уже знаком. Здесь не повторяем теорию с нуля — переносим её в новый skill и сразу проверяем применение." : "You already know this causal mechanism. Do not reteach it from scratch here — transfer it to the new skill and test the application.")
+        : (locale === "ru" ? "Быстрый старт 8/8 завершён. Сначала разберись в терминах и механизме; практика откроется только после явного перехода к примеру." : "Quick Start 8/8 is complete. First review the terms and mechanism; practice opens only after you explicitly move to an example.")}</p>
       <div className="mode-switch">
         <button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button>
         <button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button>
@@ -150,8 +151,14 @@ export default function PracticalPostQuickStartTeaching({
     <PracticalConceptPrimer skillId={skill.id} locale={locale} teachingTexts={primerTeachingTexts} />
 
     <section className="surface" style={{ marginTop: 20 }}>
-      <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
-      {asset.kind === "RULE" ? <>
+      <p className="eyebrow">{ruleAlreadyLearned
+        ? (locale === "ru" ? "ЗНАКОМЫЙ МЕХАНИЗМ · НОВОЕ ПРИМЕНЕНИЕ" : "KNOWN MECHANISM · NEW APPLICATION")
+        : (locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM")}</p>
+      {asset.kind === "RULE" && ruleAlreadyLearned ? <>
+        <h2>{locale === "ru" ? "Не переучиваем правило — переносим его" : "Do not relearn the rule — transfer it"}</h2>
+        <p>{locale === "ru" ? asset.rule.transferCueRu : asset.rule.transferCueEn}</p>
+        <p className="support">{locale === "ru" ? "Новая ценность — распознать тот же механизм в другом узле и принять новое решение, а не перечитать прежний разбор." : "The new value is recognizing the same mechanism in a different node and making a new decision, not rereading the old explanation."}</p>
+      </> : asset.kind === "RULE" ? <>
         <h2>{locale === "ru" ? asset.rule.defaultRu : asset.rule.defaultEn}</h2>
         <p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? asset.rule.whyRu : asset.rule.whyEn}</p>
         <p><b>{locale === "ru" ? "Когда правило меняется:" : "When it changes:"}</b> {(locale === "ru" ? asset.rule.reversalsRu : asset.rule.reversalsEn).join(" · ")}</p>
@@ -170,7 +177,7 @@ export default function PracticalPostQuickStartTeaching({
       <button className="primary" onClick={startApplication} disabled={pendingPracticeSkillId !== null} style={{ marginTop: 16 }}>
         {pendingPracticeSkillId
           ? (locale === "ru" ? "Открываем пример…" : "Opening example…")
-          : (locale === "ru" ? "Проверить на примере" : "Try an example")} <span>→</span>
+          : (locale === "ru" ? "Проверить на новом примере" : "Try a new example")} <span>→</span>
       </button>
       {transitionFailed ? <p role="alert" className="support">
         {locale === "ru" ? "Не удалось сохранить переход. Прогресс не изменён." : "The transition could not be saved. Progress was not changed."}
