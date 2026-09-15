@@ -225,3 +225,16 @@ C-POSITION-REASON-REPAIR-2026-09-15 reorders only the learner-facing reason opti
 F1-F4-BOUNDED-CLOSURE-2026-09-15 closes the bounded assessment-integrity, changed-state teaching, post-Quick-Start teaching and Study Loop hierarchy repair while preserving numeric semantics and machine identity. The governed review corpus is re-materialized at `43c62da25acac3b8428549e2a05261cf5e69a8c4cb2d01b9acc1fb3adc410920`; strategy, drills, RU, EN and final human review remain pending.
 
 F1-F3-FINAL-CLOSURE-2026-09-15 re-locks the bounded authority-cue, concrete transfer/boundary, and table-ready post-Quick-Start teaching repairs after restoring DEEP-02 numeric-token parity. The canonical governed review corpus is re-materialized with the repository's `corpusFingerprint(source_blobs)` procedure at `8462b7291e0ac8ece2afa5194540282f6d35b990c2f4789212a581f4329cd7bf`; machine identity and scoring remain preserved, while strategy, drills, RU, EN and final human review remain pending.
+
+
+NOVICE-SEMANTIC-TERMINAL-2026-09-16 extends the governed review corpus with the Practical novice-concept authority, Quick Start first-contact/primer surfaces, semantic stimulus identity, focused-session diversity constraints, and cross-skill transfer repair while preserving terminal assessment-integrity precedence. The canonical review corpus is re-materialized through `corpusFingerprint(source_blobs)` at `36f95b4738f3637ffb162b4ff757f7e477f7048de8c6ce3042523c39181f5181`. This is deterministic rejection evidence only: strategy, drills, RU/EN and final human approval remain pending.
+
+CANONICAL-FINGERPRINT-2026-09-16 records the exact JS `corpusFingerprint(source_blobs)` result for the semantic-sequencing candidate as `e171d10adf5c2330ccd42cc1d1ca2f04db80c6fb8e6c5da59f711dd758c6cd40`; all human review/approval states remain unchanged and pending.
+
+RU-NATURALNESS-2026-09-16 records the naturalized BL-05 transfer candidate at governed review-corpus fingerprint `d2a696c8375e310be0d3844ad2e2c44f7ba5c1609812bec2cd97a68a0b1e0e6e`; no human approval is inferred.
+
+TARGETED-QA-2026-09-16 records the final semantic-sequencing review corpus at `e55333692d52f146f9ab5f0235821a8825a32fe7922e14345a4f75c37fc605b6` after 42/42 targeted regressions passed. Deterministic QA does not create human approval.
+
+FULL-SOURCE-RELOCK-2026-09-16 records the exact semantic-sequencing review corpus at `0303a3331389a6532e1edf4b6034cc240c8200b7eb9bdea1b55753a5245172ef` after complete source_blobs reconciliation; deterministic QA does not create human approval.
+
+FND01-QUICKSTART-NOVELTY-2026-09-16 records the repaired two-family FND-01 Quick Start recognition path at governed review-corpus fingerprint `6fa438d3153a0cef587e27919fee92561340049d1e23e14078ece935195dca4c`. The repair preserves the two-stimulus recognition threshold and removes exact-answer leakage; deterministic QA does not create human approval.

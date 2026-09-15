@@ -9,6 +9,7 @@ import {
 } from "../lib/practical-post-quick-start-learning";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import type { usePracticalProfileState } from "../lib/use-practical-profile-state";
+import PracticalConceptPrimer from "./PracticalConceptPrimer";
 import PracticalDocumentLink from "./PracticalDocumentLink";
 
 type PracticalPostQuickStartProfileController = ReturnType<typeof usePracticalProfileState>;
@@ -34,6 +35,30 @@ export default function PracticalPostQuickStartTeaching({
     [requestedSkillId, state],
   );
   const skill = target.skillId ? practicalSkillById.get(target.skillId) ?? null : null;
+  const ruleAlreadyLearned = Boolean(target.kind === "TEACH" && target.asset.kind === "RULE" && target.asset.rule.skillIds.some((ruleSkillId) => ruleSkillId !== target.skillId && state.skills[ruleSkillId]?.conceptTaught));
+
+  const primerTeachingTexts = target.kind === "TEACH"
+    ? target.asset.kind === "RULE"
+      ? [
+          locale === "ru" ? target.asset.rule.triggerRu : target.asset.rule.triggerEn,
+          locale === "ru" ? target.asset.rule.defaultRu : target.asset.rule.defaultEn,
+          locale === "ru" ? target.asset.rule.whyRu : target.asset.rule.whyEn,
+          ...(locale === "ru" ? target.asset.rule.reversalsRu : target.asset.rule.reversalsEn),
+          locale === "ru" ? target.asset.rule.transferCueRu : target.asset.rule.transferCueEn,
+        ]
+      : target.asset.kind === "SOURCE_BOUND"
+        ? [
+            locale === "ru" ? target.asset.teaching.situationRu : target.asset.teaching.situationEn,
+            locale === "ru" ? target.asset.teaching.mechanismRu : target.asset.teaching.mechanismEn,
+            locale === "ru" ? target.asset.teaching.exampleRu : target.asset.teaching.exampleEn,
+            locale === "ru" ? target.asset.teaching.boundaryRu : target.asset.teaching.boundaryEn,
+          ]
+        : [
+            locale === "ru" ? target.asset.anchor.promptRu : target.asset.anchor.promptEn,
+            locale === "ru" ? target.asset.anchor.answerRu : target.asset.anchor.answerEn,
+            locale === "ru" ? target.asset.anchor.rationaleRu : target.asset.anchor.rationaleEn,
+          ]
+    : [];
 
   useEffect(() => {
     if (!activeResume || pendingPracticeSkillId || !ready || recoveryBlocked) return;
@@ -114,18 +139,26 @@ export default function PracticalPostQuickStartTeaching({
     <section className="hero compact-hero">
       <p className="eyebrow">{locale === "ru" ? "ПОСЛЕ БЫСТРОГО СТАРТА" : "AFTER QUICK START"}</p>
       <h1>{locale === "ru" ? skill.titleRu : skill.titleEn}</h1>
-      <p>{locale === "ru"
-        ? "Быстрый старт 8/8 завершён. Сначала разберись в следующем механизме; практика откроется только после явного перехода к примеру."
-        : "Quick Start 8/8 is complete. First review the next mechanism; practice opens only after you explicitly move to an example."}</p>
+      <p>{ruleAlreadyLearned
+        ? (locale === "ru" ? "Этот причинный механизм уже знаком. Здесь не повторяем теорию с нуля — переносим её в новый skill и сразу проверяем применение." : "You already know this causal mechanism. Do not reteach it from scratch here — transfer it to the new skill and test the application.")
+        : (locale === "ru" ? "Быстрый старт 8/8 завершён. Сначала разберись в терминах и механизме; практика откроется только после явного перехода к примеру." : "Quick Start 8/8 is complete. First review the terms and mechanism; practice opens only after you explicitly move to an example.")}</p>
       <div className="mode-switch">
         <button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button>
         <button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button>
       </div>
     </section>
 
+    <PracticalConceptPrimer skillId={skill.id} locale={locale} teachingTexts={primerTeachingTexts} />
+
     <section className="surface" style={{ marginTop: 20 }}>
-      <p className="eyebrow">{locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM"}</p>
-      {asset.kind === "RULE" ? <>
+      <p className="eyebrow">{ruleAlreadyLearned
+        ? (locale === "ru" ? "ЗНАКОМЫЙ МЕХАНИЗМ · НОВОЕ ПРИМЕНЕНИЕ" : "KNOWN MECHANISM · NEW APPLICATION")
+        : (locale === "ru" ? "МЕХАНИЗМ" : "MECHANISM")}</p>
+      {asset.kind === "RULE" && ruleAlreadyLearned ? <>
+        <h2>{locale === "ru" ? "Не переучиваем правило — переносим его" : "Do not relearn the rule — transfer it"}</h2>
+        <p>{locale === "ru" ? asset.rule.transferCueRu : asset.rule.transferCueEn}</p>
+        <p className="support">{locale === "ru" ? "Новая ценность — распознать тот же механизм в другом узле и принять новое решение, а не перечитать прежний разбор." : "The new value is recognizing the same mechanism in a different node and making a new decision, not rereading the old explanation."}</p>
+      </> : asset.kind === "RULE" ? <>
         <h2>{locale === "ru" ? asset.rule.defaultRu : asset.rule.defaultEn}</h2>
         <p><b>{locale === "ru" ? "Почему:" : "Why:"}</b> {locale === "ru" ? asset.rule.whyRu : asset.rule.whyEn}</p>
         <p><b>{locale === "ru" ? "Когда правило меняется:" : "When it changes:"}</b> {(locale === "ru" ? asset.rule.reversalsRu : asset.rule.reversalsEn).join(" · ")}</p>

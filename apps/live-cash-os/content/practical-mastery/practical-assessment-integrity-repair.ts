@@ -58,32 +58,32 @@ const repairs: Record<string, DecisionRepair> = {
     },
   },
   "PM-BL-05-105": {
-    questionRu: "Как оценить решение, если колл выглядит плохим?",
-    questionEn: "How should the decision be evaluated when flatting looks bad?",
+    questionRu: "Как оценить решение, если и колл, и ветка 3-бета после колла соперника проблемны?",
+    questionEn: "How should the decision be evaluated when both the flat and the called 3-bet branch are problematic?",
     actionOptions: {
       a: {
-        textRu: "Сравнить EV 3-бета при колле соперника",
-        textEn: "Compare the 3-bet called-branch EV",
+        textRu: "Сравнить EV 3-бета после колла соперника и допустить фолд",
+        textEn: "Compare the called-branch EV of the 3-bet and allow folding",
       },
       b: {
-        textRu: "Считать 3-бет лучшей линией из-за слабого колла",
-        textEn: "Treat the 3-bet as better because flatting is weak",
+        textRu: "Форсировать 3-бет только потому, что колл слабый",
+        textEn: "Force a 3-bet only because flatting is weak",
         misconception: "THREE_BET_OR_FOLD_LITERAL",
       },
       c: {
-        textRu: "Оценивать 3-бет без фильтрации диапазона продолжения",
-        textEn: "Evaluate the 3-bet without filtering the continuing range",
+        textRu: "Игнорировать фильтрацию диапазона продолжения",
+        textEn: "Ignore filtering of the continuing range",
         misconception: "FILTERING_IGNORED",
       },
     },
     reasonOptions: {
       r1: {
-        textRu: "Слабый колл сам по себе не делает 3-бет прибыльным",
-        textEn: "A bad flat alone does not make the 3-bet profitable",
+        textRu: "Плохой колл сам по себе не делает доминируемый 3-бет прибыльным",
+        textEn: "A bad flat alone does not make a dominated 3-bet profitable",
       },
       r2: {
-        textRu: "Фолд-эквити от агрессии само по себе делает 3-бет прибыльным",
-        textEn: "Fold equity from aggression alone makes the 3-bet profitable",
+        textRu: "Агрессия сама по себе создаёт +EV",
+        textEn: "Aggression alone creates positive EV",
         misconception: "AGGRESSION_AUTOPILOT",
       },
       r3: {
