@@ -234,3 +234,5 @@ CANONICAL-FINGERPRINT-2026-09-16 records the exact JS `corpusFingerprint(source_
 RU-NATURALNESS-2026-09-16 records the naturalized BL-05 transfer candidate at governed review-corpus fingerprint `d2a696c8375e310be0d3844ad2e2c44f7ba5c1609812bec2cd97a68a0b1e0e6e`; no human approval is inferred.
 
 TARGETED-QA-2026-09-16 records the final semantic-sequencing review corpus at `e55333692d52f146f9ab5f0235821a8825a32fe7922e14345a4f75c37fc605b6` after 42/42 targeted regressions passed. Deterministic QA does not create human approval.
+
+FULL-SOURCE-RELOCK-2026-09-16 records the exact semantic-sequencing review corpus at `0303a3331389a6532e1edf4b6034cc240c8200b7eb9bdea1b55753a5245172ef` after complete source_blobs reconciliation; deterministic QA does not create human approval.
