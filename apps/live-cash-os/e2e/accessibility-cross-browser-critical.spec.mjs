@@ -54,6 +54,15 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
         const rect = item.getBoundingClientRect();
         return { left: rect.left, right: rect.right, width: rect.width, height: rect.height };
       });
+      const labelMetrics = [...element.querySelectorAll(".practical-mastery-nav__label-compact")].map((label) => {
+        const style = getComputedStyle(label);
+        return {
+          clientWidth: label.clientWidth,
+          scrollWidth: label.scrollWidth,
+          overflowWrap: style.overflowWrap,
+          wordBreak: style.wordBreak,
+        };
+      });
       return {
         rail: { left: railRect.left, right: railRect.right },
         clientWidth: element.clientWidth,
@@ -61,6 +70,7 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
         documentClientWidth: document.documentElement.clientWidth,
         documentScrollWidth: document.documentElement.scrollWidth,
         itemRects,
+        labelMetrics,
       };
     });
 
@@ -71,6 +81,11 @@ test("V3-10 Practical navigation fits every destination at 390x844 in RU and EN"
       expect(rect.right).toBeLessThanOrEqual(geometry.rail.right + 1);
       expect(rect.width).toBeGreaterThanOrEqual(44);
       expect(rect.height).toBeGreaterThanOrEqual(44);
+    }
+    for (const label of geometry.labelMetrics) {
+      expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth + 1);
+      expect(label.overflowWrap).toBe("normal");
+      expect(label.wordBreak).toBe("normal");
     }
 
     await links.first().focus();
