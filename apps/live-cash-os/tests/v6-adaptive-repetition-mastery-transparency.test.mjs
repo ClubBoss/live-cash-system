@@ -12,6 +12,7 @@ import { RETENTION_INTERVAL_DAYS, recordIntegratedDecision } from "../lib/practi
 import { createPracticalMasteryState, markPracticalConceptTaught, recordPracticalDecision, stageAtLeast } from "../lib/practical-mastery-core";
 import { PRACTICAL_EXACT_REPEAT_WINDOW, recentSuccessfulDecisionIds } from "../lib/practical-repeat-window";
 import { practicalSkillProgressTransparency } from "../lib/practical-skill-transparency";
+import { practicalEvidenceFamilyId, practicalScenarioFamilyId, practicalStimulusFamilyId } from "../lib/practical-stimulus-identity";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -185,6 +186,31 @@ test("selected-skill transparency identifies satisfied and next required categor
   assert.equal(summary.latestConfidence, 95);
 });
 
+test("progress transparency counts paraphrased scenario siblings as one distinct correct example", () => {
+  const grouped = new Map();
+  for (const decision of practicalDecisions) {
+    const key = practicalScenarioFamilyId(decision);
+    const rows = grouped.get(key) ?? [];
+    rows.push(decision);
+    grouped.set(key, rows);
+  }
+  const pair = [...grouped.values()].find((rows) => rows.length >= 2 && new Set(rows.map(practicalStimulusFamilyId)).size >= 2);
+  assert.ok(pair, "missing same-scenario / different-stimulus transparency fixture");
+  const [first, sibling] = pair;
+  assert.equal(first.skillId, sibling.skillId);
+  assert.notEqual(practicalStimulusFamilyId(first), practicalStimulusFamilyId(sibling));
+  assert.equal(practicalEvidenceFamilyId(first), practicalEvidenceFamilyId(sibling));
+
+  let state = createPracticalMasteryState(new Date("2026-09-16T00:00:00Z"));
+  state = markPracticalConceptTaught(state, first.skillId, new Date("2026-09-16T00:00:01Z"));
+  state = recordPracticalDecision(state, { decisionId: first.id, ...correctInput(first.id, 70, new Date("2026-09-16T00:01:00Z")) });
+  state = recordPracticalDecision(state, { decisionId: sibling.id, ...correctInput(sibling.id, 75, new Date("2026-09-16T00:02:00Z")) });
+
+  const summary = practicalSkillProgressTransparency(state, first.skillId, "REAL_HAND_TRANSFER");
+  assert.equal(summary.recentCorrectCount, 2);
+  assert.equal(summary.recentDistinctCorrectCount, 1);
+});
+
 test("mastery thresholds and delayed retrieval policy remain unchanged", async () => {
   const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "utf8");
   assert.match(core, /MIN_RECOGNITION_STIMULI = 2/);
@@ -203,6 +229,8 @@ test("Skill Map explains partial evidence without exposing decision IDs or infla
   assert.match(overview, /Confidence alone does not raise mastery/);
   assert.match(overview, /recentCorrect\.length/);
   assert.match(overview, /distinctCorrect/);
+  assert.match(overview, /practicalEvidenceFamilyId/);
+  assert.doesNotMatch(overview, /new Set\(recentCorrect\.map\(\(attempt\) => attempt\.decisionId\)\)/);
   assert.match(overview, /stageAtLeast\(mastery\.skills\[skill\.id\]\?\.evidenceStage \?\? "SOURCE_SUPPORTED", "DECISION_TRAINED"\)/);
   assert.match(selected, /HOW THIS SKILL ADVANCES/);
   assert.match(selected, /next required step/);
