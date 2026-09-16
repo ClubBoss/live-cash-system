@@ -1,27 +1,23 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
-const decisionFiles = [
-  "decisions-w1-w3",
-  "decisions-w4-w13",
-  "decisions-gap-fill",
-  "decisions-foundation-expansion",
-  "decisions-preflop-core-expansion",
-  "decisions-preflop-advanced-expansion",
-  "decisions-blind-defence-expansion",
-  "decisions-w14",
-];
+const practicalMasteryDir = path.join(root, "content/practical-mastery");
+const decisionFiles = (await readdir(practicalMasteryDir))
+  .filter((name) => /^decisions-.+\\.ts$/u.test(name))
+  .map((name) => name.replace(/\\.ts$/u, ""))
+  .sort();
 
 test("practical mastery has a scored decision contract and all decision corpora", async () => {
   const types = await read("content/practical-mastery/types.ts");
   const index = await read("content/practical-mastery/index.ts");
   assert.match(types, /export type PracticalDecision/);
-  for (const file of decisionFiles) assert.match(index, new RegExp(file));
+  assert.ok(decisionFiles.length >= 23, `expected the full active decision corpus, got ${decisionFiles.length} modules`);
+  for (const file of decisionFiles) assert.match(index, new RegExp(`\\./${file}`), `${file}: decision module is not composed by the active index`);
   assert.match(index, /practicalDecisions/);
 });
 
