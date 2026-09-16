@@ -11,9 +11,10 @@ const journeyExperience = await readFile(path.join(root, "components/PracticalFi
 const anchors = await readFile(path.join(root, "content/practical-mastery/index.ts"), "utf8");
 
 test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
-  for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_TRANSFER_STIMULI = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
+  for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_RECOGNITION_SCENARIOS = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_TRANSFER_STIMULI = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
   assert.match(core, /distinctSuccessfulByKind/);
-  assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI\) stage = "CONCEPT_TAUGHT"/);
+  assert.match(core, /distinctSuccessfulScenariosByKind/);
+  assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI \|\| recognitionScenarios < MIN_RECOGNITION_SCENARIOS\) stage = "CONCEPT_TAUGHT"/);
   assert.match(core, /else if \(direct < MIN_DIRECT_DECISION_STIMULI\) stage = "RECOGNITION_TRAINED"/);
   assert.match(core, /else if \(transfer < MIN_TRANSFER_STIMULI\) stage = "DECISION_TRAINED"/);
   assert.match(core, /else if \(boundary < MIN_BOUNDARY_STIMULI\) stage = "CHANGED_NODE_TRANSFER"/);
