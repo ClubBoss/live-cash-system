@@ -6,6 +6,7 @@ import { blindDefenceExpansionDecisions } from "../content/practical-mastery/dec
 import { srpA6ExpansionDecisions } from "../content/practical-mastery/decisions-srp-a6-expansion";
 import { postflopAndLiveDecisions } from "../content/practical-mastery/decisions-w4-w13";
 import { applyPracticalAssessmentIntegrityRepair } from "../content/practical-mastery/practical-assessment-integrity-repair";
+import { applyPracticalCrossSkillOverlapRepair } from "../content/practical-mastery/practical-cross-skill-overlap-repair";
 import { applyPracticalRuSystemicBlindDefenceDecisionProjection } from "../content/practical-mastery/practical-ru-systemic-blind-defence-publication";
 import {
   applyPracticalRuSystemicFlopSrpOopIpAnchorProjection,
@@ -97,8 +98,8 @@ test("FLOP/SRP preserves certified Blind assessment-integrity precedence", () =>
   for (const id of blindPrecedenceIds) {
     const raw = blindDefenceExpansionDecisions.find((d) => d.id === id); const final = practicalDecisionById.get(id);
     assert.ok(raw); assert.ok(final);
-    const expected = applyPracticalAssessmentIntegrityRepair(applyPracticalRuSystemicBlindDefenceDecisionProjection(raw));
+    const expected = applyPracticalAssessmentIntegrityRepair(applyPracticalCrossSkillOverlapRepair(applyPracticalRuSystemicBlindDefenceDecisionProjection(raw)));
     assert.deepEqual(fields(final), fields(expected), `${id} RU precedence`);
-    assert.deepEqual(machineIdentity(final), machineIdentity(applyPracticalAssessmentIntegrityRepair(raw)), `${id} machine/EN precedence`);
+    assert.deepEqual(machineIdentity(final), machineIdentity(expected), `${id} machine/EN precedence`);
   }
 });

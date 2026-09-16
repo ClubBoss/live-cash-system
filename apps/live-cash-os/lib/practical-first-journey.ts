@@ -3,6 +3,9 @@ import { hardDependenciesFor } from "../content/practical-mastery/learning-route
 import { isOrdinaryLearnerDecision, practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
 import { isSemanticallyValidPracticalAttempt, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
+import { practicalStimulusFamilyId } from "./practical-stimulus-identity";
+
+const QUICK_START_TEACHING_LEAK_EXCLUSIONS = new Set<string>();
 
 export type FirstJourneyRecommendation = {
   skillId: string;
@@ -42,30 +45,33 @@ function quickStartRecognitionReady(state: PracticalMasteryState, skillId: strin
 }
 
 export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
-  const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision));
-  const successfulIds = new Set(
-    state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt)).map((attempt) => attempt.decisionId),
+  const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision) && !QUICK_START_TEACHING_LEAK_EXCLUSIONS.has(decision.id));
+  const successfulFamilies = new Set(
+    state.attempts
+      .filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt))
+      .flatMap((attempt) => {
+        const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
+        return decision ? [practicalStimulusFamilyId(decision)] : [];
+      }),
   );
-  const unresolved = unresolvedWrongDecisionIds(state, skillId);
+  const unresolved = unresolvedWrongDecisionIds(state, skillId).filter((decisionId) => !QUICK_START_TEACHING_LEAK_EXCLUSIONS.has(decisionId));
   if (unresolved.length) {
     const repair = skillDecisions.find((decision) => decision.id === unresolved[0]) ?? null;
     if (!repair) return null;
-    // Exact prompt reuse is held back for the shared recent-attempt window, not
-    // merely the single immediately-preceding attempt: a wrong item must not
-    // reappear after only one intervening decision while a non-identical,
-    // non-recent sibling remains available.
+    const repairFamily = practicalStimulusFamilyId(repair);
+    // Quick Start repairs must use a genuinely different learner-facing
+    // stimulus when one exists; a different decisionId with the same cue is
+    // not enough novelty.
     const recentlyAttempted = recentlyAttemptedDecisionIds(state);
-    if (!recentlyAttempted.has(repair.id)) return repair;
-
-    const sameKindSibling = skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && !successfulIds.has(decision.id) && !recentlyAttempted.has(decision.id)) ?? null;
+    const sameKindSibling = skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && practicalStimulusFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalStimulusFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
     if (sameKindSibling) return sameKindSibling;
 
-    const supportedSibling = skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id) && !recentlyAttempted.has(decision.id)) ?? null;
+    const supportedSibling = skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && practicalStimulusFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalStimulusFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
     return supportedSibling;
   }
 
-  return skillDecisions.find((decision) => decision.kind === "recognition" && !successfulIds.has(decision.id))
-    ?? skillDecisions.find((decision) => (decision.kind === "decision" || decision.kind === "changed") && !successfulIds.has(decision.id))
+  return skillDecisions.find((decision) => decision.kind === "recognition" && !successfulFamilies.has(practicalStimulusFamilyId(decision)))
+    ?? skillDecisions.find((decision) => (decision.kind === "decision" || decision.kind === "changed") && !successfulFamilies.has(practicalStimulusFamilyId(decision)))
     ?? null;
 }
 
