@@ -94,6 +94,34 @@ async function verifyCanonicalMastery(page, locale) {
   await assertNoOverflow(page, `${locale} Practical canonical home`);
 }
 
+async function verifyQuickStartSameSkillContinuity(page) {
+  await page.goto(canonicalUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+
+  const card = page.locator("section.today-card[data-practical-decision-id]");
+  await card.waitFor({ timeout: 20_000 });
+  const firstDecisionId = await card.getAttribute("data-practical-decision-id");
+  if (firstDecisionId !== "PM-FND-01-101") {
+    throw new Error(`Unexpected fresh Quick Start first decision: ${firstDecisionId ?? "missing"}`);
+  }
+
+  await card.locator('fieldset').nth(0).locator('input[type="radio"][value="a"]').check();
+  await card.locator('fieldset').nth(1).locator('input[type="radio"][value="r1"]').check();
+  await card.getByRole("button", { name: /Ответить|Answer/ }).click();
+  await page.getByRole("heading", { name: /Верно|Correct/ }).waitFor({ timeout: 15_000 });
+
+  await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+  await page.getByText(/ТЕПЕРЬ ТЫ|YOUR TURN/, { exact: true }).waitFor({ timeout: 15_000 });
+  if (await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).count()) {
+    throw new Error("Quick Start returned to theory between same-skill examples");
+  }
+
+  const secondDecisionId = await card.getAttribute("data-practical-decision-id");
+  if (!secondDecisionId || secondDecisionId === firstDecisionId) {
+    throw new Error(`Quick Start did not advance to a distinct same-skill example: ${secondDecisionId ?? "missing"}`);
+  }
+}
+
 async function verifyDataRecovery(page, locale) {
   const russian = locale === "ru";
   await page.goto(dataUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
@@ -121,6 +149,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await verifyCanonicalMastery(desktop, "ru");
     await verifyBuildIdentity(desktop);
     await desktop.screenshot({ path: "smoke-evidence/desktop-practical-home-ru.png", fullPage: true });
+    await verifyQuickStartSameSkillContinuity(desktop);
 
     await practicalNav(desktop).getByRole("button", { name: "EN", exact: true }).click();
     await verifyCanonicalMastery(desktop, "en");
@@ -149,6 +178,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       deployed_sha: deployedSha,
       build_identity_verified: Boolean(deployedSha),
       canonical_continue_learning_verified: true,
+      quick_start_same_skill_continuity_verified: true,
       generic_continue_target: "/mastery/journey",
       support_data_recovery_verified: true,
       canonical_root_has_no_legacy_primary_navigation: true,
