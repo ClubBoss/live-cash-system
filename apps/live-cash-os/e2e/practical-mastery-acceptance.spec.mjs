@@ -199,7 +199,12 @@ test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading
   await page.reload();
   const capped = page.locator('button[data-practical-skill-id="BL-11"]');
   const cappedGroup = page.locator("details").filter({ has: capped });
-  if (!(await capped.isVisible())) await cappedGroup.locator("summary").click();
+  await expect(capped).toContainText(/механизм показан/i);
+  await expect(cappedGroup).toHaveCount(1);
+  if (!(await capped.isVisible())) {
+    await cappedGroup.locator("summary").click();
+    await expect(capped).toBeVisible();
+  }
   await capped.click();
   await expect(page.getByText(/Сейчас:.*механизм показан.*Цель:.*механизм показан/i)).toBeVisible();
   await expect(page.getByText(/следующий необходимый шаг/i)).toHaveCount(0);
