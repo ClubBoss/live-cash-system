@@ -114,11 +114,18 @@ function candidateDecisionForSkill(
       return decision ? [practicalStimulusFamilyId(decision)] : [];
     }),
   );
+  const excludedFamilies = new Set(
+    [...excludedDecisionIds].flatMap((decisionId) => {
+      const decision = practicalDecisionById.get(decisionId);
+      return decision ? [practicalStimulusFamilyId(decision)] : [];
+    }),
+  );
   const pool = practicalDecisions.filter((decision) =>
     isOrdinaryLearnerDecision(decision)
     && decision.skillId === skillId
     && kinds.includes(decision.kind)
     && !excludedDecisionIds.has(decision.id)
+    && !excludedFamilies.has(practicalStimulusFamilyId(decision))
     && !avoidDecisionIds.has(decision.id)
     && !avoidFamilies.has(practicalStimulusFamilyId(decision))
     && (!requireNonIdenticalToLatest || practicalStimulusFamilyId(decision) !== latestFamily)
@@ -148,11 +155,12 @@ export function supportedIntegratedSkillIds(state: PracticalMasteryState): strin
 }
 
 export function buildIntegratedSession(state: PracticalMasteryState, now = new Date(), size = INTEGRATED_SESSION_SIZE): IntegratedSessionItem[] {
-  const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
+  const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const usedStimulusFamilies = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
   const recentlyAttempted = recentlyAttemptedDecisionIds(state);
   const push = (decision: PracticalDecision, reason: IntegratedSessionItem["reason"], priority: number, why: string, retentionTierDays: number | null = null) => {
-    if (items.length >= size || excluded.has(decision.id) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
-    items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
+    const stimulusFamily = practicalStimulusFamilyId(decision);
+    if (items.length >= size || excluded.has(decision.id) || usedStimulusFamilies.has(stimulusFamily) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
+    items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); usedStimulusFamilies.add(stimulusFamily); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
   };
 
   const mistakeFamilies = unresolvedMistakeFamilies(state);
