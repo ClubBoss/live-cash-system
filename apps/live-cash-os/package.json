@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
-    "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
+    "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build && node scripts/generate-pwa-build-assets.mjs",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log npx --yes wrangler@4.125.0 dev --config dist/server/wrangler.json",
     "start:e2e": "node scripts/e2e-server.mjs",
     "typecheck": "tsc --noEmit",
@@ -25,7 +25,8 @@
     "test:release": "npm test && npm run test:e2e && npm run test:e2e:wave-c",
     "w10:report": "node --import ./tests/register-model-loader.mjs scripts/w10-evidence-report-strict.mjs",
     "smoke:production": "node scripts/production-smoke.mjs",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "profile:p2": "node scripts/profile-p2-performance.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

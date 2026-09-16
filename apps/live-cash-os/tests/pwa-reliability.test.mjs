@@ -4,23 +4,24 @@ import test from "node:test";
 
 const sw = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
 
-test("service worker uses a versioned Wave 9 cache and removes older caches", () => {
-  assert.match(sw, /live-cash-os-shell-w9-/);
-  assert.doesNotMatch(sw, /live-cash-os-shell-v1/);
-  assert.match(sw, /keys\.filter\(\(key\) => key !== CACHE\)/);
+test("service worker uses a generated build-scoped cache and removes only older Live Cash shell generations", () => {
+  assert.match(sw, /CACHE_PREFIX = "live-cash-os-shell-"/u);
+  assert.match(sw, /CACHE = `\$\{CACHE_PREFIX\}\$\{BUILD\.id\}`/u);
+  assert.match(sw, /key\.startsWith\(CACHE_PREFIX\) && key !== CACHE/u);
 });
 
 test("API traffic is never cached by the service worker", () => {
-  assert.match(sw, /url\.pathname\.startsWith\("\/api\/"\)/);
+  assert.match(sw, /url\.pathname\.startsWith\("\/api\/"\)/u);
 });
 
 test("offline root fallback is navigation-only and cannot return HTML for missing JS or CSS", () => {
-  assert.match(sw, /const isNavigation = event\.request\.mode === "navigate"/);
-  assert.match(sw, /if \(isNavigation\)/);
-  assert.match(sw, /return Response\.error\(\)/);
+  assert.match(sw, /const isNavigation = event\.request\.mode === "navigate"/u);
+  assert.match(sw, /if \(isNavigation\)/u);
+  assert.match(sw, /return Response\.error\(\)/u);
 });
 
-test("successful runtime responses refresh the exact cached request", () => {
-  assert.match(sw, /if \(response\.ok\)/);
-  assert.match(sw, /cache\.put\(event\.request, copy\)/);
+test("new build activates only after root and generated client assets are fully cached", () => {
+  assert.match(sw, /const SHELL = \["\/", "\/mastery\/journey", "\/manifest\.webmanifest", "\/favicon\.svg", \.\.\.BUILD\.assets\]/u);
+  assert.match(sw, /cache\.addAll\(SHELL\)/u);
+  assert.match(sw, /\.then\(\(\) => self\.skipWaiting\(\)\)/u);
 });
