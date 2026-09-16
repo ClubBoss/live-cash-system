@@ -236,10 +236,23 @@ function cueEliminationStats(pool, locale, cuePattern) {
         selected.push({ decision, option: remaining[0], correctId: correctFor(decision) });
       }
     }
+    const correct = selected.filter(({ option, correctId }) => option.id === correctId).length;
+    const chance = 1 / 3;
+    const rate = selected.length ? correct / selected.length : 0;
+    const standardError = selected.length ? Math.sqrt(chance * (1 - chance) / selected.length) : 0;
     result[stage] = {
       selected: selected.length,
-      correct: selected.filter(({ option, correctId }) => option.id === correctId).length,
+      correct,
+      chance,
+      rate,
+      z: standardError > 0 ? (rate - chance) / standardError : 0,
       clusters: new Set(selected.map(({ decision }) => decisionCluster(decision))).size,
+      items: selected.map(({ decision, option, correctId }) => ({
+        id: decision.id,
+        skillId: decision.skillId,
+        optionId: option.id,
+        isCorrect: option.id === correctId,
+      })),
     };
   }
   return result;
@@ -431,6 +444,13 @@ function materialLearnerVisiblePositionAlert(stat) {
     && stat.clusters >= 8
     && stat.rate - stat.chance >= 0.08
     && oneSidedNormalP(stat.z) <= LEARNER_POSITION_ALPHA;
+}
+
+function materialObviousCueAlert(stat) {
+  return stat.selected >= 12
+    && stat.clusters >= 8
+    && stat.rate - stat.chance >= 0.30
+    && stat.z >= 3;
 }
 
 function expandedSignals(pool, locale) {
@@ -675,5 +695,9 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
       `${locale}: visible wording-prefix rule still selects ${cue.reason.correct} correct reasons`);
     assert.deepEqual(cue.authorialWrongness, [],
       `${locale}: learner-visible distractors still contain explicit authorial wrongness cues`);
+    for (const [stage, stat] of Object.entries(report.obviousCue[locale])) {
+      assert.equal(materialObviousCueAlert(stat), false,
+        `${locale}/${stage}: obvious-wrongness elimination shortcut remains at ${stat.correct}/${stat.selected}`);
+    }
   }
 });
