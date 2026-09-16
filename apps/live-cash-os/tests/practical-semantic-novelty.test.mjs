@@ -77,7 +77,7 @@ test("marker-leading B3/B4 generated families share one scenario-diversity ident
   for (const marker of ["B3", "B4"]) {
     const grouped = new Map();
     for (const decision of practicalDecisions.filter((candidate) => candidate.id.startsWith(`PM-${marker}-`))) {
-      const prefix = decision.id.replace(/-\\d+$/u, "");
+      const prefix = decision.id.replace(/-\d+$/u, "");
       const rows = grouped.get(prefix) ?? [];
       rows.push(decision);
       grouped.set(prefix, rows);
