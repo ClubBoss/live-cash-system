@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { practicalDecisionById, practicalSkillFamilies } from "../content/practical-mastery";
+import { practicalDecisionById } from "../content/practical-mastery";
 import { stageAtLeast } from "../lib/practical-mastery-core";
+import { practicalProgressCountingSkills } from "../lib/practical-learner-skill-set";
 import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "../lib/practical-stimulus-identity";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
@@ -14,6 +15,9 @@ const domains = [
   { key: "live", waves: ["W11_MULTIWAY_LIMP", "W12_DEEP_STRADDLE", "W13_EXPLOIT_LIVE"], ru: "Мультивей и live edge", en: "Multiway & live edge", range: "W11–W13", icon: "△" },
   { key: "integration", waves: ["W14_INTEGRATED"], ru: "Интеграция", en: "Integration", range: "W14", icon: "↗" },
 ] as const;
+
+const progressCountingSkills = practicalProgressCountingSkills();
+const progressDomains = domains.filter((domain) => progressCountingSkills.some((skill) => domain.waves.includes(skill.wave as never)));
 
 export default function PracticalSkillDomainOverview() {
   const pathname = usePathname();
@@ -30,8 +34,8 @@ export default function PracticalSkillDomainOverview() {
       <p>{locale === "ru" ? "Процент растёт только после достаточного количества разных самостоятельных решений. Промежуточный прогресс и уверенность видны ниже, но не завышают уровень навыка." : "The percentage moves only after enough distinct independent decisions. Partial evidence and confidence stay visible below, but do not inflate mastery."}</p>
     </div>
     <div className="practical-domain-overview__grid">
-      {domains.map((domain) => {
-        const skills = practicalSkillFamilies.filter((skill) => domain.waves.includes(skill.wave as never));
+      {progressDomains.map((domain) => {
+        const skills = progressCountingSkills.filter((skill) => domain.waves.includes(skill.wave as never));
         const skillIds = new Set(skills.map((skill) => skill.id));
         const trained = skills.filter((skill) => stageAtLeast(mastery.skills[skill.id]?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED")).length;
         const building = skills.filter((skill) => {
