@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { practicalSkillFamilies } from "../content/practical-mastery";
-import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import type { PracticalSkillFamily } from "../content/practical-mastery";
@@ -15,6 +13,7 @@ import {
   recommendNextPracticalSkill,
   stageAtLeast,
 } from "../lib/practical-mastery-core";
+import { primaryPracticalLearnerSkills } from "../lib/practical-learner-skill-set";
 import { practicalSkillProgressTransparency, type PracticalSkillProgressCategoryKey } from "../lib/practical-skill-transparency";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
@@ -61,7 +60,7 @@ const progressCategoryLabels: Record<Locale, Record<PracticalSkillProgressCatego
   },
 };
 
-const learnerSkillFamilies = practicalSkillFamilies.filter((skill) => !isIntegrationDerivedSkill(skill.id));
+const learnerSkillFamilies = primaryPracticalLearnerSkills();
 
 function waveLabel(wave: string, locale: Locale): string {
   const label = waveLabels[wave];
