@@ -238,12 +238,11 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
   if (isPracticalBridgeSkill(skillId) || !practicalPrerequisitesMet(state, skillId)) return null; const pool = decisionsForPracticalSkill(skillId); if (!pool.length) return null; const progress = state.skills[skillId];
   const latest = latestAttemptsByDecision(state, skillId); const unresolved = [...latest.values()].reverse().find((attempt) => !attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)) ?? null; const repair = unresolved ? practicalDecisionById.get(unresolved.decisionId) ?? null : null;
   if (repair) {
-    const excluded = new Set([practicalEvidenceFamilyId(repair)]);
-    const alternative = unattemptedDecisionOfKinds(state, skillId, [repair.kind], excluded)
-      ?? unattemptedDecisionOfKinds(state, skillId, ["recognition", "decision", "changed", "mixed"], excluded);
-    if (alternative) return alternative;
     if (hasInterveningCorrectRepairEvidence(state, repair)) return repair;
-    return null;
+    const excluded = new Set([practicalEvidenceFamilyId(repair)]);
+    return unattemptedDecisionOfKinds(state, skillId, [repair.kind], excluded)
+      ?? unattemptedDecisionOfKinds(state, skillId, ["recognition", "decision", "changed", "mixed"], excluded)
+      ?? null;
   }
   if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["recognition"], new Set<string>(), true); if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["decision"], new Set<string>(), true); if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"], new Set<string>(), true); if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
   return unattemptedDecisionOfKinds(state, skillId, ["recognition", "decision", "changed", "mixed", "boundary"]);
