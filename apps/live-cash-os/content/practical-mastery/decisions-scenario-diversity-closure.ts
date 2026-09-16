@@ -522,8 +522,8 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "How should the exploit be bounded?",
     actionOptions: [
       o("a", "Только подтверждённый size/line", "Only the evidenced size/line"),
-      o("b", "Считать любой маленький sizing слабостью во всех spots", "Treat every small sizing as weakness in every spot", "GLOBAL_SIZE_TELL"),
-      o("c", "Считать игрока слабым независимо от line", "Label the player weak regardless of the line", "PLAYER_LABEL_SHORTCUT"),
+      o("b", "Любой маленький sizing означает слабость во всех spots", "Treat every small sizing as weakness in every spot", "GLOBAL_SIZE_TELL"),
+      o("c", "Игрок слаб независимо от line", "Label the player weak regardless of the line", "PLAYER_LABEL_SHORTCUT"),
     ],
     reasonOptions: [
       o("r2", "Sizing tell универсален между streets", "A sizing tell is universal across streets", "GLOBAL_SIZE_TELL"),
