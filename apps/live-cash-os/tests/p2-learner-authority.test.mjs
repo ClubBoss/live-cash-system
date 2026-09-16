@@ -37,9 +37,9 @@ test("ADD-003 stage to RU/EN learner labels state only the evidence actually est
 test("ADD-004 BL-11 learner target is capped by the existing PARTIAL source ceiling", () => {
   const skill = practicalSkillById.get("BL-11");
   assert.ok(skill);
-  const target = effectivePracticalLearnerTarget(skill.id, skill.targetEvidenceStage, "SOURCE_SUPPORTED");
+  const target = effectivePracticalLearnerTarget(skill.id, skill.targetEvidenceStage);
   assert.deepEqual(target, {
-    stage: "SOURCE_SUPPORTED",
+    stage: "CONCEPT_TAUGHT",
     sourceLimited: true,
     sourceStatus: "PARTIAL",
   });

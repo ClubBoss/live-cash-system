@@ -51,16 +51,19 @@ function sourceCeiling(status: PracticalSourceGapStatus | undefined): PracticalE
 export function effectivePracticalLearnerTarget(
   skillId: string,
   authoredTarget: PracticalEvidenceStage,
-  currentStage: PracticalEvidenceStage = "SOURCE_SUPPORTED",
 ): { stage: PracticalEvidenceStage; sourceLimited: boolean; sourceStatus: PracticalSourceGapStatus | "SUPPORTED" } {
   const sourceStatus = practicalSourceGapBySkillId.get(skillId)?.status ?? "SUPPORTED";
   const ceiling = sourceCeiling(sourceStatus);
   if (!ceiling) return { stage: authoredTarget, sourceLimited: false, sourceStatus };
   const boundedTarget = STAGE_ORDER.indexOf(authoredTarget) > STAGE_ORDER.indexOf(ceiling) ? ceiling : authoredTarget;
   // A source ceiling is an upper bound, not proof that the current corpus has a
-  // grantable path all the way to that bound. If the bounded stage is not
-  // reachable with admitted evidence, show the learner the stage the product
-  // can honestly stand behind now instead of inventing a next requirement.
-  const stage = practicalSkillCorpusCanReach(skillId, boundedTarget) ? boundedTarget : currentStage;
+  // grantable path all the way to that bound. Walk downward to the highest
+  // stage this admitted corpus can actually grant, keeping SOURCE_SUPPORTED as
+  // the fail-closed floor.
+  const boundedIndex = STAGE_ORDER.indexOf(boundedTarget);
+  const stage = [...STAGE_ORDER.slice(0, boundedIndex + 1)]
+    .reverse()
+    .find((candidate) => candidate === "SOURCE_SUPPORTED" || practicalSkillCorpusCanReach(skillId, candidate))
+    ?? "SOURCE_SUPPORTED";
   return { stage, sourceLimited: true, sourceStatus };
 }

@@ -108,7 +108,7 @@ export default function PracticalMasteryExperience() {
   const skill = learnerSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? learnerSkillFamilies[0];
   const progress = state.skills[skill.id];
   const gap = practicalSourceGapBySkillId.get(skill.id);
-  const effectiveTarget = effectivePracticalLearnerTarget(skill.id, skill.targetEvidenceStage, progress?.evidenceStage ?? "SOURCE_SUPPORTED");
+  const effectiveTarget = effectivePracticalLearnerTarget(skill.id, skill.targetEvidenceStage);
   const transparency = practicalSkillProgressTransparency(state, skill.id, effectiveTarget.stage);
   const hardPrerequisiteIds = hardDependenciesFor(skill.id).map((dependency) => dependency.fromSkillId);
   const hardPrerequisiteTitles = hardPrerequisiteIds
