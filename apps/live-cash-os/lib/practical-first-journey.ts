@@ -35,6 +35,29 @@ function unresolvedWrongCount(state: PracticalMasteryState, skillId: string): nu
   return unresolvedWrongDecisionIds(state, skillId).length;
 }
 
+function hasInterveningCorrectRecognition(
+  state: PracticalMasteryState,
+  repair: PracticalDecision,
+): boolean {
+  const latestWrongIndex = state.attempts.findLastIndex((attempt) => (
+    attempt.decisionId === repair.id
+    && !attempt.correct
+    && isSemanticallyValidPracticalAttempt(attempt)
+  ));
+  if (latestWrongIndex < 0) return false;
+
+  const repairFamily = practicalEvidenceFamilyId(repair);
+  return state.attempts.slice(latestWrongIndex + 1).some((attempt) => {
+    if (!attempt.correct || attempt.skillId !== repair.skillId || !isSemanticallyValidPracticalAttempt(attempt)) return false;
+    const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
+    return Boolean(
+      decision
+      && decision.kind === "recognition"
+      && practicalEvidenceFamilyId(decision) !== repairFamily
+    );
+  });
+}
+
 function quickStartPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean {
   return hardDependenciesFor(skillId).every((dependency) => {
     const prerequisite = state.skills[dependency.fromSkillId];
@@ -78,7 +101,14 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
     if (sameKindSibling) return sameKindSibling;
 
     const supportedSibling = skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && practicalEvidenceFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
-    return supportedSibling;
+    if (supportedSibling) return supportedSibling;
+
+    // Do not immediately repeat a failed recognition item. Once the learner
+    // has correctly solved a different recognition stimulus after that miss,
+    // the original item becomes an admissible independent retest. This keeps
+    // novelty-first repair while guaranteeing a path out of 2-item corpora.
+    if (repair.kind === "recognition" && hasInterveningCorrectRecognition(state, repair)) return repair;
+    return null;
   }
 
   if (successfulFamilies.size === 0) {
