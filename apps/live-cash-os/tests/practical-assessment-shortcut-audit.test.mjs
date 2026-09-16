@@ -9,6 +9,7 @@ import {
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived.ts";
 import { practicalPostQuickStartTeachingAssetForSkill } from "../lib/practical-post-quick-start-learning.ts";
 import { sanitizeLearnerPresentationText } from "../lib/learner-presentation-firewall.ts";
+import { practicalPresentedOptions } from "../lib/practical-option-presentation.ts";
 import {
   isPracticalBridgeSkill,
   practicalSkillCorpusCanReach,
@@ -27,6 +28,10 @@ const WORDING_CUE_PREFIX = {
 const EXPLICIT_WRONGNESS_META = {
   Ru: /(?:якобы|ошибочн(?:ый|ая|ое|ую)\s+(?:правил\w*|shortcut|шаблон\w*))/iu,
   En: /(?:supposedly|mistaken\s+shortcut|wrong\s+rule|erroneous\s+rule)/iu,
+};
+const OBVIOUS_DISTRACTOR_CUE = {
+  Ru: /(?:\bвсегда\b|\bникогда\b|\bавтоматически\b|\bлюбые\s+две\b|\bне\s+имеет\s+значения\b)/iu,
+  En: /(?:\balways\b|\bnever\b|\bautomatically\b|\bany\s+two\b|\birrelevant\b)/iu,
 };
 
 function learnerVisibleOptionText(option, locale) {
@@ -71,22 +76,26 @@ function wordingCueStats(pool, locale) {
   return { ...stages, authorialWrongness };
 }
 
+function visibleLength(option, locale) {
+  return learnerVisibleOptionText(option, locale).length;
+}
+
 function longestFirst(options, correctId, locale) {
   if (!options.length) return false;
   return options.reduce((best, option) => (
-    text(option, locale).length > text(best, locale).length ? option : best
+    visibleLength(option, locale) > visibleLength(best, locale) ? option : best
   )).id === correctId;
 }
 
 function uniqueLongest(options, correctId, locale) {
-  const lengths = options.map((option) => ({ id: option.id, length: text(option, locale).length }));
+  const lengths = options.map((option) => ({ id: option.id, length: visibleLength(option, locale) }));
   const max = Math.max(...lengths.map((entry) => entry.length));
   return lengths.filter((entry) => entry.length === max).length === 1
     && lengths.find((entry) => entry.id === correctId)?.length === max;
 }
 
 function uniqueShortest(options, correctId, locale) {
-  const lengths = options.map((option) => ({ id: option.id, length: text(option, locale).length }));
+  const lengths = options.map((option) => ({ id: option.id, length: visibleLength(option, locale) }));
   const min = Math.min(...lengths.map((entry) => entry.length));
   return lengths.filter((entry) => entry.length === min).length === 1
     && lengths.find((entry) => entry.id === correctId)?.length === min;
@@ -94,7 +103,7 @@ function uniqueShortest(options, correctId, locale) {
 
 function hasUniqueExtreme(options, locale, kind) {
   if (!options.length) return false;
-  const lengths = options.map((option) => text(option, locale).length);
+  const lengths = options.map((option) => visibleLength(option, locale));
   const extreme = kind === "longest" ? Math.max(...lengths) : Math.min(...lengths);
   return lengths.filter((length) => length === extreme).length === 1;
 }
@@ -102,7 +111,7 @@ function hasUniqueExtreme(options, locale, kind) {
 function shortestFirst(options, correctId, locale) {
   if (!options.length) return false;
   return options.reduce((best, option) => (
-    text(option, locale).length < text(best, locale).length ? option : best
+    visibleLength(option, locale) < visibleLength(best, locale) ? option : best
   )).id === correctId;
 }
 
@@ -157,6 +166,83 @@ function pairPositionStats(pool, actionIndex, reasonIndex) {
     ),
     (decision) => 1 / (decision.actionOptions.length * decision.reasonOptions.length),
   );
+}
+
+function learnerVisiblePositionStats(pool, stage, index, presentationOrdinal = 0) {
+  const optionsFor = stage === "action"
+    ? (decision) => decision.actionOptions
+    : (decision) => decision.reasonOptions;
+  const correctFor = stage === "action"
+    ? (decision) => decision.correctActionId
+    : (decision) => decision.correctReasonId;
+  const eligible = pool.filter((decision) => optionsFor(decision).length > index);
+  return statsFromEligible(
+    eligible,
+    (decision) => practicalPresentedOptions(
+      optionsFor(decision),
+      decision.id,
+      stage,
+      presentationOrdinal,
+    )[index]?.id === correctFor(decision),
+    (decision) => 1 / optionsFor(decision).length,
+  );
+}
+
+function familyLengthContributors(pool, locale, stage, kind) {
+  const optionsFor = stage === "action"
+    ? (decision) => decision.actionOptions
+    : (decision) => decision.reasonOptions;
+  const correctFor = stage === "action"
+    ? (decision) => decision.correctActionId
+    : (decision) => decision.correctReasonId;
+  const success = kind === "longest" ? uniqueLongest : uniqueShortest;
+  return practicalSkillFamilies
+    .map((skill) => {
+      const rows = pool.filter((decision) => decision.skillId === skill.id);
+      const eligible = rows.filter((decision) => hasUniqueExtreme(optionsFor(decision), locale, kind));
+      const count = eligible.filter((decision) => success(
+        optionsFor(decision),
+        correctFor(decision),
+        locale,
+      )).length;
+      return {
+        skillId: skill.id,
+        wave: skill.wave,
+        n: rows.length,
+        eligible: eligible.length,
+        count,
+        rate: eligible.length ? count / eligible.length : 0,
+      };
+    })
+    .filter((entry) => entry.count > 0)
+    .sort((left, right) => right.count - left.count || right.rate - left.rate);
+}
+
+function cueEliminationStats(pool, locale, cuePattern) {
+  const result = {};
+  for (const stage of ["action", "reason"]) {
+    const optionsFor = stage === "action"
+      ? (decision) => decision.actionOptions
+      : (decision) => decision.reasonOptions;
+    const correctFor = stage === "action"
+      ? (decision) => decision.correctActionId
+      : (decision) => decision.correctReasonId;
+    const selected = [];
+    for (const decision of pool) {
+      const remaining = optionsFor(decision).filter((option) => (
+        !cuePattern.test(learnerVisibleOptionText(option, locale))
+      ));
+      if (remaining.length === 1) {
+        selected.push({ decision, option: remaining[0], correctId: correctFor(decision) });
+      }
+    }
+    result[stage] = {
+      selected: selected.length,
+      correct: selected.filter(({ option, correctId }) => option.id === correctId).length,
+      clusters: new Set(selected.map(({ decision }) => decisionCluster(decision))).size,
+    };
+  }
+  return result;
 }
 
 function uniqueLengthStats(pool, stage, locale, kind) {
@@ -282,6 +368,20 @@ export function materialLengthShortcutAlert(result) {
   return materialRateShortcutAlert(result, "jointLongestRate");
 }
 
+function materialLengthMarginalAlert(stat) {
+  return stat.n >= 30
+    && stat.clusters >= 8
+    && stat.rate - stat.chance >= 0.15
+    && stat.z >= 3;
+}
+
+function lengthMarginalWarning(stat) {
+  return stat.n >= 30
+    && stat.clusters >= 8
+    && stat.rate - stat.chance >= 0.06
+    && stat.z >= 3;
+}
+
 // New positional gate, declared before any follow-up content edits.
 // - actual per-stage random baseline (1/k), and 1/(kA*kR) for fixed pairs;
 // - n<12 is manual-review territory;
@@ -321,6 +421,16 @@ function materialExpandedPositionAlert(stat) {
     && stat.clusters >= 4
     && stat.rate - stat.chance >= 0.20
     && oneSidedNormalP(stat.z) <= POSITIONAL_FAMILY_ALPHA;
+}
+
+const LEARNER_POSITION_COMPARISONS = 18;
+const LEARNER_POSITION_ALPHA = 0.01 / LEARNER_POSITION_COMPARISONS;
+
+function materialLearnerVisiblePositionAlert(stat) {
+  return stat.n >= 30
+    && stat.clusters >= 8
+    && stat.rate - stat.chance >= 0.08
+    && oneSidedNormalP(stat.z) <= LEARNER_POSITION_ALPHA;
 }
 
 function expandedSignals(pool, locale) {
@@ -380,16 +490,43 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   const report = {
     pools: {},
     expandedPools: {},
+    learnerVisiblePositions: {},
+    lengthContributors: {},
+    lengthHardAlerts: [],
+    lengthWarnings: [],
+    learnerVisiblePositionAlerts: [],
     familyAlerts: [],
     shortcutAlerts: [],
     expandedPositionAlerts: [],
     expandedFamilyPositionAlerts: [],
     decisionAlerts: [],
     wordingCue: {},
+    obviousCue: {},
   };
 
   for (const locale of ["Ru", "En"]) {
     report.wordingCue[locale] = wordingCueStats(eligible, locale);
+    report.obviousCue[locale] = cueEliminationStats(eligible, locale, OBVIOUS_DISTRACTOR_CUE[locale]);
+    report.lengthContributors[locale] = {
+      actionLongestUnique: familyLengthContributors(eligible, locale, "action", "longest"),
+      actionShortestUnique: familyLengthContributors(eligible, locale, "action", "shortest"),
+      reasonLongestUnique: familyLengthContributors(eligible, locale, "reason", "longest"),
+      reasonShortestUnique: familyLengthContributors(eligible, locale, "reason", "shortest"),
+    };
+  }
+
+  for (const presentationOrdinal of [0, 1, 2]) {
+    report.learnerVisiblePositions[presentationOrdinal] = {};
+    for (const stage of ["action", "reason"]) {
+      report.learnerVisiblePositions[presentationOrdinal][stage] = {};
+      for (const position of [0, 1, 2]) {
+        const stat = learnerVisiblePositionStats(eligible, stage, position, presentationOrdinal);
+        report.learnerVisiblePositions[presentationOrdinal][stage][position] = stat;
+        if (materialLearnerVisiblePositionAlert(stat)) {
+          report.learnerVisiblePositionAlerts.push({ presentationOrdinal, stage, position, ...stat });
+        }
+      }
+    }
   }
 
   for (const [name, pool] of Object.entries(pools)) {
@@ -399,6 +536,15 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
       report.pools[name][locale] = metrics(pool, locale);
       report.expandedPools[name][locale] = expandedSignals(pool, locale);
       const expanded = report.expandedPools[name][locale];
+      if (name === "eligible") {
+        for (const [kind, stat] of Object.entries(expanded.lengthMarginals)) {
+          if (materialLengthMarginalAlert(stat)) {
+            report.lengthHardAlerts.push({ locale, kind, ...stat });
+          } else if (lengthMarginalWarning(stat)) {
+            report.lengthWarnings.push({ locale, kind, ...stat });
+          }
+        }
+      }
       for (const [stage, byPosition] of [
         ["action", expanded.actionPositions],
         ["reason", expanded.reasonPositions],
@@ -483,6 +629,17 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
   assert.equal(report.pools.eligible.Ru.n, eligible.length);
   assert.equal(report.pools.teachable.Ru.n, teachable.length);
   console.log("ASSESSMENT_SHORTCUT_AUDIT " + JSON.stringify(report));
+  console.log("ASSESSMENT_SHORTCUT_SUMMARY " + JSON.stringify({
+    eligibleN: eligible.length,
+    lengthHardAlerts: report.lengthHardAlerts,
+    lengthWarnings: report.lengthWarnings,
+    topReasonContributors: Object.fromEntries(["Ru", "En"].map((locale) => [
+      locale,
+      report.lengthContributors[locale].reasonLongestUnique.slice(0, 12),
+    ])),
+    learnerVisiblePositionAlerts: report.learnerVisiblePositionAlerts,
+    obviousCue: report.obviousCue,
+  }));
 
   for (const [poolName, byLocale] of Object.entries(report.pools)) {
     for (const [locale, result] of Object.entries(byLocale)) {
@@ -505,7 +662,10 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
     `material expanded pool-level position shortcuts remain: ${report.expandedPositionAlerts.map(({ pool, locale, kind }) => `${pool}:${locale}:${kind}`).join(", ")}`);
   assert.deepEqual(report.expandedFamilyPositionAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`), [],
     `material expanded family-level position shortcuts remain: ${report.expandedFamilyPositionAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`).join(", ")}`);
-
+  assert.deepEqual(report.lengthHardAlerts.map(({ locale, kind }) => `${locale}:${kind}`), [],
+    `material learner-visible length shortcuts remain: ${report.lengthHardAlerts.map(({ locale, kind, count, n }) => `${locale}:${kind}=${count}/${n}`).join(", ")}`);
+  assert.deepEqual(report.learnerVisiblePositionAlerts.map(({ presentationOrdinal, stage, position }) => `${presentationOrdinal}:${stage}:${position}`), [],
+    `material learner-visible position shortcuts remain after presentation permutation: ${report.learnerVisiblePositionAlerts.map(({ presentationOrdinal, stage, position }) => `${presentationOrdinal}:${stage}:${position}`).join(", ")}`);
 
   for (const locale of ["Ru", "En"]) {
     const cue = report.wordingCue[locale];
