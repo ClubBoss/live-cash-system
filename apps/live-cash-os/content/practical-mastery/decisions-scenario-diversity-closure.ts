@@ -28,7 +28,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "What must be identified before treating every visible improvement as a full out?",
     actionOptions: [
       o("a", "Только число оставшихся карт", "Only the number of unseen cards", "RAW_OUT_COUNT"),
-      o("b", "Какие ауты чистые, а какие могут сделать вторую лучшую руку", "Which outs are clean and which can still make a second-best hand"),
+      o("b", "Чистые и грязные ауты", "Clean versus dirty outs"),
       o("c", "Только текущий размер банка", "Only the current pot size", "CONTEXT_IGNORED"),
     ],
     reasonOptions: [
@@ -39,7 +39,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     correctActionId: "b",
     correctReasonId: "r2",
     targetSeconds: 20,
-    explanationRu: "Сырой out count недостаточен: ненатсовые и общие улучшения нужно дисконтировать, если соперник может сохранить или собрать более сильную комбинацию.",
+    explanationRu: "Сырой подсчёт аутов недостаточен: улучшения, которые не гарантируют лучшую возможную комбинацию, нужно дисконтировать против сильной части диапазона.",
     explanationEn: "Raw out count is insufficient: non-nut or shared improvements need discounting when the opponent can retain or make a stronger hand.",
   },
   {
@@ -53,7 +53,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой сигнал меняется первым?",
     questionEn: "Which signal changes first?",
     actionOptions: [
-      o("a", "Цена защиты ухудшается, поэтому пограничные calls уходят первыми", "The defense price worsens, so fringe calls disappear first"),
+      o("a", "Цена защиты и пограничные calls", "Defense price and fringe calls"),
       o("b", "Позиция BB исчезает", "BB loses postflop position", "POSITION_FALSE"),
       o("c", "SB origin перестаёт иметь значение", "SB range origin stops mattering", "ORIGIN_IGNORED"),
     ],
@@ -79,7 +79,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Что нужно сравнить перед автоматическим isolation raise?",
     questionEn: "What should be compared before automatically isolation-raising?",
     actionOptions: [
-      o("a", "Raise EV против EV бесплатного check с учётом value/fold leverage конкретной руки", "Raise EV versus the free-check EV, including the hand's actual value/fold leverage"),
+      o("a", "Raise EV против check EV", "Raise EV versus check EV"),
       o("b", "Только факт, что limp выглядит слабым", "Only the fact that the limp looks weak", "LIMP_WEAKNESS_SHORTCUT"),
       o("c", "Только абсолютную силу руки без реакции SB", "Only absolute hand strength without SB's response", "RESPONSE_TREE_IGNORED"),
     ],
@@ -105,7 +105,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Почему эти draws нельзя считать стратегически одинаковыми?",
     questionEn: "Why should these draws not be treated as strategically identical?",
     actionOptions: [
-      o("a", "Потому что качество draw зависит от clean outs, nut potential, domination и showdown value", "Because draw quality depends on clean outs, nut potential, domination, and showdown value"),
+      o("a", "Clean outs, nut potential и domination", "Clean outs, nut potential, and domination"),
       o("b", "Они одинаковы, если сырое число аутов совпадает", "They are identical whenever the raw out count matches", "RAW_OUT_EQUIVALENCE"),
       o("c", "Разница есть только если один draw уже готовая рука", "They differ only if one draw is already a made hand", "DRAW_LABEL_ONLY"),
     ],
@@ -131,7 +131,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой сигнал нужно увидеть до решения о turn lead?",
     questionEn: "Which signal must be recognized before considering a turn lead?",
     actionOptions: [
-      o("a", "Сдвинулось ли nut/coverage ownership достаточно, чтобы у caller появился source-supported lead branch", "Whether nut/coverage ownership shifted enough to create a source-supported lead branch for the caller"),
+      o("a", "Сдвиг range ownership для lead", "Range-ownership shift for a lead"),
       o("b", "Улучшилась ли конкретная рука Hero — этого достаточно", "Whether Hero's exact hand improved—that alone is enough", "HAND_IMPROVED_LEAD"),
       o("c", "Кто был префлоп-агрессором — этого достаточно", "Who was the preflop aggressor—that alone is enough", "INITIATIVE_ONLY"),
     ],
@@ -158,7 +158,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "What must be established before a thin/value/protection bet?",
     actionOptions: [
       o("a", "Что Hero, вероятно, впереди", "That Hero is probably ahead", "AHEAD_EQUALS_VALUE"),
-      o("b", "Какие хуже руки реально продолжают, что защищается и как выглядят raise/river branches", "Which worse hands actually continue, what needs protection, and how the raise/river branches look"),
+      o("b", "Хуже calls и future branches", "Worse calls and future branches"),
       o("c", "Что Hero ставил предыдущую улицу", "That Hero bet the previous street", "MOMENTUM_AUTOPILOT"),
     ],
     reasonOptions: [
@@ -183,7 +183,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой сдвиг относительно heads-up нужно распознать первым?",
     questionEn: "Which shift from heads-up should be recognized first?",
     actionOptions: [
-      o("a", "Дополнительный surviving range обычно усиливает continuing region и уменьшает естественный bluff supply", "An additional surviving range generally strengthens the continuing region and reduces natural bluff supply"),
+      o("a", "Сильнее ranges, меньше bluffs", "Stronger ranges, fewer bluffs"),
       o("b", "Хорошая pot odds автоматически компенсирует дополнительного игрока", "Good pot odds automatically compensate for the extra player", "PRICE_ONLY"),
       o("c", "Multiway не влияет на river thresholds", "Multiway does not affect river thresholds", "HU_THRESHOLD_TRANSFER"),
     ],
@@ -209,7 +209,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой фактор становится дороже игнорировать?",
     questionEn: "Which factor becomes more costly to ignore?",
     actionOptions: [
-      o("a", "Position, nutted potential и reverse-implied-odds в длинном future tree", "Position, nutted potential, and reverse implied odds in the long future tree"),
+      o("a", "Position и reverse implied odds", "Position and reverse implied odds"),
       o("b", "Только название стартовой руки", "Only the starting hand label", "HAND_LABEL_ONLY"),
       o("c", "Ничего: 100bb branch автоматически переносится на 300bb", "Nothing: the 100bb branch transfers automatically to 300bb", "DEPTH_IGNORED"),
     ],
@@ -236,7 +236,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "Which exploit conclusion is actually supported?",
     actionOptions: [
       o("a", "Расширять value во всех river branches", "Widen value in every river branch", "GLOBAL_EXPLOIT"),
-      o("b", "Расширить thin value только в подтверждённой small-size branch и заново оценивать крупный sizing", "Widen thin value only in the evidenced small-size branch and re-evaluate the large-size branch"),
+      o("b", "Только подтверждённая small-size branch", "Only the evidenced small-size branch"),
       o("c", "Игнорировать sizing: player type важнее", "Ignore sizing because player type matters more", "SIZE_IGNORED"),
     ],
     reasonOptions: [
@@ -261,7 +261,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Где заканчивается доказанный bluff exploit?",
     questionEn: "Where does the evidenced bluff exploit stop?",
     actionOptions: [
-      o("a", "На границе наблюдаемой line/size/street; соседние branches требуют новых данных", "At the observed line/size/street boundary; adjacent branches require new evidence"),
+      o("a", "Только наблюдаемая line/size", "Only the observed line/size"),
       o("b", "Он переносится на все streets против этого игрока", "It transfers to every street against this player", "GLOBAL_EXPLOIT"),
       o("c", "Он доказывает, что весь pool overfolds", "It proves the whole pool overfolds", "POOL_GENERALIZATION"),
     ],
@@ -288,7 +288,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "Which signal matters more for game selection?",
     actionOptions: [
       o("a", "Размер самых больших стеков сам по себе", "The size of the biggest stacks by itself", "STACK_APPEARANCE"),
-      o("b", "Качество/стиль соперников и относительная позиция, а затем устойчивость игры", "Opponent quality/style and relative position, then the sustainability of the game"),
+      o("b", "Состав стола и относительная позиция", "Lineup quality and relative position"),
       o("c", "Внешний стереотип о том, кто выглядит слабее", "A superficial stereotype about who looks weaker", "SUPERFICIAL_PROFILE"),
     ],
     reasonOptions: [
@@ -314,7 +314,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "Which signal should change SB's response?",
     actionOptions: [
       o("a", "Limp автоматически означает слабый capped range", "A limp automatically means a weak capped range", "LIMP_CAPPED"),
-      o("b", "Размер и construction BB raise против защищённого limp-range", "The size and construction of BB's raise against a protected limp range"),
+      o("b", "Размер и состав BB raise", "BB raise size and construction"),
       o("c", "Только факт, что SB уже вложил blind", "Only the fact that SB already posted a blind", "PRICE_ONLY"),
     ],
     reasonOptions: [
@@ -339,7 +339,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой признак делает bluff-кандидата предпочтительнее?",
     questionEn: "Which feature makes the bluff candidate preferable?",
     actionOptions: [
-      o("a", "Минимальный showdown value плюс полезный blocker/unblocker профиль относительно value и folds", "Low showdown value plus a useful blocker/unblocker profile relative to value and folds"),
+      o("a", "Полезный blocker-профиль", "Useful blocker profile"),
       o("b", "Сам факт, что это missed draw", "Merely being a missed draw", "MISSED_DRAW_AUTOBLUFF"),
       o("c", "Самая крупная карта в руке", "The highest card in Hero's hand", "HAND_RANK_SHORTCUT"),
     ],
@@ -366,7 +366,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "What must be recognized before betting?",
     actionOptions: [
       o("a", "Маленький size всегда гарантирует дешёвый showdown", "A small size always guarantees a cheap showdown", "CHEAP_SHOWDOWN_SHORTCUT"),
-      o("b", "Price-setting purpose, worse calls/folds и response tree на raise", "The price-setting purpose, worse calls/folds, and the response tree versus a raise"),
+      o("b", "Цель small bet и raise branch", "Small-bet purpose and raise branch"),
       o("c", "Только абсолютную силу Hero", "Only Hero's absolute hand strength", "HAND_STRENGTH_ONLY"),
     ],
     reasonOptions: [
@@ -386,12 +386,12 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     kind: "recognition",
     sourceRefs: ["FTGU-E24", "FTGU-E25", "CINJ-E10"],
     assumptions: ["branch-specific river evidence exists", "adjacent branch has not been observed enough"],
-    cueRu: "В одном конкретном river branch повторяемые showdowns указывают на underbluff. На соседнем sizing/line данных почти нет.",
-    cueEn: "Repeated showdowns indicate underbluffing in one specific river branch. There is little evidence for an adjacent sizing or line.",
+    cueRu: "В одном конкретном river branch повторяемые вскрытия указывают на underbluff. На соседнем sizing/line данных почти нет.",
+    cueEn: "Repeated revealed hands indicate underbluffing in one specific river branch. There is little evidence for an adjacent sizing or line.",
     questionRu: "Где заканчивается доказанный exploit?",
     questionEn: "Where does the evidenced exploit stop?",
     actionOptions: [
-      o("a", "На границе подтверждённой branch; соседний sizing/line требует собственного evidence", "At the boundary of the evidenced branch; the adjacent sizing/line needs its own evidence"),
+      o("a", "Только подтверждённая branch", "Only the evidenced branch"),
       o("b", "Underbluff переносится на все river spots этого игрока", "Underbluffing transfers to every river spot for this player", "GLOBAL_PLAYER_LABEL"),
       o("c", "Он автоматически описывает весь pool", "It automatically describes the whole pool", "POOL_GENERALIZATION"),
     ],
@@ -418,7 +418,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionEn: "Which multiway signal must not be lost?",
     actionOptions: [
       o("a", "Достаточно выбить самого слабого соперника", "It is enough to fold out the weakest opponent", "ONE_TARGET_ONLY"),
-      o("b", "Bluff должен пройти через все релевантные ranges; combined continuing strength определяет реальную fold equity", "The bluff must clear all relevant ranges; combined continuing strength determines the real fold equity"),
+      o("b", "Все fold targets и общий continue", "All fold targets and combined strength"),
       o("c", "Количество игроков не влияет на bluff EV", "The number of players does not affect bluff EV", "MULTIWAY_IGNORED"),
     ],
     reasonOptions: [
@@ -443,7 +443,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой сигнал отличает этот spot от обычного isolation?",
     questionEn: "Which signal distinguishes this spot from a standard isolation raise?",
     actionOptions: [
-      o("a", "Низкий fold equity и высокая вероятность остаться multiway после крупной инвестиции", "Low fold equity and a high chance of remaining multiway after a large investment"),
+      o("a", "Низкий fold equity; multiway почти неизбежен", "Low fold equity; multiway remains likely"),
       o("b", "Сам факт наличия limper всегда требует iso", "The mere presence of a limper always requires an isolation raise", "ISO_AUTOPILOT"),
       o("c", "Количество limpers не влияет на when-called branch", "The number of limpers does not affect the when-called branch", "MULTIWAY_IGNORED"),
     ],
@@ -469,7 +469,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Какой deep-stack сигнал различает эти hand classes?",
     questionEn: "Which deep-stack signal separates these hand classes?",
     actionOptions: [
-      o("a", "Nutted/implied-odds potential против domination/reverse-implied-odds в длинном future tree", "Nutted/implied-odds potential versus domination/reverse-implied-odds in the long future tree"),
+      o("a", "Nutted potential против domination", "Nutted potential versus domination"),
       o("b", "Глубина одинаково улучшает любую playable hand", "Depth improves every playable hand equally", "DEPTH_UNIFORM"),
       o("c", "Только preflop equity без позиции", "Only preflop equity without position", "POSITION_IGNORED"),
     ],
@@ -495,7 +495,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Почему одинаковая price не даёт одинаковый bluff-catch?",
     questionEn: "Why does the same price not imply the same bluff-catch?",
     actionOptions: [
-      o("a", "Price задаёт требуемую bluff frequency, но credible bluff supply определяется ancestry конкретной линии", "Price sets the required bluff frequency, but credible bluff supply comes from the ancestry of the specific line"),
+      o("a", "Цена плюс реальный bluff supply", "Price plus credible bluff supply"),
       o("b", "Одинаковая price всегда означает одинаковый call", "The same price always means the same call", "PRICE_ONLY"),
       o("c", "Blockers полностью заменяют анализ bluff supply", "Blockers completely replace bluff-supply analysis", "BLOCKER_ONLY"),
     ],
@@ -521,7 +521,7 @@ export const scenarioDiversityClosureDecisions: PracticalDecision[] = [
     questionRu: "Как правильно ограничить exploit?",
     questionEn: "How should the exploit be bounded?",
     actionOptions: [
-      o("a", "Атаковать подтверждённый size/line и не переносить tell на соседние nodes без данных", "Attack the evidenced size/line and do not transfer the tell to adjacent nodes without data"),
+      o("a", "Только подтверждённый size/line", "Only the evidenced size/line"),
       o("b", "Считать любой маленький sizing слабостью во всех spots", "Treat every small sizing as weakness in every spot", "GLOBAL_SIZE_TELL"),
       o("c", "Считать игрока слабым независимо от line", "Label the player weak regardless of the line", "PLAYER_LABEL_SHORTCUT"),
     ],
