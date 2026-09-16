@@ -73,6 +73,44 @@ test("template-heavy generated siblings expose one scenario-family authority", (
   }
 });
 
+test("marker-leading B3/B4 generated families share one scenario-diversity identity", () => {
+  for (const marker of ["B3", "B4"]) {
+    const grouped = new Map();
+    for (const decision of practicalDecisions.filter((candidate) => candidate.id.startsWith(`PM-${marker}-`))) {
+      const prefix = decision.id.replace(/-\\d+$/u, "");
+      const rows = grouped.get(prefix) ?? [];
+      rows.push(decision);
+      grouped.set(prefix, rows);
+    }
+
+    assert.ok(grouped.size >= (marker === "B3" ? 20 : 11), `${marker}: expected generated prefix families`);
+    for (const [prefix, rows] of grouped) {
+      assert.ok(rows.length >= 4, `${prefix}: expected sibling depth`);
+      assert.equal(
+        new Set(rows.map(practicalEvidenceScenarioId)).size,
+        1,
+        `${prefix}: generated siblings must share one scenario identity`,
+      );
+    }
+  }
+});
+
+test("confirmed cross-wave paraphrases collapse to one semantic stimulus family", () => {
+  for (const ids of [
+    ["PM-RIV-03-A8-103", "PM-B3-RIV03-101", "PM-B3-RIV03-102"],
+    ["PM-RIV-03-A8-106", "PM-B3-RIV03-103"],
+    ["PM-INT-01-001", "PM-INT-01-A11-101"],
+  ]) {
+    const rows = ids.map((id) => practicalDecisionById.get(id));
+    assert.ok(rows.every(Boolean), `missing semantic-alias fixture: ${ids.join(", ")}`);
+    assert.equal(
+      new Set(rows.map(practicalStimulusFamilyId)).size,
+      1,
+      `cross-wave paraphrases must collapse: ${ids.join(", ")}`,
+    );
+  }
+});
+
 test("scenario siblings remain distinct practice items but share one scenario-diversity identity", () => {
   const grouped = new Map();
   for (const decision of practicalDecisions) {
