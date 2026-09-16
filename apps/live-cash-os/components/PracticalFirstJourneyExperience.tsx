@@ -76,10 +76,10 @@ export default function PracticalFirstJourneyExperience({
   ];
 
   useEffect(() => {
-    if (!skill?.id || answeredDecisionId) return;
+    if (!skill?.id) return;
     setPracticeStarted(false);
     setPracticeHelpOpen(false);
-  }, [skill?.id, answeredDecisionId]);
+  }, [skill?.id]);
 
   useEffect(() => {
     if (!ready || recoveryBlocked || continuityChecked || presentation === null) return;
@@ -250,7 +250,7 @@ export default function PracticalFirstJourneyExperience({
       </section>
     </> : null}
 
-    {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }}>
+    {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
       <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА" : "ТЕПЕРЬ ТЫ") : (journeyStep.requiresHiddenCue ? "INDEPENDENT CHECK" : "YOUR TURN")}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
