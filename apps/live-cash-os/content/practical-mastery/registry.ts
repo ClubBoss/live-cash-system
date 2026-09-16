@@ -50,9 +50,9 @@ export const practicalSkillFamilies: PracticalSkillFamily[] = [
   f("BL-06", "W3_BLINDS", "SB first-in", "SB first-in", "Распознавать raise/limp/fold structure там, где source support допускает branch.", ["blinds"], ["PF-01"], ["SLC-BB-VS-SB"], "P0"),
   f("BL-07", "W3_BLINDS", "BB vs SB raise", "BB versus SB raise", "Играть wide-range blind-vs-blind defence.", ["blinds"], ["BL-06"], ["SLC-BB-VS-SB"], "P0"),
   f("BL-08", "W3_BLINDS", "BB vs SB limp", "BB versus SB limp", "Различать check/raise branches против SB limp.", ["blinds"], ["BL-06"], ["SLC-BB-VS-SB"], "P0"),
-  f("BL-09", "W3_BLINDS", "SB response after BB aggression", "SB response after BB aggression", "Продолжать BvB tree после raise/3-bet вместо изучения только first action.", ["blinds", "aggression"], ["BL-07", "BL-08"], ["SLC-BB-VS-SB"], "P1"),
-  f("BL-10", "W3_BLINDS", "BvB SRP postflop", "Blind-vs-blind SRP postflop", "Играть postflop при очень широких исходных ranges.", ["blinds", "filtering"], ["BL-07", "W4-BOARD-01"], ["SLC-BB-VS-SB", "LCM-03"], "P0"),
-  f("BL-11", "W3_BLINDS", "BvB 3-bet pots", "Blind-vs-blind 3-bet pots", "Переносить blind-range width в 3-bet-pot postflop.", ["blinds", "aggression"], ["BL-09"], ["SLC-3BET-POTS"], "P1"),
+  f("BL-09", "W3_BLINDS", "SB response after BB aggression", "SB response after BB aggression", "Продолжать ветку блайнд против блайнда после raise/3-bet вместо изучения только first action.", ["blinds", "aggression"], ["BL-07", "BL-08"], ["SLC-BB-VS-SB"], "P1"),
+  f("BL-10", "W3_BLINDS", "Блайнд против блайнда: SRP постфлоп", "Blind-vs-blind SRP postflop", "Играть postflop при очень широких исходных ranges.", ["blinds", "filtering"], ["BL-07", "W4-BOARD-01"], ["SLC-BB-VS-SB", "LCM-03"], "P0"),
+  f("BL-11", "W3_BLINDS", "Блайнд против блайнда: 3-бет-поты", "Blind-vs-blind 3-bet pots", "Переносить blind-range width в 3-bet-pot postflop.", ["blinds", "aggression"], ["BL-09"], ["SLC-3BET-POTS"], "P1"),
   f("BL-12", "W3_BLINDS", "Blind depth/rake variants", "Blind depth and rake variants", "Менять defence/3-bet incentives при depth/rake changes.", ["geometry", "blinds"], ["BL-04", "FND-06"], ["FTGU-E05", "FTGU-E06"], "P0"),
 
   // W4 — recognition
