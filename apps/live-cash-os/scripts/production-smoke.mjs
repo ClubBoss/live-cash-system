@@ -122,6 +122,50 @@ async function verifyQuickStartSameSkillContinuity(page) {
   }
 }
 
+async function verifyQuickStartWrongRepairRetest(browser) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  try {
+    await applyTestInvite(page);
+    await isolateTestMirrorState(page);
+    await page.goto(canonicalUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+
+    const card = page.locator("section.today-card[data-practical-decision-id]");
+    await card.waitFor({ timeout: 20_000 });
+    const failedDecisionId = await card.getAttribute("data-practical-decision-id");
+    if (failedDecisionId !== "PM-FND-01-101") {
+      throw new Error(`Unexpected repair-smoke first decision: ${failedDecisionId ?? "missing"}`);
+    }
+
+    await card.locator("fieldset").nth(0).locator('input[type="radio"]:not([value="a"])').first().check();
+    await card.locator("fieldset").nth(1).locator('input[type="radio"]:not([value="r1"])').first().check();
+    await card.getByRole("button", { name: /Ответить|Answer/ }).click();
+    await page.getByRole("heading", { name: /Нужно исправить|Repair needed/ }).waitFor({ timeout: 15_000 });
+
+    await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+    await page.getByText(/ТЕПЕРЬ ТЫ|YOUR TURN/, { exact: true }).waitFor({ timeout: 15_000 });
+    const siblingDecisionId = await card.getAttribute("data-practical-decision-id");
+    if (siblingDecisionId !== "PM-FND-01-001") {
+      throw new Error(`Quick Start did not route the wrong answer to the independent recognition sibling: ${siblingDecisionId ?? "missing"}`);
+    }
+
+    await card.locator('fieldset').nth(0).locator('input[type="radio"][value="a"]').check();
+    await card.locator('fieldset').nth(1).locator('input[type="radio"][value="r1"]').check();
+    await card.getByRole("button", { name: /Ответить|Answer/ }).click();
+    await page.getByRole("heading", { name: /Верно|Correct/ }).waitFor({ timeout: 15_000 });
+
+    await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+    await page.getByText(/ТЕПЕРЬ ТЫ|YOUR TURN/, { exact: true }).waitFor({ timeout: 15_000 });
+    const retestDecisionId = await card.getAttribute("data-practical-decision-id");
+    if (retestDecisionId !== failedDecisionId) {
+      throw new Error(`Quick Start did not admit the failed recognition for an independent retest: ${retestDecisionId ?? "missing"}`);
+    }
+  } finally {
+    await context.close();
+  }
+}
+
 async function verifyDataRecovery(page, locale) {
   const russian = locale === "ru";
   await page.goto(dataUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
@@ -150,6 +194,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     await verifyBuildIdentity(desktop);
     await desktop.screenshot({ path: "smoke-evidence/desktop-practical-home-ru.png", fullPage: true });
     await verifyQuickStartSameSkillContinuity(desktop);
+    await verifyQuickStartWrongRepairRetest(browser);
 
     await practicalNav(desktop).getByRole("button", { name: "EN", exact: true }).click();
     await verifyCanonicalMastery(desktop, "en");
@@ -179,6 +224,7 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
       build_identity_verified: Boolean(deployedSha),
       canonical_continue_learning_verified: true,
       quick_start_same_skill_continuity_verified: true,
+      quick_start_wrong_repair_retest_verified: true,
       generic_continue_target: "/mastery/journey",
       support_data_recovery_verified: true,
       canonical_root_has_no_legacy_primary_navigation: true,
