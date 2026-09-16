@@ -242,3 +242,5 @@ FND01-QUICKSTART-NOVELTY-2026-09-16 records the repaired two-family FND-01 Quick
 POSTDEPLOY-SEMANTIC-RESIDUALS-2026-09-16 records the bounded heads-up/BvB first-use cleanup at governed review-corpus fingerprint `ef7964e4f2799bb019dcfb03457d71bca6e7fb4637b9a6374ceddc9064d2980c`. The accompanying generic mixed-session stimulus-family dedupe is scheduler-only and does not create or imply human approval.
 
 HEADS-UP-INFLECTION-2026-09-16 records the RU heads-up inflection closure at governed review-corpus fingerprint `3c0e06406fe639968d2cd8e5142806ab5cfa29323e5d2c948932b8195cac0d41`; deterministic checks remain rejection-only and do not create human approval.
+
+QUICKSTART-EVIDENCE-IDENTITY-2026-09-16 records the governed Quick Start continuity relock at canonical review-corpus fingerprint `9b4151c5f9a16d6114f2a3a83aef22704b9673f03a27e43f985f00994fa931cc`. The accompanying FND-01 first-scored sequencing, scenario-level mastery/retention evidence identity, and stable E2E skill hooks are runtime/integrity repairs; deterministic validation remains rejection-only and creates no human approval.
