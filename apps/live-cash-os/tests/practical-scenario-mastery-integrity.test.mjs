@@ -7,6 +7,7 @@ import {
   markPracticalConceptTaught,
   practicalSkillCorpusCanReach,
   practicalSkillCorpusStats,
+  nextPracticalDecision,
   recordPracticalDecision,
 } from "../lib/practical-mastery-core.ts";
 
@@ -55,6 +56,13 @@ test("one generated scenario family cannot grant recognition mastery by wording 
     state.skills["FND-04"].evidenceStage,
     "CONCEPT_TAUGHT",
     "two differently worded recognition items from one scenario must not satisfy recognition mastery",
+  );
+
+  const novelRecognition = nextPracticalDecision(state, "FND-04");
+  assert.equal(
+    novelRecognition?.id,
+    "PM-FND-04-S2-101",
+    "scheduler must continue recognition until independent scenario diversity is satisfied",
   );
 
   state = answerCorrect(state, "PM-FND-04-S2-101", 4);
