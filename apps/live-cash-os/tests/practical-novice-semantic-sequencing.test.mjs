@@ -159,9 +159,10 @@ test("learner surfaces place the concept primer before practice and keep unknown
   const unknownSection = quickStart.slice(unknownStart, unknownEnd);
   assert.doesNotMatch(unknownSection, /recordPracticalDecision|setMasteryWithStudyWorkspace/);
 
-  assert.match(primer, /practicalDecisions/);
-  assert.match(primer, /decision\.skillId === skillId/);
-  assert.match(primer, /actionOptions/);
-  assert.match(primer, /reasonOptions/);
+  assert.match(primer, /practicalSkillById/);
+  assert.match(primer, /\.\.\.teachingTexts/);
+  assert.doesNotMatch(primer, /practicalDecisions/);
+  assert.doesNotMatch(primer, /actionOptions|reasonOptions/);
   assert.match(primer, /Ничего из этого не нужно было знать заранее/);
+  assert.match(primer, /термины текущего разбора/);
 });
