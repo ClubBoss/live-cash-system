@@ -13,6 +13,7 @@ import { buildAdaptiveIntegratedSession } from "../lib/practical-adaptive-sessio
 import {
   createPracticalMasteryState,
   markPracticalConceptTaught,
+  practicalSkillCorpusStats,
   recordPracticalDecision,
 } from "../lib/practical-mastery-core.ts";
 import { nextFirstJourneyDecision } from "../lib/practical-first-journey.ts";
@@ -21,6 +22,7 @@ import {
   recordIntegratedDecision,
 } from "../lib/practical-integrated-session.ts";
 import {
+  practicalEvidenceFamilyId,
   practicalScenarioFamilyId,
   practicalStimulusFamilyId,
 } from "../lib/practical-stimulus-identity.ts";
@@ -68,6 +70,52 @@ test("template-heavy generated siblings expose one scenario-family authority", (
   for (const rows of byPrefix.values()) {
     assert.equal(new Set(rows.map(practicalScenarioFamilyId)).size, 1);
   }
+});
+
+test("scenario siblings may vary visibly but collapse to one mastery evidence family", () => {
+  const grouped = new Map();
+  for (const decision of practicalDecisions) {
+    const key = practicalScenarioFamilyId(decision);
+    const rows = grouped.get(key) ?? [];
+    rows.push(decision);
+    grouped.set(key, rows);
+  }
+  const pair = [...grouped.values()].find((rows) => rows.length >= 2 && new Set(rows.map(practicalStimulusFamilyId)).size >= 2);
+  assert.ok(pair, "need a paraphrased same-scenario fixture");
+  assert.equal(new Set(pair.map(practicalEvidenceFamilyId)).size, 1);
+  assert.ok(new Set(pair.map(practicalStimulusFamilyId)).size >= 2);
+});
+
+test("mastery corpus reachability counts evidence families rather than paraphrased stimulus siblings", () => {
+  let collapsedSkills = 0;
+  for (const skillId of new Set(practicalDecisions.map((decision) => decision.skillId))) {
+    const rows = practicalDecisions.filter((decision) => decision.skillId === skillId);
+    const count = (kinds, familyId) => new Set(rows.filter((decision) => kinds.includes(decision.kind)).map(familyId)).size;
+    const expected = {
+      recognition: count(["recognition"], practicalEvidenceFamilyId),
+      direct: count(["decision"], practicalEvidenceFamilyId),
+      transfer: count(["changed", "mixed"], practicalEvidenceFamilyId),
+      boundary: count(["boundary"], practicalEvidenceFamilyId),
+    };
+    const stimulus = {
+      recognition: count(["recognition"], practicalStimulusFamilyId),
+      direct: count(["decision"], practicalStimulusFamilyId),
+      transfer: count(["changed", "mixed"], practicalStimulusFamilyId),
+      boundary: count(["boundary"], practicalStimulusFamilyId),
+    };
+    const actual = practicalSkillCorpusStats(skillId);
+    assert.equal(actual.recognition, expected.recognition, `${skillId}: recognition evidence family mismatch`);
+    assert.equal(actual.direct, expected.direct, `${skillId}: direct-decision evidence family mismatch`);
+    assert.equal(actual.transfer, expected.transfer, `${skillId}: transfer evidence family mismatch`);
+    assert.equal(actual.boundary, expected.boundary, `${skillId}: boundary evidence family mismatch`);
+    if (
+      stimulus.recognition > expected.recognition
+      || stimulus.direct > expected.direct
+      || stimulus.transfer > expected.transfer
+      || stimulus.boundary > expected.boundary
+    ) collapsedSkills += 1;
+  }
+  assert.ok(collapsedSkills >= 1, "expected paraphrased scenario siblings to stop inflating at least one skill corpus");
 });
 
 test("focused rounds do not pad with duplicate stimuli or more than two siblings of one generated scenario", () => {
@@ -203,6 +251,38 @@ test("retention credit requires semantic novelty, not only a different decision 
   }, correctInput(sibling, new Date("2026-08-03T00:01:00Z")));
 
   assert.deepEqual(next.skills[first.skillId].retentionDaysPassed, [], "same stimulus family must not earn delayed-retention credit");
+});
+
+test("retention credit rejects paraphrased siblings from the same scenario family", () => {
+  const grouped = new Map();
+  for (const decision of practicalDecisions) {
+    const key = practicalScenarioFamilyId(decision);
+    const rows = grouped.get(key) ?? [];
+    rows.push(decision);
+    grouped.set(key, rows);
+  }
+  const pair = [...grouped.values()].find((rows) => rows.length >= 2 && new Set(rows.map(practicalStimulusFamilyId)).size >= 2);
+  assert.ok(pair, "need a same-scenario / different-stimulus retention fixture");
+  const [first, sibling] = pair;
+  assert.equal(first.skillId, sibling.skillId);
+
+  let state = createPracticalMasteryState(new Date("2026-08-01T00:00:00Z"));
+  state = markPracticalConceptTaught(state, first.skillId, new Date("2026-08-01T00:00:01Z"));
+  state = recordPracticalDecision(state, { decisionId: first.id, ...correctInput(first, new Date("2026-08-01T00:01:00Z")) });
+  state.skills[first.skillId].evidenceStage = "BOUNDARY_TESTED";
+
+  const next = recordIntegratedDecision(state, {
+    decisionId: sibling.id,
+    skillId: sibling.skillId,
+    priority: 100,
+    reason: "RETENTION",
+    whyAfterAnswer: "scenario-evidence novelty test",
+    retentionTierDays: 1,
+  }, correctInput(sibling, new Date("2026-08-03T00:01:00Z")));
+
+  assert.notEqual(practicalStimulusFamilyId(first), practicalStimulusFamilyId(sibling));
+  assert.equal(practicalEvidenceFamilyId(first), practicalEvidenceFamilyId(sibling));
+  assert.deepEqual(next.skills[first.skillId].retentionDaysPassed, [], "same scenario family must not earn independent delayed-retention credit");
 });
 
 test("Quick Start FND-01 starts on an independent 25% recognition stimulus and preserves two distinct recognition families", async () => {

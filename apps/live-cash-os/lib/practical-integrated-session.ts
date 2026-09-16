@@ -27,7 +27,7 @@ import {
   type PracticalMasteryState,
 } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
-import { practicalStimulusFamilyId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
 
 export const INTEGRATED_SESSION_SIZE = 8;
 export const RETENTION_INTERVAL_DAYS = [1, 3, 7] as const;
@@ -99,25 +99,25 @@ function candidateDecisionForSkill(
   const rawLatest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
   const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
   const latestDecision = latest ? practicalDecisionById.get(latest.decisionId) ?? null : null;
-  const latestFamily = latestDecision ? practicalStimulusFamilyId(latestDecision) : null;
+  const latestFamily = latestDecision ? practicalEvidenceFamilyId(latestDecision) : null;
   const attemptedFamilies = new Set(
     state.attempts
       .filter((attempt) => attempt.skillId === skillId && isSemanticallyValidPracticalAttempt(attempt))
       .flatMap((attempt) => {
         const decision = practicalDecisionById.get(attempt.decisionId);
-        return decision ? [practicalStimulusFamilyId(decision)] : [];
+        return decision ? [practicalEvidenceFamilyId(decision)] : [];
       }),
   );
   const avoidFamilies = new Set(
     [...avoidDecisionIds].flatMap((decisionId) => {
       const decision = practicalDecisionById.get(decisionId);
-      return decision ? [practicalStimulusFamilyId(decision)] : [];
+      return decision ? [practicalEvidenceFamilyId(decision)] : [];
     }),
   );
   const excludedFamilies = new Set(
     [...excludedDecisionIds].flatMap((decisionId) => {
       const decision = practicalDecisionById.get(decisionId);
-      return decision ? [practicalStimulusFamilyId(decision)] : [];
+      return decision ? [practicalEvidenceFamilyId(decision)] : [];
     }),
   );
   const pool = practicalDecisions.filter((decision) =>
@@ -125,12 +125,12 @@ function candidateDecisionForSkill(
     && decision.skillId === skillId
     && kinds.includes(decision.kind)
     && !excludedDecisionIds.has(decision.id)
-    && !excludedFamilies.has(practicalStimulusFamilyId(decision))
+    && !excludedFamilies.has(practicalEvidenceFamilyId(decision))
     && !avoidDecisionIds.has(decision.id)
-    && !avoidFamilies.has(practicalStimulusFamilyId(decision))
-    && (!requireNonIdenticalToLatest || practicalStimulusFamilyId(decision) !== latestFamily)
+    && !avoidFamilies.has(practicalEvidenceFamilyId(decision))
+    && (!requireNonIdenticalToLatest || practicalEvidenceFamilyId(decision) !== latestFamily)
   );
-  return pool.find((decision) => !attemptedFamilies.has(practicalStimulusFamilyId(decision))) ?? pool[0] ?? null;
+  return pool.find((decision) => !attemptedFamilies.has(practicalEvidenceFamilyId(decision))) ?? pool[0] ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
 function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isSemanticallyValidPracticalAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
@@ -228,7 +228,7 @@ export function recordIntegratedDecision(state: PracticalMasteryState, item: Int
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
   let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
-  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalStimulusFamilyId(decision) !== practicalStimulusFamilyId(latestCorrectDecision));
+  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceFamilyId(decision) !== practicalEvidenceFamilyId(latestCorrectDecision));
   if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {
     const actualGap = elapsedDays(latestCorrectBefore.answeredAt, now);
     if (actualGap >= item.retentionTierDays) {
