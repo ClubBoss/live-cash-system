@@ -29,7 +29,7 @@ export default function PracticalFirstJourneyExperience({
   presentation: FirstJourneyPresentationState | null;
   profile: PracticalFirstJourneyProfileController;
 }) {
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   const {
     mastery: state,
     studyWorkspace,
@@ -220,7 +220,6 @@ export default function PracticalFirstJourneyExperience({
       <p className="support">{ruleAlreadyLearned
         ? (locale === "ru" ? "Это новый узел на уже знакомом механизме: правило не учим заново, а переносим в другую игровую ситуацию." : "This is a new node using a mechanism you already know: do not relearn the rule; transfer it to a different game situation.")
         : (locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example.")}</p>
-      <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
     </section>
 
     {!practiceStarted ? <>
@@ -262,8 +261,8 @@ export default function PracticalFirstJourneyExperience({
     {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
       <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА" : "ТЕПЕРЬ ТЫ") : (journeyStep.requiresHiddenCue ? "INDEPENDENT CHECK" : "YOUR TURN")}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" value={option.id} name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" value={option.id} name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} className="practical-option-row"><input type="radio" value={option.id} name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} className="practical-option-row"><input type="radio" value={option.id} name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!answerRevealed ? <>
         <button className="secondary" type="button" onClick={() => setPracticeHelpOpen((value) => !value)} style={{ marginBottom: 12 }}>
           {locale === "ru" ? "Не знаю / пока не уверен" : "I don't know / not sure yet"}

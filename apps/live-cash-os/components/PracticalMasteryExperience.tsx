@@ -102,7 +102,7 @@ function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
 }
 
 export default function PracticalMasteryExperience() {
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   const {
     mastery: state,
     studyWorkspace,
@@ -182,7 +182,6 @@ export default function PracticalMasteryExperience() {
       <h1>{locale === "ru" ? "Смотри прогресс." : "See your progress."}<br /><em>{locale === "ru" ? "Учись через один маршрут." : "Learn through one route."}</em></h1>
       <p className="lede">{locale === "ru" ? "Карта показывает, что уже получается и что ещё нужно закрепить. Она не является отдельным курсом: для обучения и практики используй «Продолжить обучение»." : "The map shows what is working and what still needs reinforcement. It is not a separate course: use Continue learning for teaching and practice."}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
         <PracticalNextLearningLink className="primary" />
       </div>
       <p className="support">{locale === "ru" ? (cloudMode === "cloud" ? "Прогресс сохраняется в облаке" : "Прогресс сохраняется на устройстве") : (cloudMode === "cloud" ? "Progress is saved to the cloud" : "Progress is saved on this device")}</p>

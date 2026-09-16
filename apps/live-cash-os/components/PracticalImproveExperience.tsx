@@ -173,7 +173,7 @@ function ManualResolutionCard({
 
 export default function PracticalImproveExperience() {
   const router = useRouter();
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   const {
     mastery,
     performance,
@@ -242,10 +242,6 @@ export default function PracticalImproveExperience() {
       <p className="eyebrow">{locale === "ru" ? "УЛУЧШЕНИЕ ИГРЫ" : "IMPROVE"}</p>
       <h1>{locale === "ru" ? "Выбери, что исправить дальше" : "Choose what to improve next"}</h1>
       <p className="lede">{locale === "ru" ? "Система по-прежнему рекомендует следующий шаг сама. Здесь ты также можешь открыть текущую ошибку или вручную выбрать область — без изменения прогресса до начала реальной практики." : "The system still owns the next recommendation. You can also open a current mistake or browse an area manually without changing progress until real practice begins."}</p>
-      <div className="mode-switch" aria-label={locale === "ru" ? "Язык" : "Language"}>
-        <button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button>
-        <button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button>
-      </div>
     </section>
 
     {activeResume ? <section className="today-card" data-improve-section="active-round">

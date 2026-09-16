@@ -21,7 +21,7 @@ export default function PracticalPostQuickStartTeaching({
   profile: PracticalPostQuickStartProfileController;
   requestedSkillId: string | null;
 }) {
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   const { mastery: state, studyWorkspace, setMastery, ready, recoveryBlocked } = profile;
   const [pendingPracticeSkillId, setPendingPracticeSkillId] = useState<string | null>(null);
   const [transitionFailed, setTransitionFailed] = useState(false);
@@ -142,10 +142,6 @@ export default function PracticalPostQuickStartTeaching({
       <p>{ruleAlreadyLearned
         ? (locale === "ru" ? "Этот причинный механизм уже знаком. Здесь не повторяем теорию с нуля — переносим её в новый skill и сразу проверяем применение." : "You already know this causal mechanism. Do not reteach it from scratch here — transfer it to the new skill and test the application.")
         : (locale === "ru" ? "Быстрый старт 8/8 завершён. Сначала разберись в терминах и механизме; практика откроется только после явного перехода к примеру." : "Quick Start 8/8 is complete. First review the terms and mechanism; practice opens only after you explicitly move to an example.")}</p>
-      <div className="mode-switch">
-        <button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button>
-        <button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button>
-      </div>
     </section>
 
     <PracticalConceptPrimer skillId={skill.id} locale={locale} teachingTexts={primerTeachingTexts} />
