@@ -11,16 +11,16 @@ type DecisionRepair = {
 
 const generatedReasonRepairs: Record<string, Pick<PracticalDecisionOption, "textRu" | "textEn">> = {
   HISTORY_IGNORED: {
-    textRu: "Текущая цена и сила руки важнее предыдущей линии, поэтому её можно считать вторичной",
-    textEn: "Current price and hand strength matter more than ancestry, so prior action can be treated as secondary",
+    textRu: "Если известны текущая цена и класс руки, предыдущую линию можно не учитывать при восстановлении сохранившегося диапазона",
+    textEn: "Once current price and hand class are known, prior action can be ignored when reconstructing the surviving range",
   },
   GEOMETRY_IGNORED: {
-    textRu: "Класс руки игрока задаёт решение, а глубина, число игроков и относительная позиция — лишь небольшие поправки",
-    textEn: "Hero's hand class drives the decision; depth, player count, and relative position are only minor adjustments",
+    textRu: "Если класс руки игрока не изменился, глубина, число игроков и относительная позиция не должны менять выбор ветки",
+    textEn: "If Hero's hand class is unchanged, depth, player count, and relative position should not change the branch choice",
   },
   ARCHETYPE_AS_EVIDENCE: {
-    textRu: "Если наблюдение совпадает с типом игрока, переносить рид на соседние ветки до обратных данных",
-    textEn: "If the observation fits a player type, carry the read into nearby branches until contrary evidence appears",
+    textRu: "Если одно наблюдение похоже на тип игрока, этого достаточно, чтобы переносить рид на соседние ветки",
+    textEn: "If one observation fits a player type, that is enough to carry the read into nearby branches",
   },
 };
 
