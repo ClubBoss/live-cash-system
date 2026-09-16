@@ -237,8 +237,8 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     questionEn: "Who actually benefits from the pairing in this branch?",
     actionOptions: [
       o("a", "Нужно заново оценить владение сетами и трипсами по обоим диапазонам, а не просто объявить доску более сильной", "Both ranges' set/trips ownership must be reassessed, not just declaring the board 'stronger'"),
-      o("b", "Спаривание всегда автоматически усиливает диапазон агрессора", "A pairing tends to strengthen the aggressor's retained strong-hand region", "PAIR_AS_POLARIZATION"),
-      o("c", "Спаривание всегда означает поляризацию диапазона коллера", "A pairing tends to make the caller's continuing range more polarized", "PAIR_AS_POLARIZATION"),
+      o("b", "Спаривание всегда автоматически усиливает диапазон агрессора", "The aggressor benefits because the pairing should be treated as a range-wide boost without recounting trips or full houses", "PAIR_AS_POLARIZATION"),
+      o("c", "Спаривание всегда означает поляризацию диапазона коллера", "The caller benefits because the paired turn should be read as polarizing the call range before checking which trips or full houses each side reaches", "PAIR_AS_POLARIZATION"),
     ],
     reasonOptions: [
       o("r1", "Спаренная доска сама по себе меняет только размер банка", "A paired board by itself only changes the pot size", "RUNOUT_MISCLASSIFIED"),
