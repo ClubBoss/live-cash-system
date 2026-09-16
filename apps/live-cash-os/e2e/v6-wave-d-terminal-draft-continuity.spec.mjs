@@ -58,12 +58,13 @@ async function answerCurrentQuickStartDecision(page) {
   if (!recommendation) throw new Error("missing canonical Quick Start recommendation");
   const decision = nextFirstJourneyDecision(mastery, recommendation.skillId);
   if (!decision) throw new Error(`missing canonical Quick Start decision for ${recommendation.skillId}`);
-  const actionIndex = decision.actionOptions.findIndex((option) => option.id === decision.correctActionId);
-  const reasonIndex = decision.reasonOptions.findIndex((option) => option.id === decision.correctReasonId);
-  if (actionIndex < 0 || reasonIndex < 0) throw new Error(`invalid canonical answer options for ${decision.id}`);
+  if (!decision.actionOptions.some((option) => option.id === decision.correctActionId)
+    || !decision.reasonOptions.some((option) => option.id === decision.correctReasonId)) {
+    throw new Error(`invalid canonical answer options for ${decision.id}`);
+  }
 
-  await card.locator("fieldset").nth(0).locator('input[type="radio"]').nth(actionIndex).check();
-  await card.locator("fieldset").nth(1).locator('input[type="radio"]').nth(reasonIndex).check();
+  await card.locator("fieldset").nth(0).locator(`input[type="radio"][value="${decision.correctActionId}"]`).check();
+  await card.locator("fieldset").nth(1).locator(`input[type="radio"][value="${decision.correctReasonId}"]`).check();
   await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
 }
@@ -149,10 +150,8 @@ test("CONT-01 unanswered Quick Start item survives reload and can be answered no
   if (!recommendation) throw new Error("missing canonical Quick Start recommendation after reload");
   const decision = nextFirstJourneyDecision(mastery, recommendation.skillId);
   if (!decision) throw new Error("missing canonical Quick Start decision after reload");
-  const actionIndex = decision.actionOptions.findIndex((option) => option.id === decision.correctActionId);
-  const reasonIndex = decision.reasonOptions.findIndex((option) => option.id === decision.correctReasonId);
-  await restoredCard.locator("fieldset").nth(0).locator('input[type="radio"]').nth(actionIndex).check();
-  await restoredCard.locator("fieldset").nth(1).locator('input[type="radio"]').nth(reasonIndex).check();
+  await restoredCard.locator("fieldset").nth(0).locator(`input[type="radio"][value="${decision.correctActionId}"]`).check();
+  await restoredCard.locator("fieldset").nth(1).locator(`input[type="radio"][value="${decision.correctReasonId}"]`).check();
   await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
   await expect(page.getByRole("heading", { name: FEEDBACK_HEADING })).toBeVisible();
   expect(await attemptCount(page)).toBe(attemptsBeforeReload + 1);
