@@ -1,6 +1,6 @@
 import { allPracticalTableStates, practicalDecisionById, practicalRepDepthTargetForSkill, type PracticalDecision } from "../content/practical-mastery";
 import { isCurrentPracticalEvidenceAttempt, isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
-import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId } from "./practical-stimulus-identity";
 
 export type PracticalRepairNeed = "RECOGNITION" | "MECHANISM" | "TRANSFER" | "BOUNDARY" | "AUTOMATICITY" | "UNDEREXPOSED" | "NONE";
 export type PracticalPerformanceSample = { decisionId:string; responseMs:number; correct:boolean };
@@ -11,7 +11,6 @@ export type PracticalAdaptiveNeed = { skillId:string; need:PracticalRepairNeed; 
 // shadow the older evidence it superseded, not reveal it).
 function latestSkillAttempt(state:PracticalMasteryState,skillId:string){const attempt=[...state.attempts].reverse().find((candidate)=>candidate.skillId===skillId)??null;return attempt&&isCurrentPracticalEvidenceAttempt(attempt)?attempt:null;}
 function successfulIds(state:PracticalMasteryState,skillId:string,kinds:PracticalDecision["kind"][]){return new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&attempt.correct&&isSemanticallyValidPracticalAttempt(attempt)).flatMap((attempt)=>{const d=practicalDecisionById.get(attempt.decisionId);return d&&kinds.includes(d.kind)?[practicalEvidenceFamilyId(d)]:[];})).size;}
-function successfulScenarioIds(state:PracticalMasteryState,skillId:string,kinds:PracticalDecision["kind"][]){return new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&attempt.correct&&isSemanticallyValidPracticalAttempt(attempt)).flatMap((attempt)=>{const d=practicalDecisionById.get(attempt.decisionId);return d&&kinds.includes(d.kind)?[practicalEvidenceScenarioId(d)]:[];})).size;}
 function perceptualAvailable(skillId:string){return allPracticalTableStates.some((table)=>practicalDecisionById.get(table.decisionId)?.skillId===skillId);}
 
 export function classifyPracticalAdaptiveNeed(state:PracticalMasteryState,skillId:string,performance:PracticalPerformanceSample[]=[]):PracticalAdaptiveNeed{
@@ -41,9 +40,7 @@ export function classifyPracticalAdaptiveNeed(state:PracticalMasteryState,skillI
   const target=practicalRepDepthTargetForSkill(skillId);
   if(target.tier==="INTENSIVE"){
     const recognition=successfulIds(state,skillId,["recognition"]); const direct=successfulIds(state,skillId,["decision"]); const transfer=successfulIds(state,skillId,["changed","mixed"]); const boundary=successfulIds(state,skillId,["boundary"]);
-    const recognitionScenarios=successfulScenarioIds(state,skillId,["recognition"]); const directScenarios=successfulScenarioIds(state,skillId,["decision"]); const transferScenarios=successfulScenarioIds(state,skillId,["changed","mixed"]);
-    const diversityDeficit=(target.targetRecognition>1&&recognitionScenarios<2?1:0)+(target.targetDirect>1&&directScenarios<2?1:0)+(target.targetTransfer>1&&transferScenarios<2?1:0);
-    const deficit=Math.max(0,target.targetRecognition-recognition)+Math.max(0,target.targetDirect-direct)+Math.max(0,target.targetTransfer-transfer)+Math.max(0,target.targetBoundary-boundary)+diversityDeficit;
+    const deficit=Math.max(0,target.targetRecognition-recognition)+Math.max(0,target.targetDirect-direct)+Math.max(0,target.targetTransfer-transfer)+Math.max(0,target.targetBoundary-boundary);
     if(deficit>0) return {skillId,need:"UNDEREXPOSED",priority:45+Math.min(20,deficit*2),preferredKinds:transfer<target.targetTransfer?["changed","mixed","recognition"]:["recognition","decision","changed","boundary"],preferPerceptual:perceptualAvailable(skillId),reason:`Intensive family remains under its EV-weighted depth target by ${deficit} distinct evidence slots.`};
   }
   return {skillId,need:"NONE",priority:0,preferredKinds:[],preferPerceptual:false,reason:"No causal repair need detected."};

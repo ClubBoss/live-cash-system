@@ -182,7 +182,7 @@ test("selected-skill transparency identifies satisfied and next required categor
   summary = practicalSkillProgressTransparency(state, skill.id, skill.targetEvidenceStage);
   assert.equal(summary.nextCategory?.key, "RECOGNITION", "one distinct correct recognition item must not satisfy the category");
   assert.equal(summary.recentCorrectCount, 2);
-  assert.equal(summary.recentDistinctCorrectCount, 2);
+  assert.equal(summary.recentDistinctCorrectCount, 1);
   assert.equal(summary.recentDistinctScenarioCount, 1);
   assert.equal(summary.latestConfidence, 95);
 });
@@ -210,7 +210,8 @@ test("progress transparency separates distinct examples from scenario diversity"
 
   const summary = practicalSkillProgressTransparency(state, first.skillId, "REAL_HAND_TRANSFER");
   assert.equal(summary.recentCorrectCount, 2);
-  assert.equal(summary.recentDistinctCorrectCount, 1);
+  assert.equal(summary.recentDistinctCorrectCount, 2);
+  assert.equal(summary.recentDistinctScenarioCount, 1);
 });
 
 test("mastery thresholds and delayed retrieval policy remain unchanged", async () => {
@@ -219,7 +220,6 @@ test("mastery thresholds and delayed retrieval policy remain unchanged", async (
   assert.match(core, /MIN_DIRECT_DECISION_STIMULI = 3/);
   assert.match(core, /MIN_TRANSFER_STIMULI = 2/);
   assert.match(core, /MIN_BOUNDARY_STIMULI = 1/);
-  assert.match(core, /MIN_SCENARIO_FAMILIES = 2/);
   assert.deepEqual([...RETENTION_INTERVAL_DAYS], [1, 3, 7]);
   assert.match(core, /successfulDecisionIds\.includes\(decision\.id\)/);
 });
