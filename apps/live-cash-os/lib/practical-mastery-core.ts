@@ -213,11 +213,37 @@ export function latestAttemptsByDecision(state: PracticalMasteryState, skillId?:
   for (const [decisionId, attempt] of map) if (attempt.skillId === skillId) scoped.set(decisionId, attempt);
   return scoped;
 }
+function hasInterveningCorrectRepairEvidence(state: PracticalMasteryState, repair: PracticalDecision): boolean {
+  let latestWrongIndex = -1;
+  for (let index = state.attempts.length - 1; index >= 0; index -= 1) {
+    const attempt = state.attempts[index];
+    if (attempt.decisionId === repair.id && !attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)) {
+      latestWrongIndex = index;
+      break;
+    }
+  }
+  if (latestWrongIndex < 0) return false;
+
+  const repairFamily = practicalEvidenceFamilyId(repair);
+  return state.attempts.slice(latestWrongIndex + 1).some((attempt) => {
+    if (!attempt.correct || attempt.skillId !== repair.skillId || !isCurrentPracticalEvidenceAttempt(attempt)) return false;
+    const decision = practicalDecisionById.get(attempt.decisionId);
+    return Boolean(decision && practicalEvidenceFamilyId(decision) !== repairFamily);
+  });
+}
+
 function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][], excludedFamilyIds: ReadonlySet<string> = new Set<string>(), preferNovelScenario = false): PracticalDecision | null { const attemptedFamilies = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId && isSemanticallyValidPracticalAttempt(attempt)).flatMap((attempt) => { const decision = practicalDecisionById.get(attempt.decisionId); return decision ? [practicalEvidenceFamilyId(decision)] : []; })); const successfulScenarios = new Set(state.attempts.filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt)).flatMap((attempt) => { const decision = practicalDecisionById.get(attempt.decisionId); return decision && kinds.includes(decision.kind) ? [practicalEvidenceScenarioId(decision)] : []; })); const pool = decisionsForPracticalSkill(skillId).filter((decision) => kinds.includes(decision.kind) && !attemptedFamilies.has(practicalEvidenceFamilyId(decision)) && !excludedFamilyIds.has(practicalEvidenceFamilyId(decision))); if (preferNovelScenario) return pool.find((decision) => !successfulScenarios.has(practicalEvidenceScenarioId(decision))) ?? pool[0] ?? null; return pool[0] ?? null; }
 export function nextPracticalDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   if (isPracticalBridgeSkill(skillId) || !practicalPrerequisitesMet(state, skillId)) return null; const pool = decisionsForPracticalSkill(skillId); if (!pool.length) return null; const progress = state.skills[skillId];
   const latest = latestAttemptsByDecision(state, skillId); const unresolved = [...latest.values()].reverse().find((attempt) => !attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)) ?? null; const repair = unresolved ? practicalDecisionById.get(unresolved.decisionId) ?? null : null;
-  if (repair) { const excluded = new Set([practicalEvidenceFamilyId(repair)]); return unattemptedDecisionOfKinds(state, skillId, [repair.kind], excluded) ?? unattemptedDecisionOfKinds(state, skillId, ["recognition", "decision", "changed", "mixed"], excluded); }
+  if (repair) {
+    const excluded = new Set([practicalEvidenceFamilyId(repair)]);
+    const alternative = unattemptedDecisionOfKinds(state, skillId, [repair.kind], excluded)
+      ?? unattemptedDecisionOfKinds(state, skillId, ["recognition", "decision", "changed", "mixed"], excluded);
+    if (alternative) return alternative;
+    if (hasInterveningCorrectRepairEvidence(state, repair)) return repair;
+    return null;
+  }
   if (distinctSuccessfulByKind(progress, ["recognition"]) < MIN_RECOGNITION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["recognition"], new Set<string>(), true); if (distinctSuccessfulByKind(progress, ["decision"]) < MIN_DIRECT_DECISION_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["decision"], new Set<string>(), true); if (distinctSuccessfulByKind(progress, ["changed", "mixed"]) < MIN_TRANSFER_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["changed", "mixed"], new Set<string>(), true); if (distinctSuccessfulByKind(progress, ["boundary"]) < MIN_BOUNDARY_STIMULI) return unattemptedDecisionOfKinds(state, skillId, ["boundary"]);
   return unattemptedDecisionOfKinds(state, skillId, ["recognition", "decision", "changed", "mixed", "boundary"]);
 }
