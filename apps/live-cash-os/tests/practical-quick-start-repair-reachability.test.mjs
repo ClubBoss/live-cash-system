@@ -26,7 +26,7 @@ function correctInput(decision, now) {
   };
 }
 
-test("one wrong Quick Start recognition always has a novelty-first path back to recognition completion", () => {
+test("one wrong Quick Start recognition uses one independent sibling before retesting the miss", () => {
   for (const step of firstJourneySteps) {
     let state = createPracticalMasteryState(new Date("2026-09-01T00:00:00Z"));
     state = markPracticalConceptTaught(state, step.skillId, new Date("2026-09-01T00:00:01Z"));
@@ -40,28 +40,33 @@ test("one wrong Quick Start recognition always has a novelty-first path back to 
       { decisionId: first.id, ...wrongInput(first, new Date("2026-09-01T00:01:00Z")) },
     );
 
-    const afterWrong = nextFirstJourneyDecision(state, step.skillId);
-    assert.ok(afterWrong, `${step.skillId}: wrong answer dead-ended immediately`);
-    assert.notEqual(afterWrong.id, first.id, `${step.skillId}: repair repeated the failed item immediately`);
+    const sibling = nextFirstJourneyDecision(state, step.skillId);
+    assert.ok(sibling, `${step.skillId}: wrong answer dead-ended immediately`);
+    assert.equal(sibling.kind, "recognition", `${step.skillId}: first repair must stay inside recognition`);
+    assert.notEqual(sibling.id, first.id, `${step.skillId}: repair repeated the failed item immediately`);
 
-    let solvedDifferentRecognition = false;
-    let retestedFailedRecognition = false;
+    state = recordPracticalDecision(
+      state,
+      { decisionId: sibling.id, ...correctInput(sibling, new Date("2026-09-01T00:02:00Z")) },
+    );
+
+    const retest = nextFirstJourneyDecision(state, step.skillId);
+    assert.ok(retest, `${step.skillId}: failed item did not become independently retestable`);
+    assert.equal(retest.id, first.id, `${step.skillId}: repair should retest the original miss after one correct sibling`);
+
+    state = recordPracticalDecision(
+      state,
+      { decisionId: retest.id, ...correctInput(retest, new Date("2026-09-01T00:03:00Z")) },
+    );
 
     for (let index = 0; index < 20 && !stageAtLeast(state.skills[step.skillId].evidenceStage, "RECOGNITION_TRAINED"); index += 1) {
       const decision = nextFirstJourneyDecision(state, step.skillId);
-      assert.ok(decision, `${step.skillId}: Quick Start dead-ended before recognition completion`);
-
-      if (decision.kind === "recognition" && decision.id !== first.id) solvedDifferentRecognition = true;
-      if (decision.id === first.id) {
-        assert.equal(solvedDifferentRecognition, true, `${step.skillId}: failed recognition retested before a different recognition was solved`);
-        retestedFailedRecognition = true;
-      }
-
+      assert.ok(decision, `${step.skillId}: Quick Start dead-ended before scenario-diverse recognition completion`);
       state = recordPracticalDecision(
         state,
         {
           decisionId: decision.id,
-          ...correctInput(decision, new Date(Date.UTC(2026, 8, 1, 0, index + 2, 0))),
+          ...correctInput(decision, new Date(Date.UTC(2026, 8, 1, 0, index + 4, 0))),
         },
       );
     }
@@ -69,11 +74,8 @@ test("one wrong Quick Start recognition always has a novelty-first path back to 
     assert.equal(
       stageAtLeast(state.skills[step.skillId].evidenceStage, "RECOGNITION_TRAINED"),
       true,
-      `${step.skillId}: one initial miss must remain recoverable`,
+      `${step.skillId}: one initial miss must remain recoverable under the scenario-diversity gate`,
     );
-
-    if (step.skillId === "FND-01" || step.skillId === "FND-02") {
-      assert.equal(retestedFailedRecognition, true, `${step.skillId}: two-item recognition corpus must retest the original miss`);
-    }
   }
 });
+
