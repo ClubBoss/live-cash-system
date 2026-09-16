@@ -4,6 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { practicalDecisions } from "../content/practical-mastery/index.ts";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
 const practicalMasteryDir = path.join(root, "content/practical-mastery");
@@ -30,9 +32,22 @@ test("source aliases are explicitly resolved to canonical Smash source IDs", asy
 
 test("scored decisions preserve source-purity boundaries", async () => {
   const corpus = (await Promise.all(decisionFiles.map((file) => read(`content/practical-mastery/${file}.ts`)))).join("\n");
-  assert.doesNotMatch(corpus, /exact solver frequency is/i);
-  assert.doesNotMatch(corpus, /always defend exactly 50%/i);
-  assert.doesNotMatch(corpus, /unknown live players always/i);
+  const endorsed = practicalDecisions.flatMap((decision) => {
+    const correctAction = decision.actionOptions.find((option) => option.id === decision.correctActionId);
+    const correctReason = decision.reasonOptions.find((option) => option.id === decision.correctReasonId);
+    return [
+      decision.explanationRu,
+      decision.explanationEn,
+      correctAction?.textRu ?? "",
+      correctAction?.textEn ?? "",
+      correctReason?.textRu ?? "",
+      correctReason?.textEn ?? "",
+    ];
+  }).join("\n");
+
+  assert.doesNotMatch(endorsed, /exact solver frequency is/i);
+  assert.doesNotMatch(endorsed, /always defend exactly 50%/i);
+  assert.doesNotMatch(endorsed, /unknown live players always/i);
   assert.match(corpus, /ballpark baseline|not a law|не закон|default with exceptions|table-specific branch/);
   assert.match(corpus, /pool hypothesis|field-dependent|requiring validation|table-specific branch/);
 });
