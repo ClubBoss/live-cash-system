@@ -17,8 +17,8 @@ const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "u
 
 const NOW = new Date("2026-09-01T00:00:00.000Z");
 
-function attempt({ id, decisionId, skillId, actionId, reasonId, confidence = 55, correct = false, answeredAt = "2026-09-01T00:00:00.000Z" }) {
-  return { id, decisionId, skillId, actionId, reasonId, confidence, correct, answeredAt };
+function attempt({ id, decisionId, skillId, actionId, reasonId, confidence = 55, confidenceProvenance, correct = false, answeredAt = "2026-09-01T00:00:00.000Z" }) {
+  return { id, decisionId, skillId, actionId, reasonId, confidence, ...(confidenceProvenance ? { confidenceProvenance } : {}), correct, answeredAt };
 }
 
 function syntheticDecision({ id, skillId = "FND-01", actionWrongTag = "M_ACTION", reasonWrongTag = "M_REASON" }) {
@@ -76,7 +76,7 @@ test("C7 high-confidence weighting can promote a skill with fewer raw wrong atte
     const state = createPracticalMasteryState(NOW, true);
     state.attempts = [
       // FND-01: a single high-confidence wrong attempt -> weight 1 + 2 = 3.
-      attempt({ id: "1", decisionId: decisionA.id, skillId: "FND-01", actionId: "b", reasonId: "r1", confidence: 90 }),
+      attempt({ id: "1", decisionId: decisionA.id, skillId: "FND-01", actionId: "b", reasonId: "r1", confidence: 90, confidenceProvenance: "SELF_REPORT" }),
       // FND-02: two low-confidence wrong attempts -> weight 2 + 0 = 2.
       attempt({ id: "2", decisionId: decisionB1.id, skillId: "FND-02", actionId: "b", reasonId: "r1", confidence: 40, answeredAt: "2026-09-01T00:01:00.000Z" }),
       attempt({ id: "3", decisionId: decisionB2.id, skillId: "FND-02", actionId: "b", reasonId: "r1", confidence: 40, answeredAt: "2026-09-01T00:02:00.000Z" }),
@@ -90,9 +90,9 @@ test("C1/C7 the global recommendation score strictly rises when the same wrong e
   const decision = syntheticDecision({ id: "FEATURE-C-SYN-F", skillId: "FND-01" });
   withSyntheticDecisions([decision], () => {
     const stateLow = createPracticalMasteryState(NOW, true);
-    stateLow.attempts = [attempt({ id: "1", decisionId: decision.id, skillId: "FND-01", actionId: "b", reasonId: "r1", confidence: 40 })];
+    stateLow.attempts = [attempt({ id: "1", decisionId: decision.id, skillId: "FND-01", actionId: "b", reasonId: "r1", confidence: 40, confidenceProvenance: "SELF_REPORT" })];
     const stateHigh = createPracticalMasteryState(NOW, true);
-    stateHigh.attempts = [attempt({ id: "1", decisionId: decision.id, skillId: "FND-01", actionId: "b", reasonId: "r1", confidence: 90 })];
+    stateHigh.attempts = [attempt({ id: "1", decisionId: decision.id, skillId: "FND-01", actionId: "b", reasonId: "r1", confidence: 90, confidenceProvenance: "SELF_REPORT" })];
 
     const lowRec = recommendNextPracticalSkill(stateLow);
     const highRec = recommendNextPracticalSkill(stateHigh);

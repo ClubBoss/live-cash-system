@@ -12,7 +12,7 @@ import {
   withQuickStartPostAnswer,
 } from "../lib/practical-continuity-workspace";
 import type { FirstJourneyPresentationState } from "../lib/practical-first-journey-authority";
-import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/practical-mastery-core";
+import { markPracticalConceptTaught, practicalDecisionAttemptCount, recordPracticalDecision } from "../lib/practical-mastery-core";
 import { practicalPresentedOptions } from "../lib/practical-option-presentation";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -62,17 +62,15 @@ export default function PracticalFirstJourneyExperience({
   const nextDecision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
   const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
 
-  const recordedDecisionAttemptCount = decision ? state.attempts.filter((attempt) => attempt.decisionId === decision.id).length : 0;
+  const recordedDecisionAttemptCount = decision ? practicalDecisionAttemptCount(state, decision.id) : 0;
   const currentDecisionAttemptRecorded = Boolean(decision && answerRevealed && answeredDecisionId === decision.id);
   const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
-  const presentedActionOptions = useMemo(
-    () => decision ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal) : [],
-    [decision, presentationOrdinal],
-  );
-  const presentedReasonOptions = useMemo(
-    () => decision ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal) : [],
-    [decision, presentationOrdinal],
-  );
+  const presentedActionOptions = decision
+    ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal)
+    : [];
+  const presentedReasonOptions = decision
+    ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal)
+    : [];
 
   const primerTeachingTexts = rule ? [
     locale === "ru" ? rule.triggerRu : rule.triggerEn,

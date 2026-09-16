@@ -51,8 +51,8 @@ test("concept completion is preceded by learner-facing source-backed anchors in 
   assert.doesNotMatch(mapExperience, /recordPracticalDecision/, "the progress map must not become a second scored-practice owner");
 });
 
-test("v3 practical evidence remains first-class while persistence moves into the reliable learner profile", () => {
-  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
+test("v4 practical evidence remains first-class while persistence moves into the reliable learner profile", () => {
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4/);
   assert.match(core, /practical-mastery-v3/);
   assert.match(core, /retentionDaysPassed: number\[\]/);
   assert.match(core, /retentionDaysPassed: \[\]/);

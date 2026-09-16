@@ -97,9 +97,10 @@ test("LC-AUD-024 learner-facing latest confidence skips synthetic and legacy-unk
     null,
   );
 
-  const legacyUnknown = wrongState(null);
+  const legacyUnknown = wrongState("NOT_CAPTURED");
   const legacyAttempt = legacyUnknown.state.attempts.at(-1);
   assert.ok(legacyAttempt);
+  delete legacyAttempt.confidenceProvenance;
   assert.equal(legacyAttempt.confidenceProvenance, undefined);
   assert.equal(isSemanticallyValidPracticalAttempt(legacyAttempt), true);
   assert.equal(
@@ -164,6 +165,8 @@ test("LC-AUD-024 learner flows declare confidence provenance at the writer bound
 
   assert.match(quickStart, /confidence: 65, confidenceProvenance: "NOT_CAPTURED"/);
   assert.match(perceptual, /confidence: 65, confidenceProvenance: "NOT_CAPTURED"/);
-  assert.match(integrated, /confidenceProvenance: "SELF_REPORT"/);
-  assert.match(integratedWriter, /confidenceProvenance: "SELF_REPORT"/);
+  assert.match(integrated, /useState<PracticalConfidenceProvenance>\("NOT_CAPTURED"\)/);
+  assert.match(integrated, /setConfidenceProvenance\("SELF_REPORT"\)/);
+  assert.match(integrated, /confidenceProvenance, now: answeredAt/);
+  assert.match(integratedWriter, /confidenceProvenance: input\.confidenceProvenance \?\? "NOT_CAPTURED"/);
 });

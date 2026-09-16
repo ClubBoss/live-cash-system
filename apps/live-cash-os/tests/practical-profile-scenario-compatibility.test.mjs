@@ -30,6 +30,17 @@ import {
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+function asBaselineSchema3(root) {
+  const legacy = structuredClone(root);
+  const profile = legacy._practicalProfile;
+  profile.mastery.schemaVersion = 3;
+  delete profile.mastery.attemptArchive;
+  for (const attempt of profile.mastery.attempts) delete attempt.confidenceProvenance;
+  for (const event of profile.performance) delete event.confidenceProvenance;
+  if (profile.studyWorkspace.continuity?.integrated) delete profile.studyWorkspace.continuity.integrated.draft;
+  return legacy;
+}
+
 function answerCorrect(state, decisionId, at) {
   const decision = practicalDecisionById.get(decisionId);
   assert.ok(decision, `missing canonical decision ${decisionId}`);
@@ -62,8 +73,9 @@ function previousValidFnd04Root() {
     profile,
     new Date("2026-09-15T00:03:00Z"),
   );
-  root._practicalProfile.mastery.skills["FND-04"].evidenceStage = "RECOGNITION_TRAINED";
-  return root;
+  const legacy = asBaselineSchema3(root);
+  legacy._practicalProfile.mastery.skills["FND-04"].evidenceStage = "RECOGNITION_TRAINED";
+  return legacy;
 }
 
 function currentValidFnd04Root() {

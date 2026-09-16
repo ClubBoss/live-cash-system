@@ -53,6 +53,12 @@ export default function PracticalNavigationGuard() {
       const destination = internalDestination(anchor);
       if (!destination) return;
 
+      // Active-round resume is continuity-critical. Let the browser perform a
+      // real document navigation so Back/Forward cannot leave Next's client
+      // router URL and rendered tree out of sync. The durable round checkpoint
+      // is the source of truth and restores the exact Q/draft after the load.
+      if (anchor.dataset.activeRoundResume === "1") return;
+
       if (destination.pathname === "/tools") {
         event.preventDefault();
         event.stopPropagation();

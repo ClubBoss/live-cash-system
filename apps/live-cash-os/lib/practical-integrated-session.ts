@@ -19,12 +19,13 @@ import {
   isPracticalBridgeSkill,
   isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
+  practicalAttemptedDecisionIds,
+  practicalLatestCorrectAttemptForSkill,
   markDelayedPracticalRetrieval,
   practicalPrerequisitesMet,
   practicalSkillCorpusCanReach,
   recordPracticalDecision,
   stageAtLeast,
-  type PracticalAttempt,
   type PracticalMasteryState,
 } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
@@ -80,7 +81,7 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
 // forged/malformed "correct" row must not be allowed to establish a fake
 // (e.g. artificially old) retention anchor, and reaching past it to an older
 // row would let it silently overrule a genuine, more recent unresolved miss.
-function latestCorrectAttempt(state: PracticalMasteryState, skillId: string): PracticalAttempt | null { const attempt = [...state.attempts].reverse().find((candidate) => candidate.skillId === skillId && candidate.correct) ?? null; return attempt && isSemanticallyValidPracticalAttempt(attempt) ? attempt : null; }
+function latestCorrectAttempt(state: PracticalMasteryState, skillId: string) { const attempt = practicalLatestCorrectAttemptForSkill(state, skillId); return attempt?.valid ? attempt : null; }
 function elapsedDays(iso: string, now: Date): number { return Math.max(0, (now.getTime() - new Date(iso).getTime()) / 86_400_000); }
 
 export function retentionTierDue(state: PracticalMasteryState, skillId: string, now = new Date()): number | null {
@@ -98,17 +99,15 @@ function candidateDecisionForSkill(
   avoidDecisionIds: ReadonlySet<string> = new Set<string>(),
   requiredDifferentScenarioFromDecisionId: string | null = null,
 ): PracticalDecision | null {
-  const rawLatest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
+  const rawLatest = [...latestAttemptsByDecision(state, skillId).values()].at(-1) ?? null;
   const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
   const latestDecision = latest ? practicalDecisionById.get(latest.decisionId) ?? null : null;
   const latestFamily = latestDecision ? practicalEvidenceFamilyId(latestDecision) : null;
   const attemptedFamilies = new Set(
-    state.attempts
-      .filter((attempt) => attempt.skillId === skillId && isSemanticallyValidPracticalAttempt(attempt))
-      .flatMap((attempt) => {
-        const decision = practicalDecisionById.get(attempt.decisionId);
-        return decision ? [practicalEvidenceFamilyId(decision)] : [];
-      }),
+    [...practicalAttemptedDecisionIds(state)].flatMap((decisionId) => {
+      const decision = practicalDecisionById.get(decisionId);
+      return decision?.skillId === skillId ? [practicalEvidenceFamilyId(decision)] : [];
+    }),
   );
   const avoidFamilies = new Set(
     [...avoidDecisionIds].flatMap((decisionId) => {
@@ -230,10 +229,10 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
   return items.sort((a, b) => b.priority - a.priority).slice(0, size);
 }
 
-export function recordIntegratedDecision(state: PracticalMasteryState, item: IntegratedSessionItem, input: { actionId: string; reasonId: string; confidence: number; now?: Date }): PracticalMasteryState {
+export function recordIntegratedDecision(state: PracticalMasteryState, item: IntegratedSessionItem, input: { actionId: string; reasonId: string; confidence: number; confidenceProvenance?: "SELF_REPORT" | "NOT_CAPTURED"; now?: Date }): PracticalMasteryState {
   const now = input.now ?? new Date(); const decision = practicalDecisionById.get(item.decisionId); if (!decision) throw new Error(`Unknown integrated decision: ${item.decisionId}`);
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
-  let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, confidenceProvenance: "SELF_REPORT", now });
+  let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
   const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision));
   if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {

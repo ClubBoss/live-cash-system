@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { practicalDecisionById } from "../content/practical-mastery";
 import { practicalSelfReportedConfidence } from "../lib/practical-confidence";
-import { stageAtLeast } from "../lib/practical-mastery-core";
+import { practicalRecentAttemptsForSkills, stageAtLeast } from "../lib/practical-mastery-core";
 import { practicalProgressCountingSkills } from "../lib/practical-learner-skill-set";
 import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "../lib/practical-stimulus-identity";
 import { usePracticalLocale } from "../lib/use-practical-locale";
@@ -43,8 +43,8 @@ export default function PracticalSkillDomainOverview() {
           const progress = mastery.skills[skill.id];
           return Boolean(progress?.conceptTaught) && !stageAtLeast(progress?.evidenceStage ?? "SOURCE_SUPPORTED", "DECISION_TRAINED");
         }).length;
-        const recent = mastery.attempts.filter((attempt) => skillIds.has(attempt.skillId)).slice(-8);
-        const recentCorrect = recent.filter((attempt) => attempt.correct);
+        const recent = practicalRecentAttemptsForSkills(mastery, skillIds, 8);
+        const recentCorrect = recent.filter((attempt) => attempt.valid && attempt.correct);
         const distinctCorrect = new Set(recentCorrect.flatMap((attempt) => {
           const decision = practicalDecisionById.get(attempt.decisionId);
           return decision ? [practicalEvidenceFamilyId(decision)] : [];
@@ -54,7 +54,7 @@ export default function PracticalSkillDomainOverview() {
           return decision ? [practicalEvidenceScenarioId(decision)] : [];
         })).size;
         const latestAttempt = recent.at(-1) ?? null;
-        const lastConfidence = latestAttempt ? practicalSelfReportedConfidence(latestAttempt) : null;
+        const lastConfidence = latestAttempt?.valid ? practicalSelfReportedConfidence(latestAttempt) : null;
         const pct = skills.length ? Math.round((trained / skills.length) * 100) : 0;
         return <article className={`practical-domain-card practical-domain-card--${domain.key}`} key={domain.key}>
           <div className="practical-domain-card__top"><span className="practical-domain-card__icon" aria-hidden="true">{domain.icon}</span><div><h3>{locale === "ru" ? domain.ru : domain.en}</h3><span>{domain.range}</span></div></div>
