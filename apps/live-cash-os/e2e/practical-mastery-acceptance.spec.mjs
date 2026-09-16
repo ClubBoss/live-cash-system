@@ -190,6 +190,10 @@ test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading
   await bl11.click();
   await expect(page.getByText("ПОКА ЕСТЬ ОГРАНИЧЕНИЕ", { exact: true })).toBeVisible();
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
+  await expect(page.getByText(/Цель:.*ещё не начато.*ограничено доступным источником/i)).toBeVisible();
+  await expect(page.getByText(/Сейчас:.*ещё не начато.*Цель:.*ещё не начато/i)).toBeVisible();
+  await expect(page.getByText(/следующий необходимый шаг/i)).toHaveCount(0);
+  await expect(page.getByText(/продукт не назначает следующий доказательный шаг выше доступного уровня источника/i)).toBeVisible();
 });
 
 test("After-play flow deep-links to Real Hands on the secondary tools route without restoring the legacy canonical home", async ({ page }) => {

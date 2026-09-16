@@ -93,7 +93,9 @@
       "components/Wave5PracticeLayer.tsx",
       "components/Wave7Experience.tsx",
       "components/Gauntlet4LearningIntegrityLayer.tsx",
-      "components/DataSafetyPanel.tsx"
+      "components/DataSafetyPanel.tsx",
+      "components/PracticalFirstJourneyExperience.tsx",
+      "components/PracticalPostQuickStartTeaching.tsx"
     ]
   },
   "source_blobs": {

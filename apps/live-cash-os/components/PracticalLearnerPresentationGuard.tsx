@@ -11,11 +11,11 @@ import {
 // Retained only as a bounded compatibility fallback for legacy route labels.
 // Learner teaching copy is authored in its source fields.
 const legacyExactFallbacks = new Map<string, string>([
-  ["Первый круг", "Старт обучения"],
-  ["First Journey", "Start learning"],
+  ["Первый круг", "Быстрый старт"],
+  ["First Journey", "Quick Start"],
   [
     "Смешанная практика не проверяет незнакомые концепции. Сначала пройди первый круг.",
-    "Практика не проверяет незнакомые концепции. Сначала пройди старт обучения.",
+    "Практика не проверяет незнакомые концепции. Сначала пройди Быстрый старт.",
   ],
   [
     "Mixed practice will not test an unseen concept.",
