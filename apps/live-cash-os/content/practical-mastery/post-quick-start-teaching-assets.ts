@@ -118,6 +118,18 @@ export const practicalSourceBoundTeachingAssets: PracticalSourceBoundTeachingAss
     boundaryEn: "Do not treat a straddle as a cosmetic label, and do not assume rake affects only strong hands or only the river.",
   }),
   a({
+    skillId: "TURN-01",
+    sourceRefs: ["FTGU-E21"],
+    situationRu: "W4-RUNOUT-01 уже научил замечать blank, scare, completing и range-shifting runouts. Здесь тот же знакомый класс карты нужно привязать к тому, какие диапазоны реально дошли до тёрна после конкретной линии флопа.",
+    situationEn: "W4-RUNOUT-01 already taught the basic blank, scare, completing, and range-shifting runout classes. Here the familiar card class must be tied to the ranges that actually survived the specific flop line.",
+    mechanismRu: "Не переучивай ярлык карты с нуля. Сначала восстанови surviving ranges после флоп-экшена, затем спроси, что новая карта вернула, закрыла или перераспределила в сильной части каждого диапазона. Класс runout — это триггер пересчёта владения, а не готовое действие.",
+    mechanismEn: "Do not relearn the card label from scratch. First reconstruct the ranges that survived the flop action, then ask what the new card restored, completed, or shifted in each range's strong region. The runout class is a trigger to recompute ownership, not a ready-made action.",
+    exampleRu: "Одна и та же высокая карта может быть почти бланком после линии, где у обоих диапазонов мало комбинаций этого ранга, и заметно range-shifting после другой линии, где один диапазон сохранил гораздо больше сильных комбинаций. Поэтому сначала ancestry, потом классификация и только затем действие.",
+    exampleEn: "The same high card can be close to a blank after a line where neither range retains much of that rank, yet materially range-shifting after a different line where one range kept far more strong combinations. Read ancestry first, then classification, then choose the action.",
+    boundaryRu: "Не превращай знакомые ярлыки «blank/scare/completing» в автоматические ставки или чеки и не считай любую overcard scare card без проверки surviving ranges.",
+    boundaryEn: "Do not turn familiar blank/scare/completing labels into automatic bets or checks, and do not call every overcard a scare card without checking the surviving ranges.",
+  }),
+  a({
     skillId: "W4-DRAW-01",
     sourceRefs: ["FTGU-E09", "EXT-PC-OUTS-GUIDE-2023"],
     situationRu: "У Hero draw или pair+draw; одинаковое число номинальных аутов может скрывать разное качество улучшений и разный showdown value.",
