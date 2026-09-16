@@ -7,6 +7,7 @@ import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practi
 
 const QUICK_START_INITIAL_DECISION_BY_SKILL = new Map<string, string>([
   ["FND-01", "PM-FND-01-101"],
+  ["FND-02", "PM-FND-02-102"],
 ]);
 
 export type FirstJourneyRecommendation = {
