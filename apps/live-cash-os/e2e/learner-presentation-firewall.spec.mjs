@@ -58,7 +58,7 @@ test("Reference and Real Hands keep internal metadata and migration history behi
   await expect(page.getByTestId("legacy-en-queue-probe")).toHaveText("mistake-practice tasks to complete");
   await expectLearnerSafe(page);
 
-  await page.getByRole("navigation", { name: "Support tools" }).getByRole("button", { name: "RU", exact: true }).click();
+  await toolsMain.getByRole("button", { name: "RU", exact: true }).click();
   await expectLearnerSafe(page);
   await expect(toolsMain).toContainText("точную тему для тренировки");
   await expect(toolsMain).not.toContainText("точным навыком Practical");
