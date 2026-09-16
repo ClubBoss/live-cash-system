@@ -106,13 +106,14 @@ function untaggedWrongDecisionIdsForSkill(state: PracticalMasteryState, skillId:
 }
 
 const STAGE_ORDER: PracticalEvidenceStage[] = ["SOURCE_SUPPORTED", "CONCEPT_TAUGHT", "RECOGNITION_TRAINED", "DECISION_TRAINED", "CHANGED_NODE_TRANSFER", "BOUNDARY_TESTED", "DELAYED_RETRIEVAL", "REAL_HAND_TRANSFER"];
-const MIN_RECOGNITION_STIMULI = 2; const MIN_DIRECT_DECISION_STIMULI = 3; const MIN_TRANSFER_STIMULI = 2; const MIN_BOUNDARY_STIMULI = 1;
+const MIN_RECOGNITION_STIMULI = 2; const MIN_RECOGNITION_SCENARIOS = 2; const MIN_DIRECT_DECISION_STIMULI = 3; const MIN_TRANSFER_STIMULI = 2; const MIN_BOUNDARY_STIMULI = 1;
 function nowIso(now?: Date): string { return (now ?? new Date()).toISOString(); }
 // A successful decision only advances the skill it canonically belongs to:
 // without the skillId check, an id belonging to another skill's decision
 // (of a matching kind) would otherwise be silently counted toward this
 // skill's evidence stage.
 function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && decision.skillId === progress.skillId && kinds.includes(decision.kind) ? [practicalEvidenceFamilyId(decision)] : []; })).size; }
+function distinctSuccessfulScenariosByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && decision.skillId === progress.skillId && kinds.includes(decision.kind) ? [practicalEvidenceScenarioId(decision)] : []; })).size; }
 
 function applySourceEvidenceCeiling(skillId: string, stage: PracticalEvidenceStage): PracticalEvidenceStage {
   if (isPracticalBridgeSkill(skillId)) return "SOURCE_SUPPORTED";
@@ -123,9 +124,9 @@ function applySourceEvidenceCeiling(skillId: string, stage: PracticalEvidenceSta
 }
 export function deriveEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
   if (!progress.conceptTaught) return applySourceEvidenceCeiling(progress.skillId, "SOURCE_SUPPORTED");
-  const recognition = distinctSuccessfulByKind(progress, ["recognition"]); const direct = distinctSuccessfulByKind(progress, ["decision"]); const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]); const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
+  const recognition = distinctSuccessfulByKind(progress, ["recognition"]); const recognitionScenarios = distinctSuccessfulScenariosByKind(progress, ["recognition"]); const direct = distinctSuccessfulByKind(progress, ["decision"]); const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]); const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
   let stage: PracticalEvidenceStage;
-  if (recognition < MIN_RECOGNITION_STIMULI) stage = "CONCEPT_TAUGHT"; else if (direct < MIN_DIRECT_DECISION_STIMULI) stage = "RECOGNITION_TRAINED"; else if (transfer < MIN_TRANSFER_STIMULI) stage = "DECISION_TRAINED"; else if (boundary < MIN_BOUNDARY_STIMULI) stage = "CHANGED_NODE_TRANSFER"; else if (!progress.delayedRetrievalPassed) stage = "BOUNDARY_TESTED"; else if (!progress.realHandTransferReviewed) stage = "DELAYED_RETRIEVAL"; else stage = "REAL_HAND_TRANSFER";
+  if (recognition < MIN_RECOGNITION_STIMULI || recognitionScenarios < MIN_RECOGNITION_SCENARIOS) stage = "CONCEPT_TAUGHT"; else if (direct < MIN_DIRECT_DECISION_STIMULI) stage = "RECOGNITION_TRAINED"; else if (transfer < MIN_TRANSFER_STIMULI) stage = "DECISION_TRAINED"; else if (boundary < MIN_BOUNDARY_STIMULI) stage = "CHANGED_NODE_TRANSFER"; else if (!progress.delayedRetrievalPassed) stage = "BOUNDARY_TESTED"; else if (!progress.realHandTransferReviewed) stage = "DELAYED_RETRIEVAL"; else stage = "REAL_HAND_TRANSFER";
   return applySourceEvidenceCeiling(progress.skillId, stage);
 }
 function refreshEvidenceStage(progress: PracticalSkillProgress): void { progress.evidenceStage = deriveEvidenceStage(progress); }
@@ -141,7 +142,7 @@ export function practicalSkillCorpusStats(skillId: string) { const decisions = d
 export function practicalSkillCorpusCanReach(skillId: string, stage: PracticalEvidenceStage): boolean {
   if (isPracticalBridgeSkill(skillId)) return false;
   const gap = practicalSourceGapBySkillId.get(skillId); if (gap?.status === "SOURCE_BLOCKED") return false; if (gap?.status === "PARTIAL" && stageAtLeast(stage, "DECISION_TRAINED")) return false;
-  const stats = practicalSkillCorpusStats(skillId); if (stageAtLeast(stage, "RECOGNITION_TRAINED") && stats.recognition < MIN_RECOGNITION_STIMULI) return false; if (stageAtLeast(stage, "DECISION_TRAINED") && stats.direct < MIN_DIRECT_DECISION_STIMULI) return false; if (stageAtLeast(stage, "CHANGED_NODE_TRANSFER") && stats.transfer < MIN_TRANSFER_STIMULI) return false; if (stageAtLeast(stage, "BOUNDARY_TESTED") && stats.boundary < MIN_BOUNDARY_STIMULI) return false; return true;
+  const stats = practicalSkillCorpusStats(skillId); if (stageAtLeast(stage, "RECOGNITION_TRAINED") && (stats.recognition < MIN_RECOGNITION_STIMULI || stats.recognitionScenarios < MIN_RECOGNITION_SCENARIOS)) return false; if (stageAtLeast(stage, "DECISION_TRAINED") && stats.direct < MIN_DIRECT_DECISION_STIMULI) return false; if (stageAtLeast(stage, "CHANGED_NODE_TRANSFER") && stats.transfer < MIN_TRANSFER_STIMULI) return false; if (stageAtLeast(stage, "BOUNDARY_TESTED") && stats.boundary < MIN_BOUNDARY_STIMULI) return false; return true;
 }
 export function practicalPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean { if (!practicalSkillById.has(skillId)) return false; if (practicalSourceGapBySkillId.get(skillId)?.status === "SOURCE_BLOCKED") return false; return hardDependenciesFor(skillId).every((dependency) => { const progress = state.skills[dependency.fromSkillId]; return progress ? stageAtLeast(progress.evidenceStage, "DECISION_TRAINED") : false; }); }
 export function availablePracticalSkills(state: PracticalMasteryState) { return practicalSkillFamilies.filter((skill) => practicalPrerequisitesMet(state, skill.id)); }
@@ -257,3 +258,4 @@ export function practicalRepairQueue(state: PracticalMasteryState): string[] { c
 export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skillId: string, successful: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") nextProgress.delayedRetrievalPassed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function markPracticalRealHandTransfer(state: PracticalMasteryState, skillId: string, reviewed: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (reviewed && nextProgress.delayedRetrievalPassed) nextProgress.realHandTransferReviewed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function practicalEvidenceRequirements() { return { recognitionStimuli: MIN_RECOGNITION_STIMULI, directDecisionStimuli: MIN_DIRECT_DECISION_STIMULI, transferStimuli: MIN_TRANSFER_STIMULI, boundaryStimuli: MIN_BOUNDARY_STIMULI } as const; }
+export function practicalScenarioEvidenceRequirements() { return { recognitionScenarios: MIN_RECOGNITION_SCENARIOS } as const; }
