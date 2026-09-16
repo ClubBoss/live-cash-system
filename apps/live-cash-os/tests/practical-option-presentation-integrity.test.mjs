@@ -71,13 +71,14 @@ test("first learner-visible presentation has no material first-position shortcut
   assert.equal(materialPositionAlert(jointFirst, n, jointChance / n), false, "learner-visible action+reason order exposes a material joint first-position shortcut");
 });
 
-test("both practical learner surfaces render presented options instead of authored source order", async () => {
-  const [quickStart, integrated] = await Promise.all([
+test("all repeatable practical learner surfaces render presented options instead of authored source order", async () => {
+  const [quickStart, integrated, perceptual] = await Promise.all([
     readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8"),
     readFile(path.join(root, "components/PracticalIntegratedSessionExperience.tsx"), "utf8"),
+    readFile(path.join(root, "components/PracticalPerceptualExperience.tsx"), "utf8"),
   ]);
 
-  for (const source of [quickStart, integrated]) {
+  for (const source of [quickStart, integrated, perceptual]) {
     assert.match(source, /practicalPresentedOptions/);
     assert.match(source, /presentedActionOptions\.map/);
     assert.match(source, /presentedReasonOptions\.map/);
