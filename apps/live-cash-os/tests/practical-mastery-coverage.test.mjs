@@ -8,8 +8,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
 const practicalMasteryDir = path.join(root, "content/practical-mastery");
 const decisionFiles = (await readdir(practicalMasteryDir))
-  .filter((name) => /^decisions-.+\\.ts$/u.test(name))
-  .map((name) => name.replace(/\\.ts$/u, ""))
+  .filter((name) => /^decisions-.+\.ts$/u.test(name))
+  .map((name) => name.replace(/\.ts$/u, ""))
   .sort();
 
 test("practical mastery has a scored decision contract and all decision corpora", async () => {
