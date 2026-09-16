@@ -4,6 +4,7 @@ const TEMPLATE_SCENARIO_MARKERS = ["A8", "A9", "A10", "B1", "B3", "B4"] as const
 const LEADING_TEMPLATE_SCENARIO_MARKERS = ["B3", "B4"] as const;
 
 const SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID = new Map<string, string>([
+  ["PM-RIV-03-A8-101", "RIV-03::river-bluff-catch-default"],
   ["PM-RIV-03-A8-103", "RIV-03::river-bluff-catch-default"],
   ["PM-B3-RIV03-101", "RIV-03::river-bluff-catch-default"],
   ["PM-B3-RIV03-102", "RIV-03::river-bluff-catch-default"],
