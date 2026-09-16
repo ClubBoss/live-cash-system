@@ -58,7 +58,7 @@ test("V3-FND-02 A: focused-round completion does not exactly repeat into the imm
   assert.deepEqual(overlap, [], "the immediately following integrated round must not exactly repeat any just-completed focused-round prompt while other eligible content exists");
 });
 
-test("V3-FND-02 B: a wrong Quick Start item does not resurface after only one intervening item while a non-recent alternative exists", () => {
+test("V3-FND-02 B: a wrong Quick Start item returns only after one independent correct recognition", () => {
   const step = firstJourneySteps.find((candidate) => {
     const decisions = practicalDecisions.filter((decision) => decision.skillId === candidate.skillId);
     const recognitionCount = decisions.filter((decision) => decision.kind === "recognition").length;
@@ -78,11 +78,11 @@ test("V3-FND-02 B: a wrong Quick Start item does not resurface after only one in
 
   state = recordPracticalDecision(state, { decisionId: sibling.id, ...correct(practicalDecisionById.get(sibling.id)), confidence: 70, now: new Date("2026-08-26T00:02:00Z") });
 
-  // Exactly one intervening item has now been answered since the wrong prompt.
+  // One independent correct recognition is the explicit anti-memorization gap.
+  // After that gap, the failed recognition becomes the highest-value exact retest.
   const afterOneIntervening = nextFirstJourneyDecision(state, skillId);
-  if (afterOneIntervening) {
-    assert.notEqual(afterOneIntervening.id, target.id, "the wrong item must not resurface after only one intervening item while a non-recent alternative is available");
-  }
+  assert.ok(afterOneIntervening, "the failed recognition must remain reachable after independent correction");
+  assert.equal(afterOneIntervening.id, target.id, "the failed recognition should return after one independent correct recognition");
 });
 
 test("V3-FND-02 recently correct decisions are still held back from the immediately adjacent round", () => {
