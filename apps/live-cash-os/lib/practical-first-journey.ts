@@ -97,17 +97,17 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
     // stimulus when one exists; a different decisionId with the same cue is
     // not enough novelty.
     const recentlyAttempted = recentlyAttemptedDecisionIds(state);
+
+    // Recognition repair is exactly one independent sibling first, then a
+    // retest of the failed stimulus. This avoids immediate memorization while
+    // also avoiding a long detour through unrelated direct/changed items.
+    if (repair.kind === "recognition" && hasInterveningCorrectRecognition(state, repair)) return repair;
+
     const sameKindSibling = skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && practicalEvidenceFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
     if (sameKindSibling) return sameKindSibling;
 
     const supportedSibling = skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && practicalEvidenceFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
     if (supportedSibling) return supportedSibling;
-
-    // Do not immediately repeat a failed recognition item. Once the learner
-    // has correctly solved a different recognition stimulus after that miss,
-    // the original item becomes an admissible independent retest. This keeps
-    // novelty-first repair while guaranteeing a path out of 2-item corpora.
-    if (repair.kind === "recognition" && hasInterveningCorrectRecognition(state, repair)) return repair;
     return null;
   }
 
