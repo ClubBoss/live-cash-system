@@ -50,7 +50,8 @@ async function practiceCard(page) {
 }
 
 async function answerCurrentQuickStartDecision(page) {
-  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  const start = page.getByRole("button", { name: /Проверить на примере|Try an example/ });
+  if (await start.count()) await start.click();
   const card = await practiceCard(page);
   const mastery = await currentMastery(page);
   const recommendation = recommendFirstJourneyStep(mastery);
