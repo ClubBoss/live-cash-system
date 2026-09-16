@@ -240,3 +240,5 @@ FULL-SOURCE-RELOCK-2026-09-16 records the exact semantic-sequencing review corpu
 FND01-QUICKSTART-NOVELTY-2026-09-16 records the repaired two-family FND-01 Quick Start recognition path at governed review-corpus fingerprint `6fa438d3153a0cef587e27919fee92561340049d1e23e14078ece935195dca4c`. The repair preserves the two-stimulus recognition threshold and removes exact-answer leakage; deterministic QA does not create human approval.
 
 POSTDEPLOY-SEMANTIC-RESIDUALS-2026-09-16 records the bounded heads-up/BvB first-use cleanup at governed review-corpus fingerprint `ef7964e4f2799bb019dcfb03457d71bca6e7fb4637b9a6374ceddc9064d2980c`. The accompanying generic mixed-session stimulus-family dedupe is scheduler-only and does not create or imply human approval.
+
+HEADS-UP-INFLECTION-2026-09-16 records the RU heads-up inflection closure at governed review-corpus fingerprint `3c0e06406fe639968d2cd8e5142806ab5cfa29323e5d2c948932b8195cac0d41`; deterministic checks remain rejection-only and do not create human approval.
