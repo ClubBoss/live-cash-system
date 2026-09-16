@@ -8,6 +8,7 @@ import { advanceIntegratedContinuity, recordIntegratedAnswerContinuity, recordIn
 import { INTEGRATED_SESSION_SIZE, recordIntegratedDecision, type IntegratedSessionItem } from "../lib/practical-integrated-session";
 import { classifyPracticalIntegratedSessionState } from "../lib/practical-integrated-session-state";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
+import { practicalPresentedOptions } from "../lib/practical-option-presentation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
@@ -116,6 +117,17 @@ export default function PracticalIntegratedSessionExperience() {
 
   const item = items[index] ?? null;
   const decision = item ? practicalDecisionById.get(item.decisionId) ?? null : null;
+  const recordedDecisionAttemptCount = decision ? state.attempts.filter((attempt) => attempt.decisionId === decision.id).length : 0;
+  const currentDecisionAttemptRecorded = Boolean(decision && revealed && restoredPostAnswer?.decisionId === decision.id);
+  const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
+  const presentedActionOptions = useMemo(
+    () => decision ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal) : [],
+    [decision, presentationOrdinal],
+  );
+  const presentedReasonOptions = useMemo(
+    () => decision ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal) : [],
+    [decision, presentationOrdinal],
+  );
   const skill = item ? practicalSkillById.get(item.skillId) ?? null : null;
   const tableState = item ? allPracticalTableStates.find((candidate) => candidate.decisionId === item.decisionId) ?? null : null;
   const requestedSkill = requestedFocus ? practicalSkillById.get(requestedFocus) ?? null : null;
@@ -292,8 +304,8 @@ export default function PracticalIntegratedSessionExperience() {
     <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
       {tableState ? <PracticalTableStateStimulus state={tableState} locale={locale} /> : null}
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
-      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" name={`${decision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
       <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
       {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
         <h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
