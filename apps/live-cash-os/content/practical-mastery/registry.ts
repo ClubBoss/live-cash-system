@@ -93,7 +93,7 @@ export const practicalSkillFamilies: PracticalSkillFamily[] = [
   f("4BP-04", "W8_4BET_LOW_SPR", "Jam exposure", "Jam exposure", "Перед bet/raise учитывать reopen/jam exposure и investment ceiling.", ["aggression"], ["4BP-01"], ["CP-G3-L04", "CP-G3-L10"], "P1"),
 
   // W9 — turn
-  f("TURN-01", "W9_TURN", "Turn card classification", "Turn card classification", "Определять blank/scare/completing/paired/range-shifting turn.", ["filtering"], ["W4-RUNOUT-01"], ["FTGU-E21"], "P0"),
+  f("TURN-01", "W9_TURN", "Turn card classification", "Turn card classification", "Углублять знакомые runout classes: связывать blank/scare/completing/paired/range-shifting turn с surviving ranges после конкретной линии флопа.", ["filtering"], ["W4-RUNOUT-01"], ["FTGU-E21"], "P0"),
   f("TURN-02", "W9_TURN", "Turn barrel selection", "Turn barrel selection", "Продолжать aggression только у подходящих value/bluff classes.", ["ancestry"], ["TURN-01", "IP-03"], ["FTGU-E21", "SLC-TURN-BARREL", "CP-G3-L07"], "P0"),
   f("TURN-03", "W9_TURN", "Turn probes", "Turn probes", "Атаковать checked-back ranges там, где они реально capped/overwide.", ["ancestry", "evidence"], ["TURN-01"], ["FTGU-E20", "CINJ-E06"], "P0"),
   f("TURN-04", "W9_TURN", "Turn leads", "Turn leads", "Использовать lead after flop-call only on source-supported runouts.", ["ancestry"], ["OOP-06", "TURN-01"], ["SLC-TURN-LEADS"], "P1"),
