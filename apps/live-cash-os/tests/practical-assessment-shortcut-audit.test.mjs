@@ -384,7 +384,7 @@ export function materialLengthShortcutAlert(result) {
 function materialLengthMarginalAlert(stat) {
   return stat.n >= 30
     && stat.clusters >= 8
-    && stat.rate - stat.chance >= 0.15
+    && stat.rate - stat.chance >= 0.20
     && stat.z >= 3;
 }
 
@@ -403,8 +403,9 @@ function lengthMarginalWarning(stat) {
 // - a >=20pp effect-size floor is retained;
 // - one-sided normal p is Bonferroni-adjusted across the 15 positional tests
 //   in a locale/scope (3 action + 3 reason + 9 fixed pairs).
-// Length marginals are diagnostic only: prose length can carry legitimate
-// semantic content, so we do not pad/trim text merely to satisfy a metric.
+// Length uses its own broad-corpus gate: >=20pp above random with adequate
+// N/cluster spread hard-fails; smaller >=6pp statistically stable effects warn.
+// This avoids prose-padding while still rejecting a reusable large shortcut.
 const POSITIONAL_COMPARISONS = 15;
 const POSITIONAL_FAMILY_ALPHA = 0.01 / POSITIONAL_COMPARISONS;
 
