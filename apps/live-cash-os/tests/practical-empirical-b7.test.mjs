@@ -38,7 +38,7 @@ test("perceptual and mixed practice record distinct stimulus modes",()=>{
 
 test("blind novice flow teaches before scoring and still refuses unseen concept testing",()=>{
  assert.match(perceptual,/conceptTaught/);
- assert.match(perceptual,/First Journey/);
+ assert.match(perceptual,/Quick Start/);
  assert.match(journey,/ГДЕ ЭТО НУЖНО|WHERE THIS MATTERS/);
  assert.match(journey,/Проверить на примере|Try an example/);
  assert.match(journey,/markPracticalConceptTaught/);
