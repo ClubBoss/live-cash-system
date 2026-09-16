@@ -193,6 +193,14 @@ test("generic mixed rounds never contain duplicate semantic stimulus families", 
       decisions.length,
       `${skillId}: generic mixed round repeated a semantic stimulus family`,
     );
+
+    const adaptiveItems = buildAdaptiveIntegratedSession(state, new Date("2026-09-02T00:02:30Z"), 8);
+    const adaptiveDecisions = adaptiveItems.map((item) => practicalDecisionById.get(item.decisionId)).filter(Boolean);
+    assert.equal(
+      new Set(adaptiveDecisions.map(practicalEvidenceFamilyId)).size,
+      adaptiveDecisions.length,
+      `${skillId}: generic adaptive round repeated a mastery evidence family`,
+    );
   }
 
   assert.ok(exercised >= 3, `expected at least three duplicate-family skills to exercise generic mixed scheduling, got ${exercised}`);
