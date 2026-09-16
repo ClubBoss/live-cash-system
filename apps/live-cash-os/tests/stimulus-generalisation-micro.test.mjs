@@ -103,9 +103,11 @@ test("state, card schema, scheduler, mastery and evidence implementation stay by
   // content/types.ts remain untouched by that repair, so their pins are
   // unchanged. reliability.ts hash advanced again in the final acceptance
   // repair that reattaches a valid _practicalProfile during schema-v2 local
-  // recovery instead of silently dropping it.
+  // recovery instead of silently dropping it. The state-integrity closure
+  // advances it again to normalize accepted pre-v4 Practical profiles into
+  // the bounded current schema without resetting valid historical progress.
   await assertGitBlob("lib/model-core.ts", "220a7108c3fec03d9b6c5b9e5a2111f8b3ab920e");
   await assertGitBlob("lib/scheduler.ts", "6cf3ba078ec98ac0af90aa18cf9aae62fe7a144d");
   await assertGitBlob("content/types.ts", "d3aec56bbdb1e28d83aa32ce3391cbfa70d5efa2");
-  await assertGitBlob("lib/reliability.ts", "0bf08b9b8e94245fcc1c2d080657ca035098a7c0");
+  await assertGitBlob("lib/reliability.ts", "99f1ca3d18cd7d1fa6ef773e5bc0ed16a46b815c");
 });
