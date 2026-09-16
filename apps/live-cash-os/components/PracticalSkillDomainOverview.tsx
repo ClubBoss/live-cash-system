@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { practicalDecisionById, practicalSkillFamilies } from "../content/practical-mastery";
 import { stageAtLeast } from "../lib/practical-mastery-core";
-import { practicalEvidenceFamilyId } from "../lib/practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "../lib/practical-stimulus-identity";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 
@@ -43,6 +43,10 @@ export default function PracticalSkillDomainOverview() {
         const distinctCorrect = new Set(recentCorrect.flatMap((attempt) => {
           const decision = practicalDecisionById.get(attempt.decisionId);
           return decision ? [practicalEvidenceFamilyId(decision)] : [];
+        })).size;
+        const distinctScenarios = new Set(recentCorrect.flatMap((attempt) => {
+          const decision = practicalDecisionById.get(attempt.decisionId);
+          return decision ? [practicalEvidenceScenarioId(decision)] : [];
         })).size;
         const lastConfidence = recent.at(-1)?.confidence ?? null;
         const pct = skills.length ? Math.round((trained / skills.length) * 100) : 0;

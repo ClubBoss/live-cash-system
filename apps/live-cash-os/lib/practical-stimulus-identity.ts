@@ -30,10 +30,17 @@ export function practicalScenarioFamilyId(decision: PracticalDecision): string {
 }
 
 /**
- * Evidence identity is deliberately broader than visible-stimulus identity.
- * Paraphrased siblings from one generated scenario may still be useful practice,
- * but they must not independently satisfy mastery or delayed-retention gates.
+ * One evidence item is one semantic learner-facing stimulus. Exact/near-exact
+ * cue siblings collapse here, while scenario diversity is enforced separately.
  */
 export function practicalEvidenceFamilyId(decision: PracticalDecision): string {
+  return practicalStimulusFamilyId(decision);
+}
+
+/**
+ * Scenario-diversity identity prevents one generated scenario family from
+ * satisfying an entire mastery or delayed-retention gate by itself.
+ */
+export function practicalEvidenceScenarioId(decision: PracticalDecision): string {
   return practicalScenarioFamilyId(decision);
 }

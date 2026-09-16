@@ -27,7 +27,7 @@ import {
   type PracticalMasteryState,
 } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
-import { practicalEvidenceFamilyId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
 
 export const INTEGRATED_SESSION_SIZE = 8;
 export const RETENTION_INTERVAL_DAYS = [1, 3, 7] as const;
@@ -95,6 +95,7 @@ function candidateDecisionForSkill(
   excludedDecisionIds: Set<string>,
   requireNonIdenticalToLatest = false,
   avoidDecisionIds: ReadonlySet<string> = new Set<string>(),
+  requiredDifferentScenarioFromDecisionId: string | null = null,
 ): PracticalDecision | null {
   const rawLatest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
   const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
@@ -120,6 +121,8 @@ function candidateDecisionForSkill(
       return decision ? [practicalEvidenceFamilyId(decision)] : [];
     }),
   );
+  const forbiddenScenario = requiredDifferentScenarioFromDecisionId ? practicalDecisionById.get(requiredDifferentScenarioFromDecisionId) ?? null : null;
+  const forbiddenScenarioId = forbiddenScenario ? practicalEvidenceScenarioId(forbiddenScenario) : null;
   const pool = practicalDecisions.filter((decision) =>
     isOrdinaryLearnerDecision(decision)
     && decision.skillId === skillId
@@ -129,6 +132,7 @@ function candidateDecisionForSkill(
     && !avoidDecisionIds.has(decision.id)
     && !avoidFamilies.has(practicalEvidenceFamilyId(decision))
     && (!requireNonIdenticalToLatest || practicalEvidenceFamilyId(decision) !== latestFamily)
+    && (!forbiddenScenarioId || practicalEvidenceScenarioId(decision) !== forbiddenScenarioId)
   );
   return pool.find((decision) => !attemptedFamilies.has(practicalEvidenceFamilyId(decision))) ?? pool[0] ?? null;
 }
@@ -179,8 +183,10 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
     for (const { skillId, tier } of dueRetentions) {
       if (items.length >= size) break;
       const kinds: PracticalDecision["kind"][] = ["changed", "mixed", "boundary", "decision"];
-      const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted)
-        ?? (allowRecentFallback ? candidateDecisionForSkill(state, skillId, kinds, excluded, true) : null);
+      const latestCorrect = latestCorrectAttempt(state, skillId);
+      const retentionAnchorDecisionId = latestCorrect?.decisionId ?? null;
+      const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted, retentionAnchorDecisionId)
+        ?? (allowRecentFallback ? candidateDecisionForSkill(state, skillId, kinds, excluded, true, new Set<string>(), retentionAnchorDecisionId) : null);
       if (decision) push(decision, "RETENTION", 100 + tier, `Due ${tier}-day non-identical retrieval for ${skillId}.`, tier);
     }
   };
@@ -228,7 +234,7 @@ export function recordIntegratedDecision(state: PracticalMasteryState, item: Int
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
   let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
-  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceFamilyId(decision) !== practicalEvidenceFamilyId(latestCorrectDecision));
+  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision));
   if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {
     const actualGap = elapsedDays(latestCorrectBefore.answeredAt, now);
     if (actualGap >= item.retentionTierDays) {

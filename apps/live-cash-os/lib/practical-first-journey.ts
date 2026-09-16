@@ -3,7 +3,7 @@ import { hardDependenciesFor } from "../content/practical-mastery/learning-route
 import { isOrdinaryLearnerDecision, practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
 import { isSemanticallyValidPracticalAttempt, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
-import { practicalEvidenceFamilyId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practical-stimulus-identity";
 
 const QUICK_START_INITIAL_DECISION_BY_SKILL = new Map<string, string>([
   ["FND-01", "PM-FND-01-101"],
@@ -56,6 +56,14 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
         return decision ? [practicalEvidenceFamilyId(decision)] : [];
       }),
   );
+  const successfulScenarios = new Set(
+    state.attempts
+      .filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt))
+      .flatMap((attempt) => {
+        const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
+        return decision ? [practicalEvidenceScenarioId(decision)] : [];
+      }),
+  );
   const unresolved = unresolvedWrongDecisionIds(state, skillId);
   if (unresolved.length) {
     const repair = skillDecisions.find((decision) => decision.id === unresolved[0]) ?? null;
@@ -80,7 +88,9 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
     if (preferredInitial) return preferredInitial;
   }
 
-  return skillDecisions.find((decision) => decision.kind === "recognition" && !successfulFamilies.has(practicalEvidenceFamilyId(decision)))
+  return skillDecisions.find((decision) => decision.kind === "recognition" && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !successfulScenarios.has(practicalEvidenceScenarioId(decision)))
+    ?? skillDecisions.find((decision) => decision.kind === "recognition" && !successfulFamilies.has(practicalEvidenceFamilyId(decision)))
+    ?? skillDecisions.find((decision) => (decision.kind === "decision" || decision.kind === "changed") && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !successfulScenarios.has(practicalEvidenceScenarioId(decision)))
     ?? skillDecisions.find((decision) => (decision.kind === "decision" || decision.kind === "changed") && !successfulFamilies.has(practicalEvidenceFamilyId(decision)))
     ?? null;
 }

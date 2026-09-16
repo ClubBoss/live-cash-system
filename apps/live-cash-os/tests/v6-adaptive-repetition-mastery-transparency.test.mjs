@@ -12,7 +12,7 @@ import { RETENTION_INTERVAL_DAYS, recordIntegratedDecision } from "../lib/practi
 import { createPracticalMasteryState, markPracticalConceptTaught, recordPracticalDecision, stageAtLeast } from "../lib/practical-mastery-core";
 import { PRACTICAL_EXACT_REPEAT_WINDOW, recentSuccessfulDecisionIds } from "../lib/practical-repeat-window";
 import { practicalSkillProgressTransparency } from "../lib/practical-skill-transparency";
-import { practicalEvidenceFamilyId, practicalScenarioFamilyId, practicalStimulusFamilyId } from "../lib/practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId, practicalScenarioFamilyId, practicalStimulusFamilyId } from "../lib/practical-stimulus-identity";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -182,11 +182,12 @@ test("selected-skill transparency identifies satisfied and next required categor
   summary = practicalSkillProgressTransparency(state, skill.id, skill.targetEvidenceStage);
   assert.equal(summary.nextCategory?.key, "RECOGNITION", "one distinct correct recognition item must not satisfy the category");
   assert.equal(summary.recentCorrectCount, 2);
-  assert.equal(summary.recentDistinctCorrectCount, 1);
+  assert.equal(summary.recentDistinctCorrectCount, 2);
+  assert.equal(summary.recentDistinctScenarioCount, 1);
   assert.equal(summary.latestConfidence, 95);
 });
 
-test("progress transparency counts paraphrased scenario siblings as one distinct correct example", () => {
+test("progress transparency separates distinct examples from scenario diversity", () => {
   const grouped = new Map();
   for (const decision of practicalDecisions) {
     const key = practicalScenarioFamilyId(decision);
@@ -199,7 +200,8 @@ test("progress transparency counts paraphrased scenario siblings as one distinct
   const [first, sibling] = pair;
   assert.equal(first.skillId, sibling.skillId);
   assert.notEqual(practicalStimulusFamilyId(first), practicalStimulusFamilyId(sibling));
-  assert.equal(practicalEvidenceFamilyId(first), practicalEvidenceFamilyId(sibling));
+  assert.notEqual(practicalEvidenceFamilyId(first), practicalEvidenceFamilyId(sibling));
+  assert.equal(practicalEvidenceScenarioId(first), practicalEvidenceScenarioId(sibling));
 
   let state = createPracticalMasteryState(new Date("2026-09-16T00:00:00Z"));
   state = markPracticalConceptTaught(state, first.skillId, new Date("2026-09-16T00:00:01Z"));
@@ -217,6 +219,7 @@ test("mastery thresholds and delayed retrieval policy remain unchanged", async (
   assert.match(core, /MIN_DIRECT_DECISION_STIMULI = 3/);
   assert.match(core, /MIN_TRANSFER_STIMULI = 2/);
   assert.match(core, /MIN_BOUNDARY_STIMULI = 1/);
+  assert.match(core, /MIN_SCENARIO_FAMILIES = 2/);
   assert.deepEqual([...RETENTION_INTERVAL_DAYS], [1, 3, 7]);
   assert.match(core, /successfulDecisionIds\.includes\(decision\.id\)/);
 });

@@ -1,6 +1,6 @@
 import { practicalDecisionById, type PracticalEvidenceStage } from "../content/practical-mastery";
 import { isSemanticallyValidPracticalAttempt, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
-import { practicalEvidenceFamilyId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practical-stimulus-identity";
 
 export type PracticalSkillProgressCategoryKey =
   | "CONCEPT"
@@ -54,6 +54,10 @@ export function practicalSkillProgressTransparency(
     recentDistinctCorrectCount: new Set(recentCorrect.flatMap((attempt) => {
       const decision = practicalDecisionById.get(attempt.decisionId);
       return decision ? [practicalEvidenceFamilyId(decision)] : [];
+    })).size,
+    recentDistinctScenarioCount: new Set(recentCorrect.flatMap((attempt) => {
+      const decision = practicalDecisionById.get(attempt.decisionId);
+      return decision ? [practicalEvidenceScenarioId(decision)] : [];
     })).size,
     latestConfidence: latestPhysicalAttempt && isSemanticallyValidPracticalAttempt(latestPhysicalAttempt)
       ? latestPhysicalAttempt.confidence

@@ -4,7 +4,7 @@ import { buildIntegratedSession, supportedIntegratedSkillIds, type IntegratedSes
 import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 import { decisionHasAuthoritativeVisibleChange } from "./practical-visible-scenario";
-import { practicalEvidenceFamilyId, practicalScenarioFamilyId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId, practicalScenarioFamilyId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
 
 function normalizeTransferLabel(item: IntegratedSessionItem): IntegratedSessionItem {
   if (item.reason !== "TRANSFER" || decisionHasAuthoritativeVisibleChange(item.decisionId)) return item;
@@ -33,7 +33,7 @@ function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:n
   const base=buildIntegratedSession(state,now,size);
   const used=new Set<string>();
   const usedStimulusFamilies=new Set<string>();
-  const usedEvidenceFamilies=new Set<string>();
+  const usedEvidenceScenarios=new Set<string>();
   const recentlyAttempted=recentlyAttemptedDecisionIds(state);
   const recentlyAttemptedFamilies=new Set([...recentlyAttempted].flatMap((decisionId)=>{
     const decision=practicalDecisionById.get(decisionId);
@@ -54,24 +54,24 @@ function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:n
     const latestFamily=latestDecision?practicalEvidenceFamilyId(latestDecision):null;
     const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===need.skillId&&decisionMatchesAdaptiveNeed(decision,need)&&practicalEvidenceFamilyId(decision)!==latestFamily&&!recentlyAttemptedFamilies.has(practicalEvidenceFamilyId(decision)));
     const decision=(need.preferPerceptual?pool.find((candidate)=>perceptualIds.has(candidate.id)):undefined)??pool[0];
-    if(!decision||used.has(decision.id)||usedStimulusFamilies.has(practicalStimulusFamilyId(decision))||usedEvidenceFamilies.has(practicalEvidenceFamilyId(decision))) continue;
+    if(!decision||used.has(decision.id)||usedStimulusFamilies.has(practicalStimulusFamilyId(decision))||usedEvidenceScenarios.has(practicalEvidenceFamilyId(decision))) continue;
     const transferLike=need.need==="TRANSFER"||need.need==="BOUNDARY";
     const reason:IntegratedSessionItem["reason"]=need.need==="RECOGNITION"||need.need==="AUTOMATICITY"?"RECOGNITION":transferLike&&decisionHasAuthoritativeVisibleChange(decision.id)?"TRANSFER":need.need==="UNDEREXPOSED"||transferLike?"REINFORCE":"REPAIR";
     adaptive.push(normalizeTransferLabel({decisionId:decision.id,skillId:decision.skillId,priority:150+need.priority,reason,whyAfterAnswer:`${need.need}: ${need.reason}`,retentionTierDays:null}));
     used.add(decision.id);
     usedStimulusFamilies.add(practicalStimulusFamilyId(decision));
-    usedEvidenceFamilies.add(practicalEvidenceFamilyId(decision));
+    usedEvidenceScenarios.add(practicalEvidenceScenarioId(decision));
   }
 
   for(const item of base){
     if(adaptive.length>=size) break;
     if(used.has(item.decisionId)) continue;
     const decision=practicalDecisionById.get(item.decisionId);
-    if(!decision||usedStimulusFamilies.has(practicalStimulusFamilyId(decision))||usedEvidenceFamilies.has(practicalEvidenceFamilyId(decision))) continue;
+    if(!decision||usedStimulusFamilies.has(practicalStimulusFamilyId(decision))||usedEvidenceScenarios.has(practicalEvidenceFamilyId(decision))) continue;
     adaptive.push(normalizeTransferLabel(item));
     used.add(item.decisionId);
     usedStimulusFamilies.add(practicalStimulusFamilyId(decision));
-    usedEvidenceFamilies.add(practicalEvidenceFamilyId(decision));
+    usedEvidenceScenarios.add(practicalEvidenceScenarioId(decision));
   }
 
   return adaptive.slice(0,size);

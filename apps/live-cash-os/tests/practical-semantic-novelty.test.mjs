@@ -23,6 +23,7 @@ import {
 } from "../lib/practical-integrated-session.ts";
 import {
   practicalEvidenceFamilyId,
+  practicalEvidenceScenarioId,
   practicalScenarioFamilyId,
   practicalStimulusFamilyId,
 } from "../lib/practical-stimulus-identity.ts";
@@ -72,7 +73,7 @@ test("template-heavy generated siblings expose one scenario-family authority", (
   }
 });
 
-test("scenario siblings may vary visibly but collapse to one mastery evidence family", () => {
+test("scenario siblings remain distinct practice items but share one scenario-diversity identity", () => {
   const grouped = new Map();
   for (const decision of practicalDecisions) {
     const key = practicalScenarioFamilyId(decision);
@@ -82,40 +83,25 @@ test("scenario siblings may vary visibly but collapse to one mastery evidence fa
   }
   const pair = [...grouped.values()].find((rows) => rows.length >= 2 && new Set(rows.map(practicalStimulusFamilyId)).size >= 2);
   assert.ok(pair, "need a paraphrased same-scenario fixture");
-  assert.equal(new Set(pair.map(practicalEvidenceFamilyId)).size, 1);
-  assert.ok(new Set(pair.map(practicalStimulusFamilyId)).size >= 2);
+  assert.ok(new Set(pair.map(practicalEvidenceFamilyId)).size >= 2, "different stimuli must remain different evidence items");
+  assert.equal(new Set(pair.map(practicalEvidenceScenarioId)).size, 1, "siblings from one generated scenario must share scenario identity");
 });
 
-test("mastery corpus reachability counts evidence families rather than paraphrased stimulus siblings", () => {
-  let collapsedSkills = 0;
+test("mastery corpus keeps stimulus depth and separately exposes scenario diversity", () => {
+  let diversifiedSkills = 0;
   for (const skillId of new Set(practicalDecisions.map((decision) => decision.skillId))) {
     const rows = practicalDecisions.filter((decision) => decision.skillId === skillId);
     const count = (kinds, familyId) => new Set(rows.filter((decision) => kinds.includes(decision.kind)).map(familyId)).size;
-    const expected = {
-      recognition: count(["recognition"], practicalEvidenceFamilyId),
-      direct: count(["decision"], practicalEvidenceFamilyId),
-      transfer: count(["changed", "mixed"], practicalEvidenceFamilyId),
-      boundary: count(["boundary"], practicalEvidenceFamilyId),
-    };
-    const stimulus = {
-      recognition: count(["recognition"], practicalStimulusFamilyId),
-      direct: count(["decision"], practicalStimulusFamilyId),
-      transfer: count(["changed", "mixed"], practicalStimulusFamilyId),
-      boundary: count(["boundary"], practicalStimulusFamilyId),
-    };
     const actual = practicalSkillCorpusStats(skillId);
-    assert.equal(actual.recognition, expected.recognition, `${skillId}: recognition evidence family mismatch`);
-    assert.equal(actual.direct, expected.direct, `${skillId}: direct-decision evidence family mismatch`);
-    assert.equal(actual.transfer, expected.transfer, `${skillId}: transfer evidence family mismatch`);
-    assert.equal(actual.boundary, expected.boundary, `${skillId}: boundary evidence family mismatch`);
-    if (
-      stimulus.recognition > expected.recognition
-      || stimulus.direct > expected.direct
-      || stimulus.transfer > expected.transfer
-      || stimulus.boundary > expected.boundary
-    ) collapsedSkills += 1;
+    assert.ok(actual.recognition <= count(["recognition"], practicalEvidenceFamilyId), `${skillId}: recognition count cannot exceed evidence items`);
+    assert.ok(actual.direct <= count(["decision"], practicalEvidenceFamilyId), `${skillId}: direct count cannot exceed evidence items`);
+    assert.ok(actual.transfer <= count(["changed", "mixed"], practicalEvidenceFamilyId), `${skillId}: transfer count cannot exceed evidence items`);
+    assert.equal(actual.recognitionScenarios, count(["recognition"], practicalEvidenceScenarioId), `${skillId}: recognition scenario mismatch`);
+    assert.equal(actual.directScenarios, count(["decision"], practicalEvidenceScenarioId), `${skillId}: direct scenario mismatch`);
+    assert.equal(actual.transferScenarios, count(["changed", "mixed"], practicalEvidenceScenarioId), `${skillId}: transfer scenario mismatch`);
+    if (actual.direct > actual.directScenarios || actual.recognition > actual.recognitionScenarios || actual.transfer > actual.transferScenarios) diversifiedSkills += 1;
   }
-  assert.ok(collapsedSkills >= 1, "expected paraphrased scenario siblings to stop inflating at least one skill corpus");
+  assert.ok(diversifiedSkills >= 1, "expected at least one generated family where stimulus depth exceeds scenario diversity");
 });
 
 test("focused rounds do not pad with duplicate stimuli or more than two siblings of one generated scenario", () => {
@@ -197,9 +183,9 @@ test("generic mixed rounds never contain duplicate semantic stimulus families", 
     const adaptiveItems = buildAdaptiveIntegratedSession(state, new Date("2026-09-02T00:02:30Z"), 8);
     const adaptiveDecisions = adaptiveItems.map((item) => practicalDecisionById.get(item.decisionId)).filter(Boolean);
     assert.equal(
-      new Set(adaptiveDecisions.map(practicalEvidenceFamilyId)).size,
+      new Set(adaptiveDecisions.map(practicalEvidenceScenarioId)).size,
       adaptiveDecisions.length,
-      `${skillId}: generic adaptive round repeated a mastery evidence family`,
+      `${skillId}: generic adaptive round repeated a scenario family`,
     );
   }
 
@@ -289,7 +275,8 @@ test("retention credit rejects paraphrased siblings from the same scenario famil
   }, correctInput(sibling, new Date("2026-08-03T00:01:00Z")));
 
   assert.notEqual(practicalStimulusFamilyId(first), practicalStimulusFamilyId(sibling));
-  assert.equal(practicalEvidenceFamilyId(first), practicalEvidenceFamilyId(sibling));
+  assert.notEqual(practicalEvidenceFamilyId(first), practicalEvidenceFamilyId(sibling));
+  assert.equal(practicalEvidenceScenarioId(first), practicalEvidenceScenarioId(sibling));
   assert.deepEqual(next.skills[first.skillId].retentionDaysPassed, [], "same scenario family must not earn independent delayed-retention credit");
 });
 
