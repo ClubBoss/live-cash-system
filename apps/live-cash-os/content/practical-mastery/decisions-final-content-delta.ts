@@ -134,8 +134,8 @@ export const finalContentDeltaDecisions: PracticalDecision[] = [
     cueEn: "Hero c-bet the flop and got raised. The learner wants to apply one universal slogan: any flop raise is always strong.",
     questionRu: "Это верный подход?", questionEn: "Is that approach correct?",
     actionOptions: [
-      o("b", "Да — рейз почти никогда не бывает богат блефами", "Yes — a raise is almost never bluff-heavy", "RAISE_ALWAYS_STRONG"),
-      o("c", "Да — маленький c-bet всегда получает более сильный диапазон рейза, чем крупный", "Yes — a small c-bet always draws a stronger raising range than a large one", "SIZE_RESPONSE_BACKWARDS"),
+      o("b", "Да — рейз почти никогда не бывает богат блефами", "Yes — a raising range is usually weighted heavily toward strong hands", "RAISE_ALWAYS_STRONG"),
+      o("c", "Да — маленький c-bet всегда получает более сильный диапазон рейза, чем крупный", "Yes — a small c-bet usually draws a stronger raising range than a large one", "SIZE_RESPONSE_BACKWARDS"),
       o("a", "Нет — состав диапазона рейза зависит от размера c-bet и структуры доски", "No — the raising range's composition depends on the c-bet size and the board"),
     ],
     reasonOptions: [
