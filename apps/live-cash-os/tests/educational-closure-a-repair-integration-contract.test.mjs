@@ -32,6 +32,10 @@ import {
 } from "../lib/practical-mastery-core.ts";
 import { recommendFirstJourneyStep } from "../lib/practical-first-journey.ts";
 import {
+  isPrimaryPracticalLearnerSkill,
+  primaryPracticalLearnerSkills,
+} from "../lib/practical-learner-skill-set.ts";
+import {
   isPostQuickStartTeachingAdmissible,
   resolvePostQuickStartLearningTarget,
 } from "../lib/practical-post-quick-start-learning.ts";
@@ -208,12 +212,18 @@ test("A2: W14 INT nodes are explicit derived capabilities, not ordinary learner 
 });
 
 test("A2: Skill Map and ordinary counts exclude derived W14 while retention/mastery contracts stay unchanged", () => {
-  assert.match(skillMapSource, /const learnerSkillFamilies = practicalSkillFamilies\.filter\(\(skill\) => !isIntegrationDerivedSkill\(skill\.id\)\);/);
+  assert.match(skillMapSource, /const learnerSkillFamilies = primaryPracticalLearnerSkills\(\);/);
   assert.match(skillMapSource, /const skillMapSkillIds = useMemo\(\(\) => learnerSkillFamilies\.map/);
   assert.match(skillMapSource, /for \(const item of learnerSkillFamilies\)/);
   assert.match(skillMapSource, /const trained = learnerSkillFamilies\.filter/);
   assert.match(skillMapSource, /const retained = learnerSkillFamilies\.filter/);
   assert.match(skillMapSource, /const field = learnerSkillFamilies\.filter/);
+
+  const learnerIds = new Set(primaryPracticalLearnerSkills().map((skill) => skill.id));
+  for (const skillId of integrationDerivedSkillIds) {
+    assert.equal(isPrimaryPracticalLearnerSkill(skillId), false, `${skillId}: derived W14 must not become a primary learner mastery target`);
+    assert.equal(learnerIds.has(skillId), false, `${skillId}: derived W14 leaked into Skill Map authority`);
+  }
 
   assert.deepEqual([...RETENTION_INTERVAL_DAYS], [1, 3, 7]);
   assert.deepEqual(practicalEvidenceRequirements(), {

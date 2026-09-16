@@ -8,6 +8,7 @@ import { recordPracticalDecision } from "../lib/practical-mastery-core";
 import { focusedPracticalTableStates } from "../lib/practical-perceptual-focus";
 import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
+import { practicalPresentedOptions } from "../lib/practical-option-presentation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
@@ -67,6 +68,17 @@ export default function PracticalPerceptualExperience() {
     ? allPracticalTableStates.find((candidate) => candidate.decisionId === submittedDecisionId) ?? queuedTable
     : queuedTable;
   const decision = table ? practicalDecisionById.get(table.decisionId) ?? null : null;
+  const recordedDecisionAttemptCount = decision ? state.attempts.filter((attempt) => attempt.decisionId === decision.id).length : 0;
+  const currentDecisionAttemptRecorded = Boolean(decision && revealed && submittedDecisionId === decision.id);
+  const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
+  const presentedActionOptions = useMemo(
+    () => decision ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal) : [],
+    [decision, presentationOrdinal],
+  );
+  const presentedReasonOptions = useMemo(
+    () => decision ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal) : [],
+    [decision, presentationOrdinal],
+  );
   const skill = decision ? practicalSkillById.get(decision.skillId) ?? null : null;
   const requestedSkill = requestedFocus ? practicalSkillById.get(requestedFocus) ?? null : null;
   const liveScaffold = table && skill ? effectivePracticalScaffold(state, skill.id, table.scaffold) : "guided";
@@ -136,8 +148,8 @@ export default function PracticalPerceptualExperience() {
     <section className="surface" style={{ marginTop: 18 }} data-practical-decision-id={decision.id}>
       <PracticalTableStateStimulus state={table} locale={locale} />
       <h2>{locale === "ru" ? decision.questionRu : decision.questionEn}</h2>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Что важно и куда сдвигается решение" : "What matters / which way does the decision move"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", padding: "7px 0" }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", padding: "7px 0" }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Что важно и куда сдвигается решение" : "What matters / which way does the decision move"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} style={{ display: "block", padding: "7px 0" }}><input type="radio" value={option.id} name={`${decision.id}-a`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} style={{ display: "block", padding: "7px 0" }}><input type="radio" value={option.id} name={`${decision.id}-r`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Зафиксировать решение" : "Commit decision"} <span>→</span></button> : <div className="today-card" style={{ marginTop: 16 }}><p className="eyebrow">{locale === "ru" ? "ПОСЛЕ ОТВЕТА" : "AFTER YOUR ANSWER"}</p><h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3><p><b>{locale === "ru" ? "Навык:" : "Skill:"}</b> {locale === "ru" ? skill.titleRu : skill.titleEn}</p><p><b>{locale === "ru" ? "Ключевой сигнал:" : "Cue that mattered:"}</b> {locale === "ru" ? table.revealCueRu : table.revealCueEn}</p><PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} selectedActionId={actionId} selectedReasonId={reasonId} /><button className="secondary" onClick={next}>{locale === "ru" ? "Следующий стол" : "Next table"} <span>→</span></button></div>}
     </section>
   </main>;

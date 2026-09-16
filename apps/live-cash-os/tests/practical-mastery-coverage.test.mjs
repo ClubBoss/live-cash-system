@@ -1,27 +1,25 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { practicalDecisions } from "../content/practical-mastery/index.ts";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFile(path.join(root, relative), "utf8");
-const decisionFiles = [
-  "decisions-w1-w3",
-  "decisions-w4-w13",
-  "decisions-gap-fill",
-  "decisions-foundation-expansion",
-  "decisions-preflop-core-expansion",
-  "decisions-preflop-advanced-expansion",
-  "decisions-blind-defence-expansion",
-  "decisions-w14",
-];
+const practicalMasteryDir = path.join(root, "content/practical-mastery");
+const decisionFiles = (await readdir(practicalMasteryDir))
+  .filter((name) => /^decisions-.+\.ts$/u.test(name))
+  .map((name) => name.replace(/\.ts$/u, ""))
+  .sort();
 
 test("practical mastery has a scored decision contract and all decision corpora", async () => {
   const types = await read("content/practical-mastery/types.ts");
   const index = await read("content/practical-mastery/index.ts");
   assert.match(types, /export type PracticalDecision/);
-  for (const file of decisionFiles) assert.match(index, new RegExp(file));
+  assert.ok(decisionFiles.length >= 23, `expected the full active decision corpus, got ${decisionFiles.length} modules`);
+  for (const file of decisionFiles) assert.match(index, new RegExp(`\\./${file}`), `${file}: decision module is not composed by the active index`);
   assert.match(index, /practicalDecisions/);
 });
 
@@ -34,9 +32,22 @@ test("source aliases are explicitly resolved to canonical Smash source IDs", asy
 
 test("scored decisions preserve source-purity boundaries", async () => {
   const corpus = (await Promise.all(decisionFiles.map((file) => read(`content/practical-mastery/${file}.ts`)))).join("\n");
-  assert.doesNotMatch(corpus, /exact solver frequency is/i);
-  assert.doesNotMatch(corpus, /always defend exactly 50%/i);
-  assert.doesNotMatch(corpus, /unknown live players always/i);
+  const endorsed = practicalDecisions.flatMap((decision) => {
+    const correctAction = decision.actionOptions.find((option) => option.id === decision.correctActionId);
+    const correctReason = decision.reasonOptions.find((option) => option.id === decision.correctReasonId);
+    return [
+      decision.explanationRu,
+      decision.explanationEn,
+      correctAction?.textRu ?? "",
+      correctAction?.textEn ?? "",
+      correctReason?.textRu ?? "",
+      correctReason?.textEn ?? "",
+    ];
+  }).join("\n");
+
+  assert.doesNotMatch(endorsed, /exact solver frequency is/i);
+  assert.doesNotMatch(endorsed, /always defend exactly 50%/i);
+  assert.doesNotMatch(endorsed, /unknown live players always/i);
   assert.match(corpus, /ballpark baseline|not a law|не закон|default with exceptions|table-specific branch/);
   assert.match(corpus, /pool hypothesis|field-dependent|requiring validation|table-specific branch/);
 });

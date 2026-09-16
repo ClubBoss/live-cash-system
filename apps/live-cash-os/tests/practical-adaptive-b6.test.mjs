@@ -44,3 +44,18 @@ test("learner-facing mixed session now uses adaptive builder",()=>{
  assert.match(ui,/buildAdaptiveIntegratedSession/);
  assert.doesNotMatch(ui,/setItems\(buildIntegratedSession/);
 });
+
+
+test("rep-depth policy is an adaptive overexposure target, not a competing mastery threshold", async () => {
+  const policy = await readFile(path.join(root, "content/practical-mastery/rep-depth-policy.ts"), "utf8");
+  const core = await readFile(path.join(root, "lib/practical-mastery-core.ts"), "utf8");
+  assert.match(policy, /targetRecognition:3/);
+  assert.match(policy, /targetDirect:4/);
+  assert.match(policy, /targetTransfer:4/);
+  assert.match(repair, /need:"UNDEREXPOSED"/);
+  assert.match(repair, /practicalRepDepthTargetForSkill/);
+  assert.doesNotMatch(core, /practicalRepDepthTargetForSkill/);
+  assert.match(core, /MIN_RECOGNITION_STIMULI = 2/);
+  assert.match(core, /MIN_DIRECT_DECISION_STIMULI = 3/);
+  assert.match(core, /MIN_TRANSFER_STIMULI = 2/);
+});

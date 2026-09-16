@@ -7,6 +7,7 @@ import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practi
 
 const QUICK_START_INITIAL_DECISION_BY_SKILL = new Map<string, string>([
   ["FND-01", "PM-FND-01-101"],
+  ["FND-02", "PM-FND-02-102"],
 ]);
 
 export type FirstJourneyRecommendation = {
@@ -32,6 +33,29 @@ function unresolvedWrongDecisionIds(state: PracticalMasteryState, skillId: strin
 
 function unresolvedWrongCount(state: PracticalMasteryState, skillId: string): number {
   return unresolvedWrongDecisionIds(state, skillId).length;
+}
+
+function hasInterveningCorrectRecognition(
+  state: PracticalMasteryState,
+  repair: PracticalDecision,
+): boolean {
+  const latestWrongIndex = state.attempts.findLastIndex((attempt) => (
+    attempt.decisionId === repair.id
+    && !attempt.correct
+    && isSemanticallyValidPracticalAttempt(attempt)
+  ));
+  if (latestWrongIndex < 0) return false;
+
+  const repairFamily = practicalEvidenceFamilyId(repair);
+  return state.attempts.slice(latestWrongIndex + 1).some((attempt) => {
+    if (!attempt.correct || attempt.skillId !== repair.skillId || !isSemanticallyValidPracticalAttempt(attempt)) return false;
+    const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
+    return Boolean(
+      decision
+      && decision.kind === "recognition"
+      && practicalEvidenceFamilyId(decision) !== repairFamily
+    );
+  });
 }
 
 function quickStartPrerequisitesMet(state: PracticalMasteryState, skillId: string): boolean {
@@ -73,11 +97,18 @@ export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: 
     // stimulus when one exists; a different decisionId with the same cue is
     // not enough novelty.
     const recentlyAttempted = recentlyAttemptedDecisionIds(state);
+
+    // Recognition repair is exactly one independent sibling first, then a
+    // retest of the failed stimulus. This avoids immediate memorization while
+    // also avoiding a long detour through unrelated direct/changed items.
+    if (repair.kind === "recognition" && hasInterveningCorrectRecognition(state, repair)) return repair;
+
     const sameKindSibling = skillDecisions.find((decision) => decision.id !== repair.id && decision.kind === repair.kind && practicalEvidenceFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
     if (sameKindSibling) return sameKindSibling;
 
     const supportedSibling = skillDecisions.find((decision) => decision.id !== repair.id && (decision.kind === "recognition" || decision.kind === "decision" || decision.kind === "changed") && practicalEvidenceFamilyId(decision) !== repairFamily && !successfulFamilies.has(practicalEvidenceFamilyId(decision)) && !recentlyAttempted.has(decision.id)) ?? null;
-    return supportedSibling;
+    if (supportedSibling) return supportedSibling;
+    return null;
   }
 
   if (successfulFamilies.size === 0) {

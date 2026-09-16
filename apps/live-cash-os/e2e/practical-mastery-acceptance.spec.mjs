@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { practicalDecisionById } from "../content/practical-mastery/index.ts";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 const crossMatrix = process.env.LIVE_CASH_MASTERY_CROSS === "1";
@@ -113,8 +114,10 @@ test("Quick Start keeps practice open between consecutive examples of the same s
   const firstDecisionId = await practiceCard.getAttribute("data-practical-decision-id");
   expect(firstDecisionId).toBeTruthy();
 
-  await practiceCard.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
-  await practiceCard.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
+  const firstDecision = practicalDecisionById.get(firstDecisionId);
+  if (!firstDecision) throw new Error(`missing canonical decision ${firstDecisionId}`);
+  await practiceCard.locator("fieldset").nth(0).locator(`input[type="radio"][value="${firstDecision.correctActionId}"]`).check();
+  await practiceCard.locator("fieldset").nth(1).locator(`input[type="radio"][value="${firstDecision.correctReasonId}"]`).check();
   await practiceCard.getByRole("button", { name: /Ответить|Answer/ }).click();
   await expect(page.getByRole("heading", { name: /Верно|Correct/ })).toBeVisible();
 

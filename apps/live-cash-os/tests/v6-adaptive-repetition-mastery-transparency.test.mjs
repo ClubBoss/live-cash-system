@@ -135,14 +135,12 @@ test("Quick Start wrong answer uses a non-identical sibling before returning to 
     decisionId: sibling.id,
     ...correctInput(sibling.id, 70, new Date("2026-08-26T00:12:00Z")),
   });
-  // V3-FND-02: the wrong item must not resurface after just this one intervening
-  // decision while the skill still has a genuinely untried, non-recent decision
-  // available (bypassing recentlyAttemptedDecisionIds() was the root cause of the
-  // reported short-gap recurrence). A fresh decision is offered instead.
+  // The repaired contract uses exactly one independent correct recognition
+  // as the anti-memorization gap, then prioritizes the original miss for retest.
   const next = nextFirstJourneyDecision(state, skillId);
-  assert.ok(next, "a further non-recent decision should be offered instead of repeating the wrong item");
-  assert.notEqual(next.id, decisions[0].id, "the wrong item must not repeat after only one intervening decision while a non-recent alternative exists");
-  assert.notEqual(next.id, sibling.id, "the just-answered sibling must not immediately repeat either");
+  assert.ok(next, "the original miss must remain reachable after independent correction");
+  assert.equal(next.id, decisions[0].id, "the wrong item should return after one independent correct recognition");
+  assert.notEqual(next.id, sibling.id, "the just-answered sibling must not immediately repeat");
   assert.equal(state.attempts.length, 2, "selection itself must not create attempts or double-count evidence");
 });
 
