@@ -76,12 +76,6 @@ export default function PracticalFirstJourneyExperience({
   ];
 
   useEffect(() => {
-    if (!skill?.id) return;
-    setPracticeStarted(false);
-    setPracticeHelpOpen(false);
-  }, [skill?.id]);
-
-  useEffect(() => {
     if (!ready || recoveryBlocked || continuityChecked || presentation === null) return;
     const restored = restoreQuickStartPostAnswer(studyWorkspace, state);
     if (restored.status === "VALID") {
@@ -166,6 +160,7 @@ export default function PracticalFirstJourneyExperience({
   };
 
   const advanceDecision = () => {
+    const continueSameSkill = Boolean(answeredSkillId && recommendation?.skillId === answeredSkillId);
     const nextWorkspace = clearQuickStartContinuity(studyWorkspace, state.contentVersion);
     if (nextWorkspace !== studyWorkspace && !setStudyWorkspace(nextWorkspace)) return;
     setAnsweredDecisionId(null);
@@ -175,6 +170,7 @@ export default function PracticalFirstJourneyExperience({
     setAnswerRevealed(false);
     setLastCorrect(null);
     setPracticeHelpOpen(false);
+    setPracticeStarted(continueSameSkill);
   };
 
   if (!ready) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Загружаем прогресс…" : "Loading progress…"}</p></main>;
