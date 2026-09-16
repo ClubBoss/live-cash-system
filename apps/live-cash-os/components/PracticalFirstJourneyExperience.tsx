@@ -13,6 +13,7 @@ import {
 } from "../lib/practical-continuity-workspace";
 import type { FirstJourneyPresentationState } from "../lib/practical-first-journey-authority";
 import { markPracticalConceptTaught, recordPracticalDecision } from "../lib/practical-mastery-core";
+import { practicalPresentedOptions } from "../lib/practical-option-presentation";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import type { usePracticalProfileState } from "../lib/use-practical-profile-state";
@@ -60,6 +61,18 @@ export default function PracticalFirstJourneyExperience({
   const contrastAnchor = skillAnchors.find((item) => item.kind === "changed" || item.kind === "boundary") ?? null;
   const nextDecision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
   const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
+
+  const recordedDecisionAttemptCount = decision ? state.attempts.filter((attempt) => attempt.decisionId === decision.id).length : 0;
+  const currentDecisionAttemptRecorded = Boolean(decision && answerRevealed && answeredDecisionId === decision.id);
+  const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
+  const presentedActionOptions = useMemo(
+    () => decision ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal) : [],
+    [decision, presentationOrdinal],
+  );
+  const presentedReasonOptions = useMemo(
+    () => decision ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal) : [],
+    [decision, presentationOrdinal],
+  );
 
   const primerTeachingTexts = rule ? [
     locale === "ru" ? rule.triggerRu : rule.triggerEn,
@@ -249,8 +262,8 @@ export default function PracticalFirstJourneyExperience({
     {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
       <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА" : "ТЕПЕРЬ ТЫ") : (journeyStep.requiresHiddenCue ? "INDEPENDENT CHECK" : "YOUR TURN")}</p>
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{decision.actionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
-      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{decision.reasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 8 }}><input type="radio" name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!answerRevealed ? <>
         <button className="secondary" type="button" onClick={() => setPracticeHelpOpen((value) => !value)} style={{ marginBottom: 12 }}>
           {locale === "ru" ? "Не знаю / пока не уверен" : "I don't know / not sure yet"}
