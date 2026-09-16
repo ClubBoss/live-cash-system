@@ -92,6 +92,7 @@ const controlledVocabulary = [
   ["BLUFF_CATCH", /bluff[- ]catch|блеф-кетч/iu],
   ["BLUFF_FREQUENCY", /underbluff|overbluff|андерблеф|оверблеф/iu],
   ["MULTIWAY", /multiway|мультивей/iu],
+  ["HEADS_UP_BLINDS", /heads?-?up|\bHU\b|\bBvB\b|blind[- ]vs[- ]blind|блайнд против блайнда|хедз-?ап/iu],
   ["STRADDLE", /straddle|страддл/iu],
   ["ISO_OVERLIMP", /\bisolation\b|\bisolate\b|\boverlimp\b|изолейт|оверлимп/iu],
   ["DRAW_OUTS", /\bouts\b|\bdraws?\b|backdoor|\bдро\b|\bаут/iu],

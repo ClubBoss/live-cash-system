@@ -221,7 +221,7 @@ export default function PracticalMasteryExperience() {
       </div>
     </section> : null}
 
-    <section className="surface" style={{ marginTop: 22 }}>
+    <section className="surface" style={{ marginTop: 22 }} data-practical-skill-id={skill.id}>
       <div className="section-head"><p className="eyebrow">{locale === "ru" ? "ВСЕ НАВЫКИ" : "ALL SKILLS"}</p><h2>{locale === "ru" ? "По игровым ситуациям" : "Grouped by poker situation"}</h2></div>
       {grouped.map(([wave, skills]) => <details key={wave} open={wave === skill.wave} style={{ marginBottom: 12 }}>
         <summary style={{ cursor: "pointer", fontWeight: 700 }}>{waveLabel(wave, locale)} · {skills.length}</summary>
@@ -236,7 +236,7 @@ export default function PracticalMasteryExperience() {
               : locked
                 ? (locale === "ru" ? "пока закрыто" : "locked")
                 : evidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED");
-          return <button key={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
+          return <button key={item.id} data-practical-skill-id={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
         })}</div>
       </details>)}
     </section>
@@ -260,8 +260,8 @@ export default function PracticalMasteryExperience() {
           : <>Still needed: <b>{progressCategoryLabels.en[transparency.nextCategory.key]}</b>. More practice is required for a new kind of check; high confidence or an exact repeat of an already-correct example does not replace it.</>}</p>
           : <p style={{ marginTop: 12 }}>{locale === "ru" ? "Все категории до целевого уровня этого навыка уже подтверждены." : "All categories through this skill’s target level are already satisfied."}</p>}
         {transparency.recentAttemptCount > 0 ? <p className="support">{locale === "ru"
-          ? `Недавняя практика: ${transparency.recentCorrectCount}/${transparency.recentAttemptCount} верно · ${transparency.recentDistinctCorrectCount} разных правильно решённых примеров${transparency.latestConfidence === null ? "" : ` · последняя уверенность ${transparency.latestConfidence}%`}.`
-          : `Recent practice: ${transparency.recentCorrectCount}/${transparency.recentAttemptCount} correct · ${transparency.recentDistinctCorrectCount} distinct correct examples${transparency.latestConfidence === null ? "" : ` · latest confidence ${transparency.latestConfidence}%`}.`}</p> : null}
+          ? `Недавняя практика: ${transparency.recentCorrectCount}/${transparency.recentAttemptCount} верно · ${transparency.recentDistinctCorrectCount} разных правильно решённых примеров · ${transparency.recentDistinctScenarioCount} разных сценариев${transparency.latestConfidence === null ? "" : ` · последняя уверенность ${transparency.latestConfidence}%`}.`
+          : `Recent practice: ${transparency.recentCorrectCount}/${transparency.recentAttemptCount} correct · ${transparency.recentDistinctCorrectCount} distinct correct examples · ${transparency.recentDistinctScenarioCount} distinct scenarios${transparency.latestConfidence === null ? "" : ` · latest confidence ${transparency.latestConfidence}%`}.`}</p> : null}
       </div>
 
       {gap ? <div className="today-card" style={{ marginTop: 14 }}><p className="eyebrow">{locale === "ru" ? "ПОКА ЕСТЬ ОГРАНИЧЕНИЕ" : "CURRENT LIMIT"}</p><p>{locale === "ru" ? gap.learnerReasonRu : gap.learnerReason}</p><p className="support">{locale === "ru" ? gap.learnerNextEvidenceNeededRu : gap.learnerNextEvidenceNeeded}</p></div> : null}

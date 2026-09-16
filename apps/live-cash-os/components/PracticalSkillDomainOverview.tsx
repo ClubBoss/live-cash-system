@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { practicalSkillFamilies } from "../content/practical-mastery";
+import { practicalDecisionById, practicalSkillFamilies } from "../content/practical-mastery";
 import { stageAtLeast } from "../lib/practical-mastery-core";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "../lib/practical-stimulus-identity";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 
@@ -39,7 +40,14 @@ export default function PracticalSkillDomainOverview() {
         }).length;
         const recent = mastery.attempts.filter((attempt) => skillIds.has(attempt.skillId)).slice(-8);
         const recentCorrect = recent.filter((attempt) => attempt.correct);
-        const distinctCorrect = new Set(recentCorrect.map((attempt) => attempt.decisionId)).size;
+        const distinctCorrect = new Set(recentCorrect.flatMap((attempt) => {
+          const decision = practicalDecisionById.get(attempt.decisionId);
+          return decision ? [practicalEvidenceFamilyId(decision)] : [];
+        })).size;
+        const distinctScenarios = new Set(recentCorrect.flatMap((attempt) => {
+          const decision = practicalDecisionById.get(attempt.decisionId);
+          return decision ? [practicalEvidenceScenarioId(decision)] : [];
+        })).size;
         const lastConfidence = recent.at(-1)?.confidence ?? null;
         const pct = skills.length ? Math.round((trained / skills.length) * 100) : 0;
         return <article className={`practical-domain-card practical-domain-card--${domain.key}`} key={domain.key}>
@@ -47,7 +55,7 @@ export default function PracticalSkillDomainOverview() {
           <div className="practical-domain-card__bar" aria-label={`${pct}%`}><span style={{ width: `${pct}%` }} /></div>
           <div className="practical-domain-card__meta"><b>{pct}%</b><span>{trained} / {skills.length} {locale === "ru" ? "навыков" : "skills"}</span></div>
           {building > 0 ? <p className="support">{locale === "ru" ? `${building} навыков сейчас накапливают подтверждённую практику. Точный повтор уже правильно решённого примера считается один раз.` : `${building} skills are building evidence. An exact repeat of an already-correct example counts once.`}</p> : null}
-          {recent.length > 0 ? <p className="support">{locale === "ru" ? `Недавняя практика: ${recentCorrect.length}/${recent.length} верно · ${distinctCorrect} разных правильно решённых примеров${lastConfidence === null ? "" : ` · последняя уверенность ${lastConfidence}%`}. Уверенность сама по себе не повышает уровень навыка.` : `Recent practice: ${recentCorrect.length}/${recent.length} correct · ${distinctCorrect} distinct correct examples${lastConfidence === null ? "" : ` · latest confidence ${lastConfidence}%`}. Confidence alone does not raise mastery.`}</p> : null}
+          {recent.length > 0 ? <p className="support">{locale === "ru" ? `Недавняя практика: ${recentCorrect.length}/${recent.length} верно · ${distinctCorrect} разных правильно решённых примеров · ${distinctScenarios} разных сценариев${lastConfidence === null ? "" : ` · последняя уверенность ${lastConfidence}%`}. Уверенность сама по себе не повышает уровень навыка.` : `Recent practice: ${recentCorrect.length}/${recent.length} correct · ${distinctCorrect} distinct correct examples · ${distinctScenarios} distinct scenarios${lastConfidence === null ? "" : ` · latest confidence ${lastConfidence}%`}. Confidence alone does not raise mastery.`}</p> : null}
         </article>;
       })}
     </div>

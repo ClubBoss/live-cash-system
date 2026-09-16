@@ -27,10 +27,14 @@ test("B6 uses EV-weighted rep-depth target to detect underexposure",()=>{
  assert.match(repair,/practicalRepDepthTargetForSkill/);
  assert.match(repair,/target\.tier==="INTENSIVE"/);
  assert.match(repair,/deficit/);
+ assert.match(repair,/practicalEvidenceFamilyId/);
+ assert.doesNotMatch(repair,/map\(\(attempt\)=>attempt\.decisionId\)/);
 });
 
 test("adaptive session prefers non-identical causal repair and perceptual reps when useful",()=>{
- assert.match(session,/practicalStimulusFamilyId\(decision\)!==latestFamily/);
+ assert.match(session,/practicalEvidenceFamilyId\(decision\)!==latestFamily/);
+ assert.match(session,/usedEvidenceScenarios\.has\(practicalEvidenceScenarioId\(decision\)\)/);
+ assert.match(session,/usedEvidenceScenarios/);
  assert.match(session,/allPracticalTableStates/);
  assert.match(session,/need\.preferPerceptual/);
  assert.match(session,/adaptive\.length>=Math\.ceil\(size\/2\)/);

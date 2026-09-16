@@ -25,8 +25,10 @@ async function selectedSkillTitle(page) {
   return surface.locator("h1").first().innerText();
 }
 
-async function chooseSkill(page, name) {
-  const button = page.locator("button").filter({ hasText: name }).first();
+async function chooseSkill(page, selector) {
+  const button = typeof selector === "string"
+    ? page.locator(`button[data-practical-skill-id="${selector}"]`).first()
+    : page.locator("button").filter({ hasText: selector }).first();
   const details = button.locator("xpath=ancestor::details[1]");
   if (!(await details.getAttribute("open"))) await details.locator("summary").click();
   await button.click();
@@ -89,7 +91,7 @@ test("V4-D E-02 Skill Map selection survives ordinary continuity, fails closed, 
   await expect(selectedSkillSurface(page).getByRole("heading", { name: "RFI по позиции", exact: true })).toBeVisible();
   expect(await attemptCount(page)).toBe(attemptsBefore);
 
-  await chooseSkill(page, /BvB 3-bet pots/);
+  await chooseSkill(page, "BL-11");
   const main = page.getByRole("main");
   await main.getByRole("button", { name: "EN", exact: true }).click();
   await expect(main).not.toContainText("POSITIVE_EV_SOURCE_ACCESS_REQUIRED");

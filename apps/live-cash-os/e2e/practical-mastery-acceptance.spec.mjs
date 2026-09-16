@@ -103,6 +103,29 @@ test("Quick Start teaches the mechanism before scored practice and writes schema
   }, LEARNER_KEY)).toBe(true);
 });
 
+test("Quick Start keeps practice open between consecutive examples of the same skill", async ({ page }) => {
+  test.skip(crossMatrix, "same-skill Quick Start continuity is covered once in canonical Chromium");
+  await page.goto("/mastery/journey");
+
+  await page.getByRole("button", { name: /Проверить на примере|Try an example/ }).click();
+  const practiceCard = page.locator("[data-practical-decision-id]");
+  await expect(practiceCard).toBeVisible();
+  const firstDecisionId = await practiceCard.getAttribute("data-practical-decision-id");
+  expect(firstDecisionId).toBeTruthy();
+
+  await practiceCard.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
+  await practiceCard.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
+  await practiceCard.getByRole("button", { name: /Ответить|Answer/ }).click();
+  await expect(page.getByRole("heading", { name: /Верно|Correct/ })).toBeVisible();
+
+  await page.getByRole("button", { name: /Следующий пример|Next example/ }).click();
+
+  await expect(practiceCard).toBeVisible();
+  await expect(page.getByRole("button", { name: /Проверить на примере|Try an example/ })).toHaveCount(0);
+  await expect(page.getByText(/ТЕПЕРЬ ТЫ|YOUR TURN/, { exact: true })).toBeVisible();
+  await expect.poll(async () => practiceCard.getAttribute("data-practical-decision-id")).not.toBe(firstDecisionId);
+});
+
 test("skill domain overview reflects just-recorded progress after client-side navigation, without a reload", async ({ page }) => {
   // Regression guard: the layout-persistent nav/overview siblings in
   // app/mastery/layout.tsx and the routed page content must share one
@@ -156,10 +179,10 @@ test("mastery locale persists across route changes and localizes shared navigati
 test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
   test.skip(crossMatrix, "source-ceiling semantics are covered once in canonical Chromium");
   await page.goto("/mastery");
-  const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /BvB 3-bet pots/i }) });
+  const bl11 = page.locator('button[data-practical-skill-id="BL-11"]');
+  const bl11Group = page.locator("details").filter({ has: bl11 });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
-  const bl11 = bl11Group.getByRole("button", { name: /BvB 3-bet pots/i });
   await expect(bl11).toBeVisible();
   await bl11.click();
   await expect(page.getByText("ПОКА ЕСТЬ ОГРАНИЧЕНИЕ", { exact: true })).toBeVisible();

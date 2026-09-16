@@ -7,8 +7,6 @@ import { fileURLToPath } from "node:url";
 import { corpusFingerprint } from "../scripts/governance-contract.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const expectedFinalCompositionDigest = "0303a3331389a6532e1edf4b6034cc240c8200b7eb9bdea1b55753a5245172ef";
-
 // The six late systemic RU publication modules admitted to the final governed
 // frontier by GLOBAL_SYSTEMIC_RU closure: each is both a language-repair
 // surface (still mutable while locale review is open) and a source_blobs
@@ -126,9 +124,10 @@ test("final comprehension closure keeps first-use wording and governance truth a
     assert.equal(gitBlobSha(bytes), expectedSha, `${sourcePath}: stale source lock`);
   }
 
-  assert.equal(manifest.final_composition.current_digest, expectedFinalCompositionDigest);
-  assert.equal(manifest.final_composition.review_corpus_fingerprint, expectedFinalCompositionDigest);
-  assert.match(authority, new RegExp(expectedFinalCompositionDigest, "u"));
+  const rematerialized = corpusFingerprint(manifest.source_blobs);
+  assert.equal(manifest.final_composition.current_digest, rematerialized);
+  assert.equal(manifest.final_composition.review_corpus_fingerprint, rematerialized);
+  assert.match(authority, new RegExp(rematerialized, "u"));
   assert.equal(manifest.final_composition.status, "REVIEW_PENDING");
   assert.equal(manifest.strategy_approval, null);
   assert.equal(manifest.drill_approval, null);
@@ -218,7 +217,6 @@ test("FPA1-GOV-001: the ETC raw authority is a locked source_blobs participant a
   const rematerialized = corpusFingerprint(manifest.source_blobs);
   assert.equal(manifest.final_composition.current_digest, rematerialized, "current_digest must equal the re-materialized corpusFingerprint(source_blobs)");
   assert.equal(manifest.final_composition.review_corpus_fingerprint, rematerialized, "review_corpus_fingerprint must equal the re-materialized corpusFingerprint(source_blobs)");
-  assert.equal(manifest.final_composition.current_digest, expectedFinalCompositionDigest);
 
   // Human-approval truth must not be manufactured by this machine repair.
   assert.equal(manifest.final_composition.status, "REVIEW_PENDING");

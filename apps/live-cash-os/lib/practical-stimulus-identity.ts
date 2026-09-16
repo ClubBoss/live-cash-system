@@ -28,3 +28,19 @@ export function practicalScenarioFamilyId(decision: PracticalDecision): string {
   const match = decision.id.match(new RegExp(`^(.*-(?:${markerPattern}))-\\d+$`));
   return match?.[1] ?? practicalStimulusFamilyId(decision);
 }
+
+/**
+ * One evidence item is one semantic learner-facing stimulus. Exact/near-exact
+ * cue siblings collapse here, while scenario diversity is enforced separately.
+ */
+export function practicalEvidenceFamilyId(decision: PracticalDecision): string {
+  return practicalStimulusFamilyId(decision);
+}
+
+/**
+ * Scenario-diversity identity prevents one generated scenario family from
+ * satisfying an entire mastery or delayed-retention gate by itself.
+ */
+export function practicalEvidenceScenarioId(decision: PracticalDecision): string {
+  return practicalScenarioFamilyId(decision);
+}

@@ -27,7 +27,7 @@ import {
   type PracticalMasteryState,
 } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
-import { practicalStimulusFamilyId } from "./practical-stimulus-identity";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
 
 export const INTEGRATED_SESSION_SIZE = 8;
 export const RETENTION_INTERVAL_DAYS = [1, 3, 7] as const;
@@ -95,35 +95,46 @@ function candidateDecisionForSkill(
   excludedDecisionIds: Set<string>,
   requireNonIdenticalToLatest = false,
   avoidDecisionIds: ReadonlySet<string> = new Set<string>(),
+  requiredDifferentScenarioFromDecisionId: string | null = null,
 ): PracticalDecision | null {
   const rawLatest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
   const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
   const latestDecision = latest ? practicalDecisionById.get(latest.decisionId) ?? null : null;
-  const latestFamily = latestDecision ? practicalStimulusFamilyId(latestDecision) : null;
+  const latestFamily = latestDecision ? practicalEvidenceFamilyId(latestDecision) : null;
   const attemptedFamilies = new Set(
     state.attempts
       .filter((attempt) => attempt.skillId === skillId && isSemanticallyValidPracticalAttempt(attempt))
       .flatMap((attempt) => {
         const decision = practicalDecisionById.get(attempt.decisionId);
-        return decision ? [practicalStimulusFamilyId(decision)] : [];
+        return decision ? [practicalEvidenceFamilyId(decision)] : [];
       }),
   );
   const avoidFamilies = new Set(
     [...avoidDecisionIds].flatMap((decisionId) => {
       const decision = practicalDecisionById.get(decisionId);
-      return decision ? [practicalStimulusFamilyId(decision)] : [];
+      return decision ? [practicalEvidenceFamilyId(decision)] : [];
     }),
   );
+  const excludedFamilies = new Set(
+    [...excludedDecisionIds].flatMap((decisionId) => {
+      const decision = practicalDecisionById.get(decisionId);
+      return decision ? [practicalEvidenceFamilyId(decision)] : [];
+    }),
+  );
+  const forbiddenScenario = requiredDifferentScenarioFromDecisionId ? practicalDecisionById.get(requiredDifferentScenarioFromDecisionId) ?? null : null;
+  const forbiddenScenarioId = forbiddenScenario ? practicalEvidenceScenarioId(forbiddenScenario) : null;
   const pool = practicalDecisions.filter((decision) =>
     isOrdinaryLearnerDecision(decision)
     && decision.skillId === skillId
     && kinds.includes(decision.kind)
     && !excludedDecisionIds.has(decision.id)
+    && !excludedFamilies.has(practicalEvidenceFamilyId(decision))
     && !avoidDecisionIds.has(decision.id)
-    && !avoidFamilies.has(practicalStimulusFamilyId(decision))
-    && (!requireNonIdenticalToLatest || practicalStimulusFamilyId(decision) !== latestFamily)
+    && !avoidFamilies.has(practicalEvidenceFamilyId(decision))
+    && (!requireNonIdenticalToLatest || practicalEvidenceFamilyId(decision) !== latestFamily)
+    && (!forbiddenScenarioId || practicalEvidenceScenarioId(decision) !== forbiddenScenarioId)
   );
-  return pool.find((decision) => !attemptedFamilies.has(practicalStimulusFamilyId(decision))) ?? pool[0] ?? null;
+  return pool.find((decision) => !attemptedFamilies.has(practicalEvidenceFamilyId(decision))) ?? pool[0] ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
 function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isSemanticallyValidPracticalAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
@@ -148,11 +159,12 @@ export function supportedIntegratedSkillIds(state: PracticalMasteryState): strin
 }
 
 export function buildIntegratedSession(state: PracticalMasteryState, now = new Date(), size = INTEGRATED_SESSION_SIZE): IntegratedSessionItem[] {
-  const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
+  const items: IntegratedSessionItem[] = []; const excluded = new Set<string>(); const usedStimulusFamilies = new Set<string>(); const skillUse = new Map<string, number>(); const eligibleIds = new Set(supportedIntegratedSkillIds(state));
   const recentlyAttempted = recentlyAttemptedDecisionIds(state);
   const push = (decision: PracticalDecision, reason: IntegratedSessionItem["reason"], priority: number, why: string, retentionTierDays: number | null = null) => {
-    if (items.length >= size || excluded.has(decision.id) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
-    items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
+    const stimulusFamily = practicalStimulusFamilyId(decision);
+    if (items.length >= size || excluded.has(decision.id) || usedStimulusFamilies.has(stimulusFamily) || (skillUse.get(decision.skillId) ?? 0) >= 2) return;
+    items.push({ decisionId: decision.id, skillId: decision.skillId, priority, reason, whyAfterAnswer: why, retentionTierDays }); excluded.add(decision.id); usedStimulusFamilies.add(stimulusFamily); skillUse.set(decision.skillId, (skillUse.get(decision.skillId) ?? 0) + 1);
   };
 
   const mistakeFamilies = unresolvedMistakeFamilies(state);
@@ -171,8 +183,10 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
     for (const { skillId, tier } of dueRetentions) {
       if (items.length >= size) break;
       const kinds: PracticalDecision["kind"][] = ["changed", "mixed", "boundary", "decision"];
-      const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted)
-        ?? (allowRecentFallback ? candidateDecisionForSkill(state, skillId, kinds, excluded, true) : null);
+      const latestCorrect = latestCorrectAttempt(state, skillId);
+      const retentionAnchorDecisionId = latestCorrect?.decisionId ?? null;
+      const decision = candidateDecisionForSkill(state, skillId, kinds, excluded, true, recentlyAttempted, retentionAnchorDecisionId)
+        ?? (allowRecentFallback ? candidateDecisionForSkill(state, skillId, kinds, excluded, true, new Set<string>(), retentionAnchorDecisionId) : null);
       if (decision) push(decision, "RETENTION", 100 + tier, `Due ${tier}-day non-identical retrieval for ${skillId}.`, tier);
     }
   };
@@ -220,7 +234,7 @@ export function recordIntegratedDecision(state: PracticalMasteryState, item: Int
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
   let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
-  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalStimulusFamilyId(decision) !== practicalStimulusFamilyId(latestCorrectDecision));
+  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision));
   if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {
     const actualGap = elapsedDays(latestCorrectBefore.answeredAt, now);
     if (actualGap >= item.retentionTierDays) {

@@ -238,3 +238,11 @@ TARGETED-QA-2026-09-16 records the final semantic-sequencing review corpus at `e
 FULL-SOURCE-RELOCK-2026-09-16 records the exact semantic-sequencing review corpus at `0303a3331389a6532e1edf4b6034cc240c8200b7eb9bdea1b55753a5245172ef` after complete source_blobs reconciliation; deterministic QA does not create human approval.
 
 FND01-QUICKSTART-NOVELTY-2026-09-16 records the repaired two-family FND-01 Quick Start recognition path at governed review-corpus fingerprint `6fa438d3153a0cef587e27919fee92561340049d1e23e14078ece935195dca4c`. The repair preserves the two-stimulus recognition threshold and removes exact-answer leakage; deterministic QA does not create human approval.
+
+POSTDEPLOY-SEMANTIC-RESIDUALS-2026-09-16 records the bounded heads-up/BvB first-use cleanup at governed review-corpus fingerprint `ef7964e4f2799bb019dcfb03457d71bca6e7fb4637b9a6374ceddc9064d2980c`. The accompanying generic mixed-session stimulus-family dedupe is scheduler-only and does not create or imply human approval.
+
+HEADS-UP-INFLECTION-2026-09-16 records the RU heads-up inflection closure at governed review-corpus fingerprint `3c0e06406fe639968d2cd8e5142806ab5cfa29323e5d2c948932b8195cac0d41`; deterministic checks remain rejection-only and do not create human approval.
+
+QUICKSTART-EVIDENCE-IDENTITY-2026-09-16 records the governed Quick Start continuity relock at canonical review-corpus fingerprint `9b4151c5f9a16d6114f2a3a83aef22704b9673f03a27e43f985f00994fa931cc`. The accompanying FND-01 first-scored sequencing, scenario-level mastery/retention evidence identity, and stable E2E skill hooks are runtime/integrity repairs; deterministic validation remains rejection-only and creates no human approval.
+
+QUICKSTART-CONTINUITY-2026-09-16 records the corrected Quick Start presentation lifecycle at canonical review-corpus fingerprint `7d724cfa129af66a55213cebaa676b5e3b6c421e3d1fa01c338cb30a717822f8`. The repair removes an implicit skill-change reset that could hide restored post-answer feedback after mastery advanced, while preserving continuous same-skill practice and returning to theory only on a true next-skill transition. Human strategy, drill, RU/EN and final-composition approvals remain pending; deterministic validation creates no approval.

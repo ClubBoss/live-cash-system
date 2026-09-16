@@ -23,13 +23,12 @@ test("learner surfaces hide provenance IDs while keeping source ceilings underst
   }
 
   await page.goto("/mastery");
-  const bl11Button = page.locator("button").filter({ hasText: /BvB 3-bet pots/i });
+  const bl11Button = page.locator('button[data-practical-skill-id="BL-11"]');
   const bl11Group = page.locator("details").filter({ has: bl11Button });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
-  const visibleBl11Button = bl11Group.getByRole("button", { name: /BvB 3-bet pots/i });
-  await expect(visibleBl11Button).toBeVisible();
-  await visibleBl11Button.click();
+  await expect(bl11Button).toBeVisible();
+  await bl11Button.click();
   await expect(page.getByText("ПОКА ЕСТЬ ОГРАНИЧЕНИЕ", { exact: true })).toBeVisible();
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
 });
@@ -110,7 +109,7 @@ test("Skill Map keeps generic Learn distinct from teachable/focus-admissible rec
   await page.goto("/mastery/session?focus=BL-11");
   await expect(page).toHaveURL(/\/mastery\/session\?focus=BL-11$/);
   await expect(page.getByText("ВЫБРАННЫЙ ФОКУС", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "BvB 3-bet pots", exact: true })).toBeVisible();
+  await expect(page.locator('main[data-practical-skill-id="BL-11"]')).toBeVisible();
   await expect(page.getByText(/Сейчас этот навык нельзя честно поставить в самостоятельную практику/i)).toBeVisible();
   await expect(page.getByText(/не подменит его другой темой молча/i)).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/ПРАКТИКА · \d+\/\d+/i);

@@ -270,7 +270,7 @@ test("T3: invalid true-latest row yields null latestConfidence without older-con
   });
 });
 
-test("T4: legitimate recordPracticalDecision history keeps existing scaffold and transparency behavior", () => {
+test("T4: legitimate history stays valid while transparency dedupes identical learner-facing stimuli", () => {
   const recognition1 = syntheticDecision({ id: "RAW-READER-T4-R1", kind: "recognition" });
   const recognition2 = syntheticDecision({ id: "RAW-READER-T4-R2", kind: "recognition" });
   const transfer1 = syntheticDecision({ id: "RAW-READER-T4-T1", kind: "changed" });
@@ -296,7 +296,8 @@ test("T4: legitimate recordPracticalDecision history keeps existing scaffold and
     const transparency = practicalSkillProgressTransparency(state, SKILL_ID, "BOUNDARY_TESTED");
     assert.equal(transparency.recentAttemptCount, 5);
     assert.equal(transparency.recentCorrectCount, 5);
-    assert.equal(transparency.recentDistinctCorrectCount, 5);
+    assert.equal(transparency.recentDistinctCorrectCount, 1, "five different IDs with the same cue remain one distinct example");
+    assert.equal(transparency.recentDistinctScenarioCount, 1, "the identical synthetic cue also represents one scenario");
     assert.equal(transparency.latestConfidence, 74);
   });
 });
