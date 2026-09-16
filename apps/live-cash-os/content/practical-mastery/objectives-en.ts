@@ -55,7 +55,7 @@ export const practicalObjectiveEnById = {
   "4BP-02": "Play AK/QQ/JJ/blocker families without a one-size-fits-all stack-off rule.",
   "4BP-03": "Preserve a checking range even in compressed pots where the source supports it.",
   "4BP-04": "Account for reopen/jam exposure and the investment ceiling before betting or raising.",
-  "TURN-01": "Classify turns as blank, scare, completing, paired, or range-shifting.",
+  "TURN-01": "Deepen the familiar runout classes by tying blank, scare, completing, paired, or range-shifting turns to the surviving ranges after the actual flop line.",
   "TURN-02": "Continue aggression only with suitable value/bluff classes.",
   "TURN-03": "Attack checked-back ranges where they are genuinely capped or overwide.",
   "TURN-04": "Lead after a flop call only on source-supported runouts.",
