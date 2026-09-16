@@ -17,6 +17,7 @@ import {
 } from "../lib/practical-mastery-core.ts";
 import { nextFirstJourneyDecision } from "../lib/practical-first-journey.ts";
 import {
+  buildIntegratedSession,
   recordIntegratedDecision,
 } from "../lib/practical-integrated-session.ts";
 import {
@@ -98,6 +99,57 @@ test("focused rounds do not pad with duplicate stimuli or more than two siblings
   assert.ok(tested >= 15, `expected broad focused-family coverage, got ${tested}`);
 });
 
+test("generic mixed rounds never contain duplicate semantic stimulus families", () => {
+  const duplicateSkillIds = [...new Set(
+    practicalDecisions
+      .filter((decision, index, rows) => rows.some((other, otherIndex) => (
+        otherIndex !== index
+        && other.skillId === decision.skillId
+        && practicalStimulusFamilyId(other) === practicalStimulusFamilyId(decision)
+      )))
+      .map((decision) => decision.skillId),
+  )];
+
+  let exercised = 0;
+  for (const skillId of duplicateSkillIds) {
+    const seed = practicalDecisions.find((decision) => (
+      decision.skillId === skillId
+      && decision.actionOptions.some((option) => option.id !== decision.correctActionId)
+      && decision.reasonOptions.some((option) => option.id !== decision.correctReasonId)
+    ));
+    if (!seed) continue;
+
+    let state = createPracticalMasteryState(new Date("2026-09-02T00:00:00Z"));
+    for (const progress of Object.values(state.skills)) progress.evidenceStage = "BOUNDARY_TESTED";
+    state.skills[skillId].conceptTaught = true;
+    state.skills[skillId].conceptTaughtAt = "2026-09-02T00:00:01.000Z";
+
+    const wrongAction = seed.actionOptions.find((option) => option.id !== seed.correctActionId);
+    const wrongReason = seed.reasonOptions.find((option) => option.id !== seed.correctReasonId);
+    if (!wrongAction || !wrongReason) continue;
+
+    state = recordPracticalDecision(state, {
+      decisionId: seed.id,
+      actionId: wrongAction.id,
+      reasonId: wrongReason.id,
+      confidence: 80,
+      now: new Date("2026-09-02T00:01:00Z"),
+    });
+
+    const items = buildIntegratedSession(state, new Date("2026-09-02T00:02:00Z"), 8);
+    if (items.length < 2) continue;
+    exercised += 1;
+    const decisions = items.map((item) => practicalDecisionById.get(item.decisionId)).filter(Boolean);
+    assert.equal(
+      new Set(decisions.map(practicalStimulusFamilyId)).size,
+      decisions.length,
+      `${skillId}: generic mixed round repeated a semantic stimulus family`,
+    );
+  }
+
+  assert.ok(exercised >= 3, `expected at least three duplicate-family skills to exercise generic mixed scheduling, got ${exercised}`);
+});
+
 test("recent semantic family is not resurfaced through a sibling decision id", () => {
   const pair = (() => {
     const grouped = new Map();
@@ -176,6 +228,16 @@ test("Quick Start FND-01 uses two genuinely distinct recognition stimuli and sta
   const advance = ui.slice(advanceStart, advanceEnd);
   assert.doesNotMatch(advance, /setPracticeStarted\(false\)/);
   assert.match(ui, /ЗНАКОМЫЙ МЕХАНИЗМ · НОВОЕ ПРИМЕНЕНИЕ/);
+});
+
+test("blind-vs-blind learner titles avoid opaque BvB first-use shorthand", () => {
+  const bl10 = practicalSkillById.get("BL-10");
+  const bl11 = practicalSkillById.get("BL-11");
+  assert.ok(bl10 && bl11);
+  assert.doesNotMatch(bl10.titleRu, /\bBvB\b/u);
+  assert.doesNotMatch(bl11.titleRu, /\bBvB\b/u);
+  assert.match(bl10.titleRu, /Блайнд против блайнда/u);
+  assert.match(bl11.titleRu, /Блайнд против блайнда/u);
 });
 
 test("overlapping child skills are explicitly transfer-scoped rather than duplicate baseline lessons", () => {
