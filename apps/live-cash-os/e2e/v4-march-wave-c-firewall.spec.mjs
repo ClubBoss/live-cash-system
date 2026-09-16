@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 const internalMetadata = /POSITIVE_EV_SOURCE_ACCESS_REQUIRED|sourceRefs|\b(?:FND|PF|BL|W4(?:-HAND|-BOARD|-RUNOUT)?|OOP|IP|3BP|4BP|TURN|RIV|MW|DEEP|EXP)-\d{2}(?:-\d+)?\b|\b(?:FTGU(?:[- ]?E)?\d+|SLC-[A-Z0-9-]+|CINJ-E\d+|CP-G\d+-L\d+|LCM-\d+)\b|(?:^|\s)E\d{2}(?=\s|$)|(?:^|\s)B1(?=\s|$)/i;
-const bvbSkillTitle = /BvB 3-bet pots|Blind-vs-blind 3-bet pots/i;
 
 async function expectBuildIdentityHidden(page) {
   const footer = page.locator("footer[data-build-sha]").first();
@@ -24,10 +23,12 @@ async function expectBuildIdentityHidden(page) {
 
 async function openBvBSourceLimit(page) {
   await page.goto("/mastery");
-  const group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: bvbSkillTitle }) });
+  const button = page.locator('button[data-practical-skill-id="BL-11"]');
+  const group = page.locator("details").filter({ has: button });
   await expect(group).toHaveCount(1);
   await group.locator("summary").click();
-  await group.getByRole("button", { name: bvbSkillTitle }).click();
+  await expect(button).toBeVisible();
+  await button.click();
 }
 
 test("Wave C RU learner surfaces expose natural copy without machine metadata", async ({ page }) => {

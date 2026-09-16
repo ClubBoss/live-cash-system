@@ -221,7 +221,7 @@ export default function PracticalMasteryExperience() {
       </div>
     </section> : null}
 
-    <section className="surface" style={{ marginTop: 22 }}>
+    <section className="surface" style={{ marginTop: 22 }} data-practical-skill-id={skill.id}>
       <div className="section-head"><p className="eyebrow">{locale === "ru" ? "ВСЕ НАВЫКИ" : "ALL SKILLS"}</p><h2>{locale === "ru" ? "По игровым ситуациям" : "Grouped by poker situation"}</h2></div>
       {grouped.map(([wave, skills]) => <details key={wave} open={wave === skill.wave} style={{ marginBottom: 12 }}>
         <summary style={{ cursor: "pointer", fontWeight: 700 }}>{waveLabel(wave, locale)} · {skills.length}</summary>
@@ -236,7 +236,7 @@ export default function PracticalMasteryExperience() {
               : locked
                 ? (locale === "ru" ? "пока закрыто" : "locked")
                 : evidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED");
-          return <button key={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
+          return <button key={item.id} data-practical-skill-id={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
         })}</div>
       </details>)}
     </section>

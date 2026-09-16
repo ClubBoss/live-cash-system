@@ -237,7 +237,7 @@ export default function PracticalIntegratedSessionExperience() {
     <button className="primary" onClick={() => startFreshRound(requestedFocus ?? null)}>{locale === "ru" ? "Начать новый раунд" : "Start a fresh round"} <span>→</span></button>
   </main>;
 
-  if (presentationState === "FOCUS_UNAVAILABLE") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+  if (presentationState === "FOCUS_UNAVAILABLE") return <main data-practical-skill-id={requestedSkill?.id} style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
     <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ ФОКУС" : "REQUESTED FOCUS"}</p>
     <h1>{requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : (locale === "ru" ? "Этот навык пока недоступен" : "This skill is not available yet")}</h1>
     <p>{locale === "ru" ? "Сейчас этот навык нельзя честно поставить в самостоятельную практику: сначала нужны его обязательные предпосылки, знакомство с механизмом или достаточная проверенная база задач. Система не подменит его другой темой молча." : "This skill cannot be placed into independent practice yet: it first needs its required prerequisites, concept exposure, or enough supported practice material. The system will not silently substitute a different topic."}</p>
@@ -251,7 +251,7 @@ export default function PracticalIntegratedSessionExperience() {
     <p><Link className="primary" href="/mastery/journey">{locale === "ru" ? "Продолжить основной маршрут" : "Continue the primary route"} →</Link> · <Link className="secondary" href="/mastery">{locale === "ru" ? "Посмотреть карту" : "View map"}</Link></p>
   </main>;
 
-  if (presentationState === "FOCUSED_EMPTY") return <main style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
+  if (presentationState === "FOCUSED_EMPTY") return <main data-practical-skill-id={requestedSkill?.id} style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 64px" }}>
     <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ ФОКУС" : "REQUESTED FOCUS"}</p>
     <h1>{requestedSkill ? (locale === "ru" ? requestedSkill.titleRu : requestedSkill.titleEn) : (locale === "ru" ? "Для этого фокуса сейчас нет полезной задачи" : "No useful item for this focus right now")}</h1>
     <p>{locale === "ru" ? "Этот навык доступен, но сейчас для него нет полезного нового задания: допустимые примеры либо были недавно решены, либо пока не дают новой самостоятельной проверки. Система не будет заполнять раунд точным повтором. Это не завершённый раунд." : "This skill is available, but there is no useful new item for it right now: admissible examples were either solved recently or do not currently add a new independent check. The system will not fill the round with an exact repeat. This is not a completed round."}</p>

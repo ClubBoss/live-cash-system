@@ -179,10 +179,10 @@ test("mastery locale persists across route changes and localizes shared navigati
 test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading as full mastery", async ({ page }) => {
   test.skip(crossMatrix, "source-ceiling semantics are covered once in canonical Chromium");
   await page.goto("/mastery");
-  const bl11Group = page.locator("details").filter({ has: page.locator("button").filter({ hasText: /BvB 3-bet pots/i }) });
+  const bl11 = page.locator('button[data-practical-skill-id="BL-11"]');
+  const bl11Group = page.locator("details").filter({ has: bl11 });
   await expect(bl11Group).toHaveCount(1);
   await bl11Group.locator("summary").click();
-  const bl11 = bl11Group.getByRole("button", { name: /BvB 3-bet pots/i });
   await expect(bl11).toBeVisible();
   await bl11.click();
   await expect(page.getByText("ПОКА ЕСТЬ ОГРАНИЧЕНИЕ", { exact: true })).toBeVisible();
