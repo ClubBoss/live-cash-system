@@ -115,20 +115,44 @@ jobs:
           retention-days: 7
 
   e2e-core:
-    name: Core E2E · ${{ matrix.project }}
+    name: Core E2E · ${{ matrix.id }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - project: chromium
+          - id: chromium-1of3
+            project: chromium
             browser: chromium
-          - project: mobile
+            shard: "1/3"
+          - id: chromium-2of3
+            project: chromium
             browser: chromium
-          - project: firefox
+            shard: "2/3"
+          - id: chromium-3of3
+            project: chromium
+            browser: chromium
+            shard: "3/3"
+          - id: mobile-1of3
+            project: mobile
+            browser: chromium
+            shard: "1/3"
+          - id: mobile-2of3
+            project: mobile
+            browser: chromium
+            shard: "2/3"
+          - id: mobile-3of3
+            project: mobile
+            browser: chromium
+            shard: "3/3"
+          - id: firefox
+            project: firefox
             browser: firefox
-          - project: webkit
+            shard: ""
+          - id: webkit
+            project: webkit
             browser: webkit
+            shard: ""
     defaults:
       run:
         working-directory: apps/live-cash-os
@@ -143,23 +167,27 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Install ${{ matrix.browser }}
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      - name: Run canonical ${{ matrix.project }} project
+      - name: Run canonical ${{ matrix.id }} project shard
         run: |
           set -o pipefail
-          npx playwright test --project="${{ matrix.project }}" 2>&1 | tee "core-${{ matrix.project }}.log"
+          shard_arg=""
+          if [[ -n "${{ matrix.shard }}" ]]; then
+            shard_arg="--shard=${{ matrix.shard }}"
+          fi
+          npx playwright test --project="${{ matrix.project }}" $shard_arg 2>&1 | tee "core-${{ matrix.id }}.log"
       - name: Upload core log
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: live-cash-os-core-${{ matrix.project }}-log
-          path: apps/live-cash-os/core-${{ matrix.project }}.log
+          name: live-cash-os-core-${{ matrix.id }}-log
+          path: apps/live-cash-os/core-${{ matrix.id }}.log
           if-no-files-found: error
           retention-days: 7
       - name: Upload Wave A screenshot evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: live-cash-os-wave-a-evidence-${{ matrix.project }}
+          name: live-cash-os-wave-a-evidence-${{ matrix.id }}
           path: apps/live-cash-os/test-results/post-tester-wave-a
           if-no-files-found: ignore
           retention-days: 7
@@ -167,7 +195,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: live-cash-os-core-${{ matrix.project }}-failure-evidence
+          name: live-cash-os-core-${{ matrix.id }}-failure-evidence
           path: |
             apps/live-cash-os/playwright-report
             apps/live-cash-os/test-results
@@ -418,7 +446,7 @@ jobs:
           else
             [[ "$VISUAL_RESULT" == "skipped" || "$VISUAL_RESULT" == "success" ]]
           fi
-          echo "Complete release gate GREEN: static + 4 core projects + 9 Wave C cases + 3 mastery-cross projects + visual policy."
+          echo "Complete release gate GREEN: static + 8 core jobs (3 Chromium shards + 3 Mobile shards + Firefox + WebKit) + 9 Wave C cases + 3 mastery-cross projects + visual policy."
 
   deploy-test-mirror:
     if: always() && needs.validate.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
