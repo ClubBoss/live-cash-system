@@ -4,9 +4,11 @@ import type { CardState } from "./model-core";
 import {
   createPracticalMasteryState,
   deriveEvidenceStage,
+  derivePreScenarioRecognitionEvidenceStage,
   isPracticalBridgeSkill,
   isSemanticallyValidPracticalAttempt,
   recordPracticalDecision,
+  stageAtLeast,
   type PracticalMasteryState,
   type PracticalSkillProgress,
 } from "./practical-mastery-core";
@@ -119,6 +121,7 @@ function validSkillProgress(
   skillId: string,
   value: unknown,
   replayed: PracticalSkillProgress,
+  allowPreScenarioRecognitionStage = false,
 ): value is PracticalSkillProgress {
   if (!isRecord(value)) return false;
   if (value.skillId !== skillId || !practicalSkillById.has(skillId)) return false;
@@ -162,12 +165,21 @@ function validSkillProgress(
 
   if (!deterministicAttemptFieldsMatch(value as PracticalSkillProgress, replayed)) return false;
 
-  if (value.evidenceStage !== deriveEvidenceStage(value as PracticalSkillProgress)) return false;
+  const currentStage = deriveEvidenceStage(value as PracticalSkillProgress);
+  if (value.evidenceStage !== currentStage) {
+    if (!allowPreScenarioRecognitionStage) return false;
+    const previousStage = derivePreScenarioRecognitionEvidenceStage(value as PracticalSkillProgress);
+    // The compatibility seam is one-way only. A stored stage must be exactly
+    // what the previous writer derived, and the current scenario gate may only
+    // reconcile it to an equal or lower stage. Arbitrary stage inflation or
+    // unrelated inconsistent states remain invalid.
+    if (value.evidenceStage !== previousStage || !stageAtLeast(previousStage, currentStage)) return false;
+  }
 
   return true;
 }
 
-function validMasteryState(value: unknown): value is PracticalMasteryState {
+function validMasteryState(value: unknown, allowPreScenarioRecognitionStage = false): value is PracticalMasteryState {
   if (!isRecord(value)) return false;
   if (value.schemaVersion !== PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION) return false;
   if (typeof value.contentVersion !== "string" || typeof value.revision !== "number" || typeof value.updatedAt !== "string") return false;
@@ -195,7 +207,7 @@ function validMasteryState(value: unknown): value is PracticalMasteryState {
   }
 
   return CANONICAL_PRACTICAL_SKILL_IDS.every((skillId) => (
-    validSkillProgress(skillId, skills[skillId], replayed.skills[skillId])
+    validSkillProgress(skillId, skills[skillId], replayed.skills[skillId], allowPreScenarioRecognitionStage)
   ));
 }
 
@@ -294,14 +306,29 @@ function validPerformanceEvents(value: unknown[]): boolean {
   return true;
 }
 
-export function validatePracticalProfileState(value: unknown): value is PracticalProfileState {
+function validPracticalProfileState(value: unknown, allowPreScenarioRecognitionStage = false): value is PracticalProfileState {
   return isRecord(value)
     && value.version === PRACTICAL_PROFILE_VERSION
-    && validMasteryState(value.mastery)
+    && validMasteryState(value.mastery, allowPreScenarioRecognitionStage)
     && Array.isArray(value.performance)
     && value.performance.length <= PRACTICAL_PERFORMANCE_LIMIT
     && validPerformanceEvents(value.performance)
     && validStudyWorkspace(value.studyWorkspace);
+}
+
+export function validatePracticalProfileState(value: unknown): value is PracticalProfileState {
+  return validPracticalProfileState(value);
+}
+
+export function reconcilePreScenarioPracticalProfile(value: unknown): PracticalProfileState | null {
+  if (validatePracticalProfileState(value)) return structuredClone(value);
+  if (!validPracticalProfileState(value, true)) return null;
+
+  const reconciled = structuredClone(value) as PracticalProfileState;
+  for (const progress of Object.values(reconciled.mastery.skills)) {
+    progress.evidenceStage = deriveEvidenceStage(progress);
+  }
+  return validatePracticalProfileState(reconciled) ? reconciled : null;
 }
 
 export function hasPracticalProfileField(value: unknown): boolean {

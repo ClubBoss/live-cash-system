@@ -13,6 +13,7 @@ import {
   learnerStateHasValidPracticalProfile,
   optionalPracticalProfileValid,
   practicalProfileSafeSuccessor,
+  reconcilePreScenarioPracticalProfile,
   PRACTICAL_PROFILE_FIELD,
 } from "./practical-profile-contract";
 
@@ -91,6 +92,30 @@ export function validateRootLearnerState(value: unknown): value is LearnerState 
   return validateLearnerState(value) && optionalPracticalProfileValid(value);
 }
 
+export type LearnerStateNormalization = {
+  state: LearnerState;
+  practicalProfileReconciled: boolean;
+};
+
+export function normalizeCurrentLearnerState(value: unknown): LearnerStateNormalization | null {
+  if (!validateLearnerState(value)) return null;
+  const migrated = migrateLearnerState(value);
+  if (validateRootLearnerState(migrated)) {
+    return { state: migrated, practicalProfileReconciled: false };
+  }
+  if (!hasPracticalProfileField(migrated)) return null;
+
+  const rawProfile = (migrated as unknown as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD];
+  const reconciledProfile = reconcilePreScenarioPracticalProfile(rawProfile);
+  if (!reconciledProfile) return null;
+  const reconciled = Object.assign(
+    structuredClone(migrated) as LearnerState,
+    { [PRACTICAL_PROFILE_FIELD]: reconciledProfile },
+  ) as LearnerState;
+  if (!validateRootLearnerState(reconciled)) return null;
+  return { state: reconciled, practicalProfileReconciled: true };
+}
+
 export function readLocalLearnerState(raw: string | null): LocalStateRead {
   if (raw === null) return { kind: "missing", state: null, raw: null };
 
@@ -107,8 +132,15 @@ export function readLocalLearnerState(raw: string | null): LocalStateRead {
     return { kind: "future", state: null, raw, reason: `State schema ${version} is newer than supported schema ${STATE_SCHEMA_VERSION}` };
   }
 
-  if (version === STATE_SCHEMA_VERSION && validateRootLearnerState(parsed)) {
-    return { kind: "valid", state: migrateLearnerState(parsed), raw };
+  if (version === STATE_SCHEMA_VERSION) {
+    const normalized = normalizeCurrentLearnerState(parsed);
+    if (normalized) {
+      return {
+        kind: normalized.practicalProfileReconciled ? "migrated" : "valid",
+        state: normalized.state,
+        raw,
+      };
+    }
   }
 
   if (legacySchemaSupported(version)) {
@@ -151,10 +183,14 @@ export function prepareLearnerStateImport(text: string, current: LearnerState): 
   let candidate: LearnerState;
   let migrated = false;
   if (version === STATE_SCHEMA_VERSION) {
-    // Import is fail-closed: unlike local corruption recovery, a malformed
-    // current-schema import is never silently salvaged into the live state.
-    if (!validateRootLearnerState(parsed)) return { ok: false, reason: "invalid_state" };
-    candidate = migrateLearnerState(parsed);
+    // Import is fail-closed: unlike local corruption recovery, only a profile
+    // proven valid under the immediately previous recognition-stage derivation
+    // may reconcile into current semantics. Other malformed current-schema
+    // imports remain rejected.
+    const normalized = normalizeCurrentLearnerState(parsed);
+    if (!normalized) return { ok: false, reason: "invalid_state" };
+    candidate = normalized.state;
+    migrated = normalized.practicalProfileReconciled;
   } else if (legacySchemaSupported(version)) {
     candidate = migrateLearnerState(parsed);
     migrated = true;

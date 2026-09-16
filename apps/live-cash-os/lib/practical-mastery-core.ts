@@ -129,6 +129,18 @@ export function deriveEvidenceStage(progress: PracticalSkillProgress): Practical
   if (recognition < MIN_RECOGNITION_STIMULI || recognitionScenarios < MIN_RECOGNITION_SCENARIOS) stage = "CONCEPT_TAUGHT"; else if (direct < MIN_DIRECT_DECISION_STIMULI) stage = "RECOGNITION_TRAINED"; else if (transfer < MIN_TRANSFER_STIMULI) stage = "DECISION_TRAINED"; else if (boundary < MIN_BOUNDARY_STIMULI) stage = "CHANGED_NODE_TRANSFER"; else if (!progress.delayedRetrievalPassed) stage = "BOUNDARY_TESTED"; else if (!progress.realHandTransferReviewed) stage = "DELAYED_RETRIEVAL"; else stage = "REAL_HAND_TRANSFER";
   return applySourceEvidenceCeiling(progress.skillId, stage);
 }
+// Compatibility authority for profiles written immediately before the
+// independent-recognition-scenario gate was introduced. This is deliberately
+// not used by current mastery writers or routing: it exists only so persistence
+// can prove that a now-stale derived evidenceStage was legitimate under the
+// previous semantics before reconciling it downward to deriveEvidenceStage().
+export function derivePreScenarioRecognitionEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
+  if (!progress.conceptTaught) return applySourceEvidenceCeiling(progress.skillId, "SOURCE_SUPPORTED");
+  const recognition = distinctSuccessfulByKind(progress, ["recognition"]); const direct = distinctSuccessfulByKind(progress, ["decision"]); const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]); const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
+  let stage: PracticalEvidenceStage;
+  if (recognition < MIN_RECOGNITION_STIMULI) stage = "CONCEPT_TAUGHT"; else if (direct < MIN_DIRECT_DECISION_STIMULI) stage = "RECOGNITION_TRAINED"; else if (transfer < MIN_TRANSFER_STIMULI) stage = "DECISION_TRAINED"; else if (boundary < MIN_BOUNDARY_STIMULI) stage = "CHANGED_NODE_TRANSFER"; else if (!progress.delayedRetrievalPassed) stage = "BOUNDARY_TESTED"; else if (!progress.realHandTransferReviewed) stage = "DELAYED_RETRIEVAL"; else stage = "REAL_HAND_TRANSFER";
+  return applySourceEvidenceCeiling(progress.skillId, stage);
+}
 function refreshEvidenceStage(progress: PracticalSkillProgress): void { progress.evidenceStage = deriveEvidenceStage(progress); }
 
 export function createPracticalMasteryState(now = new Date(), resetFromLegacy = false): PracticalMasteryState {

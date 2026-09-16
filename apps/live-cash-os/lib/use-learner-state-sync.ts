@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   STATE_SCHEMA_VERSION,
   emptyLearnerState,
-  migrateLearnerState,
   type LearnerState,
 } from "./model";
 import {
@@ -12,6 +11,7 @@ import {
   arbitrateLocalWrite,
   chooseRestoreState,
   parseSyncMeta,
+  normalizeCurrentLearnerState,
   prepareLearnerStateImport,
   readLocalLearnerState,
   runtimeCompatible,
@@ -137,8 +137,8 @@ function claimLegacyProfileStorage(profileCode: string | null) {
 }
 
 function payloadState(payload: StateApiPayload): LearnerState | null {
-  if (!payload.state || !validateRootLearnerState(payload.state)) return null;
-  return migrateLearnerState(payload.state);
+  if (!payload.state) return null;
+  return normalizeCurrentLearnerState(payload.state)?.state ?? null;
 }
 
 function mutationResponseNeedsRuntime(response: Response): boolean {
@@ -419,7 +419,7 @@ export function useReliableLearnerState() {
               setSyncStatus("local");
               writeSyncMeta(accountKey(SYNC_META_KEY), { ...EMPTY_SYNC_META, cloudDisabled: true });
             } else if (remotePayload.code === "CLOUD_STATE_UNREADABLE"
-              || (remotePayload.state && !validateRootLearnerState(remotePayload.state))) {
+              || (remotePayload.state && !normalizeCurrentLearnerState(remotePayload.state))) {
               setRecoveryCode("CLOUD_STATE_UNREADABLE");
               setLastErrorCode("CLOUD_STATE_UNREADABLE");
               setSyncStatus("error");
