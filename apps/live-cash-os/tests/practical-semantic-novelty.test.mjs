@@ -205,13 +205,14 @@ test("retention credit requires semantic novelty, not only a different decision 
   assert.deepEqual(next.skills[first.skillId].retentionDaysPassed, [], "same stimulus family must not earn delayed-retention credit");
 });
 
-test("Quick Start FND-01 uses two genuinely distinct recognition stimuli and stays in practice between same-skill reps", async () => {
+test("Quick Start FND-01 starts on an independent 25% recognition stimulus and preserves two distinct recognition families", async () => {
   let state = createPracticalMasteryState(new Date("2026-09-01T00:00:00Z"));
   state = markPracticalConceptTaught(state, "FND-01", new Date("2026-09-01T00:00:01Z"));
 
   const first = nextFirstJourneyDecision(state, "FND-01");
   assert.ok(first);
   assert.equal(first.kind, "recognition");
+  assert.equal(first.id, "PM-FND-01-101", "the first scored FND-01 item must not repeat the taught 33% anchor");
 
   state = recordPracticalDecision(state, {
     decisionId: first.id,
@@ -220,6 +221,7 @@ test("Quick Start FND-01 uses two genuinely distinct recognition stimuli and sta
   const second = nextFirstJourneyDecision(state, "FND-01");
   assert.ok(second);
   assert.equal(second.kind, "recognition");
+  assert.equal(second.id, "PM-FND-01-001");
   assert.notEqual(practicalStimulusFamilyId(second), practicalStimulusFamilyId(first));
 
   const ui = await readFile(path.join(root, "components/PracticalFirstJourneyExperience.tsx"), "utf8");
