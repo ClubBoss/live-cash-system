@@ -157,7 +157,7 @@ export default function PracticalFirstJourneyExperience({
 
   const submitDecision = () => {
     if (!decision || !skill || !actionId || !reasonId) return;
-    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 });
+    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65, confidenceProvenance: "NOT_CAPTURED" });
     const attempt = nextState.attempts.at(-1);
     if (!attempt || attempt.decisionId !== decision.id) return;
     const nextWorkspace = withQuickStartPostAnswer(studyWorkspace, nextState.contentVersion, {

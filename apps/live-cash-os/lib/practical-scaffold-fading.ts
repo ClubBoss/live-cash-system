@@ -1,4 +1,5 @@
 import { practicalDecisionById } from "../content/practical-mastery";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
 import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type PracticalScaffoldLevel = "guided" | "reduced" | "hidden";
@@ -21,7 +22,7 @@ export function recommendedPracticalScaffold(state:PracticalMasteryState,skillId
   if(!progress?.conceptTaught) return "guided";
   const latest=latestSkillAttempt(state,skillId);
   if(latest&&!latest.correct){
-    if(latest.confidence>=75) return "guided";
+    if(hasHighPracticalSelfReportedConfidence(latest,75)) return "guided";
     return "reduced";
   }
   const recognition=successfulDistinctByKind(state,skillId,["recognition"]);

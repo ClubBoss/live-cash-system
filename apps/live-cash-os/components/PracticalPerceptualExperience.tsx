@@ -108,8 +108,8 @@ export default function PracticalPerceptualExperience() {
     if (!decision || !actionId || !reasonId) return;
     const answeredAt = new Date();
     const correct = decision.correctActionId === actionId && decision.correctReasonId === reasonId;
-    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 });
-    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence: 65, startedAt, answeredAt, mode: "PERCEPTUAL_TABLE", scaffold });
+    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65, confidenceProvenance: "NOT_CAPTURED" });
+    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence: 65, confidenceProvenance: "NOT_CAPTURED", startedAt, answeredAt, mode: "PERCEPTUAL_TABLE", scaffold });
     if (!setMasteryWithPerformance(nextState, event)) return;
     setSubmittedDecisionId(decision.id);
     setSubmittedScaffold(scaffold);

@@ -1,4 +1,5 @@
 import { allPracticalTableStates, practicalDecisionById, practicalRepDepthTargetForSkill, type PracticalDecision } from "../content/practical-mastery";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
 import { isCurrentPracticalEvidenceAttempt, isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 import { practicalEvidenceFamilyId } from "./practical-stimulus-identity";
 
@@ -19,7 +20,7 @@ export function classifyPracticalAdaptiveNeed(state:PracticalMasteryState,skillI
   const latest=latestSkillAttempt(state,skillId);
   if(latest&&!latest.correct){
     const decision=practicalDecisionById.get(latest.decisionId);
-    const confidenceBonus=latest.confidence>=75?20:8;
+    const confidenceBonus=hasHighPracticalSelfReportedConfidence(latest,75)?20:8;
     const actionCorrect=decision?latest.actionId===decision.correctActionId:false;
     const reasonCorrect=decision?latest.reasonId===decision.correctReasonId:false;
     if(decision?.kind==="recognition") return {skillId,need:"RECOGNITION",priority:110+confidenceBonus,preferredKinds:["recognition","changed"],preferPerceptual:perceptualAvailable(skillId),reason:"Latest recognition miss: repair cue extraction before adding complexity."};

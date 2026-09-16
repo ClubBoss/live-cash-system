@@ -45,7 +45,7 @@ test("repair priority consumes canonical tagged misconceptions and preserves sch
   assert.match(engine, /selectedWrongPracticalMisconceptionIds\(attempt\)/);
   assert.match(engine, /`SKILL:\$\{attempt\.skillId\}`/);
   assert.match(engine, /mistake\.highConfidenceEvidenceCount \* 5 \+ normalEvidenceCount \* 2/);
-  assert.match(engine, /attempt\.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG \? 5 : 2/);
+  assert.match(engine, /hasHighPracticalSelfReportedConfidence\(attempt, PRACTICAL_HIGH_CONFIDENCE_WRONG\) \? 5 : 2/);
   assert.doesNotMatch(engine, /function selectedMisconceptions/);
   assert.match(core, /export function latestAttemptsByDecision/);
   assert.match(core, /lastIncorrectDecisionId = null/);

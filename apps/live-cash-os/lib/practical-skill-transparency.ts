@@ -1,4 +1,5 @@
 import { practicalDecisionById, type PracticalEvidenceStage } from "../content/practical-mastery";
+import { practicalSelfReportedConfidence } from "./practical-confidence";
 import { isSemanticallyValidPracticalAttempt, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practical-stimulus-identity";
 
@@ -60,7 +61,7 @@ export function practicalSkillProgressTransparency(
       return decision ? [practicalEvidenceScenarioId(decision)] : [];
     })).size,
     latestConfidence: latestPhysicalAttempt && isSemanticallyValidPracticalAttempt(latestPhysicalAttempt)
-      ? latestPhysicalAttempt.confidence
+      ? practicalSelfReportedConfidence(latestPhysicalAttempt)
       : null,
   } as const;
 }

@@ -178,7 +178,7 @@ export default function PracticalIntegratedSessionExperience() {
       setWorkspaceRecovery(true);
       return;
     }
-    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence, startedAt, answeredAt, mode: tableState ? "PERCEPTUAL_TABLE" : "TEXT_MIXED", scaffold: tableState ? tableState.scaffold : "hidden" });
+    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence, confidenceProvenance: "SELF_REPORT", startedAt, answeredAt, mode: tableState ? "PERCEPTUAL_TABLE" : "TEXT_MIXED", scaffold: tableState ? tableState.scaffold : "hidden" });
     if (!setMasteryWithPerformanceAndStudyWorkspace(nextState, event, nextWorkspace)) return;
     setRestoredPostAnswer({
       decisionId: attempt.decisionId,

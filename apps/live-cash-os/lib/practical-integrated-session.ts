@@ -9,6 +9,7 @@ import {
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { learningRouteScore, whyNowForSkill } from "../content/practical-mastery/learning-route";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
 import {
   PRACTICAL_HIGH_CONFIDENCE_WRONG,
   currentPracticalMistakes,
@@ -67,7 +68,7 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
     const composite = JSON.stringify([attempt.skillId, key]);
     const current = grouped.get(composite) ?? { key, skillId: attempt.skillId, unresolvedDecisionIds: [], priority: 0 };
     current.unresolvedDecisionIds.push(attempt.decisionId);
-    current.priority += attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG ? 5 : 2;
+    current.priority += hasHighPracticalSelfReportedConfidence(attempt, PRACTICAL_HIGH_CONFIDENCE_WRONG) ? 5 : 2;
     grouped.set(composite, current);
   }
 
@@ -232,7 +233,7 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
 export function recordIntegratedDecision(state: PracticalMasteryState, item: IntegratedSessionItem, input: { actionId: string; reasonId: string; confidence: number; now?: Date }): PracticalMasteryState {
   const now = input.now ?? new Date(); const decision = practicalDecisionById.get(item.decisionId); if (!decision) throw new Error(`Unknown integrated decision: ${item.decisionId}`);
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
-  let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, now });
+  let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, confidenceProvenance: "SELF_REPORT", now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
   const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision));
   if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {

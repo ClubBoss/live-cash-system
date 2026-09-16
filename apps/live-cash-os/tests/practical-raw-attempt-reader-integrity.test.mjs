@@ -50,6 +50,7 @@ function attempt({
   actionId = "a",
   reasonId = "r1",
   confidence = 55,
+  confidenceProvenance,
   correct = actionId === "a" && reasonId === "r1",
   offsetSeconds = 0,
 }) {
@@ -60,6 +61,7 @@ function attempt({
     actionId,
     reasonId,
     confidence,
+    ...(confidenceProvenance ? { confidenceProvenance } : {}),
     correct,
     answeredAt: answeredAt(offsetSeconds),
   };
@@ -260,7 +262,7 @@ test("T3: invalid true-latest row yields null latestConfidence without older-con
   withSyntheticDecisions([olderDecision, latestDecision], () => {
     const state = createPracticalMasteryState(NOW, true);
     state.attempts = [
-      attempt({ id: "t3-older-valid", decision: olderDecision, confidence: 33, offsetSeconds: 1 }),
+      attempt({ id: "t3-older-valid", decision: olderDecision, confidence: 33, confidenceProvenance: "SELF_REPORT", offsetSeconds: 1 }),
       attempt({ id: "t3-invalid-latest", decision: latestDecision, actionId: "GHOST", correct: false, confidence: 97, offsetSeconds: 2 }),
     ];
 
@@ -286,6 +288,7 @@ test("T4: legitimate history stays valid while transparency dedupes identical le
         actionId: "a",
         reasonId: "r1",
         confidence: 70 + index,
+        confidenceProvenance: "SELF_REPORT",
         now: new Date(NOW.getTime() + (index + 1) * 1000),
       });
     });

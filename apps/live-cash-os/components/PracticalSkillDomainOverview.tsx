@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { practicalDecisionById } from "../content/practical-mastery";
+import { practicalSelfReportedConfidence } from "../lib/practical-confidence";
 import { stageAtLeast } from "../lib/practical-mastery-core";
 import { practicalProgressCountingSkills } from "../lib/practical-learner-skill-set";
 import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "../lib/practical-stimulus-identity";
@@ -52,7 +53,8 @@ export default function PracticalSkillDomainOverview() {
           const decision = practicalDecisionById.get(attempt.decisionId);
           return decision ? [practicalEvidenceScenarioId(decision)] : [];
         })).size;
-        const lastConfidence = recent.at(-1)?.confidence ?? null;
+        const latestAttempt = recent.at(-1) ?? null;
+        const lastConfidence = latestAttempt ? practicalSelfReportedConfidence(latestAttempt) : null;
         const pct = skills.length ? Math.round((trained / skills.length) * 100) : 0;
         return <article className={`practical-domain-card practical-domain-card--${domain.key}`} key={domain.key}>
           <div className="practical-domain-card__top"><span className="practical-domain-card__icon" aria-hidden="true">{domain.icon}</span><div><h3>{locale === "ru" ? domain.ru : domain.en}</h3><span>{domain.range}</span></div></div>
