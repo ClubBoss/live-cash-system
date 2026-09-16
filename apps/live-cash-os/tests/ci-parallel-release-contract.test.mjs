@@ -40,7 +40,16 @@ test("release CI parallelizes only through isolated jobs while preserving the co
 
   assert.match(workflow, /npx playwright test e2e\/pr-visual-evidence\.spec\.mjs --project=chromium/);
   assert.match(workflow, /test "\$screenshot_count" = "5"/);
-  assert.match(workflow, /Complete release gate GREEN: static \+ 4 core projects \+ 9 Wave C cases \+ 3 mastery-cross projects \+ visual policy/);
+  for (const project of ["chromium", "mobile"]) {
+    for (const index of [1, 2, 3]) {
+      assert.match(
+        workflow,
+        new RegExp(`- id: ${project}-${index}of3\\n\\s+project: ${project}\\n\\s+browser: chromium\\n\\s+shard: "${index}/3"`),
+      );
+    }
+  }
+  assert.match(workflow, /npx playwright test --project="\$\{\{ matrix\.project \}\}" \$shard_arg/);
+  assert.match(workflow, /Complete release gate GREEN: static \+ 8 core jobs \(3 Chromium shards \+ 3 Mobile shards \+ Firefox \+ WebKit\) \+ 9 Wave C cases \+ 3 mastery-cross projects \+ visual policy/);
   assert.match(workflow, /deploy-test-mirror:[\s\S]*?needs: validate/);
 
   assert.match(primaryConfig, /workers: process\.env\.CI \? 1 : undefined/);
