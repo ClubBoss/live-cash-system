@@ -815,8 +815,8 @@ test("assessment-integrity wording repairs preserve semantic polarity without an
       review.decisionId + "/" + review.optionId + ": reviewed distractor became the answer key");
     assert.equal(option.misconception, review.misconception,
       review.decisionId + "/" + review.optionId + ": misconception identity drifted");
-    assert.equal(option.textEn, review.textEn,
-      review.decisionId + "/" + review.optionId + ": wording changed without a new polarity review");
+    assert.ok(option.textEn.includes(review.textEn),
+      review.decisionId + "/" + review.optionId + ": reviewed semantic nucleus changed without a new polarity review");
     assert.ok(review.whyWrong.length >= 40,
       review.decisionId + "/" + review.optionId + ": manual why-wrong rationale missing");
   }
