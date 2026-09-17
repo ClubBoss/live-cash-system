@@ -16,6 +16,7 @@ import {
   selectedWrongPracticalMisconceptionIds,
 } from "./practical-current-mistakes";
 import {
+  isCurrentPracticalEvidenceAttempt,
   isPracticalBridgeSkill,
   isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
@@ -84,8 +85,19 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
 function latestCorrectAttempt(state: PracticalMasteryState, skillId: string) { const attempt = practicalLatestCorrectAttemptForSkill(state, skillId); return attempt?.valid ? attempt : null; }
 function elapsedDays(iso: string, now: Date): number { return Math.max(0, (now.getTime() - new Date(iso).getTime()) / 86_400_000); }
 
+function hasUnresolvedWrongEvidence(state: PracticalMasteryState, skillId: string): boolean {
+  return [...latestAttemptsByDecision(state, skillId).values()].some((attempt) => (
+    !attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)
+  ));
+}
+
 export function retentionTierDue(state: PracticalMasteryState, skillId: string, now = new Date()): number | null {
   const progress = state.skills[skillId]; if (!progress || !stageAtLeast(progress.evidenceStage, "BOUNDARY_TESTED")) return null;
+  // Delayed retention is evidence that a previously-correct skill survived a gap.
+  // A currently unresolved miss contradicts that claim and must be repaired first.
+  // Once repaired, the repair's newer correct answer becomes the next time anchor,
+  // so same-round repair can never retroactively satisfy a delayed tier.
+  if (hasUnresolvedWrongEvidence(state, skillId)) return null;
   const lastCorrect = latestCorrectAttempt(state, skillId); if (!lastCorrect) return null; const elapsed = elapsedDays(lastCorrect.answeredAt, now); const passed = new Set(progress.retentionDaysPassed);
   for (const tier of RETENTION_INTERVAL_DAYS) if (elapsed >= tier && !passed.has(tier)) return tier; return null;
 }
@@ -234,8 +246,12 @@ export function recordIntegratedDecision(state: PracticalMasteryState, item: Int
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
   let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
-  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision));
-  if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {
+  const isIndependentRetentionStimulus = Boolean(
+    latestCorrectDecision
+    && practicalEvidenceFamilyId(decision) !== practicalEvidenceFamilyId(latestCorrectDecision)
+    && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision)
+  );
+  if (correct && item.retentionTierDays && latestCorrectBefore && isIndependentRetentionStimulus) {
     const actualGap = elapsedDays(latestCorrectBefore.answeredAt, now);
     if (actualGap >= item.retentionTierDays) {
       const clone = structuredClone(next); const progress = clone.skills[decision.skillId]; progress.retentionDaysPassed = [...new Set([...progress.retentionDaysPassed, item.retentionTierDays])].sort((a, b) => a - b); clone.revision += 1; clone.updatedAt = now.toISOString(); next = clone;
