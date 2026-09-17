@@ -300,9 +300,6 @@ test("API requests are never intercepted or written to CacheStorage", async () =
 test("failed current-generation precache never reaches skipWaiting and cannot replace the prior shell", async () => {
   const harness = createServiceWorkerHarness(v2, ["legacy-v1-client"]);
   harness.seedCache("live-cash-os-shell-v1", [["/", v1.root], [v1.assets[0], "app-v1"]]);
-  harness.seedInstallNetwork(v2);
-  harness.stores.clear();
-  harness.seedCache("live-cash-os-shell-v1", [["/", v1.root], [v1.assets[0], "app-v1"]]);
   harness.seedNetwork("/", v2.root);
   harness.seedNetwork("/mastery/journey", v2.root);
   harness.seedNetwork("/manifest.webmanifest", "{}");
