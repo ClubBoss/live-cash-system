@@ -11,7 +11,6 @@ import {
   recordIntegratedDecision,
   retentionTierDue,
 } from "../lib/practical-integrated-session.ts";
-import { recommendedPracticalScaffold } from "../lib/practical-scaffold-fading.ts";
 import {
   practicalEvidenceFamilyId,
   practicalEvidenceScenarioId,
