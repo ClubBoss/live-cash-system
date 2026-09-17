@@ -10,7 +10,7 @@ import {
   validateLearnerState,
   type LearnerState,
 } from "../../../lib/model";
-import { CURRENT_RUNTIME, validateRootLearnerState } from "../../../lib/reliability";
+import { CURRENT_RUNTIME, normalizeCurrentLearnerState, validateRootLearnerState } from "../../../lib/reliability";
 
 const MAX_STATE_BYTES = 1_000_000;
 const TOMBSTONE_KIND = "cloud-deleted-v1";
@@ -118,7 +118,7 @@ function migrateStoredState(value: unknown): LearnerState | null {
   if (!isRecord(value)) return null;
   const version = value.schemaVersion;
   if (typeof version === "number" && version > STATE_SCHEMA_VERSION) return null;
-  if (version === STATE_SCHEMA_VERSION && !validateRootLearnerState(value)) return null;
+  if (version === STATE_SCHEMA_VERSION) return normalizeCurrentLearnerState(value)?.state ?? null;
   const migrated = migrateLearnerState(value);
   return validateRootLearnerState(migrated) ? migrated : null;
 }
@@ -218,14 +218,16 @@ export async function POST(request: Request) {
   if (!validateLearnerState(rawState)) {
     return json({ error: "Learner state schema 2 is required", code: "INVALID_STATE" }, 400);
   }
-  const incoming = migrateLearnerState(rawState);
+  const normalizedIncoming = normalizeCurrentLearnerState(rawState);
   // Every LearnerState persistence branch below shares this root trust boundary.
-  // Migration happens first so legacy-compatible states can normalize before
-  // current Practical Profile integrity is evaluated; malformed Practical
-  // evidence can never reach first-write, live CAS, or tombstone-resume writes.
-  if (!validateRootLearnerState(incoming)) {
+  // The one compatibility exception is a profile that can be proven to have
+  // been valid under the immediately previous recognition-stage derivation;
+  // it is reconciled downward before CAS. Other malformed Practical evidence
+  // can never reach first-write, live CAS, or tombstone-resume writes.
+  if (!normalizedIncoming) {
     return json({ error: "Learner state schema 2 is required", code: "INVALID_STATE" }, 400);
   }
+  const incoming = normalizedIncoming.state;
   const baseRevision = typeof payload.baseRevision === "number" && Number.isFinite(payload.baseRevision)
     ? payload.baseRevision
     : null;

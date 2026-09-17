@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import { restorePerceptualCursor, withPerceptualCursor } from "../lib/practical-continuity-workspace";
-import { recordPracticalDecision } from "../lib/practical-mastery-core";
+import { practicalAttemptedDecisionIds, practicalDecisionAttemptCount, recordPracticalDecision } from "../lib/practical-mastery-core";
 import { focusedPracticalTableStates } from "../lib/practical-perceptual-focus";
 import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
@@ -56,7 +56,7 @@ export default function PracticalPerceptualExperience() {
 
   const eligible = useMemo(() => {
     if (requestedFocus === undefined) return [];
-    const attempted = new Set(state.attempts.map((attempt) => attempt.decisionId));
+    const attempted = practicalAttemptedDecisionIds(state);
     const exposed = requestedFocus
       ? focusedPracticalTableStates(state, requestedFocus)
       : allPracticalTableStates.filter((candidate) => state.skills[practicalDecisionById.get(candidate.decisionId)?.skillId ?? ""]?.conceptTaught);
@@ -68,7 +68,7 @@ export default function PracticalPerceptualExperience() {
     ? allPracticalTableStates.find((candidate) => candidate.decisionId === submittedDecisionId) ?? queuedTable
     : queuedTable;
   const decision = table ? practicalDecisionById.get(table.decisionId) ?? null : null;
-  const recordedDecisionAttemptCount = decision ? state.attempts.filter((attempt) => attempt.decisionId === decision.id).length : 0;
+  const recordedDecisionAttemptCount = decision ? practicalDecisionAttemptCount(state, decision.id) : 0;
   const currentDecisionAttemptRecorded = Boolean(decision && revealed && submittedDecisionId === decision.id);
   const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
   const presentedActionOptions = useMemo(
@@ -108,8 +108,8 @@ export default function PracticalPerceptualExperience() {
     if (!decision || !actionId || !reasonId) return;
     const answeredAt = new Date();
     const correct = decision.correctActionId === actionId && decision.correctReasonId === reasonId;
-    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65 });
-    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence: 65, startedAt, answeredAt, mode: "PERCEPTUAL_TABLE", scaffold });
+    const nextState = recordPracticalDecision(state, { decisionId: decision.id, actionId, reasonId, confidence: 65, confidenceProvenance: "NOT_CAPTURED" });
+    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence: 65, confidenceProvenance: "NOT_CAPTURED", startedAt, answeredAt, mode: "PERCEPTUAL_TABLE", scaffold });
     if (!setMasteryWithPerformance(nextState, event)) return;
     setSubmittedDecisionId(decision.id);
     setSubmittedScaffold(scaffold);
@@ -118,7 +118,7 @@ export default function PracticalPerceptualExperience() {
   };
 
   const next = () => {
-    const attempted = new Set(state.attempts.map((attempt) => attempt.decisionId));
+    const attempted = practicalAttemptedDecisionIds(state);
     const firstUnattempted = eligible.findIndex((candidate) => !attempted.has(candidate.decisionId));
     setIndex(firstUnattempted >= 0 ? firstUnattempted : index + 1);
     setSubmittedDecisionId(null);

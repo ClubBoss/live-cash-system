@@ -232,8 +232,8 @@ test("R12 malformed browser cloud payload cannot hydrate as a valid restore cand
 
   const hook = await readFile(new URL("../lib/use-learner-state-sync.ts", import.meta.url), "utf8");
   assert.match(hook, /function payloadState\(payload: StateApiPayload\): LearnerState \| null/);
-  assert.match(hook, /!validateRootLearnerState\(payload\.state\)/);
-  assert.match(hook, /remotePayload\.state && !validateRootLearnerState\(remotePayload\.state\)/);
+  assert.match(hook, /normalizeCurrentLearnerState\(payload\.state\)\?\.state \?\? null/);
+  assert.match(hook, /remotePayload\.state && !normalizeCurrentLearnerState\(remotePayload\.state\)/);
 });
 
 test("R13 stored malformed Practical cloud slice remains CLOUD_STATE_UNREADABLE", async () => {
@@ -243,7 +243,7 @@ test("R13 stored malformed Practical cloud slice remains CLOUD_STATE_UNREADABLE"
 
   const route = await readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8");
   assert.match(route, /function migrateStoredState\(value: unknown\): LearnerState \| null/);
-  assert.match(route, /version === STATE_SCHEMA_VERSION && !validateRootLearnerState\(value\)/);
+  assert.match(route, /version === STATE_SCHEMA_VERSION\) return normalizeCurrentLearnerState\(value\)\?\.state \?\? null/);
   assert.match(route, /code: "CLOUD_STATE_UNREADABLE"/);
   assert.match(route, /Existing cloud state cannot be read safely; refusing to overwrite it/);
 });

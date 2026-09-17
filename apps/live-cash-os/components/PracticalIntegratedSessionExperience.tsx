@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { allPracticalTableStates, practicalDecisionById, practicalSkillById } from "../content/practical-mastery";
 import { buildAdaptiveIntegratedSession, isIntegratedFocusAdmissible } from "../lib/practical-adaptive-session";
-import { advanceIntegratedContinuity, recordIntegratedAnswerContinuity, recordIntegratedRoundStartContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
+import { advanceIntegratedContinuity, recordIntegratedAnswerContinuity, recordIntegratedDraftContinuity, recordIntegratedRoundStartContinuity, restoreIntegratedRound } from "../lib/practical-continuity-workspace";
 import { INTEGRATED_SESSION_SIZE, recordIntegratedDecision, type IntegratedSessionItem } from "../lib/practical-integrated-session";
+import type { PracticalConfidenceProvenance } from "../lib/practical-confidence";
+import { practicalDecisionAttemptCount } from "../lib/practical-mastery-core";
+import type { PracticalIntegratedDraft } from "../lib/practical-profile-contract";
 import { classifyPracticalIntegratedSessionState } from "../lib/practical-integrated-session-state";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
 import { practicalPresentedOptions } from "../lib/practical-option-presentation";
@@ -21,6 +24,7 @@ type RestoredPostAnswer = {
   actionId: string;
   reasonId: string;
   confidence: number;
+  confidenceProvenance: PracticalConfidenceProvenance;
   correct: boolean;
 };
 function optionText(option: { textRu: string; textEn: string }, locale: Locale) { return locale === "ru" ? option.textRu : option.textEn; }
@@ -55,6 +59,8 @@ export default function PracticalIntegratedSessionExperience() {
   const [actionId, setActionId] = useState("");
   const [reasonId, setReasonId] = useState("");
   const [confidence, setConfidence] = useState(65);
+  const [confidenceProvenance, setConfidenceProvenance] = useState<PracticalConfidenceProvenance>("NOT_CAPTURED");
+  const [restoredDraft, setRestoredDraft] = useState<PracticalIntegratedDraft | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
   const [restoredPostAnswer, setRestoredPostAnswer] = useState<RestoredPostAnswer | null>(null);
@@ -74,6 +80,7 @@ export default function PracticalIntegratedSessionExperience() {
     setItems([]);
     setIndex(0);
     setRestoredPostAnswer(null);
+    setRestoredDraft(null);
     setWorkspaceRecovery(false);
   }, [requestedFocus]);
 
@@ -84,6 +91,7 @@ export default function PracticalIntegratedSessionExperience() {
       setItems([]);
       setIndex(0);
       setRestoredPostAnswer(null);
+      setRestoredDraft(null);
       setInitializedRevision(state.revision);
       return;
     }
@@ -92,12 +100,14 @@ export default function PracticalIntegratedSessionExperience() {
     if (restored.status === "VALID") {
       setItems(restored.items);
       setIndex(restored.nextIndex);
+      setRestoredDraft(restored.draft);
       setRestoredPostAnswer(restored.postAnswerAttempt ? {
         decisionId: restored.postAnswerAttempt.decisionId,
         attemptId: restored.postAnswerAttempt.id,
         actionId: restored.postAnswerAttempt.actionId,
         reasonId: restored.postAnswerAttempt.reasonId,
         confidence: restored.postAnswerAttempt.confidence,
+        confidenceProvenance: restored.postAnswerAttempt.confidenceProvenance ?? "NOT_CAPTURED",
         correct: restored.postAnswerAttempt.correct,
       } : null);
       setInitializedRevision(state.revision);
@@ -109,15 +119,29 @@ export default function PracticalIntegratedSessionExperience() {
       return;
     }
 
-    setItems(buildAdaptiveIntegratedSession(state, new Date(), INTEGRATED_SESSION_SIZE, performance, requestedFocus));
+    const roundStartedAt = new Date();
+    const nextItems = buildAdaptiveIntegratedSession(state, roundStartedAt, INTEGRATED_SESSION_SIZE, performance, requestedFocus);
+    if (nextItems.length > 0) {
+      const nextWorkspace = recordIntegratedRoundStartContinuity(studyWorkspace, state.contentVersion, {
+        focusSkillId: requestedFocus,
+        items: nextItems,
+      }, roundStartedAt);
+      if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) {
+        setWorkspaceRecovery(true);
+        setInitializedRevision(state.revision);
+        return;
+      }
+    }
+    setItems(nextItems);
     setIndex(0);
     setRestoredPostAnswer(null);
+    setRestoredDraft(null);
     setInitializedRevision(state.revision);
-  }, [initializedRevision, performance, ready, requestedFocus, state, studyWorkspace]);
+  }, [initializedRevision, performance, ready, requestedFocus, setStudyWorkspace, state, studyWorkspace]);
 
   const item = items[index] ?? null;
   const decision = item ? practicalDecisionById.get(item.decisionId) ?? null : null;
-  const recordedDecisionAttemptCount = decision ? state.attempts.filter((attempt) => attempt.decisionId === decision.id).length : 0;
+  const recordedDecisionAttemptCount = decision ? practicalDecisionAttemptCount(state, decision.id) : 0;
   const currentDecisionAttemptRecorded = Boolean(decision && revealed && restoredPostAnswer?.decisionId === decision.id);
   const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
   const presentedActionOptions = useMemo(
@@ -153,19 +177,57 @@ export default function PracticalIntegratedSessionExperience() {
 
   useEffect(() => {
     const restored = restoredPostAnswer?.decisionId === item?.decisionId ? restoredPostAnswer : null;
-    setActionId(restored?.actionId ?? "");
-    setReasonId(restored?.reasonId ?? "");
-    setConfidence(restored?.confidence ?? 65);
+    const draft = !restored && restoredDraft?.index === index ? restoredDraft : null;
+    setActionId(restored?.actionId ?? draft?.actionId ?? "");
+    setReasonId(restored?.reasonId ?? draft?.reasonId ?? "");
+    setConfidence(restored?.confidence ?? draft?.confidence ?? 65);
+    setConfidenceProvenance(restored?.confidenceProvenance ?? draft?.confidenceProvenance ?? "NOT_CAPTURED");
     setRevealed(Boolean(restored));
     setWasCorrect(restored?.correct ?? null);
     setAdvancing(false);
     setStartedAt(new Date());
-  }, [item?.decisionId, restoredPostAnswer]);
+  }, [index, item?.decisionId, restoredDraft, restoredPostAnswer]);
+
+  const persistDraft = (
+    nextActionId: string | null,
+    nextReasonId: string | null,
+    nextConfidence: number,
+    nextConfidenceProvenance: PracticalConfidenceProvenance,
+  ) => {
+    if (!item || !decision || revealed) return false;
+    const nextWorkspace = recordIntegratedDraftContinuity(studyWorkspace, state.contentVersion, {
+      focusSkillId: requestedFocus ?? null,
+      items,
+      index,
+      actionId: nextActionId,
+      reasonId: nextReasonId,
+      confidence: nextConfidence,
+      confidenceProvenance: nextConfidenceProvenance,
+    });
+    if (!nextWorkspace || !setStudyWorkspace(nextWorkspace)) return false;
+    setRestoredDraft(nextWorkspace.continuity?.integrated?.draft ?? null);
+    return true;
+  };
+
+  const selectAction = (nextActionId: string) => {
+    if (persistDraft(nextActionId, reasonId || null, confidence, confidenceProvenance)) setActionId(nextActionId);
+  };
+
+  const selectReason = (nextReasonId: string) => {
+    if (persistDraft(actionId || null, nextReasonId, confidence, confidenceProvenance)) setReasonId(nextReasonId);
+  };
+
+  const selectConfidence = (nextConfidence: number) => {
+    if (persistDraft(actionId || null, reasonId || null, nextConfidence, "SELF_REPORT")) {
+      setConfidence(nextConfidence);
+      setConfidenceProvenance("SELF_REPORT");
+    }
+  };
 
   const submit = () => {
     if (!item || !decision || !actionId || !reasonId) return;
     const answeredAt = new Date();
-    const nextState = recordIntegratedDecision(state, item, { actionId, reasonId, confidence, now: answeredAt });
+    const nextState = recordIntegratedDecision(state, item, { actionId, reasonId, confidence, confidenceProvenance, now: answeredAt });
     const attempt = nextState.attempts.at(-1);
     if (!attempt || attempt.decisionId !== decision.id) return;
     const nextWorkspace = recordIntegratedAnswerContinuity(studyWorkspace, nextState.contentVersion, {
@@ -178,7 +240,7 @@ export default function PracticalIntegratedSessionExperience() {
       setWorkspaceRecovery(true);
       return;
     }
-    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence, startedAt, answeredAt, mode: tableState ? "PERCEPTUAL_TABLE" : "TEXT_MIXED", scaffold: tableState ? tableState.scaffold : "hidden" });
+    const event = createPracticalPerformanceEvent({ decisionId: decision.id, actionId, reasonId, confidence, confidenceProvenance, startedAt, answeredAt, mode: tableState ? "PERCEPTUAL_TABLE" : "TEXT_MIXED", scaffold: tableState ? tableState.scaffold : "hidden" });
     if (!setMasteryWithPerformanceAndStudyWorkspace(nextState, event, nextWorkspace)) return;
     setRestoredPostAnswer({
       decisionId: attempt.decisionId,
@@ -186,6 +248,7 @@ export default function PracticalIntegratedSessionExperience() {
       actionId: attempt.actionId,
       reasonId: attempt.reasonId,
       confidence: attempt.confidence,
+      confidenceProvenance: attempt.confidenceProvenance ?? "NOT_CAPTURED",
       correct: attempt.correct,
     });
     setWasCorrect(attempt.correct);
@@ -207,6 +270,7 @@ export default function PracticalIntegratedSessionExperience() {
       return;
     }
     setRestoredPostAnswer(null);
+    setRestoredDraft(null);
     setIndex((value) => value + 1);
   };
 
@@ -227,6 +291,7 @@ export default function PracticalIntegratedSessionExperience() {
     setItems(nextItems);
     setIndex(0);
     setRestoredPostAnswer(null);
+    setRestoredDraft(null);
     setWorkspaceRecovery(false);
     setInitializedRevision(state.revision);
   };
@@ -304,9 +369,9 @@ export default function PracticalIntegratedSessionExperience() {
     <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
       {tableState ? <PracticalTableStateStimulus state={tableState} locale={locale} /> : null}
       <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
-      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" value={option.id} name={`${decision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => setActionId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
-      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" value={option.id} name={`${decision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => setReasonId(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
-      <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => setConfidence(Number(event.target.value))} /></label>
+      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" value={option.id} name={`${decision.id}-action`} checked={actionId === option.id} disabled={revealed} onChange={() => selectAction(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
+      <fieldset style={{ border: 0, padding: 0, margin: "18px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} style={{ display: "block", marginTop: 9 }}><input type="radio" value={option.id} name={`${decision.id}-reason`} checked={reasonId === option.id} disabled={revealed} onChange={() => selectReason(option.id)} /> {optionText(option, locale)}</label>)}</fieldset>
+      <label style={{ display: "block", marginBottom: 15 }}>{locale === "ru" ? "Уверенность" : "Confidence"}: <b>{confidence}%</b><br /><input aria-label={locale === "ru" ? "Уверенность" : "Confidence"} type="range" min="0" max="100" value={confidence} disabled={revealed} onChange={(event) => selectConfidence(Number(event.target.value))} /></label>
       {!revealed ? <button className="primary" disabled={!actionId || !reasonId} onClick={submit}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button> : <div>
         <h3>{wasCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
         <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(wasCorrect)} selectedActionId={actionId} selectedReasonId={reasonId} />

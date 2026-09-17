@@ -3,6 +3,7 @@ import {
   practicalDecisionById,
 } from "../content/practical-mastery";
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
 import {
   isPracticalBridgeSkill,
   isCurrentPracticalEvidenceAttempt,
@@ -87,7 +88,7 @@ export function practicalMisconceptionEvidenceFamilies(
     const unresolvedDecisionIds = contributors.map((attempt) => attempt.decisionId);
     const evidenceCount = contributors.length;
     const highConfidenceEvidenceCount = contributors
-      .filter((attempt) => attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG).length;
+      .filter((attempt) => hasHighPracticalSelfReportedConfidence(attempt, PRACTICAL_HIGH_CONFIDENCE_WRONG)).length;
     const latestAnsweredAt = contributors.reduce(
       (latest, attempt) => attempt.answeredAt > latest ? attempt.answeredAt : latest,
       "",

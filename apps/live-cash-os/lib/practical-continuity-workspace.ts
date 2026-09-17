@@ -3,6 +3,7 @@ import type { IntegratedSessionItem } from "./practical-integrated-session";
 import { isSemanticallyValidPracticalAttempt, type PracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
 import type {
   PracticalContinuityWorkspace,
+  PracticalIntegratedDraft,
   PracticalStudyWorkspace,
 } from "./practical-profile-contract";
 
@@ -22,7 +23,7 @@ export type QuickStartDraftRestore =
 
 export type IntegratedContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
-  | { status: "VALID"; items: IntegratedSessionItem[]; nextIndex: number; postAnswerAttempt: PracticalAttempt | null };
+  | { status: "VALID"; items: IntegratedSessionItem[]; nextIndex: number; postAnswerAttempt: PracticalAttempt | null; draft: PracticalIntegratedDraft | null };
 
 export type PerceptualContinuityRestore =
   | { status: "NONE" | "STALE" | "INVALID" }
@@ -229,6 +230,51 @@ export function recordIntegratedRoundStartContinuity(
       items: input.items.map((item) => ({ ...item })),
       nextIndex: 0,
       submittedAttemptIds: [],
+      draft: null,
+      updatedAt: now.toISOString(),
+    },
+  }, now);
+}
+
+export function recordIntegratedDraftContinuity(
+  workspace: PracticalStudyWorkspace,
+  contentVersion: string,
+  input: {
+    focusSkillId: string | null;
+    items: IntegratedSessionItem[];
+    index: number;
+    actionId: string | null;
+    reasonId: string | null;
+    confidence: number;
+    confidenceProvenance: PracticalIntegratedDraft["confidenceProvenance"];
+  },
+  now = new Date(),
+): PracticalStudyWorkspace | null {
+  const current = continuityFor(workspace, contentVersion)?.integrated;
+  if (!current || input.items.length === 0 || input.items.length > 8) return null;
+  if (current.focusSkillId !== input.focusSkillId || current.nextIndex !== input.index) return null;
+  if (current.submittedAttemptIds.length !== current.nextIndex) return null;
+  if (current.items.length !== input.items.length || !current.items.every((item, index) => item.decisionId === input.items[index]?.decisionId)) return null;
+  const item = current.items[input.index];
+  const decision = item ? practicalDecisionById.get(item.decisionId) ?? null : null;
+  if (!decision) return null;
+  if (input.actionId !== null && !decision.actionOptions.some((option) => option.id === input.actionId)) return null;
+  if (input.reasonId !== null && !decision.reasonOptions.some((option) => option.id === input.reasonId)) return null;
+  if (!Number.isInteger(input.confidence) || input.confidence < 0 || input.confidence > 100) return null;
+
+  const continuity = nextContinuity(workspace, contentVersion);
+  return withContinuity(workspace, {
+    ...continuity,
+    integrated: {
+      ...current,
+      draft: {
+        index: input.index,
+        actionId: input.actionId,
+        reasonId: input.reasonId,
+        confidence: input.confidence,
+        confidenceProvenance: input.confidenceProvenance,
+        updatedAt: now.toISOString(),
+      },
       updatedAt: now.toISOString(),
     },
   }, now);
@@ -274,6 +320,7 @@ export function recordIntegratedAnswerContinuity(
       items: input.items.map((item) => ({ ...item })),
       nextIndex: input.answeredIndex,
       submittedAttemptIds,
+      draft: null,
       updatedAt: now.toISOString(),
     },
   }, now);
@@ -377,5 +424,6 @@ export function restoreIntegratedRound(
     items: saved.items.map((item) => ({ ...item })),
     nextIndex: saved.nextIndex,
     postAnswerAttempt,
+    draft: saved.draft ? { ...saved.draft } : null,
   };
 }

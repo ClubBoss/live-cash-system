@@ -1,7 +1,7 @@
 import { allPracticalTableStates, isOrdinaryLearnerDecision, practicalDecisionById, practicalDecisions } from "../content/practical-mastery";
 import { classifyPracticalAdaptiveNeed, decisionMatchesAdaptiveNeed, type PracticalPerformanceSample } from "./practical-adaptive-repair";
 import { buildIntegratedSession, supportedIntegratedSkillIds, type IntegratedSessionItem } from "./practical-integrated-session";
-import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, latestAttemptsByDecision, practicalAttemptedDecisionIds, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 import { decisionHasAuthoritativeVisibleChange } from "./practical-visible-scenario";
 import { practicalEvidenceFamilyId, practicalEvidenceScenarioId, practicalScenarioFamilyId, practicalStimulusFamilyId } from "./practical-stimulus-identity";
@@ -48,7 +48,7 @@ function buildGenericAdaptiveSession(state:PracticalMasteryState,now:Date,size:n
 
   for(const need of needs){
     if(adaptive.length>=Math.ceil(size/2)) break;
-    const latestPhysical=[...state.attempts].reverse().find((attempt)=>attempt.skillId===need.skillId)??null;
+    const latestPhysical=[...latestAttemptsByDecision(state,need.skillId).values()].at(-1)??null;
     const latest=latestPhysical&&isSemanticallyValidPracticalAttempt(latestPhysical)?latestPhysical:null;
     const latestDecision=latest?practicalDecisionById.get(latest.decisionId)??null:null;
     const latestFamily=latestDecision?practicalEvidenceFamilyId(latestDecision):null;
@@ -115,9 +115,9 @@ function buildFocusedIntegratedSession(state:PracticalMasteryState,now:Date,size
     const decision=practicalDecisionById.get(decisionId);
     return decision?[practicalStimulusFamilyId(decision)]:[];
   }));
-  const attemptedFamilies=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&isSemanticallyValidPracticalAttempt(attempt)).flatMap((attempt)=>{
-    const decision=practicalDecisionById.get(attempt.decisionId);
-    return decision?[practicalStimulusFamilyId(decision)]:[];
+  const attemptedFamilies=new Set([...practicalAttemptedDecisionIds(state)].flatMap((decisionId)=>{
+    const decision=practicalDecisionById.get(decisionId);
+    return decision?.skillId===skillId?[practicalStimulusFamilyId(decision)]:[];
   }));
   const pool=practicalDecisions.filter((decision)=>isOrdinaryLearnerDecision(decision)&&decision.skillId===skillId);
   const ordered=[
