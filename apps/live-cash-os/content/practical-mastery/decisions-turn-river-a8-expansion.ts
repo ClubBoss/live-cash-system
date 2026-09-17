@@ -839,8 +839,10 @@ function family(f: F): PracticalDecision[] {
     const b1 = o("b1", `${r.bad1Ru}. Этого достаточно для выбора действия в этой ветке`, `${r.bad1En}. That alone determines the action in this branch`, "LATER_STREET_SHORTCUT");
     const b2 = o("b2", r.bad2Ru, r.bad2En, "ANCESTRY_IGNORED");
     const gr = o("goodR", r.whyRu, r.whyEn);
-    const br1 = o("br1", "Название улицы или узла само по себе объясняет действие; сохранившиеся области вэлью и блефов не меняют вывод", "The street/node label alone explains the action; surviving value/bluff regions do not change the conclusion", "LABEL_AS_ACTION");
-    const br2 = o("br2", "Предыдущая линия не меняет текущий диапазон", "The previous line does not change the current range", "HISTORY_IGNORED");
+    const br1 = o("br1", "Название улицы или узла само по себе объясняет действие; сохранившиеся области вэлью и блефов не меняют вывод", "The street/node label alone explains the action; surviving value/bluff regions do not change the conclusion, so the same branch rule carries forward without another range-composition check", "LABEL_AS_ACTION");
+    const br2 = learnerEligibility === "INTERNAL_ONLY"
+      ? o("br2", "Предыдущая линия не меняет текущий диапазон", "The previous line does not change the current range", "HISTORY_IGNORED")
+      : o("br2", "Если текущая цена и класс руки уже известны, предыдущую линию можно игнорировать при восстановлении сохранившегося диапазона", "Once current price and hand class are known, prior action can be ignored when reconstructing the surviving range", "HISTORY_IGNORED");
     const actionOptions = slot === 1 ? [good,b1,b2] : slot === 2 ? [b1,good,b2] : [b1,b2,good];
     const reasonOptions = slot === 1 ? [br1,gr,br2] : slot === 2 ? [gr,br1,br2] : [br1,br2,gr];
     return {id,skillId:f.skillId,...(learnerEligibility?{learnerEligibility}:{}),kind:r.kind,sourceRefs:f.sourceRefs,assumptions:["source-scoped later-улица mechanism; no unreviewed конкретная frequency"],cueRu:r.cueRu,cueEn:r.cueEn,questionRu:r.qRu,questionEn:r.qEn,actionOptions,reasonOptions,correctActionId:"good",correctReasonId:"goodR",targetSeconds:27,explanationRu:r.whyRu,explanationEn:r.whyEn,changedVariables:r.changed};
