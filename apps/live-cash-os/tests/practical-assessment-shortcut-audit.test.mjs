@@ -823,7 +823,9 @@ test("assessment-integrity wording repairs preserve semantic polarity without an
 
   for (const review of GENERATED_REASON_POLARITY_CENSUS) {
     const decisions = practicalDecisions.filter((decision) => (
-      new RegExp("-" + review.cluster + "-10[1-8]$", "u").test(decision.id)
+      (review.cluster === "A8"
+        ? new RegExp("-" + review.cluster + "-(?:101|202|103|104|205|106|207|108)$", "u").test(decision.id) && decision.learnerEligibility !== "INTERNAL_ONLY"
+        : new RegExp("-" + review.cluster + "-10[1-8]$", "u").test(decision.id))
     ));
     const reviewedOptions = decisions.flatMap((decision) => (
       decision.reasonOptions

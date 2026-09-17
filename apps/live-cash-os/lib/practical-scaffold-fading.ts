@@ -1,6 +1,6 @@
 import { practicalDecisionById } from "../content/practical-mastery";
 import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
-import { isSemanticallyValidPracticalAttempt, latestAttemptsByDecision, practicalSuccessfulDecisionIds, type PracticalMasteryState } from "./practical-mastery-core";
+import { isCurrentPracticalEvidenceAttempt, latestAttemptsByDecision, practicalSuccessfulDecisionIds, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type PracticalScaffoldLevel = "guided" | "reduced" | "hidden";
 
@@ -14,7 +14,7 @@ function successfulDistinctByKind(state:PracticalMasteryState,skillId:string,kin
 
 function latestSkillAttempt(state:PracticalMasteryState,skillId:string){
   const latest=[...latestAttemptsByDecision(state,skillId).values()].at(-1)??null;
-  return latest&&isSemanticallyValidPracticalAttempt(latest)?latest:null;
+  return latest&&isCurrentPracticalEvidenceAttempt(latest)?latest:null;
 }
 
 export function recommendedPracticalScaffold(state:PracticalMasteryState,skillId:string):PracticalScaffoldLevel{

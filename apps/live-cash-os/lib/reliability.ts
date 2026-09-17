@@ -100,10 +100,9 @@ export type LearnerStateNormalization = {
 export function normalizeCurrentLearnerState(value: unknown): LearnerStateNormalization | null {
   if (!validateLearnerState(value)) return null;
   const migrated = migrateLearnerState(value);
-  if (validateRootLearnerState(migrated)) {
-    return { state: migrated, practicalProfileReconciled: false };
+  if (!hasPracticalProfileField(migrated)) {
+    return validateRootLearnerState(migrated) ? { state: migrated, practicalProfileReconciled: false } : null;
   }
-  if (!hasPracticalProfileField(migrated)) return null;
 
   const rawProfile = (migrated as unknown as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD];
   const reconciledProfile = reconcilePreScenarioPracticalProfile(rawProfile);
@@ -113,7 +112,8 @@ export function normalizeCurrentLearnerState(value: unknown): LearnerStateNormal
     { [PRACTICAL_PROFILE_FIELD]: reconciledProfile },
   ) as LearnerState;
   if (!validateRootLearnerState(reconciled)) return null;
-  return { state: reconciled, practicalProfileReconciled: true };
+  const practicalProfileReconciled = JSON.stringify(rawProfile) !== JSON.stringify(reconciledProfile);
+  return { state: reconciled, practicalProfileReconciled };
 }
 
 export function readLocalLearnerState(raw: string | null): LocalStateRead {

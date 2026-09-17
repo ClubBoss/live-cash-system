@@ -1,4 +1,4 @@
-import { isSemanticallyValidPracticalAttempt, latestAttemptsByDecision, type PracticalMasteryState } from "./practical-mastery-core";
+import { isCurrentPracticalEvidenceAttempt, latestAttemptsByDecision, type PracticalMasteryState } from "./practical-mastery-core";
 
 export const PRACTICAL_EXACT_REPEAT_WINDOW = 8;
 
@@ -14,7 +14,7 @@ export function recentSuccessfulDecisionIds(
     state.attempts
       .slice(-windowSize)
       .filter((attempt) => attempt.correct
-        && isSemanticallyValidPracticalAttempt(attempt)
+        && isCurrentPracticalEvidenceAttempt(attempt)
         && latestByDecision.get(attempt.decisionId)?.id === attempt.id)
       .map((attempt) => attempt.decisionId),
   );
@@ -33,7 +33,7 @@ export function recentlyAttemptedDecisionIds(
   return new Set(
     state.attempts
       .slice(-windowSize)
-      .filter(isSemanticallyValidPracticalAttempt)
+      .filter(isCurrentPracticalEvidenceAttempt)
       .map((attempt) => attempt.decisionId),
   );
 }

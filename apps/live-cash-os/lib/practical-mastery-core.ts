@@ -19,8 +19,11 @@ export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4 as const;
 export const PRACTICAL_ATTEMPT_TAIL_LIMIT = 256;
 export const PRACTICAL_ATTEMPT_COMPACT_TARGET = 128;
 export const PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT = 512;
-export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v3";
+export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.09-practical-mastery-v4-4bp-objective-revision";
 export const PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION = "A7_RU_REASON_POLARITY_V2";
+export const PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION = "4BP_OBJECTIVE_SPECIFIC_V3";
+const REWRITTEN_4BP_DECISION_ID = /^PM-4BP-0[1-4]-A7-(?:10[1-8])$/u;
+function requires4BpObjectiveSemanticRevision(decisionId: string): boolean { return REWRITTEN_4BP_DECISION_ID.test(decisionId); }
 function requiresA7RuReasonSemanticRevision(decisionId: string): boolean { return /^PM-(?:3BP|4BP)-\d{2}-A7-\d+$/u.test(decisionId); }
 const PRACTICAL_BRIDGE_SKILL_IDS = new Set<string>(Object.keys(laterStreetLegacySkillBridges));
 export function isPracticalBridgeSkill(skillId: string): boolean { return PRACTICAL_BRIDGE_SKILL_IDS.has(skillId); }
@@ -172,9 +175,9 @@ export function practicalAttemptedDecisionIds(state: PracticalMasteryState): Set
 
 export function practicalSuccessfulDecisionIds(state: PracticalMasteryState, skillId: string): Set<string> {
   const archive = practicalAttemptArchiveOf(state);
-  const ids = new Set<string>(archive.bySkill[skillId]?.successfulDecisionIds ?? []);
+  const ids = new Set<string>((archive.bySkill[skillId]?.successfulDecisionIds ?? []).filter((decisionId) => { const decision = practicalDecisionById.get(decisionId); return Boolean(decision && isOrdinaryLearnerDecision(decision)); }));
   for (const attempt of state.attempts) {
-    if (attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt)) ids.add(attempt.decisionId);
+    if (attempt.skillId === skillId && attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)) ids.add(attempt.decisionId);
   }
   return ids;
 }
@@ -202,7 +205,7 @@ export function practicalLatestCorrectAttemptRefs(state: PracticalMasteryState):
   const map = new Map<string, PracticalCorrectDecisionRef>(
     Object.entries(archive.latestCorrectOrdinalByDecision).map(([decisionId, ordinal]) => [
       decisionId,
-      { decisionId, ordinal, valid: true },
+      { decisionId, ordinal, valid: Boolean(practicalDecisionById.get(decisionId) && isOrdinaryLearnerDecision(practicalDecisionById.get(decisionId)!)) },
     ]),
   );
   const offset = archive.count;
@@ -211,7 +214,7 @@ export function practicalLatestCorrectAttemptRefs(state: PracticalMasteryState):
     map.set(attempt.decisionId, {
       decisionId: attempt.decisionId,
       ordinal: offset + index + 1,
-      valid: isSemanticallyValidPracticalAttempt(attempt),
+      valid: isCurrentPracticalEvidenceAttempt(attempt),
     });
   });
   return new Map([...map.entries()].sort((left, right) => left[1].ordinal - right[1].ordinal));
@@ -224,14 +227,14 @@ export type PracticalCorrectAttemptAnchor = {
 export function practicalLatestCorrectAttemptForSkill(state: PracticalMasteryState, skillId: string): PracticalCorrectAttemptAnchor | null {
   const archive = practicalAttemptArchiveOf(state);
   const archived = archive.bySkill[skillId]?.lastCorrect ?? null;
-  let latest: (PracticalArchivedCorrectAnchor & { valid: boolean }) | null = archived ? { ...archived, valid: true } : null;
+  let latest: (PracticalArchivedCorrectAnchor & { valid: boolean }) | null = archived ? { ...archived, valid: Boolean(practicalDecisionById.get(archived.decisionId) && isOrdinaryLearnerDecision(practicalDecisionById.get(archived.decisionId)!)) } : null;
   state.attempts.forEach((attempt, index) => {
     if (!attempt.correct || attempt.skillId !== skillId) return;
     latest = {
       decisionId: attempt.decisionId,
       answeredAt: attempt.answeredAt,
       ordinal: archive.count + index + 1,
-      valid: isSemanticallyValidPracticalAttempt(attempt),
+      valid: isCurrentPracticalEvidenceAttempt(attempt),
     };
   });
   return latest ? { decisionId: latest.decisionId, skillId, answeredAt: latest.answeredAt, valid: latest.valid } : null;
@@ -362,6 +365,17 @@ export function isSemanticallyValidPracticalAttempt(attempt: unknown): attempt i
 export function isCurrentPracticalEvidenceAttempt(attempt: unknown): attempt is PracticalAttempt {
   if (!isSemanticallyValidPracticalAttempt(attempt)) return false;
   const decision = practicalDecisionById.get(attempt.decisionId)!;
+  // Historical/internal compatibility rows remain structurally valid raw history,
+  // but they are not current learner evidence. This predicate is the canonical
+  // seam between raw validity and evidence-bearing attempts.
+  if (!isOrdinaryLearnerDecision(decision)) return false;
+  // The 32 4BP A7 tasks were materially rewritten from a shared generic
+  // mechanism into four objective-specific ladders. Old rows remain valid raw
+  // history, but neither old correct nor old wrong evidence can prove the new
+  // semantic generation.
+  if (requires4BpObjectiveSemanticRevision(attempt.decisionId)) {
+    return attempt.semanticRevision === PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION;
+  }
   // A7 RU wrong-reason wording changed materially. Pre-repair persisted rows
   // have no locale/text revision, so a wrong reason cannot be safely mapped
   // onto the repaired misconception. Keep the raw row valid and intact, but
@@ -399,8 +413,8 @@ function nowIso(now?: Date): string { return (now ?? new Date()).toISOString(); 
 // without the skillId check, an id belonging to another skill's decision
 // (of a matching kind) would otherwise be silently counted toward this
 // skill's evidence stage.
-function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && decision.skillId === progress.skillId && kinds.includes(decision.kind) ? [practicalEvidenceFamilyId(decision)] : []; })).size; }
-function distinctSuccessfulScenariosByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && decision.skillId === progress.skillId && kinds.includes(decision.kind) ? [practicalEvidenceScenarioId(decision)] : []; })).size; }
+function distinctSuccessfulByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && isOrdinaryLearnerDecision(decision) && decision.skillId === progress.skillId && kinds.includes(decision.kind) ? [practicalEvidenceFamilyId(decision)] : []; })).size; }
+function distinctSuccessfulScenariosByKind(progress: PracticalSkillProgress, kinds: PracticalDecision["kind"][]): number { return new Set(progress.successfulDecisionIds.flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && isOrdinaryLearnerDecision(decision) && decision.skillId === progress.skillId && kinds.includes(decision.kind) ? [practicalEvidenceScenarioId(decision)] : []; })).size; }
 
 function applySourceEvidenceCeiling(skillId: string, stage: PracticalEvidenceStage): PracticalEvidenceStage {
   if (isPracticalBridgeSkill(skillId)) return "SOURCE_SUPPORTED";
@@ -426,6 +440,17 @@ export function derivePreScenarioRecognitionEvidenceStage(progress: PracticalSki
   const recognition = distinctSuccessfulByKind(progress, ["recognition"]); const direct = distinctSuccessfulByKind(progress, ["decision"]); const transfer = distinctSuccessfulByKind(progress, ["changed", "mixed"]); const boundary = distinctSuccessfulByKind(progress, ["boundary"]);
   let stage: PracticalEvidenceStage;
   if (recognition < MIN_RECOGNITION_STIMULI) stage = "CONCEPT_TAUGHT"; else if (direct < MIN_DIRECT_DECISION_STIMULI) stage = "RECOGNITION_TRAINED"; else if (transfer < MIN_TRANSFER_STIMULI) stage = "DECISION_TRAINED"; else if (boundary < MIN_BOUNDARY_STIMULI) stage = "CHANGED_NODE_TRANSFER"; else if (!progress.delayedRetrievalPassed) stage = "BOUNDARY_TESTED"; else if (!progress.realHandTransferReviewed) stage = "DELAYED_RETRIEVAL"; else stage = "REAL_HAND_TRANSFER";
+  return applySourceEvidenceCeiling(progress.skillId, stage);
+}
+
+// Compatibility-only authority for schema-v4 profiles persisted before A8 eligibility changed.
+export function derivePreA8EligibilityEvidenceStage(progress: PracticalSkillProgress): PracticalEvidenceStage {
+  if (!progress.conceptTaught) return applySourceEvidenceCeiling(progress.skillId, "SOURCE_SUPPORTED");
+  const families = (kinds: PracticalDecision["kind"][]) => new Set(progress.successfulDecisionIds.flatMap((id) => { const d=practicalDecisionById.get(id); return d && d.skillId===progress.skillId && kinds.includes(d.kind) ? [practicalEvidenceFamilyId(d)] : []; })).size;
+  const scenarios = (kinds: PracticalDecision["kind"][]) => new Set(progress.successfulDecisionIds.flatMap((id) => { const d=practicalDecisionById.get(id); return d && d.skillId===progress.skillId && kinds.includes(d.kind) ? [practicalEvidenceScenarioId(d)] : []; })).size;
+  const recognition=families(["recognition"]), recognitionScenarios=scenarios(["recognition"]), direct=families(["decision"]), transfer=families(["changed","mixed"]), boundary=families(["boundary"]);
+  let stage: PracticalEvidenceStage;
+  if (recognition < MIN_RECOGNITION_STIMULI || recognitionScenarios < MIN_RECOGNITION_SCENARIOS) stage="CONCEPT_TAUGHT"; else if (direct < MIN_DIRECT_DECISION_STIMULI) stage="RECOGNITION_TRAINED"; else if (transfer < MIN_TRANSFER_STIMULI) stage="DECISION_TRAINED"; else if (boundary < MIN_BOUNDARY_STIMULI) stage="CHANGED_NODE_TRANSFER"; else if (!progress.delayedRetrievalPassed) stage="BOUNDARY_TESTED"; else if (!progress.realHandTransferReviewed) stage="DELAYED_RETRIEVAL"; else stage="REAL_HAND_TRANSFER";
   return applySourceEvidenceCeiling(progress.skillId, stage);
 }
 function refreshEvidenceStage(progress: PracticalSkillProgress): void { progress.evidenceStage = deriveEvidenceStage(progress); }
@@ -493,7 +518,10 @@ export function recommendNextPracticalSkill(state: PracticalMasteryState): Pract
 export function recordPracticalDecision(state: PracticalMasteryState, input: { decisionId: string; actionId: string; reasonId: string; confidence: number; confidenceProvenance?: PracticalConfidenceProvenance; now?: Date }): PracticalMasteryState {
   const decision = practicalDecisionById.get(input.decisionId); if (!decision) throw new Error(`Unknown practical decision: ${input.decisionId}`); if (!state.skills[decision.skillId]) throw new Error(`Unknown practical skill: ${decision.skillId}`);
   const confidence = Math.max(0, Math.min(100, Math.round(input.confidence))); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId; const answeredAt = nowIso(input.now);
-  const attempt: PracticalAttempt = { id: `${decision.id}:${state.revision + 1}:${answeredAt}`, decisionId: decision.id, skillId: decision.skillId, actionId: input.actionId, reasonId: input.reasonId, confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", correct, answeredAt, ...(requiresA7RuReasonSemanticRevision(decision.id) ? { semanticRevision: PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION } : {}) };
+  const semanticRevision = requires4BpObjectiveSemanticRevision(decision.id)
+    ? PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION
+    : requiresA7RuReasonSemanticRevision(decision.id) ? PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION : undefined;
+  const attempt: PracticalAttempt = { id: `${decision.id}:${state.revision + 1}:${answeredAt}`, decisionId: decision.id, skillId: decision.skillId, actionId: input.actionId, reasonId: input.reasonId, confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", correct, answeredAt, ...(semanticRevision ? { semanticRevision } : {}) };
   const next: PracticalMasteryState = structuredClone(state); const nextProgress = next.skills[decision.skillId]; nextProgress.attempts += 1;
   if (correct) { nextProgress.correct += 1; if (!nextProgress.successfulDecisionIds.includes(decision.id)) nextProgress.successfulDecisionIds.push(decision.id); if (decision.kind === "recognition") nextProgress.recognitionCorrect += 1; if (decision.kind === "decision") nextProgress.directDecisionCorrect += 1; if (decision.kind === "changed") nextProgress.changedCorrect += 1; if (decision.kind === "boundary") nextProgress.boundaryCorrect += 1; if (decision.kind === "mixed") nextProgress.mixedCorrect += 1; if (nextProgress.lastIncorrectDecisionId === decision.id) nextProgress.lastIncorrectDecisionId = null; } else nextProgress.lastIncorrectDecisionId = decision.id;
   nextProgress.lastAttemptAt = answeredAt; refreshEvidenceStage(nextProgress); next.attempts.push(attempt); next.revision += 1; next.updatedAt = answeredAt; return compactPracticalAttemptHistory(next);
@@ -528,7 +556,7 @@ function hasInterveningCorrectRepairEvidence(state: PracticalMasteryState, repai
   });
 }
 
-function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][], excludedFamilyIds: ReadonlySet<string> = new Set<string>(), preferNovelScenario = false): PracticalDecision | null { const attemptedDecisionIds = practicalAttemptedDecisionIds(state); const attemptedFamilies = new Set([...attemptedDecisionIds].flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision?.skillId === skillId ? [practicalEvidenceFamilyId(decision)] : []; })); const successfulScenarios = new Set((state.skills[skillId]?.successfulDecisionIds ?? []).flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && kinds.includes(decision.kind) ? [practicalEvidenceScenarioId(decision)] : []; })); const pool = decisionsForPracticalSkill(skillId).filter((decision) => kinds.includes(decision.kind) && !attemptedFamilies.has(practicalEvidenceFamilyId(decision)) && !excludedFamilyIds.has(practicalEvidenceFamilyId(decision))); if (preferNovelScenario) return pool.find((decision) => !successfulScenarios.has(practicalEvidenceScenarioId(decision))) ?? pool[0] ?? null; return pool[0] ?? null; }
+function unattemptedDecisionOfKinds(state: PracticalMasteryState, skillId: string, kinds: PracticalDecision["kind"][], excludedFamilyIds: ReadonlySet<string> = new Set<string>(), preferNovelScenario = false): PracticalDecision | null { const attemptedDecisionIds = practicalAttemptedDecisionIds(state); const attemptedFamilies = new Set([...attemptedDecisionIds].flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && isOrdinaryLearnerDecision(decision) && decision.skillId === skillId ? [practicalEvidenceFamilyId(decision)] : []; })); const successfulScenarios = new Set((state.skills[skillId]?.successfulDecisionIds ?? []).flatMap((decisionId) => { const decision = practicalDecisionById.get(decisionId); return decision && isOrdinaryLearnerDecision(decision) && kinds.includes(decision.kind) ? [practicalEvidenceScenarioId(decision)] : []; })); const pool = decisionsForPracticalSkill(skillId).filter((decision) => kinds.includes(decision.kind) && !attemptedFamilies.has(practicalEvidenceFamilyId(decision)) && !excludedFamilyIds.has(practicalEvidenceFamilyId(decision))); if (preferNovelScenario) return pool.find((decision) => !successfulScenarios.has(practicalEvidenceScenarioId(decision))) ?? pool[0] ?? null; return pool[0] ?? null; }
 export function nextPracticalDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   if (isPracticalBridgeSkill(skillId) || !practicalPrerequisitesMet(state, skillId)) return null; const pool = decisionsForPracticalSkill(skillId); if (!pool.length) return null; const progress = state.skills[skillId];
   const latest = latestAttemptsByDecision(state, skillId); const unresolved = [...latest.values()].reverse().find((attempt) => !attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)) ?? null; const repair = unresolved ? practicalDecisionById.get(unresolved.decisionId) ?? null : null;
@@ -548,7 +576,7 @@ export function nextPracticalDecision(state: PracticalMasteryState, skillId: str
 // base wrong-attempt population and its ordering stay byte-identical to before
 // when no high-confidence evidence exists.
 function practicalRepairQueueWeight(attempts: PracticalAttempt[]): number { return attempts.length + attempts.filter((attempt) => hasHighPracticalSelfReportedConfidence(attempt, PRACTICAL_HIGH_CONFIDENCE_WRONG)).length * 2; }
-export function practicalRepairQueue(state: PracticalMasteryState): string[] { const latest = latestAttemptsByDecision(state); const bySkill = new Map<string, PracticalAttempt[]>(); for (const attempt of latest.values()) { if (!isCurrentPracticalEvidenceAttempt(attempt) || attempt.correct || isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue; const attempts = bySkill.get(attempt.skillId) ?? []; attempts.push(attempt); bySkill.set(attempt.skillId, attempts); } return [...bySkill.entries()].sort((left, right) => practicalRepairQueueWeight(right[1]) - practicalRepairQueueWeight(left[1]) || left[0].localeCompare(right[0])).map(([skillId]) => skillId); }
+export function practicalRepairQueue(state: PracticalMasteryState): string[] { const latest = latestAttemptsByDecision(state); const bySkill = new Map<string, PracticalAttempt[]>(); for (const attempt of latest.values()) { const decision = practicalDecisionById.get(attempt.decisionId); if (!decision || !isOrdinaryLearnerDecision(decision) || !isCurrentPracticalEvidenceAttempt(attempt) || attempt.correct || isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue; const attempts = bySkill.get(attempt.skillId) ?? []; attempts.push(attempt); bySkill.set(attempt.skillId, attempts); } return [...bySkill.entries()].sort((left, right) => practicalRepairQueueWeight(right[1]) - practicalRepairQueueWeight(left[1]) || left[0].localeCompare(right[0])).map(([skillId]) => skillId); }
 export function markDelayedPracticalRetrieval(state: PracticalMasteryState, skillId: string, successful: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (successful && deriveEvidenceStage(nextProgress) === "BOUNDARY_TESTED") nextProgress.delayedRetrievalPassed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function markPracticalRealHandTransfer(state: PracticalMasteryState, skillId: string, reviewed: boolean, now = new Date()): PracticalMasteryState { if (!state.skills[skillId]) throw new Error(`Unknown practical skill: ${skillId}`); const next = structuredClone(state); const nextProgress = next.skills[skillId]; if (reviewed && nextProgress.delayedRetrievalPassed) nextProgress.realHandTransferReviewed = true; refreshEvidenceStage(nextProgress); next.revision += 1; next.updatedAt = nowIso(now); return next; }
 export function practicalEvidenceRequirements() { return { recognitionStimuli: MIN_RECOGNITION_STIMULI, directDecisionStimuli: MIN_DIRECT_DECISION_STIMULI, transferStimuli: MIN_TRANSFER_STIMULI, boundaryStimuli: MIN_BOUNDARY_STIMULI } as const; }
