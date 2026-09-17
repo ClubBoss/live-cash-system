@@ -18,7 +18,6 @@ import {
 import {
   isCurrentPracticalEvidenceAttempt,
   isPracticalBridgeSkill,
-  isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
   practicalAttemptedDecisionIds,
   practicalLatestCorrectAttemptForSkill,
@@ -56,7 +55,7 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
   // still needs the historical generic repair fallback for a real latest wrong
   // whose actually-wrong dimensions carry no misconception tag.
   for (const attempt of latestAttemptsByDecision(state).values()) {
-    if (attempt.correct) continue;
+    if (attempt.correct || !isCurrentPracticalEvidenceAttempt(attempt)) continue;
     const decision = practicalDecisionById.get(attempt.decisionId);
     if (!decision || !isOrdinaryLearnerDecision(decision) || decision.skillId !== attempt.skillId) continue;
     if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue;
@@ -112,13 +111,13 @@ function candidateDecisionForSkill(
   requiredDifferentScenarioFromDecisionId: string | null = null,
 ): PracticalDecision | null {
   const rawLatest = [...latestAttemptsByDecision(state, skillId).values()].at(-1) ?? null;
-  const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
+  const latest = rawLatest && isCurrentPracticalEvidenceAttempt(rawLatest) ? rawLatest : null;
   const latestDecision = latest ? practicalDecisionById.get(latest.decisionId) ?? null : null;
   const latestFamily = latestDecision ? practicalEvidenceFamilyId(latestDecision) : null;
   const attemptedFamilies = new Set(
     [...practicalAttemptedDecisionIds(state)].flatMap((decisionId) => {
       const decision = practicalDecisionById.get(decisionId);
-      return decision?.skillId === skillId ? [practicalEvidenceFamilyId(decision)] : [];
+      return decision && isOrdinaryLearnerDecision(decision) && decision.skillId === skillId ? [practicalEvidenceFamilyId(decision)] : [];
     }),
   );
   const avoidFamilies = new Set(
@@ -149,7 +148,7 @@ function candidateDecisionForSkill(
   return pool.find((decision) => !attemptedFamilies.has(practicalEvidenceFamilyId(decision))) ?? pool[0] ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
-function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isSemanticallyValidPracticalAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
+function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isCurrentPracticalEvidenceAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
 
 export function integratedBreadthReady(state: PracticalMasteryState): boolean {
   const trained = Object.values(state.skills).filter((progress) => !isIntegrationDerivedSkill(progress.skillId) && stageAtLeast(progress.evidenceStage, "DECISION_TRAINED"));

@@ -21,7 +21,7 @@ import {
 const A8_FAMILY_SKILLS = ["TURN-01", "TURN-02", "TURN-03", "TURN-04", "TURN-05", "RIV-01", "RIV-02", "RIV-03", "RIV-04", "RIV-05"];
 
 const A8_EXPANSION_IDS = A8_FAMILY_SKILLS.flatMap((skill) =>
-  Array.from({ length: 8 }, (_, i) => `PM-${skill}-A8-${101 + i}`),
+  [101, 202, 103, 104, 205, 106, 207, 108].map((suffix) => `PM-${skill}-A8-${suffix}`),
 );
 
 const NATIVE_DECISION_IDS = ["PM-TURN-01-001", "PM-TURN-02-001", "PM-RIV-02-001", "PM-RIV-03-001", "PM-RIV-04-001", "PM-RIV-05-001"];
@@ -99,6 +99,7 @@ function stripApprovedNotation(text) {
 function numericTokens(text) {
   const withoutNonQuantitativeNotation = text
     .replace(/(?:FTGU-E\d+|LCM-\d+|CINJ-E\d+|CP-G3-L\d+|SLC-[A-Z0-9-]+|EXT-[A-Z0-9-]+|\bE\d+\b)/gu, "")
+    .replace(/\b(?:TURN|RIV)-\d{2}\b/giu, "")
     .replace(/\b3-bet(?:s|-or-fold)?\b/giu, "")
     .replace(/\b4-bet(?:s|-or-fold)?\b/giu, "")
     .replace(/3-бет(?:ы|ов|ам|ами|ах)?/giu, "")

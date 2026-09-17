@@ -217,6 +217,32 @@ const CLEAN_FAMILIES: CleanFamily[] = [
   },
 ];
 
+function buildSpecificityPatches(f: CleanFamily): Array<readonly [string, PracticalTurnRiverA8DecisionRuPatch]> {
+  return [
+    [`${f.prefix}-202`, {
+      cueRu: `${f.nodeRu} Одно предыдущее действие меняет состав диапазона, дошедшего до узла.`,
+      questionRu: `Как признак «${f.signalRu}» нужно пересчитать после этого изменения?`,
+      actionOptions: { good: `${f.signalRu} в этой ветке`, b1: f.shortcutRu, b2: "Сохранить прежнюю классификацию только потому, что улица та же" },
+      reasonOptions: { goodR: f.whyRu, br1: BR1, br2: BR2 },
+      explanationRu: f.whyRu,
+    }],
+    [`${f.prefix}-205`, {
+      cueRu: `${f.nodeRu} Текущая ветка изменила состав продолжившего диапазона.`,
+      questionRu: `Как это меняет базовый выбор «${f.defaultRu}»?`,
+      actionOptions: { good: `${f.defaultRu} в этой ветке`, b1: f.shortcutRu, b2: "Сохранить прежнее действие без пересчёта диапазона" },
+      reasonOptions: { goodR: f.whyRu, br1: BR1, br2: BR2 },
+      explanationRu: f.whyRu,
+    }],
+    [`${f.prefix}-207`, {
+      cueRu: f.changeRu,
+      questionRu: `Как изменение «${f.changeRu}» должно повлиять на решение?`,
+      actionOptions: { good: f.defaultRu, b1: f.shortcutRu, b2: "Не менять решение, потому что название узла осталось прежним" },
+      reasonOptions: { goodR: f.whyRu, br1: BR1, br2: BR2 },
+      explanationRu: f.whyRu,
+    }],
+  ];
+}
+
 function buildFamilyPatches(f: CleanFamily): Array<readonly [string, PracticalTurnRiverA8DecisionRuPatch]> {
   return [
     [
@@ -433,6 +459,7 @@ const NATIVE_DECISION_PATCHES: Array<readonly [string, PracticalTurnRiverA8Decis
 
 export const practicalRuSystemicTurnRiverDecisionPatches = new Map<string, PracticalTurnRiverA8DecisionRuPatch>([
   ...CLEAN_FAMILIES.flatMap(buildFamilyPatches),
+  ...CLEAN_FAMILIES.flatMap(buildSpecificityPatches),
   ...NATIVE_DECISION_PATCHES,
 ]);
 

@@ -24,8 +24,15 @@ function normalizeCue(value: string): string {
 }
 
 export function practicalStimulusFamilyId(decision: PracticalDecision): string {
-  return SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID.get(decision.id)
-    ?? `${decision.skillId}::${normalizeCue(decision.cueEn || decision.cueRu)}`;
+  const alias = SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID.get(decision.id);
+  if (alias) return alias;
+  // A8 cross-skill generated rows need learner-surface identity: skillId is not
+  // evidence of semantic independence. Keep the historical fallback elsewhere
+  // so this bounded A8 repair cannot perturb unrelated scheduler novelty.
+  if (/^PM-(?:TURN|RIV)-\d{2}-A8-/u.test(decision.id)) {
+    return `semantic::${normalizeCue(decision.cueEn || decision.cueRu)}`;
+  }
+  return `${decision.skillId}::${normalizeCue(decision.cueEn || decision.cueRu)}`;
 }
 
 export function practicalStimulusFamilyIdForDecisionId(
