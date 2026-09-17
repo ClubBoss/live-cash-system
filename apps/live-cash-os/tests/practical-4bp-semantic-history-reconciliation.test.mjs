@@ -29,6 +29,13 @@ function correctInput(decisionId, minute) {
   return { decisionId, actionId: decision.correctActionId, reasonId: decision.correctReasonId, confidence: 80, now: new Date(NOW.getTime() + minute * 60_000) };
 }
 
+function asPreviousSchema4(profile) {
+  profile.mastery.schemaVersion = 4;
+  profile.mastery.attemptArchive.version = 1;
+  delete profile.mastery.attemptArchive.provenanceDigest;
+  return profile;
+}
+
 function preRevisionProfile({ compacted = false } = {}) {
   let profile = createPracticalProfileState(NOW);
   profile.mastery = markPracticalConceptTaught(profile.mastery, SKILL_ID, NOW);
@@ -40,7 +47,7 @@ function preRevisionProfile({ compacted = false } = {}) {
   }
   profile.mastery.contentVersion = OLD_CONTENT_VERSION;
   if (compacted) profile.mastery = compactPracticalAttemptHistory(profile.mastery, true);
-  return profile;
+  return asPreviousSchema4(profile);
 }
 
 function assertReconciled(profile) {

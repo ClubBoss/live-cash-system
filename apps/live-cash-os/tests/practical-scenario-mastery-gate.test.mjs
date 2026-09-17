@@ -44,7 +44,7 @@ test("one generated scenario family cannot satisfy recognition mastery by wordin
 
 test("every progress-counting skill has enough independent recognition scenarios for the hard gate", () => {
   const requirement = practicalScenarioEvidenceRequirements();
-  assert.deepEqual(requirement, { recognitionScenarios: 2 });
+  assert.deepEqual(requirement, { recognitionScenarios: 2, directDecisionScenarios: 2, transferScenarios: 2 });
 
   const skills = practicalProgressCountingSkills();
   assert.ok(skills.length >= 70, `unexpectedly narrow progress set: ${skills.length}`);
@@ -54,6 +54,9 @@ test("every progress-counting skill has enough independent recognition scenarios
       stats.recognitionScenarios >= requirement.recognitionScenarios,
       `${skill.id}: only ${stats.recognitionScenarios} recognition scenario family/families`,
     );
+    assert.ok(stats.directScenarios >= requirement.directDecisionScenarios, `${skill.id}: insufficient direct scenario diversity`);
+    assert.ok(stats.transferScenarios >= requirement.transferScenarios, `${skill.id}: insufficient transfer scenario diversity`);
     assert.equal(practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED"), true);
+    assert.equal(practicalSkillCorpusCanReach(skill.id, "CHANGED_NODE_TRANSFER"), true);
   }
 });

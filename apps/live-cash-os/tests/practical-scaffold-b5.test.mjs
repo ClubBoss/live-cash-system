@@ -8,11 +8,12 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const fading=await readFile(path.join(root,"lib/practical-scaffold-fading.ts"),"utf8");
 const ui=await readFile(path.join(root,"components/PracticalPerceptualExperience.tsx"),"utf8");
 
-test("B5 fading is evidence-driven and requires distinct recognition/transfer",()=>{
- assert.match(fading,/successfulDistinctByKind/);
- assert.match(fading,/recognition<2/);
- assert.match(fading,/transfer<2/);
- assert.match(fading,/boundary<1/);
+test("B5 fading uses semantic evidence authority and requires independent scenarios",()=>{
+ assert.match(fading,/successfulSemanticEvidenceByKind/);
+ assert.match(fading,/practicalEvidenceFamilyId/);
+ assert.match(fading,/practicalEvidenceScenarioId/);
+ assert.match(fading,/recognition\.families<2\|\|recognition\.scenarios<2/);
+ assert.match(fading,/transfer\.families<2\|\|transfer\.scenarios<2\|\|boundary\.families<1/);
  assert.match(fading,/return "hidden"/);
 });
 

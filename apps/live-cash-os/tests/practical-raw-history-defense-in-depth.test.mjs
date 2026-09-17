@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { practicalDecisionById } from "../content/practical-mastery/index.ts";
+import { PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID } from "../content/practical-mastery/evidence-authority.ts";
 import {
   createPracticalMasteryState,
   isSemanticallyValidPracticalAttempt,
@@ -36,11 +37,11 @@ function attempt({ id, decisionId, skillId, actionId, reasonId, confidence = 55,
   return { id, decisionId, skillId, actionId, reasonId, confidence, correct, answeredAt };
 }
 
-function syntheticDecision({ id, skillId = "FND-01", actionWrongTag = "M_ACTION", reasonWrongTag = "M_REASON" }) {
+function syntheticDecision({ id, skillId = "FND-01", actionWrongTag = "M_ACTION", reasonWrongTag = "M_REASON", evidenceFamilyId = id, scenarioId = id }) {
   const resolvedActionWrongTag = actionWrongTag === null ? undefined : actionWrongTag;
   const resolvedReasonWrongTag = reasonWrongTag === null ? undefined : reasonWrongTag;
   return {
-    id, skillId, kind: "decision", sourceRefs: [], assumptions: [],
+    id, skillId, kind: "decision", testEvidenceFamilyId: evidenceFamilyId, testScenarioId: scenarioId, sourceRefs: [], assumptions: [],
     cueRu: "", cueEn: "", questionRu: "", questionEn: "",
     actionOptions: [
       { id: "a", textRu: "correct", textEn: "correct" },
@@ -55,8 +56,19 @@ function syntheticDecision({ id, skillId = "FND-01", actionWrongTag = "M_ACTION"
 }
 
 function withSyntheticDecisions(decisions, run) {
-  for (const decision of decisions) practicalDecisionById.set(decision.id, decision);
-  try { return run(); } finally { for (const decision of decisions) practicalDecisionById.delete(decision.id); }
+  for (const decision of decisions) {
+    practicalDecisionById.set(decision.id, decision);
+    PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id] = {
+      evidenceFamilyId: decision.testEvidenceFamilyId,
+      scenarioId: decision.testScenarioId,
+    };
+  }
+  try { return run(); } finally {
+    for (const decision of decisions) {
+      practicalDecisionById.delete(decision.id);
+      delete PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id];
+    }
+  }
 }
 
 // --- Probe A: wrong-skill malformed latest resurrection -------------------

@@ -1,9 +1,17 @@
 import type { PracticalDecision } from "../content/practical-mastery";
+import { PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID } from "../content/practical-mastery/evidence-authority";
 
-const TEMPLATE_SCENARIO_MARKERS = ["A8", "A9", "A10", "B1", "B3", "B4"] as const;
+const TEMPLATE_SCENARIO_MARKERS = [
+  "A8",
+  "A9",
+  "A10",
+  "B1",
+  "B3",
+  "B4",
+] as const;
 const LEADING_TEMPLATE_SCENARIO_MARKERS = ["B3", "B4"] as const;
 
-const SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID = new Map<string, string>([
+const LEGACY_SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID = new Map<string, string>([
   ["PM-RIV-03-A8-101", "RIV-03::river-bluff-catch-default"],
   ["PM-RIV-03-A8-103", "RIV-03::river-bluff-catch-default"],
   ["PM-B3-RIV03-101", "RIV-03::river-bluff-catch-default"],
@@ -23,16 +31,31 @@ function normalizeCue(value: string): string {
     .trim();
 }
 
+function currentAuthority(decision: PracticalDecision) {
+  const authority = PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id];
+  if (!authority)
+    throw new Error(
+      `Missing explicit Practical evidence authority: ${decision.id}`,
+    );
+  return authority;
+}
+
 export function practicalStimulusFamilyId(decision: PracticalDecision): string {
-  const alias = SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID.get(decision.id);
-  if (alias) return alias;
-  // A8 cross-skill generated rows need learner-surface identity: skillId is not
-  // evidence of semantic independence. Keep the historical fallback elsewhere
-  // so this bounded A8 repair cannot perturb unrelated scheduler novelty.
-  if (/^PM-(?:TURN|RIV)-\d{2}-A8-/u.test(decision.id)) {
-    return `semantic::${normalizeCue(decision.cueEn || decision.cueRu)}`;
-  }
-  return `${decision.skillId}::${normalizeCue(decision.cueEn || decision.cueRu)}`;
+  return currentAuthority(decision).evidenceFamilyId;
+}
+
+export function practicalScenarioFamilyId(decision: PracticalDecision): string {
+  return currentAuthority(decision).scenarioId;
+}
+
+export function practicalEvidenceFamilyId(decision: PracticalDecision): string {
+  return currentAuthority(decision).evidenceFamilyId;
+}
+
+export function practicalEvidenceScenarioId(
+  decision: PracticalDecision,
+): string {
+  return currentAuthority(decision).scenarioId;
 }
 
 export function practicalStimulusFamilyIdForDecisionId(
@@ -43,30 +66,35 @@ export function practicalStimulusFamilyIdForDecisionId(
   return decision ? practicalStimulusFamilyId(decision) : null;
 }
 
-export function practicalScenarioFamilyId(decision: PracticalDecision): string {
+// Compatibility-only recreation of the pre-closure identity model. Persisted
+// schema-v4 states may be validated against this authority only long enough to
+// reconcile downward into the explicit current contract. Current mastery,
+// scaffold, routing and novelty code must never call these helpers.
+export function practicalLegacyEvidenceFamilyId(
+  decision: PracticalDecision,
+): string {
+  const alias = LEGACY_SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID.get(decision.id);
+  if (alias) return alias;
+  if (/^PM-(?:TURN|RIV)-\d{2}-A8-/u.test(decision.id)) {
+    return `semantic::${normalizeCue(decision.cueEn || decision.cueRu)}`;
+  }
+  return `${decision.skillId}::${normalizeCue(decision.cueEn || decision.cueRu)}`;
+}
+
+export function practicalLegacyEvidenceScenarioId(
+  decision: PracticalDecision,
+): string {
   const markerPattern = TEMPLATE_SCENARIO_MARKERS.join("|");
-  const suffixMarkerMatch = decision.id.match(new RegExp(`^(.*-(?:${markerPattern}))-\\d+$`));
+  const suffixMarkerMatch = decision.id.match(
+    new RegExp(`^(.*-(?:${markerPattern}))-\\d+$`),
+  );
   if (suffixMarkerMatch) return suffixMarkerMatch[1];
 
   const leadingMarkerPattern = LEADING_TEMPLATE_SCENARIO_MARKERS.join("|");
-  const leadingMarkerMatch = decision.id.match(new RegExp(`^(PM-(?:${leadingMarkerPattern})-.+)-\\d+$`));
+  const leadingMarkerMatch = decision.id.match(
+    new RegExp(`^(PM-(?:${leadingMarkerPattern})-.+)-\\d+$`),
+  );
   if (leadingMarkerMatch) return leadingMarkerMatch[1];
 
-  return practicalStimulusFamilyId(decision);
-}
-
-/**
- * One evidence item is one semantic learner-facing stimulus. Exact/near-exact
- * cue siblings collapse here, while scenario diversity is enforced separately.
- */
-export function practicalEvidenceFamilyId(decision: PracticalDecision): string {
-  return practicalStimulusFamilyId(decision);
-}
-
-/**
- * Scenario-diversity identity prevents one generated scenario family from
- * satisfying an entire mastery or delayed-retention gate by itself.
- */
-export function practicalEvidenceScenarioId(decision: PracticalDecision): string {
-  return practicalScenarioFamilyId(decision);
+  return practicalLegacyEvidenceFamilyId(decision);
 }

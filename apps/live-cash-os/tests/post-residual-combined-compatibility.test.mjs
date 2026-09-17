@@ -34,6 +34,13 @@ function correctInput(decisionId, minute) {
   };
 }
 
+function asPreviousSchema4(profile) {
+  profile.mastery.schemaVersion = 4;
+  profile.mastery.attemptArchive.version = 1;
+  delete profile.mastery.attemptArchive.provenanceDigest;
+  return profile;
+}
+
 function preBothProfile({ compacted = false } = {}) {
   let profile = createPracticalProfileState(new Date("2026-09-01T00:00:00.000Z"));
   profile.mastery = markPracticalConceptTaught(profile.mastery, "4BP-03");
@@ -59,7 +66,7 @@ function preBothProfile({ compacted = false } = {}) {
     profile.mastery.skills["TURN-03"].evidenceStage = "BOUNDARY_TESTED";
     profile.mastery = compactPracticalAttemptHistory(profile.mastery, true);
   }
-  return profile;
+  return asPreviousSchema4(profile);
 }
 
 function assertCombinedReconciliation(profile, rawAttemptCount) {

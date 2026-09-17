@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { practicalDecisionById } from "../content/practical-mastery/index.ts";
+import { PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID } from "../content/practical-mastery/evidence-authority.ts";
 import {
   createPracticalMasteryState,
   isSemanticallyValidPracticalAttempt,
@@ -17,11 +18,13 @@ function answeredAt(offsetSeconds) {
   return new Date(NOW.getTime() + offsetSeconds * 1000).toISOString();
 }
 
-function syntheticDecision({ id, skillId = SKILL_ID, kind = "decision" }) {
+function syntheticDecision({ id, skillId = SKILL_ID, kind = "decision", evidenceFamilyId = id, scenarioId = id }) {
   return {
     id,
     skillId,
     kind,
+    testEvidenceFamilyId: evidenceFamilyId,
+    testScenarioId: scenarioId,
     sourceRefs: [],
     assumptions: [],
     cueRu: "",
@@ -68,11 +71,20 @@ function attempt({
 }
 
 function withSyntheticDecisions(decisions, run) {
-  for (const decision of decisions) practicalDecisionById.set(decision.id, decision);
+  for (const decision of decisions) {
+    practicalDecisionById.set(decision.id, decision);
+    PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id] = {
+      evidenceFamilyId: decision.testEvidenceFamilyId,
+      scenarioId: decision.testScenarioId,
+    };
+  }
   try {
     return run();
   } finally {
-    for (const decision of decisions) practicalDecisionById.delete(decision.id);
+    for (const decision of decisions) {
+      practicalDecisionById.delete(decision.id);
+      delete PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id];
+    }
   }
 }
 
@@ -272,12 +284,13 @@ test("T3: invalid true-latest row yields null latestConfidence without older-con
   });
 });
 
-test("T4: legitimate history stays valid while transparency dedupes identical learner-facing stimuli", () => {
-  const recognition1 = syntheticDecision({ id: "RAW-READER-T4-R1", kind: "recognition" });
-  const recognition2 = syntheticDecision({ id: "RAW-READER-T4-R2", kind: "recognition" });
-  const transfer1 = syntheticDecision({ id: "RAW-READER-T4-T1", kind: "changed" });
-  const transfer2 = syntheticDecision({ id: "RAW-READER-T4-T2", kind: "mixed" });
-  const boundary = syntheticDecision({ id: "RAW-READER-T4-B1", kind: "boundary" });
+test("T4: explicit shared semantic authority dedupes identical evidence and cannot fade hidden", () => {
+  const shared = { evidenceFamilyId: "RAW-READER-T4-FAMILY", scenarioId: "RAW-READER-T4-SCENARIO" };
+  const recognition1 = syntheticDecision({ id: "RAW-READER-T4-R1", kind: "recognition", ...shared });
+  const recognition2 = syntheticDecision({ id: "RAW-READER-T4-R2", kind: "recognition", ...shared });
+  const transfer1 = syntheticDecision({ id: "RAW-READER-T4-T1", kind: "changed", ...shared });
+  const transfer2 = syntheticDecision({ id: "RAW-READER-T4-T2", kind: "mixed", ...shared });
+  const boundary = syntheticDecision({ id: "RAW-READER-T4-B1", kind: "boundary", ...shared });
   const decisions = [recognition1, recognition2, transfer1, transfer2, boundary];
 
   withSyntheticDecisions(decisions, () => {
@@ -294,7 +307,7 @@ test("T4: legitimate history stays valid while transparency dedupes identical le
     });
 
     assert.equal(state.attempts.every(isSemanticallyValidPracticalAttempt), true);
-    assert.equal(recommendedPracticalScaffold(state, SKILL_ID), "hidden");
+    assert.equal(recommendedPracticalScaffold(state, SKILL_ID), "guided");
 
     const transparency = practicalSkillProgressTransparency(state, SKILL_ID, "BOUNDARY_TESTED");
     assert.equal(transparency.recentAttemptCount, 5);

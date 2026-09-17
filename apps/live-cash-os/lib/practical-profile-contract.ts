@@ -7,10 +7,12 @@ import {
   createPracticalMasteryState,
   deriveEvidenceStage,
   derivePreA8EligibilityEvidenceStage,
+  derivePreFinalEvidenceIntegrityStage,
   derivePreScenarioRecognitionEvidenceStage,
   isPracticalBridgeSkill,
   isCurrentPracticalEvidenceAttempt,
   isSemanticallyValidPracticalAttempt,
+  practicalAttemptArchiveProvenanceDigest,
   practicalAttemptHistoryContains,
   PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT,
   PRACTICAL_ATTEMPT_TAIL_LIMIT,
@@ -31,7 +33,8 @@ import { RETENTION_INTERVAL_DAYS } from "./practical-integrated-session";
 
 export const PRACTICAL_PROFILE_FIELD = "_practicalProfile" as const;
 export const PRACTICAL_PROFILE_VERSION = 1 as const;
-export const PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION = 4 as const;
+export const PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION = 5 as const;
+const PREVIOUS_PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION = 4 as const;
 const LEGACY_PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION = 3 as const;
 export const PRACTICAL_PERFORMANCE_LIMIT = 512;
 const LEGACY_PRACTICAL_PERFORMANCE_LIMIT = 2000;
@@ -147,6 +150,7 @@ function validSkillProgress(
   replayed: PracticalSkillProgress,
   allowPreScenarioRecognitionStage = false,
   allowPreA8EligibilityStage = false,
+  allowPreFinalEvidenceIntegrityStage = false,
 ): value is PracticalSkillProgress {
   if (!isRecord(value)) return false;
   if (value.skillId !== skillId || !practicalSkillById.has(skillId)) return false;
@@ -192,16 +196,16 @@ function validSkillProgress(
 
   const currentStage = deriveEvidenceStage(value as PracticalSkillProgress);
   if (value.evidenceStage !== currentStage) {
-    if (!allowPreScenarioRecognitionStage && !allowPreA8EligibilityStage) return false;
+    if (!allowPreScenarioRecognitionStage && !allowPreA8EligibilityStage && !allowPreFinalEvidenceIntegrityStage) return false;
     const previousStage = derivePreScenarioRecognitionEvidenceStage(value as PracticalSkillProgress);
-    // The compatibility seam is one-way only. A stored stage must be exactly
-    // what the previous writer derived, and the current scenario gate may only
-    // reconcile it to an equal or lower stage. Arbitrary stage inflation or
-    // unrelated inconsistent states remain invalid.
+    // Compatibility is one-way only: an old stored stage must be exactly what
+    // its historical writer derived and may only reconcile to equal/lower current evidence.
     const preA8Stage = derivePreA8EligibilityEvidenceStage(value as PracticalSkillProgress);
+    const preFinalStage = derivePreFinalEvidenceIntegrityStage(value as PracticalSkillProgress);
     const preScenarioAccepted = allowPreScenarioRecognitionStage && value.evidenceStage === previousStage && stageAtLeast(previousStage, currentStage);
     const preA8Accepted = allowPreA8EligibilityStage && value.evidenceStage === preA8Stage && stageAtLeast(preA8Stage, currentStage);
-    if (!preScenarioAccepted && !preA8Accepted) return false;
+    const preFinalAccepted = allowPreFinalEvidenceIntegrityStage && value.evidenceStage === preFinalStage && stageAtLeast(preFinalStage, currentStage);
+    if (!preScenarioAccepted && !preA8Accepted && !preFinalAccepted) return false;
   }
 
   return true;
@@ -264,8 +268,10 @@ function validArchivedSkillProgress(skillId: string, value: unknown, archiveCoun
 }
 
 function validAttemptArchive(value: unknown): value is PracticalAttemptArchive {
-  if (!isRecord(value) || value.version !== 1 || typeof value.count !== "number" || !Number.isInteger(value.count) || value.count < 0) return false;
+  if (!isRecord(value) || value.version !== 2 || typeof value.count !== "number" || !Number.isInteger(value.count) || value.count < 0) return false;
   if (typeof value.digest !== "string" || !/^[0-9a-f]{16}$/u.test(value.digest)) return false;
+  if (typeof value.provenanceDigest !== "string" || !/^[0-9a-f]{16}$/u.test(value.provenanceDigest)) return false;
+  if (value.provenanceDigest !== practicalAttemptArchiveProvenanceDigest(value)) return false;
   if (!Array.isArray(value.recentDigests) || value.recentDigests.length > PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT || !value.recentDigests.every((digest) => typeof digest === "string" && /^[0-9a-f]{16}$/u.test(digest))) return false;
   if (!isRecord(value.bySkill) || !isRecord(value.latestByDecision) || !isRecord(value.latestCorrectOrdinalByDecision) || !isRecord(value.attemptCountByDecision)) return false;
   if (value.count === 0) {
@@ -337,6 +343,14 @@ function validAttemptArchive(value: unknown): value is PracticalAttemptArchive {
       || progress.lastCorrect.ordinal !== expected.ordinal) return false;
   }
   return true;
+}
+
+function upgradePreviousAttemptArchive(value: unknown): PracticalAttemptArchive | null {
+  if (!isRecord(value) || value.version !== 1 || Object.prototype.hasOwnProperty.call(value, "provenanceDigest")) return null;
+  const upgraded = structuredClone(value) as Record<string, unknown>;
+  upgraded.version = 2;
+  upgraded.provenanceDigest = practicalAttemptArchiveProvenanceDigest(upgraded);
+  return validAttemptArchive(upgraded) ? upgraded : null;
 }
 
 function masteryHeaderAndSkills(value: Record<string, unknown>): value is Record<string, unknown> & { skills: Record<string, unknown>; attempts: unknown[] } {
@@ -420,6 +434,31 @@ function validCurrentMasteryState(value: unknown, options: CurrentProfileCompati
     replayed.skills[skillId],
     false,
     options.allowPreA8EligibilityStage ?? false,
+  ));
+}
+
+function previousMasteryCurrentShape(value: unknown): PracticalMasteryState | null {
+  if (!isRecord(value) || value.schemaVersion !== PREVIOUS_PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION || !masteryHeaderAndSkills(value)) return null;
+  const attemptArchive = upgradePreviousAttemptArchive(value.attemptArchive);
+  if (!attemptArchive) return null;
+  const next = structuredClone(value) as Record<string, unknown>;
+  next.schemaVersion = PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION;
+  next.attemptArchive = attemptArchive;
+  return next as unknown as PracticalMasteryState;
+}
+
+function validPreviousMasteryState(value: unknown, options: CurrentProfileCompatibilityOptions = {}): boolean {
+  const mastery = previousMasteryCurrentShape(value);
+  if (!mastery) return false;
+  const replayed = replayTailFromArchive(mastery, options.allowPrevious4BpSemantic ?? false);
+  if (!replayed) return false;
+  return CANONICAL_PRACTICAL_SKILL_IDS.every((skillId) => validSkillProgress(
+    skillId,
+    mastery.skills[skillId],
+    replayed.skills[skillId],
+    false,
+    options.allowPreA8EligibilityStage ?? false,
+    true,
   ));
 }
 
@@ -578,6 +617,16 @@ function validCurrentPracticalProfileState(value: unknown, options: CurrentProfi
     && validStudyWorkspace(value.studyWorkspace);
 }
 
+function validPreviousPracticalProfileState(value: unknown, options: CurrentProfileCompatibilityOptions = {}): boolean {
+  return isRecord(value)
+    && value.version === PRACTICAL_PROFILE_VERSION
+    && validPreviousMasteryState(value.mastery, options)
+    && Array.isArray(value.performance)
+    && value.performance.length <= PRACTICAL_PERFORMANCE_LIMIT
+    && validPerformanceEvents(value.performance, "CURRENT")
+    && validStudyWorkspace(value.studyWorkspace);
+}
+
 function validLegacyPracticalProfileState(value: unknown, allowPreScenarioRecognitionStage: boolean): boolean {
   return isRecord(value)
     && value.version === PRACTICAL_PROFILE_VERSION
@@ -673,6 +722,7 @@ function reconcile4BpObjectiveSemanticRevision(profile: PracticalProfileState): 
     } else progress.lastIncorrectDecisionId = attempt.decisionId;
   }
   for (const skillId of REWRITTEN_4BP_SKILL_IDS) mastery.skills[skillId].evidenceStage = deriveEvidenceStage(mastery.skills[skillId]);
+  mastery.attemptArchive.provenanceDigest = practicalAttemptArchiveProvenanceDigest(mastery.attemptArchive as unknown as Record<string, unknown>);
   return next;
 }
 
@@ -682,15 +732,14 @@ export type PracticalProfileNormalization = {
   recognitionStageReconciled: boolean;
 };
 
-function reconcilePreA8CurrentProfile(value: unknown): PracticalProfileState | null {
-  if (!validCurrentPracticalProfileState(value, { allowPreA8EligibilityStage: true }) || validCurrentPracticalProfileState(value)) return null;
-  const next = structuredClone(value) as PracticalProfileState;
+function reconcileEvidenceStagesToCurrent(profile: PracticalProfileState): { state: PracticalProfileState; reconciled: boolean } {
+  const next = structuredClone(profile);
+  let reconciled = false;
   for (const progress of Object.values(next.mastery.skills)) {
     const currentStage = deriveEvidenceStage(progress);
     if (progress.evidenceStage === currentStage) continue;
-    const previousStage = derivePreA8EligibilityEvidenceStage(progress);
-    if (progress.evidenceStage !== previousStage || !stageAtLeast(previousStage, currentStage)) return null;
     progress.evidenceStage = currentStage;
+    reconciled = true;
     if (!stageAtLeast(currentStage, "BOUNDARY_TESTED")) {
       progress.retentionDaysPassed = [];
       progress.delayedRetrievalPassed = false;
@@ -702,23 +751,28 @@ function reconcilePreA8CurrentProfile(value: unknown): PracticalProfileState | n
       progress.realHandTransferReviewed = false;
     }
   }
-  return validCurrentPracticalProfileState(next) ? next : null;
+  return { state: next, reconciled };
+}
+
+function migratePreviousPracticalProfile(value: unknown): { state: PracticalProfileState; reconciled: boolean } | null {
+  if (!validPreviousPracticalProfileState(value, { allowPrevious4BpSemantic: true, allowPreA8EligibilityStage: true }) || !isRecord(value)) return null;
+  const mastery = previousMasteryCurrentShape(value.mastery);
+  if (!mastery) return null;
+  let next = { ...structuredClone(value), mastery } as unknown as PracticalProfileState;
+  next = reconcile4BpObjectiveSemanticRevision(next);
+  const stageResult = reconcileEvidenceStagesToCurrent(next);
+  next = stageResult.state;
+  next.mastery.attemptArchive.provenanceDigest = practicalAttemptArchiveProvenanceDigest(next.mastery.attemptArchive as unknown as Record<string, unknown>);
+  return validCurrentPracticalProfileState(next) ? { state: next, reconciled: stageResult.reconciled } : null;
 }
 
 export function normalizePracticalProfileState(value: unknown): PracticalProfileNormalization | null {
   if (validCurrentPracticalProfileState(value)) {
     return { state: structuredClone(value), migratedFromSchema3: false, recognitionStageReconciled: false };
   }
-  if (validCurrentPracticalProfileState(value, { allowPrevious4BpSemantic: true, allowPreA8EligibilityStage: true })) {
-    let reconciled = reconcile4BpObjectiveSemanticRevision(value as PracticalProfileState);
-    let recognitionStageReconciled = false;
-    const a8Reconciled = reconcilePreA8CurrentProfile(reconciled);
-    if (a8Reconciled) {
-      reconciled = a8Reconciled;
-      recognitionStageReconciled = true;
-    }
-    if (!validCurrentPracticalProfileState(reconciled)) return null;
-    return { state: reconciled, migratedFromSchema3: false, recognitionStageReconciled };
+  const previous = migratePreviousPracticalProfile(value);
+  if (previous) {
+    return { state: previous.state, migratedFromSchema3: false, recognitionStageReconciled: previous.reconciled };
   }
   if (!validLegacyPracticalProfileState(value, true) || !isRecord(value) || !isRecord(value.mastery)) return null;
 
