@@ -164,10 +164,11 @@ test("V4-D focused PF-01 session shows canonical RU/EN learner title while all e
   await expect(page.locator("main")).not.toContainText("PF-01");
 
   const sessionMain = page.getByRole("main");
-  await sessionMain.getByRole("button", { name: "EN", exact: true }).click();
+  const practicalNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await practicalNav.getByRole("button", { name: "EN", exact: true }).click();
   await expect(focusEyebrow).toHaveText("PRACTICE · RFI by position · 1/8");
   await expect(sessionMain).not.toContainText("PF-01");
-  await sessionMain.getByRole("button", { name: "RU", exact: true }).click();
+  await practicalNav.getByRole("button", { name: "RU", exact: true }).click();
 
   const scoredSkillIds = [];
   for (let index = 0; index < 8; index += 1) {
