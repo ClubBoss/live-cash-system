@@ -25,7 +25,7 @@ function normalizeCue(value: string): string {
 
 export function practicalStimulusFamilyId(decision: PracticalDecision): string {
   return SEMANTIC_STIMULUS_ALIAS_BY_DECISION_ID.get(decision.id)
-    ?? `${decision.skillId}::${normalizeCue(decision.cueEn || decision.cueRu)}`;
+    ?? `semantic::${normalizeCue(`${decision.cueEn || decision.cueRu} ${decision.questionEn || decision.questionRu} ${decision.actionOptions.map((option) => option.textEn || option.textRu).join(" ")}`)}`;
 }
 
 export function practicalStimulusFamilyIdForDecisionId(
