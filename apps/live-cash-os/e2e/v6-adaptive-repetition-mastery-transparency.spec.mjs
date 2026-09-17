@@ -32,7 +32,6 @@ test("V6 learner can see domain and selected-skill progress requirements without
   await answerVisibleQuickStartCard(page);
 
   await page.goto("/mastery");
-  const main = page.getByRole("main");
   const practicalNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
   await practicalNav.getByRole("button", { name: "EN", exact: true }).click();
 
