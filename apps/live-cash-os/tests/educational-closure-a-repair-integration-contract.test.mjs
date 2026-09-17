@@ -187,7 +187,7 @@ test("A2: W14 INT nodes are explicit derived capabilities, not ordinary learner 
     assert.ok(blank.skills[skillId], `${skillId} historical state slot must remain available`);
     assert.ok(practicalDecisions.some((decision) => decision.skillId === skillId), `${skillId} decision corpus must remain available internally`);
   }
-  assert.equal(PRACTICAL_MASTERY_STATE_SCHEMA_VERSION, 4);
+  assert.equal(PRACTICAL_MASTERY_STATE_SCHEMA_VERSION, 5);
 
   const saturated = allOrdinaryPrerequisitesSatisfiedState();
   const trainableIds = new Set(trainablePracticalSkills(saturated).map((skill) => skill.id));

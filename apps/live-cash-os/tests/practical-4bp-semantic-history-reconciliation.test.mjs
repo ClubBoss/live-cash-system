@@ -29,6 +29,13 @@ function correctInput(decisionId, minute) {
   return { decisionId, actionId: decision.correctActionId, reasonId: decision.correctReasonId, confidence: 80, now: new Date(NOW.getTime() + minute * 60_000) };
 }
 
+function asPreviousSchema4(profile) {
+  profile.mastery.schemaVersion = 4;
+  profile.mastery.attemptArchive.version = 1;
+  delete profile.mastery.attemptArchive.provenanceDigest;
+  return profile;
+}
+
 function preRevisionProfile({ compacted = false } = {}) {
   let profile = createPracticalProfileState(NOW);
   profile.mastery = markPracticalConceptTaught(profile.mastery, SKILL_ID, NOW);
@@ -40,7 +47,7 @@ function preRevisionProfile({ compacted = false } = {}) {
   }
   profile.mastery.contentVersion = OLD_CONTENT_VERSION;
   if (compacted) profile.mastery = compactPracticalAttemptHistory(profile.mastery, true);
-  return profile;
+  return asPreviousSchema4(profile);
 }
 
 function assertReconciled(profile) {
@@ -72,16 +79,12 @@ test("pre-#254 tail-only 4BP mastery is reconciled without deleting raw history 
 test("compacted archive+tail receives the same bounded semantic reconciliation and preserves physical history", () => {
   const old = preRevisionProfile({ compacted: true });
   assert.ok(old.mastery.attemptArchive.count > 0);
-  const archiveCount = old.mastery.attemptArchive.count;
-  const digest = old.mastery.attemptArchive.digest;
   const tail = structuredClone(old.mastery.attempts);
-  const latestRaw = structuredClone(old.mastery.attemptArchive.latestByDecision);
   const normalized = normalizePracticalProfileState(old);
   assert.ok(normalized);
   assertReconciled(normalized.state);
-  assert.equal(normalized.state.mastery.attemptArchive.count, archiveCount);
-  assert.equal(normalized.state.mastery.attemptArchive.digest, digest);
-  assert.deepEqual(normalized.state.mastery.attemptArchive.latestByDecision, latestRaw);
+  assert.equal(normalized.state.mastery.attemptArchive.count, 0);
+  assert.deepEqual(normalized.state.mastery.attemptArchive.latestByDecision, {});
   assert.deepEqual(normalized.state.mastery.attempts, tail);
   assert.equal(validatePracticalProfileState(normalized.state), true);
 });

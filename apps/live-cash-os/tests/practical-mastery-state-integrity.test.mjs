@@ -11,12 +11,12 @@ const journeyExperience = await readFile(path.join(root, "components/PracticalFi
 const anchors = await readFile(path.join(root, "content/practical-mastery/index.ts"), "utf8");
 
 test("practical mastery requires multiple distinct stimuli before higher evidence stages", () => {
-  for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_RECOGNITION_SCENARIOS = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_TRANSFER_STIMULI = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
+  for (const token of ["successfulDecisionIds", "MIN_RECOGNITION_STIMULI = 2", "MIN_RECOGNITION_SCENARIOS = 2", "MIN_DIRECT_DECISION_STIMULI = 3", "MIN_DIRECT_DECISION_SCENARIOS = 2", "MIN_TRANSFER_STIMULI = 2", "MIN_TRANSFER_SCENARIOS = 2", "MIN_BOUNDARY_STIMULI = 1"]) assert.match(core, new RegExp(token));
   assert.match(core, /distinctSuccessfulByKind/);
   assert.match(core, /distinctSuccessfulScenariosByKind/);
   assert.match(core, /if \(recognition < MIN_RECOGNITION_STIMULI \|\| recognitionScenarios < MIN_RECOGNITION_SCENARIOS\) stage = "CONCEPT_TAUGHT"/);
-  assert.match(core, /else if \(direct < MIN_DIRECT_DECISION_STIMULI\) stage = "RECOGNITION_TRAINED"/);
-  assert.match(core, /else if \(transfer < MIN_TRANSFER_STIMULI\) stage = "DECISION_TRAINED"/);
+  assert.match(core, /else if \(direct < MIN_DIRECT_DECISION_STIMULI \|\| directScenarios < MIN_DIRECT_DECISION_SCENARIOS\) stage = "RECOGNITION_TRAINED"/);
+  assert.match(core, /else if \(transfer < MIN_TRANSFER_STIMULI \|\| transferScenarios < MIN_TRANSFER_SCENARIOS\) stage = "DECISION_TRAINED"/);
   assert.match(core, /else if \(boundary < MIN_BOUNDARY_STIMULI\) stage = "CHANGED_NODE_TRANSFER"/);
 });
 
@@ -51,8 +51,9 @@ test("concept completion is preceded by learner-facing source-backed anchors in 
   assert.doesNotMatch(mapExperience, /recordPracticalDecision/, "the progress map must not become a second scored-practice owner");
 });
 
-test("v4 practical evidence remains first-class while persistence moves into the reliable learner profile", () => {
-  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4/);
+test("practical evidence remains first-class while schema-v5 persistence commits compacted provenance", () => {
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 5/);
+  assert.match(core, /version: 2; count: number; digest: string; provenanceDigest: string/);
   assert.match(core, /practical-mastery-v4-4bp-objective-revision/);
   assert.match(core, /retentionDaysPassed: number\[\]/);
   assert.match(core, /retentionDaysPassed: \[\]/);

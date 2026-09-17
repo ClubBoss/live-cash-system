@@ -69,9 +69,15 @@ function previousTurn03Profile(){
   profile.mastery.skills["TURN-03"].evidenceStage="BOUNDARY_TESTED";
   return profile;
 }
+function asPreviousSchema4(profile){
+  profile.mastery.schemaVersion=4;
+  profile.mastery.attemptArchive.version=1;
+  delete profile.mastery.attemptArchive.provenanceDigest;
+  return profile;
+}
 
 test("previous-valid schema-v4 A8 profile normalizes one-way without losing raw history or unrelated skills",()=>{
-  const profile=previousTurn03Profile();
+  const profile=asPreviousSchema4(previousTurn03Profile());
   assert.equal(validatePracticalProfileState(profile),false);
   const raw=JSON.stringify(profile.mastery.attempts);const unrelated=JSON.stringify(profile.mastery.skills["TURN-02"]);
   const normalized=normalizePracticalProfileState(profile);assert.ok(normalized);
@@ -94,7 +100,7 @@ test("old INTERNAL_ONLY correct is not intervening repair evidence",()=>{
   assert.notEqual(nextPracticalDecision(s,"TURN-03")?.id,failed);
 });
 test("CAS safe-successor accepts only the bounded normalization without treating it as history loss",()=>{
-  const previous=previousTurn03Profile();const normalized=normalizePracticalProfileState(previous);assert.ok(normalized);
+  const previous=asPreviousSchema4(previousTurn03Profile());const normalized=normalizePracticalProfileState(previous);assert.ok(normalized);
   const base={_practicalProfile:previous};const candidate={_practicalProfile:normalized.state};
   assert.equal(practicalProfileSafeSuccessor(candidate,base),true);
   const malformed=structuredClone(candidate);malformed._practicalProfile.mastery.attempts=[];
@@ -107,14 +113,15 @@ test("new A8 202/205/207 evidence rebuilds the current TURN-03 ladder",()=>{
   assert.equal(s.skills["TURN-03"].evidenceStage,"BOUNDARY_TESTED");assert.equal(deriveEvidenceStage(s.skills["TURN-03"]),"BOUNDARY_TESTED");
   assert.deepEqual(s.skills["TURN-03"].successfulDecisionIds.sort(),ids.sort());
 });
-test("compacted previous-valid schema-v4 profile reconciles archive-backed A8 history without deleting it",()=>{
+test("compacted previous-valid schema-v4 profile keeps its raw tail but does not trust archive-backed A8 evidence",()=>{
   const profile=previousTurn03Profile();const d=practicalDecisionById.get("PM-TURN-03-A8-102");assert.ok(d);
   for(let i=0;i<125;i++) profile.mastery=recordPracticalDecision(profile.mastery,{decisionId:d.id,actionId:d.correctActionId,reasonId:d.correctReasonId,confidence:80,now:new Date(Date.UTC(2026,8,16,2,i))});
   profile.mastery.skills["TURN-03"].evidenceStage="BOUNDARY_TESTED";profile.mastery=compactPracticalAttemptHistory(profile.mastery,true);
   assert.ok(profile.mastery.attemptArchive.attemptCountByDecision["PM-TURN-03-A8-102"]>0);
-  const archiveBefore=JSON.stringify(profile.mastery.attemptArchive);
+  const tailBefore=JSON.stringify(profile.mastery.attempts);asPreviousSchema4(profile);
   const normalized=normalizePracticalProfileState(profile);assert.ok(normalized);
   assert.equal(normalized.state.mastery.skills["TURN-03"].evidenceStage,"CONCEPT_TAUGHT");
-  assert.equal(JSON.stringify(normalized.state.mastery.attemptArchive),archiveBefore);
+  assert.equal(normalized.state.mastery.attemptArchive.count,0);
+  assert.equal(JSON.stringify(normalized.state.mastery.attempts),tailBefore);
   assert.equal(validatePracticalProfileState(normalized.state),true);
 });

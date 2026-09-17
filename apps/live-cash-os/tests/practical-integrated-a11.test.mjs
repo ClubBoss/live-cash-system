@@ -65,10 +65,10 @@ test("real-hand routing classifies causal mechanisms rather than results", () =>
   assert.match(integratedCorpus, /Outcome size is not a skill-family label/);
 });
 
-test("Quick Start complete hands off to the canonical post-QS learning authority on the same nested v4 mastery state", () => {
+test("Quick Start complete hands off to the canonical post-QS learning authority on the same nested v5 mastery state", () => {
   assert.match(journey, /usePracticalProfileState/);
   assert.match(journey, /href="\/mastery\/journey\?continue=1"/);
-  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4/);
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 5/);
 });
 
 test("post-B1 source ceiling remains explicit in the whole system", () => {

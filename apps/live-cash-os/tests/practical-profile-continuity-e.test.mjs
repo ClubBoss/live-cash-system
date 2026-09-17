@@ -26,7 +26,7 @@ test("practical profile is additive to the reliable learner state and advances r
   const next = stateWithProfile();
   assert.equal(next.schemaVersion, 2);
   assert.equal(next.revision, base.revision + 1);
-  assert.equal(practicalProfileFromLearnerState(next).mastery.schemaVersion, 4);
+  assert.equal(practicalProfileFromLearnerState(next).mastery.schemaVersion, 5);
   assert.ok(Object.keys(next.cards).some((id) => id.startsWith(PRACTICAL_PROFILE_LINEAGE_CARD_PREFIX)));
 });
 
@@ -35,12 +35,12 @@ test("local read and import preserve the practical profile inside the exported r
   const serialized = JSON.stringify(next);
   const local = readLocalLearnerState(serialized);
   assert.ok(local.state);
-  assert.equal(practicalProfileFromLearnerState(local.state).mastery.schemaVersion, 4);
+  assert.equal(practicalProfileFromLearnerState(local.state).mastery.schemaVersion, 5);
 
   const prepared = prepareLearnerStateImport(serialized, emptyLearnerState());
   assert.equal(prepared.ok, true);
   assert.ok(prepared.state);
-  assert.equal(practicalProfileFromLearnerState(prepared.state).mastery.schemaVersion, 4);
+  assert.equal(practicalProfileFromLearnerState(prepared.state).mastery.schemaVersion, 5);
 });
 
 test("pre-Practical import cannot silently replace a current Practical profile", () => {
