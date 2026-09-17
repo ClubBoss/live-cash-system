@@ -267,11 +267,9 @@ function validArchivedSkillProgress(skillId: string, value: unknown, archiveCoun
   return true;
 }
 
-function validAttemptArchive(value: unknown): value is PracticalAttemptArchive {
-  if (!isRecord(value) || value.version !== 2 || typeof value.count !== "number" || !Number.isInteger(value.count) || value.count < 0) return false;
+function validAttemptArchiveContents(value: Record<string, unknown>): boolean {
+  if (typeof value.count !== "number" || !Number.isInteger(value.count) || value.count < 0) return false;
   if (typeof value.digest !== "string" || !/^[0-9a-f]{16}$/u.test(value.digest)) return false;
-  if (typeof value.provenanceDigest !== "string" || !/^[0-9a-f]{16}$/u.test(value.provenanceDigest)) return false;
-  if (value.provenanceDigest !== practicalAttemptArchiveProvenanceDigest(value)) return false;
   if (!Array.isArray(value.recentDigests) || value.recentDigests.length > PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT || !value.recentDigests.every((digest) => typeof digest === "string" && /^[0-9a-f]{16}$/u.test(digest))) return false;
   if (!isRecord(value.bySkill) || !isRecord(value.latestByDecision) || !isRecord(value.latestCorrectOrdinalByDecision) || !isRecord(value.attemptCountByDecision)) return false;
   if (value.count === 0) {
@@ -345,8 +343,22 @@ function validAttemptArchive(value: unknown): value is PracticalAttemptArchive {
   return true;
 }
 
+function validAttemptArchive(value: unknown): value is PracticalAttemptArchive {
+  if (!isRecord(value) || value.version !== 2) return false;
+  if (typeof value.provenanceDigest !== "string" || !/^[0-9a-f]{16}$/u.test(value.provenanceDigest)) return false;
+  if (value.provenanceDigest !== practicalAttemptArchiveProvenanceDigest(value)) return false;
+  return validAttemptArchiveContents(value);
+}
+
+function validPreviousAttemptArchive(value: unknown): value is Record<string, unknown> {
+  return isRecord(value)
+    && value.version === 1
+    && !Object.prototype.hasOwnProperty.call(value, "provenanceDigest")
+    && validAttemptArchiveContents(value);
+}
+
 function upgradePreviousAttemptArchive(value: unknown): PracticalAttemptArchive | null {
-  if (!isRecord(value) || value.version !== 1 || Object.prototype.hasOwnProperty.call(value, "provenanceDigest")) return null;
+  if (!validPreviousAttemptArchive(value) || value.count !== 0) return null;
   const upgraded = structuredClone(value) as Record<string, unknown>;
   upgraded.version = 2;
   upgraded.provenanceDigest = practicalAttemptArchiveProvenanceDigest(upgraded);
@@ -445,6 +457,112 @@ function previousMasteryCurrentShape(value: unknown): PracticalMasteryState | nu
   next.schemaVersion = PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION;
   next.attemptArchive = attemptArchive;
   return next as unknown as PracticalMasteryState;
+}
+
+type PreviousCompactedIndependentSkillState = Pick<
+  PracticalSkillProgress,
+  "conceptTaught" | "conceptTaughtAt" | "retentionDaysPassed" | "delayedRetrievalPassed" | "realHandTransferReviewed"
+>;
+
+function previousCompactedIndependentSkillState(skillId: string, value: unknown): PreviousCompactedIndependentSkillState | null {
+  if (!isRecord(value) || value.skillId !== skillId || !practicalSkillById.has(skillId)) return null;
+  if (typeof value.conceptTaught !== "boolean") return null;
+  if (!(value.conceptTaughtAt === null || canonicalIso(value.conceptTaughtAt))) return null;
+  if (!Array.isArray(value.retentionDaysPassed) || !value.retentionDaysPassed.every((day) => typeof day === "number")) return null;
+  if (typeof value.delayedRetrievalPassed !== "boolean" || typeof value.realHandTransferReviewed !== "boolean") return null;
+  const seenTiers = new Set<number>();
+  for (const day of value.retentionDaysPassed) {
+    if (!RETENTION_TIER_SET.has(day) || seenTiers.has(day)) return null;
+    seenTiers.add(day);
+  }
+  for (let index = 1; index < value.retentionDaysPassed.length; index += 1) {
+    if (value.retentionDaysPassed[index] <= value.retentionDaysPassed[index - 1]) return null;
+  }
+  if (value.delayedRetrievalPassed && value.retentionDaysPassed.length === 0) return null;
+  if (value.realHandTransferReviewed && !value.delayedRetrievalPassed) return null;
+  return {
+    conceptTaught: value.conceptTaught,
+    conceptTaughtAt: value.conceptTaughtAt,
+    retentionDaysPassed: [...value.retentionDaysPassed],
+    delayedRetrievalPassed: value.delayedRetrievalPassed,
+    realHandTransferReviewed: value.realHandTransferReviewed,
+  };
+}
+
+// Schema-v4 compact archives did not commit their derived summary. Their discarded
+// attempt rows are information-theoretically unrecoverable, so migration must not
+// turn an internally consistent legacy summary into current evidence. Preserve the
+// retained raw tail exactly and reconstruct only evidence that tail can prove.
+// The uncommitted archive summary is intentionally dropped rather than re-signed.
+function previousCompactedMasteryFromProvableTail(value: unknown): PracticalMasteryState | null {
+  if (!isRecord(value) || value.schemaVersion !== PREVIOUS_PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION || !masteryHeaderAndSkills(value)) return null;
+  if (!validPreviousAttemptArchive(value.attemptArchive) || value.attemptArchive.count === 0) return null;
+  if (value.attempts.length > PRACTICAL_ATTEMPT_TAIL_LIMIT) return null;
+
+  const independentBySkill = new Map<string, PreviousCompactedIndependentSkillState>();
+  for (const skillId of CANONICAL_PRACTICAL_SKILL_IDS) {
+    const independent = previousCompactedIndependentSkillState(skillId, value.skills[skillId]);
+    if (!independent) return null;
+    independentBySkill.set(skillId, independent);
+  }
+
+  const contentVersion = value.contentVersion as string;
+  const revision = value.revision as number;
+  const updatedAt = value.updatedAt as string;
+  const resetFromLegacyAt = value.resetFromLegacyAt as string | null;
+  let rebuilt = createPracticalMasteryState(new Date(0));
+  rebuilt.contentVersion = contentVersion;
+  rebuilt.resetFromLegacyAt = resetFromLegacyAt;
+  for (const [skillId, independent] of independentBySkill) {
+    rebuilt.skills[skillId].conceptTaught = independent.conceptTaught;
+    rebuilt.skills[skillId].conceptTaughtAt = independent.conceptTaughtAt;
+    rebuilt.skills[skillId].evidenceStage = deriveEvidenceStage(rebuilt.skills[skillId]);
+  }
+
+  const attemptIds = new Set<string>();
+  for (const rawAttempt of value.attempts) {
+    if (!isSemanticallyValidPracticalAttempt(rawAttempt) || attemptIds.has(rawAttempt.id)) return null;
+    attemptIds.add(rawAttempt.id);
+    const priorProgress = structuredClone(rebuilt.skills[rawAttempt.skillId]);
+    rebuilt = recordPracticalDecision(rebuilt, {
+      decisionId: rawAttempt.decisionId,
+      actionId: rawAttempt.actionId,
+      reasonId: rawAttempt.reasonId,
+      confidence: rawAttempt.confidence,
+      confidenceProvenance: rawAttempt.confidenceProvenance ?? "NOT_CAPTURED",
+      now: new Date(rawAttempt.answeredAt),
+    });
+    rebuilt.attempts[rebuilt.attempts.length - 1] = structuredClone(rawAttempt);
+    if (!isCurrentEvidenceRow(rawAttempt) && /^PM-4BP-0[1-4]-A7-10[1-8]$/u.test(rawAttempt.decisionId)) {
+      const progress = rebuilt.skills[rawAttempt.skillId];
+      progress.correct = priorProgress.correct;
+      progress.recognitionCorrect = priorProgress.recognitionCorrect;
+      progress.directDecisionCorrect = priorProgress.directDecisionCorrect;
+      progress.changedCorrect = priorProgress.changedCorrect;
+      progress.boundaryCorrect = priorProgress.boundaryCorrect;
+      progress.mixedCorrect = priorProgress.mixedCorrect;
+      progress.successfulDecisionIds = [...priorProgress.successfulDecisionIds];
+      progress.lastIncorrectDecisionId = priorProgress.lastIncorrectDecisionId;
+      progress.evidenceStage = deriveEvidenceStage(progress);
+    }
+  }
+
+  for (const [skillId, independent] of independentBySkill) {
+    const progress = rebuilt.skills[skillId];
+    if (stageAtLeast(deriveEvidenceStage(progress), "BOUNDARY_TESTED")) {
+      progress.retentionDaysPassed = [...independent.retentionDaysPassed];
+      progress.delayedRetrievalPassed = independent.delayedRetrievalPassed;
+      progress.realHandTransferReviewed = independent.realHandTransferReviewed;
+    }
+    progress.evidenceStage = deriveEvidenceStage(progress);
+  }
+
+  rebuilt.schemaVersion = PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION;
+  rebuilt.contentVersion = contentVersion;
+  rebuilt.revision = revision;
+  rebuilt.updatedAt = updatedAt;
+  rebuilt.resetFromLegacyAt = resetFromLegacyAt;
+  return rebuilt;
 }
 
 function validPreviousMasteryState(value: unknown, options: CurrentProfileCompatibilityOptions = {}): boolean {
@@ -755,15 +873,29 @@ function reconcileEvidenceStagesToCurrent(profile: PracticalProfileState): { sta
 }
 
 function migratePreviousPracticalProfile(value: unknown): { state: PracticalProfileState; reconciled: boolean } | null {
-  if (!validPreviousPracticalProfileState(value, { allowPrevious4BpSemantic: true, allowPreA8EligibilityStage: true }) || !isRecord(value)) return null;
-  const mastery = previousMasteryCurrentShape(value.mastery);
+  if (!isRecord(value)
+    || value.version !== PRACTICAL_PROFILE_VERSION
+    || !Array.isArray(value.performance)
+    || value.performance.length > PRACTICAL_PERFORMANCE_LIMIT
+    || !validPerformanceEvents(value.performance, "CURRENT")
+    || !validStudyWorkspace(value.studyWorkspace)) return null;
+
+  const previousOptions = { allowPrevious4BpSemantic: true, allowPreA8EligibilityStage: true };
+  const tailOnlyPreviousValid = validPreviousPracticalProfileState(value, previousOptions);
+  const mastery = tailOnlyPreviousValid
+    ? previousMasteryCurrentShape(value.mastery)
+    : previousCompactedMasteryFromProvableTail(value.mastery);
   if (!mastery) return null;
+
+  const compactedArchiveDowngraded = !tailOnlyPreviousValid;
   let next = { ...structuredClone(value), mastery } as unknown as PracticalProfileState;
   next = reconcile4BpObjectiveSemanticRevision(next);
   const stageResult = reconcileEvidenceStagesToCurrent(next);
   next = stageResult.state;
   next.mastery.attemptArchive.provenanceDigest = practicalAttemptArchiveProvenanceDigest(next.mastery.attemptArchive as unknown as Record<string, unknown>);
-  return validCurrentPracticalProfileState(next) ? { state: next, reconciled: stageResult.reconciled } : null;
+  return validCurrentPracticalProfileState(next)
+    ? { state: next, reconciled: compactedArchiveDowngraded || stageResult.reconciled }
+    : null;
 }
 
 export function normalizePracticalProfileState(value: unknown): PracticalProfileNormalization | null {

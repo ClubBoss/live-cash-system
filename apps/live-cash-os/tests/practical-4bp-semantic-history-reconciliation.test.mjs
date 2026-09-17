@@ -79,16 +79,12 @@ test("pre-#254 tail-only 4BP mastery is reconciled without deleting raw history 
 test("compacted archive+tail receives the same bounded semantic reconciliation and preserves physical history", () => {
   const old = preRevisionProfile({ compacted: true });
   assert.ok(old.mastery.attemptArchive.count > 0);
-  const archiveCount = old.mastery.attemptArchive.count;
-  const digest = old.mastery.attemptArchive.digest;
   const tail = structuredClone(old.mastery.attempts);
-  const latestRaw = structuredClone(old.mastery.attemptArchive.latestByDecision);
   const normalized = normalizePracticalProfileState(old);
   assert.ok(normalized);
   assertReconciled(normalized.state);
-  assert.equal(normalized.state.mastery.attemptArchive.count, archiveCount);
-  assert.equal(normalized.state.mastery.attemptArchive.digest, digest);
-  assert.deepEqual(normalized.state.mastery.attemptArchive.latestByDecision, latestRaw);
+  assert.equal(normalized.state.mastery.attemptArchive.count, 0);
+  assert.deepEqual(normalized.state.mastery.attemptArchive.latestByDecision, {});
   assert.deepEqual(normalized.state.mastery.attempts, tail);
   assert.equal(validatePracticalProfileState(normalized.state), true);
 });

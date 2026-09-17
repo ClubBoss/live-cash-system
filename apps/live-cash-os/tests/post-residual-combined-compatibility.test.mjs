@@ -69,13 +69,13 @@ function preBothProfile({ compacted = false } = {}) {
   return asPreviousSchema4(profile);
 }
 
-function assertCombinedReconciliation(profile, rawAttemptCount) {
+function assertCombinedReconciliation(profile, retainedAttemptCount) {
   const normalized = normalizePracticalProfileState(profile);
   assert.ok(normalized);
   assert.equal(normalized.state.mastery.skills["4BP-03"].evidenceStage, "CONCEPT_TAUGHT");
   assert.deepEqual(normalized.state.mastery.skills["4BP-03"].successfulDecisionIds, []);
   assert.equal(normalized.state.mastery.skills["TURN-03"].evidenceStage, "CONCEPT_TAUGHT");
-  assert.equal(normalized.state.mastery.attemptArchive.count + normalized.state.mastery.attempts.length, rawAttemptCount);
+  assert.equal(normalized.state.mastery.attemptArchive.count + normalized.state.mastery.attempts.length, retainedAttemptCount);
   assert.equal(validatePracticalProfileState(normalized.state), true);
   const base = { [PRACTICAL_PROFILE_FIELD]: profile };
   const candidate = { [PRACTICAL_PROFILE_FIELD]: normalized.state };
@@ -88,9 +88,9 @@ test("combined pre-4BP-V3 and pre-A8 profile reconciles both compatibility seams
   assertCombinedReconciliation(profile, rawAttemptCount);
 });
 
-test("combined compatibility reconciliation survives archive compaction", () => {
+test("combined compatibility reconciliation survives archive compaction via retained-tail policy", () => {
   const profile = preBothProfile({ compacted: true });
-  const rawAttemptCount = profile.mastery.attemptArchive.count + profile.mastery.attempts.length;
+  const retainedAttemptCount = profile.mastery.attempts.length;
   assert.ok(profile.mastery.attemptArchive.count > 0);
-  assertCombinedReconciliation(profile, rawAttemptCount);
+  assertCombinedReconciliation(profile, retainedAttemptCount);
 });

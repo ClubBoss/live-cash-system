@@ -303,11 +303,10 @@ test("forged summary cannot become a safe successor or resurrect evidence", () =
   const forged = forgeArchivedMasterySummary(legitimate);
   assert.equal(practicalProfileSafeSuccessor(forged, legitimate), false);
   assert.equal(isSafeSuccessor(forged, legitimate), false);
-});test("pre-repair valid schema-v4 compacted profile migrates without raw-tail loss or unrelated-skill mutation", () => {
+});test("pre-repair valid schema-v4 compacted profile follows tail-proven downgrade without raw-tail loss", () => {
   const current = compactedSingleStimulusRoot();
   const previous = asPreviousSchema4(current);
   const tailBefore = JSON.stringify(previous._practicalProfile.mastery.attempts);
-  const digestBefore = previous._practicalProfile.mastery.attemptArchive.digest;
   const unrelatedBefore = JSON.stringify(previous._practicalProfile.mastery.skills["RIV-01"]);
 
   const normalized = normalizeCurrentLearnerState(previous);
@@ -315,7 +314,9 @@ test("forged summary cannot become a safe successor or resurrect evidence", () =
   assert.equal(normalized.practicalProfileReconciled, true);
   assert.equal(validateRootLearnerState(normalized.state), true);
   assert.equal(JSON.stringify(normalized.state._practicalProfile.mastery.attempts), tailBefore);
-  assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.digest, digestBefore);
+  assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.count, 0);
+  assert.deepEqual(normalized.state._practicalProfile.mastery.skills[SKILL].successfulDecisionIds, [RECOGNITION[0]]);
+  assert.equal(normalized.state._practicalProfile.mastery.skills[SKILL].evidenceStage, "CONCEPT_TAUGHT");
   assert.equal(JSON.stringify(normalized.state._practicalProfile.mastery.skills["RIV-01"]), unrelatedBefore);
   assert.equal(normalized.state._practicalProfile.mastery.schemaVersion, 5);
   assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.version, 2);
@@ -342,4 +343,69 @@ test("authority registry is ASCII-only and covers the current learner corpus wit
     assert.ok(authority.evidenceFamilyId.length > 0);
     assert.ok(authority.scenarioId.length > 0);
   }
+});
+test("forged schema-v4 compact summary cannot survive tail-proven migration", () => {
+  const forgedV4 = asPreviousSchema4(forgeArchivedMasterySummary(compactedSingleStimulusRoot()));
+  const tailBefore = JSON.stringify(forgedV4._practicalProfile.mastery.attempts);
+  assert.equal(forgedV4._practicalProfile.mastery.skills[SKILL].evidenceStage, "BOUNDARY_TESTED");
+
+  const prepared = prepareLearnerStateImport(JSON.stringify(forgedV4), emptyLearnerState());
+  assert.equal(prepared.ok, true);
+  assert.equal(prepared.migrated, true);
+  const importedMastery = prepared.state._practicalProfile.mastery;
+  assert.equal(importedMastery.skills[SKILL].evidenceStage, "CONCEPT_TAUGHT");
+  assert.deepEqual(importedMastery.skills[SKILL].successfulDecisionIds, [RECOGNITION[0]]);
+  assert.equal(importedMastery.attemptArchive.count, 0);
+  assert.equal(JSON.stringify(importedMastery.attempts), tailBefore);
+
+  const normalized = normalizeCurrentLearnerState(forgedV4);
+  assert.ok(normalized);
+  assert.equal(normalized.state._practicalProfile.mastery.skills[SKILL].evidenceStage, "CONCEPT_TAUGHT");
+  assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.count, 0);
+});
+
+test("legitimate non-compacted schema-v4 migration keeps fully provable tail evidence", () => {
+  let profile = createPracticalProfileState(new Date("2026-09-18T05:00:00Z"));
+  profile.mastery = markPracticalConceptTaught(
+    profile.mastery,
+    SKILL,
+    new Date("2026-09-18T05:00:01Z"),
+  );
+  profile.mastery = answerCorrect(profile.mastery, RECOGNITION[0], 10);
+  profile.mastery = answerCorrect(profile.mastery, RECOGNITION[1], 11);
+  const root = withPracticalProfile(emptyLearnerState(), profile, new Date("2026-09-18T05:01:00Z"));
+  const previous = asPreviousSchema4(root);
+  const tailBefore = JSON.stringify(previous._practicalProfile.mastery.attempts);
+  assert.equal(previous._practicalProfile.mastery.attemptArchive.count, 0);
+
+  const normalized = normalizeCurrentLearnerState(previous);
+  assert.ok(normalized);
+  assert.equal(normalized.state._practicalProfile.mastery.schemaVersion, 5);
+  assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.version, 2);
+  assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.count, 0);
+  assert.equal(JSON.stringify(normalized.state._practicalProfile.mastery.attempts), tailBefore);
+  assert.equal(normalized.state._practicalProfile.mastery.skills[SKILL].evidenceStage, "RECOGNITION_TRAINED");
+});
+
+test("schema-v4 compact downgrade is idempotent and safe-successor compatible", () => {
+  const previous = asPreviousSchema4(compactedSingleStimulusRoot());
+  const once = normalizeCurrentLearnerState(previous);
+  assert.ok(once);
+  const twice = normalizeCurrentLearnerState(once.state);
+  assert.ok(twice);
+  assert.equal(JSON.stringify(twice.state), JSON.stringify(once.state));
+  assert.equal(practicalProfileSafeSuccessor(once.state, previous), true);
+  const forged = normalizeCurrentLearnerState(asPreviousSchema4(forgeArchivedMasterySummary(compactedSingleStimulusRoot())));
+  assert.ok(forged);
+  assert.equal(JSON.stringify(forged.state), JSON.stringify(once.state));
+  assert.equal(isSafeSuccessor(forged.state, once.state), true);
+});
+
+test("current schema-v5 compact profiles remain byte-stable under normalization", () => {
+  const current = compactedSingleStimulusRoot();
+  const normalized = normalizeCurrentLearnerState(current);
+  assert.ok(normalized);
+  assert.equal(normalized.practicalProfileReconciled, false);
+  assert.equal(JSON.stringify(normalized.state), JSON.stringify(current));
+  assert.equal(normalized.state._practicalProfile.mastery.attemptArchive.count, 129);
 });
