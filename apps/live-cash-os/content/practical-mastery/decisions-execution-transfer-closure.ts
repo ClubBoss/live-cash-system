@@ -237,8 +237,8 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     questionEn: "Who actually benefits from the pairing in this branch?",
     actionOptions: [
       o("a", "Нужно заново оценить владение сетами и трипсами по обоим диапазонам, а не просто объявить доску более сильной", "Both ranges' set/trips ownership must be reassessed, not just declaring the board 'stronger'"),
-      o("b", "Спаривание всегда автоматически усиливает диапазон агрессора", "A pairing always automatically strengthens the aggressor's range", "PAIR_AS_POLARIZATION"),
-      o("c", "Спаривание всегда означает поляризацию диапазона коллера", "A pairing always means the caller's range becomes polarized", "PAIR_AS_POLARIZATION"),
+      o("b", "Спаривание всегда автоматически усиливает диапазон агрессора", "The aggressor benefits because the pairing should be treated as a range-wide boost without recounting trips or full houses", "PAIR_AS_POLARIZATION"),
+      o("c", "Спаривание всегда означает поляризацию диапазона коллера", "The caller benefits because the paired turn should be read as polarizing the call range before checking which trips or full houses each side reaches", "PAIR_AS_POLARIZATION"),
     ],
     reasonOptions: [
       o("r1", "Спаренная доска сама по себе меняет только размер банка", "A paired board by itself only changes the pot size", "RUNOUT_MISCLASSIFIED"),
@@ -480,7 +480,7 @@ export const executionTransferClosureDecisions: PracticalDecision[] = [
     questionEn: "How does AA's relative role change compared with K72 in position at a shallow SPR?",
     actionOptions: [
       o("a", "Не меняется — AA остаётся абсолютным оверпэром в обоих случаях и разыгрывается одинаково", "It does not change — AA remains an absolute overpair in both cases and plays the same way", "ABSOLUTE_HAND_ONLY"),
-      o("b", "AA остаётся оверпэром по названию, но становится более уязвимой рукой: доска связана и на две масти, Hero не в позиции, а глубокий SPR повышает цену ошибки при автоматическом наращивании банка", "AA is still an overpair by name, but becomes a more vulnerable hand: the board is connected and two-toned, Hero is out of position, and deep SPR raises the cost of automatically building the pot"),
+      o("b", "AA остаётся оверпэром по названию, но становится более уязвимой рукой: доска связана и на две масти, Hero не в позиции, а глубокий SPR повышает цену ошибки при автоматическом наращивании банка", "AA is still an overpair by name, but becomes more vulnerable: the board is connected and two-toned, Hero is out of position, and deep SPR raises the cost of building the pot without reassessing"),
       o("c", "AA становится однозначно более сильной рукой, потому что глубокий SPR всегда увеличивает ценность пар", "AA becomes unambiguously stronger, because deep SPR always increases the value of pairs", "DEPTH_MISREAD"),
     ],
     reasonOptions: [

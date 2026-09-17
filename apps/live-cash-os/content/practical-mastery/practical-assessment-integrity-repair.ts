@@ -9,6 +9,96 @@ type DecisionRepair = {
   reasonOptions?: Record<string, OptionRepair>;
 };
 
+const generatedReasonRepairs: Record<string, Pick<PracticalDecisionOption, "textRu" | "textEn">> = {
+  HISTORY_IGNORED: {
+    textRu: "Если известны текущая цена и класс руки, предыдущую линию можно не учитывать при восстановлении сохранившегося диапазона",
+    textEn: "Once current price and hand class are known, prior action can be ignored when reconstructing the surviving range",
+  },
+  GEOMETRY_IGNORED: {
+    textRu: "Если класс руки игрока не изменился, глубина, число игроков и относительная позиция не должны менять выбор ветки",
+    textEn: "If Hero's hand class is unchanged, depth, player count, and relative position should not change the branch choice",
+  },
+  ARCHETYPE_AS_EVIDENCE: {
+    textRu: "Если одно наблюдение похоже на тип игрока, этого достаточно, чтобы переносить рид на соседние ветки",
+    textEn: "If one observation fits a player type, that is enough to carry the read into nearby branches",
+  },
+};
+
+type LocalizedReason = Pick<PracticalDecisionOption, "textRu" | "textEn">;
+
+const skillReasonRepairs: Record<string, Partial<Record<PracticalDecision["kind"], LocalizedReason>>> = {
+  "TURN-02": {
+    recognition: {
+      textRu: "Второй баррель зависит от карты тёрна, сохранившихся диапазонов и класса руки игрока",
+      textEn: "A turn barrel depends on the runout, surviving ranges, and Hero's hand class",
+    },
+    decision: {
+      textRu: "Продолжать давление стоит только когда класс руки и карта тёрна поддерживают второй баррель",
+      textEn: "Continue only when the value or bluff class and runout support pressure",
+    },
+    changed: {
+      textRu: "Новая карта или сдвиг диапазонов меняют давление и набор подходящих вторых баррелей",
+      textEn: "A runout or range shift changes leverage and which hands should barrel",
+    },
+    boundary: {
+      textRu: "Ставка на флопе не обязывает автоматически ставить второй баррель на тёрне",
+      textEn: "A flop bet does not obligate a turn barrel",
+    },
+  },
+  "RIV-03": {
+    recognition: {
+      textRu: "Блафф-кэтч зависит от цены, правдоподобных блефов после линии и блокеров",
+      textEn: "A bluff-catch depends on price, credible bluffs after the line, and removal",
+    },
+    decision: {
+      textRu: "Колл нужен только когда оставшихся блефов достаточно для текущей цены",
+      textEn: "Call only when surviving bluff supply is sufficient for the current price",
+    },
+    changed: {
+      textRu: "Предыдущая линия и блокеры меняют число блефов даже при той же цене",
+      textEn: "Line ancestry or removal changes bluff supply even at the same price",
+    },
+    boundary: {
+      textRu: "Хорошая цена сама не требует колла, если правдоподобных блефов недостаточно",
+      textEn: "A good price alone does not force a call without enough credible bluffs",
+    },
+  },
+};
+
+const generatedCorrectReasonByCluster: Record<string, Pick<PracticalDecisionOption, "textRu" | "textEn">> = {
+  A8: {
+    textRu: "Текущий узел зависит от предыдущей линии, сохранившихся диапазонов и цены, а не только от ярлыка ситуации",
+    textEn: "The current node depends on ancestry, surviving ranges, and price rather than the situation label alone",
+  },
+  A9: {
+    textRu: "Геометрия живой игры меняет доступные ветки и их ценность, даже когда карты игрока те же",
+    textEn: "Live geometry changes the available branches and their EV even when Hero's cards stay the same",
+  },
+  A10: {
+    textRu: "Отклонение от базовой стратегии должно быть привязано к конкретной ветке и силе повторяющихся наблюдений",
+    textEn: "An exploit should stay scoped to the exact branch and the strength of repeated evidence",
+  },
+};
+
+function applyGeneratedReasonRepairs(decision: PracticalDecision): PracticalDecision {
+  const cluster = decision.id.match(/-(A8|A9|A10)-10[1-8]$/u)?.[1];
+  const skillReason = decision.learnerEligibility === "INTERNAL_ONLY"
+    ? undefined
+    : skillReasonRepairs[decision.skillId]?.[decision.kind];
+  if (!cluster && !skillReason) return decision;
+  return {
+    ...decision,
+    reasonOptions: decision.reasonOptions.map((option) => {
+      if (option.id === decision.correctReasonId) {
+        if (cluster) return { ...option, ...generatedCorrectReasonByCluster[cluster] };
+        if (skillReason) return { ...option, ...skillReason };
+      }
+      const next = cluster && option.misconception ? generatedReasonRepairs[option.misconception] : undefined;
+      return next ? { ...option, ...next } : option;
+    }),
+  };
+}
+
 const repairs: Record<string, DecisionRepair> = {
   "PM-BL-03-103": {
     questionRu: "Какой вывод лучше против широкого диапазона небольшого опен-рейза BTN?",
@@ -104,13 +194,14 @@ function applyOptions(options: PracticalDecisionOption[], repair?: Record<string
 }
 
 export function applyPracticalAssessmentIntegrityRepair(decision: PracticalDecision): PracticalDecision {
-  const repair = repairs[decision.id];
-  if (!repair) return decision;
+  const generated = applyGeneratedReasonRepairs(decision);
+  const repair = repairs[generated.id];
+  if (!repair) return generated;
   return {
-    ...decision,
+    ...generated,
     questionRu: repair.questionRu,
     questionEn: repair.questionEn,
-    actionOptions: applyOptions(decision.actionOptions, repair.actionOptions),
-    reasonOptions: applyOptions(decision.reasonOptions, repair.reasonOptions),
+    actionOptions: applyOptions(generated.actionOptions, repair.actionOptions),
+    reasonOptions: applyOptions(generated.reasonOptions, repair.reasonOptions),
   };
 }
