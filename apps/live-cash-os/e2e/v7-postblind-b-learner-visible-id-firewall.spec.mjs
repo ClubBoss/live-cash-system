@@ -24,8 +24,8 @@ async function expectCausalFeedbackPreserved(page, routeLabel, locale) {
 }
 
 async function switchMainLocale(page, locale) {
-  const main = page.getByRole("main");
-  await main.getByRole("button", { name: locale.toUpperCase(), exact: true }).click();
+  const nav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await nav.getByRole("button", { name: locale.toUpperCase(), exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", locale);
 }
 
