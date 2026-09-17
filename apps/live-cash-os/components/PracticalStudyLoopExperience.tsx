@@ -45,7 +45,7 @@ function currentMistakePresentation(
 }
 
 export default function PracticalStudyLoopExperience() {
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   const { mastery, studyWorkspace: workspace, setStudyWorkspace, ready, recoveryBlocked } = usePracticalProfileState();
 
   // An active, valid, incomplete round outranks starting an unrelated fresh
@@ -75,7 +75,6 @@ export default function PracticalStudyLoopExperience() {
       <h1>{locale === "ru" ? "Играй → разбирай → исправляй → проверяй снова" : "Play → review → repair → retest"}</h1>
       <p className="lede">{locale === "ru" ? "Это не второй курс и не отдельная оценка. Раздел берёт реальные ошибки из твоего прогресса и превращает их в следующий короткий цикл работы." : "This is not a second course or a separate score. It uses your current mistakes to build the next short review cycle."}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
         <Link className="secondary" href="/mastery">← {locale === "ru" ? "Карта навыков" : "Skill map"}</Link>
         <Link className="secondary" href={testRepairHref}>{locale === "ru" ? "Проверить исправление" : "Test the repair"} →</Link>
       </div>

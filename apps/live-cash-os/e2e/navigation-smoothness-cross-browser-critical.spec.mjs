@@ -116,7 +116,7 @@ test("keyboard navigation and the historical prerequisite CTA use the reliable c
 
   await page.getByRole("link", { name: "Чтение стола", exact: true }).click();
   await expect(page).toHaveURL(/\/mastery\/perception$/);
-  const start = page.getByRole("link", { name: /Старт обучения/i });
+  const start = page.getByRole("link", { name: /Быстрый старт/i });
   await expect(start).toBeVisible();
   await start.click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);

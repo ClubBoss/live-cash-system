@@ -112,7 +112,7 @@ test("RU/EN changes presentation only while manual exact resolution and durable 
   await expect(page.locator('[data-manual-resolution="exact-focus"]')).toBeVisible();
   const before = await learnerStateJson(page);
 
-  await page.locator("main .mode-switch").getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("navigation", { name: "Practical Mastery navigation" }).getByRole("button", { name: "EN", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Choose what to improve next/i })).toBeVisible();
   await expect(page.locator('[data-manual-resolution="exact-focus"]')).toBeVisible();
   const after = await learnerStateJson(page);

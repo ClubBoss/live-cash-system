@@ -12,14 +12,13 @@ function statusLabel(status: ReferenceBaselineStatus, locale: Locale): string {
 }
 
 export default function PracticalReferenceExperience() {
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   return <main style={{ maxWidth: 980, margin: "0 auto", padding: "28px 20px 60px" }}>
     <section className="hero compact-hero">
       <p className="eyebrow">{locale === "ru" ? "ОРИЕНТИРЫ ДИАПАЗОНОВ" : "RANGE REFERENCES"}</p>
       <h1>{locale === "ru" ? "Не запоминать сотни картинок. Видеть форму диапазона и то, что её меняет." : "Do not memorize hundreds of charts. See the range shape and what changes it."}</h1>
       <p className="lede">{locale === "ru" ? "Здесь собраны проверенные префлоп-ориентиры. Они помогают видеть форму диапазона и направление поправки, но не выдают ещё не проверенные чарты за точные частоты и границы рук." : "These are reviewed preflop reference shapes. They show the direction of a range and how key conditions change it without pretending unverified charts provide exact hand frequencies."}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
         <Link className="secondary" href="/mastery">← {locale === "ru" ? "Карта навыков" : "Skill map"}</Link>
         <Link className="secondary" href="/mastery/study">{locale === "ru" ? "Разбор и работа над игрой" : "Study loop"} →</Link>
       </div>

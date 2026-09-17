@@ -123,7 +123,7 @@ test("top navigation and prerequisite CTA reach deterministic learner destinatio
   await expect(page).toHaveURL(/\/mastery\/perception$/);
   await expect(page.getByRole("heading", { name: /Сначала познакомься с механизмами/i })).toBeVisible();
 
-  const start = page.getByRole("link", { name: /Старт обучения/i });
+  const start = page.getByRole("link", { name: /Быстрый старт/i });
   await expect(start).toBeVisible();
   await start.click();
   await expect(page).toHaveURL(/\/mastery\/journey$/);

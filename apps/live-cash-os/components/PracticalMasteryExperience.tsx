@@ -15,6 +15,7 @@ import {
 } from "../lib/practical-mastery-core";
 import { primaryPracticalLearnerSkills } from "../lib/practical-learner-skill-set";
 import { practicalSkillProgressTransparency, type PracticalSkillProgressCategoryKey } from "../lib/practical-skill-transparency";
+import { effectivePracticalLearnerTarget, practicalEvidenceLabel } from "../lib/practical-learner-labels";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalNextLearningLink from "./PracticalNextLearningLink";
@@ -41,22 +42,22 @@ const waveLabels: Record<string, { ru: string; en: string }> = {
 
 const progressCategoryLabels: Record<Locale, Record<PracticalSkillProgressCategoryKey, string>> = {
   ru: {
-    CONCEPT: "понять механизм",
+    CONCEPT: "познакомиться с механизмом",
     RECOGNITION: "распознавать разные ситуации",
     INDEPENDENT_DECISION: "принимать разные самостоятельные решения",
     CHANGED_CONDITIONS: "переносить решение на изменённые условия",
     BOUNDARY: "проверить границы правила",
     DELAYED_RECALL: "вернуться к навыку после паузы",
-    REAL_HAND: "разобрать применение в реальной руке",
+    REAL_HAND: "подтвердить применение в разобранной реальной руке",
   },
   en: {
-    CONCEPT: "understand the mechanism",
+    CONCEPT: "be introduced to the mechanism",
     RECOGNITION: "recognize distinct situations",
     INDEPENDENT_DECISION: "make distinct independent decisions",
     CHANGED_CONDITIONS: "transfer the decision to changed conditions",
     BOUNDARY: "test the rule boundary",
     DELAYED_RECALL: "retrieve the skill after a delay",
-    REAL_HAND: "review application in a real hand",
+    REAL_HAND: "confirm application in a reviewed real hand",
   },
 };
 
@@ -65,32 +66,6 @@ const learnerSkillFamilies = primaryPracticalLearnerSkills();
 function waveLabel(wave: string, locale: Locale): string {
   const label = waveLabels[wave];
   return label ? (locale === "ru" ? label.ru : label.en) : (locale === "ru" ? "Другие навыки" : "Other skills");
-}
-
-function evidenceLabel(locale: Locale, stage: string): string {
-  const labels: Record<Locale, Record<string, string>> = {
-    ru: {
-      SOURCE_SUPPORTED: "не начато",
-      CONCEPT_TAUGHT: "механизм изучен",
-      RECOGNITION_TRAINED: "распознавание отработано",
-      DECISION_TRAINED: "решения отработаны",
-      CHANGED_NODE_TRANSFER: "перенос на новые условия",
-      BOUNDARY_TESTED: "границы правила проверены",
-      DELAYED_RETRIEVAL: "сохраняется после паузы",
-      REAL_HAND_TRANSFER: "применён в реальной руке",
-    },
-    en: {
-      SOURCE_SUPPORTED: "not started",
-      CONCEPT_TAUGHT: "mechanism introduced",
-      RECOGNITION_TRAINED: "spot recognition practiced",
-      DECISION_TRAINED: "decisions practiced",
-      CHANGED_NODE_TRANSFER: "works in changed conditions",
-      BOUNDARY_TESTED: "rule boundaries checked",
-      DELAYED_RETRIEVAL: "recalled after a delay",
-      REAL_HAND_TRANSFER: "applied in a reviewed real hand",
-    },
-  };
-  return labels[locale][stage] ?? (locale === "ru" ? "статус уточняется" : "status pending");
 }
 
 function skillTitle(skill: PracticalSkillFamily, locale: Locale): string {
@@ -102,7 +77,7 @@ function skillObjective(skill: PracticalSkillFamily, locale: Locale): string {
 }
 
 export default function PracticalMasteryExperience() {
-  const [locale, setLocale] = usePracticalLocale();
+  const [locale] = usePracticalLocale();
   const {
     mastery: state,
     studyWorkspace,
@@ -132,8 +107,9 @@ export default function PracticalMasteryExperience() {
 
   const skill = learnerSkillFamilies.find((candidate) => candidate.id === selectedSkillId) ?? learnerSkillFamilies[0];
   const progress = state.skills[skill.id];
-  const transparency = practicalSkillProgressTransparency(state, skill.id, skill.targetEvidenceStage);
   const gap = practicalSourceGapBySkillId.get(skill.id);
+  const effectiveTarget = effectivePracticalLearnerTarget(skill.id, skill.targetEvidenceStage);
+  const transparency = practicalSkillProgressTransparency(state, skill.id, effectiveTarget.stage);
   const hardPrerequisiteIds = hardDependenciesFor(skill.id).map((dependency) => dependency.fromSkillId);
   const hardPrerequisiteTitles = hardPrerequisiteIds
     .map((id) => learnerSkillFamilies.find((candidate) => candidate.id === id))
@@ -182,7 +158,6 @@ export default function PracticalMasteryExperience() {
       <h1>{locale === "ru" ? "Смотри прогресс." : "See your progress."}<br /><em>{locale === "ru" ? "Учись через один маршрут." : "Learn through one route."}</em></h1>
       <p className="lede">{locale === "ru" ? "Карта показывает, что уже получается и что ещё нужно закрепить. Она не является отдельным курсом: для обучения и практики используй «Продолжить обучение»." : "The map shows what is working and what still needs reinforcement. It is not a separate course: use Continue learning for teaching and practice."}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <div className="mode-switch"><button aria-pressed={locale === "ru"} onClick={() => setLocale("ru")}>RU</button><button aria-pressed={locale === "en"} onClick={() => setLocale("en")}>EN</button></div>
         <PracticalNextLearningLink className="primary" />
       </div>
       <p className="support">{locale === "ru" ? (cloudMode === "cloud" ? "Прогресс сохраняется в облаке" : "Прогресс сохраняется на устройстве") : (cloudMode === "cloud" ? "Progress is saved to the cloud" : "Progress is saved on this device")}</p>
@@ -229,12 +204,14 @@ export default function PracticalMasteryExperience() {
           const itemProgress = state.skills[item.id];
           const locked = !availableIds.has(item.id);
           const status = itemGap?.status === "SOURCE_BLOCKED"
-            ? (locale === "ru" ? "ограничено" : "limited")
+            ? (locale === "ru" ? "ограничено источником" : "source-limited")
+            : itemGap?.status === "PARTIAL"
+              ? `${locale === "ru" ? "частичный источник" : "partial source"} · ${practicalEvidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED")}`
             : repairIds.has(item.id)
               ? (locale === "ru" ? "повторить" : "repair")
               : locked
                 ? (locale === "ru" ? "пока закрыто" : "locked")
-                : evidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED");
+                : practicalEvidenceLabel(locale, itemProgress?.evidenceStage ?? "SOURCE_SUPPORTED");
           return <button key={item.id} data-practical-skill-id={item.id} className={item.id === skill.id ? "primary" : "secondary"} onClick={() => setSelectedSkillId(item.id)} style={{ opacity: locked ? 0.62 : 1 }}>{skillTitle(item, locale)} · {status}</button>;
         })}</div>
       </details>)}
@@ -244,7 +221,7 @@ export default function PracticalMasteryExperience() {
       <p className="eyebrow">{locale === "ru" ? "ВЫБРАННЫЙ НАВЫК" : "SELECTED SKILL"}</p>
       <h1>{skillTitle(skill, locale)}</h1>
       <p>{skillObjective(skill, locale)}</p>
-      <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{evidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: {evidenceLabel(locale, skill.targetEvidenceStage)}</p>
+      <p className="support">{locale === "ru" ? "Сейчас" : "Current"}: <b>{practicalEvidenceLabel(locale, progress?.evidenceStage ?? "SOURCE_SUPPORTED")}</b> · {locale === "ru" ? "Цель" : "Goal"}: <b>{practicalEvidenceLabel(locale, effectiveTarget.stage)}</b>{effectiveTarget.sourceLimited ? <> · <b>{locale === "ru" ? "ограничено доступным источником" : "source-limited"}</b></> : null}</p>
 
       <div className="today-card" style={{ marginTop: 14 }}>
         <p className="eyebrow">{locale === "ru" ? "КАК РАСТЁТ ЭТОТ НАВЫК" : "HOW THIS SKILL ADVANCES"}</p>
@@ -268,13 +245,17 @@ export default function PracticalMasteryExperience() {
 
       <div className="today-card" style={{ marginTop: 18 }}>
         <p className="eyebrow">{locale === "ru" ? "ЧТО ДЕЛАТЬ ДАЛЬШЕ" : "WHAT TO DO NEXT"}</p>
-        <p>{locale === "ru"
-          ? repairIds.has(skill.id)
-            ? "Этот навык стоит повторить. Основной маршрут сам вернёт нужную задачу и не засчитает исправление как удержание после паузы."
-            : "Продолжай через основной маршрут: он сам решит, нужен новый механизм, самостоятельная задача, изменённые условия или повторение после паузы."
-          : repairIds.has(skill.id)
-            ? "This skill needs repair. The primary route will bring back the right item without pretending an immediate repair is delayed retention."
-            : "Continue through the primary route; it will choose whether you need teaching, an independent decision, changed conditions, or delayed review."}</p>
+        <p>{effectiveTarget.sourceLimited
+          ? (locale === "ru"
+            ? "Для этого навыка продукт не назначает следующий доказательный шаг выше доступного уровня источника. Основной маршрут продолжит работу только с теми навыками, для которых есть достаточная опора."
+            : "For this skill, the product does not assign an evidence step beyond the available source level. The primary route continues only with skills that have sufficient authority.")
+          : locale === "ru"
+            ? repairIds.has(skill.id)
+              ? "Этот навык стоит повторить. Основной маршрут сам вернёт нужную задачу и не засчитает исправление как удержание после паузы."
+              : "Продолжай через основной маршрут: он сам решит, нужен новый механизм, самостоятельная задача, изменённые условия или повторение после паузы."
+            : repairIds.has(skill.id)
+              ? "This skill needs repair. The primary route will bring back the right item without pretending an immediate repair is delayed retention."
+              : "Continue through the primary route; it will choose whether you need teaching, an independent decision, changed conditions, or delayed review."}</p>
         <PracticalNextLearningLink className="primary" />
       </div>
     </section>

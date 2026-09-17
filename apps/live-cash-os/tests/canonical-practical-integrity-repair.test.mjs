@@ -14,6 +14,7 @@ const selectedFeedback = await read("lib/practical-selected-decision-feedback.ts
 const feedbackCopy = await read("content/practical-mastery/practical-decision-feedback-copy.ts");
 const reference = await read("components/PracticalReferenceExperience.tsx");
 const mastery = await read("components/PracticalMasteryExperience.tsx");
+const learnerLabels = await read("lib/practical-learner-labels.ts");
 const journey = await read("components/PracticalFirstJourneyExperience.tsx");
 const nextLink = await read("components/PracticalNextLearningLink.tsx");
 const adaptive = await read("lib/practical-adaptive-session.ts");
@@ -56,9 +57,10 @@ test("incorrect practical feedback names canonical action and reason without cha
 });
 
 test("Practical learner copy maps internal status language and keeps EN objectives distinct from titles", () => {
-  assert.match(mastery, /function evidenceLabel/);
-  assert.match(mastery, /mechanism introduced/);
-  assert.match(mastery, /recalled after a delay/);
+  assert.match(learnerLabels, /function practicalEvidenceLabel/);
+  assert.match(learnerLabels, /mechanism introduced/);
+  assert.match(learnerLabels, /recalled after a delay/);
+  assert.match(mastery, /practicalEvidenceLabel/);
   assert.doesNotMatch(mastery, /stage\.toLowerCase/);
   assert.doesNotMatch(mastery, /syncStatus/);
   assert.doesNotMatch(mastery, /skill\.objectiveRu\s*:\s*skill\.titleEn/);
