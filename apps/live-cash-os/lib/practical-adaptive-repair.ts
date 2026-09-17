@@ -1,5 +1,6 @@
 import { allPracticalTableStates, practicalDecisionById, practicalRepDepthTargetForSkill, type PracticalDecision } from "../content/practical-mastery";
-import { isCurrentPracticalEvidenceAttempt, isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
+import { isCurrentPracticalEvidenceAttempt, latestAttemptsByDecision, type PracticalMasteryState } from "./practical-mastery-core";
 import { practicalEvidenceFamilyId } from "./practical-stimulus-identity";
 
 export type PracticalRepairNeed = "RECOGNITION" | "MECHANISM" | "TRANSFER" | "BOUNDARY" | "AUTOMATICITY" | "UNDEREXPOSED" | "NONE";
@@ -9,8 +10,8 @@ export type PracticalAdaptiveNeed = { skillId:string; need:PracticalRepairNeed; 
 // The truly-latest row on this skill must itself be valid, or this returns
 // null rather than falling back to an older attempt (a malformed latest must
 // shadow the older evidence it superseded, not reveal it).
-function latestSkillAttempt(state:PracticalMasteryState,skillId:string){const attempt=[...state.attempts].reverse().find((candidate)=>candidate.skillId===skillId)??null;return attempt&&isCurrentPracticalEvidenceAttempt(attempt)?attempt:null;}
-function successfulIds(state:PracticalMasteryState,skillId:string,kinds:PracticalDecision["kind"][]){return new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&attempt.correct&&isSemanticallyValidPracticalAttempt(attempt)).flatMap((attempt)=>{const d=practicalDecisionById.get(attempt.decisionId);return d&&kinds.includes(d.kind)?[practicalEvidenceFamilyId(d)]:[];})).size;}
+function latestSkillAttempt(state:PracticalMasteryState,skillId:string){const attempt=[...latestAttemptsByDecision(state,skillId).values()].at(-1)??null;return attempt&&isCurrentPracticalEvidenceAttempt(attempt)?attempt:null;}
+function successfulIds(state:PracticalMasteryState,skillId:string,kinds:PracticalDecision["kind"][]){return new Set((state.skills[skillId]?.successfulDecisionIds??[]).flatMap((decisionId)=>{const d=practicalDecisionById.get(decisionId);return d&&kinds.includes(d.kind)?[practicalEvidenceFamilyId(d)]:[];})).size;}
 function perceptualAvailable(skillId:string){return allPracticalTableStates.some((table)=>practicalDecisionById.get(table.decisionId)?.skillId===skillId);}
 
 export function classifyPracticalAdaptiveNeed(state:PracticalMasteryState,skillId:string,performance:PracticalPerformanceSample[]=[]):PracticalAdaptiveNeed{
@@ -19,7 +20,7 @@ export function classifyPracticalAdaptiveNeed(state:PracticalMasteryState,skillI
   const latest=latestSkillAttempt(state,skillId);
   if(latest&&!latest.correct){
     const decision=practicalDecisionById.get(latest.decisionId);
-    const confidenceBonus=latest.confidence>=75?20:8;
+    const confidenceBonus=hasHighPracticalSelfReportedConfidence(latest,75)?20:8;
     const actionCorrect=decision?latest.actionId===decision.correctActionId:false;
     const reasonCorrect=decision?latest.reasonId===decision.correctReasonId:false;
     if(decision?.kind==="recognition") return {skillId,need:"RECOGNITION",priority:110+confidenceBonus,preferredKinds:["recognition","changed"],preferPerceptual:perceptualAvailable(skillId),reason:"Latest recognition miss: repair cue extraction before adding complexity."};

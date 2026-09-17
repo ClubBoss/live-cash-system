@@ -28,7 +28,7 @@ test("Reference and Real Hands keep internal metadata and migration history behi
   await expect(referenceMain).toContainText("В этой группе много разных конфигураций");
   await expect(referenceMain).not.toContainText("980 проиндексированных сценариев");
 
-  await referenceMain.getByRole("button", { name: "EN", exact: true }).click();
+  await page.getByRole("navigation", { name: "Practical Mastery navigation" }).getByRole("button", { name: "EN", exact: true }).click();
   await expectLearnerSafe(page);
   await expect(referenceMain).toContainText("Exact frequencies are not established here yet");
   await expect(referenceMain).toContainText("This reference family contains many distinct configurations");

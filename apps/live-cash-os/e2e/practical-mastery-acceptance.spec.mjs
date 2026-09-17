@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { practicalDecisionById } from "../content/practical-mastery/index.ts";
+import { reachPersistedSkillTargets } from "./practical-fixture-authority.mjs";
 
 const LEARNER_KEY = "live-cash-os:learner-state";
 const crossMatrix = process.env.LIVE_CASH_MASTERY_CROSS === "1";
@@ -78,7 +79,7 @@ test("Practical Mastery remains usable at phone width", async ({ page }) => {
   }
 });
 
-test("Quick Start teaches the mechanism before scored practice and writes schema-v3 concept evidence", async ({ page }) => {
+test("Quick Start teaches the mechanism before scored practice and writes schema-v4 concept evidence", async ({ page }) => {
   test.skip(crossMatrix, "state semantics are covered once in canonical Chromium");
   await page.goto("/mastery/journey");
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
@@ -94,7 +95,7 @@ test("Quick Start teaches the mechanism before scored practice and writes schema
     if (!raw) return null;
     const root = JSON.parse(raw);
     return { rootSchema: root.schemaVersion, practicalSchema: root._practicalProfile?.mastery?.schemaVersion, conceptTaught: root._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught };
-  }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 3, conceptTaught: true });
+  }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 4, conceptTaught: true });
   await expect(page.getByText("ТЕПЕРЬ ТЫ", { exact: true })).toBeVisible();
 
   await page.goto("/mastery");
@@ -190,6 +191,24 @@ test("BvB 3-bet source ceiling stays visibly fail-closed instead of masquerading
   await bl11.click();
   await expect(page.getByText("ПОКА ЕСТЬ ОГРАНИЧЕНИЕ", { exact: true })).toBeVisible();
   await expect(page.getByText(/недостаточно, чтобы честно задавать точные частоты/i)).toBeVisible();
+  await expect(page.getByText(/Сейчас:.*ещё не начато.*Цель:.*механизм показан.*ограничено доступным источником/i)).toBeVisible();
+
+  await reachPersistedSkillTargets(page, LEARNER_KEY, [
+    { skillId: "BL-11", targetStage: "CONCEPT_TAUGHT", withPrerequisites: true },
+  ]);
+  await page.reload();
+  const capped = page.locator('button[data-practical-skill-id="BL-11"]');
+  const cappedGroup = page.locator("details").filter({ has: capped });
+  await expect(capped).toContainText(/механизм показан/i);
+  await expect(cappedGroup).toHaveCount(1);
+  if (!(await capped.isVisible())) {
+    await cappedGroup.locator("summary").click();
+    await expect(capped).toBeVisible();
+  }
+  await capped.click();
+  await expect(page.getByText(/Сейчас:.*механизм показан.*Цель:.*механизм показан/i)).toBeVisible();
+  await expect(page.getByText(/следующий необходимый шаг/i)).toHaveCount(0);
+  await expect(page.getByText(/продукт не назначает следующий доказательный шаг выше доступного уровня источника/i)).toBeVisible();
 });
 
 test("After-play flow deep-links to Real Hands on the secondary tools route without restoring the legacy canonical home", async ({ page }) => {

@@ -18,7 +18,7 @@ test("B6 distinguishes causal repair modes",()=>{
 });
 
 test("B6 preserves high-confidence wrong priority and supports latency automaticity",()=>{
- assert.match(repair,/latest\.confidence>=75/);
+ assert.match(repair,/hasHighPracticalSelfReportedConfidence\(latest,75\)/);
  assert.match(repair,/responseMs>decision\.targetSeconds\*1500/);
  assert.match(repair,/Correct but materially slow/);
 });

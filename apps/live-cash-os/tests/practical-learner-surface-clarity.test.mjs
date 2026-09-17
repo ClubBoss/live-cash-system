@@ -28,6 +28,7 @@ test("Practical Mastery navigation exposes one canonical home, one learning rout
   assert.match(navigationGuard, /router\.push\(href\)/);
   assert.match(navigationGuard, /window\.location\.assign\(destination\.href\)/);
   assert.match(navigationGuard, /clientMasteryRoutes\.has\(destination\.pathname\)/);
+  assert.match(navigationGuard, /anchor\.dataset\.activeRoundResume === "1"/);
   for (const route of ["/mastery", "/mastery/journey", "/mastery/session", "/mastery/perception", "/mastery/study", "/mastery/reference"]) {
     assert.ok(navigationGuard.includes(`"${route}"`), `client navigation allowlist must include ${route}`);
   }

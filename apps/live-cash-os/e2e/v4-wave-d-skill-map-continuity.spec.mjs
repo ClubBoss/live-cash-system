@@ -93,13 +93,14 @@ test("V4-D E-02 Skill Map selection survives ordinary continuity, fails closed, 
 
   await chooseSkill(page, "BL-11");
   const main = page.getByRole("main");
-  await main.getByRole("button", { name: "EN", exact: true }).click();
+  const practicalNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+  await practicalNav.getByRole("button", { name: "EN", exact: true }).click();
   await expect(main).not.toContainText("POSITIVE_EV_SOURCE_ACCESS_REQUIRED");
   await expect(main).not.toContainText(/\bB1\b/);
   await expect(main).toContainText(/Dedicated SB-vs-BB 3-bet-pot strategy needs stronger spot-specific evidence/i);
   expect(await masterySnapshot(page)).toBe(masteryBefore);
   expect(await attemptCount(page)).toBe(attemptsBefore);
-  await main.getByRole("button", { name: "RU", exact: true }).click();
+  await practicalNav.getByRole("button", { name: "RU", exact: true }).click();
 
   await page.evaluate(({ key }) => {
     const learner = JSON.parse(localStorage.getItem(key));

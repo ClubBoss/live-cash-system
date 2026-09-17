@@ -18,7 +18,7 @@ test("B5 fading is evidence-driven and requires distinct recognition/transfer",(
 
 test("recent wrong restores support and high-confidence wrong restores guided mode",()=>{
  assert.match(fading,/latest&&!latest\.correct/);
- assert.match(fading,/latest\.confidence>=75/);
+ assert.match(fading,/hasHighPracticalSelfReportedConfidence\(latest,75\)/);
  assert.match(fading,/return "guided"/);
  assert.match(fading,/return "reduced"/);
 });

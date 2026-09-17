@@ -1,7 +1,7 @@
 import { firstJourneySteps } from "../content/practical-mastery/first-journey";
 import { hardDependenciesFor } from "../content/practical-mastery/learning-route";
 import { isOrdinaryLearnerDecision, practicalDecisions, practicalSkillById, type PracticalDecision } from "../content/practical-mastery";
-import { isSemanticallyValidPracticalAttempt, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
+import { isSemanticallyValidPracticalAttempt, practicalLatestAttemptRef, practicalLatestCorrectAttemptRefs, practicalSkillCorpusCanReach, stageAtLeast, type PracticalMasteryState } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
 import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practical-stimulus-identity";
 
@@ -19,8 +19,8 @@ export type FirstJourneyRecommendation = {
 };
 
 function latestAttemptForDecision(state: PracticalMasteryState, decisionId: string) {
-  const attempt = [...state.attempts].reverse().find((candidate) => candidate.decisionId === decisionId) ?? null;
-  return attempt && isSemanticallyValidPracticalAttempt(attempt) ? attempt : null;
+  const ref = practicalLatestAttemptRef(state, decisionId);
+  return ref && isSemanticallyValidPracticalAttempt(ref.attempt) ? ref.attempt : null;
 }
 
 function unresolvedWrongDecisionIds(state: PracticalMasteryState, skillId: string): string[] {
@@ -39,22 +39,14 @@ function hasInterveningCorrectRecognition(
   state: PracticalMasteryState,
   repair: PracticalDecision,
 ): boolean {
-  const latestWrongIndex = state.attempts.findLastIndex((attempt) => (
-    attempt.decisionId === repair.id
-    && !attempt.correct
-    && isSemanticallyValidPracticalAttempt(attempt)
-  ));
-  if (latestWrongIndex < 0) return false;
+  const latestWrong = practicalLatestAttemptRef(state, repair.id);
+  if (!latestWrong || latestWrong.attempt.correct || !isSemanticallyValidPracticalAttempt(latestWrong.attempt)) return false;
 
   const repairFamily = practicalEvidenceFamilyId(repair);
-  return state.attempts.slice(latestWrongIndex + 1).some((attempt) => {
-    if (!attempt.correct || attempt.skillId !== repair.skillId || !isSemanticallyValidPracticalAttempt(attempt)) return false;
-    const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
-    return Boolean(
-      decision
-      && decision.kind === "recognition"
-      && practicalEvidenceFamilyId(decision) !== repairFamily
-    );
+  return [...practicalLatestCorrectAttemptRefs(state).values()].some((entry) => {
+    if (entry.ordinal <= latestWrong.ordinal || !entry.valid) return false;
+    const decision = practicalDecisions.find((candidate) => candidate.id === entry.decisionId);
+    return Boolean(decision && decision.skillId === repair.skillId && decision.kind === "recognition" && practicalEvidenceFamilyId(decision) !== repairFamily);
   });
 }
 
@@ -72,21 +64,18 @@ function quickStartRecognitionReady(state: PracticalMasteryState, skillId: strin
 
 export function nextFirstJourneyDecision(state: PracticalMasteryState, skillId: string): PracticalDecision | null {
   const skillDecisions = practicalDecisions.filter((decision) => decision.skillId === skillId && isOrdinaryLearnerDecision(decision));
+  const successfulDecisionIds = state.skills[skillId]?.successfulDecisionIds ?? [];
   const successfulFamilies = new Set(
-    state.attempts
-      .filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt))
-      .flatMap((attempt) => {
-        const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
-        return decision ? [practicalEvidenceFamilyId(decision)] : [];
-      }),
+    successfulDecisionIds.flatMap((decisionId) => {
+      const decision = practicalDecisions.find((candidate) => candidate.id === decisionId);
+      return decision ? [practicalEvidenceFamilyId(decision)] : [];
+    }),
   );
   const successfulScenarios = new Set(
-    state.attempts
-      .filter((attempt) => attempt.skillId === skillId && attempt.correct && isSemanticallyValidPracticalAttempt(attempt))
-      .flatMap((attempt) => {
-        const decision = practicalDecisions.find((candidate) => candidate.id === attempt.decisionId);
-        return decision ? [practicalEvidenceScenarioId(decision)] : [];
-      }),
+    successfulDecisionIds.flatMap((decisionId) => {
+      const decision = practicalDecisions.find((candidate) => candidate.id === decisionId);
+      return decision ? [practicalEvidenceScenarioId(decision)] : [];
+    }),
   );
   const unresolved = unresolvedWrongDecisionIds(state, skillId);
   if (unresolved.length) {

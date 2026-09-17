@@ -34,10 +34,11 @@ function attempt({
   actionId,
   reasonId,
   confidence = 55,
+  confidenceProvenance = "SELF_REPORT",
   correct = false,
   answeredAt = "2026-09-01T00:00:00.000Z",
 }) {
-  return { id, decisionId, skillId, actionId, reasonId, confidence, correct, answeredAt };
+  return { id, decisionId, skillId, actionId, reasonId, confidence, confidenceProvenance, correct, answeredAt };
 }
 
 function syntheticDecision({

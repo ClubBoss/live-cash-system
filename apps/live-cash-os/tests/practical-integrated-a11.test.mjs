@@ -45,7 +45,7 @@ test("repair priority consumes canonical tagged misconceptions and preserves sch
   assert.match(engine, /selectedWrongPracticalMisconceptionIds\(attempt\)/);
   assert.match(engine, /`SKILL:\$\{attempt\.skillId\}`/);
   assert.match(engine, /mistake\.highConfidenceEvidenceCount \* 5 \+ normalEvidenceCount \* 2/);
-  assert.match(engine, /attempt\.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG \? 5 : 2/);
+  assert.match(engine, /hasHighPracticalSelfReportedConfidence\(attempt, PRACTICAL_HIGH_CONFIDENCE_WRONG\) \? 5 : 2/);
   assert.doesNotMatch(engine, /function selectedMisconceptions/);
   assert.match(core, /export function latestAttemptsByDecision/);
   assert.match(core, /lastIncorrectDecisionId = null/);
@@ -65,10 +65,10 @@ test("real-hand routing classifies causal mechanisms rather than results", () =>
   assert.match(integratedCorpus, /Outcome size is not a skill-family label/);
 });
 
-test("Quick Start complete hands off to the canonical post-QS learning authority on the same nested v3 mastery state", () => {
+test("Quick Start complete hands off to the canonical post-QS learning authority on the same nested v4 mastery state", () => {
   assert.match(journey, /usePracticalProfileState/);
   assert.match(journey, /href="\/mastery\/journey\?continue=1"/);
-  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4/);
 });
 
 test("post-B1 source ceiling remains explicit in the whole system", () => {

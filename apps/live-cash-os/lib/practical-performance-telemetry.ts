@@ -1,18 +1,23 @@
 import { practicalDecisionById } from "../content/practical-mastery";
+import {
+  isPracticalConfidenceProvenance,
+  practicalSelfReportedConfidence,
+  type PracticalConfidenceProvenance,
+} from "./practical-confidence";
 
 export type PracticalStimulusMode="FIRST_JOURNEY"|"TEXT_MIXED"|"PERCEPTUAL_TABLE"|"REAL_HAND";
 export type PracticalPerformanceEvent={
   id:string; decisionId:string; skillId:string; mode:PracticalStimulusMode;
-  startedAt:string; answeredAt:string; responseMs:number; confidence:number;
+  startedAt:string; answeredAt:string; responseMs:number; confidence:number; confidenceProvenance?:PracticalConfidenceProvenance;
   actionCorrect:boolean; reasonCorrect:boolean; correct:boolean;
   kind:"recognition"|"decision"|"changed"|"boundary"|"mixed";
   scaffold?:"guided"|"reduced"|"hidden";
 };
 
-export function createPracticalPerformanceEvent(input:{decisionId:string;actionId:string;reasonId:string;confidence:number;startedAt:Date;answeredAt?:Date;mode:PracticalStimulusMode;scaffold?:PracticalPerformanceEvent["scaffold"]}):PracticalPerformanceEvent{
+export function createPracticalPerformanceEvent(input:{decisionId:string;actionId:string;reasonId:string;confidence:number;confidenceProvenance?:PracticalConfidenceProvenance;startedAt:Date;answeredAt?:Date;mode:PracticalStimulusMode;scaffold?:PracticalPerformanceEvent["scaffold"]}):PracticalPerformanceEvent{
  const decision=practicalDecisionById.get(input.decisionId); if(!decision) throw new Error(`Unknown practical decision: ${input.decisionId}`);
  const answeredAt=input.answeredAt??new Date(); const actionCorrect=input.actionId===decision.correctActionId; const reasonCorrect=input.reasonId===decision.correctReasonId;
- return {id:`${input.decisionId}:${answeredAt.toISOString()}`,decisionId:input.decisionId,skillId:decision.skillId,mode:input.mode,startedAt:input.startedAt.toISOString(),answeredAt:answeredAt.toISOString(),responseMs:Math.max(0,answeredAt.getTime()-input.startedAt.getTime()),confidence:Math.max(0,Math.min(100,Math.round(input.confidence))),actionCorrect,reasonCorrect,correct:actionCorrect&&reasonCorrect,kind:decision.kind,scaffold:input.scaffold};
+ return {id:`${input.decisionId}:${answeredAt.toISOString()}`,decisionId:input.decisionId,skillId:decision.skillId,mode:input.mode,startedAt:input.startedAt.toISOString(),answeredAt:answeredAt.toISOString(),responseMs:Math.max(0,answeredAt.getTime()-input.startedAt.getTime()),confidence:Math.max(0,Math.min(100,Math.round(input.confidence))),confidenceProvenance:input.confidenceProvenance??"NOT_CAPTURED",actionCorrect,reasonCorrect,correct:actionCorrect&&reasonCorrect,kind:decision.kind,scaffold:input.scaffold};
 }
 
 const PRACTICAL_STIMULUS_MODES = ["FIRST_JOURNEY", "TEXT_MIXED", "PERCEPTUAL_TABLE", "REAL_HAND"] as const;
@@ -45,6 +50,7 @@ export function isSemanticallyValidPracticalPerformanceEvent(event: unknown): ev
   if (typeof candidate.responseMs !== "number" || !Number.isInteger(candidate.responseMs) || candidate.responseMs < 0) return false;
   if (candidate.responseMs !== answeredMs - startedMs) return false;
   if (typeof candidate.confidence !== "number" || !Number.isInteger(candidate.confidence) || candidate.confidence < 0 || candidate.confidence > 100) return false;
+  if (!(candidate.confidenceProvenance === undefined || isPracticalConfidenceProvenance(candidate.confidenceProvenance))) return false;
   if (typeof candidate.actionCorrect !== "boolean" || typeof candidate.reasonCorrect !== "boolean" || typeof candidate.correct !== "boolean") return false;
   if (candidate.correct !== (candidate.actionCorrect && candidate.reasonCorrect)) return false;
   if (typeof candidate.kind !== "string") return false;
@@ -62,7 +68,7 @@ export function summarizePracticalPerformance(events:PracticalPerformanceEvent[]
  const transfer=events.filter((event)=>event.kind==="changed"||event.kind==="mixed");
  const boundary=events.filter((event)=>event.kind==="boundary");
  const perceptual=events.filter((event)=>event.mode==="PERCEPTUAL_TABLE");
- const calibration=events.map((event)=>Math.abs(event.confidence-(event.correct?100:0)));
+ const calibration=events.flatMap((event)=>{const confidence=practicalSelfReportedConfidence(event);return confidence===null?[]:[Math.abs(confidence-(event.correct?100:0))];});
  return {
   samples:events.length,
   actionAccuracy:rate(events,(event)=>event.actionCorrect),

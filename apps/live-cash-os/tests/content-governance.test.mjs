@@ -168,12 +168,14 @@ test("governance truth represents the materialized W1-W5 candidate without claim
     "content/claims/lcm-02.claims.json",
     "content/claims/lcm-03.claims.json",
     "content/claims/lcm-06.claims.json",
+    "content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts",
   ]);
   assert.deepEqual(manifest.repair_source_paths.drills, [
     "content/i18n/wave3-priority-gold.ts",
     "content/i18n/decision-transfer-integrity.ts",
     "content/i18n/decision-option-balance.ts",
     "content/i18n/final-learning-integrity.ts",
+    "content/practical-mastery/decisions-3bp-4bp-a7-expansion.ts",
   ]);
   for (const sourcePath of [
     "content/i18n/decision-transfer-integrity.ts",

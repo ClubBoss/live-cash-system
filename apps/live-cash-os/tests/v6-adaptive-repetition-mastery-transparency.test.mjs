@@ -175,8 +175,8 @@ test("selected-skill transparency identifies satisfied and next required categor
 
   const recognition = practicalDecisions.find((decision) => decision.skillId === skill.id && decision.kind === "recognition");
   assert.ok(recognition);
-  state = recordPracticalDecision(state, { decisionId: recognition.id, ...correctInput(recognition.id, 65, new Date("2026-08-26T00:31:00Z")) });
-  state = recordPracticalDecision(state, { decisionId: recognition.id, ...correctInput(recognition.id, 95, new Date("2026-08-26T00:32:00Z")) });
+  state = recordPracticalDecision(state, { decisionId: recognition.id, ...correctInput(recognition.id, 65, new Date("2026-08-26T00:31:00Z")), confidenceProvenance: "SELF_REPORT" });
+  state = recordPracticalDecision(state, { decisionId: recognition.id, ...correctInput(recognition.id, 95, new Date("2026-08-26T00:32:00Z")), confidenceProvenance: "SELF_REPORT" });
   summary = practicalSkillProgressTransparency(state, skill.id, skill.targetEvidenceStage);
   assert.equal(summary.nextCategory?.key, "RECOGNITION", "one distinct correct recognition item must not satisfy the category");
   assert.equal(summary.recentCorrectCount, 2);

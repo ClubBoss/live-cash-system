@@ -15,7 +15,7 @@ import { blindDefenceExpansionDecisions } from "./decisions-blind-defence-expans
 import { recognitionExpansionDecisions } from "./decisions-recognition-expansion";
 import { srpA6ExpansionDecisions } from "./decisions-srp-a6-expansion";
 import { threeBetFourBetA7ExpansionDecisions } from "./decisions-3bp-4bp-a7-expansion";
-import { turnRiverA8ExpansionDecisions } from "./decisions-turn-river-a8-expansion";
+import { turnRiverA8ExpansionDecisions, turnRiverA8LegacySpecificityDecisions } from "./decisions-turn-river-a8-expansion";
 import { liveA9ExpansionDecisions } from "./decisions-live-a9-expansion";
 import { exploitA10ExpansionDecisions } from "./decisions-exploit-a10-expansion";
 import { sourceClosureB1Decisions } from "./decisions-source-closure-b1";
@@ -202,5 +202,5 @@ export const practicalDecisions = [
   .map(applyPracticalAssessmentIntegrityRepair);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
-export const practicalDecisionById = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
+export const practicalDecisionById = new Map([...practicalDecisions, ...turnRiverA8LegacySpecificityDecisions].map((decision) => [decision.id, decision]));
 export const practicalSkillById = new Map(practicalSkillFamilies.map((skill) => [skill.id, skill]));

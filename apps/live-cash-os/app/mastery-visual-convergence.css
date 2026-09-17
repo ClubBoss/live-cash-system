@@ -70,6 +70,21 @@
 }
 .practical-mastery-nav__hands:hover { background: color-mix(in srgb, var(--ink) 4%, var(--surface)); }
 
+.practical-option-row {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 8px 0;
+  line-height: 1.4;
+}
+
+.practical-option-row > input[type="radio"] {
+  flex: none;
+  margin: 0;
+}
+
 .practical-domain-overview {
   max-width: 1180px;
   margin: 8px auto 0;

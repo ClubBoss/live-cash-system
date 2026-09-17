@@ -1,19 +1,20 @@
 import { practicalDecisionById } from "../content/practical-mastery";
-import { isSemanticallyValidPracticalAttempt, type PracticalMasteryState } from "./practical-mastery-core";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
+import { isCurrentPracticalEvidenceAttempt, latestAttemptsByDecision, practicalSuccessfulDecisionIds, type PracticalMasteryState } from "./practical-mastery-core";
 
 export type PracticalScaffoldLevel = "guided" | "reduced" | "hidden";
 
 function successfulDistinctByKind(state:PracticalMasteryState,skillId:string,kinds:string[]):number{
-  const ids=new Set(state.attempts.filter((attempt)=>attempt.skillId===skillId&&isSemanticallyValidPracticalAttempt(attempt)&&attempt.correct).filter((attempt)=>{
-    const decision=practicalDecisionById.get(attempt.decisionId);
+  const ids=new Set([...practicalSuccessfulDecisionIds(state,skillId)].filter((decisionId)=>{
+    const decision=practicalDecisionById.get(decisionId);
     return decision?kinds.includes(decision.kind):false;
-  }).map((attempt)=>attempt.decisionId));
+  }));
   return ids.size;
 }
 
 function latestSkillAttempt(state:PracticalMasteryState,skillId:string){
-  const latest=[...state.attempts].reverse().find((attempt)=>attempt.skillId===skillId)??null;
-  return latest&&isSemanticallyValidPracticalAttempt(latest)?latest:null;
+  const latest=[...latestAttemptsByDecision(state,skillId).values()].at(-1)??null;
+  return latest&&isCurrentPracticalEvidenceAttempt(latest)?latest:null;
 }
 
 export function recommendedPracticalScaffold(state:PracticalMasteryState,skillId:string):PracticalScaffoldLevel{
@@ -21,7 +22,7 @@ export function recommendedPracticalScaffold(state:PracticalMasteryState,skillId
   if(!progress?.conceptTaught) return "guided";
   const latest=latestSkillAttempt(state,skillId);
   if(latest&&!latest.correct){
-    if(latest.confidence>=75) return "guided";
+    if(hasHighPracticalSelfReportedConfidence(latest,75)) return "guided";
     return "reduced";
   }
   const recognition=successfulDistinctByKind(state,skillId,["recognition"]);

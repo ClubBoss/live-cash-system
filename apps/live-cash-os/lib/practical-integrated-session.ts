@@ -9,21 +9,23 @@ import {
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived";
 import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps";
 import { learningRouteScore, whyNowForSkill } from "../content/practical-mastery/learning-route";
+import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
 import {
   PRACTICAL_HIGH_CONFIDENCE_WRONG,
   currentPracticalMistakes,
   selectedWrongPracticalMisconceptionIds,
 } from "./practical-current-mistakes";
 import {
+  isCurrentPracticalEvidenceAttempt,
   isPracticalBridgeSkill,
-  isSemanticallyValidPracticalAttempt,
   latestAttemptsByDecision,
+  practicalAttemptedDecisionIds,
+  practicalLatestCorrectAttemptForSkill,
   markDelayedPracticalRetrieval,
   practicalPrerequisitesMet,
   practicalSkillCorpusCanReach,
   recordPracticalDecision,
   stageAtLeast,
-  type PracticalAttempt,
   type PracticalMasteryState,
 } from "./practical-mastery-core";
 import { recentlyAttemptedDecisionIds } from "./practical-repeat-window";
@@ -53,7 +55,7 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
   // still needs the historical generic repair fallback for a real latest wrong
   // whose actually-wrong dimensions carry no misconception tag.
   for (const attempt of latestAttemptsByDecision(state).values()) {
-    if (attempt.correct) continue;
+    if (attempt.correct || !isCurrentPracticalEvidenceAttempt(attempt)) continue;
     const decision = practicalDecisionById.get(attempt.decisionId);
     if (!decision || !isOrdinaryLearnerDecision(decision) || decision.skillId !== attempt.skillId) continue;
     if (isIntegrationDerivedSkill(attempt.skillId) || isPracticalBridgeSkill(attempt.skillId)) continue;
@@ -67,7 +69,7 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
     const composite = JSON.stringify([attempt.skillId, key]);
     const current = grouped.get(composite) ?? { key, skillId: attempt.skillId, unresolvedDecisionIds: [], priority: 0 };
     current.unresolvedDecisionIds.push(attempt.decisionId);
-    current.priority += attempt.confidence >= PRACTICAL_HIGH_CONFIDENCE_WRONG ? 5 : 2;
+    current.priority += hasHighPracticalSelfReportedConfidence(attempt, PRACTICAL_HIGH_CONFIDENCE_WRONG) ? 5 : 2;
     grouped.set(composite, current);
   }
 
@@ -79,11 +81,22 @@ export function unresolvedMistakeFamilies(state: PracticalMasteryState): Mistake
 // forged/malformed "correct" row must not be allowed to establish a fake
 // (e.g. artificially old) retention anchor, and reaching past it to an older
 // row would let it silently overrule a genuine, more recent unresolved miss.
-function latestCorrectAttempt(state: PracticalMasteryState, skillId: string): PracticalAttempt | null { const attempt = [...state.attempts].reverse().find((candidate) => candidate.skillId === skillId && candidate.correct) ?? null; return attempt && isSemanticallyValidPracticalAttempt(attempt) ? attempt : null; }
+function latestCorrectAttempt(state: PracticalMasteryState, skillId: string) { const attempt = practicalLatestCorrectAttemptForSkill(state, skillId); return attempt?.valid ? attempt : null; }
 function elapsedDays(iso: string, now: Date): number { return Math.max(0, (now.getTime() - new Date(iso).getTime()) / 86_400_000); }
+
+function hasUnresolvedWrongEvidence(state: PracticalMasteryState, skillId: string): boolean {
+  return [...latestAttemptsByDecision(state, skillId).values()].some((attempt) => (
+    !attempt.correct && isCurrentPracticalEvidenceAttempt(attempt)
+  ));
+}
 
 export function retentionTierDue(state: PracticalMasteryState, skillId: string, now = new Date()): number | null {
   const progress = state.skills[skillId]; if (!progress || !stageAtLeast(progress.evidenceStage, "BOUNDARY_TESTED")) return null;
+  // Delayed retention is evidence that a previously-correct skill survived a gap.
+  // A currently unresolved miss contradicts that claim and must be repaired first.
+  // Once repaired, the repair's newer correct answer becomes the next time anchor,
+  // so same-round repair can never retroactively satisfy a delayed tier.
+  if (hasUnresolvedWrongEvidence(state, skillId)) return null;
   const lastCorrect = latestCorrectAttempt(state, skillId); if (!lastCorrect) return null; const elapsed = elapsedDays(lastCorrect.answeredAt, now); const passed = new Set(progress.retentionDaysPassed);
   for (const tier of RETENTION_INTERVAL_DAYS) if (elapsed >= tier && !passed.has(tier)) return tier; return null;
 }
@@ -97,17 +110,15 @@ function candidateDecisionForSkill(
   avoidDecisionIds: ReadonlySet<string> = new Set<string>(),
   requiredDifferentScenarioFromDecisionId: string | null = null,
 ): PracticalDecision | null {
-  const rawLatest = [...state.attempts].reverse().find((attempt) => attempt.skillId === skillId) ?? null;
-  const latest = rawLatest && isSemanticallyValidPracticalAttempt(rawLatest) ? rawLatest : null;
+  const rawLatest = [...latestAttemptsByDecision(state, skillId).values()].at(-1) ?? null;
+  const latest = rawLatest && isCurrentPracticalEvidenceAttempt(rawLatest) ? rawLatest : null;
   const latestDecision = latest ? practicalDecisionById.get(latest.decisionId) ?? null : null;
   const latestFamily = latestDecision ? practicalEvidenceFamilyId(latestDecision) : null;
   const attemptedFamilies = new Set(
-    state.attempts
-      .filter((attempt) => attempt.skillId === skillId && isSemanticallyValidPracticalAttempt(attempt))
-      .flatMap((attempt) => {
-        const decision = practicalDecisionById.get(attempt.decisionId);
-        return decision ? [practicalEvidenceFamilyId(decision)] : [];
-      }),
+    [...practicalAttemptedDecisionIds(state)].flatMap((decisionId) => {
+      const decision = practicalDecisionById.get(decisionId);
+      return decision && isOrdinaryLearnerDecision(decision) && decision.skillId === skillId ? [practicalEvidenceFamilyId(decision)] : [];
+    }),
   );
   const avoidFamilies = new Set(
     [...avoidDecisionIds].flatMap((decisionId) => {
@@ -137,7 +148,7 @@ function candidateDecisionForSkill(
   return pool.find((decision) => !attemptedFamilies.has(practicalEvidenceFamilyId(decision))) ?? pool[0] ?? null;
 }
 function currentStage(state: PracticalMasteryState, skillId: string): PracticalEvidenceStage { return state.skills[skillId]?.evidenceStage ?? "SOURCE_SUPPORTED"; }
-function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isSemanticallyValidPracticalAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
+function recentExposurePenalty(state: PracticalMasteryState, skillId: string): number { return Math.min(18, state.attempts.slice(-12).filter(isCurrentPracticalEvidenceAttempt).filter((attempt) => attempt.skillId === skillId).length * 4); }
 
 export function integratedBreadthReady(state: PracticalMasteryState): boolean {
   const trained = Object.values(state.skills).filter((progress) => !isIntegrationDerivedSkill(progress.skillId) && stageAtLeast(progress.evidenceStage, "DECISION_TRAINED"));
@@ -229,13 +240,17 @@ export function buildIntegratedSession(state: PracticalMasteryState, now = new D
   return items.sort((a, b) => b.priority - a.priority).slice(0, size);
 }
 
-export function recordIntegratedDecision(state: PracticalMasteryState, item: IntegratedSessionItem, input: { actionId: string; reasonId: string; confidence: number; now?: Date }): PracticalMasteryState {
+export function recordIntegratedDecision(state: PracticalMasteryState, item: IntegratedSessionItem, input: { actionId: string; reasonId: string; confidence: number; confidenceProvenance?: "SELF_REPORT" | "NOT_CAPTURED"; now?: Date }): PracticalMasteryState {
   const now = input.now ?? new Date(); const decision = practicalDecisionById.get(item.decisionId); if (!decision) throw new Error(`Unknown integrated decision: ${item.decisionId}`);
   const latestCorrectBefore = latestCorrectAttempt(state, decision.skillId); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId;
-  let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, now });
+  let next = recordPracticalDecision(state, { decisionId: item.decisionId, actionId: input.actionId, reasonId: input.reasonId, confidence: input.confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", now });
   const latestCorrectDecision = latestCorrectBefore ? practicalDecisionById.get(latestCorrectBefore.decisionId) ?? null : null;
-  const isNovelRetentionStimulus = Boolean(latestCorrectDecision && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision));
-  if (correct && item.retentionTierDays && latestCorrectBefore && isNovelRetentionStimulus) {
+  const isIndependentRetentionStimulus = Boolean(
+    latestCorrectDecision
+    && practicalEvidenceFamilyId(decision) !== practicalEvidenceFamilyId(latestCorrectDecision)
+    && practicalEvidenceScenarioId(decision) !== practicalEvidenceScenarioId(latestCorrectDecision)
+  );
+  if (correct && item.retentionTierDays && latestCorrectBefore && isIndependentRetentionStimulus) {
     const actualGap = elapsedDays(latestCorrectBefore.answeredAt, now);
     if (actualGap >= item.retentionTierDays) {
       const clone = structuredClone(next); const progress = clone.skills[decision.skillId]; progress.retentionDaysPassed = [...new Set([...progress.retentionDaysPassed, item.retentionTierDays])].sort((a, b) => a - b); clone.revision += 1; clone.updatedAt = now.toISOString(); next = clone;

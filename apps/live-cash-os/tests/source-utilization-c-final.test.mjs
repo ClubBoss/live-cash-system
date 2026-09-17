@@ -98,7 +98,7 @@ test("cross-corpus reconciliation covers all admitted source families and keeps 
 });
 
 test("C waves do not change mastery schema or evidence thresholds", () => {
-  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 3/);
+  assert.match(core, /PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4/);
   assert.match(core, /MIN_RECOGNITION_STIMULI = 2/);
   assert.match(core, /MIN_DIRECT_DECISION_STIMULI = 3/);
   assert.match(core, /MIN_TRANSFER_STIMULI = 2/);

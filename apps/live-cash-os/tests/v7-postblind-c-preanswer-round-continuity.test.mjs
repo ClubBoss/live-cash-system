@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { practicalDecisions } from "../content/practical-mastery/index.ts";
 import {
+  activeIntegratedRoundResume,
   advanceIntegratedContinuity,
   recordIntegratedAnswerContinuity,
+  recordIntegratedDraftContinuity,
   recordIntegratedRoundStartContinuity,
   restoreIntegratedRound,
 } from "../lib/practical-continuity-workspace.ts";
@@ -111,4 +113,119 @@ test("V7 Post-Blind C rejects empty or oversized round-start checkpoints", () =>
   const item = itemsFor(practicalDecisions[0].skillId)[0];
   assert.ok(item);
   assert.equal(recordIntegratedRoundStartContinuity(workspace, mastery.contentVersion, { focusSkillId: null, items: Array.from({ length: 9 }, () => item) }), null);
+});
+
+test("LC-AUD-025 generic and focused pre-submit drafts survive durable restore without mastery mutation", () => {
+  const mastery = createPracticalMasteryState(new Date("2026-09-16T00:00:00Z"), true);
+  const skillId = practicalDecisions[0].skillId;
+  const items = itemsFor(skillId);
+  assert.equal(items.length, 2);
+  const first = practicalDecisions.find((decision) => decision.id === items[0].decisionId);
+  assert.ok(first);
+  const actionId = first.actionOptions[0].id;
+  const reasonId = first.reasonOptions[0].id;
+  const masteryBefore = JSON.stringify(mastery);
+
+  for (const focusSkillId of [null, skillId]) {
+    const started = recordIntegratedRoundStartContinuity(
+      createPracticalStudyWorkspace(),
+      mastery.contentVersion,
+      { focusSkillId, items },
+      new Date("2026-09-16T00:01:00Z"),
+    );
+    assert.ok(started);
+    assert.equal(started.continuity.integrated.draft, null);
+
+    const untouchedConfidenceDraft = recordIntegratedDraftContinuity(
+      started,
+      mastery.contentVersion,
+      {
+        focusSkillId,
+        items,
+        index: 0,
+        actionId,
+        reasonId,
+        confidence: 65,
+        confidenceProvenance: "NOT_CAPTURED",
+      },
+      new Date("2026-09-16T00:02:00Z"),
+    );
+    assert.ok(untouchedConfidenceDraft);
+    const durableUntouched = JSON.parse(JSON.stringify(untouchedConfidenceDraft));
+    const restoredUntouched = restoreIntegratedRound(durableUntouched, mastery, focusSkillId);
+    assert.equal(restoredUntouched.status, "VALID");
+    assert.equal(restoredUntouched.nextIndex, 0);
+    assert.equal(restoredUntouched.items[0].decisionId, items[0].decisionId);
+    assert.deepEqual(restoredUntouched.draft, {
+      index: 0,
+      actionId,
+      reasonId,
+      confidence: 65,
+      confidenceProvenance: "NOT_CAPTURED",
+      updatedAt: "2026-09-16T00:02:00.000Z",
+    });
+    assert.equal(restoredUntouched.postAnswerAttempt, null);
+
+    const touchedConfidenceDraft = recordIntegratedDraftContinuity(
+      durableUntouched,
+      mastery.contentVersion,
+      {
+        focusSkillId,
+        items,
+        index: 0,
+        actionId,
+        reasonId,
+        confidence: 83,
+        confidenceProvenance: "SELF_REPORT",
+      },
+      new Date("2026-09-16T00:03:00Z"),
+    );
+    assert.ok(touchedConfidenceDraft);
+    const durableTouched = JSON.parse(JSON.stringify(touchedConfidenceDraft));
+    const restoredTouched = restoreIntegratedRound(durableTouched, mastery, focusSkillId);
+    assert.equal(restoredTouched.status, "VALID");
+    assert.equal(restoredTouched.draft?.confidence, 83);
+    assert.equal(restoredTouched.draft?.confidenceProvenance, "SELF_REPORT");
+
+    const resume = activeIntegratedRoundResume(durableTouched, mastery);
+    assert.ok(resume);
+    assert.equal(resume.nextIndex, 0);
+    assert.equal(resume.href, focusSkillId ? `/mastery/session?focus=${encodeURIComponent(skillId)}` : "/mastery/session");
+  }
+
+  assert.equal(JSON.stringify(mastery), masteryBefore);
+  assert.equal(mastery.attempts.length, 0);
+  assert.equal(mastery.revision, 0);
+});
+
+test("LC-AUD-025 integrated draft validation fails closed for wrong index or impossible option", () => {
+  const mastery = createPracticalMasteryState(new Date("2026-09-16T00:00:00Z"), true);
+  const skillId = practicalDecisions[0].skillId;
+  const items = itemsFor(skillId);
+  const started = recordIntegratedRoundStartContinuity(
+    createPracticalStudyWorkspace(),
+    mastery.contentVersion,
+    { focusSkillId: skillId, items },
+  );
+  assert.ok(started);
+
+  assert.equal(recordIntegratedDraftContinuity(started, mastery.contentVersion, {
+    focusSkillId: skillId,
+    items,
+    index: 1,
+    actionId: null,
+    reasonId: null,
+    confidence: 65,
+    confidenceProvenance: "NOT_CAPTURED",
+  }), null);
+  assert.equal(recordIntegratedDraftContinuity(started, mastery.contentVersion, {
+    focusSkillId: skillId,
+    items,
+    index: 0,
+    actionId: "IMPOSSIBLE_OPTION",
+    reasonId: null,
+    confidence: 65,
+    confidenceProvenance: "NOT_CAPTURED",
+  }), null);
+  assert.equal(mastery.attempts.length, 0);
 });
