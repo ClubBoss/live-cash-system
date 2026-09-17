@@ -1,4 +1,5 @@
-import type { PracticalDecisionOption } from "../content/practical-mastery/types";
+import type { PracticalDecision, PracticalDecisionOption } from "../content/practical-mastery/types";
+import { practicalAssessmentLengthPresentedOptions } from "./practical-assessment-length-presentation";
 
 export type PracticalOptionStage = "action" | "reason";
 
@@ -30,4 +31,14 @@ export function practicalPresentedOptions(
   const baseOffset = stableHash(`${decisionId}::${stage}`) % options.length;
   const offset = (baseOffset + ordinal) % options.length;
   return [...options.slice(offset), ...options.slice(0, offset)];
+}
+
+export function practicalPresentedDecisionOptions(
+  decision: PracticalDecision,
+  stage: PracticalOptionStage,
+  presentationOrdinal: number,
+): PracticalDecisionOption[] {
+  const sourceOptions = stage === "action" ? decision.actionOptions : decision.reasonOptions;
+  const learnerOptions = practicalAssessmentLengthPresentedOptions(decision, stage, sourceOptions);
+  return practicalPresentedOptions(learnerOptions, decision.id, stage, presentationOrdinal);
 }
