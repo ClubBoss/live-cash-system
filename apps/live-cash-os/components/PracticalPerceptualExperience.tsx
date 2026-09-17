@@ -8,7 +8,7 @@ import { practicalAttemptedDecisionIds, practicalDecisionAttemptCount, recordPra
 import { focusedPracticalTableStates } from "../lib/practical-perceptual-focus";
 import { effectivePracticalScaffold, practicalScaffoldCue } from "../lib/practical-scaffold-fading";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
-import { practicalPresentedOptions } from "../lib/practical-option-presentation";
+import { practicalPresentedDecisionOptions } from "../lib/practical-option-presentation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
@@ -72,11 +72,11 @@ export default function PracticalPerceptualExperience() {
   const currentDecisionAttemptRecorded = Boolean(decision && revealed && submittedDecisionId === decision.id);
   const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
   const presentedActionOptions = useMemo(
-    () => decision ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal) : [],
+    () => decision ? practicalPresentedDecisionOptions(decision, "action", presentationOrdinal) : [],
     [decision, presentationOrdinal],
   );
   const presentedReasonOptions = useMemo(
-    () => decision ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal) : [],
+    () => decision ? practicalPresentedDecisionOptions(decision, "reason", presentationOrdinal) : [],
     [decision, presentationOrdinal],
   );
   const skill = decision ? practicalSkillById.get(decision.skillId) ?? null : null;

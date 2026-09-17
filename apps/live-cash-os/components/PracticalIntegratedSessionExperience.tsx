@@ -11,7 +11,7 @@ import { practicalDecisionAttemptCount } from "../lib/practical-mastery-core";
 import type { PracticalIntegratedDraft } from "../lib/practical-profile-contract";
 import { classifyPracticalIntegratedSessionState } from "../lib/practical-integrated-session-state";
 import { createPracticalPerformanceEvent } from "../lib/practical-performance-telemetry";
-import { practicalPresentedOptions } from "../lib/practical-option-presentation";
+import { practicalPresentedDecisionOptions } from "../lib/practical-option-presentation";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import { usePracticalProfileState } from "../lib/practical-profile-context";
 import PracticalDecisionFeedback from "./PracticalDecisionFeedback";
@@ -145,11 +145,11 @@ export default function PracticalIntegratedSessionExperience() {
   const currentDecisionAttemptRecorded = Boolean(decision && revealed && restoredPostAnswer?.decisionId === decision.id);
   const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
   const presentedActionOptions = useMemo(
-    () => decision ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal) : [],
+    () => decision ? practicalPresentedDecisionOptions(decision, "action", presentationOrdinal) : [],
     [decision, presentationOrdinal],
   );
   const presentedReasonOptions = useMemo(
-    () => decision ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal) : [],
+    () => decision ? practicalPresentedDecisionOptions(decision, "reason", presentationOrdinal) : [],
     [decision, presentationOrdinal],
   );
   const skill = item ? practicalSkillById.get(item.skillId) ?? null : null;

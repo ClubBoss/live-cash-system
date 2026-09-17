@@ -13,7 +13,7 @@ import {
 } from "../lib/practical-continuity-workspace";
 import type { FirstJourneyPresentationState } from "../lib/practical-first-journey-authority";
 import { markPracticalConceptTaught, practicalDecisionAttemptCount, recordPracticalDecision } from "../lib/practical-mastery-core";
-import { practicalPresentedOptions } from "../lib/practical-option-presentation";
+import { practicalPresentedDecisionOptions } from "../lib/practical-option-presentation";
 import { firstJourneyProgress, nextFirstJourneyDecision, recommendFirstJourneyStep } from "../lib/practical-first-journey";
 import { usePracticalLocale } from "../lib/use-practical-locale";
 import type { usePracticalProfileState } from "../lib/use-practical-profile-state";
@@ -66,10 +66,10 @@ export default function PracticalFirstJourneyExperience({
   const currentDecisionAttemptRecorded = Boolean(decision && answerRevealed && answeredDecisionId === decision.id);
   const presentationOrdinal = Math.max(0, recordedDecisionAttemptCount - (currentDecisionAttemptRecorded ? 1 : 0));
   const presentedActionOptions = decision
-    ? practicalPresentedOptions(decision.actionOptions, decision.id, "action", presentationOrdinal)
+    ? practicalPresentedDecisionOptions(decision, "action", presentationOrdinal)
     : [];
   const presentedReasonOptions = decision
-    ? practicalPresentedOptions(decision.reasonOptions, decision.id, "reason", presentationOrdinal)
+    ? practicalPresentedDecisionOptions(decision, "reason", presentationOrdinal)
     : [];
 
   const primerTeachingTexts = rule ? [
