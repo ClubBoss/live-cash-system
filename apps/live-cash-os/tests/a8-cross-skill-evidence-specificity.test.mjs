@@ -44,7 +44,7 @@ test("each repaired changed node names the skill variable in cue/question/correc
 
 test("changing only skillId cannot manufacture semantic stimulus independence",()=>{
   const base=learner("PM-TURN-03-A8-202");
-  assert.equal(practicalStimulusFamilyId(base),practicalStimulusFamilyId({...base,id:"PM-TURN-04-A8-202",skillId:"TURN-04"}));
+  assert.equal(practicalStimulusFamilyId(base),practicalStimulusFamilyId({...base,skillId:"TURN-04"}));
 });
 
 test("repaired options remain unambiguous and source-scoped",()=>{

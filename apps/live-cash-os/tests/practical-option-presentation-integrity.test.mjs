@@ -5,7 +5,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { isOrdinaryLearnerDecision, practicalDecisions } from "../content/practical-mastery/index.ts";
-import { practicalPresentedOptions } from "../lib/practical-option-presentation.ts";
+import { practicalPresentedDecisionOptions, practicalPresentedOptions } from "../lib/practical-option-presentation.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -79,10 +79,45 @@ test("all repeatable practical learner surfaces render presented options instead
   ]);
 
   for (const source of [quickStart, integrated, perceptual]) {
-    assert.match(source, /practicalPresentedOptions/);
+    assert.match(source, /practicalPresentedDecisionOptions/);
     assert.match(source, /presentedActionOptions\.map/);
     assert.match(source, /presentedReasonOptions\.map/);
     assert.doesNotMatch(source, /decision\.actionOptions\.map/);
     assert.doesNotMatch(source, /decision\.reasonOptions\.map/);
   }
+});
+
+
+test("length presentation repair is decision-scoped and preserves canonical option identity/source text", () => {
+  const untouched = practicalDecisions.find((candidate) => candidate.id === "PM-PF-09-101");
+  assert.ok(untouched, "PM-PF-09-101 missing");
+  const untouchedBefore = JSON.stringify({ actionOptions: untouched.actionOptions, reasonOptions: untouched.reasonOptions });
+  const untouchedCanonical = untouched.reasonOptions.find((option) => option.id === untouched.correctReasonId);
+  const untouchedPresented = practicalPresentedDecisionOptions(untouched, "reason", 0).find((option) => option.id === untouched.correctReasonId);
+  assert.ok(untouchedCanonical && untouchedPresented);
+  assert.equal(untouchedPresented.textRu, untouchedCanonical.textRu, "unreviewed PF09 RU reason must remain canonical");
+  assert.equal(untouchedPresented.textEn, untouchedCanonical.textEn, "unreviewed PF09 EN reason must remain canonical");
+  assert.equal(JSON.stringify({ actionOptions: untouched.actionOptions, reasonOptions: untouched.reasonOptions }), untouchedBefore,
+    "untouched presentation mutated canonical PF09 options");
+
+  const repaired = practicalDecisions.find((candidate) => candidate.id === "PM-B4-PF06-101");
+  assert.ok(repaired, "PM-B4-PF06-101 missing");
+  const repairedBefore = JSON.stringify({ actionOptions: repaired.actionOptions, reasonOptions: repaired.reasonOptions });
+  const canonicalReason = repaired.reasonOptions.find((option) => option.id === repaired.correctReasonId);
+  const presented = practicalPresentedDecisionOptions(repaired, "reason", 0);
+  const presentedReason = presented.find((option) => option.id === repaired.correctReasonId);
+  assert.ok(canonicalReason && presentedReason);
+  assert.equal(
+    canonicalReason.textEn,
+    "At depth, OOP realization and reverse-implied exposure grow; 3-bet shape cannot be copied mechanically from 100bb.",
+  );
+  assert.equal(presentedReason.textEn, "Depth raises OOP/reverse-implied cost; 3-bets cannot copy 100bb.");
+  assert.deepEqual([...presented.map((option) => option.id)].sort(), [...repaired.reasonOptions.map((option) => option.id)].sort());
+  for (const option of repaired.reasonOptions.filter((option) => option.id !== repaired.correctReasonId)) {
+    const projected = presented.find((candidate) => candidate.id === option.id);
+    assert.deepEqual(projected, option, `${repaired.id}/${option.id}: distractor identity drifted`);
+  }
+  assert.equal(JSON.stringify({ actionOptions: repaired.actionOptions, reasonOptions: repaired.reasonOptions }), repairedBefore,
+    "presentation mutated canonical repaired options");
+  assert.equal(repaired.correctReasonId, canonicalReason.id, "correct reason identity drifted");
 });

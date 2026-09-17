@@ -1,15 +1,18 @@
 import { practicalDecisionById } from "../content/practical-mastery";
 import { hasHighPracticalSelfReportedConfidence } from "./practical-confidence";
 import { isCurrentPracticalEvidenceAttempt, latestAttemptsByDecision, practicalSuccessfulDecisionIds, type PracticalMasteryState } from "./practical-mastery-core";
+import { practicalEvidenceFamilyId, practicalEvidenceScenarioId } from "./practical-stimulus-identity";
 
 export type PracticalScaffoldLevel = "guided" | "reduced" | "hidden";
 
-function successfulDistinctByKind(state:PracticalMasteryState,skillId:string,kinds:string[]):number{
-  const ids=new Set([...practicalSuccessfulDecisionIds(state,skillId)].filter((decisionId)=>{
+function successfulSemanticEvidenceByKind(state:PracticalMasteryState,skillId:string,kinds:string[]){
+  const families=new Set<string>(); const scenarios=new Set<string>();
+  for(const decisionId of practicalSuccessfulDecisionIds(state,skillId)){
     const decision=practicalDecisionById.get(decisionId);
-    return decision?kinds.includes(decision.kind):false;
-  }));
-  return ids.size;
+    if(!decision||decision.skillId!==skillId||!kinds.includes(decision.kind)) continue;
+    families.add(practicalEvidenceFamilyId(decision)); scenarios.add(practicalEvidenceScenarioId(decision));
+  }
+  return {families:families.size,scenarios:scenarios.size};
 }
 
 function latestSkillAttempt(state:PracticalMasteryState,skillId:string){
@@ -25,11 +28,11 @@ export function recommendedPracticalScaffold(state:PracticalMasteryState,skillId
     if(hasHighPracticalSelfReportedConfidence(latest,75)) return "guided";
     return "reduced";
   }
-  const recognition=successfulDistinctByKind(state,skillId,["recognition"]);
-  const transfer=successfulDistinctByKind(state,skillId,["changed","mixed"]);
-  const boundary=successfulDistinctByKind(state,skillId,["boundary"]);
-  if(recognition<2) return "guided";
-  if(transfer<2||boundary<1) return "reduced";
+  const recognition=successfulSemanticEvidenceByKind(state,skillId,["recognition"]);
+  const transfer=successfulSemanticEvidenceByKind(state,skillId,["changed","mixed"]);
+  const boundary=successfulSemanticEvidenceByKind(state,skillId,["boundary"]);
+  if(recognition.families<2||recognition.scenarios<2) return "guided";
+  if(transfer.families<2||transfer.scenarios<2||boundary.families<1) return "reduced";
   return "hidden";
 }
 

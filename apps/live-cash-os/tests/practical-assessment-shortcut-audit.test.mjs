@@ -9,7 +9,8 @@ import {
 import { isIntegrationDerivedSkill } from "../content/practical-mastery/integration-derived.ts";
 import { practicalPostQuickStartTeachingAssetForSkill } from "../lib/practical-post-quick-start-learning.ts";
 import { sanitizeLearnerPresentationText } from "../lib/learner-presentation-firewall.ts";
-import { practicalPresentedOptions } from "../lib/practical-option-presentation.ts";
+import { practicalPresentedDecisionOptions } from "../lib/practical-option-presentation.ts";
+import { practicalAssessmentReasonRepairGroups } from "../lib/practical-assessment-length-presentation.ts";
 import {
   isPracticalBridgeSkill,
   practicalSkillCorpusCanReach,
@@ -145,9 +146,6 @@ function wordingCueStats(pool, locale) {
   const stages = {};
   const authorialWrongness = [];
   for (const stage of ["action", "reason"]) {
-    const optionsFor = stage === "action"
-      ? (decision) => decision.actionOptions
-      : (decision) => decision.reasonOptions;
     const correctFor = stage === "action"
       ? (decision) => decision.correctActionId
       : (decision) => decision.correctReasonId;
@@ -155,7 +153,7 @@ function wordingCueStats(pool, locale) {
     let correct = 0;
     const familyCounts = new Map();
     for (const decision of pool) {
-      const options = optionsFor(decision);
+      const options = learnerOptionsFor(decision, stage);
       const correctId = correctFor(decision);
       const remaining = options.filter((option) => (
         !WORDING_CUE_PREFIX[locale].test(learnerVisibleOptionText(option, locale))
@@ -270,30 +268,23 @@ function pairPositionStats(pool, actionIndex, reasonIndex) {
   );
 }
 
+function learnerOptionsFor(decision, stage, presentationOrdinal = 0) {
+  return practicalPresentedDecisionOptions(decision, stage, presentationOrdinal);
+}
+
 function learnerVisiblePositionStats(pool, stage, index, presentationOrdinal = 0) {
-  const optionsFor = stage === "action"
-    ? (decision) => decision.actionOptions
-    : (decision) => decision.reasonOptions;
   const correctFor = stage === "action"
     ? (decision) => decision.correctActionId
     : (decision) => decision.correctReasonId;
-  const eligible = pool.filter((decision) => optionsFor(decision).length > index);
+  const eligible = pool.filter((decision) => learnerOptionsFor(decision, stage, presentationOrdinal).length > index);
   return statsFromEligible(
     eligible,
-    (decision) => practicalPresentedOptions(
-      optionsFor(decision),
-      decision.id,
-      stage,
-      presentationOrdinal,
-    )[index]?.id === correctFor(decision),
-    (decision) => 1 / optionsFor(decision).length,
+    (decision) => learnerOptionsFor(decision, stage, presentationOrdinal)[index]?.id === correctFor(decision),
+    (decision) => 1 / learnerOptionsFor(decision, stage, presentationOrdinal).length,
   );
 }
 
 function familyLengthContributors(pool, locale, stage, kind) {
-  const optionsFor = stage === "action"
-    ? (decision) => decision.actionOptions
-    : (decision) => decision.reasonOptions;
   const correctFor = stage === "action"
     ? (decision) => decision.correctActionId
     : (decision) => decision.correctReasonId;
@@ -301,9 +292,9 @@ function familyLengthContributors(pool, locale, stage, kind) {
   return practicalSkillFamilies
     .map((skill) => {
       const rows = pool.filter((decision) => decision.skillId === skill.id);
-      const eligible = rows.filter((decision) => hasUniqueExtreme(optionsFor(decision), locale, kind));
+      const eligible = rows.filter((decision) => hasUniqueExtreme(learnerOptionsFor(decision, stage), locale, kind));
       const count = eligible.filter((decision) => success(
-        optionsFor(decision),
+        learnerOptionsFor(decision, stage),
         correctFor(decision),
         locale,
       )).length;
@@ -323,15 +314,12 @@ function familyLengthContributors(pool, locale, stage, kind) {
 function cueEliminationStats(pool, locale, cuePattern) {
   const result = {};
   for (const stage of ["action", "reason"]) {
-    const optionsFor = stage === "action"
-      ? (decision) => decision.actionOptions
-      : (decision) => decision.reasonOptions;
     const correctFor = stage === "action"
       ? (decision) => decision.correctActionId
       : (decision) => decision.correctReasonId;
     const selected = [];
     for (const decision of pool) {
-      const remaining = optionsFor(decision).filter((option) => (
+      const remaining = learnerOptionsFor(decision, stage).filter((option) => (
         !cuePattern.test(learnerVisibleOptionText(option, locale))
       ));
       if (remaining.length === 1) {
@@ -361,25 +349,19 @@ function cueEliminationStats(pool, locale, cuePattern) {
 }
 
 function uniqueLengthStats(pool, stage, locale, kind) {
-  const optionsFor = stage === "action"
-    ? (decision) => decision.actionOptions
-    : (decision) => decision.reasonOptions;
   const correctFor = stage === "action"
     ? (decision) => decision.correctActionId
     : (decision) => decision.correctReasonId;
-  const eligible = pool.filter((decision) => hasUniqueExtreme(optionsFor(decision), locale, kind));
+  const eligible = pool.filter((decision) => hasUniqueExtreme(learnerOptionsFor(decision, stage), locale, kind));
   const success = kind === "longest" ? uniqueLongest : uniqueShortest;
   return statsFromEligible(
     eligible,
-    (decision) => success(optionsFor(decision), correctFor(decision), locale),
-    (decision) => 1 / optionsFor(decision).length,
+    (decision) => success(learnerOptionsFor(decision, stage), correctFor(decision), locale),
+    (decision) => 1 / learnerOptionsFor(decision, stage).length,
   );
 }
 
 function mixedLengthPositionStats(pool, locale, lengthStage, kind, positionStage, index) {
-  const lengthOptionsFor = lengthStage === "action"
-    ? (decision) => decision.actionOptions
-    : (decision) => decision.reasonOptions;
   const lengthCorrectFor = lengthStage === "action"
     ? (decision) => decision.correctActionId
     : (decision) => decision.correctReasonId;
@@ -391,39 +373,41 @@ function mixedLengthPositionStats(pool, locale, lengthStage, kind, positionStage
     : (decision) => decision.correctReasonId;
   const lengthSuccess = kind === "longest" ? uniqueLongest : uniqueShortest;
   const eligible = pool.filter((decision) => (
-    hasUniqueExtreme(lengthOptionsFor(decision), locale, kind)
+    hasUniqueExtreme(learnerOptionsFor(decision, lengthStage), locale, kind)
     && positionOptionsFor(decision).length > index
   ));
   return statsFromEligible(
     eligible,
     (decision) => (
-      lengthSuccess(lengthOptionsFor(decision), lengthCorrectFor(decision), locale)
+      lengthSuccess(learnerOptionsFor(decision, lengthStage), lengthCorrectFor(decision), locale)
       && positionOptionsFor(decision)[index]?.id === positionCorrectFor(decision)
     ),
-    (decision) => 1 / (lengthOptionsFor(decision).length * positionOptionsFor(decision).length),
+    (decision) => 1 / (learnerOptionsFor(decision, lengthStage).length * positionOptionsFor(decision).length),
   );
 }
 
 function metrics(pool, locale) {
   const n = pool.length;
+  const actionFor = (decision) => learnerOptionsFor(decision, "action");
+  const reasonFor = (decision) => learnerOptionsFor(decision, "reason");
   const chance = n
-    ? pool.reduce((sum, decision) => sum + 1 / (decision.actionOptions.length * decision.reasonOptions.length), 0) / n
+    ? pool.reduce((sum, decision) => sum + 1 / (actionFor(decision).length * reasonFor(decision).length), 0) / n
     : 0;
-  const actionLongest = pool.filter((decision) => longestFirst(decision.actionOptions, decision.correctActionId, locale)).length;
-  const reasonLongest = pool.filter((decision) => longestFirst(decision.reasonOptions, decision.correctReasonId, locale)).length;
-  const actionShortest = pool.filter((decision) => shortestFirst(decision.actionOptions, decision.correctActionId, locale)).length;
-  const reasonShortest = pool.filter((decision) => shortestFirst(decision.reasonOptions, decision.correctReasonId, locale)).length;
+  const actionLongest = pool.filter((decision) => longestFirst(actionFor(decision), decision.correctActionId, locale)).length;
+  const reasonLongest = pool.filter((decision) => longestFirst(reasonFor(decision), decision.correctReasonId, locale)).length;
+  const actionShortest = pool.filter((decision) => shortestFirst(actionFor(decision), decision.correctActionId, locale)).length;
+  const reasonShortest = pool.filter((decision) => shortestFirst(reasonFor(decision), decision.correctReasonId, locale)).length;
   const jointLongest = pool.filter((decision) => (
-    longestFirst(decision.actionOptions, decision.correctActionId, locale)
-    && longestFirst(decision.reasonOptions, decision.correctReasonId, locale)
+    longestFirst(actionFor(decision), decision.correctActionId, locale)
+    && longestFirst(reasonFor(decision), decision.correctReasonId, locale)
   )).length;
   const jointUniqueLongest = pool.filter((decision) => (
-    uniqueLongest(decision.actionOptions, decision.correctActionId, locale)
-    && uniqueLongest(decision.reasonOptions, decision.correctReasonId, locale)
+    uniqueLongest(actionFor(decision), decision.correctActionId, locale)
+    && uniqueLongest(reasonFor(decision), decision.correctReasonId, locale)
   )).length;
   const jointShortest = pool.filter((decision) => (
-    shortestFirst(decision.actionOptions, decision.correctActionId, locale)
-    && shortestFirst(decision.reasonOptions, decision.correctReasonId, locale)
+    shortestFirst(actionFor(decision), decision.correctActionId, locale)
+    && shortestFirst(reasonFor(decision), decision.correctReasonId, locale)
   )).length;
   const firstAction = pool.filter((decision) => decision.actionOptions[0]?.id === decision.correctActionId).length;
   const firstReason = pool.filter((decision) => decision.reasonOptions[0]?.id === decision.correctReasonId).length;
@@ -483,18 +467,38 @@ export function materialLengthShortcutAlert(result) {
   return materialRateShortcutAlert(result, "jointLongestRate");
 }
 
+const LENGTH_HARD_MIN_N = 120;
+const LENGTH_HARD_MIN_CLUSTERS = 16;
+const LENGTH_HARD_EXCESS = 0.10;
+const LENGTH_HARD_MIN_Z = 4;
+const LENGTH_WARNING_MIN_N = 30;
+const LENGTH_WARNING_MIN_CLUSTERS = 8;
+const LENGTH_WARNING_EXCESS = 0.05;
+const LENGTH_WARNING_MIN_Z = 3;
+
+function lengthMarginalTier(stat) {
+  const excess = Number((stat.rate - stat.chance).toFixed(12));
+  if (
+    stat.n >= LENGTH_HARD_MIN_N
+    && stat.clusters >= LENGTH_HARD_MIN_CLUSTERS
+    && excess >= LENGTH_HARD_EXCESS
+    && stat.z >= LENGTH_HARD_MIN_Z
+  ) return "hard";
+  if (
+    stat.n >= LENGTH_WARNING_MIN_N
+    && stat.clusters >= LENGTH_WARNING_MIN_CLUSTERS
+    && excess >= LENGTH_WARNING_EXCESS
+    && stat.z >= LENGTH_WARNING_MIN_Z
+  ) return "warning";
+  return "clear";
+}
+
 function materialLengthMarginalAlert(stat) {
-  return stat.n >= 30
-    && stat.clusters >= 8
-    && stat.rate - stat.chance >= 0.20
-    && stat.z >= 3;
+  return lengthMarginalTier(stat) === "hard";
 }
 
 function lengthMarginalWarning(stat) {
-  return stat.n >= 30
-    && stat.clusters >= 8
-    && stat.rate - stat.chance >= 0.06
-    && stat.z >= 3;
+  return lengthMarginalTier(stat) === "warning";
 }
 
 // New positional gate, declared before any follow-up content edits.
@@ -505,9 +509,12 @@ function lengthMarginalWarning(stat) {
 // - a >=20pp effect-size floor is retained;
 // - one-sided normal p is Bonferroni-adjusted across the 15 positional tests
 //   in a locale/scope (3 action + 3 reason + 9 fixed pairs).
-// Length uses its own broad-corpus gate: >=20pp above random with adequate
-// N/cluster spread hard-fails; smaller >=6pp statistically stable effects warn.
-// This avoids prose-padding while still rejecting a reusable large shortcut.
+// Length uses a separate practical-materiality contract. A broad heuristic that
+// earns >=10pp absolute advantage over random is a hard failure only when at
+// least 120 eligible observations, 16 contributing clusters, and z>=4 agree.
+// That is a 30% relative uplift over a 1/3 baseline, large enough to substitute
+// for learner reasoning across the corpus. >=5pp with n>=30/clusters>=8/z>=3 is
+// retained as a warning for editorial follow-up without forcing prose padding.
 const POSITIONAL_COMPARISONS = 15;
 const POSITIONAL_FAMILY_ALPHA = 0.01 / POSITIONAL_COMPARISONS;
 
@@ -599,6 +606,25 @@ function eligibleSkillIds() {
     ))
     .map((skill) => skill.id));
 }
+
+test("length practical-materiality gate rejects the pre-repair corpus and has stable boundaries", () => {
+  const preRepair = [
+    { locale: "Ru", kind: "reasonLongestUnique", n: 812, chance: 1 / 3, count: 428, rate: 428 / 812, z: 11.712483340856805, clusters: 125 },
+    { locale: "En", kind: "reasonLongestUnique", n: 812, chance: 1 / 3, count: 429, rate: 429 / 812, z: 11.786927090904626, clusters: 122 },
+  ];
+  for (const stat of preRepair) {
+    assert.equal(lengthMarginalTier(stat), "hard", `${stat.locale}/${stat.kind}: pre-repair snapshot must hard-fail`);
+  }
+
+  const base = { n: 120, chance: 1 / 3, clusters: 16, z: 4 };
+  assert.equal(lengthMarginalTier({ ...base, rate: (1 / 3) + 0.10 }), "hard");
+  assert.equal(lengthMarginalTier({ ...base, rate: (1 / 3) + 0.099 }), "warning");
+  assert.equal(lengthMarginalTier({ ...base, n: 119, rate: (1 / 3) + 0.10 }), "warning");
+  assert.equal(lengthMarginalTier({ ...base, clusters: 15, rate: (1 / 3) + 0.10 }), "warning");
+  assert.equal(lengthMarginalTier({ ...base, z: 3.99, rate: (1 / 3) + 0.10 }), "warning");
+  assert.equal(lengthMarginalTier({ n: 30, chance: 1 / 3, clusters: 8, z: 3, rate: (1 / 3) + 0.05 }), "warning");
+  assert.equal(lengthMarginalTier({ n: 30, chance: 1 / 3, clusters: 8, z: 3, rate: (1 / 3) + 0.049 }), "clear");
+});
 
 test("assessment shortcut audit inventories final runtime by pool, family, and locale", () => {
   const eligibleIds = eligibleSkillIds();
@@ -844,3 +870,163 @@ test("assessment-integrity wording repairs preserve semantic polarity without an
   }
 });
 
+
+test("presentation length repair preserves canonical reason equivalence classes and scenario specificity", () => {
+  const learnerDecisions = practicalDecisions.filter((decision) => decision.learnerEligibility !== "INTERNAL_ONLY");
+  const correctReason = (decision, options, locale) => (
+    options.find((option) => option.id === decision.correctReasonId)?.[`text${locale}`].trim() ?? ""
+  );
+  const canonicalText = (decision, locale) => correctReason(decision, decision.reasonOptions, locale);
+  const presentedText = (decision, locale) => correctReason(decision, learnerOptionsFor(decision, "reason"), locale);
+  const duplicateCensus = (locale, presented) => {
+    const groups = new Map();
+    for (const decision of learnerDecisions) {
+      const value = presented ? presentedText(decision, locale) : canonicalText(decision, locale);
+      const ids = groups.get(value) ?? [];
+      ids.push(decision.id);
+      groups.set(value, ids);
+    }
+    const duplicates = [...groups.entries()].filter(([, ids]) => ids.length >= 2);
+    return {
+      groups,
+      duplicates,
+      groupCount: duplicates.length,
+      decisionCount: duplicates.reduce((sum, [, ids]) => sum + ids.length, 0),
+    };
+  };
+
+  const expectedCanonical = {
+    Ru: { groupCount: 56, decisionCount: 392 },
+    En: { groupCount: 47, decisionCount: 365 },
+  };
+  for (const locale of ["Ru", "En"]) {
+    const canonical = duplicateCensus(locale, false);
+    const presented = duplicateCensus(locale, true);
+    assert.deepEqual(
+      { groupCount: canonical.groupCount, decisionCount: canonical.decisionCount },
+      expectedCanonical[locale],
+      `${locale}: canonical correct-reason duplicate census drifted`,
+    );
+    assert.deepEqual(
+      { groupCount: presented.groupCount, decisionCount: presented.decisionCount },
+      expectedCanonical[locale],
+      `${locale}: presentation created or removed a duplicate correct-reason cluster`,
+    );
+
+    for (const [presentedReason, ids] of presented.duplicates) {
+      const canonicalReasons = new Set(ids.map((id) => {
+        const decision = learnerDecisions.find((candidate) => candidate.id === id);
+        return canonicalText(decision, locale);
+      }));
+      assert.equal(
+        canonicalReasons.size,
+        1,
+        `${locale}: presented reason collapses materially different canonical rationales: ${ids.join(", ")}`,
+      );
+      const [canonicalReason] = canonicalReasons;
+      assert.deepEqual(
+        [...ids].sort(),
+        [...(canonical.groups.get(canonicalReason) ?? [])].sort(),
+        `${locale}: duplicate membership changed for presented reason ${presentedReason}`,
+      );
+
+      const wrongAppearances = learnerDecisions.flatMap((decision) => (
+        learnerOptionsFor(decision, "reason")
+          .filter((option) => option.id !== decision.correctReasonId && option[`text${locale}`].trim() === presentedReason)
+          .map(() => decision.id)
+      ));
+      if (wrongAppearances.length === 0) {
+        assert.ok(
+          (canonical.groups.get(canonicalReason) ?? []).length >= 2,
+          `${locale}: repeated correct-only phrase was manufactured by presentation`,
+        );
+      }
+    }
+  }
+
+  const repairedIds = new Set(practicalAssessmentReasonRepairGroups.flatMap((group) => group.decisionIds));
+  const actuallyChanged = learnerDecisions.filter((decision) => (
+    canonicalText(decision, "Ru") !== presentedText(decision, "Ru")
+    || canonicalText(decision, "En") !== presentedText(decision, "En")
+  ));
+  assert.equal(repairedIds.size, 88, "bounded reason repair must remain at 88 explicitly reviewed decisions");
+  assert.deepEqual(
+    actuallyChanged.map((decision) => decision.id).sort(),
+    [...repairedIds].sort(),
+    "presentation reason changes escaped the explicit reviewed manifest",
+  );
+
+  for (const group of practicalAssessmentReasonRepairGroups) {
+    const decisions = group.decisionIds.map((id) => practicalDecisions.find((candidate) => candidate.id === id));
+    assert.equal(decisions.every(Boolean), true, `${group.label}: reviewed decision missing`);
+    const canonicalSignatures = new Set();
+    for (const decision of decisions) {
+      const canonical = decision.reasonOptions.find((option) => option.id === decision.correctReasonId);
+      const presented = learnerOptionsFor(decision, "reason").find((option) => option.id === decision.correctReasonId);
+      assert.ok(canonical && presented, `${decision.id}: correct reason missing`);
+      assert.ok(decision.sourceRefs.length > 0, `${decision.id}: sourceRefs missing`);
+      assert.equal(canonical.textRu, group.canonical.textRu, `${decision.id}: RU canonical review basis drifted`);
+      assert.equal(canonical.textEn, group.canonical.textEn, `${decision.id}: EN canonical review basis drifted`);
+      canonicalSignatures.add(`${canonical.textRu}\u0000${canonical.textEn}`);
+      assert.equal(presented.textRu, group.presented.textRu, `${decision.id}: RU reviewed compact rationale drifted`);
+      assert.equal(presented.textEn, group.presented.textEn, `${decision.id}: EN reviewed compact rationale drifted`);
+      assert.equal(
+        learnerOptionsFor(decision, "reason").filter((option) => option.id === decision.correctReasonId).length,
+        1,
+        `${decision.id}: reason answer-key ambiguity`,
+      );
+    }
+    assert.equal(
+      canonicalSignatures.size,
+      1,
+      `${group.label}: exact reuse is allowed only for one pre-existing canonical rationale class`,
+    );
+  }
+
+  for (const id of [
+    "PM-PF-06-108",
+    "PM-W4-BOARD-01-FINAL-101",
+    "PM-W4-BOARD-01-ETC-101",
+    "PM-W4-BOARD-01-ETC-102",
+  ]) {
+    const decision = practicalDecisions.find((candidate) => candidate.id === id);
+    assert.ok(decision, `${id}: concrete regression decision missing`);
+    assert.equal(presentedText(decision, "Ru"), canonicalText(decision, "Ru"), `${id}: RU scenario-specific reason must remain canonical`);
+    assert.equal(presentedText(decision, "En"), canonicalText(decision, "En"), `${id}: EN scenario-specific reason must remain canonical`);
+  }
+
+  const deepPf06 = practicalAssessmentReasonRepairGroups.find((group) => group.label === "B4_PF06");
+  assert.ok(deepPf06, "B4_PF06 reviewed compact group missing");
+  assert.equal(
+    deepPf06.canonical.textEn,
+    "At depth, OOP realization and reverse-implied exposure grow; 3-bet shape cannot be copied mechanically from 100bb.",
+  );
+  assert.equal(
+    deepPf06.presented.textEn,
+    "Depth raises OOP/reverse-implied cost; 3-bets cannot copy 100bb.",
+  );
+});
+
+
+test("RU action length repair remains source-bounded without mutating EN action wording", () => {
+  const authorityLeak = /(?:правильн|верн(?:ый|ая|ое)|источник|correct answer|source says|wrong answer)/iu;
+  const actionGroups = [
+    { ids: ["PM-3BP-05-001", "PM-3BP-05-A7-103", "PM-3BP-05-A7-104", "PM-3BP-05-A7-108"], ru: /план|ставк|защит|роль|доск/iu },
+    { ids: ["PM-TURN-02-A8-202","PM-TURN-02-A8-205","PM-TURN-02-A8-207","PM-TURN-02-A8-108","PM-TURN-02-FINAL-101","PM-TURN-02-FINAL-102","PM-TURN-02-FINAL-103","PM-TURN-02-FINAL-104","PM-TURN-02-ETC-101","PM-TURN-02-ETC-102"], ru: /рук|ран-аут|баррел|диапазон|блеф|тёрн|SPR|цен|цел|владение|бланк|вэлью|фолд/iu },
+    { ids: ["PM-RIV-03-A8-202","PM-RIV-03-A8-205","PM-RIV-03-A8-207","PM-RIV-03-A8-108","PM-RIV-03-C0-201","PM-RIV-03-C0-202","PM-RIV-03-C0-203","PM-RIV-03-C0-204","PM-RIV-03-C0-205","PM-RIV-03-C0-206","PM-RIV-03-C0-207","PM-RIV-03-C0-208"], ru: /блеф|цен|лини|старт|фильтр|комбо/iu },
+  ];
+  for (const group of actionGroups) {
+    for (const id of group.ids) {
+      const decision = practicalDecisions.find((candidate) => candidate.id === id);
+      assert.ok(decision, `${id}: reviewed action missing`);
+      const canonical = decision.actionOptions.find((option) => option.id === decision.correctActionId);
+      const presented = learnerOptionsFor(decision, "action").find((option) => option.id === decision.correctActionId);
+      assert.ok(canonical && presented, `${id}: correct action missing`);
+      assert.ok(decision.sourceRefs.length > 0, `${id}: sourceRefs missing`);
+      assert.match(presented.textRu, group.ru, `${id}: RU action causal nucleus lost`);
+      assert.equal(presented.textEn, canonical.textEn, `${id}: EN action wording must remain canonical`);
+      assert.equal(authorityLeak.test(presented.textRu) || authorityLeak.test(presented.textEn), false,
+        `${id}: authority marker leaked into correct action`);
+    }
+  }
+});

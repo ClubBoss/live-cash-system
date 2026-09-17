@@ -9,6 +9,7 @@ import {
   practicalDecisions,
   practicalSkillById,
 } from "../content/practical-mastery/index.ts";
+import { PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID } from "../content/practical-mastery/evidence-authority.ts";
 import { buildAdaptiveIntegratedSession } from "../lib/practical-adaptive-session.ts";
 import {
   createPracticalMasteryState,
@@ -58,7 +59,7 @@ test("exact same learner-facing cues collapse to one stimulus family", () => {
   }
 });
 
-test("template-heavy generated siblings expose one scenario-family authority", () => {
+test("template-heavy generated rows resolve scenario identity from explicit authored authority", () => {
   const templated = practicalDecisions.filter((decision) => /-(?:A8|A9|A10|B1|B3|B4)-\d+$/u.test(decision.id));
   const byPrefix = new Map();
   for (const decision of templated) {
@@ -66,11 +67,15 @@ test("template-heavy generated siblings expose one scenario-family authority", (
     const rows = byPrefix.get(prefix) ?? [];
     rows.push(decision);
     byPrefix.set(prefix, rows);
+    const authority = PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id];
+    assert.ok(authority, `missing explicit authority for ${decision.id}`);
+    assert.equal(practicalScenarioFamilyId(decision), authority.scenarioId);
   }
   assert.ok(byPrefix.size >= 31, `expected at least 31 generated scenario families, got ${byPrefix.size}`);
-  for (const rows of byPrefix.values()) {
-    assert.equal(new Set(rows.map(practicalScenarioFamilyId)).size, 1);
-  }
+  assert.ok(
+    [...byPrefix.values()].some((rows) => new Set(rows.map(practicalScenarioFamilyId)).size > 1),
+    "authored independent scenarios must not be collapsed back to one template-ID family",
+  );
 });
 
 test("marker-leading B3/B4 generated families share one scenario-diversity identity", () => {

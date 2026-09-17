@@ -79,7 +79,7 @@ test("Practical Mastery remains usable at phone width", async ({ page }) => {
   }
 });
 
-test("Quick Start teaches the mechanism before scored practice and writes schema-v4 concept evidence", async ({ page }) => {
+test("Quick Start teaches the mechanism before scored practice and writes schema-v5 concept evidence", async ({ page }) => {
   test.skip(crossMatrix, "state semantics are covered once in canonical Chromium");
   await page.goto("/mastery/journey");
   await expect(page.getByText(/БЫСТРЫЙ СТАРТ · ШАГ 1 ИЗ 8/i)).toBeVisible();
@@ -95,7 +95,7 @@ test("Quick Start teaches the mechanism before scored practice and writes schema
     if (!raw) return null;
     const root = JSON.parse(raw);
     return { rootSchema: root.schemaVersion, practicalSchema: root._practicalProfile?.mastery?.schemaVersion, conceptTaught: root._practicalProfile?.mastery?.skills?.["FND-01"]?.conceptTaught };
-  }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 4, conceptTaught: true });
+  }, LEARNER_KEY)).toEqual({ rootSchema: 2, practicalSchema: 5, conceptTaught: true });
   await expect(page.getByText("ТЕПЕРЬ ТЫ", { exact: true })).toBeVisible();
 
   await page.goto("/mastery");
