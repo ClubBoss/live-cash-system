@@ -8,10 +8,12 @@ import {
   deriveEvidenceStage,
   derivePreScenarioRecognitionEvidenceStage,
   isPracticalBridgeSkill,
+  isCurrentPracticalEvidenceAttempt,
   isSemanticallyValidPracticalAttempt,
   practicalAttemptHistoryContains,
   PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT,
   PRACTICAL_ATTEMPT_TAIL_LIMIT,
+  PRACTICAL_MASTERY_CONTENT_VERSION,
   recordPracticalDecision,
   stageAtLeast,
   type PracticalArchivedSkillProgress,
@@ -118,6 +120,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 const RETENTION_TIER_SET = new Set<number>(RETENTION_INTERVAL_DAYS);
 const CANONICAL_PRACTICAL_SKILL_IDS = Object.keys(createPracticalMasteryState(new Date(0)).skills).sort();
+function isCurrentEvidenceRow(value: unknown): boolean { return isCurrentPracticalEvidenceAttempt(value); }
 
 function deterministicAttemptFieldsMatch(value: PracticalSkillProgress, replayed: PracticalSkillProgress): boolean {
   return value.attempts === replayed.attempts
@@ -340,7 +343,7 @@ function masteryHeaderAndSkills(value: Record<string, unknown>): value is Record
     && !persistedSkillIds.some((skillId, index) => skillId !== CANONICAL_PRACTICAL_SKILL_IDS[index]);
 }
 
-function replayTailFromArchive(mastery: PracticalMasteryState): PracticalMasteryState | null {
+function replayTailFromArchive(mastery: PracticalMasteryState, allowPrevious4BpSemantic = false): PracticalMasteryState | null {
   if (!validAttemptArchive(mastery.attemptArchive) || mastery.attempts.length > PRACTICAL_ATTEMPT_TAIL_LIMIT) return null;
   let replayed = createPracticalMasteryState(new Date(0));
   replayed.attemptArchive = structuredClone(mastery.attemptArchive);
@@ -365,6 +368,7 @@ function replayTailFromArchive(mastery: PracticalMasteryState): PracticalMastery
   for (const attempt of mastery.attempts) {
     if (!isSemanticallyValidPracticalAttempt(attempt) || attemptIds.has(attempt.id)) return null;
     attemptIds.add(attempt.id);
+    const priorProgress = structuredClone(replayed.skills[attempt.skillId]);
     replayed = recordPracticalDecision(replayed, {
       decisionId: attempt.decisionId,
       actionId: attempt.actionId,
@@ -373,15 +377,32 @@ function replayTailFromArchive(mastery: PracticalMasteryState): PracticalMastery
       confidenceProvenance: attempt.confidenceProvenance ?? "NOT_CAPTURED",
       now: new Date(attempt.answeredAt),
     });
+    // recordPracticalDecision writes today's semantic revision. Replay must not
+    // upgrade a persisted pre-revision row merely by reading it. Keep raw attempt/last-attempt accounting, but restore current-generation
+    // correct/mastery evidence for
+    // any row that is raw-valid yet no longer current evidence.
+    replayed.attempts[replayed.attempts.length - 1] = structuredClone(attempt);
+    if (!allowPrevious4BpSemantic && !isCurrentEvidenceRow(attempt) && /^PM-4BP-0[1-4]-A7-10[1-8]$/u.test(attempt.decisionId)) {
+      const progress = replayed.skills[attempt.skillId];
+      progress.correct = priorProgress.correct;
+      progress.recognitionCorrect = priorProgress.recognitionCorrect;
+      progress.directDecisionCorrect = priorProgress.directDecisionCorrect;
+      progress.changedCorrect = priorProgress.changedCorrect;
+      progress.boundaryCorrect = priorProgress.boundaryCorrect;
+      progress.mixedCorrect = priorProgress.mixedCorrect;
+      progress.successfulDecisionIds = [...priorProgress.successfulDecisionIds];
+      progress.lastIncorrectDecisionId = priorProgress.lastIncorrectDecisionId;
+      progress.evidenceStage = deriveEvidenceStage(progress);
+    }
   }
   return replayed;
 }
 
-function validCurrentMasteryState(value: unknown): value is PracticalMasteryState {
+function validCurrentMasteryState(value: unknown, allowPrevious4BpSemantic = false): value is PracticalMasteryState {
   if (!isRecord(value) || value.schemaVersion !== PRACTICAL_PROFILE_MASTERY_SCHEMA_VERSION || !masteryHeaderAndSkills(value)) return false;
   if (!validAttemptArchive(value.attemptArchive)) return false;
   const mastery = value as unknown as PracticalMasteryState;
-  const replayed = replayTailFromArchive(mastery);
+  const replayed = replayTailFromArchive(mastery, allowPrevious4BpSemantic);
   if (!replayed) return false;
   return CANONICAL_PRACTICAL_SKILL_IDS.every((skillId) => validSkillProgress(skillId, mastery.skills[skillId], replayed.skills[skillId]));
 }
@@ -531,10 +552,10 @@ function validPerformanceEvents(value: unknown[], provenance: "CURRENT" | "LEGAC
   return true;
 }
 
-function validCurrentPracticalProfileState(value: unknown): value is PracticalProfileState {
+function validCurrentPracticalProfileState(value: unknown, allowPrevious4BpSemantic = false): value is PracticalProfileState {
   return isRecord(value)
     && value.version === PRACTICAL_PROFILE_VERSION
-    && validCurrentMasteryState(value.mastery)
+    && validCurrentMasteryState(value.mastery, allowPrevious4BpSemantic)
     && Array.isArray(value.performance)
     && value.performance.length <= PRACTICAL_PERFORMANCE_LIMIT
     && validPerformanceEvents(value.performance, "CURRENT")
@@ -575,6 +596,70 @@ function migrateLegacyMastery(value: Record<string, unknown>): PracticalMasteryS
   return next;
 }
 
+const REWRITTEN_4BP_SKILL_IDS = new Set(["4BP-01", "4BP-02", "4BP-03", "4BP-04"]);
+const REWRITTEN_4BP_DECISION_ID = /^PM-4BP-0[1-4]-A7-10[1-8]$/u;
+
+function reconcile4BpObjectiveSemanticRevision(profile: PracticalProfileState): PracticalProfileState {
+  if (profile.mastery.contentVersion === PRACTICAL_MASTERY_CONTENT_VERSION) return structuredClone(profile);
+  const next = structuredClone(profile);
+  const mastery = next.mastery;
+  mastery.contentVersion = PRACTICAL_MASTERY_CONTENT_VERSION;
+
+  for (const skillId of REWRITTEN_4BP_SKILL_IDS) {
+    const progress = mastery.skills[skillId];
+    progress.correct = 0;
+    progress.recognitionCorrect = 0;
+    progress.directDecisionCorrect = 0;
+    progress.changedCorrect = 0;
+    progress.boundaryCorrect = 0;
+    progress.mixedCorrect = 0;
+    progress.successfulDecisionIds = [];
+    progress.lastIncorrectDecisionId = null;
+    progress.retentionDaysPassed = [];
+    progress.delayedRetrievalPassed = false;
+    progress.realHandTransferReviewed = false;
+
+    const archived = mastery.attemptArchive.bySkill[skillId];
+    if (archived) {
+      archived.correct = 0;
+      archived.recognitionCorrect = 0;
+      archived.directDecisionCorrect = 0;
+      archived.changedCorrect = 0;
+      archived.boundaryCorrect = 0;
+      archived.mixedCorrect = 0;
+      archived.successfulDecisionIds = [];
+      archived.lastIncorrectDecisionId = null;
+      archived.lastCorrect = null;
+    }
+  }
+  for (const decisionId of Object.keys(mastery.attemptArchive.latestCorrectOrdinalByDecision)) {
+    if (REWRITTEN_4BP_DECISION_ID.test(decisionId)) delete mastery.attemptArchive.latestCorrectOrdinalByDecision[decisionId];
+  }
+
+  // A profile created before this content generation cannot have archived V3
+  // evidence. A current V3 row may only exist in its un-compacted tail (for
+  // example after an interrupted save around rollout), so rebuild that bounded
+  // evidence without touching raw rows or unrelated skills.
+  for (const attempt of mastery.attempts) {
+    if (!REWRITTEN_4BP_SKILL_IDS.has(attempt.skillId) || !isCurrentEvidenceRow(attempt)) continue;
+    const decision = practicalDecisionById.get(attempt.decisionId);
+    if (!decision) continue;
+    const progress = mastery.skills[attempt.skillId];
+    if (attempt.correct) {
+      progress.correct += 1;
+      if (!progress.successfulDecisionIds.includes(attempt.decisionId)) progress.successfulDecisionIds.push(attempt.decisionId);
+      if (decision.kind === "recognition") progress.recognitionCorrect += 1;
+      if (decision.kind === "decision") progress.directDecisionCorrect += 1;
+      if (decision.kind === "changed") progress.changedCorrect += 1;
+      if (decision.kind === "boundary") progress.boundaryCorrect += 1;
+      if (decision.kind === "mixed") progress.mixedCorrect += 1;
+      if (progress.lastIncorrectDecisionId === attempt.decisionId) progress.lastIncorrectDecisionId = null;
+    } else progress.lastIncorrectDecisionId = attempt.decisionId;
+  }
+  for (const skillId of REWRITTEN_4BP_SKILL_IDS) mastery.skills[skillId].evidenceStage = deriveEvidenceStage(mastery.skills[skillId]);
+  return next;
+}
+
 export type PracticalProfileNormalization = {
   state: PracticalProfileState;
   migratedFromSchema3: boolean;
@@ -584,6 +669,11 @@ export type PracticalProfileNormalization = {
 export function normalizePracticalProfileState(value: unknown): PracticalProfileNormalization | null {
   if (validCurrentPracticalProfileState(value)) {
     return { state: structuredClone(value), migratedFromSchema3: false, recognitionStageReconciled: false };
+  }
+  if (validCurrentPracticalProfileState(value, true)) {
+    const reconciled = reconcile4BpObjectiveSemanticRevision(value as PracticalProfileState);
+    if (!validCurrentPracticalProfileState(reconciled)) return null;
+    return { state: reconciled, migratedFromSchema3: false, recognitionStageReconciled: false };
   }
   if (!validLegacyPracticalProfileState(value, true) || !isRecord(value) || !isRecord(value.mastery)) return null;
 
@@ -600,8 +690,9 @@ export function normalizePracticalProfileState(value: unknown): PracticalProfile
     performance: legacy.performance.slice(-PRACTICAL_PERFORMANCE_LIMIT).map((event) => ({ ...event })),
     studyWorkspace: migrateLegacyStudyWorkspace(legacy.studyWorkspace),
   } as PracticalProfileState;
-  if (!validCurrentPracticalProfileState(migrated)) return null;
-  return { state: migrated, migratedFromSchema3: true, recognitionStageReconciled };
+  const reconciled = reconcile4BpObjectiveSemanticRevision(migrated);
+  if (!validCurrentPracticalProfileState(reconciled)) return null;
+  return { state: reconciled, migratedFromSchema3: true, recognitionStageReconciled };
 }
 
 export function validatePracticalProfileState(value: unknown): value is PracticalProfileState {
@@ -666,9 +757,12 @@ function masteryPreserved(candidate: PracticalMasteryState, base: PracticalMaste
 
 export function practicalProfileSafeSuccessor(candidateState: unknown, baseState: unknown): boolean {
   if (!hasPracticalProfileField(baseState)) return true;
-  if (!learnerStateHasValidPracticalProfile(baseState) || !learnerStateHasValidPracticalProfile(candidateState)) return false;
-  const base = (baseState as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD] as PracticalProfileState;
-  const candidate = (candidateState as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD] as PracticalProfileState;
+  if (!hasPracticalProfileField(candidateState)) return false;
+  const rawBase = (baseState as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD];
+  const rawCandidate = (candidateState as Record<string, unknown>)[PRACTICAL_PROFILE_FIELD];
+  const base = normalizePracticalProfileState(rawBase)?.state;
+  const candidate = normalizePracticalProfileState(rawCandidate)?.state;
+  if (!base || !candidate) return false;
   if (JSON.stringify(candidate) === JSON.stringify(base)) return true;
   if (!masteryPreserved(candidate.mastery, base.mastery)) return false;
   if (!performancePreserved(candidate.performance, base.performance)) return false;

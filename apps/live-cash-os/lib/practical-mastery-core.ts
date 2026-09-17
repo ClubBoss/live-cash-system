@@ -19,8 +19,11 @@ export const PRACTICAL_MASTERY_STATE_SCHEMA_VERSION = 4 as const;
 export const PRACTICAL_ATTEMPT_TAIL_LIMIT = 256;
 export const PRACTICAL_ATTEMPT_COMPACT_TARGET = 128;
 export const PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT = 512;
-export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.08-practical-mastery-v3";
+export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.09-practical-mastery-v4-4bp-objective-revision";
 export const PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION = "A7_RU_REASON_POLARITY_V2";
+export const PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION = "4BP_OBJECTIVE_SPECIFIC_V3";
+const REWRITTEN_4BP_DECISION_ID = /^PM-4BP-0[1-4]-A7-(?:10[1-8])$/u;
+function requires4BpObjectiveSemanticRevision(decisionId: string): boolean { return REWRITTEN_4BP_DECISION_ID.test(decisionId); }
 function requiresA7RuReasonSemanticRevision(decisionId: string): boolean { return /^PM-(?:3BP|4BP)-\d{2}-A7-\d+$/u.test(decisionId); }
 const PRACTICAL_BRIDGE_SKILL_IDS = new Set<string>(Object.keys(laterStreetLegacySkillBridges));
 export function isPracticalBridgeSkill(skillId: string): boolean { return PRACTICAL_BRIDGE_SKILL_IDS.has(skillId); }
@@ -362,6 +365,13 @@ export function isSemanticallyValidPracticalAttempt(attempt: unknown): attempt i
 export function isCurrentPracticalEvidenceAttempt(attempt: unknown): attempt is PracticalAttempt {
   if (!isSemanticallyValidPracticalAttempt(attempt)) return false;
   const decision = practicalDecisionById.get(attempt.decisionId)!;
+  // The 32 4BP A7 tasks were materially rewritten from a shared generic
+  // mechanism into four objective-specific ladders. Old rows remain valid raw
+  // history, but neither old correct nor old wrong evidence can prove the new
+  // semantic generation.
+  if (requires4BpObjectiveSemanticRevision(attempt.decisionId)) {
+    return attempt.semanticRevision === PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION;
+  }
   // A7 RU wrong-reason wording changed materially. Pre-repair persisted rows
   // have no locale/text revision, so a wrong reason cannot be safely mapped
   // onto the repaired misconception. Keep the raw row valid and intact, but
@@ -493,7 +503,10 @@ export function recommendNextPracticalSkill(state: PracticalMasteryState): Pract
 export function recordPracticalDecision(state: PracticalMasteryState, input: { decisionId: string; actionId: string; reasonId: string; confidence: number; confidenceProvenance?: PracticalConfidenceProvenance; now?: Date }): PracticalMasteryState {
   const decision = practicalDecisionById.get(input.decisionId); if (!decision) throw new Error(`Unknown practical decision: ${input.decisionId}`); if (!state.skills[decision.skillId]) throw new Error(`Unknown practical skill: ${decision.skillId}`);
   const confidence = Math.max(0, Math.min(100, Math.round(input.confidence))); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId; const answeredAt = nowIso(input.now);
-  const attempt: PracticalAttempt = { id: `${decision.id}:${state.revision + 1}:${answeredAt}`, decisionId: decision.id, skillId: decision.skillId, actionId: input.actionId, reasonId: input.reasonId, confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", correct, answeredAt, ...(requiresA7RuReasonSemanticRevision(decision.id) ? { semanticRevision: PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION } : {}) };
+  const semanticRevision = requires4BpObjectiveSemanticRevision(decision.id)
+    ? PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION
+    : requiresA7RuReasonSemanticRevision(decision.id) ? PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION : undefined;
+  const attempt: PracticalAttempt = { id: `${decision.id}:${state.revision + 1}:${answeredAt}`, decisionId: decision.id, skillId: decision.skillId, actionId: input.actionId, reasonId: input.reasonId, confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", correct, answeredAt, ...(semanticRevision ? { semanticRevision } : {}) };
   const next: PracticalMasteryState = structuredClone(state); const nextProgress = next.skills[decision.skillId]; nextProgress.attempts += 1;
   if (correct) { nextProgress.correct += 1; if (!nextProgress.successfulDecisionIds.includes(decision.id)) nextProgress.successfulDecisionIds.push(decision.id); if (decision.kind === "recognition") nextProgress.recognitionCorrect += 1; if (decision.kind === "decision") nextProgress.directDecisionCorrect += 1; if (decision.kind === "changed") nextProgress.changedCorrect += 1; if (decision.kind === "boundary") nextProgress.boundaryCorrect += 1; if (decision.kind === "mixed") nextProgress.mixedCorrect += 1; if (nextProgress.lastIncorrectDecisionId === decision.id) nextProgress.lastIncorrectDecisionId = null; } else nextProgress.lastIncorrectDecisionId = decision.id;
   nextProgress.lastAttemptAt = answeredAt; refreshEvidenceStage(nextProgress); next.attempts.push(attempt); next.revision += 1; next.updatedAt = answeredAt; return compactPracticalAttemptHistory(next);

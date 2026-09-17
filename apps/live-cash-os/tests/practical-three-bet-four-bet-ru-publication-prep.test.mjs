@@ -187,8 +187,8 @@ function reviewedA7SemanticEn(text) {
 }
 
 test("A7 final runtime preserves reviewed RU misconception polarity for every wrong reason", () => {
-  const expansions = ownedDecisions.filter((decision) => decision.id.includes("-A7-"));
-  assert.equal(expansions.length, 72);
+  const expansions = ownedDecisions.filter((decision) => decision.id.startsWith("PM-3BP-") && decision.id.includes("-A7-"));
+  assert.equal(expansions.length, 40);
   for (const raw of expansions) {
     const projected = projectThreeBetFourBetSystemicRuDecision(raw);
     const canonical = practicalDecisionById.get(raw.id);
@@ -213,7 +213,7 @@ test("confirmed polarity regressions remain false misconceptions in final RU run
     ["PM-3BP-01-A7-101", ["Позиция сама по себе создаёт преимущество диапазона.", "У любого 3-беттора на любом флопе одна и та же стратегия."]],
     ["PM-3BP-04-A7-101", ["Текущая цена полностью определяет защиту OOP.", "Будущие улицы не важны в 3-бет-поте."]],
     ["PM-3BP-04-A7-108", ["Позиционный недостаток оправдывает отказ от защиты диапазона.", "Агрессия отменяет структурный недостаток OOP."]],
-    ["PM-4BP-02-A7-101", ["Меньшее число улиц означает одинаковый EV у всех рук.", "4-бет-пот отменяет взаимодействие диапазонов."]],
+    ["PM-4BP-02-A7-101", ["Сжатие дерева выравнивает ценность всех классов рук.", "Префлоп-банк заменяет оценку руки постфлоп."]],
   ]);
   for (const [id, texts] of expected) {
     const decision = practicalDecisionById.get(id);
