@@ -10,7 +10,10 @@ import { isIntegrationDerivedSkill } from "../content/practical-mastery/integrat
 import { practicalPostQuickStartTeachingAssetForSkill } from "../lib/practical-post-quick-start-learning.ts";
 import { sanitizeLearnerPresentationText } from "../lib/learner-presentation-firewall.ts";
 import { practicalPresentedDecisionOptions } from "../lib/practical-option-presentation.ts";
-import { practicalAssessmentReasonRepairGroups } from "../lib/practical-assessment-length-presentation.ts";
+import {
+  practicalAssessmentExactReasonRepairs,
+  practicalAssessmentReasonRepairGroups,
+} from "../lib/practical-assessment-length-presentation.ts";
 import {
   isPracticalBridgeSkill,
   practicalSkillCorpusCanReach,
@@ -944,12 +947,15 @@ test("presentation length repair preserves canonical reason equivalence classes 
     }
   }
 
-  const repairedIds = new Set(practicalAssessmentReasonRepairGroups.flatMap((group) => group.decisionIds));
+  const repairedIds = new Set([
+    ...practicalAssessmentReasonRepairGroups.flatMap((group) => group.decisionIds),
+    ...Object.keys(practicalAssessmentExactReasonRepairs),
+  ]);
   const actuallyChanged = learnerDecisions.filter((decision) => (
     canonicalText(decision, "Ru") !== presentedText(decision, "Ru")
     || canonicalText(decision, "En") !== presentedText(decision, "En")
   ));
-  assert.equal(repairedIds.size, 88, "bounded reason repair must remain at 88 explicitly reviewed decisions");
+  assert.equal(repairedIds.size, 145, "bounded reason repair must remain at 145 explicitly reviewed decisions");
   assert.deepEqual(
     actuallyChanged.map((decision) => decision.id).sort(),
     [...repairedIds].sort(),
@@ -983,6 +989,19 @@ test("presentation length repair preserves canonical reason equivalence classes 
     );
   }
 
+  for (const [id, repair] of Object.entries(practicalAssessmentExactReasonRepairs)) {
+    const decision = practicalDecisions.find((candidate) => candidate.id === id);
+    assert.ok(decision, `${id}: exact reviewed reason decision missing`);
+    const canonical = decision.reasonOptions.find((option) => option.id === decision.correctReasonId);
+    const presented = learnerOptionsFor(decision, "reason").find((option) => option.id === decision.correctReasonId);
+    assert.ok(canonical && presented, `${id}: exact reviewed correct reason missing`);
+    assert.ok(decision.sourceRefs.length > 0, `${id}: sourceRefs missing`);
+    assert.equal(canonical.textRu, repair.canonical.textRu, `${id}: RU exact review basis drifted`);
+    assert.equal(canonical.textEn, repair.canonical.textEn, `${id}: EN exact review basis drifted`);
+    assert.equal(presented.textRu, repair.presented.textRu, `${id}: RU exact presentation drifted`);
+    assert.equal(presented.textEn, repair.presented.textEn, `${id}: EN exact presentation drifted`);
+  }
+
   for (const id of [
     "PM-PF-06-108",
     "PM-W4-BOARD-01-FINAL-101",
@@ -1014,6 +1033,11 @@ test("RU action length repair remains source-bounded without mutating EN action 
     { ids: ["PM-3BP-05-001", "PM-3BP-05-A7-103", "PM-3BP-05-A7-104", "PM-3BP-05-A7-108"], ru: /план|ставк|защит|роль|доск/iu },
     { ids: ["PM-TURN-02-A8-202","PM-TURN-02-A8-205","PM-TURN-02-A8-207","PM-TURN-02-A8-108","PM-TURN-02-FINAL-101","PM-TURN-02-FINAL-102","PM-TURN-02-FINAL-103","PM-TURN-02-FINAL-104","PM-TURN-02-ETC-101","PM-TURN-02-ETC-102"], ru: /рук|ран-аут|баррел|диапазон|блеф|тёрн|SPR|цен|цел|владение|бланк|вэлью|фолд/iu },
     { ids: ["PM-RIV-03-A8-202","PM-RIV-03-A8-205","PM-RIV-03-A8-207","PM-RIV-03-A8-108","PM-RIV-03-C0-201","PM-RIV-03-C0-202","PM-RIV-03-C0-203","PM-RIV-03-C0-204","PM-RIV-03-C0-205","PM-RIV-03-C0-206","PM-RIV-03-C0-207","PM-RIV-03-C0-208"], ru: /блеф|цен|лини|старт|фильтр|комбо/iu },
+    { ids: ["PM-FND-04-B1-101","PM-FND-04-B1-102","PM-FND-04-B1-103","PM-FND-04-B1-104","PM-FND-04-B1-105","PM-FND-04-B1-106","PM-FND-04-B1-107","PM-FND-04-B1-108"], ru: /outs|аут|clean|dirty|range|EV|дисконтир/iu },
+    { ids: ["PM-W4-DRAW-B1-101","PM-W4-DRAW-B1-102","PM-W4-DRAW-B1-103","PM-W4-DRAW-B1-104","PM-W4-DRAW-B1-105","PM-W4-DRAW-B1-106","PM-W4-DRAW-B1-107","PM-W4-DRAW-B1-108"], ru: /дро|clean|nut|range|overlap|SDV|FE|EV/iu },
+    { ids: ["PM-DEEP-02-B1-101","PM-DEEP-02-B1-102","PM-DEEP-02-B1-103","PM-DEEP-02-B1-104","PM-DEEP-02-B1-105","PM-DEEP-02-B1-106","PM-DEEP-02-B1-107","PM-DEEP-02-B1-108"], ru: /depth|OOP|reverse|300bb|100bb|position|price|nuts|EV/iu },
+    { ids: ["PM-EXP-06-B1-101","PM-EXP-06-B1-102","PM-EXP-06-B1-103","PM-EXP-06-B1-104"], ru: /game|seat|стол|сильн|EV/iu },
+    { ids: ["PM-MW-05-B1-101","PM-MW-05-B1-102","PM-MW-05-B1-103","PM-MW-05-B1-104"], ru: /multiway|value|bluff|range|price|heads-up/iu },
   ];
   for (const group of actionGroups) {
     for (const id of group.ids) {
@@ -1028,5 +1052,31 @@ test("RU action length repair remains source-bounded without mutating EN action 
       assert.equal(authorityLeak.test(presented.textRu) || authorityLeak.test(presented.textEn), false,
         `${id}: authority marker leaked into correct action`);
     }
+  }
+
+  const compositeActionIds = actionGroups.slice(3).flatMap((group) => group.ids);
+  const learnerDecisions = practicalDecisions.filter((decision) => decision.learnerEligibility !== "INTERNAL_ONLY");
+  for (const id of compositeActionIds) {
+    const decision = practicalDecisions.find((candidate) => candidate.id === id);
+    const presentedOptions = learnerOptionsFor(decision, "action");
+    const presentedCorrect = presentedOptions.find((option) => option.id === decision.correctActionId);
+    const canonicalWrong = decision.actionOptions.filter((option) => option.id !== decision.correctActionId);
+    for (const wrong of canonicalWrong) {
+      const shown = presentedOptions.find((option) => option.id === wrong.id);
+      assert.deepEqual(
+        { textRu: shown.textRu, textEn: shown.textEn, misconception: shown.misconception },
+        { textRu: wrong.textRu, textEn: wrong.textEn, misconception: wrong.misconception },
+        `${id}/${wrong.id}: distractor or misconception mutated by presentation repair`,
+      );
+    }
+    const sameCorrectPhrase = learnerDecisions.filter((candidate) => {
+      const correct = learnerOptionsFor(candidate, "action").find((option) => option.id === candidate.correctActionId);
+      return correct?.textRu.trim() === presentedCorrect.textRu.trim();
+    });
+    assert.deepEqual(
+      sameCorrectPhrase.map((candidate) => candidate.id),
+      [id],
+      `${id}: composite repair manufactured a reusable RU correct-only action phrase`,
+    );
   }
 });
