@@ -120,7 +120,7 @@ test("mastery surfaces do not leak developer jargon into mixed RU literals", asy
 
 test("poker-native vocabulary remains allowed instead of being mechanically translated away", () => {
   const corpus = practicalDecisionRuStrings().join("\n");
-  for (const token of ["3-bet", "SPR", "squeeze", "river"]) {
+  for (const token of ["3-bet", "SPR", "сквиз", "river"]) {
     assert.match(corpus, new RegExp(token, "iu"), `${token} should remain available where it is natural poker vocabulary`);
   }
 });

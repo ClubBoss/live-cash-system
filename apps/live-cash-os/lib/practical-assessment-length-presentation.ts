@@ -40,7 +40,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "BB-versus-BTN is structurally wide because of price and opener origin, but marginal calls disappear as price, rake, or execution worsen.",
     },
     presented: {
-      textRu: "BB vs BTN шире из-за цены и диапазона открытия; хуже цена, рейк или реализация — уже граница колла.",
+      textRu: "BB против BTN защищается шире из-за цены и диапазона открытия; хуже цена, рейк или реализация — уже граница колла.",
       textEn: "BB vs BTN is wide from price/origin; worse price/rake/execution removes fringe calls.",
     },
   },
@@ -57,7 +57,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Probing is conditional on exact check-back composition and whether the turn restores strong regions.",
     },
     presented: {
-      textRu: "Проб зависит от состава check-back range и того, возвращает ли тёрн сильные регионы.",
+      textRu: "Проб зависит от состава диапазона чек-бэка и того, возвращает ли тёрн сильные регионы.",
       textEn: "Probe depends on check-back composition and whether the turn restores strong regions.",
     },
   },
@@ -125,7 +125,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Limp decisions must compare fold, called, and multiway branches rather than defaulting to automatic isolation.",
     },
     presented: {
-      textRu: "Лимп требует сравнить fold/call/multiway ветки, а не автоизолейт.",
+      textRu: "Лимп требует сравнить ветки фолда, колла и мультивея, а не автоматически изолировать любую руку.",
       textEn: "Limp EV compares fold/call/multiway branches, not auto-isolation.",
     },
   },
@@ -142,7 +142,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Large live sizing removes marginal BB calls quickly; the posted blind is not a reason to defend a fixed range.",
     },
     presented: {
-      textRu: "Крупный live size убирает fringe-коллы BB; blind не фиксирует защиту.",
+      textRu: "Крупный лайв-сайзинг быстро убирает пограничные коллы BB; уже вложенный блайнд не фиксирует диапазон защиты.",
       textEn: "Large live size removes fringe BB calls; blind does not fix range.",
     },
   },
@@ -159,8 +159,8 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "At depth, OOP realization and reverse-implied exposure grow; 3-bet shape cannot be copied mechanically from 100bb.",
     },
     presented: {
-      textRu: "На глубине OOP и reverse implied дороже; 3-bet shape не копирует 100bb.",
-      textEn: "Depth raises OOP/reverse-implied cost; 3-bets cannot copy 100bb.",
+      textRu: "На 250–300bb без позиции труднее реализовать эквити, а ошибки в доминируемых банках стоят дороже; поэтому пограничные 3-беты со 100bb теряют EV и структура 3-бета должна стать более избирательной.",
+      textEn: "At 250–300bb, playing out of position makes equity harder to realize and dominated branches more expensive; marginal 100bb 3-bets therefore lose EV and the 3-bet structure must become more selective.",
     },
   },
   {
@@ -176,8 +176,8 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Facing 3-bets is a branch-EV problem; large live sizes and deep future trees jointly move call/4-bet/fold thresholds.",
     },
     presented: {
-      textRu: "Large 3-bet и depth сдвигают EV-пороги call/4-bet/fold.",
-      textEn: "Large 3-bets plus depth move call/4-bet/fold EV thresholds.",
+      textRu: "Крупный 3-бет ухудшает текущую цену, а глубокий стек оставляет больше дорогих решений впереди; вместе это меняет реализацию эквити и сдвигает EV-пороги колла, 4-бета и фолда.",
+      textEn: "A large 3-bet worsens the current price while deep stacks leave more costly future decisions; together they change equity realization and move the EV thresholds for calling, 4-betting, and folding.",
     },
   },
   {
@@ -193,7 +193,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "BTN width is not a license to defend the same fringe across large sizes and poor-realization environments.",
     },
     presented: {
-      textRu: "Широкий BTN не спасает fringe против big size и плохой реализации.",
+      textRu: "Широкий диапазон BTN не спасает пограничные коллы против крупного сайзинга и при плохой реализации эквити.",
       textEn: "BTN width cannot save fringe calls vs big size/poor realization.",
     },
   },
@@ -210,8 +210,8 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Deep OOP realization makes weak dominated continues more expensive over later streets even at a seemingly attractive flop price.",
     },
     presented: {
-      textRu: "Deep OOP делает dominated continues дороже даже при хорошей flop price.",
-      textEn: "Deep OOP makes dominated continues costly despite good flop price.",
+      textRu: "Даже при привлекательной цене на флопе глубокий стек без позиции ухудшает реализацию эквити: доминируемые продолжения чаще платят на следующих улицах и несут больший риск обратных имплайд-оддсов, поэтому их EV падает.",
+      textEn: "Even at an attractive flop price, deep stacks out of position reduce equity realization: dominated continues pay more often on later streets and carry greater reverse-implied-odds risk, so their EV falls.",
     },
   },
   {
@@ -227,7 +227,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Deep 3BP solutions retain more future branches; low-SPR shortcuts and automatic commitment become less transferable.",
     },
     presented: {
-      textRu: "Deep 3BP сохраняет future branches; low-SPR auto-commit переносится хуже.",
+      textRu: "Глубокий 3-бет-банк оставляет больше будущих веток; автоматическое выставление при низком SPR переносится хуже.",
       textEn: "Deep 3BP keeps more branches; low-SPR auto-commit transfers poorly.",
     },
   },
@@ -244,7 +244,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Value sizing must target actual worse continues; a generic 'station' label cannot justify every size.",
     },
     presented: {
-      textRu: "Value size целится в реальные worse calls; ярлык station не оправдывает size.",
+      textRu: "Размер вэлью-бета должен опираться на реальные коллы от более слабых рук; ярлык «станция» сам по себе не оправдывает любой размер.",
       textEn: "Value size needs real worse calls; station cannot justify any size.",
     },
   },
@@ -254,18 +254,13 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       "PM-BL-06-B1-101",
       "PM-BL-06-B1-102",
       "PM-BL-06-B1-103",
-      "PM-BL-06-B1-104",
-      "PM-BL-06-B1-105",
-      "PM-BL-06-B1-106",
-      "PM-BL-06-B1-107",
-      "PM-BL-06-B1-108",
     ],
     canonical: {
       textRu: "Разобранная статья о кэш-игре в блайнд-войне прямо объясняет, что колл необычно привлекателен для SB и что миксы открытия SB против BB сильно зависят от того, как отвечает BB.",
       textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
     },
     presented: {
-      textRu: "Колл SB ценен; opening mix зависит от ответа BB",
+      textRu: "Колл с SB может быть ценным; микс первого действия зависит от реакции BB",
       textEn: "SB calling is unusually attractive, and the opening mix changes with BB responses.",
     },
   },
@@ -275,18 +270,13 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       "PM-BL-07-B1-101",
       "PM-BL-07-B1-102",
       "PM-BL-07-B1-103",
-      "PM-BL-07-B1-104",
-      "PM-BL-07-B1-105",
-      "PM-BL-07-B1-106",
-      "PM-BL-07-B1-107",
-      "PM-BL-07-B1-108",
     ],
     canonical: {
       textRu: "Разобранная статья про игру BB против SB называет структурными причинами широкой защиты именно цену BB, закрытие торгов и позицию постфлоп.",
       textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
     },
     presented: {
-      textRu: "Цена+closing+IP дают BB широкую защиту в BvB",
+      textRu: "Цена, закрытие торговли и IP дают BB широкую защиту в борьбе блайндов",
       textEn: "BB defends widely versus SB because price, closing action, and postflop position all help.",
     },
   },
@@ -296,18 +286,13 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       "PM-BL-08-B1-101",
       "PM-BL-08-B1-102",
       "PM-BL-08-B1-103",
-      "PM-BL-08-B1-104",
-      "PM-BL-08-B1-105",
-      "PM-BL-08-B1-106",
-      "PM-BL-08-B1-107",
-      "PM-BL-08-B1-108",
     ],
     canonical: {
       textRu: "Разобранные источники по блайнд-войне описывают ответ BB как сравнение EV рейза и EV чека, а не как правило «лимп SB значит слабость, поэтому рейзить».",
       textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
     },
     presented: {
-      textRu: "Рейз BB vs чек — по EV, не по слабости лимпа",
+      textRu: "Рейз BB против чека — по EV, не по слабости лимпа",
       textEn: "BB must compare raise EV with check EV, not assume an SB limp signals weakness.",
     },
   },
@@ -317,11 +302,6 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       "PM-BL-09-B1-101",
       "PM-BL-09-B1-102",
       "PM-BL-09-B1-103",
-      "PM-BL-09-B1-104",
-      "PM-BL-09-B1-105",
-      "PM-BL-09-B1-106",
-      "PM-BL-09-B1-107",
-      "PM-BL-09-B1-108",
     ],
     canonical: {
       textRu: "Разобранные источники по блайнд-войне прямо показывают, что грамотный лимп-диапазон SB содержит ловушки и сильные руки, и обсуждают ответы SB после изолирующего рейза BB.",
@@ -417,7 +397,7 @@ export type PracticalAssessmentExactReasonRepair = {
 export const practicalAssessmentExactReasonRepairs: Readonly<Record<string, PracticalAssessmentExactReasonRepair>> = {
   "PM-BL-01-001": {
     canonical: {
-      textRu: "EP origin range сильнее и повышает domination/overpair density",
+      textRu: "Диапазон открытия из EP обычно сильнее, поэтому слабые пары и топ-пары чаще попадают под доминацию или сталкиваются с оверпарами.",
       textEn: "The EP origin range is stronger and increases domination/overpair density",
     },
     presented: {
@@ -585,6 +565,206 @@ export const practicalAssessmentExactReasonRepairs: Readonly<Record<string, Prac
       textEn: "When the opponent folds too little to 4-bets, the bluff region loses its main EV source and should contract.",
     },
   },
+  "PM-BL-06-B1-104": {
+    canonical: {
+      textRu: "Разобранная статья о кэш-игре в блайнд-войне прямо объясняет, что колл необычно привлекателен для SB и что миксы открытия SB против BB сильно зависят от того, как отвечает BB.",
+      textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
+    },
+    presented: {
+      textRu: "Колл с SB может быть прибыльной частью диапазона, но его место в миксе зависит от цены, диапазонов и реакции BB; поэтому правило нужно применять только после проверки этих предпосылок.",
+      textEn: "Calling from SB can be a profitable part of the range, but its place in the mix depends on price, ranges, and BB's response; the rule therefore applies only after those assumptions are checked.",
+    },
+  },
+  "PM-BL-06-B1-105": {
+    canonical: {
+      textRu: "Разобранная статья о кэш-игре в блайнд-войне прямо объясняет, что колл необычно привлекателен для SB и что миксы открытия SB против BB сильно зависят от того, как отвечает BB.",
+      textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
+    },
+    presented: {
+      textRu: "После колла SB остаётся без позиции, поэтому текущая скидка в 0.5bb недостаточна: EV зависит от реализации эквити, ответов BB и силы его продолжающего диапазона.",
+      textEn: "After calling, SB remains out of position, so the 0.5bb discount is not enough by itself: EV depends on equity realization, BB's responses, and the strength of BB's continuing range.",
+    },
+  },
+  "PM-BL-06-B1-106": {
+    canonical: {
+      textRu: "Разобранная статья о кэш-игре в блайнд-войне прямо объясняет, что колл необычно привлекателен для SB и что миксы открытия SB против BB сильно зависят от того, как отвечает BB.",
+      textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
+    },
+    presented: {
+      textRu: "Когда BB начинает активно атаковать лимпы, меняется EV лимпа и последующих продолжений; поэтому прежний микс открытия SB нельзя переносить без пересчёта.",
+      textEn: "When BB starts attacking limps aggressively, the EV of limping and its continuation branches changes, so the previous SB opening mix cannot be carried over without recomputation.",
+    },
+  },
+  "PM-BL-06-B1-107": {
+    canonical: {
+      textRu: "Разобранная статья о кэш-игре в блайнд-войне прямо объясняет, что колл необычно привлекателен для SB и что миксы открытия SB против BB сильно зависят от того, как отвечает BB.",
+      textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
+    },
+    presented: {
+      textRu: "Пограничное действие живёт около нулевого EV: изменение диапазона BB, глубины или его реакции меняет будущую реализацию и может перевести эту ветку из прибыли в убыток.",
+      textEn: "A marginal action sits near zero EV: changing BB's range, depth, or response changes future realization and can move that branch from profitable to losing.",
+    },
+  },
+  "PM-BL-06-B1-108": {
+    canonical: {
+      textRu: "Разобранная статья о кэш-игре в блайнд-войне прямо объясняет, что колл необычно привлекателен для SB и что миксы открытия SB против BB сильно зависят от того, как отвечает BB.",
+      textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
+    },
+    presented: {
+      textRu: "Первое действие SB не сводится к универсальному «рейз или фолд»: колл может иметь EV, а его частота зависит от диапазонов, цены и того, как BB отвечает на лимп.",
+      textEn: "SB's first action is not universally raise-or-fold: calling can have EV, and its frequency depends on ranges, price, and how BB responds to limps.",
+    },
+  },
+  "PM-BL-07-B1-104": {
+    canonical: {
+      textRu: "Разобранная статья про игру BB против SB называет структурными причинами широкой защиты именно цену BB, закрытие торгов и позицию постфлоп.",
+      textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
+    },
+    presented: {
+      textRu: "Широкая защита BB против SB оправдана сочетанием хорошей цены, закрытия торгов и позиции постфлоп; если эти условия меняются, прежний ориентир нужно пересчитать.",
+      textEn: "Wide BB defense versus SB is supported by good price, closing the action, and postflop position; if those conditions change, the prior must be recomputed.",
+    },
+  },
+  "PM-BL-07-B1-105": {
+    canonical: {
+      textRu: "Разобранная статья про игру BB против SB называет структурными причинами широкой защиты именно цену BB, закрытие торгов и позицию постфлоп.",
+      textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
+    },
+    presented: {
+      textRu: "Позиция и закрытие торгов помогают BB реализовать эквити, но не отменяют силу диапазона SB и будущие ветки; поэтому пограничный колл оценивается по всему дереву, а не только по цене.",
+      textEn: "Position and closing the action help BB realize equity, but they do not erase SB's range strength or future branches; a marginal call therefore depends on the whole tree, not price alone.",
+    },
+  },
+  "PM-BL-07-B1-106": {
+    canonical: {
+      textRu: "Разобранная статья про игру BB против SB называет структурными причинами широкой защиты именно цену BB, закрытие торгов и позицию постфлоп.",
+      textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
+    },
+    presented: {
+      textRu: "Более крупный опен SB ухудшает цену колла BB; при тех же позиции и руке это повышает требуемую реализацию эквити и сужает пограничную защиту.",
+      textEn: "A larger SB open worsens BB's call price; with position and hand unchanged, the required equity realization rises and marginal defense contracts.",
+    },
+  },
+  "PM-BL-07-B1-107": {
+    canonical: {
+      textRu: "Разобранная статья про игру BB против SB называет структурными причинами широкой защиты именно цену BB, закрытие торгов и позицию постфлоп.",
+      textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
+    },
+    presented: {
+      textRu: "Пограничная защита BB чувствительна к цене, силе диапазона SB и условиям реализации; существенное изменение любого из них может сдвинуть действие через ноль EV.",
+      textEn: "Marginal BB defense is sensitive to price, SB range strength, and realization conditions; a material change in any of them can move the action through zero EV.",
+    },
+  },
+  "PM-BL-07-B1-108": {
+    canonical: {
+      textRu: "Разобранная статья про игру BB против SB называет структурными причинами широкой защиты именно цену BB, закрытие торгов и позицию постфлоп.",
+      textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
+    },
+    presented: {
+      textRu: "Защиту BB против SB нельзя копировать из узлов против BTN или EP: здесь другие исходный диапазон, цена и постфлоп-позиция, поэтому граница продолжения должна строиться заново.",
+      textEn: "BB defense versus SB cannot be copied from BTN or EP nodes: the origin range, price, and postflop position differ, so the continuing boundary must be rebuilt.",
+    },
+  },
+  "PM-BL-08-B1-104": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне описывают ответ BB как сравнение EV рейза и EV чека, а не как правило «лимп SB значит слабость, поэтому рейзить».",
+      textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
+    },
+    presented: {
+      textRu: "После лимпа SB чек BB уже сохраняет бесплатную реализацию, поэтому рейз нужен только когда его EV выше с учётом диапазона лимпа, фолдов и ответов на рейз.",
+      textEn: "After an SB limp, checking already preserves free realization for BB, so raising is justified only when its EV is higher after accounting for the limp range, folds, and responses to the raise.",
+    },
+  },
+  "PM-BL-08-B1-105": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне описывают ответ BB как сравнение EV рейза и EV чека, а не как правило «лимп SB значит слабость, поэтому рейзить».",
+      textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
+    },
+    presented: {
+      textRu: "EV рейза BB включает не только текущие фолды: важны реализация после чека, диапазон продолжения SB и будущие ответы, поэтому решение нужно сравнивать с полноценной веткой чека.",
+      textEn: "BB's raise EV is not only about immediate folds: realization after checking, SB's continuing range, and future responses matter, so raising must be compared with the full check branch.",
+    },
+  },
+  "PM-BL-08-B1-106": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне описывают ответ BB как сравнение EV рейза и EV чека, а не как правило «лимп SB значит слабость, поэтому рейзить».",
+      textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
+    },
+    presented: {
+      textRu: "Если SB начинает часто лимп-коллировать, фолд-эквити рейза BB падает и ветка после колла становится важнее; пограничные рейзы без достаточного вэлью теряют EV.",
+      textEn: "If SB starts limp-calling frequently, BB's raise fold equity falls and the called branch matters more; marginal raises without enough value lose EV.",
+    },
+  },
+  "PM-BL-08-B1-107": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне описывают ответ BB как сравнение EV рейза и EV чека, а не как правило «лимп SB значит слабость, поэтому рейзить».",
+      textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
+    },
+    presented: {
+      textRu: "Пограничный рейз может сменить знак EV, когда меняются лимп-диапазон, глубина или реакция SB; поэтому его нужно заново сравнивать с бесплатной веткой чека.",
+      textEn: "A marginal raise can change EV sign when the limp range, depth, or SB response changes, so it must be compared again with the free check branch.",
+    },
+  },
+  "PM-BL-08-B1-108": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне описывают ответ BB как сравнение EV рейза и EV чека, а не как правило «лимп SB значит слабость, поэтому рейзить».",
+      textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
+    },
+    presented: {
+      textRu: "Лимп SB не доказывает слабость: BB может бесплатно чекнуть, а рейз должен выигрывать у чека за счёт реальных фолдов, вэлью или лучшей реализации.",
+      textEn: "An SB limp does not prove weakness: BB can check for free, and a raise must beat checking through real folds, value, or better realization.",
+    },
+  },
+  "PM-BL-09-B1-104": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне прямо показывают, что грамотный лимп-диапазон SB содержит ловушки и сильные руки, и обсуждают ответы SB после изолирующего рейза BB.",
+      textEn: "A sound SB limping range contains traps and strong hands, so it needs a response branch after a BB isolation raise.",
+    },
+    presented: {
+      textRu: "Лимп-диапазон SB должен содержать сильные руки и ловушки, поэтому после рейза BB решение строится от реального состава лимпа, цены и диапазона рейза, а не от ярлыка «лимп = слабость».",
+      textEn: "An SB limping range should contain strong hands and traps, so versus a BB raise the decision depends on the actual limp composition, price, and raising range rather than the label 'limp equals weak'.",
+    },
+  },
+  "PM-BL-09-B1-105": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне прямо показывают, что грамотный лимп-диапазон SB содержит ловушки и сильные руки, и обсуждают ответы SB после изолирующего рейза BB.",
+      textEn: "A sound SB limping range contains traps and strong hands, so it needs a response branch after a BB isolation raise.",
+    },
+    presented: {
+      textRu: "После рейза BB важны не только уже вложенные фишки: размер рейза, сила его диапазона и постфлоп-реализация определяют, какие руки SB продолжают коллом, 3-бетом или фолдом.",
+      textEn: "After BB raises, the chips already invested are not enough: raise size, range strength, and postflop realization determine which SB hands continue by calling, 3-betting, or folding.",
+    },
+  },
+  "PM-BL-09-B1-106": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне прямо показывают, что грамотный лимп-диапазон SB содержит ловушки и сильные руки, и обсуждают ответы SB после изолирующего рейза BB.",
+      textEn: "A sound SB limping range contains traps and strong hands, so it needs a response branch after a BB isolation raise.",
+    },
+    presented: {
+      textRu: "Когда BB рейзит крупнее и с более вэлью-ориентированным диапазоном, цена SB ухудшается и его продолжения чаще доминированы; пограничная часть диапазона должна сузиться.",
+      textEn: "When BB raises larger with a more value-heavy range, SB gets a worse price and its continues are more often dominated; the marginal continuing region should contract.",
+    },
+  },
+  "PM-BL-09-B1-107": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне прямо показывают, что грамотный лимп-диапазон SB содержит ловушки и сильные руки, и обсуждают ответы SB после изолирующего рейза BB.",
+      textEn: "A sound SB limping range contains traps and strong hands, so it needs a response branch after a BB isolation raise.",
+    },
+    presented: {
+      textRu: "Пограничное продолжение SB чувствительно к размеру рейза, диапазону BB и глубине; изменение этих условий меняет доминацию и реализацию, поэтому EV ветки нужно пересчитать.",
+      textEn: "A marginal SB continue is sensitive to raise size, BB range, and depth; changing those conditions changes domination and realization, so the branch EV must be recomputed.",
+    },
+  },
+  "PM-BL-09-B1-108": {
+    canonical: {
+      textRu: "Разобранные источники по блайнд-войне прямо показывают, что грамотный лимп-диапазон SB содержит ловушки и сильные руки, и обсуждают ответы SB после изолирующего рейза BB.",
+      textEn: "A sound SB limping range contains traps and strong hands, so it needs a response branch after a BB isolation raise.",
+    },
+    presented: {
+      textRu: "Лимп не делает диапазон SB автоматически слабым или капнутым: сильные руки остаются внутри, а ответ на рейз BB должен меняться с его сайзингом и диапазоном.",
+      textEn: "Limping does not make SB's range automatically weak or capped: strong hands remain in it, and the response to BB's raise must change with BB's size and range.",
+    },
+  },
 };
 
 const reasonLengthRepairByDecisionId = new Map<string, PracticalAssessmentReasonRepairGroup>();
@@ -604,9 +784,6 @@ const actionLengthRepairs: Record<string, RuActionLengthRepair> = {
   "PM-3BP-05-A7-103": { textRu: "Широкая ставка агрессора + широкая защита" },
   "PM-3BP-05-A7-104": { textRu: "Уже диапазон ставки, плотнее защита" },
   "PM-3BP-05-A7-108": { textRu: "Сохрани роль, доску и размер ставки" },
-  "PM-TURN-02-A8-202": { textRu: "Рука × ран-аут × сохранившийся диапазон" },
-  "PM-TURN-02-A8-205": { textRu: "Баррель, если карта и диапазоны поддерживают" },
-  "PM-TURN-02-A8-207": { textRu: "Баррель, если карта и диапазоны поддерживают давление" },
   "PM-TURN-02-A8-108": { textRu: "Нет автобарреля: рука и тёрн должны поддерживать давление" },
   "PM-TURN-02-FINAL-101": { textRu: "С диапазона, который пережил колл флопа" },
   "PM-TURN-02-FINAL-102": { textRu: "Сузиться: естественных блефов стало меньше" },
@@ -614,9 +791,6 @@ const actionLengthRepairs: Record<string, RuActionLengthRepair> = {
   "PM-TURN-02-FINAL-104": { textRu: "Нет — текущий диапазон и цена важнее прошлых фишек" },
   "PM-TURN-02-ETC-101": { textRu: "Нет — пересобери диапазон, владение, SPR и задачу ставки" },
   "PM-TURN-02-ETC-102": { textRu: "Нет — бланк требует отдельной вэлью- или фолд-эквити цели" },
-  "PM-RIV-03-A8-202": { textRu: "Цена × реальный запас блефов × блокеры × предыдущая линия" },
-  "PM-RIV-03-A8-205": { textRu: "Колл, если блефов хватает для этой цены" },
-  "PM-RIV-03-A8-207": { textRu: "Колл хуже: блефов меньше при той же цене" },
   "PM-RIV-03-A8-108": { textRu: "Хорошая цена не требует колла без достаточных блефов после линии" },
   "PM-RIV-03-C0-201": { textRu: "Широкий старт даёт больше блефов; линия их фильтрует" },
   "PM-RIV-03-C0-202": { textRu: "Разномастные классы дают больше комбо и могут оставить больше слабых рук к риверу" },
@@ -625,7 +799,7 @@ const actionLengthRepairs: Record<string, RuActionLengthRepair> = {
   "PM-RIV-03-C0-205": { textRu: "Нет — пересчитай от более узкого старта через те же фильтры" },
   "PM-RIV-03-C0-206": { textRu: "Нет — последующая фильтрация может перевесить широкий старт" },
   "PM-RIV-03-C0-207": { textRu: "Широкий старт — лишь исходная оценка; решают линия и полевые данные" },
-  "PM-RIV-03-C0-208": { textRu: "Тайтовый старт снижает возможные блефы" },
+  "PM-RIV-03-C0-208": { textRu: "Нет — тайтовый старт снижает исходный запас блефов, но не заменяет разбор конкретных блефов после всей линии" },
 
   "PM-FND-04-B1-101": { textRu: "Проверь, какие ауты чистые против диапазона соперника, а какие остаются грязными." },
   "PM-FND-04-B1-102": { textRu: "Нет. Пересчитай качество аутов и ветку решения." },

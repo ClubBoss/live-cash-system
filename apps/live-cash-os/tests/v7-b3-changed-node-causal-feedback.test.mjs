@@ -12,7 +12,7 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_B3_MACHINE_FINGERPRINT = "5cbcd796aab6023999c44a1c64737268eff679e067b01da6d993c63e18af6870";
-const EXPECTED_B3_FULL_CORPUS_FINGERPRINT = "163814907cf9f9fb3763900c1b94e49027112119c17a41a1f7d90dacf24e3b2d";
+const EXPECTED_B3_FULL_CORPUS_FINGERPRINT = "271ec534246cb2c682c645fb5f2950cf18ad1d7b9c83c52d08c733c0c567bb54";
 
 function familyKey(id) {
   return id.replace(/-\d+$/, "");
@@ -109,7 +109,7 @@ test("all 40 governed B3 changed-variable decisions publish change -> direction 
   }
 });
 
-test("B3 machine and full-corpus fingerprints remain unchanged", () => {
+test("B3 machine fingerprint remains unchanged while the reviewed RU full-corpus fingerprint is relocked", () => {
   const machine = createHash("sha256")
     .update(JSON.stringify(variationB3Decisions.map(machineProjection)))
     .digest("hex");

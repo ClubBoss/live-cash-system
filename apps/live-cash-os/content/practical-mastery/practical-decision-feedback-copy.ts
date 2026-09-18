@@ -20,7 +20,7 @@ const CURATED_FEEDBACK = new Map<string, CuratedFeedback>([
     boundaryEn: "If the actual opening range remains wide or the size becomes materially smaller, recompute the positional baseline instead of treating the seat label as a law.",
   }],
   ["PM-OOP-01-106", {
-    mechanismRu: "Ключевой сигнал — флоп стал сухим с высокой картой: преимущество диапазона коллера ослабевает, поэтому OOP уже не обязан так часто уходить в range-check.",
+    mechanismRu: "Ключевой сигнал — флоп стал сухим с высокой картой: преимущество диапазона коллера ослабевает, поэтому OOP уже не обязан так часто чекать всем диапазоном.",
     mechanismEn: "Key signal: the flop became dry and high-card, weakening the caller's range advantage; OOP therefore needs less forced range checking.",
     boundaryRu: "Если коллер всё ещё сохраняет сильное преимущество диапазона, сам high-card flop не оправдывает автоматический c-bet.",
     boundaryEn: "If the caller still retains a strong range advantage, a high-card flop by itself does not justify an automatic c-bet.",
@@ -32,7 +32,7 @@ const CURATED_FEEDBACK = new Map<string, CuratedFeedback>([
     boundaryEn: "On a blank that preserves a strong continuing range for the caller, the prior pressure does not transfer automatically.",
   }],
   ["PM-RIV-01-A8-106", {
-    mechanismRu: "Ключевой сигнал — диапазон колла на ривере стал уже: меньше худших рук платят, поэтому тонкий value-bet теряет EV и требует более сильного порога на вэлью.",
+    mechanismRu: "Ключевой сигнал — диапазон колла на ривере стал уже: меньше худших рук платят, поэтому тонкий вэлью-бет теряет EV и требует более сильного порога на вэлью.",
     mechanismEn: "Key signal: the river calling range became tighter, so fewer worse hands pay; thin value loses EV and needs a stronger value threshold.",
     boundaryRu: "Если меньший сайзинг снова получает достаточно коллов от худших рук, value-ветка может вернуться.",
     boundaryEn: "If a smaller size again gets enough calls from worse hands, the value branch can reopen.",
@@ -42,12 +42,12 @@ const CURATED_FEEDBACK = new Map<string, CuratedFeedback>([
 const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   {
     keys: ["position", "relative_position", "action_order", "players_behind", "ranges_behind"],
-    ru: "Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию equity и риск столкнуться с более сильной веткой, поэтому сдвигают EV пограничных продолжений и давления.",
+    ru: "Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию эквити и риск столкнуться с более сильной веткой, поэтому сдвигают EV пограничных продолжений и давления.",
     en: "Position, action order, and ranges still left to act change equity realization and the risk of running into stronger branches, moving the EV of fringe continues and pressure.",
   },
   {
     keys: ["rake", "realisation"],
-    ru: "Рейк и реализация определяют, сколько сырого equity превращается в итоговый EV; их изменение в первую очередь двигает тонкие и пограничные ветки.",
+    ru: "Рейк и реализация определяют, сколько исходной эквити превращается в итоговый EV; их изменение в первую очередь двигает тонкие и пограничные ветки.",
     en: "Rake and realization determine how much raw equity becomes net EV; changing either one moves thin and fringe branches first.",
   },
   {
@@ -57,12 +57,12 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["opener_origin", "called_branch", "arriving_ranges", "caller_range", "villain_calling_range", "range_strength"],
-    ru: "Состав и сила диапазонов меняют доминацию, набор худших рук, которые платят, и range/nut advantage, поэтому двигают порог продолжения или давления.",
+    ru: "Состав и сила диапазонов меняют доминацию, набор более слабых рук, которые платят, и преимущество диапазона и натсов, поэтому двигают порог продолжения или давления.",
     en: "Range composition and strength change domination, worse hands that can pay, and range/nut advantage, moving the threshold for continuing or applying pressure.",
   },
   {
     keys: ["fold_equity"],
-    ru: "Fold equity определяет, сколько EV блефовая часть получает от фолдов; его изменение меняет допустимую плотность блефов и степень поляризации.",
+    ru: "Фолд-эквити определяет, сколько EV блефовая часть получает от фолдов; её изменение меняет допустимую плотность блефов и степень поляризации.",
     en: "Fold equity determines how much EV the bluff region earns from folds; changing it moves viable bluff density and polarization.",
   },
   {
@@ -72,7 +72,7 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["board_class", "runout_class", "turn_range_shift"],
-    ru: "Класс доски или ранаута меняет распределение equity, nut advantage, защиту и будущий leverage, поэтому меняется набор рук для ставки и продолжения.",
+    ru: "Класс доски или ранаута меняет распределение эквити, натсовое преимущество, защиту и будущий рычаг, поэтому меняется набор рук для ставки и продолжения.",
     en: "Board or runout class changes equity distribution, nut advantage, protection, and future leverage, changing betting and continuing candidates.",
   },
   {
@@ -82,7 +82,7 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["hand_robustness", "hand_family"],
-    ru: "Устойчивость и класс руки определяют, насколько хорошо equity переживает будущие карты и давление и к какой ветке — value, protection, bluff или continue — относится рука.",
+    ru: "Устойчивость и класс руки определяют, насколько хорошо эквити переживает будущие карты и давление и к какой ветке — вэлью, защите, блефу или продолжению — относится рука.",
     en: "Hand robustness and family determine how well equity survives future cards and pressure and whether the hand belongs in a value, protection, bluff, or continue branch.",
   },
   {
@@ -97,12 +97,12 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["effective_depth", "effective_stack", "straddle"],
-    ru: "Эффективная глубина, стек и straddle меняют SPR, implied/reverse-implied odds и порог привязки к банку, поэтому та же рука может требовать другой ветки.",
+    ru: "Эффективная глубина, стек и страддл меняют SPR, имплайд-оддсы, обратные имплайд-оддсы и порог привязки к банку, поэтому та же рука может требовать другой ветки.",
     en: "Effective depth, stack, and straddle geometry change SPR, implied/reverse-implied odds, and commitment thresholds, so the same hand can require a different branch.",
   },
   {
     keys: ["evidence_strength", "evidence_reversal"],
-    ru: "Сила и направление наблюдений определяют, насколько далеко можно отклоняться от базовой линии: устойчивые данные поддерживают больший exploit, а противоречащие данные возвращают отклонение к базе.",
+    ru: "Сила и направление наблюдений определяют, насколько далеко можно отклоняться от базовой линии: устойчивые данные поддерживают больший эксплойт, а противоречащие данные возвращают отклонение к базе.",
     en: "Evidence strength and direction determine how far an exploit can move from baseline: consistent evidence supports a larger deviation, while contradictory evidence pulls it back.",
   },
 ];

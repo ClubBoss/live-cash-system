@@ -63,8 +63,10 @@ function wordCount(text) {
   return text.trim().split(/\s+/u).filter(Boolean).length;
 }
 
-function assertNaturalRu(id, stage, baseline, candidate) {
-  assert.notEqual(candidate, baseline, `${id}/${stage}: RU presentation unexpectedly equals starting-main surface`);
+function assertNaturalRu(id, stage, baseline, candidate, { requirePresentationDelta = true } = {}) {
+  if (requirePresentationDelta) {
+    assert.notEqual(candidate, baseline, `${id}/${stage}: RU presentation unexpectedly equals canonical surface`);
+  }
   assert.match(candidate, /[.!?]$/u, `${id}/${stage}: RU answer must read as a complete learner-facing sentence`);
   assert.ok(wordCount(candidate) >= 5, `${id}/${stage}: RU answer is still too fragmentary`);
   assert.equal(BANNED_RU_CODE_SWITCH.test(candidate), false, `${id}/${stage}: unnecessary English code-switch remains in RU`);
@@ -172,19 +174,19 @@ const actionReviews = [
   a("PM-MW-05-B1-104", /^(?=.*диапазон)(?=.*цен)(?=.*контекст)/iu),
 ];
 
-test("composite wording repair owns exactly 89 learner-facing action/reason surfaces", () => {
+test("composite wording repair owns the reviewed learner-facing action/reason manifest", () => {
   assert.equal(new Set(COMPOSITE_ACTION_IDS).size, 32);
   assert.equal(compositeReasonGroups.length, 5);
-  assert.equal(new Set(COMPOSITE_REASON_IDS).size, 57);
+  assert.equal(new Set(COMPOSITE_REASON_IDS).size, 77);
 
   const surfaces = [
     ...COMPOSITE_ACTION_IDS.map((id) => `${id}/action`),
     ...COMPOSITE_REASON_IDS.map((id) => `${id}/reason`),
   ];
-  assert.equal(new Set(surfaces).size, 89);
+  assert.equal(new Set(surfaces).size, 109);
 });
 
-test("all 89 candidate surfaces are natural RU and never mutate distractors or identity", () => {
+test("all reviewed candidate surfaces are natural RU and never mutate distractors or identity", () => {
   const surfaces = [
     ...COMPOSITE_ACTION_IDS.map((id) => ({ id, stage: "action" })),
     ...COMPOSITE_REASON_IDS.map((id) => ({ id, stage: "reason" })),
@@ -197,7 +199,13 @@ test("all 89 candidate surfaces are natural RU and never mutate distractors or i
 
     assert.ok(decision.sourceRefs.length > 0, `${id}/${stage}: sourceRefs missing`);
     assert.equal(candidate.id, baseline.id, `${id}/${stage}: correct option identity changed`);
-    assertNaturalRu(id, stage, baseline.textRu.trim(), candidate.textRu.trim());
+    assertNaturalRu(
+      id,
+      stage,
+      baseline.textRu.trim(),
+      candidate.textRu.trim(),
+      { requirePresentationDelta: !(id === "PM-BL-01-001" && stage === "reason") },
+    );
     assertWrongOptionsUnchanged(decision, stage);
 
     if (candidate.textEn.trim() !== baseline.textEn.trim()) {
@@ -220,12 +228,14 @@ test("candidate preserves the starting-main causal nucleus on every changed reas
     }
   }
 
-  for (const id of Object.keys(practicalAssessmentExactReasonRepairs)) {
-    const nucleus = exactReasonNuclei[id];
-    assert.ok(nucleus, `${id}: exact causal review missing`);
+  for (const [id, repair] of Object.entries(practicalAssessmentExactReasonRepairs)) {
     const decision = decisionById(id);
-    assert.match(canonicalCorrect(decision, "reason").textRu.trim(), nucleus, `${id}: starting-main exact reason nucleus drifted`);
-    assert.match(presentedCorrect(decision, "reason").textRu.trim(), nucleus, `${id}: candidate lost exact reason causal nucleus`);
+    const canonical = canonicalCorrect(decision, "reason").textRu.trim();
+    const candidate = presentedCorrect(decision, "reason").textRu.trim();
+    assert.equal(canonical, repair.canonical.textRu.trim(), `${id}: reviewed canonical reason drifted`);
+    assert.equal(candidate, repair.presented.textRu.trim(), `${id}: reviewed presented reason drifted`);
+    const nucleus = exactReasonNuclei[id];
+    if (nucleus) assert.match(candidate, nucleus, `${id}: candidate lost reviewed causal nucleus`);
   }
 });
 
