@@ -36,7 +36,8 @@ test("recognition is contextual and intentional shortcuts remain tagged distract
   assert.match(corpus, /action ancestry|flop action|check-back composition/i);
   assert.match(corpus, /High flop = always bet/i);
   assert.match(corpus, /"CLASSIFICATION_SHORTCUT"/);
-  assert.match(corpus, /Этого достаточно для полной классификации|sufficient for the full classification/is);
+  assert.doesNotMatch(corpus, /Этого достаточно для полной классификации|sufficient for the full classification/is);
+  assert.match(corpus, /визуальному классу доски|runout label alone|absolute hand category|strategic role as fixed/is);
   assert.doesNotMatch(corpus, /ошибочное правило|mistaken shortcut|supposedly/is);
   assert.match(corpus, /correctActionId:"a"/);
 });

@@ -184,7 +184,7 @@ export const practicalSourceBoundTeachingAssets: PracticalSourceBoundTeachingAss
     situationEn: "Hero opened, called a 3-bet in position, and now responds to an OOP c-bet.",
     mechanismRu: "Позиция улучшает реализацию и сохраняет ветки call/raise. Маленький raise может быть source-supported ответом на over-wide c-bet в подходящем node, но exact exploit frequency и pool tendency не считаются универсальными.",
     mechanismEn: "Position improves realization and preserves call/raise branches. A small raise can be a source-supported response to an over-wide c-bet in suitable nodes, but exact exploit frequency and pool tendency are not universal.",
-    exampleRu: "Если OOP 3-беттор ставит маленько слишком широкий range, IP caller может выбрать small raise частью polar/pressure region; если board/range interaction меняется, тот же shortcut переносить нельзя.",
+    exampleRu: "Если OOP 3-беттор слишком широко ставит маленьким размером, игрок в позиции может добавить небольшой рейз частью поляризованного диапазона давления; если взаимодействие доски и диапазонов меняется, тот же приём переносить нельзя.",
     exampleEn: "If the OOP 3-bettor bets a small size with an overly wide range, the IP caller can use a small raise with part of a polar/pressure region; if board/range interaction changes, the shortcut does not automatically transfer.",
     boundaryRu: "Не превращай 'IP caller может raise' в raise любой weak hand и не используй непроверенную population frequency как факт.",
     boundaryEn: "Do not turn 'the IP caller can raise' into raising any weak hand, and do not treat an unvalidated population frequency as fact.",

@@ -28,6 +28,39 @@ export type PracticalPostQuickStartTeachingAsset =
   | { kind: "ANCHOR"; anchor: PracticalAnchor }
   | { kind: "SOURCE_BOUND"; teaching: PracticalSourceBoundTeachingAsset };
 
+
+const learnerSourceIdPattern = /\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+(?:\/E\d+)*\b/gu;
+
+function learnerRationaleWithoutInternalSourceIds(text: string, locale: "ru" | "en"): string {
+  learnerSourceIdPattern.lastIndex = 0;
+  if (!learnerSourceIdPattern.test(text)) return text;
+  learnerSourceIdPattern.lastIndex = 0;
+  let next = text.replace(
+    learnerSourceIdPattern,
+    locale === "ru" ? "материал" : "source material",
+  );
+  learnerSourceIdPattern.lastIndex = 0;
+  next = next
+    .replace(/материал\s*(?:и|\/)\s*материал/giu, "материалы")
+    .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/^материал\b/u, "Материал")
+    .replace(/^материалы\b/u, "Материалы")
+    .replace(/^source material\b/u, "Source material")
+    .replace(/^source materials\b/u, "Source materials")
+    .replace(/\s{2,}/gu, " ")
+    .replace(/\s+([,.:;])/gu, "$1")
+    .trim();
+  return next;
+}
+
+function learnerAnchorWithoutInternalSourceIds(anchor: PracticalAnchor): PracticalAnchor {
+  return {
+    ...anchor,
+    rationaleRu: learnerRationaleWithoutInternalSourceIds(anchor.rationaleRu, "ru"),
+    rationaleEn: learnerRationaleWithoutInternalSourceIds(anchor.rationaleEn, "en"),
+  };
+}
+
 export type PracticalPostQuickStartLearningTarget =
   | {
     kind: "TEACH";
@@ -63,7 +96,7 @@ export function practicalPostQuickStartTeachingAssetForSkill(
   ) ?? practicalAnchors.find(
     (candidate) => candidate.skillId === skillId && candidate.sourceRefs.length > 0,
   );
-  return anchor ? { kind: "ANCHOR", anchor } : null;
+  return anchor ? { kind: "ANCHOR", anchor: learnerAnchorWithoutInternalSourceIds(anchor) } : null;
 }
 
 export function isPostQuickStartTeachingAdmissible(
