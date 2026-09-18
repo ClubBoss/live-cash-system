@@ -12,10 +12,85 @@ const RECOGNITION_SECOND_REASON_IDS = new Set([
   "PM-W4-RUNOUT-01-104", "PM-W4-RUNOUT-01-105", "PM-W4-RUNOUT-01-106",
 ]);
 
+type W4Distractors = {
+  actionBRu: string;
+  actionBEn: string;
+  actionCRu: string;
+  actionCEn: string;
+  reason2Ru: string;
+  reason2En: string;
+  reason3Ru: string;
+  reason3En: string;
+};
+
+function w4Distractors(skillId: string, badRu: string, badEn: string): W4Distractors {
+  if (skillId === "W4-BOARD-01") {
+    return {
+      actionBRu: badRu,
+      actionBEn: badEn,
+      actionCRu: "Сохранить прежний план только по визуальному классу доски, не пересчитывая пришедшие диапазоны",
+      actionCEn: "Keep the previous plan from the board's visual class alone without recomputing the arriving ranges",
+      reason2Ru: "Визуальный класс доски сам по себе определяет стратегию независимо от того, какие диапазоны дошли до флопа",
+      reason2En: "The board's visual class alone determines strategy regardless of which ranges reached the flop",
+      reason3Ru: "Префлоп-инициатива важнее фактического покрытия доски диапазонами",
+      reason3En: "Preflop initiative matters more than the ranges' actual board coverage",
+    };
+  }
+  if (skillId === "W4-RUNOUT-01") {
+    return {
+      actionBRu: badRu,
+      actionBEn: badEn,
+      actionCRu: "Считать новую карту косметической и не пересчитывать диапазоны после предыдущей линии",
+      actionCEn: "Treat the new card as cosmetic and skip recomputing the ranges after the prior line",
+      reason2Ru: "Название ран-аута само определяет продолжение без проверки диапазонов, сохранившихся после линии",
+      reason2En: "The runout label alone determines the continuation without checking the ranges that survived the line",
+      reason3Ru: "Предыдущий агрессор сохраняет преимущество на любой следующей карте независимо от нового распределения сильных рук",
+      reason3En: "The prior aggressor keeps the advantage on every next card regardless of the new strong-hand distribution",
+    };
+  }
+  if (skillId === "W4-HAND-01") {
+    return {
+      actionBRu: badRu,
+      actionBEn: badEn,
+      actionCRu: "Оценивать решение только по абсолютной категории руки, не проверяя диапазон продолжения соперника",
+      actionCEn: "Base the decision only on the hand's absolute category without checking Villain's continuing range",
+      reason2Ru: "Абсолютной категории руки достаточно; диапазон продолжения соперника не меняет её стратегическую функцию",
+      reason2En: "The absolute hand category is sufficient; Villain's continuing range does not change its strategic function",
+      reason3Ru: "Если рука часто впереди, она автоматически подходит для вэлью-агрессии",
+      reason3En: "If the hand is often ahead, it automatically qualifies for value aggression",
+    };
+  }
+  return {
+    actionBRu: badRu,
+    actionBEn: badEn,
+    actionCRu: "Считать стратегическую роль руки фиксированной и не пересчитывать её при изменении доски или диапазонов",
+    actionCEn: "Treat the hand's strategic role as fixed and do not recompute it when the board or ranges change",
+    reason2Ru: "Роль руки определяется только её абсолютной силой и не зависит от взаимодействия диапазонов",
+    reason2En: "The hand's role is determined only by absolute strength and does not depend on range interaction",
+    reason3Ru: "Инициатива сама определяет действие, даже если доска или диапазон продолжения меняют функцию руки",
+    reason3En: "Initiative alone determines the action even when the board or continuing range changes the hand's function",
+  };
+}
+
 const q=(id:string,skillId:string,kind:PracticalDecision["kind"],sourceRefs:string[],cueRu:string,cueEn:string,questionRu:string,questionEn:string,goodRu:string,goodEn:string,badRu:string,badEn:string,whyRu:string,whyEnOrChanged?:string|string[],changedVariablesArg?:string[],learnerEligibility:PracticalDecision["learnerEligibility"]="ORDINARY"):PracticalDecision=>{
   const whyEn=typeof whyEnOrChanged==="string"?whyEnOrChanged:whyRu;
   const changedVariables=Array.isArray(whyEnOrChanged)?whyEnOrChanged:changedVariablesArg;
-  return {id,skillId,learnerEligibility,kind,sourceRefs,assumptions:["mechanism-level classification; no exact solver frequency claimed"],cueRu,cueEn,questionRu,questionEn,actionOptions:(RECOGNITION_SECOND_ACTION_IDS.has(id)?[o("b",`${badRu}. Этого достаточно для полной классификации: пришедшие диапазоны не меняют вывод`,`${badEn}. That is sufficient for the full classification; arriving ranges do not change the conclusion`,"CLASSIFICATION_SHORTCUT"),o("a",goodRu,goodEn),o("c","История формирования диапазона не меняет решение; визуального ярлыка достаточно","Range ancestry does not change the decision; the visual label is sufficient","CONTEXT_IGNORED")]:[o("a",goodRu,goodEn),o("b",`${badRu}. Этого достаточно для полной классификации: пришедшие диапазоны не меняют вывод`,`${badEn}. That is sufficient for the full classification; arriving ranges do not change the conclusion`,"CLASSIFICATION_SHORTCUT"),o("c","История формирования диапазона не меняет решение; визуального ярлыка достаточно","Range ancestry does not change the decision; the visual label is sufficient","CONTEXT_IGNORED")]),reasonOptions:(RECOGNITION_SECOND_REASON_IDS.has(id)?[o("r2","Название доски или руки достаточно для стратегии даже при изменившихся пришедших диапазонах и их покрытии","The board/hand label remains sufficient for strategy even when arriving ranges and coverage change","LABEL_AS_STRATEGY"),o("r1",whyRu,whyEn),o("r3","Инициатива важнее диапазонов и истории действий; предыдущая фильтрация не меняет решение","Initiative matters more than ranges and action history; prior filtering does not change the decision","INITIATIVE_ONLY")]:[o("r1",whyRu,whyEn),o("r2","Название доски или руки достаточно для стратегии даже при изменившихся пришедших диапазонах и их покрытии","The board/hand label remains sufficient for strategy even when arriving ranges and coverage change","LABEL_AS_STRATEGY"),o("r3","Инициатива важнее диапазонов и истории действий; предыдущая фильтрация не меняет решение","Initiative matters more than ranges and action history; prior filtering does not change the decision","INITIATIVE_ONLY")]),correctActionId:"a",correctReasonId:"r1",targetSeconds:22,explanationRu:whyRu,explanationEn:whyEn,changedVariables};
+  const distractors=w4Distractors(skillId,badRu,badEn);
+  const good=o("a",goodRu,goodEn);
+  const b=o("b",distractors.actionBRu,distractors.actionBEn,"CLASSIFICATION_SHORTCUT");
+  const c=o("c",distractors.actionCRu,distractors.actionCEn,"CONTEXT_IGNORED");
+  const r1=o("r1",whyRu,whyEn);
+  const r2=o("r2",distractors.reason2Ru,distractors.reason2En,"LABEL_AS_STRATEGY");
+  const r3=o("r3",distractors.reason3Ru,distractors.reason3En,"INITIATIVE_ONLY");
+  return {
+    id,skillId,learnerEligibility,kind,sourceRefs,
+    assumptions:["mechanism-level classification; no exact solver frequency claimed"],
+    cueRu,cueEn,questionRu,questionEn,
+    actionOptions:RECOGNITION_SECOND_ACTION_IDS.has(id)?[b,good,c]:[good,b,c],
+    reasonOptions:RECOGNITION_SECOND_REASON_IDS.has(id)?[r2,r1,r3]:[r1,r2,r3],
+    correctActionId:"a",correctReasonId:"r1",targetSeconds:22,
+    explanationRu:whyRu,explanationEn:whyEn,changedVariables,
+  };
 };
 
 export const recognitionExpansionDecisions:PracticalDecision[]=[

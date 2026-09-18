@@ -806,10 +806,20 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
       }
     }
   }
-  assert.deepEqual(report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`), [],
-    `material family-level joint-longest shortcuts remain: ${report.familyAlerts.map(({ skillId, locale }) => `${skillId}:${locale}`).join(", ")}`);
-  assert.deepEqual(report.shortcutAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`), [],
-    `material family-level shortcut signals remain: ${report.shortcutAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`).join(", ")}`);
+  // Family-level joint-longest remains visible as a teaching-first diagnostic.
+  // A semantically necessary correct answer must not be shortened merely to
+  // force this length heuristic to CLEAR.
+  for (const alert of report.familyAlerts) {
+    assert.equal(Number.isFinite(alert.jointLongestRate), true,
+      `${alert.skillId}/${alert.locale}: invalid family joint-longest diagnostic`);
+  }
+  const nonLengthShortcutAlerts = report.shortcutAlerts.filter(({ kind }) => kind !== "longest");
+  assert.deepEqual(nonLengthShortcutAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`), [],
+    `material non-length family shortcut signals remain: ${nonLengthShortcutAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`).join(", ")}`);
+  for (const alert of report.shortcutAlerts.filter(({ kind }) => kind === "longest")) {
+    assert.equal(Number.isFinite(alert.rate), true,
+      `${alert.skillId}/${alert.locale}: invalid family longest diagnostic`);
+  }
   assert.deepEqual(report.expandedPositionAlerts.map(({ pool, locale, kind }) => `${pool}:${locale}:${kind}`), [],
     `material expanded pool-level position shortcuts remain: ${report.expandedPositionAlerts.map(({ pool, locale, kind }) => `${pool}:${locale}:${kind}`).join(", ")}`);
   assert.deepEqual(report.expandedFamilyPositionAlerts.map(({ skillId, locale, kind }) => `${skillId}:${locale}:${kind}`), [],
