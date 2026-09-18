@@ -332,7 +332,260 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "A sound SB limp includes strong hands and traps, so it needs a response branch versus a BB raise.",
     },
   },
+  {
+    label: "COMPOSITE_FND04_B1",
+    decisionIds: [
+      "PM-FND-04-B1-101", "PM-FND-04-B1-102", "PM-FND-04-B1-103", "PM-FND-04-B1-104",
+      "PM-FND-04-B1-105", "PM-FND-04-B1-106", "PM-FND-04-B1-107", "PM-FND-04-B1-108",
+    ],
+    canonical: {
+      textRu: "Разобранные материалы про ауты описывают грязные ауты как карты, которые внешне улучшают руку, но не гарантируют лучшую руку на шоудауне, и предупреждают, что полный учёт таких карт завышает эквити.",
+      textEn: "Dirty outs are apparent improvements that do not reliably make the best hand; counting them fully overstates equity.",
+    },
+    presented: {
+      textRu: "Грязные ауты завышают эквити против диапазона.",
+      textEn: "Dirty outs can overstate equity against the range.",
+    },
+  },
+  {
+    label: "COMPOSITE_W4_DRAW_B1",
+    decisionIds: [
+      "PM-W4-DRAW-B1-101", "PM-W4-DRAW-B1-102", "PM-W4-DRAW-B1-103", "PM-W4-DRAW-B1-104",
+      "PM-W4-DRAW-B1-105", "PM-W4-DRAW-B1-106", "PM-W4-DRAW-B1-107", "PM-W4-DRAW-B1-108",
+    ],
+    canonical: {
+      textRu: "Разобранные материалы про ауты описывают грязные ауты и пересечение комбо-дро, а связанный источник про рейзы с дро объединяет устойчивость дро, фолд-эквити и срочность рейза в единое решение.",
+      textEn: "Dirty-outs and combo-draw overlap change draw robustness; raising urgency also depends on fold equity and how cleanly the draw improves.",
+    },
+    presented: {
+      textRu: "Dirty/overlap меняют дро; FE влияет на raise.",
+      textEn: "Dirty outs/overlap change draw quality; fold equity affects raising.",
+    },
+  },
+  {
+    label: "COMPOSITE_DEEP02_B1",
+    decisionIds: [
+      "PM-DEEP-02-B1-101", "PM-DEEP-02-B1-102", "PM-DEEP-02-B1-103", "PM-DEEP-02-B1-104",
+      "PM-DEEP-02-B1-105", "PM-DEEP-02-B1-106", "PM-DEEP-02-B1-107", "PM-DEEP-02-B1-108",
+    ],
+    canonical: {
+      textRu: "Разобранные материалы по глубокому стеку прямо сравнивают ответы на 300bb в кэш-игре и показывают, что блайнды без позиции 3-бетят реже, поскольку глубина усиливает проблемы реализации эквити; сравнение сет-майнинга на 300bb показывает и больший потенциальный выигрыш, и больший риск реверсивных имплайд-оддсов.",
+      textEn: "At 300bb, OOP blinds can 3-bet less because depth magnifies realization problems; at 300bb, implied-odds upside is also paired with larger reverse-implied losses.",
+    },
+    presented: {
+      textRu: "Глубина усиливает OOP и reverse-implied риски.",
+      textEn: "Depth magnifies OOP realization and reverse-implied risk.",
+    },
+  },
+  {
+    label: "COMPOSITE_EXP06_B1",
+    decisionIds: [
+      "PM-EXP-06-B1-101", "PM-EXP-06-B1-102", "PM-EXP-06-B1-103", "PM-EXP-06-B1-104",
+      "PM-EXP-06-B1-105", "PM-EXP-06-B1-106", "PM-EXP-06-B1-107", "PM-EXP-06-B1-108",
+    ],
+    canonical: {
+      textRu: "Разобранные источники про выбор игры и места рассматривают это решение как EV-задачу и предупреждают, что поверхностное профилирование или размер стеков сами по себе — недостаточное доказательство.",
+      textEn: "PokerCoaching and CardPlayer sources treat game/seat selection as an EV decision and caution that superficial profiling or chip-stack appearance is insufficient evidence.",
+    },
+    presented: {
+      textRu: "Стеки/стереотипы не доказывают game/seat EV.",
+      textEn: "Stack appearance/stereotypes do not establish game/seat EV.",
+    },
+  },
+  {
+    label: "COMPOSITE_MW05_B1",
+    decisionIds: [
+      "PM-MW-05-B1-101", "PM-MW-05-B1-102", "PM-MW-05-B1-103", "PM-MW-05-B1-104",
+      "PM-MW-05-B1-105", "PM-MW-05-B1-106", "PM-MW-05-B1-107", "PM-MW-05-B1-108",
+    ],
+    canonical: {
+      textRu: "Разобранные источники по мультивей-игре показывают, что продолжающие диапазоны сильнее, а блефов меньше; каноническая логика ривера по-прежнему требует более слабых целей для вэлью или правдоподобных блефов. Это ограниченное дисциплинирующее правило, а не полное солверное дерево для мультивея.",
+      textEn: "Multiway continuing ranges are generally stronger and bluff supply smaller; river value and bluff-catches still require concrete worse calls or credible bluffs.",
+    },
+    presented: {
+      textRu: "Multiway усиливает ranges и режет bluffs.",
+      textEn: "Multiway strengthens ranges and shrinks bluff supply.",
+    },
+  },
 ];
+
+export type PracticalAssessmentExactReasonRepair = {
+  canonical: LocalizedReason;
+  presented: LocalizedReason;
+};
+
+export const practicalAssessmentExactReasonRepairs: Readonly<Record<string, PracticalAssessmentExactReasonRepair>> = {
+  "PM-BL-01-001": {
+    canonical: {
+      textRu: "EP origin range сильнее и повышает domination/overpair density",
+      textEn: "The EP origin range is stronger and increases domination/overpair density",
+    },
+    presented: {
+      textRu: "EP плотнее: больше domination/overpairs",
+      textEn: "The EP origin range is stronger and increases domination/overpair density",
+    },
+  },
+  "PM-BL-01-101": {
+    canonical: {
+      textRu: "Концентрированный диапазон EP сильнее на ветках топ-пары и оверпары",
+      textEn: "A concentrated EP range is stronger on top-pair/overpair branches",
+    },
+    presented: {
+      textRu: "EP плотнее на top-pair/overpair",
+      textEn: "A concentrated EP range is stronger on top-pair/overpair branches",
+    },
+  },
+  "PM-BL-01-102": {
+    canonical: {
+      textRu: "Защита BB многофакторна: цена и закрытие торгов против силы исходного диапазона и реализации эквити",
+      textEn: "BB defense is multi-factor: price/closing action versus origin strength/realization",
+    },
+    presented: {
+      textRu: "Цена+closing vs strength/realization",
+      textEn: "BB defense is multi-factor: price/closing action versus origin strength/realization",
+    },
+  },
+  "PM-BL-01-104": {
+    canonical: {
+      textRu: "Доминация и будущее давление могут свести номинальную эквити на нет",
+      textEn: "Domination and future pressure can erase nominal equity",
+    },
+    presented: {
+      textRu: "Domination и pressure режут raw equity",
+      textEn: "Domination and future pressure can erase nominal equity",
+    },
+  },
+  "PM-BL-01-105": {
+    canonical: {
+      textRu: "Логика опирается на реальную силу исходного диапазона, а не только на метку позиции",
+      textEn: "Actual origin-range strength matters more than the seat label alone",
+    },
+    presented: {
+      textRu: "Реальный origin range важнее position label",
+      textEn: "Actual origin-range strength matters more than the seat label alone",
+    },
+  },
+  "PM-BL-01-107": {
+    canonical: {
+      textRu: "Механизм строится на цене, исходном диапазоне и реализации эквити, а не на фиксированной позиционной команде",
+      textEn: "The source mechanism is price + origin range + realization, not a fixed positional command",
+    },
+    presented: {
+      textRu: "Цена + origin range + realization, не label",
+      textEn: "The source mechanism is price + origin range + realization, not a fixed positional command",
+    },
+  },
+  "PM-BL-05-001": {
+    canonical: {
+      textRu: "Правило по умолчанию зависит от риска сквиза и игроков позади; пассивный BB может изменить EV ветки",
+      textEn: "The default depends on squeeze risk and the table behind; a passive BB can change branch EV",
+    },
+    presented: {
+      textRu: "Flat EV зависит от squeeze risk позади",
+      textEn: "The default depends on squeeze risk and the table behind; a passive BB can change branch EV",
+    },
+  },
+  "PM-BL-05-101": {
+    canonical: {
+      textRu: "Снижение риска сквиза может вернуть часть коллов, но позиционный минус остаётся",
+      textEn: "Lower squeeze risk can restore some flats, while the positional cost remains",
+    },
+    presented: {
+      textRu: "Меньше squeeze risk — больше viable flats",
+      textEn: "Lower squeeze risk can restore some flats, while the positional cost remains",
+    },
+  },
+  "PM-BL-05-102": {
+    canonical: {
+      textRu: "Один из главных штрафов колла — риск сквиза — стал меньше",
+      textEn: "One major flatting penalty — squeeze exposure — has fallen",
+    },
+    presented: {
+      textRu: "Squeeze risk меньше — flat EV выше",
+      textEn: "One major flatting penalty — squeeze exposure — has fallen",
+    },
+  },
+  "PM-BL-05-106": {
+    canonical: {
+      textRu: "Один из главных структурных штрафов — риск сквиза — исчез",
+      textEn: "One major structural penalty — squeeze risk — has fallen",
+    },
+    presented: {
+      textRu: "Нет squeeze risk — flat дешевле",
+      textEn: "One major structural penalty — squeeze risk — has fallen",
+    },
+  },
+  "PM-BL-05-107": {
+    canonical: {
+      textRu: "Источник прямо называет \"3-бет или фолд\" полезным правилом по умолчанию, а не буквальным запретом",
+      textEn: "3-bet-or-fold is a useful default, not a literal prohibition",
+    },
+    presented: {
+      textRu: "3-bet-or-fold — default, не абсолютный запрет",
+      textEn: "3-bet-or-fold is a useful default, not a literal prohibition",
+    },
+  },
+  "PM-BL-05-108": {
+    canonical: {
+      textRu: "Более сильный диапазон открытия обычно снижает фолд-эквити и усиливает ветку после колла",
+      textEn: "A stronger origin range usually reduces fold equity and strengthens the called branch",
+    },
+    presented: {
+      textRu: "Сильнее origin range — меньше fold equity",
+      textEn: "A stronger origin range usually reduces fold equity and strengthens the called branch",
+    },
+  },
+  "PM-PF-08-001": {
+    canonical: {
+      textRu: "Блефовые 4-беты требуют фолдов; диапазон с перевесом вэлью убирает часть стимулов блефовать",
+      textEn: "Bluff 4-bets require folds; an underbluffing/value-heavy branch removes some bluff incentives",
+    },
+    presented: {
+      textRu: "Блеф 4-бет требует реальных фолдов",
+      textEn: "Bluff 4-bets need real folds",
+    },
+  },
+  "PM-PF-08-101": {
+    canonical: {
+      textRu: "Руки средней силы нередко сохраняют больше EV через колл, чем через 4-бет с последующим фолдом на пуш",
+      textEn: "Medium hands can retain more EV by calling rather than 4-bet/folding to jams",
+    },
+    presented: {
+      textRu: "Средние руки часто сохраняют больше EV через колл",
+      textEn: "Medium hands may keep more EV by calling",
+    },
+  },
+  "PM-PF-08-102": {
+    canonical: {
+      textRu: "Более короткое дерево при низком SPR может уменьшить то, насколько игрок в позиции реализует своё преимущество",
+      textEn: "A shallower future tree can reduce how much IP compounds its advantage",
+    },
+    presented: {
+      textRu: "Низкий SPR режет преимущество позиции",
+      textEn: "Low SPR cuts positional leverage",
+    },
+  },
+  "PM-PF-08-103": {
+    canonical: {
+      textRu: "Не стоит считать 4-бет вэлью, если против предполагаемого диапазона 5-бета мы не готовы корректно продолжать",
+      textEn: "Do not 4-bet for value unless prepared to continue appropriately versus the assumed 5-bet range",
+    },
+    presented: {
+      textRu: "Вэлью 4-бет требует продолжения против 5-бета",
+      textEn: "Value 4-bets need a 5-bet continue",
+    },
+  },
+  "PM-PF-08-104": {
+    canonical: {
+      textRu: "Когда фолдов мало, блефовый 4-бет теряет главный источник EV",
+      textEn: "Without fold targets, polar bluffs lose their main EV source",
+    },
+    presented: {
+      textRu: "Без фолдов 4-бет-блеф теряет EV",
+      textEn: "No folds, no bluff 4-bet EV",
+    },
+  },
+};
 
 const reasonLengthRepairByDecisionId = new Map<string, PracticalAssessmentReasonRepairGroup>();
 for (const group of practicalAssessmentReasonRepairGroups) {
@@ -373,6 +626,43 @@ const actionLengthRepairs: Record<string, RuActionLengthRepair> = {
   "PM-RIV-03-C0-206": { textRu: "Нет — последующая фильтрация может перевесить широкий старт" },
   "PM-RIV-03-C0-207": { textRu: "Широкий старт — лишь исходная оценка; решают линия и полевые данные" },
   "PM-RIV-03-C0-208": { textRu: "Тайтовый старт снижает возможные блефы" },
+
+  "PM-FND-04-B1-101": { textRu: "Оцени clean/dirty outs против range" },
+  "PM-FND-04-B1-102": { textRu: "Нет — пересчитай ветку по аутам" },
+  "PM-FND-04-B1-103": { textRu: "Clean считай; dirty дисконтируй" },
+  "PM-FND-04-B1-104": { textRu: "Проверь outs, range, цену, контекст" },
+  "PM-FND-04-B1-105": { textRu: "Реализация, дерево, сильный range" },
+  "PM-FND-04-B1-106": { textRu: "Пересобери outs-ветку без default" },
+  "PM-FND-04-B1-107": { textRu: "Пограничное действие — пересчитай EV" },
+  "PM-FND-04-B1-108": { textRu: "Вернись к условиям правила по аутам" },
+
+  "PM-W4-DRAW-B1-101": { textRu: "Дро: clean outs + nuts + overlap + SDV" },
+  "PM-W4-DRAW-B1-102": { textRu: "Нет — пересчитай ветку по качеству дро" },
+  "PM-W4-DRAW-B1-103": { textRu: "Классифицируй дро по clean/nut/overlap" },
+  "PM-W4-DRAW-B1-104": { textRu: "Проверь range, цену, контекст и качество дро" },
+  "PM-W4-DRAW-B1-105": { textRu: "Дро: realization, дерево, сильный range" },
+  "PM-W4-DRAW-B1-106": { textRu: "Пересобери ветку дро; не тащи default" },
+  "PM-W4-DRAW-B1-107": { textRu: "Пограничное дро — пересчитай EV" },
+  "PM-W4-DRAW-B1-108": { textRu: "Вернись к условиям правила по дро" },
+
+  "PM-DEEP-02-B1-101": { textRu: "Depth/OOP + realization + reverse odds" },
+  "PM-DEEP-02-B1-102": { textRu: "Нет — пересчитай depth-ветку" },
+  "PM-DEEP-02-B1-103": { textRu: "Depth: меньше OOP 3-bet, выше nuts" },
+  "PM-DEEP-02-B1-104": { textRu: "Проверь range, цену, context, depth" },
+  "PM-DEEP-02-B1-105": { textRu: "Depth: realization, tree, strong range" },
+  "PM-DEEP-02-B1-106": { textRu: "Пересобери depth-ветку без default" },
+  "PM-DEEP-02-B1-107": { textRu: "Пограничный action — пересчитай EV" },
+  "PM-DEEP-02-B1-108": { textRu: "Не тащи 100bb default в 300bb" },
+
+  "PM-EXP-06-B1-101": { textRu: "Стол, активность, сильные слева" },
+  "PM-EXP-06-B1-102": { textRu: "Нет — пересчитай game/seat EV" },
+  "PM-EXP-06-B1-103": { textRu: "+EV стол; сильных справа; обновляй" },
+  "PM-EXP-06-B1-104": { textRu: "Проверь range, цену, game/seat context" },
+
+  "PM-MW-05-B1-101": { textRu: "Multiway: выше value/bluff thresholds; targets" },
+  "PM-MW-05-B1-102": { textRu: "Нет — пересчитай multiway-ветку" },
+  "PM-MW-05-B1-103": { textRu: "Value/bluff строже HU; учитывай ranges" },
+  "PM-MW-05-B1-104": { textRu: "Проверь multiway ranges, цену и контекст" },
 };
 
 export function practicalAssessmentLengthPresentedOptions(
@@ -387,8 +677,10 @@ export function practicalAssessmentLengthPresentedOptions(
     return options.map((option) => option.id === decision.correctActionId ? { ...option, ...repair } : option);
   }
   const group = reasonLengthRepairByDecisionId.get(decision.id);
-  if (!group) return [...options];
+  const exact = practicalAssessmentExactReasonRepairs[decision.id];
+  const repair = group ?? exact;
+  if (!repair) return [...options];
   const correct = options.find((option) => option.id === decision.correctReasonId);
-  if (!correct || correct.textRu !== group.canonical.textRu || correct.textEn !== group.canonical.textEn) return [...options];
-  return options.map((option) => option.id === decision.correctReasonId ? { ...option, ...group.presented } : option);
+  if (!correct || correct.textRu !== repair.canonical.textRu || correct.textEn !== repair.canonical.textEn) return [...options];
+  return options.map((option) => option.id === decision.correctReasonId ? { ...option, ...repair.presented } : option);
 }
