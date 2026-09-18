@@ -174,7 +174,8 @@ test("language-eliminable RU distractors are natural RU and retain distinct opti
   assert.ok(b && c);
   assert.notEqual(b.textRu, c.textRu);
   assert.equal(b.misconception, "CALL_ONLY_EQUALS_CALL_ALL");
-  assert.equal(c.misconception, "CALL_ONLY_EQUALS_CALL_ALL");
+  assert.equal(c.misconception, "STRONG_HAND_RAISE_AUTOPILOT");
+  assert.notEqual(b.misconception, c.misconception);
 });
 
 test("learner-facing decisions and rendered teaching assets expose no internal source ids", () => {
