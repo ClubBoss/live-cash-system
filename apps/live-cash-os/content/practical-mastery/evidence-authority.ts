@@ -4753,5 +4753,5 @@ export const PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID: Readonly<
   "PM-BL-10-TRC-103": { evidenceFamilyId: "BL-10::sb-arriving-range-cbet-consequence", scenarioId: "BL-10::sb-arriving-range-cbet-consequence" },
   "PM-BL-10-TRC-104": { evidenceFamilyId: "BL-10::texture-arriving-range-interaction", scenarioId: "BL-10::texture-arriving-range-interaction" },
   "PM-BL-10-TRC-105": { evidenceFamilyId: "BL-10::opponent-evidence-overrides-seat-prior", scenarioId: "BL-10::opponent-evidence-overrides-seat-prior" },
-  "PM-W4-HAND-01-TRC-109": { evidenceFamilyId: "W4-HAND-01::value-raise-relative-to-continuing-range", scenarioId: "W4-HAND-01::value-raise-relative-to-continuing-range" },
+  "PM-W4-HAND-01-TRC-109": { evidenceFamilyId: "W4-HAND-01::hero has a made hand and considers a value raise", scenarioId: "W4-HAND-01::hero has a made hand and considers a value raise" },
 } as const;

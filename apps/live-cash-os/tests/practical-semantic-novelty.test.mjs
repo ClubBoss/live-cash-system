@@ -134,6 +134,7 @@ test("reviewed target-reachability duplicates share canonical semantic identity"
     ["PM-FND-05-TRC-104", "PM-FND-05-TRC-106"],
     ["PM-FND-07-TRC-101", "PM-FND-07-TRC-104"],
     ["PM-FND-07-TRC-102", "PM-FND-07-TRC-105"],
+    ["PM-W4-HAND-001", "PM-W4-HAND-01-TRC-109"],
   ]) {
     const rows = ids.map((id) => practicalDecisionById.get(id));
     assert.ok(rows.every(Boolean), `missing target-reachability fixture: ${ids.join(", ")}`);
