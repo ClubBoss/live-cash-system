@@ -31,6 +31,15 @@ function anchorFields(a) { return [["promptRu", a.promptRu], ["answerRu", a.answ
 function numericTokens(text) {
   return text.replace(/\b(?:FTGU-E\d+|SLC-M\d+-L\d+|CP-G\d+-L\d+|LCM-\d+|E\d+)\b/gu, "").replace(/(?<![\p{L}\p{N}])[34]-(?:bet(?:s|ting|ted)?|бет[а-яё]*)(?![\p{L}\p{N}])/giu, "").match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
 }
+
+function sourceNeutralExplanation(text) {
+  return text
+    .replace(/\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+(?:\/E\d+)*\b/gu, "source material")
+    .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/source materials\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/^Source/u, "source");
+}
+
 function machineIdentity(d) {
   const optionIdentity = (o) => ({ id: o.id, textEn: o.textEn, misconception: o.misconception });
   return {
@@ -44,7 +53,7 @@ function machineIdentity(d) {
     reasonOptions: d.reasonOptions.map(optionIdentity),
     cueEn: d.cueEn,
     questionEn: d.questionEn,
-    explanationEn: d.explanationEn,
+    explanationEn: sourceNeutralExplanation(d.explanationEn),
     correctActionId: d.correctActionId,
     correctReasonId: d.correctReasonId,
     changedVariables: d.changedVariables,

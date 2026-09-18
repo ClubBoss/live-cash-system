@@ -76,7 +76,7 @@ test("bare evidence-ID namespace does not consume poker-native terms or one-digi
 });
 
 for (const locale of ["ru", "en"]) {
-  test(`${locale}: raw internal evidence IDs remain intact while normal learner residual is zero`, () => {
+  test(`${locale}: source metadata remains intact while final learner evidence-ID residual is zero`, () => {
     const values = canonicalLearnerStrings(locale);
     const leaking = values.filter(hasBareEvidenceId);
     const matches = leaking.flatMap(bareEvidenceMatches);
@@ -87,10 +87,11 @@ for (const locale of ["ru", "en"]) {
     // raw learner-facing ID occurrences while this firewall must keep sanitizing every
     // residual identifier without mutating canonical internal authority.
     console.log(`V7_POSTBLIND_B_BEFORE locale=${locale} learner_strings=${values.length} before_leaking_strings=${leaking.length} before_occurrences=${matches.length} before_ids=${JSON.stringify(counts)}`);
-    if (locale === "ru") assert.equal(matches.includes("E07"), false, "A6 final RU projection removes the last final-composed E07 learner leak");
-    else assert.ok(matches.includes("E07"));
-    assert.ok(matches.includes("E20"));
-    assert.ok(matches.includes("E21"));
+    // Raw corpus/assumption authority may still contain evidence IDs. The
+    // learner publication firewall must remove every such token, while
+    // provenance remains available through sourceRefs.
+    assert.ok(practicalDecisions.some((decision) => decision.sourceRefs.some((ref) => ref.includes("E20"))), "E20 provenance must remain in sourceRefs");
+    assert.ok(practicalDecisions.some((decision) => decision.sourceRefs.some((ref) => ref.includes("E21"))), "E21 provenance must remain in sourceRefs");
 
     const learnerPublished = values.map((value) => sanitizeLearnerPresentationText(value, locale));
     const residual = learnerPublished.filter(hasBareEvidenceId);
