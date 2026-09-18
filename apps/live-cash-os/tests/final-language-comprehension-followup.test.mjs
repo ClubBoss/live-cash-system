@@ -50,7 +50,7 @@ const RU_POKER_LATIN_ALLOWLIST = new Set([
   "thin-value", "value-heavy", "small-bet", "high-card",
   "equity", "range", "value", "bluff", "pot", "flop", "turn", "river", "draw",
   "capped", "uncapped", "chop",
-]);
+].map((token) => token.toLowerCase()));
 
 const RU_ORDINARY_ENGLISH_FORBIDDEN = new RegExp([
   "\\bmandatory\\b", "\\beffective\\b", "\\btree\\b",
@@ -70,15 +70,27 @@ const RU_ORDINARY_ENGLISH_FORBIDDEN = new RegExp([
   "\\bsmall-size\\b", "\\bsecond-best\\b",
 ].join("|"), "iu");
 
+const RU_CARD_NOTATION = /^(?:[2-9TJQKA]{1,2}|[2-9TJQKA](?:-[2-9TJQKA])+)$/iu;
+const RU_LATIN_TOKEN = /(?:\\d+[A-Za-z]+|\\d+-[A-Za-z]+(?:-[A-Za-z]+)*|[A-Za-z]+(?:-[A-Za-z]+)*)/gu;
+
 function assertNaturalRuSurface(value, label, census) {
   if (typeof value !== "string" || value.length === 0) return;
   census.count += 1;
   const match = value.match(RU_ORDINARY_ENGLISH_FORBIDDEN);
-  assert.equal(
-    match,
-    null,
-    `${label}: ordinary/developer English "${match?.[0] ?? ""}" remains outside the poker allowlist: ${value}`,
-  );
+  assert.equal(match, null, `${label}: ordinary/developer English "${match?.[0] ?? ""}" remains outside the poker allowlist: ${value}`);
+
+  const cardStripped = value
+    .replace(/\\b[2-9TJQKA][2-9TJQKA](?:s|o)?\\b/giu, " ")
+    .replace(/[2-9TJQKA][♠♥♦♣]/gu, " ");
+  const unknown = [];
+  for (const raw of cardStripped.match(RU_LATIN_TOKEN) ?? []) {
+    if (raw.length === 1 || RU_CARD_NOTATION.test(raw)) continue;
+    let token = raw.toLowerCase();
+    if (/^\\d+bb$/u.test(token)) token = "bb";
+    if (RU_POKER_LATIN_ALLOWLIST.has(token)) continue;
+    unknown.push(raw);
+  }
+  assert.deepEqual([...new Set(unknown)], [], `${label}: Latin token outside explicit poker allowlist: ${[...new Set(unknown)].join(", ")} :: ${value}`);
 }
 
 test("machine-wide RU learner-facing runtime rejects ordinary English outside the explicit poker allowlist", () => {
