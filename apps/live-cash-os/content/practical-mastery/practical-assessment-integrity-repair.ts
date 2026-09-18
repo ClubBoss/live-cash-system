@@ -110,6 +110,46 @@ const exactCorrectReasonRepairs: Readonly<Record<string, Pick<PracticalDecisionO
     textRu: "Тайтовый старт может уменьшить исходный запас блефов, но не доказывает их отсутствие: после всей линии всё равно нужно перечислить правдоподобные блефы и сопоставить их с ценой и блокерами.",
     textEn: "A tight origin can reduce prior bluff supply but does not prove there are no bluffs: credible bluffs must still be enumerated after the full line and compared with price and blockers.",
   },
+  "PM-EXP-01-A10-101": {
+    textRu: "Одно наблюдение создаёт только гипотезу для конкретной ветки; уверенность растёт лишь при повторяющихся согласованных данных, поэтому масштаб эксплойта пока должен оставаться небольшим.",
+    textEn: "One observation creates only a branch-scoped hypothesis; confidence rises with repeated consistent evidence, so exploit magnitude should remain small until that evidence appears.",
+  },
+  "PM-EXP-01-A10-102": {
+    textRu: "При малом объёме данных уверенность низкая, поэтому безопаснее держаться базовой стратегии или небольшого условного отклонения до повторного подтверждения в той же ветке.",
+    textEn: "Sparse evidence means low confidence, so the baseline or only a small conditional deviation is appropriate until the same branch is confirmed repeatedly.",
+  },
+  "PM-EXP-01-A10-103": {
+    textRu: "Гипотеза должна оставаться привязанной к конкретной ветке; только повторяющиеся согласованные наблюдения повышают уверенность настолько, чтобы увеличивать отклонение от базовой стратегии.",
+    textEn: "The hypothesis must stay tied to the exact branch; only repeated consistent observations raise confidence enough to justify a larger deviation from baseline.",
+  },
+  "PM-EXP-01-A10-104": {
+    textRu: "Один яркий шоудаун не повышает уверенность достаточно для крупного или глобального эксплойта, поэтому отклонение нужно оставить небольшим и ограниченным этой веткой.",
+    textEn: "One dramatic showdown does not create enough confidence for a large or global exploit, so the deviation should stay small and limited to that branch.",
+  },
+  "PM-EXP-01-A10-107": {
+    textRu: "Другая улица, сайзинг или линия образуют новую ветку: старые наблюдения не дают той же уверенности здесь, поэтому без прямых данных нужно вернуться к базовой стратегии.",
+    textEn: "A different street, size, or line is a new branch: the old observations do not provide the same confidence there, so baseline is appropriate until direct evidence exists.",
+  },
+  "PM-EXP-01-A10-108": {
+    textRu: "Ярлык после одной раздачи не создаёт надёжного доказательства для всей игры; без повторяющихся данных в конкретной ветке глобальный эксплойт нужно отклонить и вернуться к базовой стратегии.",
+    textEn: "A label from one hand is not reliable evidence across the whole game; without repeated branch-specific observations, reject the global exploit and return to baseline.",
+  },
+  "PM-B3-EXP01-101": {
+    textRu: "Яркое действие — лишь исходная гипотеза: сначала привяжи наблюдение к конкретной ветке и оцени уверенность, а уже затем решай, допустимо ли отклонение от базовой стратегии.",
+    textEn: "A vivid action is only an initial hypothesis: tie it to the exact branch and assess confidence before deciding whether any deviation from baseline is justified.",
+  },
+  "PM-B3-EXP01-102": {
+    textRu: "Повторяющиеся согласованные наблюдения в одной ветке повышают уверенность и позволяют постепенно усиливать отклонение; без них одно наблюдение остаётся поводом для небольшой гипотезы, а не крупного эксплойта.",
+    textEn: "Repeated consistent observations in the same branch raise confidence and allow a gradual larger deviation; without them, one observation supports only a small hypothesis rather than a large exploit.",
+  },
+  "PM-B3-EXP01-103": {
+    textRu: "Повторное подтверждение в той же ветке повышает уверенность именно там, поэтому отклонение можно увеличить внутри этой ветки, не распространяя рид на другие ситуации.",
+    textEn: "Repeated confirmation in the same branch raises confidence there, so the deviation can grow inside that branch without carrying the read into other situations.",
+  },
+  "PM-B3-EXP01-104": {
+    textRu: "Противоречащие наблюдения в той же ветке снижают уверенность в старом риде, поэтому эксплойт нужно ослабить или отменить и двигаться к базовой стратегии, пока новая гипотеза не подтвердится.",
+    textEn: "Contradictory observations in the same branch reduce confidence in the old read, so the exploit should shrink or disappear and move toward baseline until a new hypothesis is confirmed.",
+  },
 };
 
 function applyExactCorrectReasonRepair(decision: PracticalDecision): PracticalDecision {

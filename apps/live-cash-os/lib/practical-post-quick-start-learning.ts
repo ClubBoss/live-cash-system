@@ -43,9 +43,10 @@ function learnerRationaleWithoutInternalSourceIds(text: string, locale: "ru" | "
   next = next
     .replace(/материал\s*(?:и|\/)\s*материал/giu, "материалы")
     .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
-    .replace(/^материал\b/u, "Материал")
-    .replace(/^материалы\b/u, "Материалы")
+    .replace(/^материал(?=\s|[,.:;!?])/u, "Материал")
+    .replace(/^материалы(?=\s|[,.:;!?])/u, "Материалы")
     .replace(/^source material\b/u, "Source material")
+    .replace(/^Source material build\b/u, "Source material builds")
     .replace(/^source materials\b/u, "Source materials")
     .replace(/\s{2,}/gu, " ")
     .replace(/\s+([,.:;])/gu, "$1")
