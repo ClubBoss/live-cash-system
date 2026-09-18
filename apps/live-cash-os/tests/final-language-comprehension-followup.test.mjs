@@ -71,7 +71,7 @@ const RU_ORDINARY_ENGLISH_FORBIDDEN = new RegExp([
 ].join("|"), "iu");
 
 const RU_CARD_NOTATION = /^(?:[2-9TJQKA]{1,2}|[2-9TJQKA](?:-[2-9TJQKA])+)$/iu;
-const RU_LATIN_TOKEN = /(?:\\d+[A-Za-z]+|\\d+-[A-Za-z]+(?:-[A-Za-z]+)*|[A-Za-z]+(?:-[A-Za-z]+)*)/gu;
+const RU_LATIN_TOKEN = /(?:\d+[A-Za-z]+|\d+-[A-Za-z]+(?:-[A-Za-z]+)*|[A-Za-z]+(?:-[A-Za-z]+)*)/gu;
 
 function assertNaturalRuSurface(value, label, census) {
   if (typeof value !== "string" || value.length === 0) return;
@@ -80,13 +80,13 @@ function assertNaturalRuSurface(value, label, census) {
   assert.equal(match, null, `${label}: ordinary/developer English "${match?.[0] ?? ""}" remains outside the poker allowlist: ${value}`);
 
   const cardStripped = value
-    .replace(/\\b[2-9TJQKA][2-9TJQKA](?:s|o)?\\b/giu, " ")
+    .replace(/\b[2-9TJQKA][2-9TJQKA](?:s|o)?\b/giu, " ")
     .replace(/[2-9TJQKA][♠♥♦♣]/gu, " ");
   const unknown = [];
   for (const raw of cardStripped.match(RU_LATIN_TOKEN) ?? []) {
     if (raw.length === 1 || RU_CARD_NOTATION.test(raw)) continue;
     let token = raw.toLowerCase();
-    if (/^\\d+bb$/u.test(token)) token = "bb";
+    if (/^\d+bb$/u.test(token)) token = "bb";
     if (RU_POKER_LATIN_ALLOWLIST.has(token)) continue;
     unknown.push(raw);
   }
