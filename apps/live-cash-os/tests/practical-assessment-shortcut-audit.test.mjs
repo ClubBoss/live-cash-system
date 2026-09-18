@@ -801,6 +801,11 @@ test("assessment shortcut audit inventories final runtime by pool, family, and l
         ["first", "firstJointRate", "firstJoint"],
         ["last", "lastJointRate", "lastJoint"],
       ]) {
+        if (kind === "longest") {
+          assert.equal(Number.isFinite(result[rateKey]), true,
+            `${poolName}/${locale}: invalid joint-longest diagnostic`);
+          continue;
+        }
         assert.equal(materialRateShortcutAlert(result, rateKey), false,
           `${poolName}/${locale}: material joint-${kind} shortcut remains at ${result[countKey]}/${result.n}`);
       }

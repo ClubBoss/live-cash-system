@@ -90,7 +90,9 @@ function assertNaturalRuSurface(value, label, census) {
     if (RU_POKER_LATIN_ALLOWLIST.has(token)) continue;
     unknown.push(raw);
   }
-  assert.deepEqual([...new Set(unknown)], [], `${label}: Latin token outside explicit poker allowlist: ${[...new Set(unknown)].join(", ")} :: ${value}`);
+  if (unknown.length > 0) {
+    census.unknownLatin.push({ label, tokens: [...new Set(unknown)], value });
+  }
 }
 
 test("machine-wide RU learner-facing runtime rejects ordinary English outside the explicit poker allowlist", () => {
@@ -98,7 +100,7 @@ test("machine-wide RU learner-facing runtime rejects ordinary English outside th
     assert.doesNotMatch(token, RU_ORDINARY_ENGLISH_FORBIDDEN, `allowlist must not hide ordinary English: ${token}`);
   }
 
-  const census = { count: 0 };
+  const census = { count: 0, unknownLatin: [] };
   const ordinary = practicalDecisions.filter(isOrdinaryLearnerDecision);
   assert.equal(ordinary.length, 870);
 
@@ -173,6 +175,11 @@ test("machine-wide RU learner-facing runtime rejects ordinary English outside th
   }
 
   assert.equal(census.count, 37869, "RU learner-facing runtime surface census drifted");
+  assert.deepEqual(
+    census.unknownLatin,
+    [],
+    `Latin tokens outside explicit poker allowlist remain:\n${census.unknownLatin.map(({ label, tokens, value }) => `- ${label}: ${tokens.join(", ")} :: ${value}`).join("\n")}`,
+  );
 });
 
 test("FND-06 RU localization is keyed by option id and feedback reports the same correct meaning", () => {
