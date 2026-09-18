@@ -104,6 +104,15 @@ function numericTokens(text) {
   return stripNonQuantitativeLabels(text).match(/\d+(?:[.,]\d+)?%?/gu) ?? [];
 }
 
+
+function sourceNeutralExplanation(text) {
+  return text
+    .replace(/\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+(?:\/E\d+)*\b/gu, "source material")
+    .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/source materials\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/^Source/u, "source");
+}
+
 function semanticIdentity(decision) {
   return {
     id: decision.id,
@@ -126,7 +135,7 @@ function semanticIdentity(decision) {
     })),
     correctActionId: decision.correctActionId,
     correctReasonId: decision.correctReasonId,
-    explanationEn: decision.explanationEn,
+    explanationEn: sourceNeutralExplanation(decision.explanationEn),
     changedVariables: decision.changedVariables,
     targetSeconds: decision.targetSeconds,
   };

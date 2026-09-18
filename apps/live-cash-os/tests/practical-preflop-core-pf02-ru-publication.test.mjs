@@ -4,6 +4,15 @@ import { practicalDecisionById } from "../content/practical-mastery";
 import { preflopCoreExpansionDecisions } from "../content/practical-mastery/decisions-preflop-core-expansion";
 import { practicalRuSystemicPreflopCoreDecisionPatches } from "../content/practical-mastery/practical-ru-systemic-preflop-core-publication";
 
+
+function sourceNeutralExplanation(text) {
+  return text
+    .replace(/\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+(?:\/E\d+)*\b/gu, "source material")
+    .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/source materials\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/^Source/u, "source");
+}
+
 const decisionIds = [
   "PM-PF-02-101",
   "PM-PF-02-102",
@@ -157,6 +166,7 @@ test("PF02 final composition preserves scoring, source, option, EN, misconceptio
     assert.deepEqual(optionMachineIdentity(finalDecision.reasonOptions), optionMachineIdentity(raw.reasonOptions), `${id} reason identity`);
     assert.equal(finalDecision.cueEn, raw.cueEn, `${id} cue EN`);
     assert.equal(finalDecision.questionEn, raw.questionEn, `${id} question EN`);
-    assert.equal(finalDecision.explanationEn, raw.explanationEn, `${id} explanation EN`);
+    assert.equal(sourceNeutralExplanation(finalDecision.explanationEn), sourceNeutralExplanation(raw.explanationEn), `${id} explanation EN mechanism`);
+    assert.doesNotMatch(finalDecision.explanationEn, /\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+\b/u, `${id} learner EN source ID leak`);
   }
 });

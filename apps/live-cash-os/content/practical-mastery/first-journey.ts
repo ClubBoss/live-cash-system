@@ -45,7 +45,7 @@ const copyBySkillId: Record<string, { titleRu: string; titleEn: string; purposeR
     titleEn: "When should the big blind defend?",
     purposeRu: "Оценивать колл большого блайнда через цену, порядок действий и то, насколько удобно будет играть дальше.",
     purposeEn: "Judge a big-blind call through price, action order, and how playable the future decisions are.",
-    tableUseRu: "Защита большого блайнда — одна из самых частых ситуаций в live cash; небольшая ошибка здесь повторяется постоянно.",
+    tableUseRu: "Защита большого блайнда — одна из самых частых ситуаций в лайв-кэш; небольшая ошибка здесь повторяется постоянно.",
     tableUseEn: "Big-blind defense is one of the most frequent live-cash situations, so small errors repeat constantly.",
   },
   "W4-BOARD-01": {
@@ -69,7 +69,7 @@ const copyBySkillId: Record<string, { titleRu: string; titleEn: string; purposeR
     titleEn: "How does raise size change big-blind defense?",
     purposeRu: "Не копировать одну и ту же защиту: более крупное открытие делает пограничные коллы дороже.",
     purposeEn: "Do not copy one defense: a larger open makes marginal calls more expensive.",
-    tableUseRu: "В live игре размеры открытия заметно меняются, поэтому одна и та же рука может иметь разное решение против 2.5bb и 4bb.",
+    tableUseRu: "В лайв-игре размеры открытия заметно меняются, поэтому одна и та же рука может иметь разное решение против 2.5bb и 4bb.",
     tableUseEn: "Live open sizes vary, so the same hand can have a different decision versus 2.5bb and 4bb.",
   },
   "W4-RUNOUT-01": {

@@ -400,12 +400,28 @@ export function applyPracticalRuCopyRepair(decision: PracticalDecision): Practic
   const exact = FOUNDATION_EXPANSION_RU.get(decision.id) ?? FOUNDATION_GAP_FILL_RU.get(decision.id);
   if (!exact) return repaired;
   const [cueRu, questionRu, explanationRu, actionRu, reasonRu] = exact;
+  const actionRuById = new Map<string, string>([
+    ["a", actionRu[0]],
+    ["b", actionRu[1]],
+    ["c", actionRu[2]],
+  ]);
+  const reasonRuById = new Map<string, string>([
+    ["r1", reasonRu[0]],
+    ["r2", reasonRu[1]],
+    ["r3", reasonRu[2]],
+  ]);
   return {
     ...repaired,
     cueRu,
     questionRu,
     explanationRu,
-    actionOptions: repaired.actionOptions.map((option, index) => ({ ...option, textRu: actionRu[index] })),
-    reasonOptions: repaired.reasonOptions.map((option, index) => ({ ...option, textRu: reasonRu[index] })),
+    actionOptions: repaired.actionOptions.map((option) => ({
+      ...option,
+      textRu: actionRuById.get(option.id) ?? option.textRu,
+    })),
+    reasonOptions: repaired.reasonOptions.map((option) => ({
+      ...option,
+      textRu: reasonRuById.get(option.id) ?? option.textRu,
+    })),
   };
 }
