@@ -40,7 +40,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "BB-versus-BTN is structurally wide because of price and opener origin, but marginal calls disappear as price, rake, or execution worsen.",
     },
     presented: {
-      textRu: "BB vs BTN шире из-за цены и диапазона открытия; хуже цена, рейк или реализация — уже граница колла.",
+      textRu: "BB против BTN защищается шире из-за цены и диапазона открытия; хуже цена, рейк или реализация — уже граница колла.",
       textEn: "BB vs BTN is wide from price/origin; worse price/rake/execution removes fringe calls.",
     },
   },
@@ -57,7 +57,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Probing is conditional on exact check-back composition and whether the turn restores strong regions.",
     },
     presented: {
-      textRu: "Проб зависит от состава check-back range и того, возвращает ли тёрн сильные регионы.",
+      textRu: "Проб зависит от состава диапазона чек-бэка и того, возвращает ли тёрн сильные регионы.",
       textEn: "Probe depends on check-back composition and whether the turn restores strong regions.",
     },
   },
@@ -276,7 +276,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Upswing's reviewed BvB caller article identifies the BB's price, closing action and postflop position as the structural reasons this node defends widely.",
     },
     presented: {
-      textRu: "Цена+closing+IP дают BB широкую защиту в BvB",
+      textRu: "Цена, закрытие торговли и IP дают BB широкую защиту в борьбе блайндов",
       textEn: "BB defends widely versus SB because price, closing action, and postflop position all help.",
     },
   },
@@ -292,7 +292,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Upswing and GTO Wizard both frame the BB response as a raise-vs-check EV comparison, not 'raise because SB showed weakness'.",
     },
     presented: {
-      textRu: "Рейз BB vs чек — по EV, не по слабости лимпа",
+      textRu: "Рейз BB против чека — по EV, не по слабости лимпа",
       textEn: "BB must compare raise EV with check EV, not assume an SB limp signals weakness.",
     },
   },
