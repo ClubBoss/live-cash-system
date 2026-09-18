@@ -278,3 +278,6 @@ MASTER-FOLLOWUP-PR261-EXHAUSTIVE-CORPUS-2026-09-18 records the bounded PR #261 e
 
 
 MASTER-FOLLOWUP-PR261-FINAL-RECERT-CLOSURE-2026-09-18 records the bounded final re-certification follow-up at canonical review-corpus fingerprint `eb0a38637fb5743251a7669d76ba96155546a00e43a5e841bcd57a4f16bcaaa6`. It closes the W4 family-local distractor fingerprint, removes source-authority markers from scored exploit reasons in favor of direct causal evidence logic, naturalizes the 11 enumerated RU presentation strings, and fixes the six source-sanitizer grammar/casing residuals. Machine sourceRefs, correct IDs, option IDs, misconception identities, mastery/state/scoring semantics, and human approval states are unchanged. Longest-option and the existing 11 EN obvious-action signals remain diagnostics only.
+
+
+MASTER-FOLLOWUP-PR261-FINAL-LANGUAGE-CLEANUP-2026-09-18 records the bounded final language cleanup at canonical review-corpus fingerprint 86545660066ce43bbd452d145893133059ba0b90c5acc9035b09527a5815e7b4.

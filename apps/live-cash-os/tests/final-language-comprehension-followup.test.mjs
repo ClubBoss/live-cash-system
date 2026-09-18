@@ -158,6 +158,19 @@ test("W4 distractors no longer carry a global wrong-only authorial fingerprint",
   }
 });
 
+test("all W4 RU action and reason options reject ordinary English syntax outside poker jargon", () => {
+  const ordinaryEnglish = /\b(?:nothing|always|means|one|class|owns|itself|matter|removed|must|reassessed|callers?|strong\s+hands?|raises?|range\s+advantage)\b/iu;
+  for (const item of practicalDecisions.filter((decision) => decision.skillId.startsWith("W4-"))) {
+    for (const option of [...item.actionOptions, ...item.reasonOptions]) {
+      assert.doesNotMatch(
+        option.textRu,
+        ordinaryEnglish,
+        `${item.id}/${option.id}: ordinary English syntax remains in RU W4 option`,
+      );
+    }
+  }
+});
+
 test("the eight audited RU core decisions contain no nonstandard English teaching vocabulary", () => {
   const ids = [
     "PM-MW-02-001", "PM-W4-HAND-001", "PM-IP-03-001", "PM-W4-BOARD-01-106",
@@ -255,6 +268,52 @@ test("bounded RU presentation layer no longer reintroduces developer-register sh
     const ru = reasons.map((option) => option.textRu).join("\n");
     assert.doesNotMatch(ru, forbidden, `${id}: bounded RU presentation shorthand remains`);
   }
+});
+
+test("B4-RIV01 presented correct reasons use natural RU without hybrid register", () => {
+  const ids = ["PM-B4-RIV01-101", "PM-B4-RIV01-102", "PM-B4-RIV01-103", "PM-B4-RIV01-104"];
+  const forbidden = /\b(?:Value|size|worse|calls|station)\b/iu;
+  for (const id of ids) {
+    const item = decision(id);
+    const reasons = practicalAssessmentLengthPresentedOptions(item, "reason", item.reasonOptions);
+    const correct = reasons.find((option) => option.id === item.correctReasonId);
+    assert.ok(correct, `${id}: presented correct reason missing`);
+    assert.doesNotMatch(correct.textRu, forbidden, `${id}: hybrid B4-RIV01 reason survived`);
+    assert.match(correct.textRu, /вэлью-бета|слабых рук|станция/iu, `${id}: value-call mechanism weakened`);
+  }
+});
+
+test("the 26 bounded teaching RU surfaces contain no previously enumerated hybrid register", () => {
+  const fields = {
+    "FND-06": ["mechanismRu"],
+    "W4-DRAW-01": ["mechanismRu"],
+    "OOP-04": ["mechanismRu"],
+    "OOP-05": ["exampleRu"],
+    "3BP-04": ["mechanismRu"],
+    "4BP-02": ["mechanismRu"],
+    "TURN-01": ["mechanismRu", "boundaryRu"],
+    "TURN-04": ["mechanismRu", "exampleRu", "boundaryRu"],
+    "TURN-05": ["situationRu", "mechanismRu"],
+    "RIV-01": ["mechanismRu", "boundaryRu"],
+    "MW-04": ["mechanismRu", "exampleRu", "boundaryRu"],
+    "MW-05": ["mechanismRu"],
+    "DEEP-01": ["situationRu", "mechanismRu", "boundaryRu"],
+    "DEEP-04": ["situationRu", "exampleRu"],
+    "EXP-02": ["situationRu", "mechanismRu"],
+  };
+  const forbidden = /\b(?:effective stack|future tree|forced unit|clean outs|nut potential|overlap|domination|showdown value|continues|backdoors|call-all|automatic overfold|sizing|medium-strength|winning routes|top-end|coherent|range relation|hand class|board\/runout|jam\/reopen|surviving ranges|runout|ownership|blank\/scare\/completing|Turn lead|deny free cards|retained range|flop call|high-card-heavy|lead branch|range interaction|exact hand|range-level shift|medium-strength showdown hand|worse continues|uncapped|River value|value tiers|worse calls|likely-best|value region|investment ceiling|transfer|fold equity|frequent strength|players behind|sticky limpers|Suited\/connected|small-pair hand|heads-up pot|multiway branch|continuing regions|bluff supply|HU threshold|future leverage|reverse-implied exposure|deep|nutted|marginal branches|preflop hand family|future stack|second-best pair branches|branch-specific|value sizing|Exploit value|continuing range|deviation|evidence|station)\b/iu;
+  let checked = 0;
+  for (const [skillId, names] of Object.entries(fields)) {
+    const asset = practicalPostQuickStartTeachingAssetForSkill(skillId);
+    assert.equal(asset?.kind, "SOURCE_BOUND", `${skillId}: expected source-bound teaching asset`);
+    for (const name of names) {
+      const value = asset.teaching[name];
+      assert.equal(typeof value, "string", `${skillId}/${name}: teaching field missing`);
+      assert.doesNotMatch(value, forbidden, `${skillId}/${name}: bounded hybrid register survived`);
+      checked += 1;
+    }
+  }
+  assert.equal(checked, 26);
 });
 
 test("source-id sanitizer preserves natural teaching grammar and casing", () => {

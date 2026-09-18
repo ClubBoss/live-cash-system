@@ -244,7 +244,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Value sizing must target actual worse continues; a generic 'station' label cannot justify every size.",
     },
     presented: {
-      textRu: "Value size целится в реальные worse calls; ярлык station не оправдывает size.",
+      textRu: "Размер вэлью-бета должен опираться на реальные коллы от более слабых рук; ярлык «станция» сам по себе не оправдывает любой размер.",
       textEn: "Value size needs real worse calls; station cannot justify any size.",
     },
   },
