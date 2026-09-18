@@ -123,7 +123,7 @@ export const sourceSupportedGapFillDecisions: PracticalDecision[] = [
     assumptions: ["raising adds little EV", "low urgency", "strong hands can protect calls"],
     cueRu: "OOP response node, где raise мало добавляет EV.", cueEn: "OOP response node where raising adds little EV.",
     questionRu: "Что означает call-only simplification?", questionEn: "What does a call-only simplification mean?",
-    actionOptions: [o("a", "Calls + folds, with strong hands protecting calls", "Calls plus folds, with strong hands protecting calls"), o("b", "Call every hand", "Call every hand", "CALL_ONLY_EQUALS_CALL_ALL"), o("c", "Never fold", "Never fold", "CALL_ONLY_EQUALS_CALL_ALL")],
+    actionOptions: [o("a", "Calls + folds, with strong hands protecting calls", "Calls plus folds, with strong hands protecting calls"), o("b", "Call every hand", "Call every hand", "CALL_ONLY_EQUALS_CALL_ALL"), o("c", "Сильные руки всё равно обязательно рейзить", "Strong hands still have to raise", "STRONG_HAND_RAISE_AUTOPILOT")],
     reasonOptions: [o("r1", "Call-only removes raises, not folds, and keeps passive branch uncapped", "Call-only removes raises, not folds, and keeps the passive branch uncapped"), o("r2", "Simplification means defend 100%", "Simplification means defend 100%", "CALL_ONLY_EQUALS_CALL_ALL"), o("r3", "Strong hands must always raise", "Strong hands must always raise", "STRONG_HAND_RAISE_AUTOPILOT")],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 25,
     explanationRu: "FTGU-E08 специально поясняет, что call-only response всё равно содержит folds и защищён strong calls.",
