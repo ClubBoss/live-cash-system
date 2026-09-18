@@ -42,12 +42,12 @@ const CURATED_FEEDBACK = new Map<string, CuratedFeedback>([
 const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   {
     keys: ["position", "relative_position", "action_order", "players_behind", "ranges_behind"],
-    ru: "Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию equity и риск столкнуться с более сильной веткой, поэтому сдвигают EV пограничных продолжений и давления.",
+    ru: "Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию эквити и риск столкнуться с более сильной веткой, поэтому сдвигают EV пограничных продолжений и давления.",
     en: "Position, action order, and ranges still left to act change equity realization and the risk of running into stronger branches, moving the EV of fringe continues and pressure.",
   },
   {
     keys: ["rake", "realisation"],
-    ru: "Рейк и реализация определяют, сколько сырого equity превращается в итоговый EV; их изменение в первую очередь двигает тонкие и пограничные ветки.",
+    ru: "Рейк и реализация определяют, сколько исходной эквити превращается в итоговый EV; их изменение в первую очередь двигает тонкие и пограничные ветки.",
     en: "Rake and realization determine how much raw equity becomes net EV; changing either one moves thin and fringe branches first.",
   },
   {
@@ -57,7 +57,7 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["opener_origin", "called_branch", "arriving_ranges", "caller_range", "villain_calling_range", "range_strength"],
-    ru: "Состав и сила диапазонов меняют доминацию, набор худших рук, которые платят, и range/nut advantage, поэтому двигают порог продолжения или давления.",
+    ru: "Состав и сила диапазонов меняют доминацию, набор более слабых рук, которые платят, и преимущество диапазона и натсов, поэтому двигают порог продолжения или давления.",
     en: "Range composition and strength change domination, worse hands that can pay, and range/nut advantage, moving the threshold for continuing or applying pressure.",
   },
   {
@@ -72,7 +72,7 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["board_class", "runout_class", "turn_range_shift"],
-    ru: "Класс доски или ранаута меняет распределение equity, nut advantage, защиту и будущий leverage, поэтому меняется набор рук для ставки и продолжения.",
+    ru: "Класс доски или ранаута меняет распределение эквити, натсовое преимущество, защиту и будущий рычаг, поэтому меняется набор рук для ставки и продолжения.",
     en: "Board or runout class changes equity distribution, nut advantage, protection, and future leverage, changing betting and continuing candidates.",
   },
   {
@@ -82,7 +82,7 @@ const B3_CAUSAL_GROUPS: readonly B3CausalGroup[] = [
   },
   {
     keys: ["hand_robustness", "hand_family"],
-    ru: "Устойчивость и класс руки определяют, насколько хорошо equity переживает будущие карты и давление и к какой ветке — value, protection, bluff или continue — относится рука.",
+    ru: "Устойчивость и класс руки определяют, насколько хорошо эквити переживает будущие карты и давление и к какой ветке — вэлью, защите, блефу или продолжению — относится рука.",
     en: "Hand robustness and family determine how well equity survives future cards and pressure and whether the hand belongs in a value, protection, bluff, or continue branch.",
   },
   {

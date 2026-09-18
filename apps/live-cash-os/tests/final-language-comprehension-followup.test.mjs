@@ -2,12 +2,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  allPracticalTableStates,
+  isOrdinaryLearnerDecision,
   practicalDecisions,
   practicalSkillFamilies,
 } from "../content/practical-mastery/index.ts";
 import { practicalSelectedDecisionFeedback } from "../lib/practical-selected-decision-feedback.ts";
 import { practicalAssessmentLengthPresentedOptions } from "../lib/practical-assessment-length-presentation.ts";
 import { practicalPostQuickStartTeachingAssetForSkill } from "../lib/practical-post-quick-start-learning.ts";
+import { practicalConcepts } from "../content/practical-mastery/novice-concepts.ts";
+import { firstJourneySteps } from "../content/practical-mastery/first-journey.ts";
 
 const byId = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
 
@@ -33,6 +37,131 @@ function learnerStrings(item) {
     ...item.reasonOptions.flatMap((option) => [option.textRu, option.textEn]),
   ];
 }
+
+const RU_POKER_LATIN_ALLOWLIST = new Set([
+  "SB", "BB", "BTN", "CO", "UTG", "HJ", "MP", "EP", "IP", "OOP",
+  "EV", "SPR", "PFR", "RFI", "VPIP", "GTO", "ICM", "MDF", "SRP", "3BP", "4BP", "HU",
+  "Hero", "Villain", "c-bet", "3-bet", "4-bet", "bb", "all-in",
+  "heads-up", "multiway", "monotone", "rainbow", "bluff-catcher", "overbet", "probe",
+  "limp", "limper", "limpers", "overlimp", "iso", "straddle", "squeeze",
+  "blocker", "blockers", "redraw", "redraws", "runout", "runouts", "showdown",
+  "overfold", "underfold", "underbluff", "overbluff", "click-back",
+  "pot-odds", "implied-odds", "reverse-implied-odds", "stack-off",
+  "thin-value", "value-heavy", "small-bet", "high-card",
+  "equity", "range", "value", "bluff", "pot", "flop", "turn", "river", "draw",
+  "capped", "uncapped", "chop",
+]);
+
+const RU_ORDINARY_ENGLISH_FORBIDDEN = new RegExp([
+  "\\bmandatory\\b", "\\beffective\\b", "\\btree\\b",
+  "\\bcharts?\\b", "\\bheuristics?\\b",
+  "\\bworse\\b", "\\bcall(?:s|ed|ing)?\\b",
+  "\\bsize(?:s|d|ing)?\\b", "\\bsizing\\b",
+  "\\bclean\\b", "\\bnut\\s+potential\\b", "\\bdomination\\b",
+  "\\bstakes?\\b", "\\baggressive\\b", "\\bpassive\\b",
+  "\\bhand\\s+classes\\b", "\\bfuture\\b", "\\bbranch(?:es)?\\b",
+  "\\bfringe\\b", "\\bnode-specific\\b",
+  "\\bbluff\\s+supply\\b", "\\bworse\\s+calls\\b",
+  "\\bleverage\\b", "\\bstructural\\b", "\\bstrategy\\b",
+  "\\bplausible\\b", "\\bvisual\\b", "\\bmechanical\\b",
+  "\\bassumed\\b", "\\bgain\\b", "\\bsource-supported\\b",
+  "\\battainable\\b", "\\bhourly\\b", "\\bexact\\b",
+  "\\bplayer\\s+type\\b", "\\bline/size\\b",
+  "\\bsmall-size\\b", "\\bsecond-best\\b",
+].join("|"), "iu");
+
+function assertNaturalRuSurface(value, label, census) {
+  if (typeof value !== "string" || value.length === 0) return;
+  census.count += 1;
+  const match = value.match(RU_ORDINARY_ENGLISH_FORBIDDEN);
+  assert.equal(
+    match,
+    null,
+    `${label}: ordinary/developer English "${match?.[0] ?? ""}" remains outside the poker allowlist: ${value}`,
+  );
+}
+
+test("machine-wide RU learner-facing runtime rejects ordinary English outside the explicit poker allowlist", () => {
+  for (const token of RU_POKER_LATIN_ALLOWLIST) {
+    assert.doesNotMatch(token, RU_ORDINARY_ENGLISH_FORBIDDEN, `allowlist must not hide ordinary English: ${token}`);
+  }
+
+  const census = { count: 0 };
+  const ordinary = practicalDecisions.filter(isOrdinaryLearnerDecision);
+  assert.equal(ordinary.length, 870);
+
+  for (const item of ordinary) {
+    assertNaturalRuSurface(item.cueRu, `${item.id}/cueRu`, census);
+    assertNaturalRuSurface(item.questionRu, `${item.id}/questionRu`, census);
+    assertNaturalRuSurface(item.explanationRu, `${item.id}/explanationRu`, census);
+    const actions = practicalAssessmentLengthPresentedOptions(item, "action", item.actionOptions);
+    const reasons = practicalAssessmentLengthPresentedOptions(item, "reason", item.reasonOptions);
+    for (const option of actions) assertNaturalRuSurface(option.textRu, `${item.id}/action/${option.id}`, census);
+    for (const option of reasons) assertNaturalRuSurface(option.textRu, `${item.id}/reason/${option.id}`, census);
+
+    for (const action of actions) {
+      for (const reason of reasons) {
+        const correct = action.id === item.correctActionId && reason.id === item.correctReasonId;
+        const feedback = practicalSelectedDecisionFeedback(item, "ru", action.id, reason.id, correct);
+        assertNaturalRuSurface(feedback.mechanism, `${item.id}/feedback/${action.id}/${reason.id}/mechanism`, census);
+        assertNaturalRuSurface(feedback.boundary, `${item.id}/feedback/${action.id}/${reason.id}/boundary`, census);
+        assertNaturalRuSurface(feedback.action?.selectedText, `${item.id}/feedback/${action.id}/${reason.id}/action.selected`, census);
+        assertNaturalRuSurface(feedback.action?.correctText, `${item.id}/feedback/${action.id}/${reason.id}/action.correct`, census);
+        assertNaturalRuSurface(feedback.reason?.selectedText, `${item.id}/feedback/${action.id}/${reason.id}/reason.selected`, census);
+        assertNaturalRuSurface(feedback.reason?.correctText, `${item.id}/feedback/${action.id}/${reason.id}/reason.correct`, census);
+      }
+    }
+  }
+
+  for (const state of allPracticalTableStates) {
+    assertNaturalRuSurface(state.revealCueRu, `${state.decisionId}/table/reveal`, census);
+    for (const [index, value] of (state.actionsRu ?? state.actions).entries()) {
+      assertNaturalRuSurface(value, `${state.decisionId}/table/action/${index}`, census);
+    }
+    for (const [index, value] of (state.irrelevantCuesRu ?? state.irrelevantCues ?? []).entries()) {
+      assertNaturalRuSurface(value, `${state.decisionId}/table/irrelevant/${index}`, census);
+    }
+  }
+
+  for (const skill of practicalSkillFamilies) {
+    const asset = practicalPostQuickStartTeachingAssetForSkill(skill.id);
+    if (!asset) continue;
+    if (asset.kind === "ANCHOR") {
+      for (const field of ["promptRu", "answerRu", "rationaleRu"]) {
+        assertNaturalRuSurface(asset.anchor[field], `${skill.id}/teaching/${field}`, census);
+      }
+    } else if (asset.kind === "SOURCE_BOUND") {
+      for (const field of ["situationRu", "mechanismRu", "exampleRu", "boundaryRu"]) {
+        assertNaturalRuSurface(asset.teaching[field], `${skill.id}/teaching/${field}`, census);
+      }
+    } else {
+      for (const field of ["defaultRu", "whyRu", "transferCueRu"]) {
+        assertNaturalRuSurface(asset.rule[field], `${skill.id}/teaching/${field}`, census);
+      }
+      for (const [index, value] of (asset.rule.reversalsRu ?? []).entries()) {
+        assertNaturalRuSurface(value, `${skill.id}/teaching/reversal/${index}`, census);
+      }
+    }
+  }
+
+  for (const concept of practicalConcepts) {
+    for (const [field, value] of Object.entries(concept)) {
+      if (field.endsWith("Ru") && typeof value === "string") {
+        assertNaturalRuSurface(value, `${concept.id}/concept/${field}`, census);
+      }
+    }
+  }
+
+  for (const [index, step] of firstJourneySteps.entries()) {
+    for (const [field, value] of Object.entries(step)) {
+      if (field.endsWith("Ru") && typeof value === "string") {
+        assertNaturalRuSurface(value, `firstJourney/${index}/${field}`, census);
+      }
+    }
+  }
+
+  assert.equal(census.count, 37869, "RU learner-facing runtime surface census drifted");
+});
 
 test("FND-06 RU localization is keyed by option id and feedback reports the same correct meaning", () => {
   const expected = {

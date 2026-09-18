@@ -156,12 +156,12 @@ test("GLOBAL_SYSTEMIC_RU closure admits the late raw authorities to source_blobs
   }
 });
 
-test("terminal assessment-integrity repair remains the absolute last step in the final decision composition chain", async () => {
+test("assessment-integrity remains the terminal semantic repair before the final RU presentation-only closure", async () => {
   const index = await text("content/practical-mastery/index.ts");
   assert.match(
     index,
-    /\.map\(applyPracticalAssessmentIntegrityRepair\);/u,
-    "applyPracticalAssessmentIntegrityRepair must be the terminal .map() call in practicalDecisions",
+    /\.map\(applyPracticalAssessmentIntegrityRepair\)\n\s*\.map\(applyPracticalRuFinalHybridClosure\);/u,
+    "final RU hybrid closure must run immediately after terminal assessment-integrity repair",
   );
   const b1 = index.indexOf("applyPracticalRuSystemicB1DecisionProjection");
   const c0 = index.lastIndexOf("applyPracticalRuSystemicC0DecisionProjection");
@@ -169,7 +169,9 @@ test("terminal assessment-integrity repair remains the absolute last step in the
   const b4 = index.lastIndexOf("applyPracticalRuSystemicB4DecisionProjection");
   const perceptual = index.lastIndexOf("applyPracticalRuPerceptualDecisionProjection");
   const gateRepair = index.lastIndexOf("applyPracticalRuExecutableGateRepairDecisionProjection");
-  const terminal = index.lastIndexOf(".map(applyPracticalAssessmentIntegrityRepair);");
+  const overlap = index.lastIndexOf("applyPracticalCrossSkillOverlapRepair");
+  const assessment = index.lastIndexOf(".map(applyPracticalAssessmentIntegrityRepair)");
+  const finalRu = index.lastIndexOf(".map(applyPracticalRuFinalHybridClosure);");
   for (const [label, position] of [
     ["B1", b1],
     ["C0", c0],
@@ -177,6 +179,9 @@ test("terminal assessment-integrity repair remains the absolute last step in the
     ["B4", b4],
     ["Perceptual", perceptual],
     ["ExecutableGateRepair", gateRepair],
+    ["CrossSkillOverlap", overlap],
+    ["AssessmentIntegrity", assessment],
+    ["FinalRuHybridClosure", finalRu],
   ]) {
     assert.ok(position !== -1, `${label} projection missing from index.ts`);
   }
@@ -185,7 +190,9 @@ test("terminal assessment-integrity repair remains the absolute last step in the
   assert.ok(b3 < b4, "B3 must precede B4");
   assert.ok(b4 < perceptual, "B4 must precede Perceptual");
   assert.ok(perceptual < gateRepair, "Perceptual must precede ExecutableGateRepair");
-  assert.ok(gateRepair < terminal, "ExecutableGateRepair must precede the terminal assessment-integrity repair");
+  assert.ok(gateRepair < overlap, "ExecutableGateRepair must precede CrossSkillOverlap");
+  assert.ok(overlap < assessment, "CrossSkillOverlap must precede terminal assessment-integrity repair");
+  assert.ok(assessment < finalRu, "assessment-integrity must precede the final RU presentation-only closure");
 });
 
 // FPA1-GOV-001: the active canonical raw ETC authority was part of the
