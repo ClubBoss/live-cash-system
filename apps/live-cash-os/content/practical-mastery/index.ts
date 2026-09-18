@@ -32,6 +32,7 @@ import { scenarioDiversityClosureDecisions } from "./decisions-scenario-diversit
 import { targetReachabilityClosureDecisions } from "./decisions-target-reachability-closure";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { applyPracticalRuFinalPolish } from "./practical-ru-final-polish";
+import { applyPracticalRuFinalHybridClosure } from "./practical-ru-final-hybrid-closure";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
 import {
   applyPracticalRuSystemicAnchorProjection,
@@ -201,7 +202,8 @@ export const practicalDecisions = [
   .map(applyPracticalRuPerceptualDecisionProjection)
   .map(applyPracticalRuExecutableGateRepairDecisionProjection)
   .map(applyPracticalCrossSkillOverlapRepair)
-  .map(applyPracticalAssessmentIntegrityRepair);
+  .map(applyPracticalAssessmentIntegrityRepair)
+  .map(applyPracticalRuFinalHybridClosure);
 
 export const practicalAnchorById = new Map(practicalAnchors.map((anchor) => [anchor.id, anchor]));
 export const practicalDecisionById = new Map([...practicalDecisions, ...turnRiverA8LegacySpecificityDecisions].map((decision) => [decision.id, decision]));

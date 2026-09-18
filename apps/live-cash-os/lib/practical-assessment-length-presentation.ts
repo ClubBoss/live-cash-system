@@ -125,7 +125,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Limp decisions must compare fold, called, and multiway branches rather than defaulting to automatic isolation.",
     },
     presented: {
-      textRu: "Лимп требует сравнить fold/call/multiway ветки, а не автоизолейт.",
+      textRu: "Лимп требует сравнить ветки фолда, колла и мультивея, а не автоматически изолировать любую руку.",
       textEn: "Limp EV compares fold/call/multiway branches, not auto-isolation.",
     },
   },
@@ -142,7 +142,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Large live sizing removes marginal BB calls quickly; the posted blind is not a reason to defend a fixed range.",
     },
     presented: {
-      textRu: "Крупный live size убирает fringe-коллы BB; blind не фиксирует защиту.",
+      textRu: "Крупный лайв-сайзинг быстро убирает пограничные коллы BB; уже вложенный блайнд не фиксирует диапазон защиты.",
       textEn: "Large live size removes fringe BB calls; blind does not fix range.",
     },
   },
@@ -397,7 +397,7 @@ export type PracticalAssessmentExactReasonRepair = {
 export const practicalAssessmentExactReasonRepairs: Readonly<Record<string, PracticalAssessmentExactReasonRepair>> = {
   "PM-BL-01-001": {
     canonical: {
-      textRu: "EP origin range сильнее и повышает domination/overpair density",
+      textRu: "Диапазон открытия из EP обычно сильнее, поэтому слабые пары и топ-пары чаще попадают под доминацию или сталкиваются с оверпарами.",
       textEn: "The EP origin range is stronger and increases domination/overpair density",
     },
     presented: {
