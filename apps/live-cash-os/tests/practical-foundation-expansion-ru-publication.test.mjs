@@ -46,5 +46,5 @@ test("Foundation expansion exact RU copy and strategy identities remain locked t
   const digest = createHash("sha256")
     .update(JSON.stringify(decisions.map(projection)))
     .digest("hex");
-  assert.equal(digest, "4cde7f944ce32326491a621fde8c6721274a623be37aef4ca15a4522bff245af");
+  assert.equal(digest, "3fdb42f1f5e253e9f1d454488438bcef58b4aac56e74322376c065fb4c344628");
 });

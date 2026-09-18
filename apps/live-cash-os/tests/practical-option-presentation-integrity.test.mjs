@@ -111,7 +111,7 @@ test("length presentation repair is decision-scoped and preserves canonical opti
     canonicalReason.textEn,
     "At depth, OOP realization and reverse-implied exposure grow; 3-bet shape cannot be copied mechanically from 100bb.",
   );
-  assert.equal(presentedReason.textEn, "Depth raises OOP/reverse-implied cost; 3-bets cannot copy 100bb.");
+  assert.equal(presentedReason.textEn, "At 250–300bb, playing out of position makes equity harder to realize and dominated branches more expensive; marginal 100bb 3-bets therefore lose EV and the 3-bet structure must become more selective.");
   assert.deepEqual([...presented.map((option) => option.id)].sort(), [...repaired.reasonOptions.map((option) => option.id)].sort());
   for (const option of repaired.reasonOptions.filter((option) => option.id !== repaired.correctReasonId)) {
     const projected = presented.find((candidate) => candidate.id === option.id);

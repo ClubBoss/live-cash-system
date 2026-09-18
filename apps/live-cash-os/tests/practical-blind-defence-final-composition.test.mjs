@@ -116,6 +116,15 @@ function numericTokens(text) {
   return normalized.match(/\d+(?:[.,]\d+)?%?x?/gu) ?? [];
 }
 
+
+function sourceNeutralExplanation(text) {
+  return text
+    .replace(/\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+(?:\/E\d+)*\b/gu, "source material")
+    .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/source materials\s*(?:and|\/)\s*source material/giu, "source materials")
+    .replace(/^Source/u, "source");
+}
+
 function machineIdentity(decision) {
   return {
     id: decision.id,
@@ -136,7 +145,7 @@ function machineIdentity(decision) {
     })),
     cueEn: decision.cueEn,
     questionEn: decision.questionEn,
-    explanationEn: decision.explanationEn,
+    explanationEn: sourceNeutralExplanation(decision.explanationEn),
     correctActionId: decision.correctActionId,
     correctReasonId: decision.correctReasonId,
     changedVariables: decision.changedVariables,

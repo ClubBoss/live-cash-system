@@ -166,12 +166,12 @@ export const sourceSupportedGapFillDecisions: PracticalDecision[] = [
   {
     id: "PM-4BP-03-001", skillId: "4BP-03", kind: "boundary", sourceRefs: ["CP-G3-L10"],
     assumptions: ["low SPR", "strong stable hands exist"],
-    cueRu: "Low SPR часто толкает к automatic bet/jam thinking.", cueEn: "Low SPR often pushes players toward automatic bet/jam thinking.",
-    questionRu: "Должна ли checking range оставаться защищённой?", questionEn: "Should the checking range remain protected?",
-    actionOptions: [o("a", "Да, если source-supported check-call/check-jam остаются credible", "Yes, when source-supported check-call/check-jam branches remain credible"), o("b", "Нет, low SPR отменяет checking", "No, low SPR eliminates checking", "LOW_SPR_NO_CHECK"), o("c", "Нет, strong hands обязаны bet", "No, strong hands must bet", "STRONG_HAND_AUTOBET")],
-    reasonOptions: [o("r1", "Protected checking prevents an auto-capped check branch", "Protected checking prevents an automatically capped check branch"), o("r2", "Low SPR makes range protection irrelevant", "Low SPR makes range protection irrelevant", "LOW_SPR_NO_PROTECTION"), o("r3", "Check always means surrender", "Checking always means surrender", "CHECK_EQUALS_WEAK")],
+    cueRu: "Низкий SPR часто подталкивает к автоматической ставке или пушу.", cueEn: "Low SPR often pushes players toward automatic bet/jam thinking.",
+    questionRu: "Должен ли диапазон чека оставаться защищённым?", questionEn: "Should the checking range remain protected?",
+    actionOptions: [o("a", "Да, если после чека остаются убедительные чек-колл и чек-пуш", "Yes, when source-supported check-call/check-jam branches remain credible"), o("b", "Нет, низкий SPR отменяет чек", "No, low SPR eliminates checking", "LOW_SPR_NO_CHECK"), o("c", "Нет, сильные руки обязаны ставить", "No, strong hands must bet", "STRONG_HAND_AUTOBET")],
+    reasonOptions: [o("r1", "Сильные продолжения после чека не дают диапазону чека стать автоматически капнутым", "Protected checking prevents an automatically capped check branch"), o("r2", "Низкий SPR делает защиту диапазона неважной", "Low SPR makes range protection irrelevant", "LOW_SPR_NO_PROTECTION"), o("r3", "Чек всегда означает отказ от борьбы", "Checking always means surrender", "CHECK_EQUALS_WEAK")],
     correctActionId: "a", correctReasonId: "r1", targetSeconds: 25,
-    explanationRu: "CP-G3-L10 отдельно показывает protected low-SPR checks как часть practical simplification.",
+    explanationRu: "При низком SPR дерево решений короче, но сильные чек-коллы и чек-пуши всё ещё защищают пассивную ветку от автоматического давления.",
     explanationEn: "CP-G3-L10 explicitly includes protected low-SPR checks in its practical simplification.",
   },
   {

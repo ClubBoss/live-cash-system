@@ -24,78 +24,102 @@ const generatedReasonRepairs: Record<string, Pick<PracticalDecisionOption, "text
   },
 };
 
-type LocalizedReason = Pick<PracticalDecisionOption, "textRu" | "textEn">;
-
-const skillReasonRepairs: Record<string, Partial<Record<PracticalDecision["kind"], LocalizedReason>>> = {
-  "TURN-02": {
-    recognition: {
-      textRu: "Второй баррель зависит от карты тёрна, сохранившихся диапазонов и класса руки игрока",
-      textEn: "A turn barrel depends on the runout, surviving ranges, and Hero's hand class",
-    },
-    decision: {
-      textRu: "Продолжать давление стоит только когда класс руки и карта тёрна поддерживают второй баррель",
-      textEn: "Continue only when the value or bluff class and runout support pressure",
-    },
-    changed: {
-      textRu: "Новая карта или сдвиг диапазонов меняют давление и набор подходящих вторых баррелей",
-      textEn: "A runout or range shift changes leverage and which hands should barrel",
-    },
-    boundary: {
-      textRu: "Ставка на флопе не обязывает автоматически ставить второй баррель на тёрне",
-      textEn: "A flop bet does not obligate a turn barrel",
-    },
-  },
-  "RIV-03": {
-    recognition: {
-      textRu: "Блафф-кэтч зависит от цены, правдоподобных блефов после линии и блокеров",
-      textEn: "A bluff-catch depends on price, credible bluffs after the line, and removal",
-    },
-    decision: {
-      textRu: "Колл нужен только когда оставшихся блефов достаточно для текущей цены",
-      textEn: "Call only when surviving bluff supply is sufficient for the current price",
-    },
-    changed: {
-      textRu: "Предыдущая линия и блокеры меняют число блефов даже при той же цене",
-      textEn: "Line ancestry or removal changes bluff supply even at the same price",
-    },
-    boundary: {
-      textRu: "Хорошая цена сама не требует колла, если правдоподобных блефов недостаточно",
-      textEn: "A good price alone does not force a call without enough credible bluffs",
-    },
-  },
-};
-
-const generatedCorrectReasonByCluster: Record<string, Pick<PracticalDecisionOption, "textRu" | "textEn">> = {
-  A8: {
-    textRu: "Текущий узел зависит от предыдущей линии, сохранившихся диапазонов и цены, а не только от ярлыка ситуации",
-    textEn: "The current node depends on ancestry, surviving ranges, and price rather than the situation label alone",
-  },
-  A9: {
-    textRu: "Геометрия живой игры меняет доступные ветки и их ценность, даже когда карты игрока те же",
-    textEn: "Live geometry changes the available branches and their EV even when Hero's cards stay the same",
-  },
-  A10: {
-    textRu: "Отклонение от базовой стратегии должно быть привязано к конкретной ветке и силе повторяющихся наблюдений",
-    textEn: "An exploit should stay scoped to the exact branch and the strength of repeated evidence",
-  },
-};
-
 function applyGeneratedReasonRepairs(decision: PracticalDecision): PracticalDecision {
   const cluster = decision.id.match(/-(A8|A9|A10)-10[1-8]$/u)?.[1];
-  const skillReason = decision.learnerEligibility === "INTERNAL_ONLY"
-    ? undefined
-    : skillReasonRepairs[decision.skillId]?.[decision.kind];
-  if (!cluster && !skillReason) return decision;
+  if (!cluster) return decision;
   return {
     ...decision,
     reasonOptions: decision.reasonOptions.map((option) => {
-      if (option.id === decision.correctReasonId) {
-        if (cluster) return { ...option, ...generatedCorrectReasonByCluster[cluster] };
-        if (skillReason) return { ...option, ...skillReason };
-      }
-      const next = cluster && option.misconception ? generatedReasonRepairs[option.misconception] : undefined;
+      if (option.id === decision.correctReasonId) return option;
+      const next = option.misconception ? generatedReasonRepairs[option.misconception] : undefined;
       return next ? { ...option, ...next } : option;
     }),
+  };
+}
+
+const exactCorrectReasonRepairs: Readonly<Record<string, Pick<PracticalDecisionOption, "textRu" | "textEn">>> = {
+  "PM-B3-TURN02-104": {
+    textRu: "Класс руки изменился: рука со средней шоудаун-ценностью реже нуждается в превращении в блеф, поэтому чек чаще сохраняет её EV.",
+    textEn: "The hand class changed: a medium-showdown hand has less reason to turn itself into a bluff, so checking preserves its EV more often.",
+  },
+  "PM-B4-TURN02-101": {
+    textRu: "При большом будущем SPR одной текущей фолд-эквити недостаточно: тонкое вэлью и пограничные блефы должны ещё устойчиво реализовываться на ривере, иначе EV барреля падает.",
+    textEn: "With a large future SPR, current fold equity is not enough: thin value and marginal bluffs must also realize robustly on the river or the barrel loses EV.",
+  },
+  "PM-B4-TURN02-102": {
+    textRu: "Глубокий остаток стека усиливает будущие решения и риск дорогих ошибок, поэтому баррель сохраняют прежде всего устойчивое вэлью и качественные блефы.",
+    textEn: "A deep remaining stack amplifies future decisions and costly mistakes, so robust value and high-quality bluffs are the barrel classes that survive best.",
+  },
+  "PM-B4-TURN02-103": {
+    textRu: "Переход от малого остатка стека к глубокому повышает будущий SPR: разгон банка пограничными классами становится дороже, поэтому их баррель сужается.",
+    textEn: "Moving from a shallow remainder to a deep stack raises future SPR: inflating the pot with marginal classes becomes more costly, so their barrel region contracts.",
+  },
+  "PM-B4-TURN02-104": {
+    textRu: "Глубина повышает цену будущих ошибок, но не отменяет прибыльные баррели: устойчивое вэлью и качественные блефы продолжают, а пограничные классы отбираются строже.",
+    textEn: "Depth raises the cost of future mistakes but does not erase profitable barrels: robust value and strong bluffs continue while marginal classes are selected more strictly.",
+  },
+  "PM-B4-RIV03-103": {
+    textRu: "При той же цене повторяющийся недоблеф именно в этой ветке уменьшает ожидаемый запас блефов, поэтому пограничный колл теряет EV и порог сдвигается к фолду.",
+    textEn: "At the same price, repeated underbluffing in this exact branch lowers expected bluff supply, so a marginal call loses EV and the threshold shifts toward folding.",
+  },
+  "PM-B4-RIV03-104": {
+    textRu: "Рид на недоблеф действует только в подтверждённой ветке: другой сайзинг или линия меняют состав возможных блефов и требуют новой реконструкции.",
+    textEn: "An underbluff read applies only to the evidenced branch: a different size or line changes the possible bluff set and requires a fresh reconstruction.",
+  },
+  "PM-TURN-02-FINAL-101": {
+    textRu: "Колл флопа уже отфильтровал префлоп-диапазон; рейзить тёрн могут только руки, которые реально дошли до этого узла.",
+    textEn: "The flop call already filtered the preflop range; only hands that actually reached this node can appear in the turn-raising range.",
+  },
+  "PM-TURN-02-FINAL-102": {
+    textRu: "Наблюдения в конкретной ветке уменьшают ожидаемый запас естественных блефов; при той же цене это сужает прибыльный диапазон продолжения.",
+    textEn: "Branch-specific evidence lowers the expected natural bluff supply; at the same price, that narrows the profitable continuing range.",
+  },
+  "PM-TURN-02-FINAL-103": {
+    textRu: "Карта, закрывающая дро или возвращающая сильные комбинации коллеру, добавляет реальные сильные руки и естественные блефы в диапазон рейза; бланк этого не делает.",
+    textEn: "A turn that completes draws or restores strong caller combinations adds real value hands and natural bluffs to the raising range; a blank does not.",
+  },
+  "PM-TURN-02-FINAL-104": {
+    textRu: "Уже вложенные фишки — невозвратные издержки, а не эквити; продолжение определяется текущим диапазоном соперника и ценой колла сейчас.",
+    textEn: "Previously invested chips are sunk cost, not equity; continuing depends on Villain's current range and the call price now.",
+  },
+  "PM-TURN-02-ETC-101": {
+    textRu: "Ремонтная карта лишь запускает пересчёт: если Hero сохраняет достаточно сильный верх диапазона и ставка всё ещё имеет вэлью- или фолд-эквити-задачу, агрессия остаётся прибыльной.",
+    textEn: "A range-repairing turn triggers a recomputation rather than an automatic check: if Hero retains enough top-end ownership and the bet still has a value or fold-equity purpose, aggression can remain profitable.",
+  },
+  "PM-TURN-02-ETC-102": {
+    textRu: "Бланк означает лишь отсутствие нового усиления соперника; он не создаёт ни худших коллов для вэлью, ни дополнительных фолдов, поэтому цель второй ставки нужно доказать отдельно.",
+    textEn: "A blank only means Villain did not gain new strength; it creates neither worse value calls nor extra folds, so the purpose of a second barrel must be established separately.",
+  },
+  "PM-RIV-03-C0-201": {
+    textRu: "Широкий старт даёт больше потенциального воздуха, но действия по улицам его фильтруют; колл на ривере должен опираться на блефы, которые действительно дожили до этой линии.",
+    textEn: "A wide starting range creates more potential air, but street-by-street action filters it; a river call must use bluffs that actually survive the line.",
+  },
+  "PM-RIV-03-C0-202": {
+    textRu: "Разномастные широкие классы содержат больше стартовых комбинаций, поэтому потенциальных блеф-кандидатов может быть больше; это не означает, что весь этот воздух доживает до ривера.",
+    textEn: "Wide offsuit classes contain more starting combinations, so they can create more potential bluff candidates; that does not mean all of that air survives to the river.",
+  },
+  "PM-RIV-03-C0-205": {
+    textRu: "Смена широкого BTN-старта на тайтовый ранний диапазон уменьшает исходный запас воздуха; затем его всё равно нужно провести через те же фильтры борда и линии.",
+    textEn: "Changing from a wide BTN origin to a tight early-position range reduces the prior air supply; it still must be passed through the same board and line filters.",
+  },
+  "PM-RIV-03-C0-207": {
+    textRu: "Широкий старт — только исходная оценка запаса воздуха: конкретная линия может удалить его, а утверждение о переблефе пула требует отдельных наблюдений.",
+    textEn: "A wide origin is only a prior on air supply: the line can remove that air, and a population-overbluff claim requires separate evidence.",
+  },
+  "PM-RIV-03-C0-208": {
+    textRu: "Тайтовый старт может уменьшить исходный запас блефов, но не доказывает их отсутствие: после всей линии всё равно нужно перечислить правдоподобные блефы и сопоставить их с ценой и блокерами.",
+    textEn: "A tight origin can reduce prior bluff supply but does not prove there are no bluffs: credible bluffs must still be enumerated after the full line and compared with price and blockers.",
+  },
+};
+
+function applyExactCorrectReasonRepair(decision: PracticalDecision): PracticalDecision {
+  const repair = exactCorrectReasonRepairs[decision.id];
+  if (!repair) return decision;
+  return {
+    ...decision,
+    reasonOptions: decision.reasonOptions.map((option) =>
+      option.id === decision.correctReasonId ? { ...option, ...repair } : option
+    ),
   };
 }
 
@@ -185,6 +209,39 @@ const repairs: Record<string, DecisionRepair> = {
   },
 };
 
+const internalSourceIdPattern = /\b(?:FTGU|SLC|LCM|CINJ|CP)-[A-Z0-9-]+(?:\/E\d+)*\b/gu;
+
+function naturalizeSourceReferences(text: string, locale: "ru" | "en"): string {
+  if (!internalSourceIdPattern.test(text)) return text;
+  internalSourceIdPattern.lastIndex = 0;
+  let next = text.replace(internalSourceIdPattern, locale === "ru" ? "материал" : "source material");
+  internalSourceIdPattern.lastIndex = 0;
+  if (locale === "ru") {
+    next = next
+      .replace(/материал\s*(?:и|\/)\s*материал/giu, "материалы")
+      .replace(/материалы\s*(?:и|\/)\s*материал/giu, "материалы")
+      .replace(/Геометрия\s+материал(?:а|ов|ы)?\s*:/giu, "Геометрия:")
+      .replace(/^материал\b/u, "Материал")
+      .replace(/^материалы\b/u, "Материалы")
+      .replace(/^Материал\s+связывают\b/u, "Материал связывает")
+      .replace(/^Материал\s+требуют\b/u, "Материал требует");
+  } else {
+    next = next
+      .replace(/source material\s*(?:and|\/)\s*source material/giu, "source materials")
+      .replace(/source materials\s*(?:and|\/)\s*source material/giu, "source materials")
+      .replace(/^source material\b/u, "Source material")
+      .replace(/^source materials\b/u, "Source materials");
+  }
+  return next.replace(/\s{2,}/gu, " ").replace(/\s+([,.:;])/gu, "$1").trim();
+}
+
+function cleanLearnerExplanationSourceIds(decision: PracticalDecision): PracticalDecision {
+  const explanationRu = naturalizeSourceReferences(decision.explanationRu, "ru");
+  const explanationEn = naturalizeSourceReferences(decision.explanationEn, "en");
+  if (explanationRu === decision.explanationRu && explanationEn === decision.explanationEn) return decision;
+  return { ...decision, explanationRu, explanationEn };
+}
+
 function applyOptions(options: PracticalDecisionOption[], repair?: Record<string, OptionRepair>) {
   if (!repair) return options;
   return options.map((option) => {
@@ -195,13 +252,16 @@ function applyOptions(options: PracticalDecisionOption[], repair?: Record<string
 
 export function applyPracticalAssessmentIntegrityRepair(decision: PracticalDecision): PracticalDecision {
   const generated = applyGeneratedReasonRepairs(decision);
-  const repair = repairs[generated.id];
-  if (!repair) return generated;
-  return {
-    ...generated,
-    questionRu: repair.questionRu,
-    questionEn: repair.questionEn,
-    actionOptions: applyOptions(generated.actionOptions, repair.actionOptions),
-    reasonOptions: applyOptions(generated.reasonOptions, repair.reasonOptions),
-  };
+  const exact = applyExactCorrectReasonRepair(generated);
+  const repair = repairs[exact.id];
+  const repaired = repair
+    ? {
+        ...exact,
+        questionRu: repair.questionRu,
+        questionEn: repair.questionEn,
+        actionOptions: applyOptions(exact.actionOptions, repair.actionOptions),
+        reasonOptions: applyOptions(exact.reasonOptions, repair.reasonOptions),
+      }
+    : exact;
+  return cleanLearnerExplanationSourceIds(repaired);
 }
