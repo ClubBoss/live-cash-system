@@ -29,6 +29,7 @@ import { executableGateRepairDecisions } from "./decisions-executable-gate-repai
 import { finalContentDeltaDecisions } from "./decisions-final-content-delta";
 import { executionTransferClosureDecisions, executionTransferClosureAnchors } from "./decisions-execution-transfer-closure";
 import { scenarioDiversityClosureDecisions } from "./decisions-scenario-diversity-closure";
+import { targetReachabilityClosureDecisions } from "./decisions-target-reachability-closure";
 import { applyPracticalRuCopyRepair } from "./practical-ru-copy-repair";
 import { applyPracticalRuFinalPolish } from "./practical-ru-final-polish";
 import { applyPracticalAnchorRuCopyRepair } from "./practical-anchor-ru-copy-repair";
@@ -171,6 +172,7 @@ export const practicalDecisions = [
   ...finalContentDeltaDecisions,
   ...executionTransferClosureDecisions,
   ...scenarioDiversityClosureDecisions,
+  ...targetReachabilityClosureDecisions,
 ]
   .map(applyPracticalRuCopyRepair)
   .map(applyPracticalRuFinalPolish)
