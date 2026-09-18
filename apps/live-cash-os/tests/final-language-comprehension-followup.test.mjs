@@ -6,6 +6,7 @@ import {
   practicalSkillFamilies,
 } from "../content/practical-mastery/index.ts";
 import { practicalSelectedDecisionFeedback } from "../lib/practical-selected-decision-feedback.ts";
+import { practicalAssessmentLengthPresentedOptions } from "../lib/practical-assessment-length-presentation.ts";
 import { practicalPostQuickStartTeachingAssetForSkill } from "../lib/practical-post-quick-start-learning.ts";
 
 const byId = new Map(practicalDecisions.map((decision) => [decision.id, decision]));
@@ -140,6 +141,21 @@ test("W4 distractors no longer carry a global wrong-only authorial fingerprint",
   const counts = new Map();
   for (const text of wrongActionTexts) counts.set(text, (counts.get(text) ?? 0) + 1);
   assert.ok(Math.max(...counts.values()) < 31, "one wrong-only W4 action fingerprint still spans the full family");
+
+  for (const family of ["BOARD", "RUNOUT", "HAND", "REL"]) {
+    const familyRows = rows.filter((item) => item.id.startsWith(`PM-W4-${family}-01-`));
+    for (const locale of ["textRu", "textEn"]) {
+      const actionC = familyRows.map((item) => item.actionOptions.find((option) => option.id === "c")?.[locale]);
+      const reason2 = familyRows.map((item) => item.reasonOptions.find((option) => option.id === "r2")?.[locale]);
+      const reason3 = familyRows.map((item) => item.reasonOptions.find((option) => option.id === "r3")?.[locale]);
+      assert.ok(actionC.every(Boolean), `${family}/${locale}: action c missing`);
+      assert.ok(reason2.every(Boolean), `${family}/${locale}: reason r2 missing`);
+      assert.ok(reason3.every(Boolean), `${family}/${locale}: reason r3 missing`);
+      assert.equal(new Set(actionC).size, familyRows.length, `${family}/${locale}: action c still reuses a family-local wrong-only template`);
+      assert.equal(new Set(reason2).size, familyRows.length, `${family}/${locale}: reason r2 still reuses a family-local wrong-only template`);
+      assert.equal(new Set(reason3).size, familyRows.length, `${family}/${locale}: reason r3 still reuses a family-local wrong-only template`);
+    }
+  }
 });
 
 test("the eight audited RU core decisions contain no nonstandard English teaching vocabulary", () => {
@@ -198,6 +214,60 @@ test("learner-facing decisions and rendered teaching assets expose no internal s
     }
     for (const value of values) assert.doesNotMatch(value, sourceId, `${skill.id}: rendered teaching source id leak`);
   }
+});
+
+test("scored correct reasons contain mechanism, not a correct-only source-authority marker", () => {
+  const affected = [
+    "PM-EXP-01-A10-101", "PM-EXP-01-A10-102", "PM-EXP-01-A10-103",
+    "PM-EXP-01-A10-104", "PM-EXP-01-A10-107", "PM-EXP-01-A10-108",
+    "PM-B3-EXP01-101", "PM-B3-EXP01-102", "PM-B3-EXP01-103", "PM-B3-EXP01-104",
+  ];
+  const sourceAuthorityMarker = /\bsource materials?\b/iu;
+  const reasons = [];
+  for (const id of affected) {
+    const item = decision(id);
+    const reason = correctReason(item);
+    assert.ok(reason, `${id}: correct reason missing`);
+    assert.doesNotMatch(reason.textEn, sourceAuthorityMarker, `${id}: source-authority marker survived in scored reason`);
+    assert.match(reason.textEn, /evidence|observation|confidence|branch|baseline|hypothesis/iu, `${id}: evidence mechanism missing`);
+    assert.match(reason.textEn, /deviation|exploit|baseline|scope|branch|global/iu, `${id}: exploit consequence missing`);
+    reasons.push(reason.textEn);
+  }
+  assert.equal(new Set(reasons).size, affected.length, "affected correct reasons collapsed to a new repeated authorial template");
+
+  for (const item of practicalDecisions) {
+    for (const option of item.reasonOptions) {
+      assert.doesNotMatch(option.textEn, sourceAuthorityMarker, `${item.id}/${option.id}: scored EN reason exposes a source-authority cue`);
+    }
+  }
+});
+
+test("bounded RU presentation layer no longer reintroduces developer-register shorthand", () => {
+  const ids = [
+    "PM-B4-3BP05-101", "PM-B4-3BP05-102", "PM-B4-3BP05-103", "PM-B4-3BP05-104",
+    "PM-B4-BL03-101", "PM-B4-BL03-102", "PM-B4-BL03-103", "PM-B4-BL03-104",
+    "PM-BL-06-B1-101", "PM-BL-06-B1-102", "PM-BL-06-B1-103",
+  ];
+  const forbidden = /\b(?:future branches|low-SPR|auto-commit|fringe|big size|opening mix)\b/iu;
+  for (const id of ids) {
+    const item = decision(id);
+    const reasons = practicalAssessmentLengthPresentedOptions(item, "reason", item.reasonOptions);
+    const ru = reasons.map((option) => option.textRu).join("\n");
+    assert.doesNotMatch(ru, forbidden, `${id}: bounded RU presentation shorthand remains`);
+  }
+});
+
+test("source-id sanitizer preserves natural teaching grammar and casing", () => {
+  for (const skillId of ["FND-03", "FND-07", "PF-03", "PF-07", "PF-08"]) {
+    const asset = practicalPostQuickStartTeachingAssetForSkill(skillId);
+    assert.equal(asset?.kind, "ANCHOR", `${skillId}: expected anchor teaching asset`);
+    assert.match(asset.anchor.rationaleRu, /^[А-ЯЁ]/u, `${skillId}: RU rationale must start with uppercase Cyrillic`);
+    assert.doesNotMatch(asset.anchor.rationaleRu, /^материал(?=\s|[,.:;!?])/u, `${skillId}: lowercase sanitizer artifact survived`);
+  }
+  const relative = practicalPostQuickStartTeachingAssetForSkill("W4-REL-01");
+  assert.equal(relative?.kind, "ANCHOR");
+  assert.doesNotMatch(relative.anchor.rationaleEn, /\bSource material build decisions\b/u);
+  assert.match(relative.anchor.rationaleEn, /\bSource material builds decisions\b/u);
 });
 
 test("bounded RU grammar residues stay closed", () => {

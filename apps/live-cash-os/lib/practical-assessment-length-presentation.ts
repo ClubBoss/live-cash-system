@@ -193,7 +193,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "BTN width is not a license to defend the same fringe across large sizes and poor-realization environments.",
     },
     presented: {
-      textRu: "Широкий BTN не спасает fringe против big size и плохой реализации.",
+      textRu: "Широкий диапазон BTN не спасает пограничные коллы против крупного сайзинга и при плохой реализации эквити.",
       textEn: "BTN width cannot save fringe calls vs big size/poor realization.",
     },
   },
@@ -227,7 +227,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "Deep 3BP solutions retain more future branches; low-SPR shortcuts and automatic commitment become less transferable.",
     },
     presented: {
-      textRu: "Deep 3BP сохраняет future branches; low-SPR auto-commit переносится хуже.",
+      textRu: "Глубокий 3-бет-банк оставляет больше будущих веток; автоматическое выставление при низком SPR переносится хуже.",
       textEn: "Deep 3BP keeps more branches; low-SPR auto-commit transfers poorly.",
     },
   },
@@ -260,7 +260,7 @@ export const practicalAssessmentReasonRepairGroups: readonly PracticalAssessment
       textEn: "GTO Wizard's reviewed cash article explicitly explains that calling is unusually attractive for SB and that BvB opening mixes are highly sensitive to BB responses.",
     },
     presented: {
-      textRu: "Колл SB ценен; opening mix зависит от ответа BB",
+      textRu: "Колл с SB может быть ценным; микс первого действия зависит от реакции BB",
       textEn: "SB calling is unusually attractive, and the opening mix changes with BB responses.",
     },
   },
