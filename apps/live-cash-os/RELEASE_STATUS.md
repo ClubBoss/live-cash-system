@@ -1,92 +1,118 @@
-# Live Cash OS — Release Status
+# Live Cash OS - Release Status
 
-Status: `PRACTICAL_MASTERY_RELEASE_CANDIDATE / APP_VERSION_1_2_0 / FEATURE_FREEZE_AFTER_AUTHORIZED_RELEASE / HUMAN_CONTENT_LANGUAGE_REVIEW_PENDING / W10_PENDING`
+Status: `ENGINEERING_RELEASE_COMPLETE / MACHINE_ACTIONABLE_DIMINISHING_RETURNS_REACHED / HUMAN_AND_EMPIRICAL_GATES_PENDING / APP_VERSION_1_2_0`
 
-## Current truth
+## Current authoritative release truth
 
-Live Cash OS keeps the accepted Post-Tester integrity work and now has an owner-authorized Practical Mastery release candidate as its primary learning route. The Practical program expands learning architecture without converting machine validation into human poker approval or empirical mastery proof.
+The accepted functional/release baseline is:
 
-Canonical source/browser gate:
+`6bc104cf7342baad332c51b02a238ceda9b2337e`
 
-`npm run test:release`
+Current release state:
 
-Exact commit, run, merge and deploy identities live in immutable Git/GitHub Actions history rather than this status file.
+- PR `#264`: merged
+- canonical main CI: `#1801` / GitHub Actions run `35436209197` = `SUCCESS`
+- aggregate `validate`: `SUCCESS`
+- `deploy-test-mirror`: `SUCCESS`
+- canonical Workers URL: `https://live-cash-os-mobile-test.blufferus.workers.dev/`
+- exact deployed SHA: `6bc104cf7342baad332c51b02a238ceda9b2337e`
+- generated deployment config: dedicated `TEST_DB` only; production `DB` absent
+- post-deploy smoke: `LIVE_SMOKE_GREEN`
+- canonical `/mastery/journey`: GREEN
 
-## Practical Mastery release candidate
+The product is not in merge-pending or deploy-pending state.
 
-The current candidate includes:
+A later documentation-only commit records this truth but is not itself retroactively the accepted historical functional baseline.
 
-- a source-governed Practical Mastery route above the legacy module shell;
-- First Journey prediction -> mechanism -> decision learning;
-- contextual preflop, blinds, board/hand recognition, SRP, 3BP/4BP, turn/river, multiway/deep/straddle and exploit practice;
-- recognition/direct/changed/boundary evidence ladders;
-- topic-hidden integrated sessions;
-- non-identical `1/3/7` retention;
-- causal repair and adaptive guided -> reduced -> hidden scaffolding;
-- perceptual table-state transfer;
-- EV-weighted repetition depth;
-- performance telemetry for action, reason, latency, hidden cues, transfer, boundary, perceptual performance and confidence calibration;
-- one reliable local/cloud learner snapshot: root schema `2` with nested Practical mastery schema `3`.
+## Machine closure status
 
-Legacy Diagnostic, modules, Cards, Review and Real Hands remain supported complementary surfaces.
+Official machine classification:
+
+`MACHINE_ACTIONABLE_DIMINISHING_RETURNS_REACHED`
+
+Material machine roots:
+
+- P0 = 0
+- P1 = 0
+- P2 active = 0
+- undispositioned material machine roots = 0
+
+Accepted current census:
+
+- 86 registered practical skills
+- 75 primary learner-visible skills
+- 1 explicit learner-visible source gap
+- `BL-11 = PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`
+- 74 learner-visible non-gap skills
+- 74/74 declared-target reachable
+- 890 runtime decisions
+- 965 runtime stimuli
+- 0 runtime invariant errors
+- 1281/1281 unit tests GREEN
+
+Typecheck, lint, build, governance, editorial and runtime gates are GREEN at the accepted release line.
+
+Semantic evidence independence and fail-closed archive/provenance integrity are accepted and protected.
+
+## Assessment length diagnostic
+
+Current disposition:
+
+`DISPOSITIONED / ACCEPTED PRODUCT TRADEOFF / MONITOR`
+
+The known longest-answer signal remains visible diagnostic evidence. It is not treated as a standalone product defect.
+
+Learner copy priority is semantic correctness, causal completeness, pedagogical clarity, plausible/context-specific distractors and natural learner language before secondary statistical presentation balance.
+
+Do not rewrite correct teaching text merely to equalize answer lengths.
+
+The signal becomes actionable only when independently linked to a concrete construction defect. No separate material construction root is reproduced on the accepted final composition.
 
 ## Source ceiling
 
-The Practical source-gap ledger has one explicit residual:
+One explicit source-limited boundary remains:
 
 `BL-11 = PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`
 
-Dedicated SB-vs-BB 3-bet-pot scored frequencies/hand branches require inspectable solver/course authority. Until then the product remains fail-closed and routes learners through supported generic 3BP role mechanics plus BvB range identity.
+It remains fail-closed. No scored answer-key authority is invented where source authority is insufficient.
 
-Supporting/reference sources do not become strategy-answer authority.
+## Other accepted boundaries
 
-## Reliability boundary
+- `R-009`: performance hardening/monitor unless user-visible failure or stable SLO violation is demonstrated.
+- Local clock: accepted local-first external-authority boundary.
+- Public tester credentials: owner-accepted current personal/test threat-model risk.
 
-The release preserves:
+## Human and empirical gates
 
-- local-first state availability;
-- root learner schema `2`;
-- additive Practical profile schema `3`;
-- no competing standalone Practical learner store;
-- import/export preservation of Practical state;
-- explicit confirmation before an older snapshot replaces current Practical progress;
-- fail-closed divergent local/cloud history;
-- immutable prior Practical evidence on lost-ack recovery unless monotonic ancestry is proven;
-- SELF hand review as non-evidentiary;
-- existing field-validation and delayed-retention evidence requirements.
+Still pending:
 
-## Governance truth
+- genuine poker strategy review
+- genuine drill review
+- Russian human editorial review
+- English human editorial review
+- final composition human approval
+- real learner effectiveness validation
 
-The editorial manifest intentionally remains review-pending:
+`HUMAN_MASTERY_VALIDATED = FALSE`
 
-`TRANSITIONAL_REVIEW_REQUIRED / CURRICULUM_STRATEGY_REVIEW_PENDING / DRILLS_REVIEW_PENDING / FINAL_COMPOSITION_REVIEW_PENDING`
+`W10 = NOT_COMPLETED`
 
-- strategy approval: `null`;
-- drill approval: `null`;
-- human RU approvals: none;
-- human EN approvals: none;
-- final composition approval: pending;
-- `HUMAN_MASTERY_VALIDATED = FALSE`;
-- W10 empirical validation: `NOT_COMPLETED`;
-- W11 empirical/final acceptance: `NOT_COMPLETED`.
+`W11 = NOT_COMPLETED`
 
-A deterministic source lock, CI pass or deployed smoke is engineering evidence, not human approval.
+Machine validation and release success do not create those approvals.
 
-## Canonical release target
+## Historical release-line context
 
-`https://live-cash-os-mobile-test.blufferus.workers.dev/`
+- PR `#259`: historical intermediate candidate, not current release authority.
+- PR `#263`: Target Evidence Reachability / Semantic Independence closure.
+- PR `#264`: Final Language / Comprehension integration closure and the merge line for the accepted release baseline.
 
-The current operating model treats this Cloudflare Workers endpoint as the canonical release/deploy target. The former GPT-site URL is not release authority.
+## Next high-EV phase
 
-Release publication requires:
+Engineering release work is complete under the current machine/actionable boundary.
 
-1. exact final PR head GREEN;
-2. current-main reconciliation and merge of that exact head;
-3. exact resulting `main` GREEN;
-4. exact-SHA Workers deploy;
-5. generated Workers configuration containing isolated `TEST_DB` only and no production `DB`;
-6. post-deploy smoke proving build identity and learner-critical flows.
+Next:
 
-## Completion boundary
+`HUMAN REVIEW -> REAL LEARNER USE -> W10 -> W11`
 
-Engineering/release closure may be completed under the current owner authorization when all gates above are GREEN. Genuine learning-effectiveness validation remains a later `REAL_USE_VALIDATION -> W10_EMPIRICAL_VALIDATION` evidence path.
+No claim of product perfection or proven educational effectiveness is implied.
