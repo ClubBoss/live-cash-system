@@ -1,46 +1,179 @@
-# Live Cash OS — Final Machine-Actionable Closure Checkpoint
+# Live Cash OS - Final Machine-Actionable Closure Report
 
-Status: `FINAL_COMPOSITION_GREEN / TWO_FRESH_ADVERSARIAL_PASSES_CLEAN / MACHINE_ACTIONABLE_DIMINISHING_RETURNS_REACHED / MAIN_MERGE_PENDING / DEPLOY_PENDING / HUMAN_AND_EMPIRICAL_GATES_PENDING`
+Status: `ENGINEERING_RELEASE_COMPLETE / MACHINE_ACTIONABLE_DIMINISHING_RETURNS_REACHED / HUMAN_AND_EMPIRICAL_GATES_PENDING`
 
-## Exact candidate
-- Final composition PR: `#259` (`integration/final-audit-closure` -> `main`).
-- Exact functional integration head before this truth-only update: `a0f0f92b02f5f951bf9aafa15c35a0986d1bb726`.
-- Accepted assessment repair: PR `#257` @ `c33e6070a5b95d3d247cbd57750c252a55ca311f`.
-- Accepted evidence/archive repair: PR `#258` @ `6df2c967668349d412f42bfcab165ad7261a7d79`.
-- Canonical composition CI: run `35287066982` — `SUCCESS`; all required jobs GREEN, deploy skipped.
-- Current `main` remains `dd4906a5e6a1504946ec0608346455c472a4709c` until final release merge.
-- The new final-composition candidate has not yet been merged to `main` or deployed.
+## Authoritative functional/release baseline
 
-## Final machine-actionable closure
-- Assessment length leakage is bounded by a practical-materiality gate and decision-scoped learner presentation; no new correct-reason repetition class is introduced.
-- Current Practical evidence identity is explicit and fail-closed; recognition/direct/transfer mastery and scaffold fading require independent semantic scenarios.
-- Scheduler routing uses the same scenario floors as mastery and routes toward missing independent scenarios.
-- Current schema-v5 compact archives commit their derived summary; compacted schema-v4 state is never re-signed as trusted evidence and instead reconstructs only from retained provable tail history.
-- Current v5 normalization remains stable; persisted A8/4BP compatibility, import, CAS and no-resurrection contracts remain covered.
-- Runtime corpus remains `86 skills / 871 decisions / 946 stimuli / 0 invariant errors`.
+The accepted functional and release baseline that established the current machine closure is:
 
-## Fresh post-composition adversarial evidence
-- Pass #1 — cross-layer authority leak review: current mastery/scheduler/scaffold consumers use explicit semantic evidence authority; legacy cue/ID identity is confined to compatibility helpers; assessment presentation does not feed evidence identity. CLEAN.
-- Pass #2 — persisted-generation/threat-boundary review: current v5 provenance, non-compacted v4 migration, compacted-v4 tail-proven downgrade, import normalization and safe-successor paths remain fail-closed within the stated local-first threat model. CLEAN.
-- Neither pass found a new material root cause.
+`6bc104cf7342baad332c51b02a238ceda9b2337e`
 
-## Dispositions and boundaries
-- `R-009`: `DISPOSITIONED_WITH_EVIDENCE / MONITOR`; no demonstrated user-visible performance defect or stable non-flaky CI latency SLO.
-- `LC-ADD-005`: `DISPOSITIONED_WITH_EVIDENCE / LOCAL_FIRST_TIME_AUTHORITY_BOUNDARY`; intentional clock manipulation cannot be proven offline without trusted external time.
-- Public tester credentials remain owner-accepted risk under the current personal/test threat model.
-- Human poker strategy/drill review, RU/EN editorial review and W10/W11 empirical learner validation remain separate non-machine gates.
+Release truth for that baseline:
+
+- PR `#264` is merged.
+- Canonical main CI: run `#1801` / GitHub Actions run ID `35436209197` = `SUCCESS`.
+- Aggregate `validate` = `SUCCESS`.
+- `deploy-test-mirror` = `SUCCESS`.
+- Canonical Workers URL: `https://live-cash-os-mobile-test.blufferus.workers.dev/`.
+- Exact deployed SHA: `6bc104cf7342baad332c51b02a238ceda9b2337e`.
+- Generated Workers configuration contains the dedicated `TEST_DB` binding only; production `DB` is absent.
+- Post-deploy production smoke: `LIVE_SMOKE_GREEN`.
+- Canonical `/mastery/journey` smoke: GREEN.
+
+A later documentation-only reconciliation commit is not the historical functional baseline. Its identity remains available in immutable Git history.
+
+## Final machine classification
+
+Official current machine classification:
+
+`MACHINE_ACTIONABLE_DIMINISHING_RETURNS_REACHED`
+
+Current material machine roots:
+
+- P0: 0
+- P1: 0
+- P2 active: 0
+- Undispositioned material machine roots: 0
+
+This is a machine/actionable engineering and content-audit boundary. It does not mean `PERFECT`, `10/10 HUMAN VALIDATED`, `W10 COMPLETE`, or `W11 COMPLETE`.
+
+## Current accepted machine evidence
+
+Current accepted corpus and invariant evidence:
+
+- registered practical skills: 86
+- primary learner-visible skills: 75
+- explicit learner-visible source gaps: 1
+- `BL-11 = PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`
+- learner-visible non-gap skills: 74
+- declared-target reachable: 74/74
+- runtime decisions: 890
+- runtime stimuli: 965
+- runtime invariant errors: 0
+- source locks stale at the accepted candidate: 0
+- unit tests: 1281/1281 GREEN
+- typecheck, lint, build, governance, editorial and runtime gates: GREEN
+
+Semantic evidence independence is accepted and protected.
+
+Decision-ID-derived evidence identities are structurally prohibited.
+
+Archive/provenance integrity retains the accepted fail-closed boundary.
+
+## Two clean adversarial passes
+
+### Pass 1 - evidence/source/reachability/integrity
+
+Review vector included:
+
+- semantic authority
+- declared target reachability
+- source transcripts and authority
+- compact-history provenance
+- mastery/scaffold semantic independence
+
+New material roots: 0.
+
+### Pass 2 - language/comprehension/assessment composition
+
+Review vector included:
+
+- causal specificity
+- RU/EN learner language
+- source-ID leakage
+- cross-skill duplication
+- distractor construction
+- assessment composition
+
+Only the known answer-length diagnostic remained.
+
+New undispositioned material roots: 0.
+
+The clean-pass sequence is not reset merely by the known answer-length diagnostic.
+
+## Assessment Length Shortcut disposition
+
+Official disposition:
+
+`DISPOSITIONED / ACCEPTED PRODUCT TRADEOFF / MONITOR`
+
+The observed diagnostic signal remains real. Representative observed shape at the final composition included approximately:
+
+- RU longest reason: 66% vs 33%
+- EN longest reason: 57%
+- RU longest action+reason: 28.7% vs 11.1%
+
+Those statistics alone are not a product defect.
+
+The governing product invariant is:
+
+1. semantic correctness
+2. causal completeness
+3. pedagogical clarity
+4. plausible and context-specific distractors
+5. natural learner language
+6. only then secondary statistical presentation balance
+
+Learner copy must not be rewritten merely to equalize answer lengths.
+
+The length signal becomes actionable only when independently tied to a concrete construction defect, for example:
+
+- weak or absurd distractor
+- correct-only vocabulary
+- grammatical tell
+- obvious absolute
+- source/internal marker
+- reusable authoring template leaking correctness
+- another independently demonstrated shortcut
+
+No separate material construction root of that kind is reproduced on the accepted final composition.
+
+Diagnostics remain enabled. The statistical signal has not been declared absent.
+
+## Accepted and external boundaries
+
+The following remain non-blocking dispositions or external boundaries:
+
+- `R-009`: performance SLO is hardening/monitor unless a demonstrated user-visible defect or stable SLO violation appears.
+- Local clock: accepted local-first architecture boundary; trusted offline time cannot be manufactured without external authority.
+- Public tester credentials: owner-accepted risk under the current personal/test threat model.
+- `BL-11`: `PARTIAL / POSITIVE_EV_SOURCE_ACCESS_REQUIRED`; it is not silently closed.
+
+These boundaries are not upgraded into technical GREEN features beyond the evidence that exists.
+
+## Human and empirical truth
+
+These gates remain open:
+
+- genuine poker strategy review
+- genuine drill review
+- Russian human editorial review
+- English human editorial review
+- final composition human approval
+- real learner validation
+
+`HUMAN_MASTERY_VALIDATED = FALSE`
+
+`W10 = NOT_COMPLETED`
+
+`W11 = NOT_COMPLETED`
+
+Machine checks, CI, source locks and deployment smoke cannot create those approvals.
+
+The next high-EV product phase is:
+
+`HUMAN REVIEW -> REAL LEARNER USE -> W10 -> W11`
+
+## Historical reconciliation
+
+Historical intermediate candidates remain useful evidence, but they are not the current release truth.
+
+- PR `#259`: historical intermediate final-composition candidate; no longer the current final composition.
+- PR `#263`: Target Evidence Reachability / Semantic Independence closure.
+- PR `#264`: Final Language / Comprehension integration closure and the line merged into the accepted functional/release baseline.
 
 ## Stop rule
-Machine-actionable diminishing returns is reached for this candidate because:
-- no P0 remains;
-- material machine findings are fixed or explicitly dispositioned/accepted-risk;
-- canonical exact-head composition CI is GREEN;
-- two genuinely different fresh post-composition passes found no new material root cause.
 
-Warnings, optional hardening and human/empirical gates do not reopen machine closure without a new executable material defect.
+Machine-actionable diminishing returns remains reached unless new executable evidence demonstrates a material machine defect.
 
-## Remaining release steps
-- Run exact-head CI after this truth-only documentation update.
-- Merge PR #259 to `main` only if that exact-head CI remains GREEN.
-- Run canonical CI on the resulting exact `main` SHA.
-- Deploy that exact GREEN `main` SHA and complete production smoke.
+Warnings, optional hardening, monitoring signals, source-limited boundaries and human/empirical gates do not by themselves reopen machine closure.
