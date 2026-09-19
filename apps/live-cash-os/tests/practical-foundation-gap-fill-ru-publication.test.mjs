@@ -41,5 +41,5 @@ test("Foundation gap-fill exact RU copy and strategy identities remain locked to
   const digest = createHash("sha256")
     .update(JSON.stringify(decisions.map(projection)))
     .digest("hex");
-  assert.equal(digest, "5882ab5f80268aa4ffa6b6f7e26027dc9d66ca1c8b569cb2f23d68cf77f09270");
+  assert.equal(digest, "2945785e08d8b97cfb406e9103d90a81b9b0c86d421fe0bd2f380f9cd41f0f1e");
 });

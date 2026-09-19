@@ -787,10 +787,8 @@ function family(f: F): PracticalDecision[] {
       qEn: "What should Hero do?",
       goodRu: "Сначала проверить сохранившийся вэлью/блефы/продолжения области",
       goodEn: "First inspect surviving value/bluff/continue regions",
-      whyRu:
-        "Ancestry is the causal bridge from the previous street to the current action.",
-      whyEn:
-        "Ancestry is the causal bridge from the previous street to the current action.",
+      whyRu: f.whyRu,
+      whyEn: f.whyEn,
       bad1Ru: f.shortcutRu,
       bad1En: f.shortcutEn,
       bad2Ru: "Игнорировать previous улица",
@@ -805,10 +803,8 @@ function family(f: F): PracticalDecision[] {
       qEn: "How should the conclusion change?",
       goodRu: "Пересобрать branch, а не переносить старый action",
       goodEn: "Rebuild the branch rather than copying the old action",
-      whyRu:
-        "The changed variable alters range ownership, price, bluff supply or value targets.",
-      whyEn:
-        "The changed variable alters range ownership, price, bluff supply or value targets.",
+      whyRu: `${f.changeRu} ${f.whyRu}`,
+      whyEn: `${f.changeEn} ${f.whyEn}`,
       bad1Ru: "Action не меняется",
       bad1En: "The action does not change",
       bad2Ru: f.shortcutRu,

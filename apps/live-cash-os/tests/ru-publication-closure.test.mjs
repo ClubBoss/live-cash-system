@@ -217,13 +217,13 @@ test("E: decisions-foundation-expansion.ts owns the corrected FND-01 RU publicat
   assert.doesNotMatch(original, /Price тот же, но после range update/u);
 });
 
-test("E: EN copy for the touched FND-01/02/06 decisions is byte-for-byte unchanged", () => {
+test("E: EN copy preserves the touched FND-01/02/06 mechanism while provenance stays in sourceRefs", () => {
   const spotChecks = [
     ["PM-FND-01-105", "cueEn", "The hand's equity is unchanged, but the call becomes cheaper."],
     ["PM-FND-01-107", "cueEn", "Flop, large stack behind, many future branches."],
     ["PM-FND-01-107", "questionEn", "Is comparing raw equity only with the current pot-odds threshold sufficient?"],
-    ["PM-FND-02-101", "explanationEn", "FTGU-E01 immediately limits raw equity: it can be surrendered before showdown."],
-    ["PM-FND-06-104", "explanationEn", "LCM-01 makes effective-stack identity part of decision geometry; nominal seat stack does not replace branch-specific effective depth."],
+    ["PM-FND-02-101", "explanationEn", "Source material immediately limits raw equity: it can be surrendered before showdown."],
+    ["PM-FND-06-104", "explanationEn", "Source material makes effective-stack identity part of decision geometry; nominal seat stack does not replace branch-specific effective depth."],
   ];
   for (const [id, field, expected] of spotChecks) {
     assert.equal(practicalDecisionById.get(id)[field], expected, `${id}.${field}`);

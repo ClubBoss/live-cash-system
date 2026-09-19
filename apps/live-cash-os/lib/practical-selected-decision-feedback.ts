@@ -1,4 +1,5 @@
 import { practicalDecisionFeedbackCopy } from "../content/practical-mastery/practical-decision-feedback-copy";
+import { naturalizePracticalRuFinalHybridText } from "../content/practical-mastery/practical-ru-final-hybrid-closure";
 import type { PracticalDecision, PracticalDecisionOption } from "../content/practical-mastery/types";
 
 export type PracticalSelectedFeedbackDimension = {
@@ -100,7 +101,9 @@ export function practicalSelectedDecisionFeedback(
     reason: !correct && selectedReasonId !== decision.correctReasonId
       ? { selectedText: optionText(selectedReason, locale), correctText: optionText(correctReason, locale) }
       : null,
-    mechanism: locale === "ru" ? feedback.mechanismRu : feedback.mechanismEn,
-    boundary: (locale === "ru" ? feedback.boundaryRu : feedback.boundaryEn) ?? null,
+    mechanism: locale === "ru" ? naturalizePracticalRuFinalHybridText(feedback.mechanismRu) : feedback.mechanismEn,
+    boundary: locale === "ru"
+      ? (feedback.boundaryRu ? naturalizePracticalRuFinalHybridText(feedback.boundaryRu) : null)
+      : feedback.boundaryEn ?? null,
   };
 }

@@ -15,9 +15,10 @@ test("TURN-01 deepens W4-RUNOUT rather than reteaching runout labels from scratc
   assert.ok(asset);
   assert.equal(asset.kind, "SOURCE_BOUND");
   assert.deepEqual(asset.teaching.sourceRefs, ["FTGU-E21"]);
-  assert.match(asset.teaching.situationRu, /W4-RUNOUT-01 уже научил/u);
+  assert.match(asset.teaching.situationRu, /Базовый навык по ранаутам уже научил/u);
+  assert.doesNotMatch(asset.teaching.situationRu, /W4-RUNOUT-01/u);
   assert.match(asset.teaching.situationEn, /already taught the basic/i);
-  assert.match(asset.teaching.mechanismRu, /surviving ranges/u);
+  assert.match(asset.teaching.mechanismRu, /диапазоны, сохранившиеся после флоп-экшена/u);
   assert.match(asset.teaching.mechanismEn, /survived the flop action/i);
   assert.match(asset.teaching.boundaryRu, /автоматические ставки или чеки/u);
   assert.match(asset.teaching.boundaryEn, /automatic bets or checks/i);

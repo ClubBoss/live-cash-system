@@ -82,7 +82,7 @@ test("PF-01 changed node explains actual change -> strategic direction -> variab
   await expect(mechanismRu).toContainText("Стратегическое следствие:");
   await expect(mechanismRu).toContainText("меняй пограничные руки только там, где контекст действительно меняет их EV");
   await expect(mechanismRu).toContainText("Почему это меняет или сохраняет действие:");
-  await expect(mechanismRu).toContainText("Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию equity");
+  await expect(mechanismRu).toContainText("Позиция, порядок действий и диапазоны, которым ещё предстоит действовать, меняют реализацию эквити");
   await expect(mechanismRu).toContainText("сдвигают EV пограничных продолжений и давления");
   await expect(changed.locator("[data-practical-correct-answer]")).toContainText("Правильное действие:");
   await expect(changed.locator("[data-practical-correct-answer]")).not.toContainText("Правильная причина:");
