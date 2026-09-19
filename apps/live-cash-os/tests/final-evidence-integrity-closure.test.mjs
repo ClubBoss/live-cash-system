@@ -9,7 +9,8 @@ import {
   practicalDecisions,
 } from "../content/practical-mastery/index.ts";
 import { emptyLearnerState } from "../lib/model-core.ts";
-import { practicalProgressCountingSkills } from "../lib/practical-learner-skill-set.ts";
+import { primaryPracticalLearnerSkills, practicalProgressCountingSkills } from "../lib/practical-learner-skill-set.ts";
+import { practicalSourceGapBySkillId } from "../content/practical-mastery/source-gaps.ts";
 import {
   compactPracticalAttemptHistory,
   createPracticalMasteryState,
@@ -123,7 +124,7 @@ test("an independent transfer semantic scenario legitimately advances mastery", 
     );
   }
   const skills = practicalProgressCountingSkills();
-  assert.equal(skills.length, 71);
+  assert.equal(skills.length, 74);
   for (const skill of skills) {
     const stats = practicalSkillCorpusStats(skill.id);
     assert.ok(stats.recognitionScenarios >= 2, `${skill.id}: recognition stranded`);
@@ -132,6 +133,22 @@ test("an independent transfer semantic scenario legitimately advances mastery", 
     assert.equal(practicalSkillCorpusCanReach(skill.id, "DECISION_TRAINED"), true);
     assert.equal(practicalSkillCorpusCanReach(skill.id, "CHANGED_NODE_TRANSFER"), true);
   }
+});
+
+test("every primary learner-visible non-gap skill can reach its declared evidence target", () => {
+  const failures = [];
+  for (const skill of primaryPracticalLearnerSkills()) {
+    const sourceGap = practicalSourceGapBySkillId.get(skill.id) ?? null;
+    if (sourceGap?.status === "PARTIAL" || sourceGap?.status === "SOURCE_BLOCKED") continue;
+    if (practicalSkillCorpusCanReach(skill.id, skill.targetEvidenceStage)) continue;
+    failures.push({
+      skillId: skill.id,
+      target: skill.targetEvidenceStage,
+      corpusStats: practicalSkillCorpusStats(skill.id),
+      sourceGapState: sourceGap?.status ?? "NONE",
+    });
+  }
+  assert.deepEqual(failures, []);
 });
 
 test("scaffold cannot become hidden from one transfer scenario but can fade with independent scenarios", () => {

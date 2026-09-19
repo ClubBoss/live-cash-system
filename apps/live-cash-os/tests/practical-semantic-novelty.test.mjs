@@ -116,6 +116,32 @@ test("confirmed cross-wave paraphrases collapse to one semantic stimulus family"
   }
 });
 
+test("semantic authority cannot use physical decision IDs as evidence identity", () => {
+  for (const decision of practicalDecisions) {
+    const authority = PRACTICAL_EVIDENCE_AUTHORITY_BY_DECISION_ID[decision.id];
+    assert.ok(authority, `missing explicit authority for ${decision.id}`);
+    for (const [field, identity] of [["evidenceFamilyId", authority.evidenceFamilyId], ["scenarioId", authority.scenarioId]]) {
+      assert.notEqual(identity, decision.id, `${decision.id}: ${field} must be semantic, not physical`);
+      assert.equal(identity.includes(`${decision.id}::`), false, `${decision.id}: ${field} must not be decision-ID-derived`);
+      assert.equal(identity.endsWith("::source-bounded"), false, `${decision.id}: ${field} cannot use mechanical source-bounded identity`);
+    }
+  }
+});
+
+test("reviewed target-reachability duplicates share canonical semantic identity", () => {
+  for (const ids of [
+    ["PM-FND-05-TRC-101", "PM-FND-05-TRC-105"],
+    ["PM-FND-05-TRC-104", "PM-FND-05-TRC-106"],
+    ["PM-FND-07-TRC-101", "PM-FND-07-TRC-104"],
+    ["PM-FND-07-TRC-102", "PM-FND-07-TRC-105"],
+    ["PM-W4-HAND-001", "PM-W4-HAND-01-TRC-109"],
+  ]) {
+    const rows = ids.map((id) => practicalDecisionById.get(id));
+    assert.ok(rows.every(Boolean), `missing target-reachability fixture: ${ids.join(", ")}`);
+    assert.equal(new Set(rows.map(practicalEvidenceFamilyId)).size, 1, `semantic duplicate must share family: ${ids.join(", ")}`);
+  }
+});
+
 test("scenario siblings remain distinct practice items but share one scenario-diversity identity", () => {
   const grouped = new Map();
   for (const decision of practicalDecisions) {
