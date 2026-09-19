@@ -146,6 +146,20 @@ These are dispositions/boundaries, not unearned GREEN feature claims.
 
 ## Governance and human-review truth
 
+The current editorial/governance manifest remains deliberately review-pending:
+
+- manifest: `TRANSITIONAL_REVIEW_REQUIRED`
+- strategy: `CURRICULUM_STRATEGY_REVIEW_PENDING`
+- drills: `DRILLS_REVIEW_PENDING`
+- final composition: `REVIEW_PENDING`
+
+Historical bounded implementation dispositions remain carried-forward governance truth only:
+
+- `WAVE_1_IMPLEMENTATION_ACCEPTED / COMPREHENSION_EVIDENCE_PENDING`
+- `WAVE_5_IMPLEMENTATION_CLOSED_WITH_ACCEPTED_P2_DEBT`
+
+The historical `ACCEPTED_P2_DEBT` label is not an active current machine root; current active P2 remains 0.
+
 Human approval remains pending:
 
 - genuine poker strategy review
