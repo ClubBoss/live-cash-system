@@ -120,7 +120,7 @@ export const practicalSourceBoundTeachingAssets: PracticalSourceBoundTeachingAss
   a({
     skillId: "TURN-01",
     sourceRefs: ["FTGU-E21"],
-    situationRu: "W4-RUNOUT-01 уже научил замечать бланки, пугающие карты, карты, закрывающие дро, и ран-ауты, заметно меняющие соотношение диапазонов. Здесь тот же знакомый класс карты нужно привязать к тому, какие диапазоны реально дошли до тёрна после конкретной линии флопа.",
+    situationRu: "Базовый навык по ранаутам уже научил замечать бланки, пугающие карты, карты, закрывающие дро, и ранауты, заметно меняющие соотношение диапазонов. Здесь тот же знакомый класс карты нужно привязать к тому, какие диапазоны реально дошли до тёрна после конкретной линии флопа.",
     situationEn: "W4-RUNOUT-01 already taught the basic blank, scare, completing, and range-shifting runout classes. Here the familiar card class must be tied to the ranges that actually survived the specific flop line.",
     mechanismRu: "Не переучивай ярлык карты с нуля. Сначала восстанови диапазоны, сохранившиеся после флоп-экшена, затем спроси, что новая карта вернула, закрыла или перераспределила в сильной части каждого диапазона. Класс ран-аута — это сигнал пересчитать, кому принадлежит преимущество, а не готовое действие.",
     mechanismEn: "Do not relearn the card label from scratch. First reconstruct the ranges that survived the flop action, then ask what the new card restored, completed, or shifted in each range's strong region. The runout class is a trigger to recompute ownership, not a ready-made action.",
@@ -266,7 +266,7 @@ export const practicalSourceBoundTeachingAssets: PracticalSourceBoundTeachingAss
     sourceRefs: ["FTGU-E03"],
     situationRu: "Базовый навык уже дал выбор между изолейтом, оверлимпом и фолдом. Здесь несколько липких лимперов делают изоляцию один на один малореалистичной и повышают шанс настоящего мультивей-банка.",
     situationEn: "PF-02 already established the baseline isolate / overlimp / fold choice. Here several sticky limpers make heads-up isolation unlikely and materially raise the chance of a true multiway pot.",
-    mechanismRu: "Это перенос навыка, а не повтор PF-02: при низком фолд-эквити и высокой вероятности мультивей-банка сравни цену крупного изолейта с меньшим входным вложением через оверлимп, учитывая типичную силу руки, имплайд-оддсы, позицию и игроков позади.",
+    mechanismRu: "Это перенос навыка, а не повтор базовой темы изолейта: при низком фолд-эквити и высокой вероятности мультивей-банка сравни цену крупного изолейта с меньшим входным вложением через оверлимп, учитывая типичную силу руки, имплайд-оддсы, позицию и игроков позади.",
     mechanismEn: "This is transfer rather than PF-02 reteaching: with low fold equity and high multiway likelihood, compare the price of a large isolation raise with the smaller entry cost of overlimping, using frequent strength, implied odds, position, and players behind.",
     exampleRu: "Три липких лимпера почти не фолдят на крупный изолейт. Одномастная связная рука или небольшая карманная пара может предпочесть оверлимп, потому что большой размер не покупает хедз-ап банк, а лишь увеличивает вложение в ветку, которая всё равно остаётся мультивей.",
     exampleEn: "Three sticky limpers almost never fold to a large isolation raise. A suited/connected or small-pair hand can prefer overlimping because the larger size does not buy a heads-up pot; it only increases the investment in a branch that still remains multiway.",

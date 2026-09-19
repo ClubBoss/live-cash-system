@@ -307,23 +307,83 @@ const PATCHES = new Map<string, DecisionRuPatch>([
   }],
 ]);
 
+const FINAL_RU_LITERAL_REPLACEMENTS: readonly [RegExp, string][] = [
+  [/\bTurn card\b/giu, "Карта тёрна"],
+  [/\bnutted regions\b/giu, "натсовые части диапазона"],
+  [/\bnutted region\b/giu, "натсовую часть диапазона"],
+  [/\bgame-changing turns\b/giu, "тёрны, меняющие структуру диапазонов"],
+  [/\brange cap\b/giu, "ограничение диапазона сверху"],
+  [/\brange-state\b/giu, "состояние диапазона"],
+  [/\bcaller\b/giu, "коллер"],
+  [/\bBlank\b/gu, "Бланк"],
+  [/\bblank\b/giu, "бланк"],
+  [/\bclass\b/giu, "класс"],
+  [/\bpostflop\b/giu, "постфлоп"],
+  [/\bcheck-back\b/giu, "чек-бэк"],
+  [/\bshowdown value\b/giu, "шоудаун-ценность"],
+  [/\bcheck-fold\b/giu, "чек-фолд"],
+  [/\bcheck\b/giu, "чек"],
+  [/\bvalue-raise\b/giu, "вэлью-рейз"],
+  [/\bpot odds\b/giu, "пот-оддсы"],
+  [/\bbluff-catchers\b/giu, "блеф-кетчеры"],
+  [/\bopen\/fold\b/giu, "рейз/фолд"],
+  [/\bsingle-raised pot\b/giu, "банк с одним префлоп-рейзом"],
+  [/\bisolation raise\b/giu, "изоляционный рейз"],
+  [/\bturn lead\b/giu, "лид на тёрне"],
+  [/\bthin\/value\/protection bet\b/giu, "тонкого вэлью-бета или защитной ставки"],
+  [/\b3-way\b/giu, "втроём"],
+  [/\bmarginal value\/bluff-catch\b/giu, "пограничное вэлью/блеф-кетч"],
+  [/\briver thresholds\b/giu, "пороги на ривере"],
+  [/\blow-showdown bluff candidates\b/giu, "блеф-кандидата с низкой шоудаун-ценностью"],
+  [/\bvalue ancestry\b/giu, "историей вэлью-ветки"],
+  [/\briver bluff candidate\b/giu, "кандидат на ривер-блеф"],
+  [/\briver bluff\b/giu, "ривер-блеф"],
+  [/\bmissed draw\b/giu, "несросшееся дро"],
+  [/\bvalue bets\b/giu, "вэлью-ставок"],
+  [/\bfold equity\b/giu, "фолд-эквити"],
+  [/\bfold targets\b/giu, "диапазоны, которые нужно заставить сфолдить"],
+  [/\bfold target\b/giu, "диапазон, который нужно заставить сфолдить"],
+  [/\bsingle-raised\b/giu, "банк с одним префлоп-рейзом"],
+  [/\bfolds\b/giu, "фолды"],
+  [/\bfold\b/giu, "фолд"],
+  [/\bodds\b/giu, "оддсы"],
+  [/\bthresholds\b/giu, "пороги"],
+  [/\braise\b/giu, "рейз"],
+  [/\bair\b/giu, "рука без шоудаун-ценности"],
+  [/\bremoval\b/giu, "эффект блокеров"],
+  [/\bcredible\b/giu, "правдоподобный"],
+  [/\bcandidate\b/giu, "кандидат"],
+  [/\bBlockers\b/gu, "Блокеры"],
+  [/\bA-high\b/giu, "с тузом старшей картой"],
+  [/\bK94r\b/gu, "K-9-4 rainbow"],
+  [/\bK83r\b/gu, "K-8-3 rainbow"],
+  [/\b2x\b/gu, "2×"],
+  [/\bDEEP-03:\s*/gu, ""],
+];
+
+export function naturalizePracticalRuFinalHybridText(value: string): string {
+  return FINAL_RU_LITERAL_REPLACEMENTS.reduce(
+    (current, [pattern, replacement]) => current.replace(pattern, replacement),
+    value,
+  );
+}
+
 function patchOption(
   option: PracticalDecisionOption,
   copy: Readonly<Record<string, string>> | undefined,
 ): PracticalDecisionOption {
-  const textRu = copy?.[option.id];
-  return textRu === undefined ? option : { ...option, textRu };
+  const textRu = naturalizePracticalRuFinalHybridText(copy?.[option.id] ?? option.textRu);
+  return textRu === option.textRu ? option : { ...option, textRu };
 }
 
 export function applyPracticalRuFinalHybridClosure(decision: PracticalDecision): PracticalDecision {
   const patch = PATCHES.get(decision.id);
-  if (!patch) return decision;
   return {
     ...decision,
-    cueRu: patch.cueRu ?? decision.cueRu,
-    questionRu: patch.questionRu ?? decision.questionRu,
-    explanationRu: patch.explanationRu ?? decision.explanationRu,
-    actionOptions: decision.actionOptions.map((option) => patchOption(option, patch.actions)),
-    reasonOptions: decision.reasonOptions.map((option) => patchOption(option, patch.reasons)),
+    cueRu: naturalizePracticalRuFinalHybridText(patch?.cueRu ?? decision.cueRu),
+    questionRu: naturalizePracticalRuFinalHybridText(patch?.questionRu ?? decision.questionRu),
+    explanationRu: naturalizePracticalRuFinalHybridText(patch?.explanationRu ?? decision.explanationRu),
+    actionOptions: decision.actionOptions.map((option) => patchOption(option, patch?.actions)),
+    reasonOptions: decision.reasonOptions.map((option) => patchOption(option, patch?.reasons)),
   };
 }

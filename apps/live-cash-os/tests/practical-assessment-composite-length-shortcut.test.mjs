@@ -190,9 +190,9 @@ test("pre-repair composite fixture reproduces the exact-main hard exploit", () =
   assert.ok(PRE_REPAIR.Ru.joint.excess > 0.10);
   assert.ok(PRE_REPAIR.Ru.uniqueLongestCoverage.both > 0.96);
 });
-test("learner-visible composite census remains comparable to exact starting main without overriding teaching quality", () => {
+test("learner-visible composite census tracks the integrated corpus while retaining the exact starting-main comparison fixture", () => {
   const pool = eligiblePool();
-  assert.equal(pool.length, 817, "eligible assessment pool drifted");
+  assert.equal(pool.length, 841, "integrated eligible assessment pool drifted");
 
   const report = {};
   const alerts = [];
@@ -204,7 +204,7 @@ test("learner-visible composite census remains comparable to exact starting main
       if (tier !== "clear") alerts.push({ locale, signal, tier, ...metrics[signal] });
 
       const starting = PRE_REPAIR[locale][signal];
-      assert.equal(metrics[signal].n, starting.n, `${locale}/${signal}: sample size drifted`);
+      assert.equal(metrics[signal].n, pool.length, `${locale}/${signal}: current sample size drifted`);
       assert.ok(
         Math.abs(metrics[signal].baseline - starting.baseline) < 1e-12,
         `${locale}/${signal}: random baseline drifted`,

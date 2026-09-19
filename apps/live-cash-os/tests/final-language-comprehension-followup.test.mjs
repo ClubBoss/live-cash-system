@@ -102,7 +102,7 @@ test("machine-wide RU learner-facing runtime rejects ordinary English outside th
 
   const census = { count: 0, unknownLatin: [] };
   const ordinary = practicalDecisions.filter(isOrdinaryLearnerDecision);
-  assert.equal(ordinary.length, 870);
+  assert.equal(ordinary.length, 889);
 
   for (const item of ordinary) {
     assertNaturalRuSurface(item.cueRu, `${item.id}/cueRu`, census);
@@ -174,7 +174,7 @@ test("machine-wide RU learner-facing runtime rejects ordinary English outside th
     }
   }
 
-  assert.equal(census.count, 37869, "RU learner-facing runtime surface census drifted");
+  assert.equal(census.count, 38667, "RU learner-facing runtime surface census drifted");
   assert.deepEqual(
     census.unknownLatin,
     [],

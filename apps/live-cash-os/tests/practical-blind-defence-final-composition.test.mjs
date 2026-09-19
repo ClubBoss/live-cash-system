@@ -10,6 +10,7 @@ import { executableGateRepairDecisions } from "../content/practical-mastery/deci
 import { sourceClosureB1Decisions } from "../content/practical-mastery/decisions-source-closure-b1";
 import { foundationPreflopBlindDecisions } from "../content/practical-mastery/decisions-w1-w3";
 import { applyPracticalAssessmentIntegrityRepair } from "../content/practical-mastery/practical-assessment-integrity-repair";
+import { applyPracticalRuFinalHybridClosure } from "../content/practical-mastery/practical-ru-final-hybrid-closure";
 import { applyPracticalCrossSkillOverlapRepair } from "../content/practical-mastery/practical-cross-skill-overlap-repair";
 import {
   applyPracticalRuSystemicBlindDefenceAnchorProjection,
@@ -108,6 +109,7 @@ function stripApprovedNotation(text) {
 
 function numericTokens(text) {
   const normalized = text
+    .replaceAll("×", "x")
     .replace(/(?:FTGU-E\d+(?:\/E\d+)*|LCM-\d+|SLC-[A-Z0-9-]+|EXT-[A-Z0-9-]+)/gu, "")
     .replace(/\b3-bet(?:s|ting|-or-fold)?\b/giu, "")
     .replace(/\b4-bet(?:s|ting)?\b/giu, "")
@@ -188,7 +190,9 @@ test("BLIND unit runtime remains the accepted projection with current assessment
     assert.ok(raw, `missing raw ${id}`);
     assert.ok(finalDecision, `missing final ${id}`);
     const projected = applyPracticalRuSystemicBlindDefenceDecisionProjection(raw);
-    const expected = applyPracticalAssessmentIntegrityRepair(applyPracticalCrossSkillOverlapRepair(projected));
+    const expected = applyPracticalRuFinalHybridClosure(
+      applyPracticalAssessmentIntegrityRepair(applyPracticalCrossSkillOverlapRepair(projected)),
+    );
 
     for (const path of decisionFieldPaths) {
       assert.equal(decisionFieldValue(finalDecision, path), decisionFieldValue(expected, path), `${id} ${path}`);

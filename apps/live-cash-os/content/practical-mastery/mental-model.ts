@@ -206,7 +206,7 @@ export const practicalRules: PracticalRule[] = [
     amplifiersEn: ["low/wet/middling board fits caller", "PFR OOP", "caller retains two-pair/straight density"],
     reversalsRu: ["сухие доски со старшей высокой картой могут сохранять концентрированное преимущество PFR", "небольшая ставка объединённым диапазоном снова может стать привлекательной"],
     reversalsEn: ["high-card dry boards can preserve concentrated PFR advantage", "a small merged range bet can become attractive again"],
-    transferCueRu: "Сохрани позиции/диапазоны и поменяй только сухой флоп A-high → связный низкий флоп.",
+    transferCueRu: "Сохрани позиции и диапазоны и поменяй только сухой флоп с тузом старшей картой на связный низкий флоп.",
     transferCueEn: "Keep positions/ranges fixed and change only dry A-high flop → connected low flop.",
   }),
   r({
