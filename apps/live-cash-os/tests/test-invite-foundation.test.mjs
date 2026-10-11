@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { createHash } from "node:crypto";
 import { promisify } from "node:util";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
@@ -39,21 +38,19 @@ test("invite generator emits requested opaque codes and hash-only SQL", async ()
   assert.match(generated.sql, /code_hash/);
 });
 
-test("recoverable private tester codes match the hash-only runtime source", async () => {
-  const [accessRaw, db] = await Promise.all([
-    readFile(new URL("../test-invites/tester-access.private.json", import.meta.url), "utf8"),
+test("plaintext test invite files are ignored and absent from tracked source", async () => {
+  const [ignore, db, workflow] = await Promise.all([
+    readFile(new URL("../../../.gitignore", import.meta.url), "utf8"),
     readFile(new URL("../db/index.ts", import.meta.url), "utf8"),
+    readFile(new URL("../../../.github/workflows/live-cash-os-ci.yml", import.meta.url), "utf8"),
   ]);
-  const access = JSON.parse(accessRaw);
-  assert.equal(access.testers.length, 5);
-  assert.deepEqual(access.testers.map((tester) => tester.label), ["tester-01", "tester-02", "tester-03", "tester-04", "tester-05"]);
-  for (const tester of access.testers) {
-    assert.equal(tester.active, true);
-    assert.match(tester.code, /^LCO-TEST-[A-Z0-9_-]{20,80}$/);
-    const hash = createHash("sha256").update(tester.code).digest("hex");
-    assert.match(db, new RegExp(hash));
-  }
+  assert.match(ignore, /test-invites\/\*\.private\.json/);
+  assert.match(ignore, /test-invites\/\*\.secret\.json/);
   assert.doesNotMatch(db, /LCO-TEST-/);
+  assert.match(db, /LIVE_CASH_TEST_INVITE_BUNDLE/);
+  assert.match(workflow, /secrets\.LIVE_CASH_TEST_SMOKE_CODE/);
+  assert.match(workflow, /secrets\.LIVE_CASH_REVOKED_TEST_INVITE_CODE/);
+  assert.doesNotMatch(workflow, /tester-access\.private\.json/);
 });
 
 test("test mirror uses exactly the dedicated TEST_DB binding and invite gate", async () => {
@@ -110,11 +107,14 @@ test("isolated TEST_DB invite sync rotates hashes without touching production", 
   assert.doesNotMatch(db, /LCO-TEST-/);
   const seedHashes = [...seed.matchAll(/'([a-f0-9]{64})'/g)].map((match) => match[1]);
   assert.equal(new Set(seedHashes).size, 5);
-  for (const hash of new Set(seedHashes)) assert.match(db, new RegExp(hash));
-  assert.doesNotMatch(workflow, /secrets\.LIVE_CASH_TEST_SMOKE_CODE/);
-  assert.match(workflow, /test-invites\/tester-access\.private\.json/);
+  assert.match(db, /testMirrorInvitesFromSecret/);
+  assert.doesNotMatch(db, new RegExp([...new Set(seedHashes)].join("|")));
+  assert.match(workflow, /secrets\.LIVE_CASH_TEST_SMOKE_CODE/);
+  assert.match(workflow, /secrets\.LIVE_CASH_REVOKED_TEST_INVITE_CODE/);
+  assert.match(workflow, /LIVE_CASH_TEST_INVITE_BUNDLE/);
   assert.match(workflow, /api\/test-invite-bootstrap/);
-  assert.match(workflow, /Recoverable tester-05 invite expected 200/);
+  assert.match(workflow, /Revoked historical invite expected 401/);
+  assert.match(workflow, /test_api_status/);
   assert.match(workflow, /x-live-cash-profile-code: LCO-AAAAAAAAAAAAAAAAAAAA/);
   assert.match(workflow, /d1\[0\]\?\.binding !== "TEST_DB"/);
   assert.match(workflow, /binding === "DB"/);

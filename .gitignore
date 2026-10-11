@@ -35,3 +35,7 @@ models/
 
 # Generated exports
 exports/
+
+# Local test-mirror bearer credentials (never commit)
+apps/live-cash-os/test-invites/*.private.json
+apps/live-cash-os/test-invites/*.secret.json

@@ -1,62 +1,19 @@
 # Test invite foundation
 
-Status: `IMPLEMENTED / ISOLATED TEST D1 / RECOVERABLE PRIVATE-REPO CODES`
+Status: `IMPLEMENTED / ISOLATED TEST D1 / SECRET-BACKED CREDENTIALS`
 
-This folder provides a small closed test-mirror access layer without changing
-the production site, production D1 database, learner-state schema, or curriculum.
+The test mirror is closed without committing recoverable bearer credentials. The public repository contains no plaintext invite source of truth.
 
-## Current operating model
+## Security contract
 
-For the current closed testing phase, operational simplicity is preferred over
-one-time-secret handling:
+- Plaintext tester codes live only in an external password/secret manager and are distributed out of band.
+- GitHub Actions receives `LIVE_CASH_TEST_SMOKE_CODE` for the current smoke credential and `LIVE_CASH_REVOKED_TEST_INVITE_CODE` for a historical credential that must remain rejected.
+- Runtime receives `LIVE_CASH_TEST_INVITE_BUNDLE`, a JSON secret containing only labels, SHA-256 hashes, and creation timestamps. `/api/test-invite-bootstrap` synchronises those hashes into the isolated `TEST_DB` and never returns credential material.
+- Production receives neither `TEST_DB`, `TEST_INVITE_MODE`, nor the test invite bundle.
+- Local files matching `test-invites/*.private.json` or `test-invites/*.secret.json` are ignored and must never be committed.
 
-- plaintext bearer codes are intentionally stored in
-  `tester-access.private.json` inside this private repository;
-- TEST_DB and runtime source still use SHA-256 hashes for invite matching;
-- the deploy smoke reads `tester-01` from the recoverable private file instead
-  of depending on an unrecoverable GitHub Actions secret;
-- production never receives `TEST_DB` or `TEST_INVITE_MODE` and does not expose
-  the test bootstrap endpoint;
-- learner progress remains separate from the access-code file.
+## Rotation contract
 
-Treat repository access as equivalent to access to the test mirror while this
-model is active. Do not copy the access file into public issues, logs, artifacts,
-or a public repository.
+Generate a new batch locally with `node scripts/generate-test-invite-codes.mjs --count=5`. Store the plaintext output outside Git, update the hash-only `LIVE_CASH_TEST_INVITE_BUNDLE` secret, and update `LIVE_CASH_TEST_SMOKE_CODE` to one current code. Keep one previously exposed code in `LIVE_CASH_REVOKED_TEST_INVITE_CODE` only long enough for the deploy smoke to prove it returns `401`; then it may be removed after Master records the evidence.
 
-## Integration contract
-
-1. The Cloudflare D1 database for `live-cash-os-mobile-test` remains separate
-   from production and is bound only as `TEST_DB`.
-2. `tester-access.private.json` is the recoverable source of truth for the five
-   current plaintext test codes.
-3. `db/index.ts` and the reviewable seed migration contain the matching hashes.
-4. After a test-mirror deploy, `/api/test-invite-bootstrap` synchronises those
-   hashes into TEST_DB. An existing label is rotated only when its hash changes.
-5. `tester-06` is explicitly removed as part of the current rotation.
-6. A later manual `active = 0` revocation stays durable while that label/hash is
-   unchanged; a deliberate code rotation reactivates that label.
-7. The deploy smoke must prove an unknown code returns `AUTH_REQUIRED` and the
-   recoverable `tester-01` code returns `200`.
-8. State compatibility, conflict handling, local backup and learner-evidence
-   semantics remain unchanged.
-
-## Rotating codes later
-
-Generate a new batch locally with:
-
-```sh
-node scripts/generate-test-invite-codes.mjs --count=5
-```
-
-Then replace the five plaintext entries in `tester-access.private.json`, update
-the corresponding hashes in `db/index.ts` and the reviewable seed migration,
-and merge only after CI. The next exact-main test-mirror deploy performs the
-rotation.
-
-## Non-goals
-
-- No production D1 database or production binding is changed by this flow.
-- No application account system is introduced; these are simple bearer codes
-  for a small closed test group.
-- This model is intentionally less strict than one-time secret distribution and
-  can be hardened later when wider external testing makes that worthwhile.
+Because this repository was public while earlier plaintext bearer codes were tracked, deleting the file from HEAD cannot erase historical exposure. Rotation/revocation is mandatory; history rewrite is optional defense-in-depth and is not required once all historical credentials are unusable.

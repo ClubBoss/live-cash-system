@@ -1,5 +1,7 @@
+-- RETIRED: historical hash snapshot only; runtime bootstrap uses the secret-backed invite bundle.
+-- These hashes correspond to credentials exposed by repository history and MUST NOT be reactivated.
 -- Test mirror only. Never apply this migration to the production D1 database.
--- SHA-256 hashes mirror the recoverable plaintext test-only access file.
+-- SHA-256 hashes are retained only as a revocation/audit reference; no plaintext source is tracked.
 -- Runtime sync rotates an existing label only when its hash changes, so a later
 -- manual active=0 revocation remains durable when the hash is unchanged.
 

@@ -26,13 +26,18 @@ const TEST_MIRROR_DDL = [
     ON test_invites (active, code_hash)`,
 ] as const;
 
-const TEST_MIRROR_INVITES = [
-  ["tester-01", "0a2844ad94684166327709ed86c50d8fbc43c79197f34108fcc29204b95da4c2", "2026-08-10T11:42:00.000Z"],
-  ["tester-02", "0be9f311d0d0fe7f64b24c371ada4a36a35d338691f4b6102072b749079530cd", "2026-08-10T11:42:00.000Z"],
-  ["tester-03", "2c01618041506f785553954a13b025a28eaf50595ea8d2bfb97e1e09508d4f9f", "2026-08-10T11:42:00.000Z"],
-  ["tester-04", "1cc2ba418509a45144731135ac330337a801d07f673de10cc7f50751f215fa78", "2026-08-10T11:42:00.000Z"],
-  ["tester-05", "bf07be0d255623fabd2a61a2820116d9e1738971cdb88bfea1269f0b9ba7e416", "2026-08-10T11:42:00.000Z"],
-] as const;
+type TestMirrorInvite = { label: string; codeHash: string; createdAt: string };
+
+function testMirrorInvitesFromSecret(): TestMirrorInvite[] {
+  const encoded = (env as unknown as { LIVE_CASH_TEST_INVITE_BUNDLE?: string }).LIVE_CASH_TEST_INVITE_BUNDLE?.trim();
+  if (!encoded) throw new Error("Test mirror invite bundle is unavailable");
+  const parsed = JSON.parse(encoded) as { invites?: TestMirrorInvite[] };
+  const invites = parsed.invites ?? [];
+  if (invites.length < 1 || invites.some((invite) => !/^tester-[0-9]{2}$/.test(invite.label) || !/^[a-f0-9]{64}$/.test(invite.codeHash))) {
+    throw new Error("Test mirror invite bundle is invalid");
+  }
+  return invites;
+}
 
 const TEST_MIRROR_INVITE_UPSERT = `
   INSERT INTO test_invites (label, code_hash, active, created_at)
@@ -57,11 +62,9 @@ async function bootstrapTestMirrorSchema(database: D1Database): Promise<void> {
     await database.prepare(statement).run();
   }
 
-  // The private repository access file is the recoverable test-only source of
-  // truth. Source code and TEST_DB still store/compare only SHA-256 hashes.
-  // A label rotates only when the hash changes; an unchanged manually revoked
-  // row therefore remains revoked across later cold starts/deploys.
-  for (const [label, codeHash, createdAt] of TEST_MIRROR_INVITES) {
+  // GitHub/Cloudflare secret material supplies only hashes to runtime; plaintext
+  // bearer codes never enter the repository or bootstrap response/logs.
+  for (const { label, codeHash, createdAt } of testMirrorInvitesFromSecret()) {
     await database.prepare(TEST_MIRROR_INVITE_UPSERT).bind(label, codeHash, createdAt).run();
   }
 
