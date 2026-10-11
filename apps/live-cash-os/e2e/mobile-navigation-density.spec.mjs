@@ -78,5 +78,27 @@ for (const viewport of [
     await expect(page).toHaveURL(/\/mastery\/study$/);
     await expect(page.getByRole("navigation", { name: "Practical Mastery navigation" })
       .getByRole("link", { name: "After play", exact: true })).toHaveAttribute("aria-current", "page");
+
+    // The theme animates link colors for 160ms. Assert the settled contrast,
+    // not a transient intermediate color during the theme transition.
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "dark";
+      document.documentElement.style.colorScheme = "dark";
+    });
+    const darkNav = page.getByRole("navigation", { name: "Practical Mastery navigation" });
+    const readableInactive = [
+      darkNav.getByRole("link", { name: "Home", exact: true }),
+      darkNav.getByTestId("data-recovery-entry"),
+      darkNav.getByRole("link", { name: "Real hands →", exact: true }),
+    ];
+    for (const link of readableInactive) {
+      await expect.poll(async () => {
+        return link.evaluate((el) => {
+          const match = getComputedStyle(el).color.match(/\d+/g);
+          return match ? Math.min(...match.slice(0, 3).map(Number)) : 0;
+        });
+      }, { message: "Settled dark navigation labels must be readable" }).toBeGreaterThan(175);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
   });
 }
