@@ -70,7 +70,7 @@ export default function PracticalFirstJourneyExperience({
   useEffect(() => {
     if (!practiceStarted || !decision) return;
     (answerRevealed ? feedbackHeadingRef.current : questionHeadingRef.current)?.focus();
-  }, [practiceStarted, answerRevealed, decision?.id]);
+  }, [practiceStarted, answerRevealed, decision]);
 
   const recordedDecisionAttemptCount = decision ? practicalDecisionAttemptCount(state, decision.id) : 0;
   const currentDecisionAttemptRecorded = Boolean(decision && answerRevealed && answeredDecisionId === decision.id);
