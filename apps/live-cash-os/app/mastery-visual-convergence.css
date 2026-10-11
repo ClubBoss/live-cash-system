@@ -13,6 +13,40 @@
   color: var(--ink);
 }
 
+/* Keep sync authority visible without making the language/data controls wrap. */
+.practical-mastery-nav__identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.practical-mastery-nav__sync {
+  margin: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.practical-mastery-nav__utilities {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+.practical-mastery-nav__utilities .mode-switch {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 7px;
+  margin: 0;
+}
+.practical-mastery-nav__utilities .mode-switch button { flex: 0 0 auto; }
+.practical-mastery-nav__utilities .practical-mastery-nav__data {
+  min-height: 44px;
+  padding: 7px 10px;
+  flex: 0 0 auto;
+  flex-direction: row;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
 .practical-mastery-nav__rail {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -184,6 +218,12 @@
     gap: 10px;
   }
   .practical-mastery-nav__brand { padding-left: 2px; font-size: 13px; }
+  .practical-mastery-nav__sync { font-size: 12px; }
+  .practical-mastery-nav__utilities .mode-switch button {
+    min-width: 64px;
+    min-height: 44px;
+    padding: 8px 10px;
+  }
   .practical-mastery-nav__rail {
     display: flex;
     overflow-x: auto;
