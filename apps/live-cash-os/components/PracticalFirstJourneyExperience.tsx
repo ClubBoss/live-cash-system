@@ -69,7 +69,11 @@ export default function PracticalFirstJourneyExperience({
   // This also restores a meaningful focus point after feedback and Next.
   useEffect(() => {
     if (!practiceStarted || !decision) return;
-    (answerRevealed ? feedbackHeadingRef.current : questionHeadingRef.current)?.focus();
+    const heading = answerRevealed ? feedbackHeadingRef.current : questionHeadingRef.current;
+    heading?.focus();
+    // Focusing a heading may leave it at the bottom of a narrow viewport.
+    // Make the newly revealed causal feedback readable immediately.
+    if (answerRevealed) heading?.scrollIntoView({ block: "start", behavior: "auto" });
   }, [practiceStarted, answerRevealed, decision]);
 
   const recordedDecisionAttemptCount = decision ? practicalDecisionAttemptCount(state, decision.id) : 0;
@@ -225,12 +229,12 @@ export default function PracticalFirstJourneyExperience({
       <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
       <h1>{locale === "ru" ? journeyStep.titleRu : journeyStep.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
-      <p className="support">{ruleAlreadyLearned
-        ? (locale === "ru" ? "Это новый узел на уже знакомом механизме: правило не учим заново, а переносим в другую игровую ситуацию." : "This is a new node using a mechanism you already know: do not relearn the rule; transfer it to a different game situation.")
-        : (locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example.")}</p>
       <a className="secondary quick-start-explanation-link" href="#quick-start-material">
         {locale === "ru" ? "Перейти к объяснению" : "Go to explanation"} <span aria-hidden="true">↓</span>
       </a>
+      <p className="support">{ruleAlreadyLearned
+        ? (locale === "ru" ? "Это новый узел на уже знакомом механизме: правило не учим заново, а переносим в другую игровую ситуацию." : "This is a new node using a mechanism you already know: do not relearn the rule; transfer it to a different game situation.")
+        : (locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example.")}</p>
     </section> : <header className="quick-start-practice-context">
       <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
       <h1>{locale === "ru" ? journeyStep.titleRu : journeyStep.titleEn}</h1>

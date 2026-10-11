@@ -11,6 +11,7 @@ async function storedAttemptCount(page) {
 
 for (const viewport of [
   { name: "desktop-1440", width: 1440, height: 900 },
+  { name: "mobile-320", width: 320, height: 700 },
   { name: "mobile-390", width: 390, height: 844 },
 ]) {
   test(`Quick Start is explanation-first and task-first after beginning on ${viewport.name}`, async ({ page }) => {
@@ -49,7 +50,15 @@ for (const viewport of [
     await decision.locator("fieldset").nth(0).locator('input[type="radio"]').first().check();
     await decision.locator("fieldset").nth(1).locator('input[type="radio"]').first().check();
     await page.getByRole("button", { name: /Ответить|Answer/ }).last().click();
-    await expect(page.locator(".quick-start-decision h3")).toBeFocused();
+    const feedbackHeading = page.locator(".quick-start-decision h3");
+    await expect(feedbackHeading).toBeFocused();
+    await expect(feedbackHeading).toBeInViewport({ ratio: 1 });
+    const feedbackBox = await feedbackHeading.boundingBox();
+    expect(feedbackBox).not.toBeNull();
+    expect(feedbackBox.y).toBeGreaterThanOrEqual(0);
+    // The document may end before the heading can be aligned to y=0.
+    // The useful invariant is early, fully visible feedback, not a fixed pixel.
+    expect(feedbackBox.y).toBeLessThan(viewport.height * 0.35);
     expect(await storedAttemptCount(page)).toBe(attemptsBefore + 1);
   });
 }

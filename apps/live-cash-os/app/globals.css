@@ -231,6 +231,7 @@ p { line-height: 1.55; }
 .quick-start-practice-context h1 { margin: 8px 0 0; font-size: clamp(24px, 3.2vw, 32px); line-height: 1.15; letter-spacing: -.03em; }
 .quick-start-decision h2 { font-size: clamp(26px, 3.5vw, 36px); line-height: 1.12; letter-spacing: -.035em; }
 .quick-start-decision h2:focus, .quick-start-decision h3:focus { outline: 2px solid var(--focus); outline-offset: 4px; }
+.quick-start-decision h3 { scroll-margin-top: 18px; }
 
 @media (max-width: 650px) {
   .quick-start-intro { padding: 16px 0 12px; }
