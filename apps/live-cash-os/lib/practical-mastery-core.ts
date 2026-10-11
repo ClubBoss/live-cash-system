@@ -22,6 +22,10 @@ export const PRACTICAL_ATTEMPT_DIGEST_HISTORY_LIMIT = 512;
 export const PRACTICAL_MASTERY_CONTENT_VERSION = "2026.09-practical-mastery-v4-4bp-objective-revision";
 export const PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION = "A7_RU_REASON_POLARITY_V2";
 export const PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION = "4BP_OBJECTIVE_SPECIFIC_V3";
+// TRC only changes wrong-option meanings; correct canonical evidence is unchanged.
+export const PRACTICAL_TRC_DISTRACTOR_SEMANTIC_REVISION = "TRC_SCENARIO_DISTRACTORS_V2";
+const REWRITTEN_TRC_DECISION_ID = /^PM-(?:FND-05|FND-07|BL-10|W4-HAND-01)-TRC-10\d$/u;
+function requiresTrcDistractorRevision(decisionId: string): boolean { return REWRITTEN_TRC_DECISION_ID.test(decisionId); }
 const REWRITTEN_4BP_DECISION_ID = /^PM-4BP-0[1-4]-A7-(?:10[1-8])$/u;
 function requires4BpObjectiveSemanticRevision(decisionId: string): boolean { return REWRITTEN_4BP_DECISION_ID.test(decisionId); }
 function requiresA7RuReasonSemanticRevision(decisionId: string): boolean { return /^PM-(?:3BP|4BP)-\d{2}-A7-\d+$/u.test(decisionId); }
@@ -392,6 +396,14 @@ export function isCurrentPracticalEvidenceAttempt(attempt: unknown): attempt is 
   if (requiresA7RuReasonSemanticRevision(attempt.decisionId) && attempt.reasonId !== decision.correctReasonId) {
     return attempt.semanticRevision === PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION;
   }
+  // TRC scenario-specific wrong options changed their causal meaning. An old
+  // wrong action c or wrong reason r2/r3 must not claim the new misconception.
+  // Previously correct a+r1 and unchanged b+r1 attempts remain valid evidence.
+  // Old attempts remain structurally valid, archived and unchanged.
+  if (requiresTrcDistractorRevision(attempt.decisionId)
+    && (attempt.actionId === "c" || attempt.reasonId === "r2" || attempt.reasonId === "r3")) {
+    return attempt.semanticRevision === PRACTICAL_TRC_DISTRACTOR_SEMANTIC_REVISION;
+  }
   return true;
 }
 
@@ -539,7 +551,8 @@ export function recordPracticalDecision(state: PracticalMasteryState, input: { d
   const confidence = Math.max(0, Math.min(100, Math.round(input.confidence))); const correct = input.actionId === decision.correctActionId && input.reasonId === decision.correctReasonId; const answeredAt = nowIso(input.now);
   const semanticRevision = requires4BpObjectiveSemanticRevision(decision.id)
     ? PRACTICAL_4BP_OBJECTIVE_SEMANTIC_REVISION
-    : requiresA7RuReasonSemanticRevision(decision.id) ? PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION : undefined;
+    : requiresA7RuReasonSemanticRevision(decision.id) ? PRACTICAL_A7_RU_REASON_SEMANTIC_REVISION
+    : requiresTrcDistractorRevision(decision.id) ? PRACTICAL_TRC_DISTRACTOR_SEMANTIC_REVISION : undefined;
   const attempt: PracticalAttempt = { id: `${decision.id}:${state.revision + 1}:${answeredAt}`, decisionId: decision.id, skillId: decision.skillId, actionId: input.actionId, reasonId: input.reasonId, confidence, confidenceProvenance: input.confidenceProvenance ?? "NOT_CAPTURED", correct, answeredAt, ...(semanticRevision ? { semanticRevision } : {}) };
   const next: PracticalMasteryState = structuredClone(state); const nextProgress = next.skills[decision.skillId]; nextProgress.attempts += 1;
   if (correct) { nextProgress.correct += 1; if (!nextProgress.successfulDecisionIds.includes(decision.id)) nextProgress.successfulDecisionIds.push(decision.id); if (decision.kind === "recognition") nextProgress.recognitionCorrect += 1; if (decision.kind === "decision") nextProgress.directDecisionCorrect += 1; if (decision.kind === "changed") nextProgress.changedCorrect += 1; if (decision.kind === "boundary") nextProgress.boundaryCorrect += 1; if (decision.kind === "mixed") nextProgress.mixedCorrect += 1; if (nextProgress.lastIncorrectDecisionId === decision.id) nextProgress.lastIncorrectDecisionId = null; } else nextProgress.lastIncorrectDecisionId = decision.id;

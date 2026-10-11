@@ -1,12 +1,19 @@
 import type { PracticalDecision } from "./types";
+import { trcScenarioDistractors, type TrcWrongOption } from "./target-reachability-distractors";
 
 const o = (id: string, textRu: string, textEn: string, misconception?: string) => ({ id, textRu, textEn, misconception });
-const d = (id: string, skillId: string, kind: PracticalDecision["kind"], sourceRefs: string[], cueRu: string, cueEn: string, questionRu: string, questionEn: string, goodRu: string, goodEn: string, whyRu: string, whyEn: string, badRu: string, badEn: string, changedVariables?: string[]): PracticalDecision => ({
-  id, skillId, kind, sourceRefs, assumptions: [], cueRu, cueEn, questionRu, questionEn,
-  actionOptions: [o("a", goodRu, goodEn), o("b", badRu, badEn, "TARGET_REACHABILITY_DISTRACTOR"), o("c", "Нужна другая причинная проверка", "A different causal check is required", "TARGET_REACHABILITY_DISTRACTOR")],
-  reasonOptions: [o("r1", whyRu, whyEn), o("r2", "Исходного примера достаточно, потому что новое условие не меняет механизм", "The original example is enough because the new condition does not change the mechanism", "MEMORIZATION_SHORTCUT"), o("r3", "Контекст линии можно игнорировать, если название ситуации осталось тем же", "The line context can be ignored when the situation keeps the same label", "CONTEXT_IGNORED")],
-  correctActionId: "a", correctReasonId: "r1", targetSeconds: 25, explanationRu: whyRu, explanationEn: whyEn, changedVariables,
-});
+const wrong = (id: string, option: TrcWrongOption) => o(id, option[0], option[1], option[2]);
+const d = (id: string, skillId: string, kind: PracticalDecision["kind"], sourceRefs: string[], cueRu: string, cueEn: string, questionRu: string, questionEn: string, goodRu: string, goodEn: string, whyRu: string, whyEn: string, badRu: string, badEn: string, changedVariables?: string[]): PracticalDecision => {
+  const distractors = trcScenarioDistractors[id];
+  // No generic fallback: new closure questions must receive a reviewed scenario-specific wrong set.
+  if (!distractors) throw new Error("Unreviewed TRC distractors: " + id);
+  return {
+    id, skillId, kind, sourceRefs, assumptions: [], cueRu, cueEn, questionRu, questionEn,
+    actionOptions: [o("a", goodRu, goodEn), o("b", badRu, badEn, "TARGET_REACHABILITY_DISTRACTOR"), wrong("c", distractors.c)],
+    reasonOptions: [o("r1", whyRu, whyEn), wrong("r2", distractors.r2), wrong("r3", distractors.r3)],
+    correctActionId: "a", correctReasonId: "r1", targetSeconds: 25, explanationRu: whyRu, explanationEn: whyEn, changedVariables,
+  };
+};
 
 export const targetReachabilityClosureDecisions: PracticalDecision[] = [
   d("PM-FND-05-TRC-101","FND-05","recognition",["FTGU-E11"],"На флопе часть карт уже видна.","Some cards are visible on the flop.","Что происходит с исходным числом комбинаций?","What happens to the starting combo count?","Убираем комбинации, содержащие известные карты","Remove combos containing known cards","Известные карты удаляют содержащие их комбинации из доступного диапазона.","Known cards remove combinations containing them from the available range.","Оставляем исходное число префлоп-комбинаций","Keep the original preflop count"),
