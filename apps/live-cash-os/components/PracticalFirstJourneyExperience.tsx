@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { firstJourneyStepForSkill } from "../content/practical-mastery/first-journey";
 import { practicalAnchors, practicalDecisionById, practicalRuleById, practicalSkillById } from "../content/practical-mastery";
 import {
@@ -47,6 +47,8 @@ export default function PracticalFirstJourneyExperience({
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
   const [continuityChecked, setContinuityChecked] = useState(false);
   const [practiceHelpOpen, setPracticeHelpOpen] = useState(false);
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const feedbackHeadingRef = useRef<HTMLHeadingElement>(null);
 
   const recommendation = useMemo(() => recommendFirstJourneyStep(state), [state]);
   const progress = useMemo(() => firstJourneyProgress(state), [state]);
@@ -61,6 +63,18 @@ export default function PracticalFirstJourneyExperience({
   const contrastAnchor = skillAnchors.find((item) => item.kind === "changed" || item.kind === "boundary") ?? null;
   const nextDecision = skill && state.skills[skill.id]?.conceptTaught ? nextFirstJourneyDecision(state, skill.id) : null;
   const decision = answeredDecisionId ? practicalDecisionById.get(answeredDecisionId) ?? nextDecision : nextDecision;
+
+  // When the teaching view contracts into practice, put keyboard/screen-reader
+  // focus on the actual decision rather than leaving it on a removed button.
+  // This also restores a meaningful focus point after feedback and Next.
+  useEffect(() => {
+    if (!practiceStarted || !decision) return;
+    const heading = answerRevealed ? feedbackHeadingRef.current : questionHeadingRef.current;
+    heading?.focus();
+    // Focusing a heading may leave it at the bottom of a narrow viewport.
+    // Make the newly revealed causal feedback readable immediately.
+    if (answerRevealed) heading?.scrollIntoView({ block: "start", behavior: "auto" });
+  }, [practiceStarted, answerRevealed, decision]);
 
   const recordedDecisionAttemptCount = decision ? practicalDecisionAttemptCount(state, decision.id) : 0;
   const currentDecisionAttemptRecorded = Boolean(decision && answerRevealed && answeredDecisionId === decision.id);
@@ -210,18 +224,24 @@ export default function PracticalFirstJourneyExperience({
 
   if (!skill || !journeyStep) return <main style={{ maxWidth: 820, margin: "0 auto", padding: 24 }}><p>{locale === "ru" ? "Сохранённый шаг больше недоступен. Вернись к карте обучения." : "The saved step is no longer available. Return to the learning map."}</p><Link href="/mastery">{locale === "ru" ? "Карта обучения" : "Learning map"} →</Link></main>;
 
-  return <main style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
-    <section className="hero compact-hero">
+  return <main data-quick-start-phase={practiceStarted ? "practice" : "teach"} style={{ maxWidth: 820, margin: "0 auto", padding: "24px 20px 64px" }}>
+    {!practiceStarted ? <section className="hero quick-start-intro">
       <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
       <h1>{locale === "ru" ? journeyStep.titleRu : journeyStep.titleEn}</h1>
       <p>{locale === "ru" ? journeyStep.purposeRu : journeyStep.purposeEn}</p>
+      <a className="secondary quick-start-explanation-link" href="#quick-start-material">
+        {locale === "ru" ? "Перейти к объяснению" : "Go to explanation"} <span aria-hidden="true">↓</span>
+      </a>
       <p className="support">{ruleAlreadyLearned
         ? (locale === "ru" ? "Это новый узел на уже знакомом механизме: правило не учим заново, а переносим в другую игровую ситуацию." : "This is a new node using a mechanism you already know: do not relearn the rule; transfer it to a different game situation.")
         : (locale === "ru" ? "Это уже обучение, не входной тест: сначала коротко разберём идею и термины, затем проверим её на примере." : "This is already learning, not an entrance test: first we explain the idea and terms, then you try an example.")}</p>
-    </section>
+    </section> : <header className="quick-start-practice-context">
+      <p className="eyebrow">{locale === "ru" ? `БЫСТРЫЙ СТАРТ · ШАГ ${journeyStep.order} ИЗ ${progress.total}` : `QUICK START · STEP ${journeyStep.order} OF ${progress.total}`}</p>
+      <h1>{locale === "ru" ? journeyStep.titleRu : journeyStep.titleEn}</h1>
+    </header>}
 
     {!practiceStarted ? <>
-      <section className="today-card" style={{ marginTop: 20 }}>
+      <section id="quick-start-material" className="today-card" style={{ marginTop: 20 }}>
         <p className="eyebrow">{locale === "ru" ? "ГДЕ ЭТО НУЖНО" : "WHERE THIS MATTERS"}</p>
         <p>{locale === "ru" ? journeyStep.tableUseRu : journeyStep.tableUseEn}</p>
       </section>
@@ -256,9 +276,9 @@ export default function PracticalFirstJourneyExperience({
       </section>
     </> : null}
 
-    {practiceStarted && decision ? <section className="today-card" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
+    {practiceStarted && decision ? <section className="today-card quick-start-decision" style={{ marginTop: 20 }} data-practical-decision-id={decision.id}>
       <p className="eyebrow">{locale === "ru" ? (journeyStep.requiresHiddenCue ? "САМОСТОЯТЕЛЬНАЯ ПРОВЕРКА" : "ТЕПЕРЬ ТЫ") : (journeyStep.requiresHiddenCue ? "INDEPENDENT CHECK" : "YOUR TURN")}</p>
-      <h2>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
+      <h2 ref={questionHeadingRef} tabIndex={-1}>{locale === "ru" ? decision.cueRu : decision.cueEn}</h2><p>{locale === "ru" ? decision.questionRu : decision.questionEn}</p>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Действие / вывод" : "Action / conclusion"}</b></legend>{presentedActionOptions.map((option) => <label key={option.id} className="practical-option-row"><input type="radio" value={option.id} name={`${decision.id}-a`} checked={actionId === option.id} disabled={answerRevealed} onChange={() => selectAction(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       <fieldset style={{ border: 0, padding: 0, margin: "16px 0" }}><legend><b>{locale === "ru" ? "Почему" : "Why"}</b></legend>{presentedReasonOptions.map((option) => <label key={option.id} className="practical-option-row"><input type="radio" value={option.id} name={`${decision.id}-r`} checked={reasonId === option.id} disabled={answerRevealed} onChange={() => selectReason(option.id)} /> {locale === "ru" ? option.textRu : option.textEn}</label>)}</fieldset>
       {!answerRevealed ? <>
@@ -271,7 +291,7 @@ export default function PracticalFirstJourneyExperience({
         </> : null}
         <button className="primary" disabled={!actionId || !reasonId} onClick={submitDecision}>{locale === "ru" ? "Ответить" : "Answer"} <span>→</span></button>
       </> : <div>
-        <h3>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
+        <h3 ref={feedbackHeadingRef} tabIndex={-1}>{lastCorrect ? (locale === "ru" ? "Верно" : "Correct") : (locale === "ru" ? "Нужно исправить" : "Repair needed")}</h3>
         <PracticalDecisionFeedback decision={decision} locale={locale} correct={Boolean(lastCorrect)} selectedActionId={actionId} selectedReasonId={reasonId} />
         <p className="support">{locale === "ru" ? "Это только первый контакт с навыком. Система вернёт его в новых ситуациях и позже проверит после паузы." : "This is only the first contact with the skill. The system will revisit it in new situations and later after a delay."}</p>
         <button className="secondary" onClick={advanceDecision}>{locale === "ru" ? "Следующий пример" : "Next example"} <span>→</span></button>
